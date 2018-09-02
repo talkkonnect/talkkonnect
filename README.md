@@ -7,33 +7,33 @@ Developed to be run on Raspberry Pi 3 b+
 
 ===Hardware Improvements===
 
-*     Use External Mic and push buttons on the device for Channel Up/Down navigation
-*     Has a 4×20 LCD Screen
-*     Has a built in Amplifier using the TDA2030 Chip
-*     Has a volume adjustment knob
-*     Self contained unit with all power supplies built in
-*     Female RJ45 connector at the back for network connectivity
-*     4 LEDs that show status such as online, other participants in channel, Transmit Mode and an LED that flashes as there is voice activity
+*Use External Mic and push buttons on the device for Channel Up/Down navigation
+*Has a 4×20 LCD Screen
+*Has a built in Amplifier using the TDA2030 Chip
+*Has a volume adjustment knob
+*Self contained unit with all power supplies built in
+*Female RJ45 connector at the back for network connectivity
+*4 LEDs that show status such as online, other participants in channel, Transmit Mode and an LED that flashes as there is voice activity
 
 === Software Improvements ===
 
-*     Colorized LOGS on debugging terminal for events as they happen
-*     Can play an alert sound as events happen
-**   A Roger Beep like effect that lets the remote party that you have released the PTT button 
-**    A beep up on someone join the channel
-*     Mutes Speaker when pressing PTT to prevent feedback and give a radio like experience
-*     Channel seek
-*     LCD with useful information for showing status, channel joined, who is speaking, etc.
+*Colorized LOGS on debugging terminal for events as they happen
+*Can play an alert sound as events happen
+**A Roger Beep like effect that lets the remote party that you have released the PTT button 
+**A beep up on someone join the channel
+*Mutes Speaker when pressing PTT to prevent feedback and give a radio like experience
+*Channel seek
+*LCD with useful information for showing status, channel joined, who is speaking, etc.
 
 === Installation Instructions ===
 
-* 1. Go to get the latest version of RASPBIAN LITE
+*1. Go to get the latest version of RASPBIAN LITE
 at the time of making this document version downloaded was June 2018 Release Date 2018-06-27 Kernel Version 4.14
-* 2. Download the ZIP file and extract it to get an img file
-* 3. Use a software on windows called RUFUS to write the image to a SD Card (Becareful don't choose the wrong drive)
-* 4. After Done Insert the SD card into your Raspberry Pi 3 b+ connect the screen, keyboard and power supply and boot into the OS.
-* 5. Log in as user pi password raspberry (this is the default username and password for a fresh install of Raspbian)
-* 6. Do a sudo passwd root to set the root password 
+*2. Download the ZIP file and extract it to get an img file
+*3. Use a software on windows called RUFUS to write the image to a SD Card (Becareful don't choose the wrong drive)
+*4. After Done Insert the SD card into your Raspberry Pi 3 b+ connect the screen, keyboard and power supply and boot into the OS.
+*5. Log in as user pi password raspberry (this is the default username and password for a fresh install of Raspbian)
+*6. Do a sudo passwd root to set the root password 
 *7. Log out of the account pi and log into the root account with your newly set password.
 *8. run raspi-config and expand the file system 
 *9. Next go to interfacing options and enable ssh server

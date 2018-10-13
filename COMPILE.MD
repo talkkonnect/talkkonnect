@@ -7,3 +7,18 @@ How to build? First you will need some libraries
 * go get github.com/talkkonnect/talkkonnect
 * cd $GOPATH/src/github.com/talkkonnect/talkkonnect
 * go build -o /home/mumble/bin/talkkonnect cmd/talkkonnect/main.go
+
+Before Running talkkonnect you will need to Create a certificate
+
+This is optional, mainly if you want to register your talkkonnect against a mumble server and apply ACLs.
+
+* su mumble
+* cd ~
+* openssl genrsa -aes256 -out key.pem
+Enter a simple passphrase, its ok, we will remove it shortly...
+* openssl req -new -x509 -key key.pem -out cert.pem -days 1095
+Enter your passphrase again, and fill out the certificate info as much as you like, its not really that important if you're just hacking around with this.
+* openssl rsa -in key.pem -out nopasskey.pem
+Enter your password for the last time.
+* cat nopasskey.pem cert.pem > mumble.pem
+

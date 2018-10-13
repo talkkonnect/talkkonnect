@@ -48,9 +48,10 @@ at the time of making this document version downloaded was June 2018 Release Dat
 19. export GOPATH=/home/mumble/gocode
 20. export GOBIN=/home/mumble/bin
 21. cd $GOPATH
-22. go get github.com/talkkonnect/talkkonnect
-23. cd $GOPATH/src/github.com/suvirkumar/talkkonnect
-24. go build -o /home/mumble/bin/talkkconnect cmd/talkkonnect/main.go
+22. go get github.com/talkkonnect/gumble
+23. go get github.com/talkkonnect/talkkonnect
+24. cd $GOPATH/src/github.com/suvirkumar/talkkonnect
+25. go build -o /home/mumble/bin/talkkconnect cmd/talkkonnect/main.go
 
 More information can be found at www.talkkonnect.com
 

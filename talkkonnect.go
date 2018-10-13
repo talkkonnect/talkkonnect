@@ -3,9 +3,9 @@ package talkkonnect
 import (
 	"crypto/tls"
 	"fmt"
-	"github.com/faiface/beep"
-	"github.com/faiface/beep/speaker"
-	"github.com/faiface/beep/wav"
+	"github.com/talkkonnect/beep"
+	"github.com/talkkonnect/beep/speaker"
+	"github.com/talkkonnect/beep/wav"
 	"github.com/talkkonnect/gpio"
 	"github.com/talkkonnect/gumble/gumble"
 	"github.com/talkkonnect/gumble/gumbleffmpeg"

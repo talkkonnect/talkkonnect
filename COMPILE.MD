@@ -1,5 +1,10 @@
 How to build? First you will need some libraries 
-* install required librarys: LibOpenAl, LibAsound
+
+First Create a user called mumble
+* adduser --disabled-password --disabled-login --gecos "" mumble
+* usermod -a -G cdrom,audio,video,plugdev,users,dialout,dip,input,gpio mumble
+
+Then Install required librarys: LibOpenAl, LibAsound 
 * on raspbian apt-get install libasound-dev libopenal-dev
 * export the GOPATH & GOBIN directorys using env variables:
 * export GOPATH=/home/mumble/go

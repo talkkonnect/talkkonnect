@@ -14,7 +14,7 @@ import (
 	"strconv"
 	//	"strings"
 	"github.com/comail/colog"
-	term "github.com/talkkonnect/nsf/termbox-go"
+	term "github.com/talkkonnect/termbox-go"
 	"io"
 	"log"
 	"time"

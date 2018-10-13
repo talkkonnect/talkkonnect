@@ -1,14 +1,14 @@
 A Headless Mumble Client Based on Raspberry Pi (Intercom)
 
 talKKonnect is a headless self contained mumble Push to Talk (PTT) client with a mobile transceiver form factor complete with LCD, Channel and Volume control.
-This project is a fork of talkiepi by Daniel Chote. You can find Daniel’s page here http://projectable.me/
+This project is a fork of talkiepi by Daniel Chote. You can find Danielâ€™s page here http://projectable.me/
 Developed to be run on Rasperry Pi 3 b+
 
 
 Hardware Improvements
 
 Use External Mic and push buttons on the device for Channel Up/Down navigation
-Has a 4×20 LCD Screen
+Has a 4Ã—20 LCD Screen
 Has a built in Amplifier using the TDA2030 Chip
 Has a volume adjustment knob
 Self contained unit with all power supplies built in
@@ -50,7 +50,7 @@ at the time of making this document version downloaded was June 2018 Release Dat
 21. cd $GOPATH
 22. go get github.com/talkkonnect/talkkonnect
 23. cd $GOPATH/src/github.com/suvirkumar/talkkonnect
-24.go build -o /home/mumble/bin/talkkconnect cmd/talkkonnect/main.go
+24. go build -o /home/mumble/bin/talkkconnect cmd/talkkonnect/main.go
 
 More information can be found at www.talkkonnect.com
 

@@ -1,8 +1,0 @@
-language: go
-sudo: required
-go:
-  - 1.8
-script:
-  - sudo apt-get install -y pulseaudio
-  - make lint
-  - make test

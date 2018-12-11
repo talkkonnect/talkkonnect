@@ -24,7 +24,7 @@
 			<channel>root</channel>
 			<ident>Name Surname</ident>
 		</account>
-
+	</accounts>
 	<!-- Global section for setting behaviour of talkkonnect, soundsfiles paths and volumes, physical connections of pinouts for buttons and leds, lcd screen connections and usb gps parameters -->
 	<global>
 
@@ -32,14 +32,14 @@
 		<software>
 
 			<!-- Logfile Settings -->
-			<settings print="true">
+			<settings>
 				<logfilenameandpath>/var/log/talkkonnect.log</logfilenameandpath>	
 				<logging>screen</logging>
 				<daemonize>false</daemonize>
 			</settings>
 
 			<!-- http autoprovisioning specify tkid with at least 8 characters of length, Put Complete URL with http:// and define local filename and path -->
-			<autoprovisioning enabled="false" print="true">
+			<autoprovisioning enabled="false">
 				<tkid>00000001</tkid> 
 				<url>http://provision.example.com</url> 
 				<savefilepath>/home/mumble/gocode/src/github.com/talkkonnect/talkkonnect</savefilepath> 

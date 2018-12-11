@@ -4,12 +4,13 @@ import (
 	"github.com/stianeikeland/go-rpio"
 	"github.com/talkkonnect/gpio"
 	"log"
+	"strconv"
 	"time"
 )
 
 func (b *Talkkonnect) initGPIO() {
 	if err := rpio.Open(); err != nil {
-		log.Println("error: GPIO Error, ", err)
+		log.Println("alert: GPIO Error, ", err)
 		b.GPIOEnabled = false
 		return
 	} else {
@@ -25,9 +26,16 @@ func (b *Talkkonnect) initGPIO() {
 	DownButtonPinPullUp := rpio.Pin(DownButtonPin)
 	DownButtonPinPullUp.PullUp()
 
+	CommentSwitchPinPullUp := rpio.Pin(CommentSwitchPin)
+	CommentSwitchPinPullUp.PullUp()
+
 	rpio.Close()
 
 	b.TxButton = gpio.NewInput(TxButtonPin)
+
+	//create and initialize the bloody txtimer here outside the loop and let it expire so it's defined! For My SANITY!
+	TxTimeOutTimer := time.NewTimer(1 * time.Millisecond)
+
 	go func() {
 		for {
 			currentState, err := b.TxButton.Read()
@@ -38,10 +46,31 @@ func (b *Talkkonnect) initGPIO() {
 				if b.Stream != nil {
 					if b.TxButtonState == 1 {
 						log.Println("info: TX Button is released")
-						b.TransmitStop()
+						b.TransmitStop(true)
+
+						if TxTimeOutEnabled {
+							TxTimeOutTimer.Stop()
+						}
+
 					} else {
 						log.Println("info: TX Button is pressed")
 						b.TransmitStart()
+
+						if TxTimeOutEnabled {
+							log.Println("warn: Starting Tx Timeout Timer Now")
+							TxTimeOutTimer = time.NewTimer(time.Duration(TxTimeOutSecs) * time.Second)
+
+							go func() {
+								for {
+									select {
+									case <-TxTimeOutTimer.C:
+										TxTimeOutTimer.Stop()
+										b.TransmitStop(false)
+										log.Println("warn: TX Timed out After ", strconv.Itoa(TxTimeOutSecs), " Seconds.")
+									}
+								}
+							}()
+						}
 					}
 				}
 
@@ -92,14 +121,37 @@ func (b *Talkkonnect) initGPIO() {
 		}
 	}()
 
+	b.CommentSwitch = gpio.NewInput(CommentSwitchPin)
+	go func() {
+		for {
+			currentState, err := b.CommentSwitch.Read()
+
+			if currentState != b.CommentSwitchState && err == nil {
+				b.CommentSwitchState = currentState
+
+				if b.CommentSwitchState == 1 {
+					log.Println("info: Comment Switch is off setting comment to SwitchOff Message")
+					b.SetComment(CommentMessageOff)
+				} else {
+					log.Println("info: Comment Switch is on setting comment to SwitchOn Message")
+					b.SetComment(CommentMessageOn)
+				}
+			}
+
+			time.Sleep(500 * time.Millisecond)
+		}
+	}()
+
 	// then we can do our gpio stuff
 	b.OnlineLED = gpio.NewOutput(OnlineLEDPin, false)
 	b.ParticipantsLED = gpio.NewOutput(ParticipantsLEDPin, false)
 	b.TransmitLED = gpio.NewOutput(TransmitLEDPin, false)
+	b.HeartBeatLED = gpio.NewOutput(HeartBeatLEDPin, false)
+	b.BackLightLED = gpio.NewOutput(BackLightPin, false)
 }
 
 func (b *Talkkonnect) LEDOn(LED gpio.Pin) {
-	if b.GPIOEnabled == false {
+	if !(b.GPIOEnabled) {
 		return
 	}
 
@@ -107,7 +159,7 @@ func (b *Talkkonnect) LEDOn(LED gpio.Pin) {
 }
 
 func (b *Talkkonnect) LEDOff(LED gpio.Pin) {
-	if b.GPIOEnabled == false {
+	if !(b.GPIOEnabled) {
 		return
 	}
 
@@ -115,11 +167,14 @@ func (b *Talkkonnect) LEDOff(LED gpio.Pin) {
 }
 
 func (b *Talkkonnect) LEDOffAll() {
-	if b.GPIOEnabled == false {
+	if !(b.GPIOEnabled) {
 		return
 	}
 
 	b.LEDOff(b.OnlineLED)
 	b.LEDOff(b.ParticipantsLED)
 	b.LEDOff(b.TransmitLED)
+	b.LEDOff(b.TransmitLED)
+	b.LEDOff(b.HeartBeatLED)
+	b.LEDOff(b.BackLightLED)
 }

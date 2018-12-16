@@ -26,8 +26,11 @@ func (b *Talkkonnect) initGPIO() {
 	DownButtonPinPullUp := rpio.Pin(DownButtonPin)
 	DownButtonPinPullUp.PullUp()
 
-	CommentSwitchPinPullUp := rpio.Pin(CommentSwitchPin)
-	CommentSwitchPinPullUp.PullUp()
+	PanicButtonPinPullUp := rpio.Pin(PanicButtonPin)
+	PanicButtonPinPullUp.PullUp()
+
+	CommentButtonPinPullUp := rpio.Pin(CommentButtonPin)
+	CommentButtonPinPullUp.PullUp()
 
 	rpio.Close()
 
@@ -121,19 +124,39 @@ func (b *Talkkonnect) initGPIO() {
 		}
 	}()
 
-	b.CommentSwitch = gpio.NewInput(CommentSwitchPin)
+	b.PanicButton = gpio.NewInput(PanicButtonPin)
 	go func() {
 		for {
-			currentState, err := b.CommentSwitch.Read()
+			currentState, err := b.PanicButton.Read()
 
-			if currentState != b.CommentSwitchState && err == nil {
-				b.CommentSwitchState = currentState
+			if currentState != b.PanicButtonState && err == nil {
+				b.PanicButtonState = currentState
 
-				if b.CommentSwitchState == 1 {
-					log.Println("info: Comment Switch is off setting comment to SwitchOff Message")
+				if b.PanicButtonState == 1 {
+					log.Println("info: Panic Button is released")
+				} else {
+					log.Println("info: Panic Button is pressed")
+					b.commandKeyCtrlP()
+				}
+			}
+
+			time.Sleep(500 * time.Millisecond)
+		}
+	}()
+
+	b.CommentButton = gpio.NewInput(CommentButtonPin)
+	go func() {
+		for {
+			currentState, err := b.CommentButton.Read()
+
+			if currentState != b.CommentButtonState && err == nil {
+				b.CommentButtonState = currentState
+
+				if b.CommentButtonState == 1 {
+					log.Println("info: Comment Button State 1 setting comment to State 1 Message")
 					b.SetComment(CommentMessageOff)
 				} else {
-					log.Println("info: Comment Switch is on setting comment to SwitchOn Message")
+					log.Println("info: Comment Button State 2 setting comment to State 2 Message")
 					b.SetComment(CommentMessageOn)
 				}
 			}

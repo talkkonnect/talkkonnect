@@ -74,6 +74,7 @@ var (
 
 //tts
 var (
+	TTSEnabled                           bool
 	TTSVolumeLevel                       int
 	TTSParticipants                      bool
 	TTSChannelUp                         bool
@@ -191,7 +192,7 @@ var (
 
 //comment settings
 var (
-	CommentSwitchPin  uint
+	CommentButtonPin  uint
 	CommentMessageOff string
 	CommentMessageOn  string
 )
@@ -315,6 +316,7 @@ type Beacon struct {
 
 type TTS struct {
 	XMLName                              xml.Name `xml:"tts"`
+	TTSEnabled                           bool     `xml:"enabled,attr"`
 	TTSVolumeLevel                       int      `xml:"volumelevel"`
 	TTSParticipants                      bool     `xml:"participants"`
 	TTSChannelUp                         bool     `xml:"channelup"`
@@ -460,15 +462,17 @@ type HeartBeat struct {
 }
 
 type Buttons struct {
-	XMLName       xml.Name `xml:"buttons"`
-	TxButtonPin   uint     `xml:"txbuttonpin"`
-	UpButtonPin   uint     `xml:"upbuttonpin"`
-	DownButtonPin uint     `xml:"downbuttonpin"`
+	XMLName        xml.Name `xml:"buttons"`
+	TxButtonPin    uint     `xml:"txbuttonpin"`
+	UpButtonPin    uint     `xml:"upbuttonpin"`
+	DownButtonPin  uint     `xml:"downbuttonpin"`
+	PanicButtonPin uint     `xml:"panicbuttonpin"`
 }
+
 
 type Comment struct {
 	XMLName           xml.Name `xml:"comment"`
-	CommentSwitchPin  uint     `xml:"commentswitchpin"`
+	CommentButtonPin  uint     `xml:"commentbuttonpin"`
 	CommentMessageOff string   `xml:"commentmessageoff"`
 	CommentMessageOn  string   `xml:"commentmessageon"`
 }
@@ -565,6 +569,7 @@ func readxmlconfig(file string) (error) {
 	BeaconFileNameAndPath = document.Global.Software.Beacon.BeaconFileNameAndPath
 	BVolume = document.Global.Software.Beacon.BVolume
 
+	TTSEnabled = document.Global.Software.TTS.TTSEnabled
 	TTSVolumeLevel = document.Global.Software.TTS.TTSVolumeLevel
 	TTSParticipants = document.Global.Software.TTS.TTSParticipants
 	TTSChannelUp = document.Global.Software.TTS.TTSChannelUp
@@ -665,8 +670,9 @@ func readxmlconfig(file string) (error) {
 	TxButtonPin = document.Global.Hardware.Buttons.TxButtonPin
 	UpButtonPin = document.Global.Hardware.Buttons.UpButtonPin
 	DownButtonPin = document.Global.Hardware.Buttons.DownButtonPin
+	PanicButtonPin = document.Global.Hardware.Buttons.PanicButtonPin
 
-	CommentSwitchPin = document.Global.Hardware.Comment.CommentSwitchPin
+	CommentButtonPin = document.Global.Hardware.Comment.CommentButtonPin
 	CommentMessageOff = document.Global.Hardware.Comment.CommentMessageOff
 	CommentMessageOn = document.Global.Hardware.Comment.CommentMessageOn
 
@@ -748,6 +754,7 @@ func printxmlconfig() {
 
 	if printtts {
 		log.Println("info: -------- TTS  -------- ")
+		log.Println("info: TTS Global Enabled     ", fmt.Sprintf("%t", TTSEnabled))
 		log.Println("info: TTS Volume Level (%)   ", fmt.Sprintf("%d", TTSVolumeLevel))
 		log.Println("info: TTS Participants       ", fmt.Sprintf("%t", TTSParticipants))
 		log.Println("info: TTS ChannelUp          ", fmt.Sprintf("%t", TTSChannelUp))
@@ -867,13 +874,14 @@ func printxmlconfig() {
 		log.Println("info: Tx Button Pin           " + fmt.Sprintf("%v", TxButtonPin))
 		log.Println("info: Channel Up Button Pin   " + fmt.Sprintf("%v", UpButtonPin))
 		log.Println("info: Channel Down Button Pin " + fmt.Sprintf("%v", DownButtonPin))
+		log.Println("info: Panic Button Pin        " + fmt.Sprintf("%v", PanicButtonPin))
 	}
 
 	if printcomment {
 		log.Println("info: ------------ Comment  ------------------- ")
-		log.Println("info: Comment Switch GPIO Pin    " + fmt.Sprintf("%v", CommentSwitchPin))
-		log.Println("info: Comment Message Switch Off " + fmt.Sprintf("%v", CommentMessageOff))
-		log.Println("info: Comment Message Switch On  " + fmt.Sprintf("%v", CommentMessageOn))
+		log.Println("info: Comment Button Pin         " + fmt.Sprintf("%v", CommentButtonPin))
+		log.Println("info: Comment Message State 1    " + fmt.Sprintf("%v", CommentMessageOff))
+		log.Println("info: Comment Message State 2    " + fmt.Sprintf("%v", CommentMessageOn))
 	}
 
 	if printlcd {

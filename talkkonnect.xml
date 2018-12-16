@@ -54,7 +54,7 @@
 			</beacon>
 
 			<!-- Local Text to Speech for easy usage and accessability -->
-                        <tts>
+                        <tts enabled="false">
                                 <volumelevel>70</volumelevel>
                                 <participants>false</participants>
 				<channelup>true</channelup>
@@ -192,7 +192,7 @@
 
 			<!-- Set GPIO for Away Toggle Switch and Away Message -->
 			<comment>
-				<commentswitchpin>9</commentswitchpin>
+				<commentbuttonpin>9</commentbuttonpin>
 				<commentmessageoff>I am on Standby and Available</commentmessageoff>
 				<commentmessageon>I am Currently Unavailable</commentmessageon>
 			</comment>

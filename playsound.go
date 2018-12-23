@@ -65,9 +65,9 @@ func (b *Talkkonnect) RogerBeep(filepath string, vol float32) error {
 }
 
 func PlayWavLocal(filepath string, playbackvolume int) error {
-	origVolume, _ = volume.GetVolume()
+	origVolume, _ = volume.GetVolume(OutputDevice)
 	cmd := exec.Command("/usr/bin/aplay", filepath)
-	err := volume.SetVolume(playbackvolume)
+	err := volume.SetVolume(playbackvolume, OutputDevice)
 	if err != nil {
 		return errors.New(fmt.Sprintf("set volume failed: %+v", err))
 		//log.Fatalf("set volume failed: %+v", err)
@@ -77,7 +77,7 @@ func PlayWavLocal(filepath string, playbackvolume int) error {
 		return errors.New(fmt.Sprintf("cmd.Run() for aplay failed with %s\n", err))
 		//log.Fatalf("cmd.Run() for aplay failed with %s\n", err)
 	}
-	err = volume.SetVolume(origVolume)
+	err = volume.SetVolume(origVolume, OutputDevice)
 	if err != nil {
 		return errors.New(fmt.Sprintf("set volume failed: %+v", err))
 		//log.Fatalf("set volume failed: %+v", err)

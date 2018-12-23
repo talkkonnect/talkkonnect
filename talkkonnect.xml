@@ -7,24 +7,15 @@
 		<!-- Public Gaming Server in Japan Used by Philipino Gamers for testing -->
 		<account name="phillipinogamersserver" default="true">
 			<serverandport>218.219.148.36:8000</serverandport>
-			<username>raspberrypii</username>
+			<username>talkkonnect001</username>
 			<password></password>
 			<insecure>true</insecure>
 			<certificate></certificate>
 			<channel>room A</channel>
-			<ident>Name Surname</ident>
-		</account>
-		<!-- Private example Server in LowCost Cloud Provided for Testing -->
-		<account name="zoran1" default="false">
-			<serverandport>mumble.test.com:64738</serverandport>
-			<username>tk-onnuj-base</username>
-			<password>password</password>
-			<insecure>true</insecure>
-			<certificate></certificate>
-			<channel>root</channel>
-			<ident>Name Surname</ident>
+			<ident>Suvir Kumar</ident>
 		</account>
 	</accounts>
+
 	<!-- Global section for setting behaviour of talkkonnect, soundsfiles paths and volumes, physical connections of pinouts for buttons and leds, lcd screen connections and usb gps parameters -->
 	<global>
 
@@ -32,16 +23,18 @@
 		<software>
 
 			<!-- Logfile Settings -->
-			<settings>
+			<settings print="true">
+				<!-- Set Output Device to Speaker, Master, Headphone or whatever your OS/Alsa Detects as the Master Sound Card Device for Output in alsamixer -->
+				<outputdevice>Speaker</outputdevice>	
 				<logfilenameandpath>/var/log/talkkonnect.log</logfilenameandpath>	
 				<logging>screen</logging>
 				<daemonize>false</daemonize>
 			</settings>
 
 			<!-- http autoprovisioning specify tkid with at least 8 characters of length, Put Complete URL with http:// and define local filename and path -->
-			<autoprovisioning enabled="false">
+			<autoprovisioning enabled="false" print="true">
 				<tkid>00000001</tkid> 
-				<url>http://provision.example.com</url> 
+				<url>http://provsion.example.com</url> 
 				<savefilepath>/home/mumble/gocode/src/github.com/talkkonnect/talkkonnect</savefilepath> 
 				<savefilename>talkkonnect.xml</savefilename> 
 			</autoprovisioning>
@@ -78,7 +71,7 @@
 				<listonlineusers>true</listonlineusers>
 				<listonlineusersfilenameandpath>/home/mumble/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/ListOnlineUsers.wav</listonlineusersfilenameandpath>   
 				<playchimes>true</playchimes>
-				<playchimesfilenameandpath>/home/mumble/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/PlayChimes.wav</playchimesfilenameandpath>        
+				<playchimesfilenameandpath>/home/mumble/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/PlayChimes.wav</playchimesfilenameandpath>
 				<requestgpsposition>true</requestgpsposition>
 				<requestgpspositionfilenameandpath>/home/mumble/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/RequestGpsPosition.wav</requestgpspositionfilenameandpath>
 				<panicsimulation>true</panicsimulation>
@@ -99,8 +92,8 @@
 			<!-- Gmail Account Settings for Sending EMAIL from Talkkonnect -->
 			<smtp enabled="true">
 				<username>robot@email.com</username>
-				<password>emailpassword</password>
-				<receiver>test@receiver.com</receiver>
+				<password>user</password>
+				<receiver>suvir@talkkonnect.com</receiver>
 				<subject>Talkkonnect Email Message with GPS</subject>
 				<message>Hello From Talkkonnect</message>
 				<gpsdatetime>true</gpsdatetime>
@@ -129,8 +122,10 @@
 
 				<!-- File for Sound Playing into Transmitted Stream (Supports Most Audio Formats -->
 				<chimes enabled="true">
-					<filenameandpath>/home/mumble/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/everybreath.mp3</filenameandpath>
-					<volume>0.7</volume>     
+					<!--<filenameandpath>/home/mumble/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/everybreath.mp3</filenameandpath>-->
+					<filenameandpath>http://d.liveatc.net/vtbs_app</filenameandpath>
+					<!--<filenameandpath>https://voa28.akacast.akamaistream.net/7/325/437810/v1/ibb.akacast.akamaistream.net/voa28</filenameandpath>-->
+					<volume>1</volume>     
 				</chimes>
 			</sounds>
 			
@@ -193,8 +188,8 @@
 			<!-- Set GPIO for Away Toggle Switch and Away Message -->
 			<comment>
 				<commentbuttonpin>9</commentbuttonpin>
-				<commentmessageoff>I am on Standby and Available</commentmessageoff>
-				<commentmessageon>I am Currently Unavailable</commentmessageon>
+				<commentmessageoff>Standby</commentmessageoff>
+				<commentmessageon>Unavailable</commentmessageon>
 			</comment>
 
 			<!-- Set GPIO for Paralled Interface HD44780 LCD Module -->

@@ -72,7 +72,7 @@ func (b *Talkkonnect) talkkonnectMenu() {
 	log.Println("info: IP Address & Session Information")
 	localAddresses()
 
-	origMuted, _ := volume.GetMuted()
+	origMuted, _ := volume.GetMuted(OutputDevice)
 	if origMuted {
 		log.Println("info: Speaker Currently Muted")
 	} else {

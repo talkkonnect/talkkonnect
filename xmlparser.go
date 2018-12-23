@@ -50,6 +50,7 @@ var (
 
 //software settings
 var (
+	OutputDevice       string
 	LogFileNameAndPath string
 	Logging            string
 	Daemonize          bool
@@ -292,6 +293,7 @@ type Software struct {
 
 type Settings struct {
 	XMLName            xml.Name `xml:"settings"`
+	OutputDevice       string   `xml:"outputdevice"`
 	LogFileNameAndPath string   `xml:"logfilenameandpath"`
 	Logging            string   `xml:"logging"`
 	Daemonize          bool     `xml:"daemonize"`
@@ -554,6 +556,7 @@ func readxmlconfig(file string) (error) {
 	}
 
 	// Update Variables with values read from XML file
+	OutputDevice = document.Global.Software.Settings.OutputDevice
 	LogFileNameAndPath = document.Global.Software.Settings.LogFileNameAndPath
 	Logging = document.Global.Software.Settings.Logging
 	Daemonize = document.Global.Software.Settings.Daemonize
@@ -730,9 +733,10 @@ func printxmlconfig() {
 
 	if printlogging {
 		log.Println("info: -------- Logging & Daemonizing -------- ")
-		log.Println("info: Log File  " + LogFileNameAndPath)
-		log.Println("info: Logging   " + Logging)
-		log.Println("info: Daemonize " + fmt.Sprintf("%t", Daemonize))
+		log.Println("info: Output Device " + OutputDevice)
+		log.Println("info: Log File      " + LogFileNameAndPath)
+		log.Println("info: Logging       " + Logging)
+		log.Println("info: Daemonize     " + fmt.Sprintf("%t", Daemonize))
 	}
 
 	if printprovisioning {

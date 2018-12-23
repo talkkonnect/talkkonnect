@@ -406,7 +406,7 @@ func (b *Talkkonnect) TransmitStart() {
 
 	b.IsTransmitting = true
 
-	err := volume.Mute()
+	err := volume.Mute(OutputDevice)
 	if err != nil {
 		log.Println("warn: Unable to Mute ", err)
 	} else {
@@ -448,7 +448,7 @@ func (b *Talkkonnect) TransmitStop(withBeep bool) {
 
 		b.Stream.StopSource()
 
-		err := volume.Unmute()
+		err := volume.Unmute(OutputDevice)
 		if err != nil {
 			log.Println("warn: Unable to Unmute ", err)
 		} else {
@@ -1028,14 +1028,14 @@ func (b *Talkkonnect) commandKeyF3() {
 	log.Println("--")
 	log.Println("info: ", TTSMuteUnMuteSpeakerFileNameAndPath)
 
-	origMuted, err := volume.GetMuted()
+	origMuted, err := volume.GetMuted(OutputDevice)
 
 	if err != nil {
 		log.Println("warn: get muted failed: %+v", err)
 	}
 
 	if origMuted {
-		err := volume.Unmute()
+		err := volume.Unmute(OutputDevice)
 
 		if err != nil {
 			log.Println("warn: unmute failed: %+v", err)
@@ -1060,7 +1060,7 @@ func (b *Talkkonnect) commandKeyF3() {
 			}
 
 		}
-		err = volume.Mute()
+		err = volume.Mute(OutputDevice)
 		if err != nil {
 			log.Println("warn: Mute failed: %+v", err)
 		}
@@ -1075,7 +1075,7 @@ func (b *Talkkonnect) commandKeyF3() {
 
 func (b *Talkkonnect) commandKeyF4() {
 	log.Println("--")
-	origVolume, err := volume.GetVolume()
+	origVolume, err := volume.GetVolume(OutputDevice)
 	if err != nil {
 		log.Println("warn: Unable to get current volume: %+v", err)
 	}
@@ -1097,13 +1097,13 @@ func (b *Talkkonnect) commandKeyF4() {
 
 func (b *Talkkonnect) commandKeyF5() {
 	log.Println("--")
-	origVolume, err := volume.GetVolume()
+	origVolume, err := volume.GetVolume(OutputDevice)
 	if err != nil {
 		log.Println("warn: unable to get original volume: %+v", err)
 	}
 
 	if origVolume < 100 {
-		err := volume.IncreaseVolume(+1)
+		err := volume.IncreaseVolume(+1, OutputDevice)
 		if err != nil {
 			log.Println("warn: F5 Increase Volume Failed! ", err)
 		}
@@ -1131,14 +1131,14 @@ func (b *Talkkonnect) commandKeyF5() {
 
 func (b *Talkkonnect) commandKeyF6() {
 	log.Println("--")
-	origVolume, err := volume.GetVolume()
+	origVolume, err := volume.GetVolume(OutputDevice)
 	if err != nil {
 		log.Println("warn: unable to get original volume: %+v", err)
 	}
 
 	if origVolume > 0 {
 		origVolume--
-		err := volume.IncreaseVolume(-1)
+		err := volume.IncreaseVolume(-1, OutputDevice)
 		if err != nil {
 			log.Println("warn: F6 Decrease Volume Failed! ", err)
 		}

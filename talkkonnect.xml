@@ -4,7 +4,6 @@
 
 	<!-- Need to Have At Least One Account Set as Default Account, The First Default Account Found will be the one used! --> 
 	<accounts print="true">
-		<!-- Public Gaming Server in Japan Used by Philipino Gamers for testing -->
 		<account name="phillipinogamersserver" default="true">
 			<serverandport>218.219.148.36:8000</serverandport>
 			<username>talkkonnect001</username>
@@ -123,8 +122,8 @@
 				<!-- File for Sound Playing into Transmitted Stream (Supports Most Audio Formats -->
 				<chimes enabled="true">
 					<!--<filenameandpath>/home/mumble/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/everybreath.mp3</filenameandpath>-->
-					<filenameandpath>http://d.liveatc.net/vtbs_app</filenameandpath>
-					<!--<filenameandpath>https://voa28.akacast.akamaistream.net/7/325/437810/v1/ibb.akacast.akamaistream.net/voa28</filenameandpath>-->
+					<!--<filenameandpath>http://d.liveatc.net/vtbs_app</filenameandpath>-->
+					<filenameandpath>https://voa28.akacast.akamaistream.net/7/325/437810/v1/ibb.akacast.akamaistream.net/voa28</filenameandpath>
 					<volume>1</volume>     
 				</chimes>
 			</sounds>
@@ -159,7 +158,7 @@
 		</software>
 
 		<!-- Section for Configuring Rasperrry Pi GPIOs used for LEDs, Buttons, LCD Screens, GPS Serial Port Settings, Panic Functio Settings -->
-		<hardware>
+		<hardware targetboard="pc"> <!-- set targetboard to "rpi" for raspberry pi and other single board computers GPIO and "pc" for boards without gpios -->
 			<!-- Set GPIO for Panel LEDS -->
 			<lights>
 				<voiceactivityledpin>2</voiceactivityledpin>

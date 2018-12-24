@@ -9,6 +9,10 @@ import (
 )
 
 func (b *Talkkonnect) initGPIO() {
+	if TargetBoard != "rpi" {
+		return
+	}
+
 	if err := rpio.Open(); err != nil {
 		log.Println("alert: GPIO Error, ", err)
 		b.GPIOEnabled = false
@@ -174,7 +178,7 @@ func (b *Talkkonnect) initGPIO() {
 }
 
 func (b *Talkkonnect) LEDOn(LED gpio.Pin) {
-	if !(b.GPIOEnabled) {
+	if !(b.GPIOEnabled) || TargetBoard != "rpi" {
 		return
 	}
 
@@ -182,7 +186,7 @@ func (b *Talkkonnect) LEDOn(LED gpio.Pin) {
 }
 
 func (b *Talkkonnect) LEDOff(LED gpio.Pin) {
-	if !(b.GPIOEnabled) {
+	if !(b.GPIOEnabled) || TargetBoard != "rpi" {
 		return
 	}
 
@@ -190,7 +194,7 @@ func (b *Talkkonnect) LEDOff(LED gpio.Pin) {
 }
 
 func (b *Talkkonnect) LEDOffAll() {
-	if !(b.GPIOEnabled) {
+	if !(b.GPIOEnabled) || TargetBoard != "rpi" {
 		return
 	}
 

@@ -27,13 +27,14 @@ var (
 	printsounds       bool = true
 	printtxtimeout    bool = true
 	printhttpapi      bool = true
-	printleds         bool = true
-	printheartbeat    bool = true
-	printbuttons      bool = true
-	printcomment      bool = true
-	printlcd          bool = true
-	printgps          bool = true
-	printpanic        bool = true
+	printtargetboard  bool = true
+	printleds         bool = false
+	printheartbeat    bool = false
+	printbuttons      bool = false
+	printcomment      bool = false
+	printlcd          bool = false
+	printgps          bool = false
+	printpanic        bool = false
 )
 
 //account settings
@@ -164,6 +165,11 @@ var (
 	APIPanicSimulation    bool
 	APIPrintXmlConfig     bool
 	APIEmailEnabled       bool
+)
+
+// target board settings
+var (
+	TargetBoard        string
 )
 
 //indicator light settings
@@ -437,6 +443,7 @@ type Chimes struct {
 
 type Hardware struct {
 	XMLName       xml.Name      `xml:"hardware"`
+	TargetBoard   string        `xml:"targetboard,attr"`
 	Lights        Lights        `xml:"lights"`
 	HeartBeat     HeartBeat     `xml:"heartbeat"`
 	Buttons       Buttons       `xml:"buttons"`
@@ -659,6 +666,8 @@ func readxmlconfig(file string) (error) {
 	APIPrintXmlConfig = document.Global.Software.API.APIPrintXmlConfig
 	APIEmailEnabled = document.Global.Software.API.APIEmailEnabled
 
+	TargetBoard = document.Global.Hardware.TargetBoard
+
 	VoiceActivityLEDPin = document.Global.Hardware.Lights.VoiceActivityLedPin
 	ParticipantsLEDPin = document.Global.Hardware.Lights.ParticipantsLedPin
 	TransmitLEDPin = document.Global.Hardware.Lights.TransmitLedPin
@@ -854,6 +863,11 @@ func printxmlconfig() {
 		log.Println("info: PanicSimulation    " + fmt.Sprintf("%t", APIPanicSimulation))
 		log.Println("info: PrintXmlConfig     " + fmt.Sprintf("%t", APIPrintXmlConfig))
 		log.Println("info: EmailEnabled       " + fmt.Sprintf("%t", APIEmailEnabled))
+	}
+
+	if printtargetboard {
+		log.Println("info: ------------ Target Board --------------- ")
+		log.Println("info: Target Board " + fmt.Sprintf("%v", TargetBoard))
 	}
 
 	if printleds {

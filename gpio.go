@@ -8,6 +8,8 @@ import (
 	"time"
 )
 
+var ledpin = 0
+
 func (b *Talkkonnect) initGPIO() {
 	if TargetBoard != "rpi" {
 		return
@@ -174,7 +176,8 @@ func (b *Talkkonnect) initGPIO() {
 	b.ParticipantsLED = gpio.NewOutput(ParticipantsLEDPin, false)
 	b.TransmitLED = gpio.NewOutput(TransmitLEDPin, false)
 	b.HeartBeatLED = gpio.NewOutput(HeartBeatLEDPin, false)
-	b.BackLightLED = gpio.NewOutput(BackLightPin, false)
+	BackLightLED = gpio.NewOutput(BackLightLEDPin, false)
+	VoiceActivityLED = gpio.NewOutput(VoiceActivityLEDPin, false)
 }
 
 func (b *Talkkonnect) LEDOn(LED gpio.Pin) {
@@ -193,6 +196,14 @@ func (b *Talkkonnect) LEDOff(LED gpio.Pin) {
 	LED.Low()
 }
 
+func LEDOnFunc(LED gpio.Pin) {
+	LED.High()
+}
+
+func LEDOffFunc(LED gpio.Pin) {
+	LED.Low()
+}
+
 func (b *Talkkonnect) LEDOffAll() {
 	if !(b.GPIOEnabled) || TargetBoard != "rpi" {
 		return
@@ -203,5 +214,6 @@ func (b *Talkkonnect) LEDOffAll() {
 	b.LEDOff(b.TransmitLED)
 	b.LEDOff(b.TransmitLED)
 	b.LEDOff(b.HeartBeatLED)
-	b.LEDOff(b.BackLightLED)
+	LEDOffFunc(b.BackLightLED)
+	LEDOffFunc(b.VoiceActivityLED)
 }

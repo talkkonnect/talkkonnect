@@ -10,7 +10,6 @@ import (
 	hd44780 "github.com/talkkonnect/go-hd44780"
 	"github.com/talkkonnect/gpio"
 	"github.com/talkkonnect/gumble/gumble"
-	"github.com/talkkonnect/gumble/gumbleopenal"
 	"github.com/talkkonnect/gumble/gumbleutil"
 	_ "github.com/talkkonnect/gumble/opus"
 	term "github.com/talkkonnect/termbox-go"
@@ -54,7 +53,7 @@ type Talkkonnect struct {
 
 	ConnectAttempts uint
 
-	Stream *gumbleopenal.Stream
+	Stream *Stream
 
 	ChannelName string
 	Logging     string
@@ -63,22 +62,23 @@ type Talkkonnect struct {
 	IsConnected    bool
 	IsTransmitting bool
 
-	GPIOEnabled        bool
-	OnlineLED          gpio.Pin
-	ParticipantsLED    gpio.Pin
-	TransmitLED        gpio.Pin
-	HeartBeatLED       gpio.Pin
-	BackLightLED       gpio.Pin
-	TxButton           gpio.Pin
-	TxButtonState      uint
-	UpButton           gpio.Pin
-	UpButtonState      uint
-	DownButton         gpio.Pin
-	DownButtonState    uint
-	PanicButton        gpio.Pin
-	PanicButtonState   uint
-	CommentButton      gpio.Pin
-	CommentButtonState uint
+	GPIOEnabled         bool
+	OnlineLED           gpio.Pin
+	ParticipantsLED     gpio.Pin
+	TransmitLED         gpio.Pin
+	HeartBeatLED        gpio.Pin
+	BackLightLED        gpio.Pin
+	VoiceActivityLED    gpio.Pin
+	TxButton            gpio.Pin
+	TxButtonState       uint
+	UpButton            gpio.Pin
+	UpButtonState       uint
+	DownButton          gpio.Pin
+	DownButtonState     uint
+	PanicButton         gpio.Pin
+	PanicButtonState    uint
+	CommentButton       gpio.Pin
+	CommentButtonState  uint
 }
 
 type ChannelsListStruct struct {
@@ -382,7 +382,8 @@ func (b *Talkkonnect) OpenStream() {
 		os.Setenv("ALSOFT_LOGLEVEL", "0")
 	}
 
-	if stream, err := gumbleopenal.New(b.Client, VoiceActivityLEDPin, BackLightPin, BackLightTime, LCDBackLightTimeoutSecs, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, TargetBoard); err != nil {
+	//if stream, err := New(b.Client, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin); err != nil {
+	if stream, err := New(b.Client); err != nil {
 
 		log.Println("warn: Stream open error ", err)
 		if TargetBoard == "pi" {
@@ -1505,3 +1506,4 @@ func (b *Talkkonnect) TxLockTimer() {
 		}()
 	}
 }
+

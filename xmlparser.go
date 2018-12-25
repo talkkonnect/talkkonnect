@@ -208,7 +208,7 @@ var (
 var (
 	LCDBackLightTimerEnabled bool
 	LCDBackLightTimeoutSecs  int
-	BackLightPin             uint
+	BackLightLEDPin          uint
 	RSPin                    int
 	EPin                     int
 	D4Pin                    int
@@ -490,7 +490,7 @@ type Screen struct {
 	XMLName                  xml.Name `xml:"screen"`
 	LCDBackLightTimerEnabled bool     `xml:"lcdbacklighttimerenabled"`
 	LCDBackLightTimeoutSecs  int      `xml:"lcdbacklighttimeoutsecs"`
-	BackLightPin             uint     `xml:"backlightpin"`
+	BackLightLEDPin          uint     `xml:"backlightpin"`
 	RsPin                    int      `xml:"rspin"`
 	EsPin                    int      `xml:"epin"`
 	D4Pin                    int      `xml:"d4pin"`
@@ -690,7 +690,7 @@ func readxmlconfig(file string) (error) {
 
 	LCDBackLightTimerEnabled = document.Global.Hardware.Screen.LCDBackLightTimerEnabled
 	LCDBackLightTimeoutSecs = document.Global.Hardware.Screen.LCDBackLightTimeoutSecs
-	BackLightPin = document.Global.Hardware.Screen.BackLightPin
+	BackLightLEDPin = document.Global.Hardware.Screen.BackLightLEDPin
 	RSPin = document.Global.Hardware.Screen.RsPin
 	EPin = document.Global.Hardware.Screen.EsPin
 	D4Pin = document.Global.Hardware.Screen.D4Pin
@@ -906,7 +906,7 @@ func printxmlconfig() {
 		log.Println("info: ------------ LCD  ----------------------- ")
 		log.Println("info: Back Light Timer Enabled " + fmt.Sprintf("%t", LCDBackLightTimerEnabled))
 		log.Println("info: Back Light Timer Timeout " + fmt.Sprintf("%v", LCDBackLightTimeoutSecs))
-		log.Println("info: Back Light Pin " + fmt.Sprintf("%v", BackLightPin))
+		log.Println("info: Back Light Pin " + fmt.Sprintf("%v", BackLightLEDPin))
 		log.Println("info: RS Pin " + fmt.Sprintf("%v", RSPin))
 		log.Println("info: E  Pin " + fmt.Sprintf("%v", EPin))
 		log.Println("info: D4 Pin " + fmt.Sprintf("%v", D4Pin))

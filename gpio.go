@@ -176,7 +176,7 @@ func (b *Talkkonnect) initGPIO() {
 	b.ParticipantsLED = gpio.NewOutput(ParticipantsLEDPin, false)
 	b.TransmitLED = gpio.NewOutput(TransmitLEDPin, false)
 	b.HeartBeatLED = gpio.NewOutput(HeartBeatLEDPin, false)
-	BackLightLED = gpio.NewOutput(BackLightLEDPin, false)
+	b.BackLightLED = gpio.NewOutput(BackLightLEDPin, false)
 	VoiceActivityLED = gpio.NewOutput(VoiceActivityLEDPin, false)
 }
 

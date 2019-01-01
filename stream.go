@@ -5,18 +5,18 @@ import (
 	"errors"
 	hd44780 "github.com/talkkonnect/go-hd44780"
 	"github.com/talkkonnect/go-openal/openal"
+	"github.com/talkkonnect/gpio"
 	"github.com/talkkonnect/gumble/gumble"
 	"log"
 	"time"
-	"github.com/talkkonnect/gpio"
 )
 
 var (
-	ErrState                = errors.New("gumbleopenal: invalid state")
-	lastspeaker             = "Nil"
-	lcdtext                 = [4]string{"nil", "nil", "nil", ""} //global variable declaration for 4 lines of LCD
-	BackLightLED            = gpio.NewOutput(BackLightLEDPin, false)
-	VoiceActivityLED        = gpio.NewOutput(VoiceActivityLEDPin, false)
+	ErrState         = errors.New("gumbleopenal: invalid state")
+	lastspeaker      = "Nil"
+	lcdtext          = [4]string{"nil", "nil", "nil", ""} //global variable declaration for 4 lines of LCD
+	BackLightLED     = gpio.NewOutput(BackLightLEDPin, false)
+	VoiceActivityLED = gpio.NewOutput(VoiceActivityLEDPin, false)
 )
 
 type Stream struct {

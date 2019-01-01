@@ -42,12 +42,15 @@ var (
 	GPSLatitude          float64
 	GPSLongitude         float64
 	Streaming            bool
+	AccountIndex         int = 0
+	ServerHop            bool
 )
 
 type Talkkonnect struct {
 	Config *gumble.Config
 	Client *gumble.Client
 
+	Name      string
 	Address   string
 	TLSConfig tls.Config
 
@@ -62,23 +65,23 @@ type Talkkonnect struct {
 	IsConnected    bool
 	IsTransmitting bool
 
-	GPIOEnabled         bool
-	OnlineLED           gpio.Pin
-	ParticipantsLED     gpio.Pin
-	TransmitLED         gpio.Pin
-	HeartBeatLED        gpio.Pin
-	BackLightLED        gpio.Pin
-	VoiceActivityLED    gpio.Pin
-	TxButton            gpio.Pin
-	TxButtonState       uint
-	UpButton            gpio.Pin
-	UpButtonState       uint
-	DownButton          gpio.Pin
-	DownButtonState     uint
-	PanicButton         gpio.Pin
-	PanicButtonState    uint
-	CommentButton       gpio.Pin
-	CommentButtonState  uint
+	GPIOEnabled        bool
+	OnlineLED          gpio.Pin
+	ParticipantsLED    gpio.Pin
+	TransmitLED        gpio.Pin
+	HeartBeatLED       gpio.Pin
+	BackLightLED       gpio.Pin
+	VoiceActivityLED   gpio.Pin
+	TxButton           gpio.Pin
+	TxButtonState      uint
+	UpButton           gpio.Pin
+	UpButtonState      uint
+	DownButton         gpio.Pin
+	DownButtonState    uint
+	PanicButton        gpio.Pin
+	PanicButtonState   uint
+	CommentButton      gpio.Pin
+	CommentButtonState uint
 }
 
 type ChannelsListStruct struct {
@@ -118,11 +121,17 @@ func PreInit(file string) {
 		}
 	}
 
+	PreInit1()
+}
+
+func PreInit1() {
+
 	// Initialize
 	b := Talkkonnect{
 		Config:      gumble.NewConfig(),
-		Address:     Server,
-		ChannelName: Channel,
+		Name:        Name[AccountIndex],
+		Address:     Server[AccountIndex],
+		ChannelName: Channel[AccountIndex],
 		Logging:     Logging,
 		Daemonize:   Daemonize,
 	}
@@ -139,16 +148,16 @@ func PreInit(file string) {
 		buf[0] |= 2
 		b.Config.Username = fmt.Sprintf("talkkonnect-%02x%02x%02x%02x%02x%02x", buf[0], buf[1], buf[2], buf[3], buf[4], buf[5])
 	} else {
-		b.Config.Username = Username
+		b.Config.Username = Username[AccountIndex]
 	}
 
-	b.Config.Password = Password
+	b.Config.Password = Password[AccountIndex]
 
-	if Insecure {
+	if Insecure[AccountIndex] {
 		b.TLSConfig.InsecureSkipVerify = true
 	}
-	if Certificate != "" {
-		cert, err := tls.LoadX509KeyPair(Certificate, Certificate)
+	if Certificate[AccountIndex] != "" {
+		cert, err := tls.LoadX509KeyPair(Certificate[AccountIndex], Certificate[AccountIndex])
 		if err != nil {
 			log.Println("alert: Certificate Error: ", err)
 			log.Fatal("Exiting talkkonnect! ...... bye\n")
@@ -157,6 +166,16 @@ func PreInit(file string) {
 	}
 
 	b.Init()
+
+	if APIEnabled {
+		go func() {
+			http.HandleFunc("/", b.httpHandler)
+			if err := http.ListenAndServe(":"+APIListenPort, nil); err != nil {
+				log.Println("alert: Problem With Starting HTTP API Server Error: ", err)
+				log.Fatal("Please Fix Problem or Disable API in XML Config, Exiting talkkonnect! ...... bye\n")
+			}
+		}()
+	}
 
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
@@ -174,16 +193,6 @@ func (b *Talkkonnect) Init() {
 	if err != nil {
 		log.Println("alert: Problem opening talkkonnect.log file Error: ", err)
 		log.Fatal("Exiting talkkonnect! ...... bye\n")
-	}
-
-	if APIEnabled {
-		go func() {
-			http.HandleFunc("/", b.httpHandler)
-			if err := http.ListenAndServe(":"+APIListenPort, nil); err != nil {
-				log.Println("alert: Problem With Starting HTTP API Server Error: ", err)
-				log.Fatal("Please Fix Problem or Disable API in XML Config, Exiting talkkonnect! ...... bye\n")
-			}
-		}()
 	}
 
 	b.LEDOffAll()
@@ -297,6 +306,8 @@ keyPressListenerLoop:
 				b.commandKeyCtrlC()
 			case term.KeyCtrlE:
 				b.commandKeyCtrlE()
+			case term.KeyCtrlN:
+				b.commandKeyCtrlN()
 			case term.KeyCtrlP:
 				b.commandKeyCtrlP()
 			case term.KeyCtrlX:
@@ -346,7 +357,10 @@ func (b *Talkkonnect) Connect() {
 	_, err = gumble.DialWithDialer(new(net.Dialer), b.Address, b.Config, &b.TLSConfig)
 	if err != nil {
 		log.Println("warn: Connection Error ", err, " connecting to ", b.Address, " failed (%s), attempting again in 10 seconds...")
-		b.ReConnect()
+		if !ServerHop {
+			log.Println("warn: In the Connect Function")
+			b.ReConnect()
+		}
 	} else {
 
 		b.OpenStream()
@@ -363,7 +377,12 @@ func (b *Talkkonnect) ReConnect() {
 	if b.ConnectAttempts < 100 {
 		go func() {
 			time.Sleep(10 * time.Second)
-			b.Connect()
+			if !ServerHop {
+				log.Println("warn: In the ReConnect Function")
+				b.Connect()
+				time.Sleep(3 * time.Second)
+				ServerHop = false
+			}
 		}()
 		return
 	} else {
@@ -520,8 +539,10 @@ func (b *Talkkonnect) OnDisconnect(e *gumble.DisconnectEvent) {
 	} else {
 		log.Println("warn: Connection to ", b.Address, " disconnected ", reason, ", attempting again in 10 seconds...\n")
 	}
-
-	b.ReConnect()
+	if !ServerHop {
+		log.Println("warn: In the OnDisconnect Function")
+		b.ReConnect()
+	}
 }
 
 func (b *Talkkonnect) ChangeChannel(ChannelName string) {
@@ -535,7 +556,7 @@ func (b *Talkkonnect) ChangeChannel(ChannelName string) {
 
 		if TargetBoard == "rpi" {
 			LcdText[1] = "Joined " + ChannelName
-			LcdText[2] = Username
+			LcdText[2] = Username[AccountIndex]
 			go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin)
 		}
 
@@ -872,7 +893,7 @@ func (b *Talkkonnect) ChannelDown() {
 	// Set Lower Boundary
 	if int(b.Client.Self.Channel.ID) == 0 {
 		log.Println("info: Can't Decrement Channel Root Channel Reached")
-		channel := b.Client.Channels[0]
+		channel := b.Client.Channels[uint32(AccountIndex)]
 		b.Client.Self.Move(channel)
 		if TargetBoard == "rpi" {
 			LcdText[2] = "Min Chan Reached"
@@ -1001,6 +1022,13 @@ func (b *Talkkonnect) httpHandler(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprintf(w, "API Request GPS Position Processed Succesfully\n")
 		} else {
 			fmt.Fprintf(w, "API Request GPS Position Denied\n")
+		}
+	case "commandKeyCtrlN":
+		if APINextServer {
+			b.commandKeyCtrlN()
+			fmt.Fprintf(w, "API Request Next Server Processed Succesfully\n")
+		} else {
+			fmt.Fprintf(w, "API Request Next Server Denied\n")
 		}
 	case "commandKeyCtrlP":
 		if APIPanicSimulation {
@@ -1337,6 +1365,29 @@ func (b *Talkkonnect) commandKeyCtrlC() {
 	log.Println("--")
 }
 
+func (b *Talkkonnect) commandKeyCtrlN() {
+	log.Println("--")
+	log.Println("Ctrl-N Connect Next Server Requested")
+
+	if TTSEnabled && TTSNextServer {
+		err := PlayWavLocal(TTSNextServerFileNameAndPath, TTSVolumeLevel)
+		if err != nil {
+			log.Println("Play Wav Local Module Returned Error: ", err)
+		}
+
+	}
+
+	if AccountIndex == (len(Name) - 1) {
+		AccountIndex = 0
+	} else {
+		AccountIndex++
+	}
+	ServerHop = true
+	b.Client.Disconnect()
+	PreInit1()
+	log.Println("--")
+}
+
 func (b *Talkkonnect) commandKeyCtrlP() {
 	b.BackLightTimer()
 	log.Println("--")
@@ -1506,4 +1557,3 @@ func (b *Talkkonnect) TxLockTimer() {
 		}()
 	}
 }
-

@@ -1,15 +1,15 @@
 package talkkonnect
 
 import (
+	"errors"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"os"
-	"errors"
-	"fmt"
 )
 
-func AutoProvision() (error) {
+func AutoProvision() error {
 
 	if len(TkId) < 8 {
 		return errors.New("TkId Configuration Provisioning XML File should be at least 8 characters!")

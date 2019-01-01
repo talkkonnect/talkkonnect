@@ -8,12 +8,11 @@ import (
 	"io"
 	"log"
 	//	"os"
-	"strings"
 	"errors"
-
+	"strings"
 )
 
-func getGpsPosition(verbose bool) (error) {
+func getGpsPosition(verbose bool) error {
 	if GpsEnabled {
 
 		if Port == "" {
@@ -81,7 +80,7 @@ func getGpsPosition(verbose bool) (error) {
 				n, err := f.Read(buf)
 				if err != nil {
 					if err != io.EOF {
-						return errors.New(fmt.Sprintf("Error reading from serial port: ",err))
+						return errors.New(fmt.Sprintf("Error reading from serial port: ", err))
 					}
 				} else {
 					buf = buf[:n]
@@ -117,5 +116,5 @@ func getGpsPosition(verbose bool) (error) {
 	} else {
 		return errors.New("GPS Disabled in config")
 	}
-return nil
+	return nil
 }

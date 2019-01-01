@@ -2,12 +2,12 @@ package talkkonnect
 
 import (
 	"encoding/xml"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
 	"time"
-	"errors"
 )
 
 // lcd timer global here what a global headache lets book a place in memory
@@ -39,14 +39,15 @@ var (
 
 //account settings
 var (
-	Default     bool
-	Server      string
-	Username    string
-	Password    string
-	Insecure    bool
-	Certificate string
-	Channel     string
-	Ident       string
+	Default     []bool
+	Name        []string
+	Server      []string
+	Username    []string
+	Password    []string
+	Insecure    []bool
+	Certificate []string
+	Channel     []string
+	Ident       []string
 )
 
 //software settings
@@ -103,6 +104,8 @@ var (
 	TTSPlayChimesFileNameAndPath         string
 	TTSRequestGpsPosition                bool
 	TTSRequestGpsPositionFileNameAndPath string
+	TTSNextServer                        bool
+	TTSNextServerFileNameAndPath         string
 	TTSPanicSimulation                   bool
 	TTSPanicSimulationFileNameAndPath    string
 	TTSPrintXmlConfig                    bool
@@ -162,6 +165,7 @@ var (
 	APIListOnlineUsers    bool
 	APIPlayChimes         bool
 	APIRequestGpsPosition bool
+	APINextServer         bool
 	APIPanicSimulation    bool
 	APIPrintXmlConfig     bool
 	APIEmailEnabled       bool
@@ -169,7 +173,7 @@ var (
 
 // target board settings
 var (
-	TargetBoard        string
+	TargetBoard string
 )
 
 //indicator light settings
@@ -351,6 +355,8 @@ type TTS struct {
 	TTSPlayChimesFileNameAndPath         string   `xml:"playchimesfilenameandpath"`
 	TTSRequestGpsPosition                bool     `xml:"requestgpsposition"`
 	TTSRequestGpsPositionFileNameAndPath string   `xml:"requestgpspositionfilenameandpath"`
+	TTSNextServer                        bool     `xml:"nextserver"`
+	TTSNextServerFileNameAndPath         string   `xml:"nextserverfilenameandpath"`
 	TTSPanicSimulation                   bool     `xml:"panicsimulation"`
 	TTSPanicSimulationFileNameAndPath    string   `xml:"panicsimulationfilenameandpath"`
 	TTSPrintXmlConfig                    bool     `xml:"printxmlconfig"`
@@ -403,6 +409,7 @@ type API struct {
 	APIListOnlineUsers    bool     `xml:"listonlineusers"`
 	APIPlayChimes         bool     `xml:"playchimes"`
 	APIRequestGpsPosition bool     `xml:"requestgpsposition"`
+	APINextServer         bool     `xml:"nextserver"`
 	APIPanicSimulation    bool     `xml:"panicsimulation"`
 	APIPrintXmlConfig     bool     `xml:"printxmlconfig"`
 	APIEmailEnabled       bool     `xml:"sendemail"`
@@ -478,7 +485,6 @@ type Buttons struct {
 	PanicButtonPin uint     `xml:"panicbuttonpin"`
 }
 
-
 type Comment struct {
 	XMLName           xml.Name `xml:"comment"`
 	CommentButtonPin  uint     `xml:"commentbuttonpin"`
@@ -530,7 +536,7 @@ type PanicFunction struct {
 	PTxlockTimeOutSecs uint     `xml:"txlocktimeoutsecs"`
 }
 
-func readxmlconfig(file string) (error) {
+func readxmlconfig(file string) error {
 	xmlFile, err := os.Open(file)
 	if err != nil {
 		return errors.New(fmt.Sprintf("cannot open configuration file talkkonnect.xml", err))
@@ -550,15 +556,15 @@ func readxmlconfig(file string) (error) {
 	log.Println("Document               : " + document.Type)
 
 	for i := 0; i < len(document.Accounts.Accounts); i++ {
-		if document.Accounts.Accounts[i].Default {
-			Server = document.Accounts.Accounts[i].ServerAndPort
-			Username = document.Accounts.Accounts[i].UserName
-			Password = document.Accounts.Accounts[i].Password
-			Insecure = document.Accounts.Accounts[i].Insecure
-			Certificate = document.Accounts.Accounts[i].Certificate
-			Channel = document.Accounts.Accounts[i].Channel
-			Ident = document.Accounts.Accounts[i].Ident
-			break
+		if document.Accounts.Accounts[i].Default == true {
+			Name = append(Name, document.Accounts.Accounts[i].Name)
+			Server = append(Server, document.Accounts.Accounts[i].ServerAndPort)
+			Username = append(Username, document.Accounts.Accounts[i].UserName)
+			Password = append(Password, document.Accounts.Accounts[i].Password)
+			Insecure = append(Insecure, document.Accounts.Accounts[i].Insecure)
+			Certificate = append(Certificate, document.Accounts.Accounts[i].Certificate)
+			Channel = append(Channel, document.Accounts.Accounts[i].Channel)
+			Ident = append(Ident, document.Accounts.Accounts[i].Ident)
 		}
 	}
 
@@ -606,6 +612,8 @@ func readxmlconfig(file string) (error) {
 	TTSPlayChimesFileNameAndPath = document.Global.Software.TTS.TTSPlayChimesFileNameAndPath
 	TTSRequestGpsPosition = document.Global.Software.TTS.TTSRequestGpsPosition
 	TTSRequestGpsPositionFileNameAndPath = document.Global.Software.TTS.TTSRequestGpsPositionFileNameAndPath
+	TTSNextServer = document.Global.Software.TTS.TTSNextServer
+	TTSNextServerFileNameAndPath = document.Global.Software.TTS.TTSNextServerFileNameAndPath
 	TTSPanicSimulation = document.Global.Software.TTS.TTSPanicSimulation
 	TTSPanicSimulationFileNameAndPath = document.Global.Software.TTS.TTSPanicSimulationFileNameAndPath
 	TTSPrintXmlConfig = document.Global.Software.TTS.TTSPrintXmlConfig
@@ -662,6 +670,7 @@ func readxmlconfig(file string) (error) {
 	APIListOnlineUsers = document.Global.Software.API.APIListOnlineUsers
 	APIPlayChimes = document.Global.Software.API.APIPlayChimes
 	APIRequestGpsPosition = document.Global.Software.API.APIRequestGpsPosition
+	APINextServer = document.Global.Software.API.APINextServer
 	APIPanicSimulation = document.Global.Software.API.APIPanicSimulation
 	APIPrintXmlConfig = document.Global.Software.API.APIPrintXmlConfig
 	APIEmailEnabled = document.Global.Software.API.APIEmailEnabled
@@ -722,8 +731,8 @@ func readxmlconfig(file string) (error) {
 	PTxLockEnabled = document.Global.Hardware.PanicFunction.PTxLockEnabled
 	PTxlockTimeOutSecs = document.Global.Hardware.PanicFunction.PTxlockTimeOutSecs
 
-log.Println("Successfully loaded configuration file into memory")
-return nil
+	log.Println("Successfully loaded configuration file into memory")
+	return nil
 }
 
 func printxmlconfig() {
@@ -731,13 +740,13 @@ func printxmlconfig() {
 	if printaccount {
 		log.Println("info: ---------- Account Information -------- ")
 		log.Println("info: Default     " + fmt.Sprintf("%t", Default))
-		log.Println("info: Server      " + Server)
-		log.Println("info: Username    " + Username)
-		log.Println("info: Password    " + Password)
-		log.Println("info: Insecure    " + fmt.Sprintf("%t", Insecure))
-		log.Println("info: Certificate " + Certificate)
-		log.Println("info: Channel     " + Channel)
-		log.Println("info: Ident       " + Ident)
+		log.Println("info: Server      " + Server[0])
+		log.Println("info: Username    " + Username[0])
+		log.Println("info: Password    " + Password[0])
+		log.Println("info: Insecure    " + fmt.Sprintf("%t", Insecure[0]))
+		log.Println("info: Certificate " + Certificate[0])
+		log.Println("info: Channel     " + Channel[0])
+		log.Println("info: Ident       " + Ident[0])
 	}
 
 	if printlogging {
@@ -794,6 +803,8 @@ func printxmlconfig() {
 		log.Println("info: TTS PlayChimesFileNameAndPath ", TTSPlayChimesFileNameAndPath)
 		log.Println("info: TTS RequestGpsPosition ", fmt.Sprintf("%t", TTSRequestGpsPosition))
 		log.Println("info: TTS RequestGpsPositionFileNameAndPath ", TTSRequestGpsPositionFileNameAndPath)
+		log.Println("info: TTS NextServer         ", fmt.Sprintf("%t", TTSNextServer))
+		log.Println("info: TTS NextServerFileNameAndPath         ", TTSNextServerFileNameAndPath)
 		log.Println("info: TTS PanicSimulation    ", fmt.Sprintf("%t", TTSPanicSimulation))
 		log.Println("info: TTS PanicSimulationFileNameAndPath ", TTSPanicSimulationFileNameAndPath)
 		log.Println("info: TTS PrintXmlConfig     ", fmt.Sprintf("%t", TTSPrintXmlConfig))
@@ -860,6 +871,7 @@ func printxmlconfig() {
 		log.Println("info: GPS Position       " + fmt.Sprintf("%t", APIRequestGpsPosition))
 		log.Println("info: PlayChimes         " + fmt.Sprintf("%t", APIPlayChimes))
 		log.Println("info: RequestGpsPosition " + fmt.Sprintf("%t", APIRequestGpsPosition))
+		log.Println("info: NextServer         " + fmt.Sprintf("%t", APINextServer))
 		log.Println("info: PanicSimulation    " + fmt.Sprintf("%t", APIPanicSimulation))
 		log.Println("info: PrintXmlConfig     " + fmt.Sprintf("%t", APIPrintXmlConfig))
 		log.Println("info: EmailEnabled       " + fmt.Sprintf("%t", APIEmailEnabled))

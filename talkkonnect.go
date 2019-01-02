@@ -19,7 +19,7 @@ func talkkonnectBanner() {
 	log.Println("info: ├────────────────────────────────────────────────────────────────┤")
 	log.Println("info: │Created By : Suvir Kumar  <suvir@talkkonnect.com>               │")
 	log.Println("info: ├────────────────────────────────────────────────────────────────┤")
-	log.Println("info: │Version 1.31 Released January 1 2019                            │")
+	log.Println("info: │Version 1.32 Released January 2 2019                            │")
 	log.Println("info: │Additional Modifications Released under MPL 2.0 License         │")
 	log.Println("info: ├────────────────────────────────────────────────────────────────┤")
 	log.Println("info: │visit us at www.talkkonnect.com and github.com/talkkonnect      │")

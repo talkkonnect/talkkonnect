@@ -332,12 +332,10 @@ func (b *Talkkonnect) CleanUp() {
 	log.Println("warn: SIGHUP Termination of Program Requested...shutting down...bye")
 
 	if TargetBoard == "rpi" {
-		// LCD Backlight Control
-		b.BackLightTimer()
 		t := time.Now()
-		b.LEDOffAll()
 		LcdText = [4]string{"talkkonnect stopped", t.Format("02-01-2006 15:04:05"), "Please Visit", "www.talkkonnect.com"}
 		go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin)
+		b.LEDOffAll()
 	}
 
 	b.Client.Disconnect()
@@ -518,8 +516,10 @@ func (b *Talkkonnect) OnConnect(e *gumble.ConnectEvent) {
 }
 
 func (b *Talkkonnect) OnDisconnect(e *gumble.DisconnectEvent) {
-	// LCD Backlight Control
-	b.BackLightTimer()
+	//finally turn off backlight if quit talkkonnect otherwise the disconnect will trigger the timer again and the backlight will never go off!
+	if !ServerHop {
+		b.BackLightTimer()
+	}
 
 	var reason string
 	switch e.Type {
@@ -535,9 +535,15 @@ func (b *Talkkonnect) OnDisconnect(e *gumble.DisconnectEvent) {
 	b.LEDOff(b.TransmitLED)
 
 	if reason == "" {
-		log.Println("warn: Connection to ", b.Address, " disconnected, attempting again in 10 seconds...")
+		log.Println("warn: Connection to ", b.Address, "disconnected" )
+		if !ServerHop {
+			log.Println("warn: Attempting Recibbect in 10 seconds...")
+		}
 	} else {
-		log.Println("warn: Connection to ", b.Address, " disconnected ", reason, ", attempting again in 10 seconds...\n")
+		log.Println("warn: Connection to ", b.Address, " disconnected ", reason)
+		if !ServerHop {
+			log.Println("warn: Aattempting Reconnect in 10 seconds...\n")
+		}
 	}
 	if !ServerHop {
 		log.Println("warn: In the OnDisconnect Function")
@@ -1360,7 +1366,7 @@ func (b *Talkkonnect) commandKeyCtrlC() {
 		}
 
 	}
-
+	ServerHop = true
 	b.CleanUp()
 	log.Println("--")
 }

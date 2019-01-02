@@ -556,7 +556,9 @@ func readxmlconfig(file string) error {
 	log.Println("Document               : " + document.Type)
 
 	for i := 0; i < len(document.Accounts.Accounts); i++ {
+		counter := 0
 		if document.Accounts.Accounts[i].Default == true {
+			counter++
 			Name = append(Name, document.Accounts.Accounts[i].Name)
 			Server = append(Server, document.Accounts.Accounts[i].ServerAndPort)
 			Username = append(Username, document.Accounts.Accounts[i].UserName)
@@ -565,6 +567,9 @@ func readxmlconfig(file string) error {
 			Certificate = append(Certificate, document.Accounts.Accounts[i].Certificate)
 			Channel = append(Channel, document.Accounts.Accounts[i].Channel)
 			Ident = append(Ident, document.Accounts.Accounts[i].Ident)
+		}
+		if counter == 0 {
+			log.Fatal("No Default Accounts Found! Please Add at least 1 Default Account in XML File")		
 		}
 	}
 

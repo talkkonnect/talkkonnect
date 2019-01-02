@@ -109,7 +109,7 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 		LEDOffFunc(BackLightLED)
 	}
 
-	timertalkled := time.NewTimer(time.Millisecond * 20)
+	timertalkled := time.NewTimer(time.Millisecond * 200)
 
 	var watchpin = true
 
@@ -166,12 +166,8 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 					t := time.Now()
 					if TargetBoard == "rpi" {
 						lcdtext = [4]string{"nil", "", "", e.User.Name + " " + t.Format("15:04:05")}
-						LEDOnFunc(BackLightLED)
-
 						go hd44780.LcdDisplay(lcdtext, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin)
-
-						//BackLightTime.Reset(time.Duration(LCDBackLightTimeoutSecs) * time.Second)
-						//log.Printf("debug: LCD Backlight Timer Address %v", BackLightTime, " Reset By Audio Stream\n")
+						BackLightTime.Reset(time.Duration(LCDBackLightTimeoutSecs) * time.Second)
 					}
 				}
 			}

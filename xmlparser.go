@@ -10,6 +10,7 @@ import (
 	"time"
 )
 
+
 // lcd timer global here what a global headache lets book a place in memory
 var (
 	BackLightTime    = time.NewTimer(1 * time.Millisecond)
@@ -537,6 +538,7 @@ type PanicFunction struct {
 }
 
 func readxmlconfig(file string) error {
+	var counter int = 0
 	xmlFile, err := os.Open(file)
 	if err != nil {
 		return errors.New(fmt.Sprintf("cannot open configuration file talkkonnect.xml", err))
@@ -556,9 +558,7 @@ func readxmlconfig(file string) error {
 	log.Println("Document               : " + document.Type)
 
 	for i := 0; i < len(document.Accounts.Accounts); i++ {
-		counter := 0
 		if document.Accounts.Accounts[i].Default == true {
-			counter++
 			Name = append(Name, document.Accounts.Accounts[i].Name)
 			Server = append(Server, document.Accounts.Accounts[i].ServerAndPort)
 			Username = append(Username, document.Accounts.Accounts[i].UserName)
@@ -567,11 +567,13 @@ func readxmlconfig(file string) error {
 			Certificate = append(Certificate, document.Accounts.Accounts[i].Certificate)
 			Channel = append(Channel, document.Accounts.Accounts[i].Channel)
 			Ident = append(Ident, document.Accounts.Accounts[i].Ident)
-		}
-		if counter == 0 {
-			log.Fatal("No Default Accounts Found! Please Add at least 1 Default Account in XML File")		
+			counter++
 		}
 	}
+
+		if counter == 0 {
+			log.Fatal("No Default Accounts Found! Please Add at least 1 Default Account in XML File")
+		}
 
 	// Update Variables with values read from XML file
 	OutputDevice = document.Global.Software.Settings.OutputDevice

@@ -19,22 +19,22 @@ var (
 //print xml config sections for easy debugging, set any section to false to prevent printing to screen
 var (
 	printaccount      bool = true
-	printlogging      bool = true
-	printprovisioning bool = true
-	printbeacon       bool = true
-	printtts          bool = true
-	printsmtp         bool = true
-	printsounds       bool = true
-	printtxtimeout    bool = true
-	printhttpapi      bool = true
+	printlogging      bool = false
+	printprovisioning bool = false
+	printbeacon       bool = false
+	printtts          bool = false
+	printsmtp         bool = false
+	printsounds       bool = false
+	printtxtimeout    bool = false
+	printhttpapi      bool = false
 	printtargetboard  bool = true
-	printleds         bool = false
-	printheartbeat    bool = false
-	printbuttons      bool = false
+	printleds         bool = true
+	printheartbeat    bool = true
+	printbuttons      bool = true
 	printcomment      bool = false
-	printlcd          bool = false
+	printlcd          bool = true
 	printgps          bool = false
-	printpanic        bool = false
+	printpanic        bool = true
 )
 
 //account settings
@@ -212,7 +212,7 @@ var (
 var (
 	LCDBackLightTimerEnabled bool
 	LCDBackLightTimeoutSecs  int
-	BackLightLEDPin          uint
+	BackLightLEDPin          int
 	RSPin                    int
 	EPin                     int
 	D4Pin                    int
@@ -496,7 +496,7 @@ type Screen struct {
 	XMLName                  xml.Name `xml:"screen"`
 	LCDBackLightTimerEnabled bool     `xml:"lcdbacklighttimerenabled"`
 	LCDBackLightTimeoutSecs  int      `xml:"lcdbacklighttimeoutsecs"`
-	BackLightLEDPin          uint     `xml:"backlightpin"`
+	BackLightLEDPin          int      `xml:"backlightpin"`
 	RsPin                    int      `xml:"rspin"`
 	EsPin                    int      `xml:"epin"`
 	D4Pin                    int      `xml:"d4pin"`

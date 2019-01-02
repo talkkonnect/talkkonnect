@@ -15,7 +15,7 @@ var (
 	ErrState         = errors.New("gumbleopenal: invalid state")
 	lastspeaker      = "Nil"
 	lcdtext          = [4]string{"nil", "nil", "nil", ""} //global variable declaration for 4 lines of LCD
-	BackLightLED     = gpio.NewOutput(BackLightLEDPin, false)
+	BackLightLED     = gpio.NewOutput(uint(BackLightLEDPin), false)
 	VoiceActivityLED = gpio.NewOutput(VoiceActivityLEDPin, false)
 )
 
@@ -116,7 +116,6 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 	go func() {
 		for watchpin {
 			<-timertalkled.C
-			//log.Printf("warn: Inside Stream Address of Timer %#v\n",BackLightTimer)
 			if TargetBoard == "rpi" {
 				LEDOffFunc(VoiceActivityLED)
 			}
@@ -167,8 +166,11 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 					t := time.Now()
 					if TargetBoard == "rpi" {
 						lcdtext = [4]string{"nil", "", "", e.User.Name + " " + t.Format("15:04:05")}
-						BackLightTime.Reset(time.Duration(LCDBackLightTimeoutSecs) * time.Second)
+						LEDOnFunc(BackLightLED)
+
 						go hd44780.LcdDisplay(lcdtext, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin)
+
+						//BackLightTime.Reset(time.Duration(LCDBackLightTimeoutSecs) * time.Second)
 						//log.Printf("debug: LCD Backlight Timer Address %v", BackLightTime, " Reset By Audio Stream\n")
 					}
 				}

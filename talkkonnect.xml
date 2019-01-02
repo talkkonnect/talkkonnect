@@ -3,7 +3,7 @@
 <document type="talkkonnect/xml">
 
 	<!-- Need to Have At Least One Account Set as Default Account, The First Default Account Found will be the one used! --> 
-	<accounts>
+	<accounts print="true">
 		<account name="phillipinogamersserver" default="false">
 			<serverandport>218.219.148.36:8000</serverandport>
 			<username>talkkonnect001</username>
@@ -162,12 +162,12 @@
 		</software>
 
 		<!-- Section for Configuring Rasperrry Pi GPIOs used for LEDs, Buttons, LCD Screens, GPS Serial Port Settings, Panic Functio Settings -->
-		<hardware targetboard="pc"> <!-- set targetboard to "pc" for raspberry pi and other single board computers GPIO and "pc" for boards without gpios -->
+		<hardware targetboard="rpi"> <!-- set targetboard to "pc" for raspberry pi and other single board computers GPIO and "pc" for boards without gpios -->
 			<!-- Set GPIO for Panel LEDS -->
 			<lights>
 				<voiceactivityledpin>2</voiceactivityledpin>
 				<participantsledpin>3</participantsledpin> 
-				<transmitledpin>4</transmitledpin>     
+				<transmitledpin>0</transmitledpin>     
 				<onlineledpin>5</onlineledpin>       
 			</lights>
 
@@ -198,8 +198,8 @@
 			<!-- Set GPIO for Paralled Interface HD44780 LCD Module -->
 			<screen>
                                 <lcdbacklighttimerenabled>true</lcdbacklighttimerenabled>
-                                <lcdbacklighttimeoutsecs>30</lcdbacklighttimeoutsecs>
-				<backlightpin>6</backlightpin>
+                                <lcdbacklighttimeoutsecs>10</lcdbacklighttimeoutsecs>
+				<backlightpin>4</backlightpin>
 				<rspin>7</rspin>
 				<epin>8</epin>
 				<d4pin>25</d4pin>

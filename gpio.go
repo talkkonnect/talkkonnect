@@ -176,7 +176,8 @@ func (b *Talkkonnect) initGPIO() {
 	b.ParticipantsLED = gpio.NewOutput(ParticipantsLEDPin, false)
 	b.TransmitLED = gpio.NewOutput(TransmitLEDPin, false)
 	b.HeartBeatLED = gpio.NewOutput(HeartBeatLEDPin, false)
-	b.BackLightLED = gpio.NewOutput(BackLightLEDPin, false)
+	b.BackLightLED = gpio.NewOutput(uint(BackLightLEDPin), false)
+	BackLightLED = gpio.NewOutput(uint(BackLightLEDPin), false)
 	VoiceActivityLED = gpio.NewOutput(VoiceActivityLEDPin, false)
 }
 
@@ -197,10 +198,16 @@ func (b *Talkkonnect) LEDOff(LED gpio.Pin) {
 }
 
 func LEDOnFunc(LED gpio.Pin) {
+	if TargetBoard != "rpi" {
+		return
+	}
 	LED.High()
 }
 
 func LEDOffFunc(LED gpio.Pin) {
+	if TargetBoard != "rpi" {
+		return
+	}
 	LED.Low()
 }
 

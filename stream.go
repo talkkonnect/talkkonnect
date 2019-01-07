@@ -17,6 +17,8 @@ var (
 	lcdtext          = [4]string{"nil", "nil", "nil", ""} //global variable declaration for 4 lines of LCD
 	BackLightLED     = gpio.NewOutput(uint(BackLightLEDPin), false)
 	VoiceActivityLED = gpio.NewOutput(VoiceActivityLEDPin, false)
+	now = time.Now()
+	LastTime = now.Unix()
 )
 
 type Stream struct {
@@ -150,9 +152,18 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 				binary.LittleEndian.PutUint16(raw[i*2:], uint16(value))
 			}
 			reclaim()
+
+			//experiment
 			if len(emptyBufs) == 0 {
+				now = time.Now()
+				if LastTime != now.Unix() {
+					log.Println("alert: Packet Loss!!")
+					now = time.Now()
+					LastTime = now.Unix()
+				}
 				continue
 			}
+
 			last := len(emptyBufs) - 1
 			buffer := emptyBufs[last]
 			emptyBufs = emptyBufs[:last]

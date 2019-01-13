@@ -3,7 +3,7 @@ package talkkonnect
 import (
 	"encoding/hex"
 	"fmt"
-	"github.com/adrianmo/go-nmea"
+	"github.com/talkkonnect/go-nmea"
 	"github.com/jacobsa/go-serial/serial"
 	"io"
 	"log"

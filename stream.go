@@ -17,8 +17,8 @@ var (
 	lcdtext          = [4]string{"nil", "nil", "nil", ""} //global variable declaration for 4 lines of LCD
 	BackLightLED     = gpio.NewOutput(uint(BackLightLEDPin), false)
 	VoiceActivityLED = gpio.NewOutput(VoiceActivityLEDPin, false)
-	now = time.Now()
-	LastTime = now.Unix()
+	now              = time.Now()
+	LastTime         = now.Unix()
 )
 
 type Stream struct {
@@ -52,6 +52,7 @@ func New(client *gumble.Client) (*Stream, error) {
 }
 
 func (s *Stream) Destroy() {
+	log.Println("alert: Destroy Source")
 	s.link.Detach()
 	if s.deviceSource != nil {
 		s.StopSource()
@@ -67,6 +68,7 @@ func (s *Stream) Destroy() {
 }
 
 func (s *Stream) StartSourceFile() error {
+	log.Println("alert: Start Source File")
 	if s.sourceStop != nil {
 		return ErrState
 	}
@@ -77,6 +79,7 @@ func (s *Stream) StartSourceFile() error {
 }
 
 func (s *Stream) StartSource() error {
+	log.Println("alert: Start Source")
 	if s.sourceStop != nil {
 		return ErrState
 	}
@@ -87,6 +90,7 @@ func (s *Stream) StartSource() error {
 }
 
 func (s *Stream) StopSource() error {
+	log.Println("alert: Stop Source File")
 	if s.sourceStop == nil {
 		return ErrState
 	}
@@ -153,14 +157,7 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 			}
 			reclaim()
 
-			//experiment
 			if len(emptyBufs) == 0 {
-				now = time.Now()
-				if LastTime != now.Unix() {
-					log.Println("alert: Packet Loss!!")
-					now = time.Now()
-					LastTime = now.Unix()
-				}
 				continue
 			}
 
@@ -170,6 +167,13 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 			buffer.SetData(openal.FormatMono16, raw[:samples*2], gumble.AudioSampleRate)
 			source.QueueBuffer(buffer)
 			if source.State() != openal.Playing {
+				now = time.Now()
+				if LastTime != now.Unix() {
+					log.Println("alert: Source State is", source.State())
+					now = time.Now()
+					LastTime = now.Unix()
+				}
+
 				source.Play()
 				if lastspeaker != e.User.Name {
 					log.Println("Speaking:", e.User.Name)
@@ -185,8 +189,8 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 		}
 		watchpin = false
 		reclaim()
-		emptyBufs.Delete()
-		source.Delete()
+		//emptyBufs.Delete()
+		//source.Delete()
 	}()
 }
 
@@ -195,6 +199,7 @@ func (s *Stream) sourceRoutine() {
 	frameSize := s.client.Config.AudioFrameSize()
 
 	if frameSize != s.sourceFrameSize {
+		log.Println("alert: FrameSize Error!")
 		s.deviceSource.CaptureCloseDevice()
 		s.sourceFrameSize = frameSize
 		s.deviceSource = openal.CaptureOpenDevice("", gumble.AudioSampleRate, openal.FormatMono16, uint32(s.sourceFrameSize))
@@ -211,8 +216,10 @@ func (s *Stream) sourceRoutine() {
 	for {
 		select {
 		case <-stop:
+			log.Println("alert: Ticker Stop!")
 			return
 		case <-ticker.C:
+			//this is for encofing (transmitting)
 			buff := s.deviceSource.CaptureSamples(uint32(frameSize))
 			if len(buff) != frameSize*2 {
 				continue

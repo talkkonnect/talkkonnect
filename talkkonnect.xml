@@ -4,7 +4,7 @@
 
 	<!-- Need to Have At Least One Account Set as Default Account, The First Default Account Found will be the one used! --> 
 	<accounts print="true">
-		<account name="phillipinogamersserver" default="false">
+		<account name="phillipinogamersserver" default="true">
 			<serverandport>218.219.148.36:8000</serverandport>
 			<username>talkkonnect001</username>
 			<password></password>
@@ -167,7 +167,7 @@
 			<lights>
 				<voiceactivityledpin>2</voiceactivityledpin>
 				<participantsledpin>3</participantsledpin> 
-				<transmitledpin>0</transmitledpin>     
+				<transmitledpin>4</transmitledpin>     
 				<onlineledpin>5</onlineledpin>       
 			</lights>
 
@@ -198,8 +198,8 @@
 			<!-- Set GPIO for Paralled Interface HD44780 LCD Module -->
 			<screen>
                                 <lcdbacklighttimerenabled>true</lcdbacklighttimerenabled>
-                                <lcdbacklighttimeoutsecs>10</lcdbacklighttimeoutsecs>
-				<backlightpin>4</backlightpin>
+                                <lcdbacklighttimeoutsecs>30</lcdbacklighttimeoutsecs>
+				<backlightpin>6</backlightpin>
 				<rspin>7</rspin>
 				<epin>8</epin>
 				<d4pin>25</d4pin>

@@ -1,3 +1,0 @@
-02/01/2018 @ 11:37 fixed backlight led wont turn on after timeout with event receiving new transmission
-02/01/2018 @ 12:01 created checking for at least one default account in xml config so talkkonnect wont crash
-02/01/2018 @ 15:48 solved problem for backlight off after quit talkkonnect, was getting triggered by on-disconnect

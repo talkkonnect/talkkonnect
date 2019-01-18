@@ -190,8 +190,8 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 		}
 		watchpin = false
 		reclaim()
-		//emptyBufs.Delete()
-		//source.Delete()
+		emptyBufs.Delete()
+		source.Delete()
 	}()
 }
 

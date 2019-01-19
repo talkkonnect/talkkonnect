@@ -1,4 +1,4 @@
-<!-- XML Configuration file for talkkonnect a headless mumble transceiver/gateway -->
+<!-- XML Configuration file for talkkonnect a headless talkkonnect transceiver/gateway -->
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="talkkonnect/xml">
 
@@ -34,14 +34,14 @@
 			<autoprovisioning enabled="false">
 				<tkid>00000001</tkid> 
 				<url>http://provsion.example.com</url> 
-				<savefilepath>/home/mumble/gocode/src/github.com/talkkonnect/talkkonnect</savefilepath> 
+				<savefilepath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect</savefilepath> 
 				<savefilename>talkkonnect.xml</savefilename> 
 			</autoprovisioning>
 
 			<!-- Repeater Beacon play Short WAV file every period (secs) to announce by playing sound file into stream to show that TK Repeater is alive and in service -->
 			<beacon enabled="false">
 				<beacontimersecs>10</beacontimersecs>
-				<beaconfileandpath>/home/mumble/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/tkbeacon.wav</beaconfileandpath>
+				<beaconfileandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/tkbeacon.wav</beaconfileandpath>
 				<volume>1</volume>
 			</beacon>
 
@@ -50,41 +50,41 @@
                                 <volumelevel>70</volumelevel>
                                 <participants>false</participants>
 				<channelup>true</channelup>
-				<channelupfilenameandpath>/home/mumble/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/ChannelUp.wav</channelupfilenameandpath>         
+				<channelupfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/ChannelUp.wav</channelupfilenameandpath>         
 				<channeldown>true</channeldown>
-				<channeldownfilenameandpath>/home/mumble/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/ChannelDown.wav</channeldownfilenameandpath>       
+				<channeldownfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/ChannelDown.wav</channeldownfilenameandpath>       
 				<muteunmutespeaker>true</muteunmutespeaker>
-				<muteunmutespeakerfilenameandpath>/home/mumble/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/MuteUnMuteSpeaker.wav</muteunmutespeakerfilenameandpath> 
+				<muteunmutespeakerfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/MuteUnMuteSpeaker.wav</muteunmutespeakerfilenameandpath> 
 				<currentvolumelevel>true</currentvolumelevel>
-				<currentvolumelevelfilenameandpath>/home/mumble/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/CurrentVolumeLevel.wav</currentvolumelevelfilenameandpath>
+				<currentvolumelevelfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/CurrentVolumeLevel.wav</currentvolumelevelfilenameandpath>
 				<digitalvolumeup>true</digitalvolumeup>
-				<digitalvolumeupfilenameandpath>/home/mumble/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/DigitalVolumeUp.wav</digitalvolumeupfilenameandpath>   
+				<digitalvolumeupfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/DigitalVolumeUp.wav</digitalvolumeupfilenameandpath>   
 				<digitalvolumedown>true</digitalvolumedown>
-				<digitalvolumedownfilenameandpath>/home/mumble/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/DigitalVolumeDown.wav</digitalvolumedownfilenameandpath> 
+				<digitalvolumedownfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/DigitalVolumeDown.wav</digitalvolumedownfilenameandpath> 
 				<listserverchannels>true</listserverchannels>
-				<listserverchannelsfilenameandpath>/home/mumble/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/ListServerChannels.wav</listserverchannelsfilenameandpath>
+				<listserverchannelsfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/ListServerChannels.wav</listserverchannelsfilenameandpath>
 				<starttransmitting>true</starttransmitting>
-				<starttransmittingfilenameandpath>/home/mumble/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/StartTransmitting.wav</starttransmittingfilenameandpath> 
+				<starttransmittingfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/StartTransmitting.wav</starttransmittingfilenameandpath> 
 				<stoptransmitting>true</stoptransmitting>
-				<stoptransmittingfilenameandpath>/home/mumble/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/StopTransmitting.wav</stoptransmittingfilenameandpath>  
+				<stoptransmittingfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/StopTransmitting.wav</stoptransmittingfilenameandpath>  
 				<listonlineusers>true</listonlineusers>
-				<listonlineusersfilenameandpath>/home/mumble/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/ListOnlineUsers.wav</listonlineusersfilenameandpath>   
+				<listonlineusersfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/ListOnlineUsers.wav</listonlineusersfilenameandpath>   
 				<playchimes>true</playchimes>
-				<playchimesfilenameandpath>/home/mumble/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/PlayChimes.wav</playchimesfilenameandpath>
+				<playchimesfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/PlayChimes.wav</playchimesfilenameandpath>
 				<requestgpsposition>true</requestgpsposition>
-				<requestgpspositionfilenameandpath>/home/mumble/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/RequestGpsPosition.wav</requestgpspositionfilenameandpath>
+				<requestgpspositionfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/RequestGpsPosition.wav</requestgpspositionfilenameandpath>
 				<panicsimulation>true</panicsimulation>
-				<panicsimulationfilenameandpath>/home/mumble/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/PanicSimulation.wav</panicsimulationfilenameandpath>   
+				<panicsimulationfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/PanicSimulation.wav</panicsimulationfilenameandpath>   
 				<printxmlconfig>true</printxmlconfig>
-				<printxmlconfigfilenameandpath>/home/mumble/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/PrintXmlConfig.wav</printxmlconfigfilenameandpath>    
+				<printxmlconfigfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/PrintXmlConfig.wav</printxmlconfigfilenameandpath>    
 				<sendemail>true</sendemail>
-				<sendemailfilenameandpath>/home/mumble/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/SendEmail.wav</sendemailfilenameandpath>         
+				<sendemailfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/SendEmail.wav</sendemailfilenameandpath>         
 				<displaymenu>true</displaymenu>
-				<displaymenufilenameandpath>/home/mumble/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/DisplayMenu.wav</displaymenufilenameandpath>       
+				<displaymenufilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/DisplayMenu.wav</displaymenufilenameandpath>       
 				<quittalkkonnect>true</quittalkkonnect>
-				<quittalkkonnectfilenameandpath>/home/mumble/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/QuitTalkkonnect.wav</quittalkkonnectfilenameandpath>   
+				<quittalkkonnectfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/QuitTalkkonnect.wav</quittalkkonnectfilenameandpath>   
 				<talkkonnectloaded>true</talkkonnectloaded>
-				<talkkonnectloadedfilenameandpath>/home/mumble/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/TalkkonnectLoaded.wav</talkkonnectloadedfilenameandpath> 
+				<talkkonnectloadedfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/TalkkonnectLoaded.wav</talkkonnectloadedfilenameandpath> 
 			</tts>
 
 
@@ -104,24 +104,24 @@
 			<sounds>
 				<!-- File for Local Sound Playing (Support Only WAV Format) -->
 				<event enabled="true">
-					<filenameandpath>/home/mumble/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/tone.wav</filenameandpath>
+					<filenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/tone.wav</filenameandpath>
 				</event>
 				
 				<!-- File for Sound Playing into Transmitted Stream (Supports Most Audio Formats -->
 				<alert enabled="true">
-					<filenameandpath>/home/mumble/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/alertsound.wav</filenameandpath>
+					<filenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/alertsound.wav</filenameandpath>
 					<volume>1.0</volume>     
 				</alert>
 
 				<!-- File for Sound Playing into Transmitted Stream (Supports Most Audio Formats -->
 				<rogerbeep enabled="true">
-					<filenameandpath>/home/mumble/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/Roger-K_RB.wav</filenameandpath>
+					<filenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/Roger-K_RB.wav</filenameandpath>
 					<volume>0.1</volume>     
 				</rogerbeep>
 
 				<!-- File for Sound Playing into Transmitted Stream (Supports Most Audio Formats -->
 				<chimes enabled="true">
-					<!--<filenameandpath>/home/mumble/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/everybreath.mp3</filenameandpath>-->
+					<!--<filenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/everybreath.mp3</filenameandpath>-->
 					<!--filenameandpath>http://d.liveatc.net/vtbs_app</filenameandpath>-->
 					<!--<filenameandpath>http://d.liveatc.net/kjfk_arinc</filenameandpath>-->
 					<!--<filenameandpath>http://d.liveatc.net/vtbs_atis</filenameandpath>-->
@@ -229,7 +229,7 @@
 
 			<!-- Set Parameters for Panic Button Simulation -->
 			<panicfunction enabled="true">
-				<filenameandpath>/home/mumble/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/alertsound.wav</filenameandpath>
+				<filenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/alertsound.wav</filenameandpath>
 				<volume>0.5</volume>     
 				<sendident>true</sendident>
 				<panicmessage>Need Help! Now!</panicmessage>

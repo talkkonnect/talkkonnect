@@ -132,7 +132,9 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 
 	go func() {
 		source := openal.NewSource()
-		emptyBufs := openal.NewBuffers(8)
+		emptyBufs := openal.NewBuffers(12)
+
+
 		reclaim := func() {
 			if n := source.BuffersProcessed(); n > 0 {
 				reclaimedBufs := make(openal.Buffers, n)
@@ -155,16 +157,19 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 			}
 			for i, value := range packet.AudioBuffer {
 				binary.LittleEndian.PutUint16(raw[i*2:], uint16(value))
+
 			}
 			reclaim()
 
 			if len(emptyBufs) == 0 {
+				log.Println("alert: emptybuffs exhausted!")
 				continue
 			}
 
 			last := len(emptyBufs) - 1
 			buffer := emptyBufs[last]
 			emptyBufs = emptyBufs[:last]
+
 			buffer.SetData(openal.FormatMono16, raw[:samples*2], gumble.AudioSampleRate)
 			source.QueueBuffer(buffer)
 			if source.State() != openal.Playing {

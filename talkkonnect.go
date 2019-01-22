@@ -67,6 +67,7 @@ func (b *Talkkonnect) talkkonnectMenu() {
 	log.Println("info: │ <F11> Playback/Stop Chimes  │ <F12> For GPS Position           │")
 	log.Println("info: │<Ctrl-P> Start/Stop Panic Sim│<Ctrx-X> Screen Dump XML Config   │")
 	log.Println("info: │<Ctrl-E> Send Email          │<Ctrl-N> Connect to Next Server   │")
+	log.Println("info: │<Ctrl-M> Ping Servers        │                                  │")
 	log.Println("info: ├─────────────────────────────┴──────────────────────────────────┤")
 	log.Println("info: │   visit us at www.talkkonnect.com and github.com/talkkonnect   │")
 	log.Println("info: └────────────────────────────────────────────────────────────────┘")

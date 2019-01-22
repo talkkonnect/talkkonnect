@@ -5,8 +5,6 @@ import (
 	"github.com/talkkonnect/volume-go"
 	"log"
 	"net"
-	"github.com/talkkonnect/gumble/gumble"
-	"time"
 )
 
 func talkkonnectBanner() {
@@ -21,7 +19,7 @@ func talkkonnectBanner() {
 	log.Println("info: ├────────────────────────────────────────────────────────────────┤")
 	log.Println("info: │Created By : Suvir Kumar  <suvir@talkkonnect.com>               │")
 	log.Println("info: ├────────────────────────────────────────────────────────────────┤")
-	log.Println("info: │Version 1.35 Released January 21 2019                           │")
+	log.Println("info: │Version 1.36 Released January 22 2019                           │")
 	log.Println("info: │Additional Modifications Released under MPL 2.0 License         │")
 	log.Println("info: ├────────────────────────────────────────────────────────────────┤")
 	log.Println("info: │visit us at www.talkkonnect.com and github.com/talkkonnect      │")
@@ -82,7 +80,6 @@ func (b *Talkkonnect) talkkonnectMenu() {
 		log.Println("info: Speaker Currently Not Muted")
 	}
 
-	b.pingserver()
 }
 
 func localAddresses() {
@@ -108,20 +105,4 @@ func localAddresses() {
 	}
 }
 
-func (b *Talkkonnect) pingserver() {
-
-        resp, err := gumble.Ping(b.Address,time.Second*1,time.Second*5)
-        if err != nil {
-                log.Println(fmt.Sprintf("warn: Ping Error ",err))
-		return
-        }
-        major, minor, patch := resp.Version.SemanticVersion()
-        log.Println("Address:         ", resp.Address)
-        log.Println("Ping:            ", resp.Ping)
-        log.Println("Version:         ", major, minor, patch)
-        log.Println("Connected Users: ", resp.ConnectedUsers)
-        log.Println("Maximum Users:   ", resp.MaximumUsers)
-        log.Println("Maximum Bitrate: ", resp.MaximumBitrate)
-
-}
 

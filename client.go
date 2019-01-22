@@ -312,6 +312,8 @@ keyPressListenerLoop:
 				b.commandKeyCtrlP()
 			case term.KeyCtrlX:
 				b.commandKeyCtrlX()
+			case term.KeyCtrlM:
+				b.commandKeyCtrlM()
 			default:
 				log.Println("--")
 				if ev.Ch != 0 {
@@ -1057,6 +1059,13 @@ func (b *Talkkonnect) httpHandler(w http.ResponseWriter, r *http.Request) {
 		} else {
 			fmt.Fprintf(w, "API Send Email Congfig Denied\n")
 		}
+	case "commandKeyCtrlM":
+		if APIEmailEnabled {
+			b.commandKeyCtrlM()
+			fmt.Fprintf(w, "API Ping Servers Processed Succesfully\n")
+		} else {
+			fmt.Fprintf(w, "API Ping Servers Denied\n")
+		}
 	}
 }
 
@@ -1507,6 +1516,20 @@ func (b *Talkkonnect) commandKeyCtrlX() {
 	log.Println("--")
 }
 
+func (b *Talkkonnect) commandKeyCtrlM() {
+	log.Println("Ctrl-M Ping Servers ")
+
+	if TTSEnabled && TTSPingServers {
+		err := PlayWavLocal(TTSPingServersFileNameAndPath, TTSVolumeLevel)
+		if err != nil {
+			log.Println("Play Wav Local Module Returned Error: ", err)
+		}
+
+	}
+
+	b.pingservers()
+}
+
 func (b *Talkkonnect) SendMessage(textmessage string, PRecursive bool) {
 	b.Client.Self.Channel.Send(textmessage, PRecursive)
 }
@@ -1563,3 +1586,29 @@ func (b *Talkkonnect) TxLockTimer() {
 		}()
 	}
 }
+
+func (b *Talkkonnect) pingservers() {
+
+	for i := 0; i < len(Server); i++ {
+		resp, err := gumble.Ping(Server[i],time.Second*1,time.Second*5)
+
+        	log.Println("info: Server # ", i+1)
+
+		if err != nil {
+        		log.Println(fmt.Sprintf("warn: Ping Error ",err))
+			log.Println("--")
+			continue
+        	}
+
+		major, minor, patch := resp.Version.SemanticVersion()
+
+        	log.Println("info: Server Address:         ", resp.Address)
+        	log.Println("info: Server Ping:            ", resp.Ping)
+        	log.Println("info: Server Version:         ", major, minor, patch)
+        	log.Println("info: Server Connected Users: ", resp.ConnectedUsers)
+        	log.Println("info: Server Maximum Users:   ", resp.MaximumUsers)
+        	log.Println("info: Server Maximum Bitrate: ", resp.MaximumBitrate)
+		log.Println("info: --")
+	}
+}
+

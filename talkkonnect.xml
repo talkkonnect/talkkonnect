@@ -85,6 +85,8 @@
 				<quittalkkonnectfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/QuitTalkkonnect.wav</quittalkkonnectfilenameandpath>   
 				<talkkonnectloaded>true</talkkonnectloaded>
 				<talkkonnectloadedfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/TalkkonnectLoaded.wav</talkkonnectloadedfilenameandpath> 
+				<pingservers>true</pingservers>
+				<pingserversfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/PingServers.wav</pingserversfilenameandpath> 
 			</tts>
 
 
@@ -157,6 +159,7 @@
 				<panicsimulation>true</panicsimulation>
 				<printxmlconfig>true</printxmlconfig>
 				<sendemail>true</sendemail>
+				<pingservers>true</pingservers>
 			</api>
 
 		</software>

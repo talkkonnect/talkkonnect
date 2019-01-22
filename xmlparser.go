@@ -119,6 +119,8 @@ var (
 	TTSQuitTalkkonnectFileNameAndPath    string
 	TTSTalkkonnectLoaded                 bool
 	TTSTalkkonnectLoadedFileNameAndPath  string
+	TTSPingServers                       bool
+	TTSPingServersFileNameAndPath        string
 )
 
 //gmail smtp settings
@@ -170,6 +172,7 @@ var (
 	APIPanicSimulation    bool
 	APIPrintXmlConfig     bool
 	APIEmailEnabled       bool
+	APIPingServersEnabled bool
 )
 
 // target board settings
@@ -370,6 +373,8 @@ type TTS struct {
 	TTSQuitTalkkonnectFileNameAndPath    string   `xml:"quittalkkonnectfilenameandpath"`
 	TTSTalkkonnectLoaded                 bool     `xml:"talkkonnectloaded"`
 	TTSTalkkonnectLoadedFileNameAndPath  string   `xml:"talkkonnectloadedfilenameandpath"`
+	TTSPingServers                       bool     `xml:"pingservers"`
+	TTSPingServersFileNameAndPath        string   `xml:"pingserversfilenameandpath"`
 }
 
 type Smtp struct {
@@ -414,6 +419,7 @@ type API struct {
 	APIPanicSimulation    bool     `xml:"panicsimulation"`
 	APIPrintXmlConfig     bool     `xml:"printxmlconfig"`
 	APIEmailEnabled       bool     `xml:"sendemail"`
+	APIPingServersEnabled bool     `xml:"pingservers"`
 }
 
 type Event struct {
@@ -633,6 +639,8 @@ func readxmlconfig(file string) error {
 	TTSQuitTalkkonnectFileNameAndPath = document.Global.Software.TTS.TTSQuitTalkkonnectFileNameAndPath
 	TTSTalkkonnectLoaded = document.Global.Software.TTS.TTSTalkkonnectLoaded
 	TTSTalkkonnectLoadedFileNameAndPath = document.Global.Software.TTS.TTSTalkkonnectLoadedFileNameAndPath
+	TTSPingServers = document.Global.Software.TTS.TTSPingServers
+	TTSPingServersFileNameAndPath = document.Global.Software.TTS.TTSPingServersFileNameAndPath
 
 	EmailEnabled = document.Global.Software.Smtp.EmailEnabled
 	EmailUsername = document.Global.Software.Smtp.EmailUsername
@@ -681,6 +689,7 @@ func readxmlconfig(file string) error {
 	APIPanicSimulation = document.Global.Software.API.APIPanicSimulation
 	APIPrintXmlConfig = document.Global.Software.API.APIPrintXmlConfig
 	APIEmailEnabled = document.Global.Software.API.APIEmailEnabled
+	APIPingServersEnabled = document.Global.Software.API.APIPingServersEnabled
 
 	TargetBoard = document.Global.Hardware.TargetBoard
 
@@ -825,6 +834,8 @@ func printxmlconfig() {
 		log.Println("info: TTS TalkkonnectLoaded  ", fmt.Sprintf("%t", TTSTalkkonnectLoaded))
 		log.Println("info: TTS TalkkonnectLoadedFileNameAndPath ", TTSTalkkonnectLoadedFileNameAndPath)
 		log.Println("info: TTS TalkkonnectLoaded  " + fmt.Sprintf("%t", TTSTalkkonnectLoaded))
+		log.Println("info: TTS PingServersFileNameAndPath ", TTSPingServersFileNameAndPath)
+		log.Println("info: TTS PingServers " + fmt.Sprintf("%t", TTSPingServers))
 	}
 
 	if printsmtp {
@@ -882,6 +893,7 @@ func printxmlconfig() {
 		log.Println("info: PanicSimulation    " + fmt.Sprintf("%t", APIPanicSimulation))
 		log.Println("info: PrintXmlConfig     " + fmt.Sprintf("%t", APIPrintXmlConfig))
 		log.Println("info: EmailEnabled       " + fmt.Sprintf("%t", APIEmailEnabled))
+		log.Println("info: PingServersEnabled " + fmt.Sprintf("%t", APIPingServersEnabled))
 	}
 
 	if printtargetboard {

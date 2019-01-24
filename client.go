@@ -52,6 +52,8 @@ type Talkkonnect struct {
 
 	Name      string
 	Address   string
+	Username  string
+	Ident     string
 	TLSConfig tls.Config
 
 	ConnectAttempts uint
@@ -131,6 +133,8 @@ func PreInit1() {
 		Config:      gumble.NewConfig(),
 		Name:        Name[AccountIndex],
 		Address:     Server[AccountIndex],
+		Username:    Username[AccountIndex],
+		Ident:	     Ident[AccountIndex],
 		ChannelName: Channel[AccountIndex],
 		Logging:     Logging,
 		Daemonize:   Daemonize,
@@ -499,7 +503,7 @@ func (b *Talkkonnect) OnConnect(e *gumble.ConnectEvent) {
 
 	b.IsConnected = true
 	b.LEDOn(b.OnlineLED)
-	log.Println("info: Connected to ", b.Client.Conn.RemoteAddr(), " on attempt", b.ConnectAttempts)
+	log.Println("info: Connected to ", b.Name," ",b.Client.Conn.RemoteAddr()," on attempt", b.ConnectAttempts)
 	if e.WelcomeMessage != nil {
 		log.Print(fmt.Sprintf("info: Welcome message: %s\n", esc(*e.WelcomeMessage)))
 	}
@@ -537,7 +541,7 @@ func (b *Talkkonnect) OnDisconnect(e *gumble.DisconnectEvent) {
 	b.LEDOff(b.TransmitLED)
 
 	if reason == "" {
-		log.Println("warn: Connection to ", b.Address, "disconnected" )
+		log.Println("warn: Connection to ", b.Address, "disconnected")
 		if !ServerHop {
 			log.Println("warn: Attempting Recibbect in 10 seconds...")
 		}
@@ -1428,7 +1432,7 @@ func (b *Talkkonnect) commandKeyCtrlP() {
 		}
 
 		if PSendIdent {
-			b.SendMessage(fmt.Sprintf("My Username is %s and Ident is %s", Username, Ident), PRecursive)
+			b.SendMessage(fmt.Sprintf("My Username is %s and Ident is %s", b.Username, b.Ident), PRecursive)
 		}
 
 		if PSendGpsLocation && GpsEnabled {
@@ -1475,8 +1479,8 @@ func (b *Talkkonnect) commandKeyCtrlE() {
 	if EmailEnabled {
 
 		emailMessage := fmt.Sprintf(EmailMessage + "\n")
-		emailMessage = emailMessage + fmt.Sprintf("Ident: %s \n", Ident)
-		emailMessage = emailMessage + fmt.Sprintf("Mumble Username: %s \n", Username)
+		emailMessage = emailMessage + fmt.Sprintf("Ident: %s \n", b.Ident)
+		emailMessage = emailMessage + fmt.Sprintf("Mumble Username: %s \n", b.Username)
 
 		if EmailGpsDateTime {
 			emailMessage = emailMessage + fmt.Sprintf("Date "+GPSDate+" UTC Time "+GPSTime+"\n")
@@ -1589,26 +1593,33 @@ func (b *Talkkonnect) TxLockTimer() {
 
 func (b *Talkkonnect) pingservers() {
 
-	for i := 0; i < len(Server); i++ {
-		resp, err := gumble.Ping(Server[i],time.Second*1,time.Second*5)
+	currentconn := " Not Connected "
 
-        	log.Println("info: Server # ", i+1)
+	for i := 0; i < len(Server); i++ {
+		resp, err := gumble.Ping(Server[i], time.Second*1, time.Second*5)
+
+		if b.Address == Server[i] {
+			currentconn = " --> Connected"
+		} else {
+			currentconn = " --> Not Connected"
+		}
+
+		log.Println("info: Server # ", i+1)
 
 		if err != nil {
-        		log.Println(fmt.Sprintf("warn: Ping Error ",err))
+			log.Println(fmt.Sprintf("warn: Ping Error ", err))
 			log.Println("--")
 			continue
-        	}
+		}
 
 		major, minor, patch := resp.Version.SemanticVersion()
 
-        	log.Println("info: Server Address:         ", resp.Address)
-        	log.Println("info: Server Ping:            ", resp.Ping)
-        	log.Println("info: Server Version:         ", major, minor, patch)
-        	log.Println("info: Server Connected Users: ", resp.ConnectedUsers)
-        	log.Println("info: Server Maximum Users:   ", resp.MaximumUsers)
-        	log.Println("info: Server Maximum Bitrate: ", resp.MaximumBitrate)
+		log.Println("info: Server Address:         ", resp.Address, currentconn)
+		log.Println("info: Server Ping:            ", resp.Ping)
+		log.Println("info: Server Version:         ", major, minor, patch)
+		log.Println("info: Server Connected Users: ", resp.ConnectedUsers)
+		log.Println("info: Server Maximum Users:   ", resp.MaximumUsers)
+		log.Println("info: Server Maximum Bitrate: ", resp.MaximumBitrate)
 		log.Println("info: --")
 	}
 }
-

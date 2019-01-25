@@ -1616,9 +1616,8 @@ func (b *Talkkonnect) pingservers() {
 
 		log.Println("info: Server Address:         ", resp.Address, currentconn)
 		log.Println("info: Server Ping:            ", resp.Ping)
-		log.Println("info: Server Version:         ", major, minor, patch)
-		log.Println("info: Server Connected Users: ", resp.ConnectedUsers)
-		log.Println("info: Server Maximum Users:   ", resp.MaximumUsers)
+		log.Println("info: Server Version:         ", major,".",minor,".",patch)
+		log.Println("info: Server Users:           ", resp.ConnectedUsers,"/",resp.MaximumUsers)
 		log.Println("info: Server Maximum Bitrate: ", resp.MaximumBitrate)
 		log.Println("info: --")
 	}

@@ -4,7 +4,7 @@ import (
 	"crypto/rand"
 	"crypto/tls"
 	"fmt"
- 	"github.com/comail/colog"
+	"github.com/comail/colog"
 	"github.com/hegedustibor/htgo-tts"
 	"github.com/kennygrant/sanitize"
 	hd44780 "github.com/talkkonnect/go-hd44780"
@@ -134,7 +134,7 @@ func PreInit1() {
 		Name:        Name[AccountIndex],
 		Address:     Server[AccountIndex],
 		Username:    Username[AccountIndex],
-		Ident:	     Ident[AccountIndex],
+		Ident:       Ident[AccountIndex],
 		ChannelName: Channel[AccountIndex],
 		Logging:     Logging,
 		Daemonize:   Daemonize,
@@ -202,8 +202,8 @@ func (b *Talkkonnect) Init() {
 	b.LEDOffAll()
 
 	if b.Logging == "screen" {
-                colog.Register()
-                colog.SetOutput(os.Stdout)
+		colog.Register()
+		colog.SetOutput(os.Stdout)
 	} else {
 		wrt := io.MultiWriter(os.Stdout, f)
 		log.SetOutput(wrt)
@@ -503,7 +503,7 @@ func (b *Talkkonnect) OnConnect(e *gumble.ConnectEvent) {
 
 	b.IsConnected = true
 	b.LEDOn(b.OnlineLED)
-	log.Println("info: Connected to ", b.Name," ",b.Client.Conn.RemoteAddr()," on attempt", b.ConnectAttempts)
+	log.Println("info: Connected to ", b.Name, " ", b.Client.Conn.RemoteAddr(), " on attempt", b.ConnectAttempts)
 	if e.WelcomeMessage != nil {
 		log.Print(fmt.Sprintf("info: Welcome message: %s\n", esc(*e.WelcomeMessage)))
 	}
@@ -1616,8 +1616,8 @@ func (b *Talkkonnect) pingservers() {
 
 		log.Println("info: Server Address:         ", resp.Address, currentconn)
 		log.Println("info: Server Ping:            ", resp.Ping)
-		log.Println("info: Server Version:         ", major,".",minor,".",patch)
-		log.Println("info: Server Users:           ", resp.ConnectedUsers,"/",resp.MaximumUsers)
+		log.Println("info: Server Version:         ", major, ".", minor, ".", patch)
+		log.Println("info: Server Users:           ", resp.ConnectedUsers, "/", resp.MaximumUsers)
 		log.Println("info: Server Maximum Bitrate: ", resp.MaximumBitrate)
 		log.Println("info: --")
 	}

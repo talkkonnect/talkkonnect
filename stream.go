@@ -19,7 +19,7 @@ var (
 	VoiceActivityLED = gpio.NewOutput(VoiceActivityLEDPin, false)
 	now              = time.Now()
 	LastTime         = now.Unix()
-	debuglevel       = 3
+	debuglevel       = 2
 )
 
 type Stream struct {
@@ -69,7 +69,9 @@ func (s *Stream) Destroy() {
 }
 
 func (s *Stream) StartSourceFile() error {
-	log.Println("alert: Start Source File")
+	if debuglevel >= 3 {
+		log.Println("alert: Start Source File")
+	}
 	if s.sourceStop != nil {
 		return ErrState
 	}
@@ -80,7 +82,9 @@ func (s *Stream) StartSourceFile() error {
 }
 
 func (s *Stream) StartSource() error {
-	log.Println("alert: Start Source")
+	if debuglevel >= 3 {
+		log.Println("alert: Start Source")
+	}
 	if s.sourceStop != nil {
 		return ErrState
 	}
@@ -136,7 +140,6 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 	go func() {
 		source := openal.NewSource()
 		emptyBufs := openal.NewBuffers(12)
-
 
 		reclaim := func() {
 			if n := source.BuffersProcessed(); n > 0 {
@@ -227,7 +230,7 @@ func (s *Stream) sourceRoutine() {
 	for {
 		select {
 		case <-stop:
-			if debuglevel >=3 {
+			if debuglevel >= 3 {
 				log.Println("alert: Ticker Stop!")
 			}
 			return

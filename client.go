@@ -4,7 +4,6 @@ import (
 	"crypto/rand"
 	"crypto/tls"
 	"fmt"
-	"github.com/comail/colog"
 	"github.com/hegedustibor/htgo-tts"
 	"github.com/kennygrant/sanitize"
 	hd44780 "github.com/talkkonnect/go-hd44780"
@@ -202,11 +201,10 @@ func (b *Talkkonnect) Init() {
 	b.LEDOffAll()
 
 	if b.Logging == "screen" {
-		colog.Register()
-		colog.SetOutput(os.Stdout)
+		log.SetOutput(os.Stdout)
 	} else {
 		wrt := io.MultiWriter(os.Stdout, f)
-		colog.SetOutput(wrt)
+		log.SetOutput(wrt)
 	}
 
 	err = term.Init()

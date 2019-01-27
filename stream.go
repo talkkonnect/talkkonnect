@@ -19,6 +19,7 @@ var (
 	VoiceActivityLED = gpio.NewOutput(VoiceActivityLEDPin, false)
 	now              = time.Now()
 	LastTime         = now.Unix()
+	debuglevel       = 3
 )
 
 type Stream struct {
@@ -90,7 +91,9 @@ func (s *Stream) StartSource() error {
 }
 
 func (s *Stream) StopSource() error {
-	log.Println("alert: Stop Source File")
+	if debuglevel >= 3 {
+		log.Println("alert: Stop Source File")
+	}
 	if s.sourceStop == nil {
 		return ErrState
 	}
@@ -162,7 +165,9 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 			reclaim()
 
 			if len(emptyBufs) == 0 {
-				log.Println("alert: emptybuffs exhausted!")
+				if debuglevel >= 3 {
+					log.Println("alert: emptybuffs exhausted!")
+				}
 				continue
 			}
 
@@ -174,7 +179,7 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 			source.QueueBuffer(buffer)
 			if source.State() != openal.Playing {
 				now = time.Now()
-				if LastTime != now.Unix() {
+				if LastTime != now.Unix() && debuglevel >= 3 {
 					log.Println("alert: Source State is", source.State())
 					now = time.Now()
 					LastTime = now.Unix()
@@ -222,7 +227,9 @@ func (s *Stream) sourceRoutine() {
 	for {
 		select {
 		case <-stop:
-			log.Println("alert: Ticker Stop!")
+			if debuglevel >=3 {
+				log.Println("alert: Ticker Stop!")
+			}
 			return
 		case <-ticker.C:
 			//this is for encofing (transmitting)

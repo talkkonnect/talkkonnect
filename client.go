@@ -1599,12 +1599,12 @@ func (b *Talkkonnect) pingservers() {
 		resp, err := gumble.Ping(Server[i], time.Second*1, time.Second*5)
 
 		if b.Address == Server[i] {
-			currentconn = " --> Connected"
+			currentconn = " --> Connected "
 		} else {
-			currentconn = " --> Not Connected"
+			currentconn = " --> Not Connected "
 		}
 
-		log.Println("info: Server # ", i+1)
+		log.Println("info: Server # ", i+1, "[" + Name[i]+"]")
 
 		if err != nil {
 			log.Println(fmt.Sprintf("warn: Ping Error ", err))

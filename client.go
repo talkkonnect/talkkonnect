@@ -1599,12 +1599,12 @@ func (b *Talkkonnect) pingservers() {
 		resp, err := gumble.Ping(Server[i], time.Second*1, time.Second*5)
 
 		if b.Address == Server[i] {
-			currentconn = " --> Connected "
+			currentconn = " ** Connected ** "
 		} else {
-			currentconn = " --> Not Connected "
+			currentconn = ""
 		}
 
-		log.Println("info: Server # ", i+1, "[" + Name[i]+"]")
+		log.Println("info: Server # ", i+1, "[" + Name[i]+"]"+ currentconn)
 
 		if err != nil {
 			log.Println(fmt.Sprintf("warn: Ping Error ", err))
@@ -1614,7 +1614,7 @@ func (b *Talkkonnect) pingservers() {
 
 		major, minor, patch := resp.Version.SemanticVersion()
 
-		log.Println("info: Server Address:         ", resp.Address, currentconn)
+		log.Println("info: Server Address:         ", resp.Address)
 		log.Println("info: Server Ping:            ", resp.Ping)
 		log.Println("info: Server Version:         ", major, ".", minor, ".", patch)
 		log.Println("info: Server Users:           ", resp.ConnectedUsers, "/", resp.MaximumUsers)

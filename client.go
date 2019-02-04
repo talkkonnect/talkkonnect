@@ -1575,7 +1575,17 @@ func (b *Talkkonnect) BackLightTimer() {
 	go func() {
 		<-BackLightTime.C
 		//log.Printf("debug: LCD Backlight Timer Address %v", BackLightTime, " Off Timed Out After", LCDBackLightTimeoutSecs, " Seconds\n")
-		b.LEDOff(b.BackLightLED)
+		if LCDInterfaceType == "parallel" {
+			b.LEDOff(b.BackLightLED)
+		}
+		if LCDInterfaceType == "i2c" {
+			lcd := hd44780.NewI2C4bit(LCDI2CAddress)
+                	if err := lcd.Open(); err != nil {
+                        	log.Println("alert: Can't open lcd: " + err.Error())
+                        return
+                	}
+			lcd.ToggleBacklight()
+		}
 	}()
 }
 

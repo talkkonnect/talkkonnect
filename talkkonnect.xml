@@ -6,7 +6,7 @@
 	<accounts print="true">
 		<account name="phillipinogamersserver" default="true">
 			<serverandport>218.219.148.36:8000</serverandport>
-			<username>talkkonnect001</username>
+			<username></username>
 			<password></password>
 			<insecure>true</insecure>
 			<certificate></certificate>

@@ -141,7 +141,7 @@ func PreInit1() {
 	}
 
 	// if no username specified, lets just autogen a random one
-	if len(Username) == 0 {
+	if len(b.Username) == 0 {
 		buf := make([]byte, 6)
 		_, err := rand.Read(buf)
 		if err != nil {
@@ -363,6 +363,7 @@ func (b *Talkkonnect) Connect() {
 		log.Println("warn: Connection Error ", err, " connecting to ", b.Address, " failed (%s), attempting again in 10 seconds...")
 		if !ServerHop {
 			log.Println("warn: In the Connect Function")
+			log.Println("warn: Trying With Username ", Username)
 			b.ReConnect()
 		}
 	} else {

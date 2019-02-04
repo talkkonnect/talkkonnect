@@ -163,30 +163,28 @@
 				<pingservers>true</pingservers>
 			</api>
 
-
 			<!-- Printout Read Varaibles from XML Config For Debugging When Pressing Ctrl-X -->
-<!--
 
                         <printvariables>
-                                <account>true</account>
-                                <logging>false</logging>
-				<provisioning>false</provisioning>
-				<beacon>false</beacon>
-				<tts>false</tts>
-				<smtp>false</smtp>
-				<sounds>false</sounds>
-				<txtimeout>false</txtimeout>
-				<httpapi>false</httpapi>
-				<targetboard>true</targetboard>
-				<leds>true<leds/>
-				<heartbeat>true</heartbeat>
-				<buttons>true</buttons>
-				<comment>false</comment>
-				<lcd>true</lcd>
-				<gps>false</gps>
-				<panic>true</panic>
+                                <printaccount>true</printaccount>
+                                <printlogging>false</printlogging>
+				<printprovisioning>false</printprovisioning>
+				<printbeacon>false</printbeacon>
+				<printtts>false</printtts>
+				<printsmtp>false</printsmtp>
+				<printsounds>false</printsounds>
+				<printtxtimeout>false</printtxtimeout>
+				<printhttpapi>false</printhttpapi>
+				<printtargetboard>false</printtargetboard>
+				<printleds>false</printleds>
+				<printheartbeat>false</printheartbeat>
+				<printbuttons>false</printbuttons>
+				<printcomment>false</printcomment>
+				<printlcd>false</printlcd>
+				<printgps>false</printgps>
+				<printpanic>false</printpanic>
                         </printvariables>
--->
+
 		</software>
 
 		<!-- Section for Configuring Rasperrry Pi GPIOs used for LEDs, Buttons, LCD Screens, GPS Serial Port Settings, Panic Functio Settings -->
@@ -278,5 +276,6 @@
 		</hardware>
 	</global>
 </document>
+
 
 

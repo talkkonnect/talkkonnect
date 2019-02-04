@@ -19,7 +19,7 @@ var (
 
 //print xml config sections for easy debugging, set any section to false to prevent printing to screen
 var (
-	printaccount      bool = true
+	printaccount      bool = false
 	printlogging      bool = false
 	printprovisioning bool = false
 	printbeacon       bool = false
@@ -28,14 +28,14 @@ var (
 	printsounds       bool = false
 	printtxtimeout    bool = false
 	printhttpapi      bool = false
-	printtargetboard  bool = true
-	printleds         bool = true
+	printtargetboard  bool = false
+	printleds         bool = false
 	printheartbeat    bool = true
-	printbuttons      bool = true
-	printcomment      bool = false
+	printbuttons      bool = false
+	printcomment      bool = true
 	printlcd          bool = true
 	printgps          bool = false
-	printpanic        bool = true
+	printpanic        bool = false
 )
 
 //account settings
@@ -214,6 +214,8 @@ var (
 
 //lcd screen settings
 var (
+	LCDInterfaceType         string
+	LCDI2CAddress            uint8
 	LCDBackLightTimerEnabled bool
 	LCDBackLightTimeoutSecs  int
 	BackLightLEDPin          int
@@ -501,6 +503,8 @@ type Comment struct {
 
 type Screen struct {
 	XMLName                  xml.Name `xml:"screen"`
+	LCDInterfaceType         string   `xml:"lcdinterfacetype"`
+	LCDI2CAddress            uint8    `xml:"lcdi2caddress"`
 	LCDBackLightTimerEnabled bool     `xml:"lcdbacklighttimerenabled"`
 	LCDBackLightTimeoutSecs  int      `xml:"lcdbacklighttimeoutsecs"`
 	BackLightLEDPin          int      `xml:"backlightpin"`
@@ -713,6 +717,10 @@ func readxmlconfig(file string) error {
 	CommentMessageOff = document.Global.Hardware.Comment.CommentMessageOff
 	CommentMessageOn = document.Global.Hardware.Comment.CommentMessageOn
 
+	LCDInterfaceType = document.Global.Hardware.Screen.LCDInterfaceType
+
+	LCDI2CAddress = document.Global.Hardware.Screen.LCDI2CAddress
+
 	LCDBackLightTimerEnabled = document.Global.Hardware.Screen.LCDBackLightTimerEnabled
 	LCDBackLightTimeoutSecs = document.Global.Hardware.Screen.LCDBackLightTimeoutSecs
 	BackLightLEDPin = document.Global.Hardware.Screen.BackLightLEDPin
@@ -746,6 +754,7 @@ func readxmlconfig(file string) error {
 	PSendGpsLocation = document.Global.Hardware.PanicFunction.PSendGpsLocation
 	PTxLockEnabled = document.Global.Hardware.PanicFunction.PTxLockEnabled
 	PTxlockTimeOutSecs = document.Global.Hardware.PanicFunction.PTxlockTimeOutSecs
+
 
 	log.Println("Successfully loaded configuration file into memory")
 	return nil
@@ -935,6 +944,12 @@ func printxmlconfig() {
 
 	if printlcd {
 		log.Println("info: ------------ LCD  ----------------------- ")
+
+		log.Println("info: Lcd Interface Type       " + fmt.Sprintf("%v", LCDInterfaceType))
+
+		//log.Println("info: Lcd I2C Address          " + fmt.Sprintf("%v", LCDI2CAddress))
+		log.Println("info: Lcd I2C Address          " + fmt.Sprintf("%x", LCDI2CAddress))
+
 		log.Println("info: Back Light Timer Enabled " + fmt.Sprintf("%t", LCDBackLightTimerEnabled))
 		log.Println("info: Back Light Timer Timeout " + fmt.Sprintf("%v", LCDBackLightTimeoutSecs))
 		log.Println("info: Back Light Pin " + fmt.Sprintf("%v", BackLightLEDPin))

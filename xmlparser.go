@@ -17,27 +17,6 @@ var (
 	BackLightTimePtr = &BackLightTime
 )
 
-//print xml config sections for easy debugging, set any section to false to prevent printing to screen
-var (
-	printaccount      bool = false
-	printlogging      bool = false
-	printprovisioning bool = false
-	printbeacon       bool = false
-	printtts          bool = false
-	printsmtp         bool = false
-	printsounds       bool = false
-	printtxtimeout    bool = false
-	printhttpapi      bool = false
-	printtargetboard  bool = false
-	printleds         bool = false
-	printheartbeat    bool = true
-	printbuttons      bool = false
-	printcomment      bool = true
-	printlcd          bool = true
-	printgps          bool = false
-	printpanic        bool = false
-)
-
 //account settings
 var (
 	Default     []bool
@@ -175,10 +154,32 @@ var (
 	APIPingServersEnabled bool
 )
 
+//print xml config sections for easy debugging, set any section to false to prevent printing to screen
+var (
+        PrintAccount      bool
+        PrintLogging      bool
+        PrintProvisioning bool
+        PrintBeacon       bool
+        PrintTTS          bool
+        PrintSMTP         bool
+        PrintSounds       bool
+        PrintTxTimeout    bool
+        PrintHTTPAPI      bool
+        PrintTargetboard  bool
+        PrintLeds         bool
+        PrintHeartbeat    bool
+        PrintButtons      bool
+        PrintComment      bool
+        PrintLcd          bool
+        PrintGps          bool
+        PrintPanic        bool
+)
+
 // target board settings
 var (
 	TargetBoard string
 )
+
 
 //indicator light settings
 var (
@@ -304,6 +305,7 @@ type Software struct {
 	Sounds           Sounds           `xml:"sounds"`
 	TxTimeOut        TxTimeOut        `xml:"txtimeout"`
 	API              API              `xml:"api"`
+        PrintVariables	 PrintVariables   `xml:"printvariables"`
 	TTS              TTS              `xml:"tts"`
 }
 
@@ -401,7 +403,7 @@ type Sounds struct {
 }
 
 type API struct {
-	XXLName               xml.Name `xml:"api"`
+	XMLName               xml.Name `xml:"api"`
 	APIEnabled            bool     `xml:"enabled,attr"`
 	APIListenPort         string   `xml:"apilistenport"`
 	APIDisplayMenu        bool     `xml:"displaymenu"`
@@ -423,6 +425,28 @@ type API struct {
 	APIEmailEnabled       bool     `xml:"sendemail"`
 	APIPingServersEnabled bool     `xml:"pingservers"`
 }
+
+type PrintVariables struct {
+	XMLName           xml.Name `xml:"printvariables"`
+        PrintAccount      bool     `xml:"printaccount"`
+        PrintLogging      bool     `xml:"printlogging"`
+        PrintProvisioning bool     `xml:"printprovisioning"`
+        PrintBeacon       bool     `xml:"printbeacon"`
+        PrintTTS          bool     `xml:"printts"`
+        PrintSMTP         bool     `xml:"printsmtp"`
+        PrintSounds       bool     `xml:"printsounds"`
+        PrintTxTimeout    bool     `xml:"printtxtimeout"`
+        PrintHTTPAPI      bool     `xml:"printhttpapi"`
+        PrintTargetboard  bool     `xml:"printtargetboard"`
+        PrintLeds         bool     `xml:"printleds"`
+        PrintHeartbeat    bool     `xml:"printheartbeat"`
+        PrintButtons      bool     `xml:"printbuttons"`
+        PrintComment      bool     `xml:"printcomment"`
+        PrintLcd          bool     `xml:"printlcd"`
+        PrintGps          bool     `xml:"printgps"`
+        PrintPanic        bool     `xml:"printpanic"`
+}
+
 
 type Event struct {
 	XMLName          xml.Name `xml:"event"`
@@ -695,6 +719,24 @@ func readxmlconfig(file string) error {
 	APIEmailEnabled = document.Global.Software.API.APIEmailEnabled
 	APIPingServersEnabled = document.Global.Software.API.APIPingServersEnabled
 
+        PrintAccount      = document.Global.Software.PrintVariables.PrintAccount
+        PrintLogging      = document.Global.Software.PrintVariables.PrintLogging
+        PrintProvisioning = document.Global.Software.PrintVariables.PrintProvisioning
+        PrintBeacon       = document.Global.Software.PrintVariables.PrintBeacon
+        PrintTTS          = document.Global.Software.PrintVariables.PrintTTS
+        PrintSMTP         = document.Global.Software.PrintVariables.PrintSMTP
+        PrintSounds       = document.Global.Software.PrintVariables.PrintSounds
+        PrintTxTimeout    = document.Global.Software.PrintVariables.PrintTxTimeout
+        PrintHTTPAPI      = document.Global.Software.PrintVariables.PrintHTTPAPI
+        PrintTargetboard  = document.Global.Software.PrintVariables.PrintTargetboard
+        PrintLeds         = document.Global.Software.PrintVariables.PrintLeds
+        PrintHeartbeat    = document.Global.Software.PrintVariables.PrintHeartbeat
+        PrintButtons      = document.Global.Software.PrintVariables.PrintButtons
+        PrintComment      = document.Global.Software.PrintVariables.PrintComment
+        PrintLcd          = document.Global.Software.PrintVariables.PrintLcd
+        PrintGps          = document.Global.Software.PrintVariables.PrintGps
+        PrintPanic        = document.Global.Software.PrintVariables.PrintPanic
+
 	TargetBoard = document.Global.Hardware.TargetBoard
 
 	VoiceActivityLEDPin = document.Global.Hardware.Lights.VoiceActivityLedPin
@@ -762,7 +804,7 @@ func readxmlconfig(file string) error {
 
 func printxmlconfig() {
 
-	if printaccount {
+	if PrintAccount {
 		log.Println("info: ---------- Account Information -------- ")
 		log.Println("info: Default     " + fmt.Sprintf("%t", Default))
 		log.Println("info: Server      " + Server[0])
@@ -772,34 +814,42 @@ func printxmlconfig() {
 		log.Println("info: Certificate " + Certificate[0])
 		log.Println("info: Channel     " + Channel[0])
 		log.Println("info: Ident       " + Ident[0])
+	} else {
+		log.Println("info: ---------- Account Information -------- SKIPPED ")
 	}
 
-	if printlogging {
+	if PrintLogging {
 		log.Println("info: -------- Logging & Daemonizing -------- ")
 		log.Println("info: Output Device " + OutputDevice)
 		log.Println("info: Log File      " + LogFileNameAndPath)
 		log.Println("info: Logging       " + Logging)
 		log.Println("info: Daemonize     " + fmt.Sprintf("%t", Daemonize))
+	} else {
+		log.Println("info: --------   Logging & Daemonizing -------- SKIPPED ")
 	}
 
-	if printprovisioning {
+	if PrintProvisioning {
 		log.Println("info: --------   AutoProvisioning   --------- ")
 		log.Println("info: AutoProvisioning Enabled    " + fmt.Sprintf("%t", APEnabled))
 		log.Println("info: Talkkonned ID (tkid)        " + TkId)
 		log.Println("info: AutoProvisioning Server URL " + Url)
 		log.Println("info: Config Local Path           " + SaveFilePath)
 		log.Println("info: Config Local FileName       " + SaveFileName)
+	} else {
+		log.Println("info: --------   AutoProvisioning   --------- SKIPPED ")
 	}
 
-	if printbeacon {
+	if PrintBeacon {
 		log.Println("info: --------  Beacon   --------- ")
 		log.Println("info: Beacon Enabled         " + fmt.Sprintf("%t", BeaconEnabled))
 		log.Println("info: Beacon Time (Secs)     " + fmt.Sprintf("%v", BeaconTimerSecs))
 		log.Println("info: Beacon FileName & Path " + BeaconFileNameAndPath)
 		log.Println("info: Beacon Playback Volume " + fmt.Sprintf("%v", BVolume))
+	} else {
+		log.Println("info: --------   Beacon   --------- SKIPPED ")
 	}
 
-	if printtts {
+	if PrintTTS {
 		log.Println("info: -------- TTS  -------- ")
 		log.Println("info: TTS Global Enabled     ", fmt.Sprintf("%t", TTSEnabled))
 		log.Println("info: TTS Volume Level (%)   ", fmt.Sprintf("%d", TTSVolumeLevel))
@@ -845,9 +895,11 @@ func printxmlconfig() {
 		log.Println("info: TTS TalkkonnectLoaded  " + fmt.Sprintf("%t", TTSTalkkonnectLoaded))
 		log.Println("info: TTS PingServersFileNameAndPath ", TTSPingServersFileNameAndPath)
 		log.Println("info: TTS PingServers " + fmt.Sprintf("%t", TTSPingServers))
+	} else {
+		log.Println("info: --------   TTS  -------- SKIPPED ")
 	}
 
-	if printsmtp {
+	if PrintSMTP {
 		log.Println("info: --------  Gmail SMTP Settings  -------- ")
 		log.Println("info: Email Enabled   " + fmt.Sprintf("%t", EmailEnabled))
 		log.Println("info: Username        " + EmailUsername)
@@ -858,10 +910,12 @@ func printxmlconfig() {
 		log.Println("info: GPS Date/Time   " + fmt.Sprintf("%t", EmailGpsDateTime))
 		log.Println("info: GPS Lat/Long    " + fmt.Sprintf("%t", EmailGpsLatLong))
 		log.Println("info: Google Maps Url " + fmt.Sprintf("%t", EmailGoogleMapsUrl))
+	} else {
+		log.Println("info: --------   Gmail SMTP Settings  -------- SKIPPED ")
 	}
 
-	if printsounds {
-		log.Println("info: ------------ Sounds  ------------------ ")
+	if PrintSounds {
+		log.Println("info: ------------- Sounds  ------------------ ")
 		log.Println("info: Event Sound Enabled  " + fmt.Sprintf("%t", EventSoundEnabled))
 		log.Println("info: Event Sound Filename " + EventSoundFilenameAndPath)
 		log.Println("info: Alert Sound Enabled  " + fmt.Sprintf("%t", AlertSoundEnabled))
@@ -873,15 +927,19 @@ func printxmlconfig() {
 		log.Println("info: Chimes Enabled     " + fmt.Sprintf("%t", ChimesSoundEnabled))
 		log.Println("info: Chimes File        " + ChimesSoundFilenameAndPath)
 		log.Println("info: Chimes Volume      " + fmt.Sprintf("%v", ChimesSoundVolume))
+	} else {
+		log.Println("info: ------------ Sounds  ------------------ SKIPPED ")
 	}
 
-	if printtxtimeout {
+	if PrintTxTimeout {
 		log.Println("info: ------------ TX Timeout ------------------ ")
 		log.Println("info: Tx Timeout Enabled  " + fmt.Sprintf("%t", TxTimeOutEnabled))
 		log.Println("info: Tx Timeout Secs     " + fmt.Sprintf("%v", TxTimeOutSecs))
+	} else {
+		log.Println("info: ------------ TX Timeout ------------------ SKIPPED ")
 	}
 
-	if printhttpapi {
+	if PrintHTTPAPI {
 		log.Println("info: ------------ HTTP API  ----------------- ")
 		log.Println("info: API Enabled        " + fmt.Sprintf("%t", APIEnabled))
 		log.Println("info: API Listen Port    " + APIListenPort)
@@ -903,22 +961,28 @@ func printxmlconfig() {
 		log.Println("info: PrintXmlConfig     " + fmt.Sprintf("%t", APIPrintXmlConfig))
 		log.Println("info: EmailEnabled       " + fmt.Sprintf("%t", APIEmailEnabled))
 		log.Println("info: PingServersEnabled " + fmt.Sprintf("%t", APIPingServersEnabled))
+	} else {
+		log.Println("info: ------------ HTTP API  ----------------- SKIPPED ")
 	}
 
-	if printtargetboard {
+	if PrintTargetboard {
 		log.Println("info: ------------ Target Board --------------- ")
 		log.Println("info: Target Board " + fmt.Sprintf("%v", TargetBoard))
+	} else {
+		log.Println("info: ------------ Target Board --------------- SKIPPED ")
 	}
 
-	if printleds {
+	if PrintLeds {
 		log.Println("info: ------------ LEDS  ---------------------- ")
 		log.Println("info: Voice Activity Led Pin " + fmt.Sprintf("%v", VoiceActivityLEDPin))
 		log.Println("info: Participants Led Pin   " + fmt.Sprintf("%v", ParticipantsLEDPin))
 		log.Println("info: Transmit Led Pin       " + fmt.Sprintf("%v", TransmitLEDPin))
 		log.Println("info: Online Led Pin         " + fmt.Sprintf("%v", OnlineLEDPin))
+	} else {
+		log.Println("info: ------------ LEDS  ---------------------- SKIPPED ")
 	}
 
-	if printheartbeat {
+	if PrintHeartbeat {
 		log.Println("info: ---------- HEARTBEAT -------------------- ")
 		log.Println("info: HeartBeat Enabled " + fmt.Sprintf("%v", HeartBeatEnabled))
 		log.Println("info: HeartBeat LED Pin " + fmt.Sprintf("%v", HeartBeatLEDPin))
@@ -927,29 +991,29 @@ func printxmlconfig() {
 		log.Println("info: Led Off mSecs     " + fmt.Sprintf("%v", LEDOffmSecs))
 	}
 
-	if printbuttons {
+	if PrintButtons {
 		log.Println("info: ------------ Buttons  ------------------- ")
 		log.Println("info: Tx Button Pin           " + fmt.Sprintf("%v", TxButtonPin))
 		log.Println("info: Channel Up Button Pin   " + fmt.Sprintf("%v", UpButtonPin))
 		log.Println("info: Channel Down Button Pin " + fmt.Sprintf("%v", DownButtonPin))
 		log.Println("info: Panic Button Pin        " + fmt.Sprintf("%v", PanicButtonPin))
+	} else {
+		log.Println("info: ------------ Buttons  ------------------- SKIPPED ")
 	}
 
-	if printcomment {
+	if PrintComment {
 		log.Println("info: ------------ Comment  ------------------- ")
 		log.Println("info: Comment Button Pin         " + fmt.Sprintf("%v", CommentButtonPin))
 		log.Println("info: Comment Message State 1    " + fmt.Sprintf("%v", CommentMessageOff))
 		log.Println("info: Comment Message State 2    " + fmt.Sprintf("%v", CommentMessageOn))
+	} else {
+		log.Println("info: ------------ Comment  ------------------- SKIPPED ")
 	}
 
-	if printlcd {
+	if PrintLcd {
 		log.Println("info: ------------ LCD  ----------------------- ")
-
 		log.Println("info: Lcd Interface Type       " + fmt.Sprintf("%v", LCDInterfaceType))
-
-		//log.Println("info: Lcd I2C Address          " + fmt.Sprintf("%v", LCDI2CAddress))
 		log.Println("info: Lcd I2C Address          " + fmt.Sprintf("%x", LCDI2CAddress))
-
 		log.Println("info: Back Light Timer Enabled " + fmt.Sprintf("%t", LCDBackLightTimerEnabled))
 		log.Println("info: Back Light Timer Timeout " + fmt.Sprintf("%v", LCDBackLightTimeoutSecs))
 		log.Println("info: Back Light Pin " + fmt.Sprintf("%v", BackLightLEDPin))
@@ -959,9 +1023,11 @@ func printxmlconfig() {
 		log.Println("info: D5 Pin " + fmt.Sprintf("%v", D5Pin))
 		log.Println("info: D6 Pin " + fmt.Sprintf("%v", D6Pin))
 		log.Println("info: D7 Pin " + fmt.Sprintf("%v", D7Pin))
+	} else {
+		log.Println("info: ------------ LCD  ----------------------- SKIPPED ")
 	}
 
-	if printgps {
+	if PrintGps {
 		log.Println("info: ------------ GPS  ------------------------ ")
 		log.Println("info: GPS Enabled            " + fmt.Sprintf("%t", GpsEnabled))
 		log.Println("info: Port                   " + fmt.Sprintf("%s", Port))
@@ -977,9 +1043,11 @@ func printxmlconfig() {
 		log.Println("info: Char Time Out          " + fmt.Sprintf("%v", CharTimeOut))
 		log.Println("info: Min Read               " + fmt.Sprintf("%v", MinRead))
 		log.Println("info: Rx                     " + fmt.Sprintf("%t", Rx))
+	} else {
+		log.Println("info: ------------ GPS  ------------------------ SKIPPED ")
 	}
 
-	if printpanic {
+	if PrintPanic {
 		log.Println("info: ------------ PANIC Function -------------- ")
 		log.Println("info: Panic Function Enable          " + fmt.Sprintf("%t", PEnabled))
 		log.Println("info: Panic Sound Filename and Path  " + fmt.Sprintf("%s", PFileNameAndPath))
@@ -990,6 +1058,8 @@ func printxmlconfig() {
 		log.Println("info: Panic Send GPS Location        " + fmt.Sprintf("%t", PSendGpsLocation))
 		log.Println("info: Panic TX Lock Enabled          " + fmt.Sprintf("%t", PTxLockEnabled))
 		log.Println("info: Panic TX Lock Timeout Secs     " + fmt.Sprintf("%v", PTxlockTimeOutSecs))
+	} else {
+		log.Println("info: ------------ PANIC Function -------------- SKIPPED ")
 	}
 
 }

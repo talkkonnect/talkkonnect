@@ -3,7 +3,7 @@
 <document type="talkkonnect/xml">
 
 	<!-- Need to Have At Least One Account Set as Default Account, The First Default Account Found will be the one used! --> 
-	<accounts>
+	<accounts print="true">
 		<account name="phillipinogamersserver" default="true">
 			<serverandport>218.219.148.36:8000</serverandport>
 			<username>talkkonnect001</username>
@@ -25,7 +25,7 @@
 			<!-- Logfile Settings -->
 			<settings>
 				<!-- Set Output Device to Speaker, Master, Headphone or whatever your OS/Alsa Detects as the Master Sound Card Device for Output in alsamixer -->
-				<outputdevice>PCM</outputdevice>	
+				<outputdevice>Speaker</outputdevice>	
 				<logfilenameandpath>/var/log/talkkonnect.log</logfilenameandpath>	
 				<logging>screen</logging>
 				<daemonize>false</daemonize>
@@ -193,15 +193,15 @@
 		<hardware targetboard="rpi"> <!-- set targetboard to "pc" for raspberry pi and other single board computers GPIO and "pc" for boards without gpios -->
 			<!-- Set GPIO for Panel LEDS -->
 			<lights>
-				<voiceactivityledpin>6</voiceactivityledpin>
-				<participantsledpin>7</participantsledpin> 
+				<voiceactivityledpin>2</voiceactivityledpin>
+				<participantsledpin>3</participantsledpin> 
 				<transmitledpin>4</transmitledpin>     
 				<onlineledpin>5</onlineledpin>       
 			</lights>
 
 			<!-- Set GPIO for Heart Beat LED to Indicate TK is alive -->
 			<heartbeat enabled="true">
-				<heartbeatledpin>6</heartbeatledpin>
+				<heartbeatledpin>2</heartbeatledpin>
 				<periodmsecs>2000</periodmsecs>
 				<ledonmsecs>1000</ledonmsecs>
 				<ledoffmsecs>1010</ledoffmsecs>
@@ -232,8 +232,8 @@
 			<!-- First Enable it in the Kernal and then Find the Address of Your I2C Device use i2cdetect -y 1 --> 
 			<!-- Set <lcdinterfacetype>i2c</lcdinterfacetype> and <lcdi2caddress>63</lcdi2caddress>          --> 
 			<screen>
-				<lcdinterfacetype>i2c</lcdinterfacetype>
-				<lcdi2caddress>3f</lcdi2caddress>
+				<lcdinterfacetype>parallel</lcdinterfacetype>
+				<lcdi2caddress>63</lcdi2caddress>
                                 <lcdbacklighttimerenabled>true</lcdbacklighttimerenabled>
                                 <lcdbacklighttimeoutsecs>30</lcdbacklighttimeoutsecs>
 				<backlightpin>6</backlightpin>

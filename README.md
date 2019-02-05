@@ -85,7 +85,7 @@ Download the latest version of [Raspbian Stretch Lite](https://www.raspberrypi.o
 At the time of making this document latest image release date was 2018-11-13 (Kernel Version 4.14). 
 Download the ZIP file and extract IMG file to some temporary directory.
 
-Use any USB / SD card imaging software for Windows of your other OS. Some of the many options are:
+Use any USB / SD card imaging software for Windows or your other OS. Some of the many options are:
 * [USB Image Tool](https://www.alexpage.de/usb-image-tool)
 * [Win32 Disk Imager](https://sourceforge.net/projects/win32diskimager)
 * [Rufus](https://rufus.ie) 

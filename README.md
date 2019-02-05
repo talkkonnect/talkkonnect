@@ -34,7 +34,7 @@ to make it more versatile and scalable.
 * panic button, when pressed, talKKonnect will send an alert message with GPS coordinates, followed by an email indication current location in google maps. 
 
 
-Pictures and more information of my builds can be found on my blog here [www.talKKonnect.com](https://www.talKKonnect.com)
+Pictures and more information of my builds can be found on my blog here [www.talkkonnect.com](https://www.talkkonnect.com)
 
 ### Hardware Features ###
 
@@ -122,7 +122,7 @@ Now you should be able to log in remotely via ssh using the root account and con
 
 ##### Add user “talkkonnect” #####
 
-` adduser --disabled-password --disabled-login --gecos "" talKKonnect`
+` adduser --disabled-password --disabled-login --gecos "" talkkonnect`
 
 ##### Add user “talkkonnect” to groups #####
 
@@ -133,7 +133,7 @@ Now you should be able to log in remotely via ssh using the root account and con
 ` apt-get update`
 
 ##### Install prerequisite programs ##### 
-(Note: If building talKKonnect on other than Raspberry Pi board, install mplayer instead of omxplayer) 
+(Note: If building talkkonnect on other than Raspberry Pi board, install mplayer instead of omxplayer) 
 
 ` apt-get install golang libopenal-dev libopus-dev libasound2-dev git ffmpeg omxplayer screen `
 
@@ -167,12 +167,12 @@ cd $GOPATH/src/github.com/talkkonnect/talkkonnect
 
 ##### Before building the binary, confirm all features which you want enabled, the GPIO pins used and talKKonnect program configuration by editing file: ##### 
 
-` /home/talKKonnect/gocode/src/github.com/talkkonnect/talkkonnect/talkkonnect.xml`
+` /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/talkkonnect.xml`
 
 
 ##### Build talKKonnect and test connection to your Mumble server. #####
 
-` go build -o /home/talKKonnect/bin/talkkonnect cmd/talkkonnect/main.go `
+` go build -o /home/talkkonnect/bin/talkkonnect cmd/talkkonnect/main.go `
 
 ##### Start  talKKonnect binary #####
 
@@ -221,14 +221,14 @@ sleep 2
 ├────────────────────────────────────────────────────────────────┤
 │A Flexible Headless Mumble Transceiver/Gateway for RPi/PC/VM    │
 ├────────────────────────────────────────────────────────────────┤
-│Created By : Suvir Kumar  <suvir@talKKonnect.com>               │
+│Created By : Suvir Kumar  <suvir@talkkonnect.com>               │
 ├────────────────────────────────────────────────────────────────┤
 │Version 1.32 Released January 2 2019                            │
 │Additional Modifications Released under MPL 2.0 License         │
 ├────────────────────────────────────────────────────────────────┤
-│visit us at www.talKKonnect.com and github.com/talKKonnect      │
+│visit us at www.talkkonnect.com and github.com/talkkonnect      │
 └────────────────────────────────────────────────────────────────┘
-Press the <Del> key for Menu Options or <Ctrl-c> to Quit talKKonnect
+Press the <Del> key for Menu Options or <Ctrl-c> to Quit talkkonnect
 ````
 
 
@@ -338,7 +338,7 @@ For a speaker muting to work when pressing a PTT, you need to enter the exact na
 │| | | | | | (_| | | | | | | | | | | |  __/ | | | |_| |          │
 │|_| |_| |_|\__,_|_|_| |_| |_| |_| |_|\___|_| |_|\__,_|          │
 ├─────────────────────────────┬──────────────────────────────────┤
-│ <Del> to Display this Menu  | Ctrl-C to Quit talKKonnect       │
+│ <Del> to Display this Menu  | Ctrl-C to Quit talkkonnect       │
 ├─────────────────────────────┼──────────────────────────────────┤
 │ <F1>  Channel Up (+)        │ <F2>  Channel Down (-)           │
 │ <F3>  Mute/Unmute Speaker   │ <F4>  Current Volume Level       │
@@ -349,12 +349,12 @@ For a speaker muting to work when pressing a PTT, you need to enter the exact na
 │<Ctrl-P> Start/Stop Panic Sim│<Ctrx-X> Screen Dump XML Config   │
 │<Ctrl-E> Send Email          │<Ctrl-N> Connect to Next Server   │
 ├─────────────────────────────┴──────────────────────────────────┤
-│   visit us at www.talKKonnect.com and github.com/talKKonnect   │
+│   visit us at www.talkkonnect.com and github.com/talkkonnect   │
 └────────────────────────────────────────────────────────────────┘
 ````
 
 
-You can also [download](https://talKKonnect.com/wp-content/uploads/2019/01/Readme-13-01-2019.pdf) a PDF version with pictures of this document.
+You can also [download](https://talkkonnect.com/wp-content/uploads/2019/01/Readme-13-01-2019.pdf) a PDF version with pictures of this document.
  
 Please visit our [blog](www.talkkonnect.com) for our blog or [github](github.com/talkkonnect) for the latest source code and our [facebook](https://www.facebook.com/talkkonnect) page for future updates and information.
 
@@ -364,7 +364,7 @@ We invite interested individuals to provide feedback and improvements to the pro
 Currently we do not have a WIKI so send feedback to <suvir@talkkonnect.com>
 
 ## License
-[talKKonnect](http://www.talKKonnect.com) is open source and available under the MPL license. 
+[talKKonnect](http://www.talkkonnect.com) is open source and available under the MPL license. 
 
 ## Update
 <suvir@talkkonnect.com>

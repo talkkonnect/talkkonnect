@@ -1,0 +1,15 @@
+[Unit]
+Description = talKKonnect  
+Requires = systemd-user-sessions.service network.target sound.target
+After = multi-user.target
+
+[Service]
+User = talkkonnect  
+Group = talkkonnect
+Type = simple  
+ExecStart = /home/talkkonnect/bin/talkkonnect
+Restart = always 
+RestartSec = 5
+
+[Install]
+WantedBy = multi-user.target

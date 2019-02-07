@@ -354,23 +354,136 @@ For a speaker muting to work when pressing a PTT, you need to enter the exact na
 ````
 
 
+### Explaination of talkkonnect.xml configuration files sections and tags and how they effect the behaviour of talkkonnet
+
+
+
+#### The Accounts Section
+* The account section can have multiple accounts and talkkonnect will look for the first account with the xml tag default = "true" and attempt to connect to that server 
+* When connected to a server and when talkkonnect is running you can cycle through servers by pressing CTRL-N and talkkonnect will connect to the next server in the list with default = "true"
+
+* talkkonnect will never attempt to connect to a server that has the field default = "false" 
+* The tag account name is just used to identify the server that will be shown on the screen to tell you which server you have connected to or which server you are pinging etc. 
+* in the server and port tag put the server ip address and then a ":" colon followed by the mumble port## Update <suvir@talkkonnect.com> 
+* the username tag is used for identifying yourself on the mumble server and authentication 
+* the password tag is used if the mumble server is password protected 
+* the insecure tag should be set as true if the server you are connecting to does not require a certificate 
+* the certificate tag should be the full path to your certificate that will be required for some servers when logging in 
+* the channel tag should only be used if you want to connect to a channel on startup. Note that if you want to connect to the root channel leave this tag blank
+
+### The Global Section of talkkonnect.xml
+
+#### Software Section
+
+##### Settings Section
+* the output device tag should be set as the default audio device that represents your audio output device when you run alsamixer (Please note that the device name should be set exactly as shown in alsamixer. 
+* the logfilenameandpath tag should be the full path to a writable file that is created prior to running talkkonenct for the first time 
+* the logging tag if set to screen will only log to screen. If you set any other value besides screen talkkonnect will log to a file and at the same time show on the screen (note that if logging to file the screen colors are not preserved) 
+* the daemonize tag is not currently support. To run at startup you can set talkkonnect to run in a screen.
+
+##### Autoprovisioning Section
+* this function is provided so that you can remotely provision a talkkonnect machine via http protocol from a web server 
+* the enabled tag sets the autoprovisioning function on for true and off for false 
+* the tag tkid sets the name (xxxx.xml) of the file that talkkonnect will request from the web them server 
+* the URL tag sets the url of the http server you are trying to connect to get the requested XML file 
+* savefile and path tafs are where the http fetched talkkonnect.xml configuration file should be placed and should be the same path which talkkonnect looks for the file
+
+##### Beacon Section
+* This function was created to emulate a radio repeater beacon that will play certain wav files at defined periods to notify all that the repeater is alive 
+* The beacontimersecs is the interval time in seconds between the played messages 
+* the beaconfile and path is the file and path to a wav file that you can define as the file to be played in beacon modespec 
+* the volume can be set from 0.1 to 1 in intervals of 0.1s for setting up the volume the file will be played
+
+##### The TTS Section
+* This section was created for users that want an audible response to events that happen. 
+* You can disable the whole section by the tag tts enabled = false 
+* You can enable only certain events by setting tag tts enabled = true and selecting the tag you want to play when the event occurs as true
+
+##### The SMTP Section
+* talkkonnect currently can only connect to gmail for sending 
+* define the username and password and the receiver of the email in the respective tags 
+* define the subject of the email and message body of the email 
+* should you want to send the gps timestamp in the email set the gpsdatetime tag to true 
+* should you have a USB gps module and have enabled it in XML config and would like the send your current LAT and LONG coordinates enable this tag 
+* if you want to include a url in the email that will show your location on google maps enable the googlemapsurl tags
+
+##### The Sounds Section
+* set each sound item to be enabled or disabled individually by setting the enabled tag to true or false and the corresponding playback volume can also be set 
+* set the filenameandpath tag to the full path and filename of the WAV file you wish to play upon each event 
+* the event tag is used to play an audible alert when there are changes of other users statuses 
+* the alert tag is used to set the WAV sound file that will be played when the user presses the panic button or keypress 
+* the rogerbeep tag is used to define the WAV file to play at the end of every transmission 
+* the name chimes can be misleading. This function is very powerful when you want to define a file or network stream that will be played into the mumble channel upon pressing the F11 key this fuction is very useful for testing talkkonnect
+
+##### The TXTIMEOUT section
+* this tag is used to prevent key stuck in talkkonect when in repeater mode. you can define the maximum time of each transmission in seconds using this tag
+
+##### The API Section
+
+* API section enabled the user to granually control which functions are available for remote control of talkkonnect all from other devices via an http callout 
+* the apilisten port defines the port that talkkonnect should respond to remote control http requests 
+* you have granular control over the functions that are available over http api. the tag names define the function and are self explainatory.
+
+##### The PrintVariables Section
+* in this section you can granually control what values have been read from the talkkonnect.xml configuration when you press the CTRL-X key
+
+#### Hardware Section
+* the harware targetboard has 2 option pc and rpi. pc mode is used when talkkonnect is running on a pc or server that does not have GPIOs. 
+* to run on raspberry pi or other compatable single board computers set the targetboard to rpi this will enable the GPIO outputs
+
+##### The Lights Section
+* this section is used to define how the raspnerry pi hardware (GPIO) is connected to the LED indicators 
+* the voiceactivitypin tag is the LED that will light up with there is someone transmitting on the mumble channel 
+* the participantsledpin tag is the LED that will light up when there are other users logged into the same mumble channel as you 
+* the transmitledpin tag is the LED that will light up when you are transmitting on talkkonnect 
+* the onlineledpin tag is the LED that will light up once you are authenticated and connected to a mumble server
+
+##### The Heartbeat Section
+* the heartbeat tag is the LED that will flash as per the defined values to show that talkkonnect is alive and operational 
+* note that this pin can be the same pin as other LED pins so as to provide dual functionality to the indicating LED
+
+##### The Buttons Section
+* this section defines the raspberry GPIO pins that are connected to push buttons that are pulled to ground by keypress and float upon releaseinfo 
+* the txbuttonpin tag is connected to the PTT push button 
+* the upbuttonpin tag is conencted to a button that will increment the channel up 
+* the downbuttonpin tag is conencted to a button that will increment the channel downbuttonpin 
+* the panic button tag is connected to a button that will set the talkkonenct into panic mode (request for help)
+
+##### The Comment Section
+* this function allows the user to set 2 possible messages like for example away messages depending on the state of a toggle switch 
+* when the other talkkonenct party presses F10 they can see the username along with the defined message in square brackets 
+* the commentbuttonpin tag defines the GPIO pin that the toggle switch is connected to
+
+##### The Screen Section
+* at this moment talkkonnect only supports the easily available 4 lines 20 characters HD44780 LCD Module. 
+* talkkonnect currently supports both parallel and i2c interfacing to the HD44780 LCD Module. 
+* the interfacetype tag can be set to either parallel or i2c depending on the interfacing type of display used 
+* the i2c address can be optained from running the i2cdetect -y 1 command. Convert the address displayed in HEX to Decimal and fill into the lcdi2caddress tag 
+* the backlight function and time is also available to turn off the LCD's backlight in case of inactivity on the channel for the defined timeout period in seconds 
+* the rs, e, d4, d5, d6, d7 pins are the GPIO pins that connect to the HD44780 display in parallel mode 
+* NOTE! You cannot use the pins 2,3 on raspberry pi for anything else other than I2C mode if you want to connect an I2C display
+
+##### The GPS Section
+* talkkonnect supports a ublox 6 USB module to provide GPS tracking on Panic 
+* set the enabled tag to false if you do not have a USB dongle connected 
+* define the port which the GPS is detected as in linux usually /dev/ttyACM0 
+* define all other serial port settings such as serial baud, even/odd/none parity, also stop and databits.
+
+##### The PanicFunction Section
+* the panic function can be enabled or disabled and is used to request for help 
+* filenameandpath tag is used to define the WAV file that will be played into a stream if the panic button is pressed 
+* the volume defines the playback volume of the wav file into the stream 
+* the send ident will send the ident as defined in the account section of the xml file in case you want to send an ident in additional to the mumble username sent 
+* the panicmessage is the text message that will be sent to the channel and all child channels if recursivemessage is set as true when the panic button is pressed 
+* the sendgpslocation will send the gps coordinates of the talkkonnect requesting help as a text message to all mumble users in the channel and in child channels 
+* the txlock eabled will lock up talkkonnect in transmit mode for the defined txlocktimeoutsecs after the button is pressed so the requester can talk without having to press ptt button
+
+
+## Contributing We invite interested individuals to provide feedback and improvements to the project. Currently we do not have a WIKI so send feedback to <suvir@talkkonnect.com> or open and Issue in github 
+
+Please visit our [blog](www.talkkonnect.com) for our blog or [github](github.com/talkkonnect) for the latest source code and our [facebook](https://www.facebook.com/talkkonnect) page for future updates and information. 
 You can also [download](https://talkkonnect.com/wp-content/uploads/2019/01/Readme-13-01-2019.pdf) a PDF version with pictures of this document.
- 
-Please visit our [blog](www.talkkonnect.com) for our blog or [github](github.com/talkkonnect) for the latest source code and our [facebook](https://www.facebook.com/talkkonnect) page for future updates and information.
 
+## License [talKKonnect](http://www.talkkonnect.com) is open source and available under the MPL V2.00 license.
 
-## Contributing 
-We invite interested individuals to provide feedback and improvements to the project.
-Currently we do not have a WIKI so send feedback to <suvir@talkkonnect.com>
-
-## License
-[talKKonnect](http://www.talkkonnect.com) is open source and available under the MPL license. 
-
-## Update
-<suvir@talkkonnect.com>
-
-
-Updated 15/January/2019
-
-
-
+Updated 07/February/2019 

@@ -7,7 +7,6 @@ import (
 	"github.com/jacobsa/go-serial/serial"
 	"io"
 	"log"
-	//	"os"
 	"errors"
 	"strings"
 )
@@ -59,7 +58,6 @@ func getGpsPosition(verbose bool) error {
 			if err != nil {
 				GpsEnabled = false
 				return errors.New("Cannot Decode Hex Data")
-				//os.Exit(-1)
 			}
 
 			log.Println("Sending: ", hex.EncodeToString(txData_))
@@ -84,7 +82,7 @@ func getGpsPosition(verbose bool) error {
 					}
 				} else {
 					buf = buf[:n]
-					//sentence := "$GPRMC,220516,A,5133.82,N,00042.24,W,173.8,231.8,130694,004.2,W*70"
+					// sentence format "$GPRMC,220516,A,5133.82,N,00042.24,W,173.8,231.8,130694,004.2,W*70"
 					sentence := strings.TrimSpace(fmt.Sprintf("%s\n", buf))
 					if len(sentence) > 0 && sentence[:6] == "$GPRMC" {
 						s, err := nmea.Parse(sentence)

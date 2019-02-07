@@ -14,7 +14,7 @@ import (
 var (
 	ErrState         = errors.New("gumbleopenal: invalid state")
 	lastspeaker      = "Nil"
-	lcdtext          = [4]string{"nil", "nil", "nil", ""} //global variable declaration for 4 lines of LCD
+	lcdtext          = [4]string{"nil", "nil", "nil", ""} 
 	BackLightLED     = gpio.NewOutput(uint(BackLightLEDPin), false)
 	VoiceActivityLED = gpio.NewOutput(VoiceActivityLEDPin, false)
 	now              = time.Now()
@@ -190,7 +190,7 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 
 				source.Play()
 				if lastspeaker != e.User.Name {
-					log.Println("Speaking:", e.User.Name)
+					log.Println("info: Speaking->", e.User.Name)
 					lastspeaker = e.User.Name
 					t := time.Now()
 					if TargetBoard == "rpi" {

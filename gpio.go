@@ -42,7 +42,6 @@ func (b *Talkkonnect) initGPIO() {
 
 	b.TxButton = gpio.NewInput(TxButtonPin)
 
-	//create and initialize the bloody txtimer here outside the loop and let it expire so it's defined! For My SANITY!
 	TxTimeOutTimer := time.NewTimer(1 * time.Millisecond)
 
 	go func() {

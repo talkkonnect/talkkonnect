@@ -11,7 +11,7 @@ import (
 )
 
 
-// lcd timer global here what a global headache lets book a place in memory
+// lcd timer
 var (
 	BackLightTime    = time.NewTimer(1 * time.Millisecond)
 	BackLightTimePtr = &BackLightTime
@@ -265,7 +265,6 @@ var (
 	PTxlockTimeOutSecs uint
 )
 
-//xml structure
 type Document struct {
 	XMLName  xml.Name `xml:"document"`
 	Type     string   `xml:"type,attr"`
@@ -609,7 +608,6 @@ func readxmlconfig(file string) error {
 			log.Fatal("No Default Accounts Found! Please Add at least 1 Default Account in XML File")
 		}
 
-	// Update Variables with values read from XML file
 	OutputDevice = document.Global.Software.Settings.OutputDevice
 	LogFileNameAndPath = document.Global.Software.Settings.LogFileNameAndPath
 	Logging = document.Global.Software.Settings.Logging

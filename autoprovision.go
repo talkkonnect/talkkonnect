@@ -41,7 +41,6 @@ func AutoProvision() error {
 
 func DownloadFile(SaveFilePath string, SaveFileName string, Url string) error {
 
-	// Get the provisioning file
 	resp, err := http.Get(Url)
 	if err != nil {
 		return err
@@ -55,14 +54,12 @@ func DownloadFile(SaveFilePath string, SaveFileName string, Url string) error {
 
 	}
 
-	// Create the xml config file
 	out, err := os.Create(SaveFilePath + SaveFileName)
 	if err != nil {
 		return errors.New(fmt.Sprintf("Cannot Create File Error: ", err))
 	}
 	defer out.Close()
 
-	// Write the body of fetched xml file to created file
 	_, err = io.Copy(out, resp.Body)
 	if err != nil {
 		return errors.New(fmt.Sprintf("Cannot Copy File Error: ", err))

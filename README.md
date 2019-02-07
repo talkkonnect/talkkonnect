@@ -354,8 +354,7 @@ For a speaker muting to work when pressing a PTT, you need to enter the exact na
 ````
 
 
-### Explaination of talkkonnect.xml configuration files sections and tags and how they effect the behaviour of talkkonnet
-
+### Explaination of talkkonnect.xml configuration files sections and tags 
 
 
 #### The Accounts Section

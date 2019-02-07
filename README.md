@@ -479,11 +479,13 @@ For a speaker muting to work when pressing a PTT, you need to enter the exact na
 * the txlock eabled will lock up talkkonnect in transmit mode for the defined txlocktimeoutsecs after the button is pressed so the requester can talk without having to press ptt button
 
 
-## Contributing We invite interested individuals to provide feedback and improvements to the project. Currently we do not have a WIKI so send feedback to <suvir@talkkonnect.com> or open and Issue in github 
+## Contributing 
+We invite interested individuals to provide feedback and improvements to the project. Currently we do not have a WIKI so send feedback to <suvir@talkkonnect.com> or open and Issue in github 
 
 Please visit our [blog](www.talkkonnect.com) for our blog or [github](github.com/talkkonnect) for the latest source code and our [facebook](https://www.facebook.com/talkkonnect) page for future updates and information. 
 You can also [download](https://talkkonnect.com/wp-content/uploads/2019/01/Readme-13-01-2019.pdf) a PDF version with pictures of this document.
 
-## License [talKKonnect](http://www.talkkonnect.com) is open source and available under the MPL V2.00 license.
+## License 
+[talKKonnect](http://www.talkkonnect.com) is open source and available under the MPL V2.00 license.
 
 Updated 07/February/2019 

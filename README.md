@@ -363,7 +363,7 @@ For a speaker muting to work when pressing a PTT, you need to enter the exact na
 
 * talkkonnect will never attempt to connect to a server that has the field default = "false" 
 * The tag account name is just used to identify the server that will be shown on the screen to tell you which server you have connected to or which server you are pinging etc. 
-* in the server and port tag put the server ip address and then a ":" colon followed by the mumble port## Update <suvir@talkkonnect.com> 
+* in the server and port tag put the server ip address and then a ":" colon followed by the mumble port
 * the username tag is used for identifying yourself on the mumble server and authentication 
 * the password tag is used if the mumble server is password protected 
 * the insecure tag should be set as true if the server you are connecting to does not require a certificate 
@@ -487,4 +487,4 @@ You can also [download](https://talkkonnect.com/wp-content/uploads/2019/01/Readm
 ## License 
 [talKKonnect](http://www.talkkonnect.com) is open source and available under the MPL V2.00 license.
 
-Updated 07/February/2019 
+<suvir@talkkonnect.com> Updated 07/February/2019 

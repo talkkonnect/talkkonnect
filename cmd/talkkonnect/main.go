@@ -11,20 +11,20 @@
  * for the specific language governing rights and limitations under the
  * License.
  *
- * talkkonnect is the based on talkiepi and barnard
+ * talkkonnect is the based on talkiepi and barnard by Daniel Chote and Tim Cooper
  *
  * The Initial Developer of the Original Code is
  * Suvir Kumar <suvir@talkkonnect.com>
- * Portions created by the Initial Developer are Copyright (C)
- * the Initial Developer. All Rights Reserved.
+ * Portions created by the Initial Developer are Copyright (C) Suvir Kumar. All Rights Reserved.
  *
  * Contributor(s):
  *
  * Suvir Kumar <suvir@talkkonnect.com>
+ *
  * My Blog is at www.talkkonnect.com
  * The source code is hosted at github.com/talkkonnect
  *
- * talkkonnect.go -- Main Function
+ * main.go -- The Main Function of talkkonnect project
  *
  */
 

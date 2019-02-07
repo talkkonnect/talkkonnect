@@ -29,20 +29,20 @@ import (
 
 var (
 	LcdText                     = [4]string{"nil", "nil", "nil", "nil"}
-	currentChannelID     uint32 = 0
-	prevChannelID        uint32 = 0
-	prevParticipantCount        = 0
-	prevButtonPress             = "none"
-	maxchannelid         uint32 = 0
-	origVolume           int    = 0
-	tempVolume           int    = 0
+	currentChannelID     uint32
+	prevChannelID        uint32
+	prevParticipantCount int
+	prevButtonPress      string  = "none"
+	maxchannelid         uint32
+	origVolume           int
+	tempVolume           int
 	ConfigXMLFile        string
 	GPSTime              string
 	GPSDate              string
 	GPSLatitude          float64
 	GPSLongitude         float64
 	Streaming            bool
-	AccountIndex         int = 0
+	AccountIndex         int
 	ServerHop            bool
 )
 
@@ -99,7 +99,6 @@ func reset() {
 
 func PreInit(file string) {
 
-	// read xml config file
 	ConfigXMLFile = file
 	err := readxmlconfig(ConfigXMLFile)
 	if err != nil {
@@ -107,7 +106,6 @@ func PreInit(file string) {
 		log.Fatal("Please Make Sure the XML Configuration File is In the Correct Path with the Correct Format, Exiting talkkonnect! ...... bye\n")
 	}
 
-	// for auto provisioning
 	if APEnabled {
 		log.Println("info: Contacting http Provisioning Server Pls Wait")
 		err := AutoProvision()
@@ -128,7 +126,6 @@ func PreInit(file string) {
 
 func PreInit1() {
 
-	// Initialize
 	b := Talkkonnect{
 		Config:      gumble.NewConfig(),
 		Name:        Name[AccountIndex],
@@ -140,13 +137,12 @@ func PreInit1() {
 		Daemonize:   Daemonize,
 	}
 
-	// if no username specified, lets just autogen a random one
 	if len(b.Username) == 0 {
 		buf := make([]byte, 6)
 		_, err := rand.Read(buf)
 		if err != nil {
 			log.Println("alert: Cannot Generate Random Name Error: ", err)
-			log.Fatal("Exiting talkkonnect! ...... bye\n")
+			log.Fatal("Exiting talkkonnect! ...... bye!\n")
 		}
 
 		buf[0] |= 2
@@ -164,7 +160,7 @@ func PreInit1() {
 		cert, err := tls.LoadX509KeyPair(Certificate[AccountIndex], Certificate[AccountIndex])
 		if err != nil {
 			log.Println("alert: Certificate Error: ", err)
-			log.Fatal("Exiting talkkonnect! ...... bye\n")
+			log.Fatal("Exiting talkkonnect! ...... bye!\n")
 		}
 		b.TLSConfig.Certificates = append(b.TLSConfig.Certificates, cert)
 	}
@@ -176,7 +172,7 @@ func PreInit1() {
 			http.HandleFunc("/", b.httpHandler)
 			if err := http.ListenAndServe(":"+APIListenPort, nil); err != nil {
 				log.Println("alert: Problem With Starting HTTP API Server Error: ", err)
-				log.Fatal("Please Fix Problem or Disable API in XML Config, Exiting talkkonnect! ...... bye\n")
+				log.Fatal("Please Fix Problem or Disable API in XML Config, Exiting talkkonnect! ...... bye!\n")
 			}
 		}()
 	}
@@ -196,7 +192,7 @@ func (b *Talkkonnect) Init() {
 	f, err := os.OpenFile(LogFileNameAndPath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		log.Println("alert: Problem opening talkkonnect.log file Error: ", err)
-		log.Fatal("Exiting talkkonnect! ...... bye\n")
+		log.Fatal("Exiting talkkonnect! ...... bye!\n")
 	}
 
 	b.LEDOffAll()
@@ -212,15 +208,14 @@ func (b *Talkkonnect) Init() {
 	err = term.Init()
 	if err != nil {
 		log.Println("alert: Cannot Initalize Terminal Error: ", err)
-		log.Fatal("Exiting talkkonnect! ...... bye\n")
+		log.Fatal("Exiting talkkonnect! ...... bye!\n")
 	}
 
 	b.Config.Attach(gumbleutil.AutoBitrate)
 	b.Config.Attach(b)
 
-	// enable gpio only if board is raspberry pi or user requests in xml config
 	if TargetBoard == "rpi" {
-		log.Println("info: Target Board Set as pi (gpio enabled) ")
+		log.Println("info: Target Board Set as RPI (gpio enabled) ")
 		b.initGPIO()
 	}
 
@@ -235,9 +230,6 @@ func (b *Talkkonnect) Init() {
 
 	b.Connect()
 
-	//section to handle timers
-
-	// Heartbeat LED to Show Talkkonnect is Still Alive if enabled in xml config
 	if HeartBeatEnabled && TargetBoard == "rpi" {
 		HeartBeat := time.NewTicker(time.Duration(PeriodmSecs) * time.Millisecond)
 
@@ -253,7 +245,6 @@ func (b *Talkkonnect) Init() {
 		}()
 	}
 
-	// Beacon to Make Announcments Every Period of Defined Seconds in XML and Play Announcement File
 	if BeaconEnabled {
 		BeaconTicker := time.NewTicker(time.Duration(BeaconTimerSecs) * time.Second)
 
@@ -265,7 +256,6 @@ func (b *Talkkonnect) Init() {
 		}()
 	}
 
-	// LCD Backlight Control
 	b.BackLightTimer()
 
 keyPressListenerLoop:
@@ -275,7 +265,7 @@ keyPressListenerLoop:
 			switch ev.Key {
 			case term.KeyEsc:
 				log.Println("--")
-				log.Println("ESC Key is Invalid")
+				log.Println("warn: ESC Key is Invalid")
 				reset()
 				break keyPressListenerLoop
 				log.Println("--")
@@ -329,18 +319,18 @@ keyPressListenerLoop:
 			}
 		case term.EventError:
 			log.Println("alert: Terminal Error: ", ev.Err)
-			log.Fatal("Exiting talkkonnect! ...... bye\n")
+			log.Fatal("Exiting talkkonnect! ...... bye!\n")
 		}
 	}
 }
 
 func (b *Talkkonnect) CleanUp() {
-	log.Println("warn: SIGHUP Termination of Program Requested...shutting down...bye")
+	log.Println("warn: SIGHUP Termination of Program Requested...shutting down...bye!")
 
 	if TargetBoard == "rpi" {
 		t := time.Now()
 		LcdText = [4]string{"talkkonnect stopped", t.Format("02-01-2006 15:04:05"), "Please Visit", "www.talkkonnect.com"}
-		go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, 0x3f)
+		go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, LCDI2CAddress)
 		b.LEDOffAll()
 	}
 
@@ -379,11 +369,10 @@ func (b *Talkkonnect) ReConnect() {
 		b.Client.Disconnect()
 	}
 
-	if b.ConnectAttempts < 100 {
+	if b.ConnectAttempts < 10 {
 		go func() {
 			time.Sleep(10 * time.Second)
 			if !ServerHop {
-				log.Println("warn: In the ReConnect Function")
 				b.Connect()
 				time.Sleep(3 * time.Second)
 				ServerHop = false
@@ -394,9 +383,9 @@ func (b *Talkkonnect) ReConnect() {
 		log.Println("warn: Unable to connect, giving up")
 		if TargetBoard == "rpi" {
 			LcdText = [4]string{"Failed to Connect!", "nil", "nil", "nil"}
-			go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, 0x3f)
+			go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, LCDI2CAddress)
 		}
-		log.Fatal("Exiting talkkonnect! ...... bye\n")
+		log.Fatal("Exiting talkkonnect! ...... bye!\n")
 	}
 }
 
@@ -406,15 +395,14 @@ func (b *Talkkonnect) OpenStream() {
 		os.Setenv("ALSOFT_LOGLEVEL", "0")
 	}
 
-	//if stream, err := New(b.Client, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin); err != nil {
 	if stream, err := New(b.Client); err != nil {
 
 		log.Println("warn: Stream open error ", err)
 		if TargetBoard == "pi" {
 			LcdText = [4]string{"Stream Error!", "nil", "nil", "nil"}
-			go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, 0x3f)
+			go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, LCDI2CAddress)
 		}
-		log.Fatal("Exiting talkkonnect! ...... bye\n")
+		log.Fatal("Exiting talkkonnect! ...... bye!\n")
 	} else {
 
 		b.Stream = stream
@@ -431,7 +419,6 @@ func (b *Talkkonnect) ResetStream() {
 }
 
 func (b *Talkkonnect) TransmitStart() {
-	// LCD Backlight Control
 	b.BackLightTimer()
 
 	t := time.Now()
@@ -452,7 +439,7 @@ func (b *Talkkonnect) TransmitStart() {
 		b.LEDOn(b.TransmitLED)
 		LcdText[0] = "Online/TX"
 		LcdText[3] = "TX at " + t.Format("15:04:05")
-		go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, 0x3f)
+		go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, LCDI2CAddress)
 	}
 
 	b.Stream.StartSource()
@@ -460,7 +447,6 @@ func (b *Talkkonnect) TransmitStart() {
 }
 
 func (b *Talkkonnect) TransmitStop(withBeep bool) {
-	// LCD Backlight Control
 	b.BackLightTimer()
 
 	if RogerBeepSoundEnabled {
@@ -477,7 +463,7 @@ func (b *Talkkonnect) TransmitStop(withBeep bool) {
 
 		if TargetBoard == "rpi" {
 			LcdText[0] = b.Address
-			go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, 0x3f)
+			go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, LCDI2CAddress)
 			b.LEDOff(b.TransmitLED)
 		}
 
@@ -495,7 +481,6 @@ func (b *Talkkonnect) TransmitStop(withBeep bool) {
 }
 
 func (b *Talkkonnect) OnConnect(e *gumble.ConnectEvent) {
-	// LCD Backlight Control
 	b.BackLightTimer()
 
 	b.Client = e.Client
@@ -511,7 +496,7 @@ func (b *Talkkonnect) OnConnect(e *gumble.ConnectEvent) {
 
 	if TargetBoard == "rpi" {
 		LcdText = [4]string{"nil", "nil", "nil", "nil"}
-		go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, 0x3f)
+		go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, LCDI2CAddress)
 		b.ParticipantLEDUpdate(true)
 	}
 
@@ -523,7 +508,6 @@ func (b *Talkkonnect) OnConnect(e *gumble.ConnectEvent) {
 }
 
 func (b *Talkkonnect) OnDisconnect(e *gumble.DisconnectEvent) {
-	//finally turn off backlight if quit talkkonnect otherwise the disconnect will trigger the timer again and the backlight will never go off!
 	if !ServerHop {
 		b.BackLightTimer()
 	}
@@ -559,7 +543,6 @@ func (b *Talkkonnect) OnDisconnect(e *gumble.DisconnectEvent) {
 }
 
 func (b *Talkkonnect) ChangeChannel(ChannelName string) {
-	// LCD Backlight Control
 	b.BackLightTimer()
 
 	channel := b.Client.Channels.Find(ChannelName)
@@ -570,7 +553,7 @@ func (b *Talkkonnect) ChangeChannel(ChannelName string) {
 		if TargetBoard == "rpi" {
 			LcdText[1] = "Joined " + ChannelName
 			LcdText[2] = Username[AccountIndex]
-			go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, 0x3f)
+			go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, LCDI2CAddress)
 		}
 
 		log.Println("info: Joined Channel Name: ", channel.Name, " ID ", channel.ID)
@@ -582,8 +565,6 @@ func (b *Talkkonnect) ChangeChannel(ChannelName string) {
 }
 
 func (b *Talkkonnect) ParticipantLEDUpdate(verbose bool) {
-
-	// LCD Backlight Control
 	b.BackLightTimer()
 
 	time.Sleep(100 * time.Millisecond)
@@ -611,7 +592,7 @@ func (b *Talkkonnect) ParticipantLEDUpdate(verbose bool) {
 			if TargetBoard == "rpi" {
 				LcdText[0] = b.Address
 				LcdText[1] = b.Client.Self.Channel.Name + " (" + strconv.Itoa(participantCount) + " Users)"
-				go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, 0x3f)
+				go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, LCDI2CAddress)
 			}
 		}
 
@@ -631,7 +612,7 @@ func (b *Talkkonnect) ParticipantLEDUpdate(verbose bool) {
 
 			if TargetBoard == "rpi" {
 				LcdText = [4]string{b.Address, "Alone in " + b.Client.Self.Channel.Name, "", "nil"}
-				go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, 0x3f)
+				go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, LCDI2CAddress)
 			}
 		}
 		if TargetBoard == "rpi" {
@@ -643,8 +624,6 @@ func (b *Talkkonnect) ParticipantLEDUpdate(verbose bool) {
 func (b *Talkkonnect) OnTextMessage(e *gumble.TextMessageEvent) {
 	return
 	//remove return later!!
-
-	// LCD Backlight Control
 	b.BackLightTimer()
 
 	log.Println(fmt.Sprintf("alert: Message from %s: %s\n", e.Sender.Name, strings.TrimSpace(cleanstring(e.Message))))
@@ -654,7 +633,7 @@ func (b *Talkkonnect) OnTextMessage(e *gumble.TextMessageEvent) {
 		LcdText[0] = "Message From"
 		LcdText[1] = e.Sender.Name
 		LcdText[2] = strings.TrimSpace(esc(e.Message))
-		go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, 0x3f)
+		go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, LCDI2CAddress)
 	}
 
 	err := PlayWavLocal(EventSoundFilenameAndPath, 100)
@@ -665,7 +644,6 @@ func (b *Talkkonnect) OnTextMessage(e *gumble.TextMessageEvent) {
 }
 
 func (b *Talkkonnect) OnUserChange(e *gumble.UserChangeEvent) {
-	// LCD Backlight Control
 	b.BackLightTimer()
 
 	var info string
@@ -753,7 +731,7 @@ func (b *Talkkonnect) OnPermissionDenied(e *gumble.PermissionDeniedEvent) {
 		}
 
 		if TargetBoard == "rpi" {
-			go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, 0x3f)
+			go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, LCDI2CAddress)
 		}
 
 	case gumble.PermissionDeniedSuperUser:
@@ -871,7 +849,7 @@ func (b *Talkkonnect) ChannelUp() {
 		log.Println("info: Can't Increment Channel Maximum Channel Reached")
 		if TargetBoard == "rpi" {
 			LcdText[2] = "Max Chan Reached"
-			go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, 0x3f)
+			go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, LCDI2CAddress)
 		}
 		return
 	}
@@ -914,7 +892,7 @@ func (b *Talkkonnect) ChannelDown() {
 		b.Client.Self.Move(channel)
 		if TargetBoard == "rpi" {
 			LcdText[2] = "Min Chan Reached"
-			go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, 0x3f)
+			go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, LCDI2CAddress)
 		}
 		return
 	}
@@ -945,7 +923,6 @@ func (b *Talkkonnect) httpHandler(w http.ResponseWriter, r *http.Request) {
 
 	command := commands[0]
 	log.Println("info: http command " + string(command))
-	// LCD Backlight Control
 	b.BackLightTimer()
 
 	switch string(command) {
@@ -1140,7 +1117,7 @@ func (b *Talkkonnect) commandKeyF3() {
 		}
 		if TargetBoard == "rpi" {
 			LcdText = [4]string{"nil", "nil", "nil", "UnMuted"}
-			go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, 0x3f)
+			go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, LCDI2CAddress)
 		}
 	} else {
 		if TTSEnabled && TTSMuteUnMuteSpeaker {
@@ -1158,7 +1135,7 @@ func (b *Talkkonnect) commandKeyF3() {
 		log.Println("F3 pressed Mute/Unmute Speaker Requested Now Muted")
 		if TargetBoard == "rpi" {
 			LcdText = [4]string{"nil", "nil", "nil", "Muted"}
-			go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, 0x3f)
+			go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, LCDI2CAddress)
 		}
 	}
 
@@ -1183,7 +1160,7 @@ func (b *Talkkonnect) commandKeyF4() {
 	}
 	if TargetBoard == "rpi" {
 		LcdText = [4]string{"nil", "nil", "nil", "Volume " + strconv.Itoa(origVolume)}
-		go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, 0x3f)
+		go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, LCDI2CAddress)
 	}
 	log.Println("--")
 }
@@ -1204,13 +1181,13 @@ func (b *Talkkonnect) commandKeyF5() {
 		log.Println("F5 pressed Volume UP (+) Now At ", origVolume, "%")
 		if TargetBoard == "rpi" {
 			LcdText = [4]string{"nil", "nil", "nil", "Volume + " + strconv.Itoa(origVolume)}
-			go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, 0x3f)
+			go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, LCDI2CAddress)
 		}
 	} else {
 		log.Println("F5 Increase Volume Already at Maximum Possible Volume")
 		if TargetBoard == "rpi" {
 			LcdText = [4]string{"nil", "nil", "nil", "Max Vol"}
-			go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, 0x3f)
+			go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, LCDI2CAddress)
 		}
 	}
 
@@ -1242,13 +1219,13 @@ func (b *Talkkonnect) commandKeyF6() {
 		log.Println("F6 pressed Volume Down (-) Now At ", origVolume, "%")
 		if TargetBoard == "rpi" {
 			LcdText = [4]string{"nil", "nil", "nil", "Volume - " + strconv.Itoa(origVolume)}
-			go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, 0x3f)
+			go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, LCDI2CAddress)
 		}
 	} else {
 		log.Println("F6 Increase Volume Already at Minimum Possible Volume")
 		if TargetBoard == "rpi" {
 			LcdText = [4]string{"nil", "nil", "nil", "Min Vol"}
-			go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, 0x3f)
+			go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, LCDI2CAddress)
 		}
 	}
 
@@ -1453,7 +1430,7 @@ func (b *Talkkonnect) commandKeyCtrlP() {
 		go b.PlayIntoStream(PFileNameAndPath, PVolume)
 		if TargetBoard == "rpi" {
 			LcdText = [4]string{"nil", "nil", "nil", "Panic Message Sent!"}
-			go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, 0x3f)
+			go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, LCDI2CAddress)
 		}
 		if PTxLockEnabled && PTxlockTimeOutSecs > 0 {
 			b.TxLockTimer()
@@ -1545,7 +1522,6 @@ func (b *Talkkonnect) SendMessage(textmessage string, PRecursive bool) {
 
 func (b *Talkkonnect) SetComment(comment string) {
 	if b.IsConnected {
-		// LCD Backlight Control
 		b.BackLightTimer()
 		b.Client.Self.SetComment(comment)
 		t := time.Now()
@@ -1553,20 +1529,18 @@ func (b *Talkkonnect) SetComment(comment string) {
 		time.Sleep(500 * time.Millisecond)
 		if TargetBoard == "rpi" {
 			LcdText[3] = b.Client.Self.Comment
-			go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, 0x3f)
+			go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, LCDI2CAddress)
 		}
 	}
 }
 
 func (b *Talkkonnect) BackLightTimer() {
 
-	//for the case that backlight timer is set as not enabled or false leave the backlight on all the time
 	if LCDBackLightTimerEnabled == false || TargetBoard != "rpi" {
 		b.LEDOn(b.BackLightLED)
 		return
 	}
 
-	// reset the same timer every time there is a call to this function to keep the backlight on until the next timeout
 	BackLightTime = *BackLightTimePtr
 	BackLightTime.Reset(time.Duration(LCDBackLightTimeoutSecs) * time.Second)
 
@@ -1591,7 +1565,6 @@ func (b *Talkkonnect) BackLightTimer() {
 }
 
 func (b *Talkkonnect) TxLockTimer() {
-	// Used for Keep Transmitting for period of defined time after panic simulation
 	if PTxLockEnabled {
 		TxLockTicker := time.NewTicker(time.Duration(PTxlockTimeOutSecs) * time.Second)
 		log.Println("warn: TX Locked for ", PTxlockTimeOutSecs, " seconds")

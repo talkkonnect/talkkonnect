@@ -112,7 +112,7 @@ Next go to “Interfacing Options” in raspi-config and “Enable SSH Server”
 
 ##### Change the line #####
 
-` #PermitRootLogin  prohibit-password  to  PermitRootLogin Yes`
+` #PermitRootLogin  prohibit-password  to  PermitRootLogin yes`
 
 ##### Restart ssh server with #####
 
@@ -177,7 +177,7 @@ cd $GOPATH/src/github.com/talkkonnect/talkkonnect
 ##### Start  talKKonnect binary #####
 
 ````
-cd /home/talkkonnect/bin/talkkonnect
+cd /home/talkkonnect/bin
 ./talkkonnect 
 ````
 ##### Or create a start script ##### 

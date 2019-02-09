@@ -223,7 +223,7 @@ sleep 2
 ├────────────────────────────────────────────────────────────────┤
 │Created By : Suvir Kumar  <suvir@talkkonnect.com>               │
 ├────────────────────────────────────────────────────────────────┤
-│Version 1.32 Released January 2 2019                            │
+│Version 1.40 Released February 04 2019                          │
 │Additional Modifications Released under MPL 2.0 License         │
 ├────────────────────────────────────────────────────────────────┤
 │visit us at www.talkkonnect.com and github.com/talkkonnect      │
@@ -348,6 +348,7 @@ For a speaker muting to work when pressing a PTT, you need to enter the exact na
 │ <F11> Playback/Stop Chimes  │ <F12> For GPS Position           │
 │<Ctrl-P> Start/Stop Panic Sim│<Ctrx-X> Screen Dump XML Config   │
 │<Ctrl-E> Send Email          │<Ctrl-N> Connect to Next Server   │
+│<Ctrl-M> Ping Servers        │                                  │
 ├─────────────────────────────┴──────────────────────────────────┤
 │   visit us at www.talkkonnect.com and github.com/talkkonnect   │
 └────────────────────────────────────────────────────────────────┘
@@ -479,7 +480,7 @@ For a speaker muting to work when pressing a PTT, you need to enter the exact na
 We invite interested individuals to provide feedback and improvements to the project. Currently we do not have a WIKI so send feedback to <suvir@talkkonnect.com> or open and Issue in github 
 
 Please visit our [blog](www.talkkonnect.com) for our blog or [github](github.com/talkkonnect) for the latest source code and our [facebook](https://www.facebook.com/talkkonnect) page for future updates and information. 
-You can also [download](https://talkkonnect.com/wp-content/uploads/2019/01/Readme-13-01-2019.pdf) a PDF version with pictures of this document.
+You can also [download](https://talkkonnect.com/wp-content/uploads/2019/01/Readme-13-01-2019.pdf) an "OLDER" PDF version with pictures of this document.
 
 ## License 
 [talKKonnect](http://www.talkkonnect.com) is open source and available under the MPL V2.00 license.

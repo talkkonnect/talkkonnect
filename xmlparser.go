@@ -24,7 +24,7 @@
  * My Blog is at www.talkkonnect.com
  * The source code is hosted at github.com/talkkonnect
  *
- * xmlparser.go -> talkkonnect functionality to read from XML file and populate global variables 
+ * xmlparser.go -> talkkonnect functionality to read from XML file and populate global variables
  */
 
 package talkkonnect
@@ -38,7 +38,6 @@ import (
 	"os"
 	"time"
 )
-
 
 // lcd timer
 var (
@@ -129,6 +128,8 @@ var (
 	TTSTalkkonnectLoadedFileNameAndPath  string
 	TTSPingServers                       bool
 	TTSPingServersFileNameAndPath        string
+	TTSScan                              bool
+	TTSScanFileNameAndPath               string
 )
 
 //gmail smtp settings
@@ -181,34 +182,34 @@ var (
 	APIPrintXmlConfig     bool
 	APIEmailEnabled       bool
 	APIPingServersEnabled bool
+	APIScan               bool
 )
 
 //print xml config sections for easy debugging, set any section to false to prevent printing to screen
 var (
-        PrintAccount      bool
-        PrintLogging      bool
-        PrintProvisioning bool
-        PrintBeacon       bool
-        PrintTTS          bool
-        PrintSMTP         bool
-        PrintSounds       bool
-        PrintTxTimeout    bool
-        PrintHTTPAPI      bool
-        PrintTargetboard  bool
-        PrintLeds         bool
-        PrintHeartbeat    bool
-        PrintButtons      bool
-        PrintComment      bool
-        PrintLcd          bool
-        PrintGps          bool
-        PrintPanic        bool
+	PrintAccount      bool
+	PrintLogging      bool
+	PrintProvisioning bool
+	PrintBeacon       bool
+	PrintTTS          bool
+	PrintSMTP         bool
+	PrintSounds       bool
+	PrintTxTimeout    bool
+	PrintHTTPAPI      bool
+	PrintTargetboard  bool
+	PrintLeds         bool
+	PrintHeartbeat    bool
+	PrintButtons      bool
+	PrintComment      bool
+	PrintLcd          bool
+	PrintGps          bool
+	PrintPanic        bool
 )
 
 // target board settings
 var (
 	TargetBoard string
 )
-
 
 //indicator light settings
 var (
@@ -333,7 +334,7 @@ type Software struct {
 	Sounds           Sounds           `xml:"sounds"`
 	TxTimeOut        TxTimeOut        `xml:"txtimeout"`
 	API              API              `xml:"api"`
-        PrintVariables	 PrintVariables   `xml:"printvariables"`
+	PrintVariables   PrintVariables   `xml:"printvariables"`
 	TTS              TTS              `xml:"tts"`
 }
 
@@ -456,25 +457,24 @@ type API struct {
 
 type PrintVariables struct {
 	XMLName           xml.Name `xml:"printvariables"`
-        PrintAccount      bool     `xml:"printaccount"`
-        PrintLogging      bool     `xml:"printlogging"`
-        PrintProvisioning bool     `xml:"printprovisioning"`
-        PrintBeacon       bool     `xml:"printbeacon"`
-        PrintTTS          bool     `xml:"printts"`
-        PrintSMTP         bool     `xml:"printsmtp"`
-        PrintSounds       bool     `xml:"printsounds"`
-        PrintTxTimeout    bool     `xml:"printtxtimeout"`
-        PrintHTTPAPI      bool     `xml:"printhttpapi"`
-        PrintTargetboard  bool     `xml:"printtargetboard"`
-        PrintLeds         bool     `xml:"printleds"`
-        PrintHeartbeat    bool     `xml:"printheartbeat"`
-        PrintButtons      bool     `xml:"printbuttons"`
-        PrintComment      bool     `xml:"printcomment"`
-        PrintLcd          bool     `xml:"printlcd"`
-        PrintGps          bool     `xml:"printgps"`
-        PrintPanic        bool     `xml:"printpanic"`
+	PrintAccount      bool     `xml:"printaccount"`
+	PrintLogging      bool     `xml:"printlogging"`
+	PrintProvisioning bool     `xml:"printprovisioning"`
+	PrintBeacon       bool     `xml:"printbeacon"`
+	PrintTTS          bool     `xml:"printts"`
+	PrintSMTP         bool     `xml:"printsmtp"`
+	PrintSounds       bool     `xml:"printsounds"`
+	PrintTxTimeout    bool     `xml:"printtxtimeout"`
+	PrintHTTPAPI      bool     `xml:"printhttpapi"`
+	PrintTargetboard  bool     `xml:"printtargetboard"`
+	PrintLeds         bool     `xml:"printleds"`
+	PrintHeartbeat    bool     `xml:"printheartbeat"`
+	PrintButtons      bool     `xml:"printbuttons"`
+	PrintComment      bool     `xml:"printcomment"`
+	PrintLcd          bool     `xml:"printlcd"`
+	PrintGps          bool     `xml:"printgps"`
+	PrintPanic        bool     `xml:"printpanic"`
 }
-
 
 type Event struct {
 	XMLName          xml.Name `xml:"event"`
@@ -633,9 +633,9 @@ func readxmlconfig(file string) error {
 		}
 	}
 
-		if counter == 0 {
-			log.Fatal("No Default Accounts Found! Please Add at least 1 Default Account in XML File")
-		}
+	if counter == 0 {
+		log.Fatal("No Default Accounts Found! Please Add at least 1 Default Account in XML File")
+	}
 
 	OutputDevice = document.Global.Software.Settings.OutputDevice
 	LogFileNameAndPath = document.Global.Software.Settings.LogFileNameAndPath
@@ -746,23 +746,23 @@ func readxmlconfig(file string) error {
 	APIEmailEnabled = document.Global.Software.API.APIEmailEnabled
 	APIPingServersEnabled = document.Global.Software.API.APIPingServersEnabled
 
-        PrintAccount      = document.Global.Software.PrintVariables.PrintAccount
-        PrintLogging      = document.Global.Software.PrintVariables.PrintLogging
-        PrintProvisioning = document.Global.Software.PrintVariables.PrintProvisioning
-        PrintBeacon       = document.Global.Software.PrintVariables.PrintBeacon
-        PrintTTS          = document.Global.Software.PrintVariables.PrintTTS
-        PrintSMTP         = document.Global.Software.PrintVariables.PrintSMTP
-        PrintSounds       = document.Global.Software.PrintVariables.PrintSounds
-        PrintTxTimeout    = document.Global.Software.PrintVariables.PrintTxTimeout
-        PrintHTTPAPI      = document.Global.Software.PrintVariables.PrintHTTPAPI
-        PrintTargetboard  = document.Global.Software.PrintVariables.PrintTargetboard
-        PrintLeds         = document.Global.Software.PrintVariables.PrintLeds
-        PrintHeartbeat    = document.Global.Software.PrintVariables.PrintHeartbeat
-        PrintButtons      = document.Global.Software.PrintVariables.PrintButtons
-        PrintComment      = document.Global.Software.PrintVariables.PrintComment
-        PrintLcd          = document.Global.Software.PrintVariables.PrintLcd
-        PrintGps          = document.Global.Software.PrintVariables.PrintGps
-        PrintPanic        = document.Global.Software.PrintVariables.PrintPanic
+	PrintAccount = document.Global.Software.PrintVariables.PrintAccount
+	PrintLogging = document.Global.Software.PrintVariables.PrintLogging
+	PrintProvisioning = document.Global.Software.PrintVariables.PrintProvisioning
+	PrintBeacon = document.Global.Software.PrintVariables.PrintBeacon
+	PrintTTS = document.Global.Software.PrintVariables.PrintTTS
+	PrintSMTP = document.Global.Software.PrintVariables.PrintSMTP
+	PrintSounds = document.Global.Software.PrintVariables.PrintSounds
+	PrintTxTimeout = document.Global.Software.PrintVariables.PrintTxTimeout
+	PrintHTTPAPI = document.Global.Software.PrintVariables.PrintHTTPAPI
+	PrintTargetboard = document.Global.Software.PrintVariables.PrintTargetboard
+	PrintLeds = document.Global.Software.PrintVariables.PrintLeds
+	PrintHeartbeat = document.Global.Software.PrintVariables.PrintHeartbeat
+	PrintButtons = document.Global.Software.PrintVariables.PrintButtons
+	PrintComment = document.Global.Software.PrintVariables.PrintComment
+	PrintLcd = document.Global.Software.PrintVariables.PrintLcd
+	PrintGps = document.Global.Software.PrintVariables.PrintGps
+	PrintPanic = document.Global.Software.PrintVariables.PrintPanic
 
 	TargetBoard = document.Global.Hardware.TargetBoard
 
@@ -823,7 +823,6 @@ func readxmlconfig(file string) error {
 	PSendGpsLocation = document.Global.Hardware.PanicFunction.PSendGpsLocation
 	PTxLockEnabled = document.Global.Hardware.PanicFunction.PTxLockEnabled
 	PTxlockTimeOutSecs = document.Global.Hardware.PanicFunction.PTxlockTimeOutSecs
-
 
 	log.Println("Successfully loaded configuration file into memory")
 	return nil

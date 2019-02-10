@@ -43,7 +43,7 @@ import (
 var (
 	ErrState         = errors.New("gumbleopenal: invalid state")
 	lastspeaker      = "Nil"
-	lcdtext          = [4]string{"nil", "nil", "nil", ""} 
+	lcdtext          = [4]string{"nil", "nil", "nil", ""}
 	BackLightLED     = gpio.NewOutput(uint(BackLightLEDPin), false)
 	VoiceActivityLED = gpio.NewOutput(VoiceActivityLEDPin, false)
 	now              = time.Now()

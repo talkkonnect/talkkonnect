@@ -31,10 +31,10 @@ package talkkonnect
 
 import (
 	"fmt"
+	"github.com/talkkonnect/gumble/gumble"
 	"github.com/talkkonnect/volume-go"
 	"log"
 	"net"
-	"github.com/talkkonnect/gumble/gumble"
 	"time"
 )
 
@@ -50,7 +50,7 @@ func talkkonnectBanner() {
 	log.Println("info: ├────────────────────────────────────────────────────────────────┤")
 	log.Println("info: │Created By : Suvir Kumar  <suvir@talkkonnect.com>               │")
 	log.Println("info: ├────────────────────────────────────────────────────────────────┤")
-	log.Println("info: │Version 1.40 Released February 04 2019                          │")
+	log.Println("info: │Version 1.41 Released February 10 2019                          │")
 	log.Println("info: │Additional Modifications Released under MPL 2.0 License         │")
 	log.Println("info: ├────────────────────────────────────────────────────────────────┤")
 	log.Println("info: │visit us at www.talkkonnect.com and github.com/talkkonnect      │")
@@ -94,9 +94,11 @@ func (b *Talkkonnect) talkkonnectMenu() {
 	log.Println("info: │ <F7>  List Server Channels  │ <F8>  Start Transmitting         │")
 	log.Println("info: │ <F9>  Stop Transmitting     │ <F10> List Online Users          │")
 	log.Println("info: │ <F11> Playback/Stop Chimes  │ <F12> For GPS Position           │")
-	log.Println("info: │<Ctrl-P> Start/Stop Panic Sim│<Ctrx-X> Screen Dump XML Config   │")
-	log.Println("info: │<Ctrl-E> Send Email          │<Ctrl-N> Connect to Next Server   │")
-	log.Println("info: │<Ctrl-M> Ping Servers        │                                  │")
+	log.Println("info: ├─────────────────────────────┼──────────────────────────────────┤")
+	log.Println("info: │<Ctrl-E> Send Email          │<Ctrl-L> Clear Screen             │")
+	log.Println("info: │<Ctrl-M> Ping Servers        │<Ctrl-N> Connect Next Server      │")
+	log.Println("info: │<Ctrl-P> Panic Simulation    │<Ctrl-S> Scan Channels            │ ")
+	log.Println("info: │<Ctrl-X> Dump XML Config     │                                  │ ")
 	log.Println("info: ├─────────────────────────────┴──────────────────────────────────┤")
 	log.Println("info: │   visit us at www.talkkonnect.com and github.com/talkkonnect   │")
 	log.Println("info: └────────────────────────────────────────────────────────────────┘")

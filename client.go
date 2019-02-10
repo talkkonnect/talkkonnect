@@ -57,11 +57,11 @@ import (
 )
 
 var (
-	LcdText                     = [4]string{"nil", "nil", "nil", "nil"}
+	LcdText              = [4]string{"nil", "nil", "nil", "nil"}
 	currentChannelID     uint32
 	prevChannelID        uint32
 	prevParticipantCount int
-	prevButtonPress      string  = "none"
+	prevButtonPress      string = "none"
 	maxchannelid         uint32
 	origVolume           int
 	tempVolume           int
@@ -329,14 +329,19 @@ keyPressListenerLoop:
 				b.commandKeyCtrlC()
 			case term.KeyCtrlE:
 				b.commandKeyCtrlE()
+			case term.KeyCtrlL:
+				reset()
+				log.Println("info: Ctrl-L Pressed Cleared Screen")
+			case term.KeyCtrlM:
+				b.commandKeyCtrlM()
 			case term.KeyCtrlN:
 				b.commandKeyCtrlN()
 			case term.KeyCtrlP:
 				b.commandKeyCtrlP()
+			case term.KeyCtrlS:
+				b.commandKeyCtrlS()
 			case term.KeyCtrlX:
 				b.commandKeyCtrlX()
-			case term.KeyCtrlM:
-				b.commandKeyCtrlM()
 			default:
 				log.Println("--")
 				if ev.Ch != 0 {
@@ -657,7 +662,6 @@ func (b *Talkkonnect) OnTextMessage(e *gumble.TextMessageEvent) {
 
 	log.Println(fmt.Sprintf("alert: Message from %s: %s\n", e.Sender.Name, strings.TrimSpace(cleanstring(e.Message))))
 
-
 	if TargetBoard == "rpi" {
 		LcdText[0] = "Message From"
 		LcdText[1] = e.Sender.Name
@@ -943,6 +947,39 @@ func (b *Talkkonnect) ChannelDown() {
 
 }
 
+func (b *Talkkonnect) Scan() {
+
+	b.ListChannels(false)
+
+	if b.Client.Self.Channel.ID+1 > maxchannelid {
+		prevChannelID = 0
+		channel := b.Client.Channels[prevChannelID]
+		b.Client.Self.Move(channel)
+		return
+	}
+
+	if prevChannelID < maxchannelid {
+		prevChannelID++
+
+		for i := prevChannelID; uint32(i) < maxchannelid+1; i++ {
+			channel := b.Client.Channels[i]
+			if channel != nil {
+				b.Client.Self.Move(channel)
+				time.Sleep(1000 * time.Millisecond)
+				if len(b.Client.Self.Channel.Users) == 1 {
+					b.Scan()
+					break
+				} else {
+
+					log.Println("warn: Found Someone Online Stopped Scan on Channel ", b.Client.Self.Channel.Name)
+					return
+				}
+			}
+		}
+	}
+	return
+}
+
 func (b *Talkkonnect) httpHandler(w http.ResponseWriter, r *http.Request) {
 	commands, ok := r.URL.Query()["command"]
 	if !ok || len(commands[0]) < 1 {
@@ -1046,6 +1083,20 @@ func (b *Talkkonnect) httpHandler(w http.ResponseWriter, r *http.Request) {
 		} else {
 			fmt.Fprintf(w, "API Request GPS Position Denied\n")
 		}
+	case "commandKeyCtrlE":
+		if APIEmailEnabled {
+			b.commandKeyCtrlE()
+			fmt.Fprintf(w, "API Send Email Processed Succesfully\n")
+		} else {
+			fmt.Fprintf(w, "API Send Email Congfig Denied\n")
+		}
+	case "commandKeyCtrlM":
+		if APIEmailEnabled {
+			b.commandKeyCtrlM()
+			fmt.Fprintf(w, "API Ping Servers Processed Succesfully\n")
+		} else {
+			fmt.Fprintf(w, "API Ping Servers Denied\n")
+		}
 	case "commandKeyCtrlN":
 		if APINextServer {
 			b.commandKeyCtrlN()
@@ -1060,26 +1111,19 @@ func (b *Talkkonnect) httpHandler(w http.ResponseWriter, r *http.Request) {
 		} else {
 			fmt.Fprintf(w, "API Request Panic Simulation Denied\n")
 		}
+	case "commandKeyCtrlS":
+		if APIScan {
+			b.commandKeyCtrlS()
+			fmt.Fprintf(w, "API Request Scan Processed Succesfully\n")
+		} else {
+			fmt.Fprintf(w, "API Request Scan Simulation Denied\n")
+		}
 	case "commandKeyCtrlX":
 		if APIPrintXmlConfig {
 			b.commandKeyCtrlX()
 			fmt.Fprintf(w, "API Print XML Config Processed Succesfully\n")
 		} else {
 			fmt.Fprintf(w, "API Print XML Congfig Denied\n")
-		}
-	case "commandKeyCtrlE":
-		if APIEmailEnabled {
-			b.commandKeyCtrlE()
-			fmt.Fprintf(w, "API Send Email Processed Succesfully\n")
-		} else {
-			fmt.Fprintf(w, "API Send Email Congfig Denied\n")
-		}
-	case "commandKeyCtrlM":
-		if APIEmailEnabled {
-			b.commandKeyCtrlM()
-			fmt.Fprintf(w, "API Ping Servers Processed Succesfully\n")
-		} else {
-			fmt.Fprintf(w, "API Ping Servers Denied\n")
 		}
 	}
 }
@@ -1531,6 +1575,22 @@ func (b *Talkkonnect) commandKeyCtrlX() {
 	log.Println("--")
 }
 
+func (b *Talkkonnect) commandKeyCtrlS() {
+	log.Println("--")
+	log.Println("Ctrl-S Scan Channels ")
+
+	if TTSEnabled && TTSScan {
+		err := PlayWavLocal(TTSScanFileNameAndPath, TTSVolumeLevel)
+		if err != nil {
+			log.Println("Play Wav Local Module Returned Error: ", err)
+		}
+
+	}
+
+	b.Scan()
+	log.Println("--")
+}
+
 func (b *Talkkonnect) commandKeyCtrlM() {
 	log.Println("Ctrl-M Ping Servers ")
 
@@ -1584,10 +1644,10 @@ func (b *Talkkonnect) BackLightTimer() {
 		}
 		if LCDInterfaceType == "i2c" {
 			lcd := hd44780.NewI2C4bit(LCDI2CAddress)
-                	if err := lcd.Open(); err != nil {
-                        	log.Println("alert: Can't open lcd: " + err.Error())
-                        return
-                	}
+			if err := lcd.Open(); err != nil {
+				log.Println("alert: Can't open lcd: " + err.Error())
+				return
+			}
 			lcd.ToggleBacklight()
 		}
 	}()
@@ -1621,7 +1681,7 @@ func (b *Talkkonnect) pingservers() {
 			currentconn = ""
 		}
 
-		log.Println("info: Server # ", i+1, "[" + Name[i]+"]"+ currentconn)
+		log.Println("info: Server # ", i+1, "["+Name[i]+"]"+currentconn)
 
 		if err != nil {
 			log.Println(fmt.Sprintf("warn: Ping Error ", err))

@@ -31,12 +31,12 @@ package talkkonnect
 
 import (
 	"encoding/hex"
+	"errors"
 	"fmt"
-	"github.com/talkkonnect/go-nmea"
 	"github.com/jacobsa/go-serial/serial"
+	"github.com/talkkonnect/go-nmea"
 	"io"
 	"log"
-	"errors"
 	"strings"
 )
 

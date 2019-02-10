@@ -3,7 +3,7 @@
 <document type="talkkonnect/xml">
 
 	<!-- Need to Have At Least One Account Set as Default Account, The First Default Account Found will be the one used! --> 
-	<accounts print="true">
+	<accounts>
                 <account name="phillipinogamersserver" default="true">
                         <serverandport>218.219.148.36:8000</serverandport>
                         <username></username>
@@ -13,6 +13,7 @@
                         <channel>room A</channel>
                         <ident>Suvir Kumar</ident>
  		</account>
+
 	</accounts>
 
 	<!-- Global section for setting behaviour of talkkonnect, soundsfiles paths and volumes, physical connections of pinouts for buttons and leds, lcd screen connections and usb gps parameters -->
@@ -26,7 +27,7 @@
 				<!-- Set Output Device to Speaker, Master, Headphone or whatever your OS/Alsa Detects as the Master Sound Card Device for Output in alsamixer -->
 				<outputdevice>Speaker</outputdevice>	
 				<logfilenameandpath>/var/log/talkkonnect.log</logfilenameandpath>	
-				<logging>screen</logging>
+				<logging>screen</logging> <!--set logging to screen if screen only desired otherwise leave it as blank and talkkonnect will log to both screen and logfile -->
 				<daemonize>false</daemonize>
 			</settings>
 
@@ -123,11 +124,11 @@
 
 				<!-- File for Sound Playing into Transmitted Stream (Supports Most Audio Formats -->
 				<chimes enabled="true">
-					<!--<filenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/everybreath.mp3</filenameandpath>-->
+					<filenameandpath>/root/whatever.mp3</filenameandpath>
 					<!--filenameandpath>http://d.liveatc.net/vtbs_app</filenameandpath>-->
 					<!--<filenameandpath>http://d.liveatc.net/kjfk_arinc</filenameandpath>-->
 					<!--<filenameandpath>http://d.liveatc.net/vtbs_atis</filenameandpath>-->
-					<filenameandpath>http://bbcwssc.ic.llnwd.net/stream/bbcwssc_mp1_ws-eieuk</filenameandpath>
+					<!--<filenameandpath>http://bbcwssc.ic.llnwd.net/stream/bbcwssc_mp1_ws-eieuk</filenameandpath>-->
 					<!--<filenameandpath>https://voa28.akacast.akamaistream.net/7/325/437810/v1/ibb.akacast.akamaistream.net/voa28</filenameandpath>-->
 					<volume>1</volume>     
 				</chimes>

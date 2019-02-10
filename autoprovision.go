@@ -28,7 +28,6 @@
  *
  */
 
-
 package talkkonnect
 
 import (

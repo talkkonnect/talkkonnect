@@ -43,7 +43,7 @@ func sendviagmail(username string, password string, receiver string, subject str
 		return errors.New(fmt.Sprintf("Sending Email Via GMAIL Error: ", err.Error()))
 	}
 
-	go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin,LCDInterfaceType, LCDI2CAddress)
+	go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, LCDI2CAddress)
 
 	return nil
 }

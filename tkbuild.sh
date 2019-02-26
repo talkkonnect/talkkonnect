@@ -60,7 +60,7 @@ go build -o /home/talkkonnect/bin/talkkonnect cmd/talkkonnect/main.go
 ## Notify User
 echo "=> Finished building TalKKonnect"
 echo "=> talkkonnect binary is in /home/talkkonect/bin"
-echo "=> Now enter Mumble server connectivity details in 
+echo "=> Now enter Mumble server connectivity details"
 echo "talkkonnect.xml from $GOPATH/src/github.com/talkkonnect/talkkonnect"
 echo "and configure talkkonnect features. Happy talkkonnecting!!"
 

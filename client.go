@@ -1398,6 +1398,7 @@ func (b *Talkkonnect) commandKeyF11() {
 		b.TransmitStop(false)
 	} else {
 		b.IsTransmitting = true
+		b.SendMessage(fmt.Sprintf("%s Streaming", b.Username), false)
 		go b.PlayIntoStream(ChimesSoundFilenameAndPath, ChimesSoundVolume)
 	}
 	b.IsTransmitting = false

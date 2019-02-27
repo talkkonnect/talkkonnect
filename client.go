@@ -494,23 +494,22 @@ func (b *Talkkonnect) TransmitStop(withBeep bool) {
 				log.Println("alert: Roger Beep Module Returned Error: ", err)
 			}
 		}
+	}
 
-		if TargetBoard == "rpi" {
-			LcdText[0] = b.Address
-			go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, LCDI2CAddress)
-			b.LEDOff(b.TransmitLED)
-		}
+	if TargetBoard == "rpi" {
+		LcdText[0] = b.Address
+		go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, LCDI2CAddress)
+		b.LEDOff(b.TransmitLED)
+	}
 
-		b.IsTransmitting = false
+	b.IsTransmitting = false
+	b.Stream.StopSource()
 
-		b.Stream.StopSource()
-
-		err := volume.Unmute(OutputDevice)
-		if err != nil {
-			log.Println("warn: Unable to Unmute ", err)
-		} else {
-			log.Println("info: Speaker UnMuted ")
-		}
+	err := volume.Unmute(OutputDevice)
+	if err != nil {
+		log.Println("warn: Unable to Unmute ", err)
+	} else {
+		log.Println("info: Speaker UnMuted ")
 	}
 }
 
@@ -1350,8 +1349,6 @@ func (b *Talkkonnect) commandKeyF9() {
 	log.Println("--")
 	log.Println("F9 pressed RX Mode Request (Stop Transmitting)")
 
-	b.TransmitStop(true)
-
 	if TTSEnabled && TTSStopTransmitting {
 		err := PlayWavLocal(TTSStopTransmittingFileNameAndPath, TTSVolumeLevel)
 		if err != nil {
@@ -1359,6 +1356,8 @@ func (b *Talkkonnect) commandKeyF9() {
 		}
 
 	}
+
+	b.TransmitStop(true)
 
 	log.Println("--")
 }

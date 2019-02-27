@@ -57,6 +57,8 @@ func (b *Talkkonnect) PlayIntoStream(filepath string, vol float32) {
 		}
 
 		b.LEDOn(b.TransmitLED)
+
+		time.Sleep(100 * time.Millisecond)
 		stream = gumbleffmpeg.New(b.Client, gumbleffmpeg.SourceFile(filepath), vol)
 
 		if err := stream.Play(); err != nil {

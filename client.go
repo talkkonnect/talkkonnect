@@ -399,7 +399,7 @@ func (b *Talkkonnect) Connect() {
 
 func (b *Talkkonnect) ReConnect() {
 	if b.Client != nil {
-		log.Println("warn: Attenpting Reconnection With Server")
+		log.Println("warn: Attempting Reconnection With Server")
 		b.Client.Disconnect()
 	}
 
@@ -561,7 +561,7 @@ func (b *Talkkonnect) OnDisconnect(e *gumble.DisconnectEvent) {
 	if reason == "" {
 		log.Println("warn: Connection to ", b.Address, "disconnected")
 		if !ServerHop {
-			log.Println("warn: Attempting Recibbect in 10 seconds...")
+			log.Println("warn: Attempting Reconnect in 10 seconds...")
 		}
 	} else {
 		log.Println("warn: Connection to ", b.Address, " disconnected ", reason)

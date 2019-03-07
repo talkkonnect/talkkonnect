@@ -134,8 +134,8 @@ func (s *Stream) StopSource() error {
 	s.sourceStop = nil
 	s.deviceSource.CaptureStop()
 
-	// on stop source adjust from 100ms to 25 ms helps reduce recovery time and helps with audio chopping (suvir kumar)
-	//time.Sleep(25 * time.Millisecond)
+	// on stop source adjust from 100ms to 5 ms helps reduce recovery time and helps with audio chopping (suvir kumar)
+	time.Sleep(5 * time.Millisecond)
 
 	s.deviceSource.CaptureCloseDevice()
 	s.deviceSource = nil

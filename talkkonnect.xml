@@ -180,7 +180,7 @@
 				<printheartbeat>false</printheartbeat>
 				<printbuttons>false</printbuttons>
 				<printcomment>false</printcomment>
-				<printlcd>true</printlcd>
+				<printlcd>false</printlcd>
 				<printgps>false</printgps>
 				<printpanic>false</printpanic>
                         </printvariables>
@@ -222,6 +222,7 @@
 			</comment>
 
 			<!-- displaytype can now be hd44780(parallel or i2c) or oled(i2c) -->
+
 			<!-- HD44780 LCD Module Type (1) 4 GPIO Parallel GPIO Interface                                -->
 			<!-- To use HD4478 with parallel 4 GPIO Pins                                                   -->
 			<!-- Set <lcdinterfacetype>parallel</lcdinterfacetype> and <lcdi2caddress>0x00</lcdi2caddress> --> 
@@ -231,20 +232,20 @@
 			<!-- First Enable it in the Kernal and then Find the Address of Your I2C Device use i2cdetect -y 1 --> 
 			<!-- Set <lcdinterfacetype>i2c</lcdinterfacetype> and <lcdi2caddress>63</lcdi2caddress>          --> 
 			<screen>
-				<displaytype>oled</displaytype>
-				<oleddisplayrows>8</oleddisplayrows>
-				<oleddisplaycolumns>20</oleddisplaycolumns>
-				<lcdinterfacetype>parallel</lcdinterfacetype>
-				<lcdi2caddress>63</lcdi2caddress>
-                                <lcdbacklighttimerenabled>true</lcdbacklighttimerenabled>
-                                <lcdbacklighttimeoutsecs>30</lcdbacklighttimeoutsecs>
-				<backlightpin>6</backlightpin>
-				<rspin>7</rspin>
-				<epin>8</epin>
-				<d4pin>25</d4pin>
-				<d5pin>24</d5pin>
-				<d6pin>23</d6pin>
-				<d7pin>18</d7pin>
+				<displaytype>oled</displaytype>                           <!-- select either oled or hd44780 -->
+				<oledisplayrows>8</oledisplayrows>                        <!-- this setting only effects oled screen -->
+				<oleddisplaycolumns>20</oleddisplaycolumns>               <!-- this setting only effects oled screen -->
+				<lcdinterfacetype>parallel</lcdinterfacetype>             <!-- this setting only effects hd44780 type of displays -->
+				<lcdi2caddress>63</lcdi2caddress>                         <!-- this setting only effects hd44780 i2c displays -->
+                                <lcdbacklighttimerenabled>true</lcdbacklighttimerenabled> <!-- this setting only effects hd44780 displays -->
+                                <lcdbacklighttimeoutsecs>30</lcdbacklighttimeoutsecs>     <!-- this setting only effects hd44780 displays -->
+				<backlightpin>6</backlightpin>                            <!-- this setting only effects hd44780 parallel displays -->
+				<rspin>7</rspin>                                          <!-- this setting only effects hd44780 parallel displays -->
+				<epin>8</epin>                                            <!-- this setting only effects hd44780 parallel displays -->
+				<d4pin>25</d4pin>                                         <!-- this setting only effects hd44780 parallel displays -->
+				<d5pin>24</d5pin>                                         <!-- this setting only effects hd44780 parallel displays -->
+				<d6pin>23</d6pin>                                         <!-- this setting only effects hd44780 parallel displays -->
+				<d7pin>18</d7pin>                                         <!-- this setting only effects hd44780 parallel displays -->
 			</screen>
 
 

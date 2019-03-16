@@ -149,7 +149,9 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 
 	if TargetBoard == "rpi" {
 		LEDOffFunc(VoiceActivityLED)
-		LEDOffFunc(BackLightLED)
+		if DisplayType == "hd44780" {
+			LEDOffFunc(BackLightLED)
+		}
 	}
 
 	timertalkled := time.NewTimer(time.Millisecond * 200)
@@ -183,7 +185,9 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 			samples := len(packet.AudioBuffer)
 			if TargetBoard == "rpi" {
 				LEDOnFunc(VoiceActivityLED)
-				LEDOnFunc(BackLightLED)
+				if DisplayType == "hd44780" {
+					LEDOnFunc(BackLightLED)
+				}
 			}
 
 			timertalkled.Reset(time.Second)
@@ -223,9 +227,15 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 					lastspeaker = e.User.Name
 					t := time.Now()
 					if TargetBoard == "rpi" {
-						lcdtext = [4]string{"nil", "", "", e.User.Name + " " + t.Format("15:04:05")}
-						go hd44780.LcdDisplay(lcdtext, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, LCDI2CAddress)
-						BackLightTime.Reset(time.Duration(LCDBackLightTimeoutSecs) * time.Second)
+						if DisplayType == "hd44780" {
+							lcdtext  = [4]string{"nil", "", "", e.User.Name + " " + t.Format("15:04:05")}
+							go hd44780.LcdDisplay(lcdtext, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, LCDI2CAddress)
+							BackLightTime.Reset(time.Duration(LCDBackLightTimeoutSecs) * time.Second)
+						}
+
+						if DisplayType == "oled" {
+							oledDisplay(false,3,1,  e.User.Name + " " + t.Format("15:04:05"))
+		                                }
 					}
 				}
 			}

@@ -39,6 +39,13 @@ import (
 	"time"
 )
 
+// oled display
+var (
+        OledText   string
+        //OledRow    int
+        //OledColumn int
+)
+
 // lcd timer
 var (
 	BackLightTime    = time.NewTimer(1 * time.Millisecond)
@@ -245,6 +252,9 @@ var (
 
 //lcd screen settings
 var (
+	DisplayType              string
+        OledDisplayRows 	 int
+        OledDisplayColumns 	 int
 	LCDInterfaceType         string
 	LCDI2CAddress            uint8
 	LCDBackLightTimerEnabled bool
@@ -555,6 +565,9 @@ type Comment struct {
 
 type Screen struct {
 	XMLName                  xml.Name `xml:"screen"`
+	DisplayType              string   `xml:"displaytype"`
+        OledDisplayRows 	 int      `xml:"oleddisplayrows"`
+        OledDisplayColumns 	 int      `xml:"oleddisplaycolumns"`
 	LCDInterfaceType         string   `xml:"lcdinterfacetype"`
 	LCDI2CAddress            uint8    `xml:"lcdi2caddress"`
 	LCDBackLightTimerEnabled bool     `xml:"lcdbacklighttimerenabled"`
@@ -786,10 +799,12 @@ func readxmlconfig(file string) error {
 	CommentMessageOff = document.Global.Hardware.Comment.CommentMessageOff
 	CommentMessageOn = document.Global.Hardware.Comment.CommentMessageOn
 
+	DisplayType =document.Global.Hardware.Screen.DisplayType
+        OledDisplayRows = document.Global.Hardware.Screen.OledDisplayRows
+        OledDisplayColumns =document.Global.Hardware.Screen.OledDisplayColumns
+
 	LCDInterfaceType = document.Global.Hardware.Screen.LCDInterfaceType
-
 	LCDI2CAddress = document.Global.Hardware.Screen.LCDI2CAddress
-
 	LCDBackLightTimerEnabled = document.Global.Hardware.Screen.LCDBackLightTimerEnabled
 	LCDBackLightTimeoutSecs = document.Global.Hardware.Screen.LCDBackLightTimeoutSecs
 	BackLightLEDPin = document.Global.Hardware.Screen.BackLightLEDPin
@@ -1038,6 +1053,9 @@ func printxmlconfig() {
 
 	if PrintLcd {
 		log.Println("info: ------------ LCD  ----------------------- ")
+		log.Println("info: DisplayType(HD44780/OLED)" + fmt.Sprintf("%v", DisplayType))
+		log.Println("info: OledDisplayRows          " + fmt.Sprintf("%v", OledDisplayRows))
+		log.Println("info: OledDisplayColumns       " + fmt.Sprintf("%v", OledDisplayColumns))
 		log.Println("info: Lcd Interface Type       " + fmt.Sprintf("%v", LCDInterfaceType))
 		log.Println("info: Lcd I2C Address          " + fmt.Sprintf("%x", LCDI2CAddress))
 		log.Println("info: Back Light Timer Enabled " + fmt.Sprintf("%t", LCDBackLightTimerEnabled))

@@ -3,7 +3,7 @@
 <document type="talkkonnect/xml">
 
 	<!-- Need to Have At Least One Account Set as Default Account, The First Default Account Found will be the one used! --> 
-	<accounts>
+	<accounts print="true">
                 <account name="phillipinogamersserver" default="true">
                         <serverandport>218.219.148.36:8000</serverandport>
                         <username></username>
@@ -118,17 +118,17 @@
 
 				<!-- File for Sound Playing into Transmitted Stream (Supports Most Audio Formats -->
 				<rogerbeep enabled="true">
-					<filenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/Roger-K_RB.wav</filenameandpath>
+					<filenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/chirsp.wav</filenameandpath>
 					<volume>0.1</volume>     
 				</rogerbeep>
 
 				<!-- File for Sound Playing into Transmitted Stream (Supports Most Audio Formats -->
 				<chimes enabled="true">
-					<filenameandpath>/root/whatever.mp3</filenameandpath>
+					<!--<filenameandpath>/root/whatever.mp3</filenameandpath>-->
 					<!--filenameandpath>http://d.liveatc.net/vtbs_app</filenameandpath>-->
 					<!--<filenameandpath>http://d.liveatc.net/kjfk_arinc</filenameandpath>-->
 					<!--<filenameandpath>http://d.liveatc.net/vtbs_atis</filenameandpath>-->
-					<!--<filenameandpath>http://bbcwssc.ic.llnwd.net/stream/bbcwssc_mp1_ws-eieuk</filenameandpath>-->
+					<filenameandpath>http://bbcwssc.ic.llnwd.net/stream/bbcwssc_mp1_ws-eieuk</filenameandpath>
 					<!--<filenameandpath>https://voa28.akacast.akamaistream.net/7/325/437810/v1/ibb.akacast.akamaistream.net/voa28</filenameandpath>-->
 					<volume>1</volume>     
 				</chimes>
@@ -180,7 +180,7 @@
 				<printheartbeat>false</printheartbeat>
 				<printbuttons>false</printbuttons>
 				<printcomment>false</printcomment>
-				<printlcd>false</printlcd>
+				<printlcd>true</printlcd>
 				<printgps>false</printgps>
 				<printpanic>false</printpanic>
                         </printvariables>
@@ -191,15 +191,15 @@
 		<hardware targetboard="rpi"> <!-- set targetboard to "pc" for raspberry pi and other single board computers GPIO and "pc" for boards without gpios -->
 			<!-- Set GPIO for Panel LEDS -->
 			<lights>
-				<voiceactivityledpin>2</voiceactivityledpin>
-				<participantsledpin>3</participantsledpin> 
+				<voiceactivityledpin>4</voiceactivityledpin>
+				<participantsledpin>4</participantsledpin> 
 				<transmitledpin>4</transmitledpin>     
 				<onlineledpin>5</onlineledpin>       
 			</lights>
 
 			<!-- Set GPIO for Heart Beat LED to Indicate TK is alive -->
 			<heartbeat enabled="true">
-				<heartbeatledpin>2</heartbeatledpin>
+				<heartbeatledpin>4</heartbeatledpin>
 				<periodmsecs>2000</periodmsecs>
 				<ledonmsecs>1000</ledonmsecs>
 				<ledoffmsecs>1010</ledoffmsecs>
@@ -221,6 +221,7 @@
 				<commentmessageon>Unavailable</commentmessageon>
 			</comment>
 
+			<!-- displaytype can now be hd44780(parallel or i2c) or oled(i2c) -->
 			<!-- HD44780 LCD Module Type (1) 4 GPIO Parallel GPIO Interface                                -->
 			<!-- To use HD4478 with parallel 4 GPIO Pins                                                   -->
 			<!-- Set <lcdinterfacetype>parallel</lcdinterfacetype> and <lcdi2caddress>0x00</lcdi2caddress> --> 
@@ -230,6 +231,9 @@
 			<!-- First Enable it in the Kernal and then Find the Address of Your I2C Device use i2cdetect -y 1 --> 
 			<!-- Set <lcdinterfacetype>i2c</lcdinterfacetype> and <lcdi2caddress>63</lcdi2caddress>          --> 
 			<screen>
+				<displaytype>oled</displaytype>
+				<oleddisplayrows>8</oleddisplayrows>
+				<oleddisplaycolumns>20</oleddisplaycolumns>
 				<lcdinterfacetype>parallel</lcdinterfacetype>
 				<lcdi2caddress>63</lcdi2caddress>
                                 <lcdbacklighttimerenabled>true</lcdbacklighttimerenabled>

@@ -498,8 +498,7 @@ func (b *Talkkonnect) TransmitStart() {
 		}
 		if DisplayType == "oled" {
 			oledDisplay(false, 0, 1, "Online/TX")
-			oledDisplay(false, 4, 1, "TX at "+t.Format("15:04:05"))
-			oledDisplay(false, 7, 1, "www.talkkonnect.com")
+			oledDisplay(false, 3, 1, "TX at "+t.Format("15:04:05"))
 		}
 
 	}
@@ -778,7 +777,7 @@ func (b *Talkkonnect) OnUserChange(e *gumble.UserChangeEvent) {
 			LcdText[3] = ""
 		}
 		if DisplayType == "oled" {
-			oledDisplay(false, 1, 1, cleanstring(e.User.Name)+"->"+e.User.Channel.Name)
+			oledDisplay(false, 2, 1, cleanstring(e.User.Name)+"->"+e.User.Channel.Name)
 		}
 
 	case gumble.UserChangeComment:

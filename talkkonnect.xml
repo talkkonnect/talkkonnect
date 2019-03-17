@@ -229,7 +229,7 @@
 
 			<!-- HD44780 LCD Module Type (2) I2C using 2 Pins [For RPI Pins 2 and 3]                           -->
 			<!-- To Use I2C Interface Make Sure You Don't Define RPI GPIO Pins 2 & 3 For Anything Else!        -->
-			<!-- First Enable it in the Kernal and then Find the Address of Your I2C Device use i2cdetect -y 1 --> 
+			<!-- First Enable it in the Kernel and then Find the Address of Your I2C Device use i2cdetect -y 1 --> 
 			<!-- Set <lcdinterfacetype>i2c</lcdinterfacetype> and <lcdi2caddress>63</lcdi2caddress>          --> 
 			<screen>
 				<displaytype>oled</displaytype>                           <!-- select either oled or hd44780 -->

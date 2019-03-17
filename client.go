@@ -332,6 +332,16 @@ keyPressListenerLoop:
 			case term.KeyCtrlL:
 				reset()
 				log.Println("info: Ctrl-L Pressed Cleared Screen")
+				if TargetBoard == "rpi" {
+					if DisplayType == "hd44780" {
+						LcdText = [4]string{"nil", "nil", "nil", "nil"}
+						go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, LCDI2CAddress)
+					}
+
+					if DisplayType == "oled" {
+						oledDisplay(true, 0, 0, "") // clear the screen
+					}
+				}
 			case term.KeyCtrlM:
 				b.commandKeyCtrlM()
 			case term.KeyCtrlN:
@@ -564,13 +574,11 @@ func (b *Talkkonnect) OnConnect(e *gumble.ConnectEvent) {
 
 	if TargetBoard == "rpi" {
 		if DisplayType == "hd44780" {
-			if DisplayType == "hd44780" {
-				LcdText = [4]string{"nil", "nil", "nil", "nil"}
-				go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, LCDI2CAddress)
-			}
-			if DisplayType == "oled" {
-				oledDisplay(true, 0, 0, "") // clear the screen
-			}
+			LcdText = [4]string{"nil", "nil", "nil", "nil"}
+			go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, LCDI2CAddress)
+		}
+		if DisplayType == "oled" {
+			oledDisplay(true, 0, 0, "") // clear the screen
 		}
 
 		b.ParticipantLEDUpdate(true)
@@ -680,6 +688,7 @@ func (b *Talkkonnect) ParticipantLEDUpdate(verbose bool) {
 				if DisplayType == "oled" {
 					oledDisplay(false, 0, 1, b.Address)
 					oledDisplay(false, 1, 1, b.Client.Self.Channel.Name+" ("+strconv.Itoa(participantCount)+" Users)")
+					oledDisplay(false, 6, 1, "Please Visit")
 					oledDisplay(false, 7, 1, "www.talkkonnect.com")
 				}
 

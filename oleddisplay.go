@@ -5,7 +5,6 @@ import (
 	"log"
 	"sync"
 )
-
 var mutex = &sync.Mutex{}
 
 func oledDisplay (OledClear bool,OledRow int, OledColumn int, OledText string){
@@ -20,16 +19,12 @@ func oledDisplay (OledClear bool,OledRow int, OledColumn int, OledText string){
         defer oled.Close()
 
 	// clear oled screen command
+
         if OledClear == true {
                 oled.Clear()
-		for i := 0; i < OledDisplayRows; i++ {
-	        	oled.SetCursor(i,0)
-			oled.Write("                       \n")
-		}
-                return
+		log.Println("warn: OLED Clearing Screen")
         }
 
-	//set row and column and print to oled display command
         oled.SetCursor(OledRow, 0)
 	oled.Write("                       \n")
         oled.SetCursor(OledRow, 1)

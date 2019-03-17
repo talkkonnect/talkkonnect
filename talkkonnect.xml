@@ -3,7 +3,7 @@
 <document type="talkkonnect/xml">
 
 	<!-- Need to Have At Least One Account Set as Default Account, The First Default Account Found will be the one used! --> 
-	<accounts print="true">
+	<accounts>
                 <account name="phillipinogamersserver" default="true">
                         <serverandport>218.219.148.36:8000</serverandport>
                         <username></username>

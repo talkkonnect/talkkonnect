@@ -736,9 +736,9 @@ func (b *Talkkonnect) OnTextMessage(e *gumble.TextMessageEvent) {
 	//remove return later!!
 	b.BackLightTimer()
 
-	var message string = strings.TrimSpace(esc(e.Message))
-	//log.Println(fmt.Sprintf("alert: Message from %s: %s\n", e.Sender.Name, strings.TrimSpace(cleanstring(e.Message))))
-	log.Println(fmt.Sprintf("alert: Message ("+strconv.Itoa(len(message))+") from %s: %s\n", e.Sender.Name, message))
+	var message string = strings.TrimSpace(cleanstring(e.Message))
+
+	log.Println(fmt.Sprintf("alert: Message ("+strconv.Itoa(len(message))+") from %v: %v\n", e.Sender.Name, message))
 
 	if TargetBoard == "rpi" {
 		if len(message) > 100 {

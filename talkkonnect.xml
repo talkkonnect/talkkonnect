@@ -25,7 +25,7 @@
 			<!-- Logfile Settings -->
 			<settings>
 				<!-- Set Output Device to Speaker, Master, Headphone or whatever your OS/Alsa Detects as the Master Sound Card Device for Output in alsamixer -->
-				<outputdevice>Speaker</outputdevice>	
+				<outputdevice>PCM</outputdevice>	
 				<logfilenameandpath>/var/log/talkkonnect.log</logfilenameandpath>	
 				<logging>screen</logging> <!--set logging to screen if screen only desired otherwise leave it as blank and talkkonnect will log to both screen and logfile -->
 				<daemonize>false</daemonize>
@@ -234,7 +234,7 @@
 			<screen>
 				<displaytype>oled</displaytype>                           <!-- select either oled or hd44780 -->
 				<oledisplayrows>8</oledisplayrows>                        <!-- this setting only effects oled screen -->
-				<oleddisplaycolumns>20</oleddisplaycolumns>               <!-- this setting only effects oled screen -->
+				<oleddisplaycolumns>22</oleddisplaycolumns>               <!-- this setting only effects oled screen -->
 				<lcdinterfacetype>parallel</lcdinterfacetype>             <!-- this setting only effects hd44780 type of displays -->
 				<lcdi2caddress>63</lcdi2caddress>                         <!-- this setting only effects hd44780 i2c displays -->
                                 <lcdbacklighttimerenabled>true</lcdbacklighttimerenabled> <!-- this setting only effects hd44780 displays -->

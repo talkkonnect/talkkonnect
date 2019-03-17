@@ -508,7 +508,12 @@ func (b *Talkkonnect) TransmitStart() {
 		}
 		if DisplayType == "oled" {
 			oledDisplay(false, 0, 1, "Online/TX")
+			oledDisplay(false, 2, 1, "")
 			oledDisplay(false, 3, 1, "TX at "+t.Format("15:04:05"))
+			oledDisplay(false, 4, 1, "")
+			oledDisplay(false, 5, 1, "")
+			oledDisplay(false, 6, 1, "Please Visit")
+			oledDisplay(false, 7, 1, "www.talkkonnect.com")
 		}
 
 	}
@@ -731,22 +736,54 @@ func (b *Talkkonnect) OnTextMessage(e *gumble.TextMessageEvent) {
 	//remove return later!!
 	b.BackLightTimer()
 
-	log.Println(fmt.Sprintf("alert: Message from %s: %s\n", e.Sender.Name, strings.TrimSpace(cleanstring(e.Message))))
+	var message string = strings.TrimSpace(esc(e.Message))
+	//log.Println(fmt.Sprintf("alert: Message from %s: %s\n", e.Sender.Name, strings.TrimSpace(cleanstring(e.Message))))
+	log.Println(fmt.Sprintf("alert: Message ("+strconv.Itoa(len(message))+") from %s: %s\n", e.Sender.Name, message))
 
 	if TargetBoard == "rpi" {
+		if len(message) > 100 {
+			log.Println(fmt.Sprintf("alert: Message Too Long to Be Displayed on Screen\n"))
+			return
+		}
 		if DisplayType == "hd44780" {
-			if DisplayType == "hd44780" {
-				LcdText[0] = "Message From"
-				LcdText[1] = e.Sender.Name
-				LcdText[2] = strings.TrimSpace(esc(e.Message))
-				go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, LCDI2CAddress)
+			LcdText[0] = "Message From"
+			LcdText[1] = e.Sender.Name
+			LcdText[2] = message
+			go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, LCDI2CAddress)
+		}
+		if DisplayType == "oled" {
+			oledDisplay(false, 2, 1, "Msg From "+e.Sender.Name)
+			if len(message) <= 20 {
+				oledDisplay(false, 3, 1, message)
+				oledDisplay(false, 4, 1, "")
+				oledDisplay(false, 5, 1, "")
+				oledDisplay(false, 6, 1, "")
+				oledDisplay(false, 7, 1, "")
+			} else if len(message) <= 40 {
+				oledDisplay(false, 3, 1, message[0:20])
+				oledDisplay(false, 4, 1, message[21:len(message)])
+				oledDisplay(false, 5, 1, "")
+				oledDisplay(false, 6, 1, "")
+				oledDisplay(false, 7, 1, "")
+			} else if len(message) <= 60 {
+				oledDisplay(false, 3, 1, message[0:20])
+				oledDisplay(false, 4, 1, message[21:40])
+				oledDisplay(false, 5, 1, message[41:len(message)])
+				oledDisplay(false, 6, 1, "")
+				oledDisplay(false, 7, 1, "")
+			} else if len(message) <= 80 {
+				oledDisplay(false, 3, 1, message[0:20])
+				oledDisplay(false, 4, 1, message[21:40])
+				oledDisplay(false, 5, 1, message[41:60])
+				oledDisplay(false, 6, 1, message[61:len(message)])
+				oledDisplay(false, 7, 1, "")
+			} else if len(message) <= 100 {
+				oledDisplay(false, 3, 1, message[0:20])
+				oledDisplay(false, 4, 1, message[21:40])
+				oledDisplay(false, 5, 1, message[41:60])
+				oledDisplay(false, 6, 1, message[61:80])
+				oledDisplay(false, 7, 1, message[81:len(message)])
 			}
-			if DisplayType == "oled" {
-				oledDisplay(false, 0, 1, "Message From")
-				oledDisplay(false, 1, 1, e.Sender.Name)
-				oledDisplay(false, 4, 1, strings.TrimSpace(esc(e.Message)))
-			}
-
 		}
 	}
 

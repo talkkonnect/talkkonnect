@@ -772,14 +772,8 @@ func (b *Talkkonnect) OnUserChange(e *gumble.UserChangeEvent) {
 	case gumble.UserChangeChannel:
 		info = "chg channel"
 		log.Println("info:", cleanstring(e.User.Name), " Changed Channel to ", e.User.Channel.Name)
-		if DisplayType == "hd44780" {
-			LcdText[2] = cleanstring(e.User.Name) + "->" + e.User.Channel.Name
-			LcdText[3] = ""
-		}
-		if DisplayType == "oled" {
-			oledDisplay(false, 2, 1, cleanstring(e.User.Name)+"->"+e.User.Channel.Name)
-		}
-
+		LcdText[2] = cleanstring(e.User.Name) + "->" + e.User.Channel.Name
+		LcdText[3] = ""
 	case gumble.UserChangeComment:
 		info = "chg comment"
 	case gumble.UserChangeAudio:
@@ -804,12 +798,7 @@ func (b *Talkkonnect) OnUserChange(e *gumble.UserChangeEvent) {
 			log.Println("info: User ", cleanstring(e.User.Name), " Event type=", e.Type, " channel=", e.User.Channel.Name)
 		}
 
-		if DisplayType == "hd44780" {
-			LcdText[2] = cleanstring(e.User.Name) + " " + info //+strconv.Atoi(string(e.Type))
-		}
-		if DisplayType == "oled" {
-			oledDisplay(false, 1, 1, cleanstring(e.User.Name)+" "+info)
-		}
+		LcdText[2] = cleanstring(e.User.Name) + " " + info //+strconv.Atoi(string(e.Type))
 
 	}
 
@@ -824,12 +813,7 @@ func (b *Talkkonnect) OnPermissionDenied(e *gumble.PermissionDeniedEvent) {
 		info = e.String
 	case gumble.PermissionDeniedPermission:
 		info = "insufficient permissions"
-		if DisplayType == "hd44780" {
-			LcdText[2] = "insufficient perms"
-		}
-		if DisplayType == "oled" {
-			oledDisplay(false, 1, 1, "insufficient perms")
-		}
+		LcdText[2] = "insufficient perms"
 
 		// Set Upper Boundary
 		if prevButtonPress == "ChannelUp" && b.Client.Self.Channel.ID == maxchannelid {
@@ -858,6 +842,7 @@ func (b *Talkkonnect) OnPermissionDenied(e *gumble.PermissionDeniedEvent) {
 				go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, LCDI2CAddress)
 			}
 			if DisplayType == "oled" {
+				oledDisplay(false, 1, 1, LcdText[2])
 			}
 
 		}
@@ -880,12 +865,7 @@ func (b *Talkkonnect) OnPermissionDenied(e *gumble.PermissionDeniedEvent) {
 		info = "nesting limit"
 	}
 
-	if DisplayType == "hd44780" {
-		LcdText[2] = info
-	}
-	if DisplayType == "oled" {
-		oledDisplay(false, 1, 1, info)
-	}
+	LcdText[2] = info
 
 	log.Println("warn: Permission denied  ", info)
 }
@@ -1390,7 +1370,6 @@ func (b *Talkkonnect) commandKeyF5() {
 			if DisplayType == "oled" {
 				oledDisplay(false, 6, 1, "Volume "+strconv.Itoa(origVolume))
 			}
-
 		}
 	} else {
 		log.Println("F5 Increase Volume Already at Maximum Possible Volume")
@@ -1402,7 +1381,6 @@ func (b *Talkkonnect) commandKeyF5() {
 			if DisplayType == "oled" {
 				oledDisplay(false, 6, 1, "Max Vol")
 			}
-
 		}
 	}
 
@@ -1452,7 +1430,6 @@ func (b *Talkkonnect) commandKeyF6() {
 			if DisplayType == "oled" {
 				oledDisplay(false, 6, 1, "Min Vol")
 			}
-
 		}
 	}
 
@@ -1664,7 +1641,6 @@ func (b *Talkkonnect) commandKeyCtrlP() {
 			if DisplayType == "oled" {
 				oledDisplay(false, 6, 1, "Panic Message Sent!")
 			}
-
 		}
 		if PTxLockEnabled && PTxlockTimeOutSecs > 0 {
 			b.TxLockTimer()
@@ -1786,14 +1762,13 @@ func (b *Talkkonnect) SetComment(comment string) {
 				oledDisplay(false, 1, 1, "Status at "+t.Format("15:04:05"))
 				oledDisplay(false, 4, 1, b.Client.Self.Comment)
 			}
-
 		}
 	}
 }
 
 func (b *Talkkonnect) BackLightTimer() {
 
-	if LCDBackLightTimerEnabled == false || TargetBoard != "rpi" {
+	if LCDBackLightTimerEnabled == false || TargetBoard != "rpi" || DisplayType == "oled" {
 		b.LEDOn(b.BackLightLED)
 		return
 	}

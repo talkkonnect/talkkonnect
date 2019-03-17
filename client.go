@@ -746,9 +746,8 @@ func (b *Talkkonnect) OnTextMessage(e *gumble.TextMessageEvent) {
 			return
 		}
 		if DisplayType == "hd44780" {
-			LcdText[0] = "Message From"
-			LcdText[1] = e.Sender.Name
-			LcdText[2] = message
+			LcdText[0] = "Msg From " + e.Sender.Name
+			LcdText[1] = message
 			go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, LCDI2CAddress)
 		}
 		if DisplayType == "oled" {

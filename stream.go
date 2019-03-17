@@ -234,7 +234,7 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 						}
 
 						if DisplayType == "oled" {
-							oledDisplay(false,3,1,  e.User.Name + " " + t.Format("15:04:05"))
+							go oledDisplay(false,3,1,  e.User.Name + " " + t.Format("15:04:05"))
 		                                }
 					}
 				}

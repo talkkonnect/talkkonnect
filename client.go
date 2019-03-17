@@ -673,9 +673,6 @@ func (b *Talkkonnect) ParticipantLEDUpdate(verbose bool) {
 		}
 
 		prevParticipantCount = participantCount
-	}
-
-	if participantCount > 1 {
 
 		if verbose {
 			log.Println("info: Current Channel ", b.Client.Self.Channel.Name, " has (", participantCount, ") participants")
@@ -694,7 +691,9 @@ func (b *Talkkonnect) ParticipantLEDUpdate(verbose bool) {
 
 			}
 		}
+	}
 
+	if participantCount > 1 {
 		if TargetBoard == "rpi" {
 			b.LEDOn(b.ParticipantsLED)
 			b.LEDOn(b.OnlineLED)

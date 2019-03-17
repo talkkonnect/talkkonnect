@@ -26,7 +26,7 @@ func oledDisplay (OledClear bool,OledRow int, OledColumn int, OledText string){
         }
 
         oled.SetCursor(OledRow, 0)
-	oled.Write("                       \n")
+	oled.Write("")
         oled.SetCursor(OledRow, 1)
 	if len(OledText) >= OledDisplayColumns {
         	oled.Write(OledText[:OledDisplayColumns])

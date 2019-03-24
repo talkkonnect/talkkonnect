@@ -732,8 +732,6 @@ func (b *Talkkonnect) ParticipantLEDUpdate(verbose bool) {
 }
 
 func (b *Talkkonnect) OnTextMessage(e *gumble.TextMessageEvent) {
-	//return
-	//remove return later!!
 	b.BackLightTimer()
 
 	var message string = strings.TrimSpace(cleanstring(e.Message))
@@ -873,12 +871,14 @@ func (b *Talkkonnect) OnPermissionDenied(e *gumble.PermissionDeniedEvent) {
 		if prevButtonPress == "ChannelUp" && b.Client.Self.Channel.ID+1 < maxchannelid {
 			prevChannelID++
 			b.ChannelUp()
+			LcdText[1] = b.Client.Self.Channel.Name + " (" + strconv.Itoa(len(b.Client.Self.Channel.Users)) + " Users)"
 		}
 
 		// Implement Seek Dwn Until Permissions are Sufficient for User to Join Channel whilst avoiding all null channels
 		if prevButtonPress == "ChannelDown" && int(b.Client.Self.Channel.ID) > 0 {
 			prevChannelID--
 			b.ChannelDown()
+			LcdText[1] = b.Client.Self.Channel.Name + " (" + strconv.Itoa(len(b.Client.Self.Channel.Users)) + " Users)"
 		}
 
 		if TargetBoard == "rpi" {
@@ -886,7 +886,8 @@ func (b *Talkkonnect) OnPermissionDenied(e *gumble.PermissionDeniedEvent) {
 				go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 			}
 			if OLEDEnabled == true {
-				oledDisplay(false, 1, 1, LcdText[2])
+				oledDisplay(false, 1, 1, LcdText[1])
+				oledDisplay(false, 2, 1, LcdText[2])
 			}
 
 		}
@@ -1028,6 +1029,16 @@ func (b *Talkkonnect) ChannelUp() {
 
 			if channel != nil {
 				b.Client.Self.Move(channel)
+				//displaychannel
+				if TargetBoard == "rpi" {
+					if LCDEnabled == true {
+						LcdText[1] = b.Client.Self.Channel.Name + " (" + strconv.Itoa(len(b.Client.Self.Channel.Users)) + " Users)"
+						go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin,LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+					}
+					if OLEDEnabled == true {
+						oledDisplay(false, 1, 1, b.Client.Self.Channel.Name + " (" + strconv.Itoa(len(b.Client.Self.Channel.Users)) + " Users)")
+					}
+				}
 				break
 			}
 		}
@@ -1053,16 +1064,17 @@ func (b *Talkkonnect) ChannelDown() {
 		log.Println("info: Can't Decrement Channel Root Channel Reached")
 		channel := b.Client.Channels[uint32(AccountIndex)]
 		b.Client.Self.Move(channel)
-		if TargetBoard == "rpi" {
-			if LCDEnabled == true {
-				LcdText[2] = "Min Chan Reached"
-				go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
-			}
-			if OLEDEnabled == true {
-				oledDisplay(false, 1, 1, "Min Chan Reached")
-			}
+				//displaychannel
+				if TargetBoard == "rpi" {
+					if LCDEnabled == true {
+						LcdText[1] = b.Client.Self.Channel.Name + " (" + strconv.Itoa(len(b.Client.Self.Channel.Users)) + " Users)"
+						go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin,LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+					}
+					if OLEDEnabled == true {
+						oledDisplay(false, 1, 1, b.Client.Self.Channel.Name + " (" + strconv.Itoa(len(b.Client.Self.Channel.Users)) + " Users)")
+					}
+				}
 
-		}
 		return
 	}
 
@@ -1075,6 +1087,7 @@ func (b *Talkkonnect) ChannelDown() {
 			channel := b.Client.Channels[i]
 			if channel != nil {
 				b.Client.Self.Move(channel)
+				//displaychannel
 				break
 			}
 		}

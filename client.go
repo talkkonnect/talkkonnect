@@ -1030,6 +1030,7 @@ func (b *Talkkonnect) ChannelUp() {
 			if channel != nil {
 				b.Client.Self.Move(channel)
 				//displaychannel
+				time.Sleep(500 * time.Millisecond)
 				if TargetBoard == "rpi" {
 					if LCDEnabled == true {
 						LcdText[1] = b.Client.Self.Channel.Name + " (" + strconv.Itoa(len(b.Client.Self.Channel.Users)) + " Users)"
@@ -1065,6 +1066,7 @@ func (b *Talkkonnect) ChannelDown() {
 		channel := b.Client.Channels[uint32(AccountIndex)]
 		b.Client.Self.Move(channel)
 		//displaychannel
+		time.Sleep(500 * time.Millisecond)
 		if TargetBoard == "rpi" {
 			if LCDEnabled == true {
 				LcdText[1] = b.Client.Self.Channel.Name + " (" + strconv.Itoa(len(b.Client.Self.Channel.Users)) + " Users)"
@@ -1088,6 +1090,17 @@ func (b *Talkkonnect) ChannelDown() {
 			if channel != nil {
 				b.Client.Self.Move(channel)
 				//displaychannel
+				time.Sleep(500 * time.Millisecond)
+				if TargetBoard == "rpi" {
+					if LCDEnabled == true {
+						LcdText[1] = b.Client.Self.Channel.Name + " (" + strconv.Itoa(len(b.Client.Self.Channel.Users)) + " Users)"
+						go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+					}
+					if OLEDEnabled == true {
+						oledDisplay(false, 1, 1, b.Client.Self.Channel.Name+" ("+strconv.Itoa(len(b.Client.Self.Channel.Users))+" Users)")
+					}
+				}
+
 				break
 			}
 		}

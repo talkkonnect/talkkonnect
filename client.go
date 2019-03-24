@@ -1032,12 +1032,18 @@ func (b *Talkkonnect) ChannelUp() {
 				//displaychannel
 				time.Sleep(500 * time.Millisecond)
 				if TargetBoard == "rpi" {
-					if LCDEnabled == true {
+
+					if len(b.Client.Self.Channel.Users) == 1 {
+						LcdText[1] = "Alone in " + b.Client.Self.Channel.Name
+					} else {
 						LcdText[1] = b.Client.Self.Channel.Name + " (" + strconv.Itoa(len(b.Client.Self.Channel.Users)) + " Users)"
+					}
+
+					if LCDEnabled == true {
 						go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 					}
 					if OLEDEnabled == true {
-						oledDisplay(false, 1, 1, b.Client.Self.Channel.Name+" ("+strconv.Itoa(len(b.Client.Self.Channel.Users))+" Users)")
+						oledDisplay(false, 1, 1, LcdText[1])
 					}
 				}
 				break
@@ -1068,12 +1074,18 @@ func (b *Talkkonnect) ChannelDown() {
 		//displaychannel
 		time.Sleep(500 * time.Millisecond)
 		if TargetBoard == "rpi" {
-			if LCDEnabled == true {
+
+			if len(b.Client.Self.Channel.Users) == 1 {
+				LcdText[1] = "Alone in " + b.Client.Self.Channel.Name
+			} else {
 				LcdText[1] = b.Client.Self.Channel.Name + " (" + strconv.Itoa(len(b.Client.Self.Channel.Users)) + " Users)"
+			}
+
+			if LCDEnabled == true {
 				go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 			}
 			if OLEDEnabled == true {
-				oledDisplay(false, 1, 1, b.Client.Self.Channel.Name+" ("+strconv.Itoa(len(b.Client.Self.Channel.Users))+" Users)")
+				oledDisplay(false, 1, 1, LcdText[1])
 			}
 		}
 
@@ -1092,12 +1104,18 @@ func (b *Talkkonnect) ChannelDown() {
 				//displaychannel
 				time.Sleep(500 * time.Millisecond)
 				if TargetBoard == "rpi" {
-					if LCDEnabled == true {
+
+					if len(b.Client.Self.Channel.Users) == 1 {
+						LcdText[1] = "Alone in " + b.Client.Self.Channel.Name
+					} else {
 						LcdText[1] = b.Client.Self.Channel.Name + " (" + strconv.Itoa(len(b.Client.Self.Channel.Users)) + " Users)"
+					}
+
+					if LCDEnabled == true {
 						go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 					}
 					if OLEDEnabled == true {
-						oledDisplay(false, 1, 1, b.Client.Self.Channel.Name+" ("+strconv.Itoa(len(b.Client.Self.Channel.Users))+" Users)")
+						oledDisplay(false, 1, 1, LcdText[1])
 					}
 				}
 
@@ -1312,16 +1330,15 @@ func (b *Talkkonnect) commandKeyF1() {
 	log.Println("F1 pressed Channel Up (+) Requested")
 
 	b.ChannelUp()
-	b.ParticipantLEDUpdate(true)
+	//b.ParticipantLEDUpdate(true)
 	log.Println("--")
 }
 
 func (b *Talkkonnect) commandKeyF2() {
 	log.Println("--")
 	log.Println("F2 pressed Channel Down (-) Requested")
-
 	b.ChannelDown()
-	b.ParticipantLEDUpdate(true)
+	//b.ParticipantLEDUpdate(true)
 	log.Println("--")
 }
 

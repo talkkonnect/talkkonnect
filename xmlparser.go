@@ -39,13 +39,6 @@ import (
 	"time"
 )
 
-// oled display
-var (
-        OledText   string
-        //OledRow    int
-        //OledColumn int
-)
-
 // lcd timer
 var (
 	BackLightTime    = time.NewTimer(1 * time.Millisecond)
@@ -209,6 +202,7 @@ var (
 	PrintButtons      bool
 	PrintComment      bool
 	PrintLcd          bool
+	PrintOled         bool
 	PrintGps          bool
 	PrintPanic        bool
 )
@@ -250,22 +244,36 @@ var (
 	CommentMessageOn  string
 )
 
-//lcd screen settings
+//HD44780 screen lcd settings
 var (
-	DisplayType              string
-        OledDisplayRows 	 int
-        OledDisplayColumns 	 int
+	LCDEnabled               bool
 	LCDInterfaceType         string
 	LCDI2CAddress            uint8
 	LCDBackLightTimerEnabled bool
 	LCDBackLightTimeoutSecs  int
-	BackLightLEDPin          int
-	RSPin                    int
-	EPin                     int
-	D4Pin                    int
-	D5Pin                    int
-	D6Pin                    int
-	D7Pin                    int
+	LCDBackLightLEDPin       int
+	LCDRSPin                 int
+	LCDEPin                  int
+	LCDD4Pin                 int
+	LCDD5Pin                 int
+	LCDD6Pin                 int
+	LCDD7Pin                 int
+)
+
+//OLED screen settings
+var (
+	OLEDEnabled                 bool
+	OLEDInterfacetype           string
+	OLEDDefaultI2cAddress       uint8
+	OLEDDefaultI2cBus           int
+	OLEDScreenWidth             int
+	OLEDScreenHeight            int
+	OLEDDisplayRows             int
+	OLEDDisplayColumns          uint8 // int
+	OLEDStartColumn             int
+	OLEDCharLength              int
+	OLEDCommandColumnAddressing int //uint8
+	OLEDAddressBasePageStart    int //uint8
 )
 
 //txtimeout settings
@@ -482,6 +490,7 @@ type PrintVariables struct {
 	PrintButtons      bool     `xml:"printbuttons"`
 	PrintComment      bool     `xml:"printcomment"`
 	PrintLcd          bool     `xml:"printlcd"`
+	PrintOled         bool     `xml:"printoled"`
 	PrintGps          bool     `xml:"printgps"`
 	PrintPanic        bool     `xml:"printpanic"`
 }
@@ -526,7 +535,8 @@ type Hardware struct {
 	HeartBeat     HeartBeat     `xml:"heartbeat"`
 	Buttons       Buttons       `xml:"buttons"`
 	Comment       Comment       `xml:"comment"`
-	Screen        Screen        `xml:"screen"`
+	LCD           LCD           `xml:"lcd"`
+	OLED          OLED          `xml:"oled"`
 	GPS           GPS           `xml:"gps"`
 	PanicFunction PanicFunction `xml:"panicfunction"`
 }
@@ -563,22 +573,36 @@ type Comment struct {
 	CommentMessageOn  string   `xml:"commentmessageon"`
 }
 
-type Screen struct {
-	XMLName                  xml.Name `xml:"screen"`
-	DisplayType              string   `xml:"displaytype"`
-        OledDisplayRows 	 int      `xml:"oleddisplayrows"`
-        OledDisplayColumns 	 int      `xml:"oleddisplaycolumns"`
+type LCD struct {
+	XMLName                  xml.Name `xml:"lcd"`
+	LCDEnabled               bool     `xml:"enabled,attr"`
 	LCDInterfaceType         string   `xml:"lcdinterfacetype"`
 	LCDI2CAddress            uint8    `xml:"lcdi2caddress"`
 	LCDBackLightTimerEnabled bool     `xml:"lcdbacklighttimerenabled"`
 	LCDBackLightTimeoutSecs  int      `xml:"lcdbacklighttimeoutsecs"`
-	BackLightLEDPin          int      `xml:"backlightpin"`
-	RsPin                    int      `xml:"rspin"`
-	EsPin                    int      `xml:"epin"`
-	D4Pin                    int      `xml:"d4pin"`
-	D5Pin                    int      `xml:"d5pin"`
-	D6Pin                    int      `xml:"d6pin"`
-	D7Pin                    int      `xml:"d7pin"`
+	BackLightLEDPin          int      `xml:"lcdbacklightpin"`
+	RsPin                    int      `xml:"lcdrspin"`
+	EsPin                    int      `xml:"lcdepin"`
+	D4Pin                    int      `xml:"lcdd4pin"`
+	D5Pin                    int      `xml:"lcdd5pin"`
+	D6Pin                    int      `xml:"lcdd6pin"`
+	D7Pin                    int      `xml:"lcdd7pin"`
+}
+
+type OLED struct {
+	XMLName                     xml.Name `xml:"oled"`
+	OLEDEnabled                 bool     `xml:"enabled,attr"`
+	OLEDInterfacetype           string   `xml:"oledinterfacetype"`
+	OLEDDisplayRows             int      `xml:"oleddisplayrows"`
+	OLEDDisplayColumns          uint8      `xml:"oleddisplaycolumns"`
+	OLEDDefaultI2cBus           int      `xml:"oleddefaulti2cbus"`
+	OLEDDefaultI2cAddress       uint8    `xml:"oleddefaulti2caddress"`
+	OLEDScreenWidth             int      `xml:"oledscreenwidth"`
+	OLEDScreenHeight            int      `xml:"oledscreenheight"`
+	OLEDCommandColumnAddressing int    `xml:"oledcommandcolumnaddressing"`
+	OLEDAddressBasePageStart    int    `xml:"oledaddressbasepagestart"`
+	OLEDCharLength              int      `xml:"oledcharlength"`
+	OLEDStartColumn             int      `xml:"oledstartcolumn"`
 }
 
 type GPS struct {
@@ -774,6 +798,7 @@ func readxmlconfig(file string) error {
 	PrintButtons = document.Global.Software.PrintVariables.PrintButtons
 	PrintComment = document.Global.Software.PrintVariables.PrintComment
 	PrintLcd = document.Global.Software.PrintVariables.PrintLcd
+	PrintOled = document.Global.Software.PrintVariables.PrintOled
 	PrintGps = document.Global.Software.PrintVariables.PrintGps
 	PrintPanic = document.Global.Software.PrintVariables.PrintPanic
 
@@ -799,21 +824,31 @@ func readxmlconfig(file string) error {
 	CommentMessageOff = document.Global.Hardware.Comment.CommentMessageOff
 	CommentMessageOn = document.Global.Hardware.Comment.CommentMessageOn
 
-	DisplayType =document.Global.Hardware.Screen.DisplayType
-        OledDisplayRows = document.Global.Hardware.Screen.OledDisplayRows
-        OledDisplayColumns =document.Global.Hardware.Screen.OledDisplayColumns
+	LCDEnabled = document.Global.Hardware.LCD.LCDEnabled
+	LCDInterfaceType = document.Global.Hardware.LCD.LCDInterfaceType
+	LCDI2CAddress = document.Global.Hardware.LCD.LCDI2CAddress
+	LCDBackLightTimerEnabled = document.Global.Hardware.LCD.LCDBackLightTimerEnabled
+	LCDBackLightTimeoutSecs = document.Global.Hardware.LCD.LCDBackLightTimeoutSecs
+	LCDBackLightLEDPin = document.Global.Hardware.LCD.BackLightLEDPin
+	LCDRSPin = document.Global.Hardware.LCD.RsPin
+	LCDEPin = document.Global.Hardware.LCD.EsPin
+	LCDD4Pin = document.Global.Hardware.LCD.D4Pin
+	LCDD5Pin = document.Global.Hardware.LCD.D5Pin
+	LCDD6Pin = document.Global.Hardware.LCD.D6Pin
+	LCDD7Pin = document.Global.Hardware.LCD.D7Pin
 
-	LCDInterfaceType = document.Global.Hardware.Screen.LCDInterfaceType
-	LCDI2CAddress = document.Global.Hardware.Screen.LCDI2CAddress
-	LCDBackLightTimerEnabled = document.Global.Hardware.Screen.LCDBackLightTimerEnabled
-	LCDBackLightTimeoutSecs = document.Global.Hardware.Screen.LCDBackLightTimeoutSecs
-	BackLightLEDPin = document.Global.Hardware.Screen.BackLightLEDPin
-	RSPin = document.Global.Hardware.Screen.RsPin
-	EPin = document.Global.Hardware.Screen.EsPin
-	D4Pin = document.Global.Hardware.Screen.D4Pin
-	D5Pin = document.Global.Hardware.Screen.D5Pin
-	D6Pin = document.Global.Hardware.Screen.D6Pin
-	D7Pin = document.Global.Hardware.Screen.D7Pin
+	OLEDEnabled = document.Global.Hardware.OLED.OLEDEnabled
+	OLEDInterfacetype = document.Global.Hardware.OLED.OLEDInterfacetype
+	OLEDDisplayRows = document.Global.Hardware.OLED.OLEDDisplayRows
+	OLEDDisplayColumns = document.Global.Hardware.OLED.OLEDDisplayColumns
+	OLEDDefaultI2cBus = document.Global.Hardware.OLED.OLEDDefaultI2cBus
+	OLEDDefaultI2cAddress = document.Global.Hardware.OLED.OLEDDefaultI2cAddress
+	OLEDScreenWidth = document.Global.Hardware.OLED.OLEDScreenWidth
+	OLEDScreenHeight = document.Global.Hardware.OLED.OLEDScreenHeight
+	OLEDCommandColumnAddressing = document.Global.Hardware.OLED.OLEDCommandColumnAddressing
+	OLEDAddressBasePageStart = document.Global.Hardware.OLED.OLEDAddressBasePageStart
+	OLEDCharLength = document.Global.Hardware.OLED.OLEDCharLength
+	OLEDStartColumn = document.Global.Hardware.OLED.OLEDStartColumn
 
 	GpsEnabled = document.Global.Hardware.GPS.GpsEnabled
 	Port = document.Global.Hardware.GPS.Port
@@ -1052,23 +1087,39 @@ func printxmlconfig() {
 	}
 
 	if PrintLcd {
-		log.Println("info: ------------ LCD  ----------------------- ")
-		log.Println("info: DisplayType(HD44780/OLED)" + fmt.Sprintf("%v", DisplayType))
-		log.Println("info: OledDisplayRows          " + fmt.Sprintf("%v", OledDisplayRows))
-		log.Println("info: OledDisplayColumns       " + fmt.Sprintf("%v", OledDisplayColumns))
-		log.Println("info: Lcd Interface Type       " + fmt.Sprintf("%v", LCDInterfaceType))
+		log.Println("info: ------------ LCD HD44780 ----------------------- ")
+		log.Println("info: LCDEnabled               " + fmt.Sprintf("%v", LCDEnabled))
+		log.Println("info: LCDInterfaceType         " + fmt.Sprintf("%v", LCDInterfaceType))
 		log.Println("info: Lcd I2C Address          " + fmt.Sprintf("%x", LCDI2CAddress))
 		log.Println("info: Back Light Timer Enabled " + fmt.Sprintf("%t", LCDBackLightTimerEnabled))
 		log.Println("info: Back Light Timer Timeout " + fmt.Sprintf("%v", LCDBackLightTimeoutSecs))
-		log.Println("info: Back Light Pin " + fmt.Sprintf("%v", BackLightLEDPin))
-		log.Println("info: RS Pin " + fmt.Sprintf("%v", RSPin))
-		log.Println("info: E  Pin " + fmt.Sprintf("%v", EPin))
-		log.Println("info: D4 Pin " + fmt.Sprintf("%v", D4Pin))
-		log.Println("info: D5 Pin " + fmt.Sprintf("%v", D5Pin))
-		log.Println("info: D6 Pin " + fmt.Sprintf("%v", D6Pin))
-		log.Println("info: D7 Pin " + fmt.Sprintf("%v", D7Pin))
+		log.Println("info: Back Light Pin " + fmt.Sprintf("%v", LCDBackLightLEDPin))
+		log.Println("info: RS Pin " + fmt.Sprintf("%v", LCDRSPin))
+		log.Println("info: E  Pin " + fmt.Sprintf("%v", LCDEPin))
+		log.Println("info: D4 Pin " + fmt.Sprintf("%v", LCDD4Pin))
+		log.Println("info: D5 Pin " + fmt.Sprintf("%v", LCDD5Pin))
+		log.Println("info: D6 Pin " + fmt.Sprintf("%v", LCDD6Pin))
+		log.Println("info: D7 Pin " + fmt.Sprintf("%v", LCDD7Pin))
 	} else {
 		log.Println("info: ------------ LCD  ----------------------- SKIPPED ")
+	}
+
+	if PrintOled {
+		log.Println("info: ------------ OLED ----------------------- ")
+		log.Println("info: Enabled                 " + fmt.Sprintf("%v", OLEDEnabled))
+		log.Println("info: Interfacetype           " + fmt.Sprintf("%v", OLEDInterfacetype))
+		log.Println("info: DisplayRows             " + fmt.Sprintf("%v", OLEDDisplayRows))
+		log.Println("info: DisplayColumns          " + fmt.Sprintf("%v", OLEDDisplayColumns))
+		log.Println("info: DefaultI2cBus           " + fmt.Sprintf("%v", OLEDDefaultI2cBus))
+		log.Println("info: DefaultI2cAddress       " + fmt.Sprintf("%v", OLEDDefaultI2cAddress))
+		log.Println("info: ScreenWidth             " + fmt.Sprintf("%v", OLEDScreenWidth))
+		log.Println("info: ScreenHeight            " + fmt.Sprintf("%v", OLEDScreenHeight))
+		log.Println("info: CommandColumnAddressing " + fmt.Sprintf("%v", OLEDCommandColumnAddressing))
+		log.Println("info: AddressBasePageStart    " + fmt.Sprintf("%v", OLEDAddressBasePageStart))
+		log.Println("info: CharLength              " + fmt.Sprintf("%v", OLEDCharLength))
+		log.Println("info: StartColumn             " + fmt.Sprintf("%v", OLEDStartColumn))
+	} else {
+		log.Println("info: ------------ OLED ----------------------- SKIPPED ")
 	}
 
 	if PrintGps {

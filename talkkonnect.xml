@@ -25,7 +25,7 @@
 			<!-- Logfile Settings -->
 			<settings>
 				<!-- Set Output Device to Speaker, Master, Headphone or whatever your OS/Alsa Detects as the Master Sound Card Device for Output in alsamixer -->
-				<outputdevice>PCM</outputdevice>	
+				<outputdevice>Speaker</outputdevice>	
 				<logfilenameandpath>/var/log/talkkonnect.log</logfilenameandpath>	
 				<logging>screen</logging> <!--set logging to screen if screen only desired otherwise leave it as blank and talkkonnect will log to both screen and logfile -->
 				<daemonize>false</daemonize>
@@ -166,7 +166,7 @@
 			<!-- Printout Read Varaibles from XML Config For Debugging When Pressing Ctrl-X -->
 
                         <printvariables>
-                                <printaccount>true</printaccount>
+                                <printaccount>false</printaccount>
                                 <printlogging>false</printlogging>
 				<printprovisioning>false</printprovisioning>
 				<printbeacon>false</printbeacon>
@@ -181,6 +181,7 @@
 				<printbuttons>false</printbuttons>
 				<printcomment>false</printcomment>
 				<printlcd>false</printlcd>
+				<printoled>true</printoled>
 				<printgps>false</printgps>
 				<printpanic>false</printpanic>
                         </printvariables>
@@ -205,7 +206,6 @@
 				<ledoffmsecs>1010</ledoffmsecs>
 			</heartbeat>
 
-
 			<!-- Set GPIO for Panel Buttons -->
 			<buttons>
 				<txbuttonpin>26</txbuttonpin>        
@@ -221,33 +221,40 @@
 				<commentmessageon>Unavailable</commentmessageon>
 			</comment>
 
-			<!-- displaytype can now be hd44780(parallel or i2c) or oled(i2c) -->
+			<!-- displaytype can now be hd44780(parallel or i2c) or oled display 0.96 and 1.3 Inch variants) -->
 
-			<!-- HD44780 LCD Module Type (1) 4 GPIO Parallel GPIO Interface                                -->
-			<!-- To use HD4478 with parallel 4 GPIO Pins                                                   -->
-			<!-- Set <lcdinterfacetype>parallel</lcdinterfacetype> and <lcdi2caddress>0x00</lcdi2caddress> --> 
+			<!-- settings for HD44780 LCD -->
+			<!-- To Use HD44780  I2C Interface Make Sure You Don't Define RPI GPIO Pins 2 & 3 For Anything Else! -->
+			<lcd enabled="false">
+				<lcdinterfacetype>parallel</lcdinterfacetype>             <!-- put parallel or i2c depending on your display interface type here -->            
+				<lcdi2caddress>63</lcdi2caddress>                         <!-- put the decimal value of the i2c hex address your display was detected on -->            
+                                <lcdbacklighttimerenabled>true</lcdbacklighttimerenabled> <!-- this value is necessary if you are going to control backlight both parallel and i2c -->               
+                                <lcdbacklighttimeoutsecs>30</lcdbacklighttimeoutsecs>     <!-- this value is necessary if you are going to control backlight both parallel and i -->               
+				<lcdbacklightpin>6</lcdbacklightpin>                         <!-- this value is necessary if you are going to control backlight with external transistor -->               
+				<lcdrspin>7</lcdrspin>   <!-- this value is necessary only if you are using parallel lcd interface -->               
+				<lcdepin>8</lcdepin>     <!-- this value is necessary only if you are using parallel lcd interface -->               
+				<lcdd4pin>25</lcdd4pin>  <!-- this value is necessary only if you are using parallel lcd interface -->               
+				<lcdd5pin>24</lcdd5pin>  <!-- this value is necessary only if you are using parallel lcd interface -->               
+				<lcdd6pin>23</lcdd6pin>  <!-- this value is necessary only if you are using parallel lcd interface -->               
+				<lcdd7pin>18</lcdd7pin>  <!-- this value is necessary only if you are using parallel lcd interface -->               
+			</lcd>
 
-			<!-- HD44780 LCD Module Type (2) I2C using 2 Pins [For RPI Pins 2 and 3]                           -->
-			<!-- To Use I2C Interface Make Sure You Don't Define RPI GPIO Pins 2 & 3 For Anything Else!        -->
-			<!-- First Enable it in the Kernel and then Find the Address of Your I2C Device use i2cdetect -y 1 --> 
-			<!-- Set <lcdinterfacetype>i2c</lcdinterfacetype> and <lcdi2caddress>63</lcdi2caddress>          --> 
-			<screen>
-				<displaytype>oled</displaytype>                           <!-- select either oled or hd44780 -->
-				<oledisplayrows>8</oledisplayrows>                        <!-- this setting only effects oled screen -->
-				<oleddisplaycolumns>22</oleddisplaycolumns>               <!-- this setting only effects oled screen -->
-				<lcdinterfacetype>parallel</lcdinterfacetype>             <!-- this setting only effects hd44780 type of displays -->
-				<lcdi2caddress>63</lcdi2caddress>                         <!-- this setting only effects hd44780 i2c displays -->
-                                <lcdbacklighttimerenabled>true</lcdbacklighttimerenabled> <!-- this setting only effects hd44780 displays -->
-                                <lcdbacklighttimeoutsecs>30</lcdbacklighttimeoutsecs>     <!-- this setting only effects hd44780 displays -->
-				<backlightpin>6</backlightpin>                            <!-- this setting only effects hd44780 parallel displays -->
-				<rspin>7</rspin>                                          <!-- this setting only effects hd44780 parallel displays -->
-				<epin>8</epin>                                            <!-- this setting only effects hd44780 parallel displays -->
-				<d4pin>25</d4pin>                                         <!-- this setting only effects hd44780 parallel displays -->
-				<d5pin>24</d5pin>                                         <!-- this setting only effects hd44780 parallel displays -->
-				<d6pin>23</d6pin>                                         <!-- this setting only effects hd44780 parallel displays -->
-				<d7pin>18</d7pin>                                         <!-- this setting only effects hd44780 parallel displays -->
-			</screen>
-
+			<!-- settings for oled 0.96 and 1.3 inch Type with I2C Interface -->
+			<!-- To Use oled  I2C Interface Make Sure You Don't Define RPI GPIO Pins 2 & 3 For Anything Else! -->
+			<oled enabled="true">
+				<oledinterfacetype>i2c</oledinterfacetype>                    <!-- your current choice for oled interface type is now only limited to i2c --> 
+				<oleddisplayrows>8</oleddisplayrows>                          <!-- define the max rows of your oled screen supports -->
+				<oleddisplaycolumns>21</oleddisplaycolumns>                   <!-- define the max columns (characters) per line your display supports -->
+        			<oleddefaulti2cbus>1</oleddefaulti2cbus>                      <!-- define the I2C Bus you connected your oled display -->   
+        			<oleddefaulti2caddress>60</oleddefaulti2caddress>             <!-- define the decimal value of the i2c hex address your display was detected on -->
+ 	       			<oledscreenwidth>130</oledscreenwidth>                        <!-- define the width of your screen if you see some junk on the right of your screen increase this value from 128 -->
+        			<oledscreenheight>64</oledscreenheight>                       <!-- define the height of your screen here -->
+ 	       			<oledcommandcolumnaddressing>33</oledcommandcolumnaddressing> <!-- define the decimal value of the column address of your screen -->
+	        		<oledaddressbasepagestart>176</oledaddressbasepagestart>      <!-- define the decimal value of the base page start address of your screen -->
+        			<oledcharlength>6</oledcharlength>                            <!-- define the character length here -->
+				<oledstartcolumn>1</oledstartcolumn>                          <!-- if the 1st character of your display is half missing adjust this value to 1 otherwise leave it at 0 -->
+			</oled>
+			
 
 			<!-- Set Parameters for USB GPS Module ubnlox Neo-7 -->
 			<gps enabled="true">

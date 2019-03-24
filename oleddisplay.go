@@ -3,49 +3,56 @@ package talkkonnect
 import (
 	goled "github.com/talkkonnect/go-oled-i2c"
 	"log"
-	"sync"
 	"strings"
+	"sync"
 )
+
 var mutex = &sync.Mutex{}
 
-func oledDisplay (OledClear bool,OledRow int, OledColumn int, OledText string){
-        mutex.Lock()
-        defer mutex.Unlock()
+func oledDisplay(OledClear bool, OledRow int, OledColumn int, OledText string) {
+	mutex.Lock()
+	defer mutex.Unlock()
 
-        oled, err := goled.BeginOled()
+	if OLEDEnabled == false {
+		log.Println("warn: OLED Function Called in Error!")
+		return
+	}
 
-        if err != nil {
-                log.Fatal(err)
-                return
-        }
+	if OLEDInterfacetype != "i2c" {
+		log.Println("warn: Only i2c OLED Screens Supported Now!")
+		return
+	}
 
-        defer oled.Close()
+	oled, err := goled.BeginOled(OLEDDefaultI2cAddress, OLEDDefaultI2cBus, OLEDScreenWidth, OLEDScreenHeight, OLEDDisplayRows, OLEDDisplayColumns, OLEDStartColumn, OLEDCharLength, OLEDCommandColumnAddressing, OLEDAddressBasePageStart)
+
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+
+	defer oled.Close()
 
 	// clear oled screen command
-        if OledClear == true {
-                oled.Clear()
+	if OledClear == true {
+		oled.Clear()
 		log.Println("warn: OLED Clearing Screen")
-        }
+	}
 
-        oled.SetCursor(OledRow, 0)
+	oled.SetCursor(OledRow, 0)
 
-	var rpadding int = OledDisplayColumns
+	var rpadding = int(OLEDDisplayColumns)
 
-	if len(OledText) <= OledDisplayColumns {
-		rpadding = int(OledDisplayColumns)-len(OledText)
+	if len(OledText) <= int(OLEDDisplayColumns) {
+		rpadding = int(OLEDDisplayColumns) - len(OledText)
 	}
 
 	var text string = OledText + strings.Repeat(" ", rpadding)
 
-        oled.SetCursor(OledRow, 1)
+	oled.SetCursor(OledRow, OLEDStartColumn)
 
-	if len(OledText) >= OledDisplayColumns {
-        	oled.Write(OledText[:OledDisplayColumns])
+	if len(OledText) >= int(OLEDDisplayColumns) {
+		oled.Write(OledText[:OLEDDisplayColumns])
 	} else {
-        	oled.Write(text)
+		oled.Write(text)
 	}
 }
-
-
-
-

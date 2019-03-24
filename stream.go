@@ -44,7 +44,7 @@ var (
 	ErrState         = errors.New("gumbleopenal: invalid state")
 	lastspeaker      = "Nil"
 	lcdtext          = [4]string{"nil", "nil", "nil", ""}
-	BackLightLED     = gpio.NewOutput(uint(BackLightLEDPin), false)
+	BackLightLED     = gpio.NewOutput(uint(LCDBackLightLEDPin), false)
 	VoiceActivityLED = gpio.NewOutput(VoiceActivityLEDPin, false)
 	now              = time.Now()
 	LastTime         = now.Unix()
@@ -149,7 +149,7 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 
 	if TargetBoard == "rpi" {
 		LEDOffFunc(VoiceActivityLED)
-		if DisplayType == "hd44780" {
+		if LCDEnabled == true {
 			LEDOffFunc(BackLightLED)
 		}
 	}
@@ -185,7 +185,7 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 			samples := len(packet.AudioBuffer)
 			if TargetBoard == "rpi" {
 				LEDOnFunc(VoiceActivityLED)
-				if DisplayType == "hd44780" {
+				if LCDEnabled == true {
 					LEDOnFunc(BackLightLED)
 				}
 			}
@@ -227,13 +227,13 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 					lastspeaker = e.User.Name
 					t := time.Now()
 					if TargetBoard == "rpi" {
-						if DisplayType == "hd44780" {
+						if LCDEnabled == true {
 							lcdtext  = [4]string{"nil", "", "", e.User.Name + " " + t.Format("15:04:05")}
-							go hd44780.LcdDisplay(lcdtext, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, LCDI2CAddress)
+							go hd44780.LcdDisplay(lcdtext, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 							BackLightTime.Reset(time.Duration(LCDBackLightTimeoutSecs) * time.Second)
 						}
 
-						if DisplayType == "oled" {
+						if OLEDEnabled == true {
 							go oledDisplay(false,3,1,  e.User.Name + " " + t.Format("15:04:05"))
 		                                }
 					}

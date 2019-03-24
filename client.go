@@ -333,12 +333,12 @@ keyPressListenerLoop:
 				reset()
 				log.Println("info: Ctrl-L Pressed Cleared Screen")
 				if TargetBoard == "rpi" {
-					if DisplayType == "hd44780" {
+					if LCDEnabled == true {
 						LcdText = [4]string{"nil", "nil", "nil", "nil"}
-						go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, LCDI2CAddress)
+						go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 					}
 
-					if DisplayType == "oled" {
+					if OLEDEnabled == true {
 						oledDisplay(true, 0, 0, "") // clear the screen
 					}
 				}
@@ -373,11 +373,11 @@ func (b *Talkkonnect) CleanUp() {
 
 	if TargetBoard == "rpi" {
 		t := time.Now()
-		if DisplayType == "hd44780" {
+		if LCDEnabled == true {
 			LcdText = [4]string{"talkkonnect stopped", t.Format("02-01-2006 15:04:05"), "Please Visit", "www.talkkonnect.com"}
-			go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, LCDI2CAddress)
+			go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 		}
-		if DisplayType == "oled" {
+		if OLEDEnabled == true {
 			oledDisplay(true, 0, 0, "")
 			oledDisplay(false, 0, 1, "talkkonnect stopped")
 			oledDisplay(false, 1, 1, t.Format("02-01-2006 15:04:05"))
@@ -435,11 +435,11 @@ func (b *Talkkonnect) ReConnect() {
 	} else {
 		log.Println("warn: Unable to connect, giving up")
 		if TargetBoard == "rpi" {
-			if DisplayType == "hd44780" {
+			if LCDEnabled == true {
 				LcdText = [4]string{"Failed to Connect!", "nil", "nil", "nil"}
-				go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, LCDI2CAddress)
+				go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 			}
-			if DisplayType == "oled" {
+			if OLEDEnabled == true {
 				oledDisplay(false, 2, 1, "Failed to Connect!")
 			}
 		}
@@ -457,11 +457,11 @@ func (b *Talkkonnect) OpenStream() {
 
 		log.Println("warn: Stream open error ", err)
 		if TargetBoard == "pi" {
-			if DisplayType == "hd44780" {
+			if LCDEnabled == true {
 				LcdText = [4]string{"Stream Error!", "nil", "nil", "nil"}
-				go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, LCDI2CAddress)
+				go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 			}
-			if DisplayType == "oled" {
+			if OLEDEnabled == true {
 				oledDisplay(false, 2, 1, "Stream Error!!")
 			}
 
@@ -501,12 +501,12 @@ func (b *Talkkonnect) TransmitStart() {
 
 	if TargetBoard == "rpi" {
 		b.LEDOn(b.TransmitLED)
-		if DisplayType == "hd44780" {
+		if LCDEnabled == true {
 			LcdText[0] = "Online/TX"
 			LcdText[3] = "TX at " + t.Format("15:04:05")
-			go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, LCDI2CAddress)
+			go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 		}
-		if DisplayType == "oled" {
+		if OLEDEnabled == true {
 			oledDisplay(false, 0, 1, "Online/TX")
 			oledDisplay(false, 2, 1, "")
 			oledDisplay(false, 3, 1, "TX at "+t.Format("15:04:05"))
@@ -542,11 +542,11 @@ func (b *Talkkonnect) TransmitStop(withBeep bool) {
 
 		b.LEDOff(b.TransmitLED)
 
-		if DisplayType == "hd44780" {
+		if LCDEnabled == true {
 			LcdText[0] = b.Address
-			go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, LCDI2CAddress)
+			go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 		}
-		if DisplayType == "oled" {
+		if OLEDEnabled == true {
 			oledDisplay(false, 0, 1, b.Address)
 		}
 
@@ -578,11 +578,11 @@ func (b *Talkkonnect) OnConnect(e *gumble.ConnectEvent) {
 	}
 
 	if TargetBoard == "rpi" {
-		if DisplayType == "hd44780" {
+		if LCDEnabled == true {
 			LcdText = [4]string{"nil", "nil", "nil", "nil"}
-			go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, LCDI2CAddress)
+			go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 		}
-		if DisplayType == "oled" {
+		if OLEDEnabled == true {
 			oledDisplay(true, 0, 0, "") // clear the screen
 		}
 
@@ -640,12 +640,12 @@ func (b *Talkkonnect) ChangeChannel(ChannelName string) {
 		b.Client.Self.Move(channel)
 
 		if TargetBoard == "rpi" {
-			if DisplayType == "hd44780" {
+			if LCDEnabled == true {
 				LcdText[1] = "Joined " + ChannelName
 				LcdText[2] = Username[AccountIndex]
-				go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, LCDI2CAddress)
+				go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 			}
-			if DisplayType == "oled" {
+			if OLEDEnabled == true {
 				oledDisplay(false, 0, 1, "Joined "+ChannelName)
 				oledDisplay(false, 1, 1, Username[AccountIndex])
 			}
@@ -682,12 +682,12 @@ func (b *Talkkonnect) ParticipantLEDUpdate(verbose bool) {
 		if verbose {
 			log.Println("info: Current Channel ", b.Client.Self.Channel.Name, " has (", participantCount, ") participants")
 			if TargetBoard == "rpi" {
-				if DisplayType == "hd44780" {
+				if LCDEnabled == true {
 					LcdText[0] = b.Address
 					LcdText[1] = b.Client.Self.Channel.Name + " (" + strconv.Itoa(participantCount) + " Users)"
-					go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, LCDI2CAddress)
+					go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 				}
-				if DisplayType == "oled" {
+				if OLEDEnabled == true {
 					oledDisplay(false, 0, 1, b.Address)
 					oledDisplay(false, 1, 1, b.Client.Self.Channel.Name+" ("+strconv.Itoa(participantCount)+" Users)")
 					oledDisplay(false, 6, 1, "Please Visit")
@@ -717,11 +717,11 @@ func (b *Talkkonnect) ParticipantLEDUpdate(verbose bool) {
 
 				b.LEDOff(b.ParticipantsLED)
 
-				if DisplayType == "hd44780" {
+				if LCDEnabled == true {
 					LcdText = [4]string{b.Address, "Alone in " + b.Client.Self.Channel.Name, "", "nil"}
-					go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, LCDI2CAddress)
+					go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 				}
-				if DisplayType == "oled" {
+				if OLEDEnabled == true {
 					oledDisplay(false, 0, 1, b.Address)
 					oledDisplay(false, 1, 1, "Alone in "+b.Client.Self.Channel.Name)
 				}
@@ -745,12 +745,12 @@ func (b *Talkkonnect) OnTextMessage(e *gumble.TextMessageEvent) {
 			log.Println(fmt.Sprintf("alert: Message Too Long to Be Displayed on Screen\n"))
 			return
 		}
-		if DisplayType == "hd44780" {
+		if LCDEnabled == true {
 			LcdText[0] = "Msg From " + e.Sender.Name
 			LcdText[1] = message
-			go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, LCDI2CAddress)
+			go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 		}
-		if DisplayType == "oled" {
+		if OLEDEnabled == true {
 			oledDisplay(false, 2, 1, "Msg From "+e.Sender.Name)
 			if len(message) <= 20 {
 				oledDisplay(false, 3, 1, message)
@@ -882,10 +882,10 @@ func (b *Talkkonnect) OnPermissionDenied(e *gumble.PermissionDeniedEvent) {
 		}
 
 		if TargetBoard == "rpi" {
-			if DisplayType == "hd44780" {
-				go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, LCDI2CAddress)
+			if LCDEnabled == true {
+				go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 			}
-			if DisplayType == "oled" {
+			if OLEDEnabled == true {
 				oledDisplay(false, 1, 1, LcdText[2])
 			}
 
@@ -1005,11 +1005,11 @@ func (b *Talkkonnect) ChannelUp() {
 	if b.Client.Self.Channel.ID == maxchannelid {
 		log.Println("info: Can't Increment Channel Maximum Channel Reached")
 		if TargetBoard == "rpi" {
-			if DisplayType == "hd44780" {
+			if LCDEnabled == true {
 				LcdText[2] = "Max Chan Reached"
-				go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, LCDI2CAddress)
+				go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin,LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 			}
-			if DisplayType == "oled" {
+			if OLEDEnabled == true {
 				oledDisplay(false, 1, 1, "Max Chan Reached")
 			}
 
@@ -1054,11 +1054,11 @@ func (b *Talkkonnect) ChannelDown() {
 		channel := b.Client.Channels[uint32(AccountIndex)]
 		b.Client.Self.Move(channel)
 		if TargetBoard == "rpi" {
-			if DisplayType == "hd44780" {
+			if LCDEnabled == true {
 				LcdText[2] = "Min Chan Reached"
-				go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, LCDI2CAddress)
+				go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 			}
-			if DisplayType == "oled" {
+			if OLEDEnabled == true {
 				oledDisplay(false, 1, 1, "Min Chan Reached")
 			}
 
@@ -1325,11 +1325,11 @@ func (b *Talkkonnect) commandKeyF3() {
 
 		}
 		if TargetBoard == "rpi" {
-			if DisplayType == "hd44780" {
+			if LCDEnabled == true {
 				LcdText = [4]string{"nil", "nil", "nil", "UnMuted"}
-				go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, LCDI2CAddress)
+				go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 			}
-			if DisplayType == "oled" {
+			if OLEDEnabled == true {
 				oledDisplay(false, 1, 1, "Max Chan Reached")
 			}
 
@@ -1349,11 +1349,11 @@ func (b *Talkkonnect) commandKeyF3() {
 
 		log.Println("F3 pressed Mute/Unmute Speaker Requested Now Muted")
 		if TargetBoard == "rpi" {
-			if DisplayType == "hd44780" {
+			if LCDEnabled == true {
 				LcdText = [4]string{"nil", "nil", "nil", "Muted"}
-				go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, LCDI2CAddress)
+				go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 			}
-			if DisplayType == "oled" {
+			if OLEDEnabled == true {
 				oledDisplay(false, 6, 1, "Muted")
 			}
 
@@ -1380,11 +1380,11 @@ func (b *Talkkonnect) commandKeyF4() {
 
 	}
 	if TargetBoard == "rpi" {
-		if DisplayType == "hd44780" {
+		if LCDEnabled == true {
 			LcdText = [4]string{"nil", "nil", "nil", "Volume " + strconv.Itoa(origVolume)}
-			go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, LCDI2CAddress)
+			go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 		}
-		if DisplayType == "oled" {
+		if OLEDEnabled == true {
 			oledDisplay(false, 6, 1, "Volume "+strconv.Itoa(origVolume))
 		}
 
@@ -1407,22 +1407,22 @@ func (b *Talkkonnect) commandKeyF5() {
 
 		log.Println("F5 pressed Volume UP (+) Now At ", origVolume, "%")
 		if TargetBoard == "rpi" {
-			if DisplayType == "hd44780" {
+			if LCDEnabled == true {
 				LcdText = [4]string{"nil", "nil", "nil", "Volume + " + strconv.Itoa(origVolume)}
-				go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, LCDI2CAddress)
+				go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 			}
-			if DisplayType == "oled" {
+			if OLEDEnabled == true {
 				oledDisplay(false, 6, 1, "Volume "+strconv.Itoa(origVolume))
 			}
 		}
 	} else {
 		log.Println("F5 Increase Volume Already at Maximum Possible Volume")
 		if TargetBoard == "rpi" {
-			if DisplayType == "hd44780" {
+			if LCDEnabled == true {
 				LcdText = [4]string{"nil", "nil", "nil", "Max Vol"}
-				go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, LCDI2CAddress)
+				go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 			}
-			if DisplayType == "oled" {
+			if OLEDEnabled == true {
 				oledDisplay(false, 6, 1, "Max Vol")
 			}
 		}
@@ -1455,11 +1455,11 @@ func (b *Talkkonnect) commandKeyF6() {
 
 		log.Println("F6 pressed Volume Down (-) Now At ", origVolume, "%")
 		if TargetBoard == "rpi" {
-			if DisplayType == "hd44780" {
+			if LCDEnabled == true {
 				LcdText = [4]string{"nil", "nil", "nil", "Volume - " + strconv.Itoa(origVolume)}
-				go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, LCDI2CAddress)
+				go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 			}
-			if DisplayType == "oled" {
+			if OLEDEnabled == true {
 				oledDisplay(false, 6, 1, "Volume -")
 			}
 
@@ -1467,11 +1467,11 @@ func (b *Talkkonnect) commandKeyF6() {
 	} else {
 		log.Println("F6 Increase Volume Already at Minimum Possible Volume")
 		if TargetBoard == "rpi" {
-			if DisplayType == "hd44780" {
+			if LCDEnabled == true {
 				LcdText = [4]string{"nil", "nil", "nil", "Min Vol"}
-				go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, LCDI2CAddress)
+				go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 			}
-			if DisplayType == "oled" {
+			if OLEDEnabled == true {
 				oledDisplay(false, 6, 1, "Min Vol")
 			}
 		}
@@ -1678,11 +1678,11 @@ func (b *Talkkonnect) commandKeyCtrlP() {
 
 		go b.PlayIntoStream(PFileNameAndPath, PVolume)
 		if TargetBoard == "rpi" {
-			if DisplayType == "hd44780" {
+			if LCDEnabled == true {
 				LcdText = [4]string{"nil", "nil", "nil", "Panic Message Sent!"}
-				go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, LCDI2CAddress)
+				go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 			}
-			if DisplayType == "oled" {
+			if OLEDEnabled == true {
 				oledDisplay(false, 6, 1, "Panic Message Sent!")
 			}
 		}
@@ -1796,13 +1796,13 @@ func (b *Talkkonnect) SetComment(comment string) {
 		b.Client.Self.SetComment(comment)
 		t := time.Now()
 		if TargetBoard == "rpi" {
-			if DisplayType == "hd44780" {
+			if LCDEnabled == true {
 				LcdText[2] = "Status at " + t.Format("15:04:05")
 				time.Sleep(500 * time.Millisecond)
 				LcdText[3] = b.Client.Self.Comment
-				go hd44780.LcdDisplay(LcdText, RSPin, EPin, D4Pin, D5Pin, D6Pin, D7Pin, LCDInterfaceType, LCDI2CAddress)
+				go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 			}
-			if DisplayType == "oled" {
+			if OLEDEnabled == true {
 				oledDisplay(false, 1, 1, "Status at "+t.Format("15:04:05"))
 				oledDisplay(false, 4, 1, b.Client.Self.Comment)
 			}
@@ -1812,7 +1812,7 @@ func (b *Talkkonnect) SetComment(comment string) {
 
 func (b *Talkkonnect) BackLightTimer() {
 
-	if LCDBackLightTimerEnabled == false || TargetBoard != "rpi" || DisplayType == "oled" {
+	if LCDBackLightTimerEnabled == false || TargetBoard != "rpi" || LCDInterfaceType == "oled" {
 		b.LEDOn(b.BackLightLED)
 		return
 	}

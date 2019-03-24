@@ -1008,7 +1008,7 @@ func (b *Talkkonnect) ChannelUp() {
 		if TargetBoard == "rpi" {
 			if LCDEnabled == true {
 				LcdText[2] = "Max Chan Reached"
-				go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin,LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+				go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 			}
 			if OLEDEnabled == true {
 				oledDisplay(false, 1, 1, "Max Chan Reached")
@@ -1033,10 +1033,10 @@ func (b *Talkkonnect) ChannelUp() {
 				if TargetBoard == "rpi" {
 					if LCDEnabled == true {
 						LcdText[1] = b.Client.Self.Channel.Name + " (" + strconv.Itoa(len(b.Client.Self.Channel.Users)) + " Users)"
-						go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin,LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+						go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 					}
 					if OLEDEnabled == true {
-						oledDisplay(false, 1, 1, b.Client.Self.Channel.Name + " (" + strconv.Itoa(len(b.Client.Self.Channel.Users)) + " Users)")
+						oledDisplay(false, 1, 1, b.Client.Self.Channel.Name+" ("+strconv.Itoa(len(b.Client.Self.Channel.Users))+" Users)")
 					}
 				}
 				break
@@ -1064,16 +1064,16 @@ func (b *Talkkonnect) ChannelDown() {
 		log.Println("info: Can't Decrement Channel Root Channel Reached")
 		channel := b.Client.Channels[uint32(AccountIndex)]
 		b.Client.Self.Move(channel)
-				//displaychannel
-				if TargetBoard == "rpi" {
-					if LCDEnabled == true {
-						LcdText[1] = b.Client.Self.Channel.Name + " (" + strconv.Itoa(len(b.Client.Self.Channel.Users)) + " Users)"
-						go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin,LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
-					}
-					if OLEDEnabled == true {
-						oledDisplay(false, 1, 1, b.Client.Self.Channel.Name + " (" + strconv.Itoa(len(b.Client.Self.Channel.Users)) + " Users)")
-					}
-				}
+		//displaychannel
+		if TargetBoard == "rpi" {
+			if LCDEnabled == true {
+				LcdText[1] = b.Client.Self.Channel.Name + " (" + strconv.Itoa(len(b.Client.Self.Channel.Users)) + " Users)"
+				go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+			}
+			if OLEDEnabled == true {
+				oledDisplay(false, 1, 1, b.Client.Self.Channel.Name+" ("+strconv.Itoa(len(b.Client.Self.Channel.Users))+" Users)")
+			}
+		}
 
 		return
 	}

@@ -739,8 +739,8 @@ func (b *Talkkonnect) OnTextMessage(e *gumble.TextMessageEvent) {
 	log.Println(fmt.Sprintf("alert: Message ("+strconv.Itoa(len(message))+") from %v: %v\n", e.Sender.Name, message))
 
 	if TargetBoard == "rpi" {
-		if len(message) > 100 {
-			log.Println(fmt.Sprintf("alert: Message Too Long to Be Displayed on Screen\n"))
+		if len(message) > 105 {
+			log.Println(fmt.Sprintf("alert: Message Too Long to Be Displayed on Screen only first 105 Characters will be displayed\n"))
 			return
 		}
 		if LCDEnabled == true {
@@ -750,36 +750,36 @@ func (b *Talkkonnect) OnTextMessage(e *gumble.TextMessageEvent) {
 		}
 		if OLEDEnabled == true {
 			oledDisplay(false, 2, 1, "Msg From "+e.Sender.Name)
-			if len(message) <= 20 {
+			if len(message) <= 21 {
 				oledDisplay(false, 3, 1, message)
 				oledDisplay(false, 4, 1, "")
 				oledDisplay(false, 5, 1, "")
 				oledDisplay(false, 6, 1, "")
 				oledDisplay(false, 7, 1, "")
-			} else if len(message) <= 40 {
-				oledDisplay(false, 3, 1, message[0:20])
+			} else if len(message) <= 42 {
+				oledDisplay(false, 3, 1, message[0:21])
 				oledDisplay(false, 4, 1, message[21:len(message)])
 				oledDisplay(false, 5, 1, "")
 				oledDisplay(false, 6, 1, "")
 				oledDisplay(false, 7, 1, "")
-			} else if len(message) <= 60 {
-				oledDisplay(false, 3, 1, message[0:20])
-				oledDisplay(false, 4, 1, message[21:40])
-				oledDisplay(false, 5, 1, message[41:len(message)])
+			} else if len(message) <= 63 {
+				oledDisplay(false, 3, 1, message[0:21])
+				oledDisplay(false, 4, 1, message[21:42])
+				oledDisplay(false, 5, 1, message[42:len(message)])
 				oledDisplay(false, 6, 1, "")
 				oledDisplay(false, 7, 1, "")
-			} else if len(message) <= 80 {
-				oledDisplay(false, 3, 1, message[0:20])
-				oledDisplay(false, 4, 1, message[21:40])
-				oledDisplay(false, 5, 1, message[41:60])
-				oledDisplay(false, 6, 1, message[61:len(message)])
+			} else if len(message) <= 84 {
+				oledDisplay(false, 3, 1, message[0:21])
+				oledDisplay(false, 4, 1, message[21:42])
+				oledDisplay(false, 5, 1, message[42:63])
+				oledDisplay(false, 6, 1, message[63:len(message)])
 				oledDisplay(false, 7, 1, "")
-			} else if len(message) <= 100 {
+			} else if len(message) <= 105 {
 				oledDisplay(false, 3, 1, message[0:20])
-				oledDisplay(false, 4, 1, message[21:40])
-				oledDisplay(false, 5, 1, message[41:60])
-				oledDisplay(false, 6, 1, message[61:80])
-				oledDisplay(false, 7, 1, message[81:len(message)])
+				oledDisplay(false, 4, 1, message[21:44])
+				oledDisplay(false, 5, 1, message[42:63])
+				oledDisplay(false, 6, 1, message[63:84])
+				oledDisplay(false, 7, 1, message[84:105])
 			}
 		}
 	}

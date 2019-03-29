@@ -194,8 +194,6 @@ func PreInit1() {
 		b.TLSConfig.Certificates = append(b.TLSConfig.Certificates, cert)
 	}
 
-	b.Init()
-
 	if APIEnabled {
 		go func() {
 			http.HandleFunc("/", b.httpHandler)
@@ -205,6 +203,8 @@ func PreInit1() {
 			}
 		}()
 	}
+
+	b.Init()
 
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)

@@ -346,9 +346,11 @@ For a speaker muting to work when pressing a PTT, you need to enter the exact na
 │ <F7>  List Server Channels  │ <F8>  Start Transmitting         │
 │ <F9>  Stop Transmitting     │ <F10> List Online Users          │
 │ <F11> Playback/Stop Chimes  │ <F12> For GPS Position           │
-│<Ctrl-P> Start/Stop Panic Sim│<Ctrx-X> Screen Dump XML Config   │
-│<Ctrl-E> Send Email          │<Ctrl-N> Connect to Next Server   │
-│<Ctrl-M> Ping Servers        │                                  │
+├─────────────────────────────┼──────────────────────────────────┤
+│<Ctrl-E> Send Email          │<Ctrl-L> Clear Screen             │
+│<Ctrl-M> Ping Servers        │<Ctrl-N> Connect Next Server      │
+│<Ctrl-P> Panic Simulation    │<Ctrl-S> Scan Channels            │
+│<Ctrl-X> Dump XML Config     │                                  │
 ├─────────────────────────────┴──────────────────────────────────┤
 │   visit us at www.talkkonnect.com and github.com/talkkonnect   │
 └────────────────────────────────────────────────────────────────┘

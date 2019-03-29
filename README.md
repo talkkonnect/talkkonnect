@@ -1,26 +1,25 @@
 # talKKonnect
 
-### A Headless Mumble Client/Gateway for Single Board Computers, PCs or Virtual Environments (Transceiver/Intercom)
+### A Headless Mumble Client/Transceiver/Intercom/Gateway for Single Board Computers, PCs or Virtual Environments (IP Radio/IP PTT <push-to-talk>)
 
 ---
 ### What is talKKonnect?
 
 [talKKonnect](http://www.talkkonnect.com) is a headless self contained mumble Push to Talk (PTT) client complete with LCD, Channel and Volume control. 
 
-
 This project is a fork of [talkiepi](http://projectable.me/) by Daniel Chote which was in turn a fork of [barnard](https://github.com/layeh/barnard) a text based mumble client. 
-All clients were made using [golang](https://golang.org/) and based on [gumble](https://github.com/layeh/gumble) library by Tim Cooper.
+All clients were developed using [golang](https://golang.org/) and based on [gumble](https://github.com/layeh/gumble) library by Tim Cooper.
 
-[talKKonnect](http://www.talkkonnect.com) was developed initially to run on SBCs. The latest version can be scaled to run all the way from SBCs to full fledged servers.
+[talKKonnect](http://www.talkkonnect.com) was developed initially to run on SBCs. The latest version can be scaled to run all the way from ARM SBCs to full fledged X86 servers.
 Raspberry Pi 3, Orange Pis, PCs and virtual environments (Oracle VirtualBox, KVM and Proxmox) targets have all been tested and work as expected.
 
 ### Why Was talKKonnect created?
 
 I [Suvir Kumar](https://www.linkedin.com/in/suvir-kumar-51a1333b) created talKKonnect for fun. I missed the younger days making homebrew CB radios and talking to all
-those amazing people who taught me so much. Living in an apartment in the age of the internet drove me to create talKKonnect.
+those amazing people who taught me so much. Living in an apartment in the age of the internet with the itch to innovate drove me to create talKKonnect.
 
 
-[talKKonnect](http://www.talkkonnect.com) was originally created to have the form factor of a desktop transceiver. With community feedback we started to push the envelope
+[talKKonnect](http://www.talkkonnect.com) was originally created to have the form factor and functionality of a desktop transceiver. With community feedback we started to push the envelope
 to make it more versatile and scalable. 
 
 #### Some of the interesting features are #### 
@@ -28,19 +27,19 @@ to make it more versatile and scalable.
 * Interface to portable or base radios (Beefing portable radios or UART radio boards). 
 * Connecting to low cost USB GPS dongles (for instance “u-blox”) for GPS tracking. 
 * Mass scale customization with centralized Configuration using auto-provisioning of a XML config file.
-* LCD Screen showing relevent real time information such as *server info, current channel, who is currently talking, etc.*
-* Connecting to an [arduino](https://www.arduino.cc/en/Guide/ArduinoDue) daughter board via USB for I/O control when running in the datacenter as a radio gateway 
-* local/ssh control via a USB keyboard/terminal and remote control is done over http api.
-* panic button, when pressed, talKKonnect will send an alert message with GPS coordinates, followed by an email indication current location in google maps. 
-
+* LCD/OLED Screen showing relevent real time information such as *server info, current channel, who is currently talking, etc.*
+* Local/ssh control via a USB keyboard/terminal and remote control is done over http api.
+* Panic button, when pressed, talKKonnect will send an alert message with GPS coordinates, followed by an email indication current location in google maps. 
+* Future Plans of Connecting to an [arduino](https://www.arduino.cc/en/Guide/ArduinoDue) daughter board via USB for I/O control when running in the datacenter as a radio gateway 
+* Other features as per suggested or requested by the community
 
 Pictures and more information of my builds can be found on my blog here [www.talkkonnect.com](https://www.talkkonnect.com)
 
 ### Hardware Features ###
 
 You can use an external microphone with push buttons (up/down) for Channel navigation for a mobile transceiver like experience. 
-Currently talKKonnect works with 4×20 Hitachi [HD44780](https://www.sparkfun.com/datasheets/LCD/HD44780.pdf) LCD screen in parallel mode.  Other screens like [OLED](https://learn.adafruit.com/monochrome-oled-breakouts) 
-is also currently supports. 
+Currently talKKonnect works with 4×20 Hitachi [HD44780](https://www.sparkfun.com/datasheets/LCD/HD44780.pdf) LCD screen in parallel mode.  Other screens like [OLED](https://learn.adafruit.com/adafruit-oled-displays-for-raspberry-pi)
+is also currently supported. 
 
 Low cost audio amplifiers like [PAM8403](https://www.instructables.com/id/PAM8403-6W-STEREO-AMPLIFIER-TUTORIAL/) or similar “D” class amplifiers, are recommended for talKKonnect builds.
 
@@ -53,7 +52,7 @@ Low cost audio amplifiers like [PAM8403](https://www.instructables.com/id/PAM840
 
 
 
-#### The tkio arduino daughter board (USB Interface) ####
+#### The tkio arduino daughter board (USB Interface) (Under Development) ####
 
 The USB arduino due daughter I/O board enables talKKonnect to be used in the datacenter as a Gateway to physically interface at the hardware level between different radio 
 networks. (Under Development).
@@ -117,6 +116,9 @@ Next go to “Interfacing Options” in raspi-config and “Enable SSH Server”
 ##### Restart ssh server with #####
 
 ` service ssh restart`
+
+##### Alternative Way to Enable SSH #####
+With windows you can browse to your SD card and place the blank file ssh in the root folder.
 
 Now you should be able to log in remotely via ssh using the root account and continue the installation.
 
@@ -422,6 +424,10 @@ For a speaker muting to work when pressing a PTT, you need to enter the exact na
 ##### The API Section
 * API section enables the user to granually control which remote control functions are available over http within the network 
 * The tag apilisten port defines the port that talkkonnect should listen and respond to remote control http requests 
+* To use httpapi you can use your browser to go to the url http://{talkkonnectip}/?command=F1 (Replace {talkkonnectip} with the IP address of your talkkonnect)
+* HTTPAPI commands supported are F1  Channel Up (+), F2  Channel Down (-), F3  Mute/Unmute Speaker, F4  Current Volume Level, F5  Digital Volume Up (+), F6  Digital Volume Down (-), 
+F7  List Server Channels, F8  Start Transmitting, F9  Stop Transmitting, F10 List Online Users, F11 Playback/Stop Chimes, F12 For GPS Position, Ctrl-E Send Email, Ctrl-L Clear Screen, 
+Ctrl-M Ping Servers, Ctrl-N Connect Next Server, Ctrl-P Panic Simulation, Ctrl-S Scan Channels, Ctrl-X Dump XML Config
 
 ##### The PrintVariables Section
 * This function is useful for debugging the values read from each section of the config xml file. You can control which section is shown. This command is tied to the CTRL-X key
@@ -491,7 +497,8 @@ For a speaker muting to work when pressing a PTT, you need to enter the exact na
 
 
 ## Contributing 
-We invite interested individuals to provide feedback and improvements to the project. Currently we do not have a WIKI so send feedback to <suvir@talkkonnect.com> or open and Issue in github 
+We invite interested individuals to provide feedback and improvements to the project. Currently we do not have a WIKI so send feedback to <suvir@talkkonnect.com> or open and Issue in github
+you can also check my blog  [www.talkkonnect.com](https://www.talkkonnect.com) for updates on the project
 
 Please visit our [blog](www.talkkonnect.com) for our blog or [github](github.com/talkkonnect) for the latest source code and our [facebook](https://www.facebook.com/talkkonnect) page for future updates and information. 
 You can also [download](https://talkkonnect.com/wp-content/uploads/2019/01/Readme-13-01-2019.pdf) an "OLDER" PDF version with pictures of this document.
@@ -499,4 +506,5 @@ You can also [download](https://talkkonnect.com/wp-content/uploads/2019/01/Readm
 ## License 
 [talKKonnect](http://www.talkkonnect.com) is open source and available under the MPL V2.00 license.
 
-<suvir@talkkonnect.com> Updated 07/February/2019 
+<suvir@talkkonnect.com> Updated 29/March/2019  talkkonnect version 1.42.3 is the latest release as of this writing.
+

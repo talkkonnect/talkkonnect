@@ -451,13 +451,25 @@ For a speaker muting to work when pressing a PTT, you need to enter the exact na
 * When another party using talkkonenct presses F10 they can see the username along with the defined message (depending on the position of the switch on/off) in square brackets 
 * The commentbuttonpin tag defines the GPIO pin that the toggle switch is connected to
 
-##### The Screen Section (LCD SCREEN)
-* At this moment talkkonnect only supports the easily available 4 lines 20 characters HD44780 LCD Module. 
+##### The LCD Section (For HD44780 20x4 LCD SCREEN)
+* At this moment talkkonnect supports the easily available 4 lines 20 characters HD44780 LCD Module. 
+* To disable this screen option you can set enabled = "false"
 * Parallel and i2c interfacing to the HD44780 LCD Module are both supported and can be configured in this section 
 * Valid interfacetype tag are either parallel or i2c 
 * The i2c address can be optained from running the i2cdetect -y 1 command. Convert the address displayed in HEX to Decimal and fill into the lcdi2caddress tag 
 * The backlight function and time is also available to turn off the LCD's backlight in case of inactivity on the channel for the defined timeout period in seconds 
 * The rs, e, d4, d5, d6, d7 pins are the GPIO pins that connect to the HD44780 display in parallel mode 
+* NOTE! You cannot use the pins 2,3 on raspberry pi for anything else other than I2C mode if you want to connect an I2C display
+
+##### The OLED Section (For 0.96 and 1.3 Inch I2C Interface OLED SCREEN)
+* At this moment talkkonnect also supports the easily available 0.96 and 1.3 Inch I2C OLED Screen. 
+* To disable this screen option you can set enabled = "false"
+* i2c interfacing is the only option that should be specified now spi has not been developed
+* The i2c address can be optained from running the i2cdetect -y 1 command. Convert the address displayed in HEX to Decimal and fill into the lcdi2caddress tag and mostly the i2c bus is 1. 
+* There is no backlight function for oled screens yet 
+* Your will have to specify the rows and columns your screen supports (for my screen i used 8 rows and 21 columns)
+* The OLED display is display width and height for my screen was 130 by 64
+* Another important settings is the oledstartcolumn setting for 0.96 screens set to 0 and for 1.3 inch screens set to 1. This will clear any garbage you see on the edge of the screen.
 * NOTE! You cannot use the pins 2,3 on raspberry pi for anything else other than I2C mode if you want to connect an I2C display
 
 ##### The GPS Section

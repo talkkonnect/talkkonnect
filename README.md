@@ -223,7 +223,7 @@ sleep 2
 ├────────────────────────────────────────────────────────────────┤
 │Created By : Suvir Kumar  <suvir@talkkonnect.com>               │
 ├────────────────────────────────────────────────────────────────┤
-│Version 1.40 Released February 04 2019                          │
+│Version 1.42.3 Released March 29 2019                           │
 │Additional Modifications Released under MPL 2.0 License         │
 ├────────────────────────────────────────────────────────────────┤
 │visit us at www.talkkonnect.com and github.com/talkkonnect      │

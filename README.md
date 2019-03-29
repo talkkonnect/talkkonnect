@@ -39,8 +39,8 @@ Pictures and more information of my builds can be found on my blog here [www.tal
 ### Hardware Features ###
 
 You can use an external microphone with push buttons (up/down) for Channel navigation for a mobile transceiver like experience. 
-Currently talKKonnect works with 4×20 Hitachi [HD44780](https://www.sparkfun.com/datasheets/LCD/HD44780.pdf) LCD screen in parallel mode.  Other screens like [OLED](https://learn.adafruit.com/monochrome-oled-breakouts) and [NEXTION](https://nextion.itead.cc/)
-with I2C interfacing support are also in the pipeline.
+Currently talKKonnect works with 4×20 Hitachi [HD44780](https://www.sparkfun.com/datasheets/LCD/HD44780.pdf) LCD screen in parallel mode.  Other screens like [OLED](https://learn.adafruit.com/monochrome-oled-breakouts) 
+is also currently supports. 
 
 Low cost audio amplifiers like [PAM8403](https://www.instructables.com/id/PAM8403-6W-STEREO-AMPLIFIER-TUTORIAL/) or similar “D” class amplifiers, are recommended for talKKonnect builds.
 

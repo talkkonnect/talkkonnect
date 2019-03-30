@@ -73,6 +73,8 @@ var (
 	Streaming            bool
 	AccountIndex         int
 	ServerHop            bool
+	httpServRunning      bool
+	message		     string
 )
 
 type Talkkonnect struct {
@@ -150,10 +152,10 @@ func PreInit(file string) {
 		}
 	}
 
-	PreInit1()
+	PreInit1(false)
 }
 
-func PreInit1() {
+func PreInit1(httpServRunning bool) {
 
 	b := Talkkonnect{
 		Config:      gumble.NewConfig(),
@@ -194,9 +196,10 @@ func PreInit1() {
 		b.TLSConfig.Certificates = append(b.TLSConfig.Certificates, cert)
 	}
 
-	if APIEnabled {
+	if APIEnabled && !httpServRunning {
 		go func() {
-			http.HandleFunc("/", b.httpHandler)
+			http.HandleFunc("/", b.httpHandler) 
+
 			if err := http.ListenAndServe(":"+APIListenPort, nil); err != nil {
 				log.Println("alert: Problem With Starting HTTP API Server Error: ", err)
 				log.Fatal("Please Fix Problem or Disable API in XML Config, Exiting talkkonnect! ...... bye!\n")
@@ -734,22 +737,27 @@ func (b *Talkkonnect) ParticipantLEDUpdate(verbose bool) {
 func (b *Talkkonnect) OnTextMessage(e *gumble.TextMessageEvent) {
 	b.BackLightTimer()
 
-	var message string = strings.TrimSpace(cleanstring(e.Message))
 
-	log.Println(fmt.Sprintf("alert: Message ("+strconv.Itoa(len(message))+") from %v: %v\n", e.Sender.Name, message))
+
+	if len(cleanstring(e.Message)) > 105 {
+		log.Println(fmt.Sprintf("alert: Message Too Long to Be Displayed on Screen\n"))
+		message = strings.TrimSpace(cleanstring(e.Message)[:105])
+	} else {
+		message = strings.TrimSpace(cleanstring(e.Message))
+	}
+
+	var sender string = strings.TrimSpace(cleanstring(e.Sender.Name))
+
+	log.Println(fmt.Sprintf("alert: Message ("+strconv.Itoa(len(message))+") from %v %v\n", sender, message))
 
 	if TargetBoard == "rpi" {
-		if len(message) > 105 {
-			log.Println(fmt.Sprintf("alert: Message Too Long to Be Displayed on Screen only first 105 Characters will be displayed\n"))
-			return
-		}
 		if LCDEnabled == true {
-			LcdText[0] = "Msg From " + e.Sender.Name
+			LcdText[0] = "Msg From " + sender
 			LcdText[1] = message
 			go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 		}
 		if OLEDEnabled == true {
-			oledDisplay(false, 2, 1, "Msg From "+e.Sender.Name)
+			oledDisplay(false, 2, 1, "Msg From "+sender)
 			if len(message) <= 21 {
 				oledDisplay(false, 3, 1, message)
 				oledDisplay(false, 4, 1, "")
@@ -1677,7 +1685,7 @@ func (b *Talkkonnect) commandKeyCtrlN() {
 	}
 	ServerHop = true
 	b.Client.Disconnect()
-	PreInit1()
+	PreInit1(true)
 	log.Println("--")
 }
 

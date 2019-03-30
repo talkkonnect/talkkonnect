@@ -112,7 +112,6 @@ func (b *Talkkonnect) initGPIO() {
 									case <-TxTimeOutTimer.C:
 										TxTimeOutTimer.Stop()
 										b.TransmitStop(false)
-										time.Sleep(200 * time.Millisecond)
 										log.Println("warn: TX Timed out After ", strconv.Itoa(TxTimeOutSecs), " Seconds.")
 									}
 								}

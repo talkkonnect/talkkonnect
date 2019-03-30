@@ -110,6 +110,7 @@ func (b *Talkkonnect) initGPIO() {
 	go func() {
 		for {
 			currentState, err := b.UpButton.Read()
+			time.Sleep(200 * time.Millisecond)
 
 			if currentState != b.UpButtonState && err == nil {
 				b.UpButtonState = currentState
@@ -119,11 +120,10 @@ func (b *Talkkonnect) initGPIO() {
 				} else {
 					log.Println("info: UP Button is pressed")
 					b.ChannelUp()
+					time.Sleep(200 * time.Millisecond)
 				}
 
 			}
-
-			time.Sleep(500 * time.Millisecond)
 		}
 	}()
 
@@ -131,6 +131,7 @@ func (b *Talkkonnect) initGPIO() {
 	go func() {
 		for {
 			currentState, err := b.DownButton.Read()
+			time.Sleep(200 * time.Millisecond)
 
 			if currentState != b.DownButtonState && err == nil {
 				b.DownButtonState = currentState
@@ -140,10 +141,9 @@ func (b *Talkkonnect) initGPIO() {
 				} else {
 					log.Println("info: Ch Down Button is pressed")
 					b.ChannelDown()
+					time.Sleep(200 * time.Millisecond)
 				}
 			}
-
-			time.Sleep(500 * time.Millisecond)
 		}
 	}()
 
@@ -151,6 +151,7 @@ func (b *Talkkonnect) initGPIO() {
 	go func() {
 		for {
 			currentState, err := b.PanicButton.Read()
+			time.Sleep(200 * time.Millisecond)
 
 			if currentState != b.PanicButtonState && err == nil {
 				b.PanicButtonState = currentState
@@ -160,10 +161,9 @@ func (b *Talkkonnect) initGPIO() {
 				} else {
 					log.Println("info: Panic Button is pressed")
 					b.commandKeyCtrlP()
+					time.Sleep(200 * time.Millisecond)
 				}
 			}
-
-			time.Sleep(500 * time.Millisecond)
 		}
 	}()
 
@@ -171,6 +171,7 @@ func (b *Talkkonnect) initGPIO() {
 	go func() {
 		for {
 			currentState, err := b.CommentButton.Read()
+			time.Sleep(200 * time.Millisecond)
 
 			if currentState != b.CommentButtonState && err == nil {
 				b.CommentButtonState = currentState
@@ -182,9 +183,8 @@ func (b *Talkkonnect) initGPIO() {
 					log.Println("info: Comment Button State 2 setting comment to State 2 Message")
 					b.SetComment(CommentMessageOn)
 				}
+				time.Sleep(200 * time.Millisecond)
 			}
-
-			time.Sleep(500 * time.Millisecond)
 		}
 	}()
 

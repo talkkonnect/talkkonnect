@@ -1869,6 +1869,7 @@ func (b *Talkkonnect) BackLightTimer() {
 	go func() {
 		<-BackLightTime.C
 		//log.Printf("debug: LCD Backlight Timer Address %v", BackLightTime, " Off Timed Out After", LCDBackLightTimeoutSecs, " Seconds\n")
+		time.Sleep(200 * time.Millisecond)
 		if LCDInterfaceType == "parallel" {
 			b.LEDOff(b.BackLightLED)
 		}

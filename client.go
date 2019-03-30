@@ -1568,8 +1568,12 @@ func (b *Talkkonnect) commandKeyF8() {
 		}
 
 	}
-
-	b.TransmitStart()
+	if !b.IsTransmitting {
+		b.TransmitStart()
+		time.Sleep(200 * time.Millisecond)
+	} else {
+		log.Println("warn: Already in Transmitting Mode")
+	}
 	log.Println("--")
 }
 
@@ -1585,8 +1589,12 @@ func (b *Talkkonnect) commandKeyF9() {
 
 	}
 
-	b.TransmitStop(true)
-
+	if b.IsTransmitting {
+		b.TransmitStop(true)
+		time.Sleep(200 * time.Millisecond)
+	} else {
+		log.Println("warn: Already Stopped Transmitting")
+	}
 	log.Println("--")
 }
 

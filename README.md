@@ -1,6 +1,6 @@
 # talKKonnect
 
-### A Headless Mumble Client/Transceiver/Intercom/Gateway for Single Board Computers, PCs or Virtual Environments (IP Radio/IP PTT <push-to-talk>)
+### A Headless Mumble Client/Transceiver/Walkie Talkie/Intercom/Gateway for Single Board Computers, PCs or Virtual Environments (IP Radio/IP PTT <push-to-talk>)
 
 ---
 ### What is talKKonnect?

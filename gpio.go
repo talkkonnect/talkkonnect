@@ -86,7 +86,7 @@ func (b *Talkkonnect) initGPIO() {
 
 				if b.Stream != nil {
 					if b.TxButtonState == 1 {
-						log.Println("info: TX Button is released")
+						log.Println("info: Tx Button is released")
 						b.TransmitStop(true)
 						time.Sleep(200 * time.Millisecond)
 						if loglevel > 2 {
@@ -98,7 +98,7 @@ func (b *Talkkonnect) initGPIO() {
 						}
 
 					} else {
-						log.Println("info: TX Button is pressed")
+						log.Println("info: Tx Button is pressed")
 						b.TransmitStart()
 						time.Sleep(200 * time.Millisecond)
 
@@ -112,7 +112,7 @@ func (b *Talkkonnect) initGPIO() {
 									case <-TxTimeOutTimer.C:
 										TxTimeOutTimer.Stop()
 										b.TransmitStop(false)
-										log.Println("warn: TX Timed out After ", strconv.Itoa(TxTimeOutSecs), " Seconds.")
+										log.Println("warn: Tx Timed out After ", strconv.Itoa(TxTimeOutSecs), " Seconds.")
 									}
 								}
 							}()

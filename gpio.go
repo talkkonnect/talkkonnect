@@ -33,12 +33,10 @@ import (
 	"github.com/stianeikeland/go-rpio"
 	"github.com/talkkonnect/gpio"
 	"log"
-	"strconv"
 	"time"
 )
 
 var ledpin = 0
-var txcounter = 0
 var  loglevel = 3
 
 func (b *Talkkonnect) initGPIO() {
@@ -73,13 +71,11 @@ func (b *Talkkonnect) initGPIO() {
 
 	b.TxButton = gpio.NewInput(TxButtonPin)
 
-	TxTimeOutTimer := time.NewTimer(1 * time.Millisecond)
 
 	go func() {
 		for {
-			time.Sleep(200 * time.Millisecond)
-
 			currentState, err := b.TxButton.Read()
+			time.Sleep(200 * time.Millisecond)
 
 			if currentState != b.TxButtonState && err == nil {
 				b.TxButtonState = currentState
@@ -87,43 +83,27 @@ func (b *Talkkonnect) initGPIO() {
 				if b.Stream != nil {
 					if b.TxButtonState == 1 {
 						log.Println("info: Tx Button is released")
-						b.TransmitStop(true)
-						time.Sleep(200 * time.Millisecond)
-						if loglevel > 2 {
-							txcounter++
-							log.Println("info: Tx Button Count ", txcounter)
-						}
-						if TxTimeOutEnabled {
-							TxTimeOutTimer.Stop()
+						if isTx {
+							b.TransmitStop(true)
+							time.Sleep(200 * time.Millisecond)
+							isTx = false
+							if loglevel > 2 {
+								txcounter++
+								log.Println("info: Tx Button Count ", txcounter)
+							}
 						}
 
 					} else {
 						log.Println("info: Tx Button is pressed")
-						b.TransmitStart()
-						time.Sleep(200 * time.Millisecond)
-
-						if TxTimeOutEnabled {
-							log.Println("warn: Starting Tx Timeout Timer Now")
-							TxTimeOutTimer = time.NewTimer(time.Duration(TxTimeOutSecs) * time.Second)
-
-							go func() {
-								for {
-									select {
-									case <-TxTimeOutTimer.C:
-										TxTimeOutTimer.Stop()
-										b.TransmitStop(false)
-										log.Println("warn: Tx Timed out After ", strconv.Itoa(TxTimeOutSecs), " Seconds.")
-									}
-								}
-							}()
+						if !isTx {
+							b.TransmitStart()
+							time.Sleep(200 * time.Millisecond)
+							isTx = true
+							}
 						}
 					}
-
 				}
-
 			}
-
-		}
 	}()
 
 	b.UpButton = gpio.NewInput(UpButtonPin)

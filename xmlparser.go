@@ -313,6 +313,11 @@ var (
 	PTxlockTimeOutSecs uint
 )
 
+var (
+	txcounter int
+	isTx	  bool
+)
+
 type Document struct {
 	XMLName  xml.Name `xml:"document"`
 	Type     string   `xml:"type,attr"`

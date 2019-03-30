@@ -152,11 +152,6 @@ func PreInit(file string) {
 		}
 	}
 
-	PreInit1(false)
-}
-
-func PreInit1(httpServRunning bool) {
-
 	b := Talkkonnect{
 		Config:      gumble.NewConfig(),
 		Name:        Name[AccountIndex],
@@ -167,6 +162,12 @@ func PreInit1(httpServRunning bool) {
 		Logging:     Logging,
 		Daemonize:   Daemonize,
 	}
+
+
+	b.PreInit1(false)
+}
+
+func (b *Talkkonnect) PreInit1(httpServRunning bool) {
 
 	if len(b.Username) == 0 {
 		buf := make([]byte, 6)
@@ -1741,7 +1742,14 @@ func (b *Talkkonnect) commandKeyCtrlN() {
 	}
 	ServerHop = true
 	b.Client.Disconnect()
-	PreInit1(true)
+
+	b.Name =  Name[AccountIndex]
+	b.Address = Server[AccountIndex]
+	b.Username = Username[AccountIndex]
+	b.Ident =       Ident[AccountIndex]
+	b.ChannelName = Channel[AccountIndex]
+
+	b.PreInit1(true)
 	log.Println("--")
 }
 

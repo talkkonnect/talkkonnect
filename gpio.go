@@ -38,6 +38,8 @@ import (
 )
 
 var ledpin = 0
+var txcounter = 0
+var  loglevel = 3
 
 func (b *Talkkonnect) initGPIO() {
 	if TargetBoard != "rpi" {
@@ -75,6 +77,8 @@ func (b *Talkkonnect) initGPIO() {
 
 	go func() {
 		for {
+			time.Sleep(200 * time.Millisecond)
+
 			currentState, err := b.TxButton.Read()
 
 			if currentState != b.TxButtonState && err == nil {
@@ -84,7 +88,11 @@ func (b *Talkkonnect) initGPIO() {
 					if b.TxButtonState == 1 {
 						log.Println("info: TX Button is released")
 						b.TransmitStop(true)
-
+						time.Sleep(200 * time.Millisecond)
+						if loglevel > 2 {
+							txcounter++
+							log.Println("info: Tx Button Count ", txcounter)
+						}
 						if TxTimeOutEnabled {
 							TxTimeOutTimer.Stop()
 						}
@@ -92,6 +100,7 @@ func (b *Talkkonnect) initGPIO() {
 					} else {
 						log.Println("info: TX Button is pressed")
 						b.TransmitStart()
+						time.Sleep(200 * time.Millisecond)
 
 						if TxTimeOutEnabled {
 							log.Println("warn: Starting Tx Timeout Timer Now")
@@ -103,17 +112,18 @@ func (b *Talkkonnect) initGPIO() {
 									case <-TxTimeOutTimer.C:
 										TxTimeOutTimer.Stop()
 										b.TransmitStop(false)
+										time.Sleep(200 * time.Millisecond)
 										log.Println("warn: TX Timed out After ", strconv.Itoa(TxTimeOutSecs), " Seconds.")
 									}
 								}
 							}()
 						}
 					}
+
 				}
 
 			}
 
-			time.Sleep(500 * time.Millisecond)
 		}
 	}()
 

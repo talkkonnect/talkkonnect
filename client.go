@@ -74,7 +74,7 @@ var (
 	AccountIndex         int
 	ServerHop            bool
 	httpServRunning      bool
-	message		     string
+	message              string
 )
 
 type Talkkonnect struct {
@@ -198,7 +198,7 @@ func PreInit1(httpServRunning bool) {
 
 	if APIEnabled && !httpServRunning {
 		go func() {
-			http.HandleFunc("/", b.httpHandler) 
+			http.HandleFunc("/", b.httpHandler)
 
 			if err := http.ListenAndServe(":"+APIListenPort, nil); err != nil {
 				log.Println("alert: Problem With Starting HTTP API Server Error: ", err)
@@ -351,6 +351,8 @@ keyPressListenerLoop:
 				b.commandKeyCtrlN()
 			case term.KeyCtrlP:
 				b.commandKeyCtrlP()
+			case term.KeyCtrlR:
+				b.commandKeyCtrlR()
 			case term.KeyCtrlS:
 				b.commandKeyCtrlS()
 			case term.KeyCtrlX:
@@ -736,8 +738,6 @@ func (b *Talkkonnect) ParticipantLEDUpdate(verbose bool) {
 
 func (b *Talkkonnect) OnTextMessage(e *gumble.TextMessageEvent) {
 	b.BackLightTimer()
-
-
 
 	if len(cleanstring(e.Message)) > 105 {
 		log.Println(fmt.Sprintf("alert: Message Too Long to Be Displayed on Screen\n"))
@@ -1666,6 +1666,62 @@ func (b *Talkkonnect) commandKeyCtrlC() {
 	log.Println("--")
 }
 
+func (b *Talkkonnect) commandKeyCtrlE() {
+	log.Println("--")
+	log.Println("Ctrl-E Pressed Send Email Requested")
+
+	getGpsPosition(false)
+
+	if TTSEnabled && TTSSendEmail {
+		err := PlayWavLocal(TTSSendEmailFileNameAndPath, TTSVolumeLevel)
+		if err != nil {
+			log.Println("Play Wav Local Module Returned Error: ", err)
+		}
+
+	}
+
+	if EmailEnabled {
+
+		emailMessage := fmt.Sprintf(EmailMessage + "\n")
+		emailMessage = emailMessage + fmt.Sprintf("Ident: %s \n", b.Ident)
+		emailMessage = emailMessage + fmt.Sprintf("Mumble Username: %s \n", b.Username)
+
+		if EmailGpsDateTime {
+			emailMessage = emailMessage + fmt.Sprintf("Date "+GPSDate+" UTC Time "+GPSTime+"\n")
+		}
+
+		if EmailGpsLatLong {
+			emailMessage = emailMessage + fmt.Sprintf("Latitude "+strconv.FormatFloat(GPSLatitude, 'f', 6, 64)+" Longitude "+strconv.FormatFloat(GPSLongitude, 'f', 6, 64)+"\n")
+		}
+
+		if EmailGoogleMapsUrl {
+			emailMessage = emailMessage + "http://www.google.com/maps/place/" + strconv.FormatFloat(GPSLatitude, 'f', 6, 64) + "," + strconv.FormatFloat(GPSLongitude, 'f', 6, 64)
+		}
+
+		err := sendviagmail(EmailUsername, EmailPassword, EmailReceiver, EmailSubject, emailMessage)
+		if err != nil {
+			log.Println("alert: Error from Email Module: ", err)
+		}
+	} else {
+		log.Println("info: Sending Email Disabled in Config")
+	}
+	log.Println("--")
+}
+
+func (b *Talkkonnect) commandKeyCtrlM() {
+	log.Println("Ctrl-M Ping Servers ")
+
+	if TTSEnabled && TTSPingServers {
+		err := PlayWavLocal(TTSPingServersFileNameAndPath, TTSVolumeLevel)
+		if err != nil {
+			log.Println("Play Wav Local Module Returned Error: ", err)
+		}
+
+	}
+
+	b.pingservers()
+}
+
 func (b *Talkkonnect) commandKeyCtrlN() {
 	log.Println("--")
 	log.Println("Ctrl-N Connect Next Server Requested")
@@ -1749,61 +1805,18 @@ func (b *Talkkonnect) commandKeyCtrlP() {
 	log.Println("--")
 }
 
-func (b *Talkkonnect) commandKeyCtrlE() {
+func (b *Talkkonnect) commandKeyCtrlR() {
 	log.Println("--")
-	log.Println("Ctrl-E Pressed Send Email Requested")
-
-	getGpsPosition(false)
-
-	if TTSEnabled && TTSSendEmail {
-		err := PlayWavLocal(TTSSendEmailFileNameAndPath, TTSVolumeLevel)
-		if err != nil {
-			log.Println("Play Wav Local Module Returned Error: ", err)
-		}
-
+	log.Println("Ctrl-R Repeat TX test")
+	for i := 0; i < 100 ; i++ {
+		b.TransmitStart()
+		b.IsTransmitting = true
+		time.Sleep(1 * time.Second)
+		b.TransmitStop(true) // with roger beep since calling with true
+		b.IsTransmitting = false
+		time.Sleep(1 * time.Second)
+		log.Println("info: TX Cycle ", i)
 	}
-
-	if EmailEnabled {
-
-		emailMessage := fmt.Sprintf(EmailMessage + "\n")
-		emailMessage = emailMessage + fmt.Sprintf("Ident: %s \n", b.Ident)
-		emailMessage = emailMessage + fmt.Sprintf("Mumble Username: %s \n", b.Username)
-
-		if EmailGpsDateTime {
-			emailMessage = emailMessage + fmt.Sprintf("Date "+GPSDate+" UTC Time "+GPSTime+"\n")
-		}
-
-		if EmailGpsLatLong {
-			emailMessage = emailMessage + fmt.Sprintf("Latitude "+strconv.FormatFloat(GPSLatitude, 'f', 6, 64)+" Longitude "+strconv.FormatFloat(GPSLongitude, 'f', 6, 64)+"\n")
-		}
-
-		if EmailGoogleMapsUrl {
-			emailMessage = emailMessage + "http://www.google.com/maps/place/" + strconv.FormatFloat(GPSLatitude, 'f', 6, 64) + "," + strconv.FormatFloat(GPSLongitude, 'f', 6, 64)
-		}
-
-		err := sendviagmail(EmailUsername, EmailPassword, EmailReceiver, EmailSubject, emailMessage)
-		if err != nil {
-			log.Println("alert: Error from Email Module: ", err)
-		}
-	} else {
-		log.Println("info: Sending Email Disabled in Config")
-	}
-	log.Println("--")
-}
-
-func (b *Talkkonnect) commandKeyCtrlX() {
-	log.Println("--")
-	log.Println("Ctrl-X Print XML Config " + ConfigXMLFile)
-
-	if TTSEnabled && TTSPrintXmlConfig {
-		err := PlayWavLocal(TTSPrintXmlConfigFileNameAndPath, TTSVolumeLevel)
-		if err != nil {
-			log.Println("Play Wav Local Module Returned Error: ", err)
-		}
-
-	}
-
-	printxmlconfig()
 	log.Println("--")
 }
 
@@ -1823,18 +1836,20 @@ func (b *Talkkonnect) commandKeyCtrlS() {
 	log.Println("--")
 }
 
-func (b *Talkkonnect) commandKeyCtrlM() {
-	log.Println("Ctrl-M Ping Servers ")
+func (b *Talkkonnect) commandKeyCtrlX() {
+	log.Println("--")
+	log.Println("Ctrl-X Print XML Config " + ConfigXMLFile)
 
-	if TTSEnabled && TTSPingServers {
-		err := PlayWavLocal(TTSPingServersFileNameAndPath, TTSVolumeLevel)
+	if TTSEnabled && TTSPrintXmlConfig {
+		err := PlayWavLocal(TTSPrintXmlConfigFileNameAndPath, TTSVolumeLevel)
 		if err != nil {
 			log.Println("Play Wav Local Module Returned Error: ", err)
 		}
 
 	}
 
-	b.pingservers()
+	printxmlconfig()
+	log.Println("--")
 }
 
 func (b *Talkkonnect) SendMessage(textmessage string, PRecursive bool) {

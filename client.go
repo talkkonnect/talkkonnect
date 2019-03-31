@@ -1803,7 +1803,7 @@ func (b *Talkkonnect) commandKeyCtrlP() {
 			}
 		}
 
-		go b.PlayIntoStream(PFileNameAndPath, PVolume)
+		b.PlayIntoStream(PFileNameAndPath, PVolume)
 		if TargetBoard == "rpi" {
 			if LCDEnabled == true {
 				LcdText = [4]string{"nil", "nil", "nil", "Panic Message Sent!"}

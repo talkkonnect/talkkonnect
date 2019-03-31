@@ -75,7 +75,7 @@ var (
 	ServerHop            bool
 	httpServRunning      bool
 	message              string
-	isrepeattx	     bool = true
+	isrepeattx           bool = true
 )
 
 type Talkkonnect struct {
@@ -163,7 +163,6 @@ func PreInit(file string) {
 		Logging:     Logging,
 		Daemonize:   Daemonize,
 	}
-
 
 	b.PreInit1(false)
 }
@@ -372,7 +371,9 @@ keyPressListenerLoop:
 			log.Println("alert: Terminal Error: ", ev.Err)
 			log.Fatal("Exiting talkkonnect! ...... bye!\n")
 		}
+
 	}
+
 }
 
 func (b *Talkkonnect) CleanUp() {
@@ -1632,9 +1633,11 @@ func (b *Talkkonnect) commandKeyF11() {
 	if b.IsTransmitting {
 		log.Println("--")
 		b.TransmitStop(false)
+		isPlayStream = false
 	} else {
 		b.IsTransmitting = true
 		b.SendMessage(fmt.Sprintf("%s Streaming", b.Username), false)
+		isPlayStream = true
 		go b.PlayIntoStream(ChimesSoundFilenameAndPath, ChimesSoundVolume)
 	}
 	b.IsTransmitting = false
@@ -1752,10 +1755,10 @@ func (b *Talkkonnect) commandKeyCtrlN() {
 	ServerHop = true
 	b.Client.Disconnect()
 
-	b.Name =  Name[AccountIndex]
+	b.Name = Name[AccountIndex]
 	b.Address = Server[AccountIndex]
 	b.Username = Username[AccountIndex]
-	b.Ident =       Ident[AccountIndex]
+	b.Ident = Ident[AccountIndex]
 	b.ChannelName = Channel[AccountIndex]
 
 	b.PreInit1(true)
@@ -1965,7 +1968,7 @@ func (b *Talkkonnect) pingservers() {
 }
 
 func (b *Talkkonnect) repeatTx() {
-	for i := 0; i < 100 ; i++ {
+	for i := 0; i < 100; i++ {
 		b.TransmitStart()
 		b.IsTransmitting = true
 		time.Sleep(1 * time.Second)

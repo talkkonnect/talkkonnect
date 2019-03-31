@@ -313,9 +313,12 @@ var (
 	PTxlockTimeOutSecs uint
 )
 
+//other global variables used for state tracking
 var (
-	txcounter int
-	isTx	  bool
+	txcounter           int
+	isTx	            bool
+	isPlayStream        bool
+        isCancellableStream bool = true
 )
 
 type Document struct {

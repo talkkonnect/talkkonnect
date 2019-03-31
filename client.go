@@ -75,6 +75,7 @@ var (
 	ServerHop            bool
 	httpServRunning      bool
 	message              string
+	isrepeattx	     bool = true
 )
 
 type Talkkonnect struct {
@@ -1824,15 +1825,8 @@ func (b *Talkkonnect) commandKeyCtrlP() {
 func (b *Talkkonnect) commandKeyCtrlR() {
 	log.Println("--")
 	log.Println("Ctrl-R Repeat TX test")
-	for i := 0; i < 100 ; i++ {
-		b.TransmitStart()
-		b.IsTransmitting = true
-		time.Sleep(1 * time.Second)
-		b.TransmitStop(true) // with roger beep since calling with true
-		b.IsTransmitting = false
-		time.Sleep(1 * time.Second)
-		log.Println("info: TX Cycle ", i)
-	}
+	isrepeattx = !isrepeattx
+	go b.repeatTx()
 	log.Println("--")
 }
 
@@ -1967,5 +1961,26 @@ func (b *Talkkonnect) pingservers() {
 		log.Println("info: Server Users:           ", resp.ConnectedUsers, "/", resp.MaximumUsers)
 		log.Println("info: Server Maximum Bitrate: ", resp.MaximumBitrate)
 		log.Println("info: --")
+	}
+}
+
+func (b *Talkkonnect) repeatTx() {
+	for i := 0; i < 100 ; i++ {
+		b.TransmitStart()
+		b.IsTransmitting = true
+		time.Sleep(1 * time.Second)
+		b.TransmitStop(true) // with roger beep since calling with true
+		b.IsTransmitting = false
+		time.Sleep(1 * time.Second)
+		if i > 0 {
+			log.Println("info: TX Cycle ", i)
+			if isrepeattx {
+				log.Println("warn: Repeat Tx Loop Text Forcefully Stopped")
+			}
+		}
+
+		if isrepeattx {
+			break
+		}
 	}
 }

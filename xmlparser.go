@@ -39,6 +39,13 @@ import (
 	"time"
 )
 
+//version and release date
+var (
+        talkkonnectVersion string =  "1.46.7"
+        talkkonnectReleased string = "March 31 2019"
+)
+
+
 // lcd timer
 var (
 	BackLightTime    = time.NewTimer(1 * time.Millisecond)

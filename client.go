@@ -356,6 +356,8 @@ keyPressListenerLoop:
 				b.commandKeyCtrlR()
 			case term.KeyCtrlS:
 				b.commandKeyCtrlS()
+			case term.KeyCtrlV:
+				b.commandKeyCtrlV()
 			case term.KeyCtrlX:
 				b.commandKeyCtrlX()
 			default:
@@ -1846,6 +1848,13 @@ func (b *Talkkonnect) commandKeyCtrlS() {
 	}
 
 	b.Scan()
+	log.Println("--")
+}
+
+func (b *Talkkonnect) commandKeyCtrlV() {
+	log.Println("--")
+	log.Println("Ctrl-V Version Request ")
+	log.Printf ("info: Talkkonnect Version %v Released %v\n",talkkonnectVersion,talkkonnectReleased)
 	log.Println("--")
 }
 

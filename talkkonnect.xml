@@ -4,7 +4,7 @@
 
 	<!-- Need to Have At Least One Account Set as Default Account, The First Default Account Found will be the one used! --> 
 	<accounts>
-                <account name="phillipinogamersserver" default="true">
+                 <account name="phillipinogamersserver" default="true">
                         <serverandport>218.219.148.36:8000</serverandport>
                         <username></username>
                         <password></password>
@@ -29,6 +29,7 @@
 				<logfilenameandpath>/var/log/talkkonnect.log</logfilenameandpath>	
 				<logging>screen</logging> <!--set logging to screen if screen only desired otherwise leave it as blank and talkkonnect will log to both screen and logfile -->
 				<daemonize>false</daemonize>
+ 				<cancellablestream>true</cancellablestream>				
 			</settings>
 
 			<!-- http autoprovisioning specify tkid with at least 8 characters of length, Put Complete URL with http:// and define local filename and path -->
@@ -167,7 +168,7 @@
 
                         <printvariables>
                                 <printaccount>false</printaccount>
-                                <printlogging>false</printlogging>
+                                <printlogging>true</printlogging>
 				<printprovisioning>false</printprovisioning>
 				<printbeacon>false</printbeacon>
 				<printtts>false</printtts>
@@ -192,15 +193,15 @@
 		<hardware targetboard="rpi"> <!-- set targetboard to "pc" for raspberry pi and other single board computers GPIO and "pc" for boards without gpios -->
 			<!-- Set GPIO for Panel LEDS -->
 			<lights>
-				<voiceactivityledpin>4</voiceactivityledpin>
-				<participantsledpin>4</participantsledpin> 
+				<voiceactivityledpin>2</voiceactivityledpin>
+				<participantsledpin>3</participantsledpin> 
 				<transmitledpin>4</transmitledpin>     
 				<onlineledpin>5</onlineledpin>       
 			</lights>
 
 			<!-- Set GPIO for Heart Beat LED to Indicate TK is alive -->
 			<heartbeat enabled="true">
-				<heartbeatledpin>4</heartbeatledpin>
+				<heartbeatledpin>2</heartbeatledpin>
 				<periodmsecs>2000</periodmsecs>
 				<ledonmsecs>1000</ledonmsecs>
 				<ledoffmsecs>1010</ledoffmsecs>
@@ -225,7 +226,7 @@
 
 			<!-- settings for HD44780 LCD -->
 			<!-- To Use HD44780  I2C Interface Make Sure You Don't Define RPI GPIO Pins 2 & 3 For Anything Else! -->
-			<lcd enabled="false">
+			<lcd enabled="true">
 				<lcdinterfacetype>parallel</lcdinterfacetype>             <!-- put parallel or i2c depending on your display interface type here -->            
 				<lcdi2caddress>63</lcdi2caddress>                         <!-- put the decimal value of the i2c hex address your display was detected on -->            
                                 <lcdbacklighttimerenabled>true</lcdbacklighttimerenabled> <!-- this value is necessary if you are going to control backlight both parallel and i2c -->               
@@ -241,7 +242,7 @@
 
 			<!-- settings for oled 0.96 and 1.3 inch Type with I2C Interface -->
 			<!-- To Use oled  I2C Interface Make Sure You Don't Define RPI GPIO Pins 2 & 3 For Anything Else! -->
-			<oled enabled="true">
+			<oled enabled="false">
 				<oledinterfacetype>i2c</oledinterfacetype>                    <!-- your current choice for oled interface type is now only limited to i2c --> 
 				<oleddisplayrows>8</oleddisplayrows>                          <!-- define the max rows of your oled screen supports -->
 				<oleddisplaycolumns>21</oleddisplaycolumns>                   <!-- define the max columns (characters) per line your display supports -->

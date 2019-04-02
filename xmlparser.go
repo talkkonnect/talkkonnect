@@ -318,7 +318,7 @@ var (
 	txcounter           int
 	isTx	            bool
 	isPlayStream        bool
-        isCancellableStream bool = true
+        CancellableStream   bool
 )
 
 type Document struct {
@@ -370,6 +370,7 @@ type Settings struct {
 	LogFileNameAndPath string   `xml:"logfilenameandpath"`
 	Logging            string   `xml:"logging"`
 	Daemonize          bool     `xml:"daemonize"`
+	CancellableStream  bool     `xml:"cancellablestream"`
 }
 
 type AutoProvisioning struct {
@@ -686,6 +687,7 @@ func readxmlconfig(file string) error {
 	LogFileNameAndPath = document.Global.Software.Settings.LogFileNameAndPath
 	Logging = document.Global.Software.Settings.Logging
 	Daemonize = document.Global.Software.Settings.Daemonize
+	CancellableStream = document.Global.Software.Settings.CancellableStream
 
 	APEnabled = document.Global.Software.AutoProvisioning.APEnabled
 	TkId = document.Global.Software.AutoProvisioning.TkId
@@ -904,10 +906,11 @@ func printxmlconfig() {
 
 	if PrintLogging {
 		log.Println("info: -------- Logging & Daemonizing -------- ")
-		log.Println("info: Output Device " + OutputDevice)
-		log.Println("info: Log File      " + LogFileNameAndPath)
-		log.Println("info: Logging       " + Logging)
-		log.Println("info: Daemonize     " + fmt.Sprintf("%t", Daemonize))
+		log.Println("info: Output Device     " + OutputDevice)
+		log.Println("info: Log File          " + LogFileNameAndPath)
+		log.Println("info: Logging           " + Logging)
+		log.Println("info: Daemonize         " + fmt.Sprintf("%t", Daemonize))
+		log.Println("info: CancellableStream " + fmt.Sprintf("%t", CancellableStream))
 	} else {
 		log.Println("info: --------   Logging & Daemonizing -------- SKIPPED ")
 	}

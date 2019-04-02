@@ -113,7 +113,12 @@ func (b *Talkkonnect) talkkonnectMenu() {
 	if origMuted {
 		log.Println("info: Speaker Currently Muted")
 	} else {
-		log.Println("info: Speaker Currently Not Muted")
+		origVolume, err := volume.GetVolume(OutputDevice)
+        	if err == nil {
+                	log.Printf("info: Speaker Not Muted & Current Volume at Level %v%%\n", origVolume)
+        	} else {
+                	log.Println("warn: Can't Get Volume Level From Sound Card!")
+		}
 	}
 
 }
@@ -153,6 +158,7 @@ func (b *Talkkonnect) pingconnectedserver() {
 	major, minor, patch := resp.Version.SemanticVersion()
 
 	log.Println("info: Server Address:         ", resp.Address)
+	log.Println("info: Current Channel:        ", b.Client.Self.Channel.Name)
 	log.Println("info: Server Ping:            ", resp.Ping)
 	log.Println("info: Server Version:         ", major, ".", minor, ".", patch)
 	log.Println("info: Server Users:           ", resp.ConnectedUsers, "/", resp.MaximumUsers)

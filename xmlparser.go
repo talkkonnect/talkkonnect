@@ -40,7 +40,7 @@ import (
 )
 
 //version and release date
-var (
+const (
         talkkonnectVersion string =  "1.46.7"
         talkkonnectReleased string = "March 31 2019"
 )

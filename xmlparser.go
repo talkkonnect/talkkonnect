@@ -41,8 +41,8 @@ import (
 
 //version and release date
 const (
-        talkkonnectVersion string =  "1.46.7"
-        talkkonnectReleased string = "March 31 2019"
+        talkkonnectVersion string =  "1.46.8"
+        talkkonnectReleased string = "April 03 2019"
 )
 
 
@@ -324,6 +324,7 @@ var (
 //other global variables used for state tracking
 var (
 	txcounter           int
+	togglecounter       int
 	isTx	            bool
 	isPlayStream        bool
         CancellableStream   bool

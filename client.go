@@ -108,6 +108,8 @@ type Talkkonnect struct {
 	VoiceActivityLED   gpio.Pin
 	TxButton           gpio.Pin
 	TxButtonState      uint
+	TxToggle           gpio.Pin
+	TxToggleState      uint
 	UpButton           gpio.Pin
 	UpButtonState      uint
 	DownButton         gpio.Pin

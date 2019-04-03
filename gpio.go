@@ -37,7 +37,7 @@ import (
 )
 
 var ledpin = 0
-var  loglevel = 3
+var loglevel = 3
 
 func (b *Talkkonnect) initGPIO() {
 	if TargetBoard != "rpi" {
@@ -55,6 +55,9 @@ func (b *Talkkonnect) initGPIO() {
 	TxButtonPinPullUp := rpio.Pin(TxButtonPin)
 	TxButtonPinPullUp.PullUp()
 
+	TxTogglePinPullUp := rpio.Pin(TxTogglePin)
+	TxTogglePinPullUp.PullUp()
+
 	UpButtonPinPullUp := rpio.Pin(UpButtonPin)
 	UpButtonPinPullUp.PullUp()
 
@@ -70,59 +73,112 @@ func (b *Talkkonnect) initGPIO() {
 	rpio.Close()
 
 	b.TxButton = gpio.NewInput(TxButtonPin)
-
-
 	go func() {
 		for {
-			currentState, err := b.TxButton.Read()
-			time.Sleep(200 * time.Millisecond)
+			if b.IsConnected {
 
-			if currentState != b.TxButtonState && err == nil {
-				b.TxButtonState = currentState
+				currentState, err := b.TxButton.Read()
+				time.Sleep(200 * time.Millisecond)
 
-				if b.Stream != nil {
-					if b.TxButtonState == 1 {
-						log.Println("info: Tx Button is released")
-						if isTx {
-							b.TransmitStop(true)
-							time.Sleep(200 * time.Millisecond)
-							isTx = false
-							if loglevel > 2 {
-								txcounter++
-								log.Println("info: Tx Button Count ", txcounter)
+				if currentState != b.TxButtonState && err == nil {
+					b.TxButtonState = currentState
+
+					if b.Stream != nil {
+						if b.TxButtonState == 1 {
+							log.Println("info: Tx Button is released")
+							if isTx {
+								b.TransmitStop(true)
+								time.Sleep(200 * time.Millisecond)
+								isTx = false
+								if loglevel > 2 {
+									txcounter++
+									log.Println("info: Tx Button Count ", txcounter)
+								}
 							}
-						}
 
-					} else {
-						log.Println("info: Tx Button is pressed")
-						if !isTx {
-							b.TransmitStart()
-							time.Sleep(200 * time.Millisecond)
-							isTx = true
+						} else {
+							log.Println("info: Tx Button is pressed")
+							if !isTx {
+								b.TransmitStart()
+								time.Sleep(200 * time.Millisecond)
+								isTx = true
 							}
 						}
 					}
 				}
+			} else {
+				_, err := b.TxButton.Read()
+				if err != nil {
+					log.Println("warn: Error Reading TxButton")
+				}
 			}
+		}
+	}()
+
+	b.TxToggle = gpio.NewInput(TxTogglePin)
+	go func() {
+		for {
+			if b.IsConnected {
+
+				currentState1, err1 := b.TxToggle.Read()
+				time.Sleep(100 * time.Millisecond)
+
+				currentState2, err2 := b.TxToggle.Read()
+				time.Sleep(100 * time.Millisecond)
+
+				if err1 != nil || err2 != nil {
+					log.Println("warn: Error Opening TXToggle Pin")
+					break
+				}
+
+				if currentState1 != currentState2 {
+					isTx = !isTx
+					if isTx {
+						b.TransmitStop(true)
+						log.Println("info: Toggle Stopped Transmitting")
+						time.Sleep(200 * time.Millisecond)
+					}
+
+					if isTx == false {
+						b.TransmitStart()
+						log.Println("info: Toggle Started Transmitting")
+						time.Sleep(200 * time.Millisecond)
+					}
+				}
+			} else {
+				_, err := b.TxToggle.Read()
+				if err != nil {
+					log.Println("warn: Error Reading TxToggle Button")
+				}
+			}
+		}
 	}()
 
 	b.UpButton = gpio.NewInput(UpButtonPin)
 	go func() {
 		for {
-			currentState, err := b.UpButton.Read()
-			time.Sleep(200 * time.Millisecond)
+			if b.IsConnected {
 
-			if currentState != b.UpButtonState && err == nil {
-				b.UpButtonState = currentState
+				currentState, err := b.UpButton.Read()
+				time.Sleep(200 * time.Millisecond)
 
-				if b.UpButtonState == 1 {
-					log.Println("info: UP Button is released")
-				} else {
-					log.Println("info: UP Button is pressed")
-					b.ChannelUp()
-					time.Sleep(200 * time.Millisecond)
+				if currentState != b.UpButtonState && err == nil {
+					b.UpButtonState = currentState
+
+					if b.UpButtonState == 1 {
+						log.Println("info: UP Button is released")
+					} else {
+						log.Println("info: UP Button is pressed")
+						b.ChannelUp()
+						time.Sleep(200 * time.Millisecond)
+					}
+
 				}
-
+			} else {
+				_, err := b.UpButton.Read()
+				if err != nil {
+					log.Println("warn: Error Reading Up Button")
+				}
 			}
 		}
 	}()
@@ -130,18 +186,26 @@ func (b *Talkkonnect) initGPIO() {
 	b.DownButton = gpio.NewInput(DownButtonPin)
 	go func() {
 		for {
-			currentState, err := b.DownButton.Read()
-			time.Sleep(200 * time.Millisecond)
+			if b.IsConnected {
 
-			if currentState != b.DownButtonState && err == nil {
-				b.DownButtonState = currentState
+				currentState, err := b.DownButton.Read()
+				time.Sleep(200 * time.Millisecond)
 
-				if b.DownButtonState == 1 {
-					log.Println("info: Ch Down Button is released")
-				} else {
-					log.Println("info: Ch Down Button is pressed")
-					b.ChannelDown()
-					time.Sleep(200 * time.Millisecond)
+				if currentState != b.DownButtonState && err == nil {
+					b.DownButtonState = currentState
+
+					if b.DownButtonState == 1 {
+						log.Println("info: Ch Down Button is released")
+					} else {
+						log.Println("info: Ch Down Button is pressed")
+						b.ChannelDown()
+						time.Sleep(200 * time.Millisecond)
+					}
+				}
+			} else {
+				_, err := b.DownButton.Read()
+				if err != nil {
+					log.Println("warn: Error Reading Down Button")
 				}
 			}
 		}
@@ -150,18 +214,26 @@ func (b *Talkkonnect) initGPIO() {
 	b.PanicButton = gpio.NewInput(PanicButtonPin)
 	go func() {
 		for {
-			currentState, err := b.PanicButton.Read()
-			time.Sleep(200 * time.Millisecond)
+			if b.IsConnected {
 
-			if currentState != b.PanicButtonState && err == nil {
-				b.PanicButtonState = currentState
+				currentState, err := b.PanicButton.Read()
+				time.Sleep(200 * time.Millisecond)
 
-				if b.PanicButtonState == 1 {
-					log.Println("info: Panic Button is released")
-				} else {
-					log.Println("info: Panic Button is pressed")
-					b.commandKeyCtrlP()
-					time.Sleep(200 * time.Millisecond)
+				if currentState != b.PanicButtonState && err == nil {
+					b.PanicButtonState = currentState
+
+					if b.PanicButtonState == 1 {
+						log.Println("info: Panic Button is released")
+					} else {
+						log.Println("info: Panic Button is pressed")
+						b.commandKeyCtrlP()
+						time.Sleep(200 * time.Millisecond)
+					}
+				}
+			} else {
+				_, err := b.PanicButton.Read()
+				if err != nil {
+					log.Println("warn: Error Reading Panic Button ", err)
 				}
 			}
 		}
@@ -170,25 +242,32 @@ func (b *Talkkonnect) initGPIO() {
 	b.CommentButton = gpio.NewInput(CommentButtonPin)
 	go func() {
 		for {
-			currentState, err := b.CommentButton.Read()
-			time.Sleep(200 * time.Millisecond)
+			if b.IsConnected {
 
-			if currentState != b.CommentButtonState && err == nil {
-				b.CommentButtonState = currentState
-
-				if b.CommentButtonState == 1 {
-					log.Println("info: Comment Button State 1 setting comment to State 1 Message")
-					b.SetComment(CommentMessageOff)
-				} else {
-					log.Println("info: Comment Button State 2 setting comment to State 2 Message")
-					b.SetComment(CommentMessageOn)
-				}
+				currentState, err := b.CommentButton.Read()
 				time.Sleep(200 * time.Millisecond)
+
+				if currentState != b.CommentButtonState && err == nil {
+					b.CommentButtonState = currentState
+
+					if b.CommentButtonState == 1 {
+						log.Println("info: Comment Button State 1 setting comment to State 1 Message")
+						b.SetComment(CommentMessageOff)
+					} else {
+						log.Println("info: Comment Button State 2 setting comment to State 2 Message")
+						b.SetComment(CommentMessageOn)
+					}
+					time.Sleep(200 * time.Millisecond)
+				}
+			} else {
+				_, err := b.CommentButton.Read()
+				if err != nil {
+					log.Println("warn: Error Reading Comment Button ", err)
+				}
 			}
 		}
 	}()
 
-	// then we can do our gpio stuff
 	b.OnlineLED = gpio.NewOutput(OnlineLEDPin, false)
 	b.ParticipantsLED = gpio.NewOutput(ParticipantsLEDPin, false)
 	b.TransmitLED = gpio.NewOutput(TransmitLEDPin, false)
@@ -202,7 +281,6 @@ func (b *Talkkonnect) LEDOn(LED gpio.Pin) {
 	if TargetBoard != "rpi" {
 		return
 	}
-
 	LED.High()
 }
 

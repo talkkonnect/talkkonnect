@@ -209,8 +209,8 @@
 
 			<!-- Set GPIO for Panel Buttons -->
 			<buttons>
-				<txbuttonpin>26</txbuttonpin>        
-				<txtogglepin>22</txtogglepin>        
+				<txbuttonpin>22</txbuttonpin>        
+				<txtogglepin>26</txtogglepin>        
 				<upbuttonpin>19</upbuttonpin>        
 				<downbuttonpin>13</downbuttonpin>      
 				<panicbuttonpin>14</panicbuttonpin>      

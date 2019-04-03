@@ -235,14 +235,14 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 					t := time.Now()
 					if TargetBoard == "rpi" {
 						if LCDEnabled == true {
-							lcdtext  = [4]string{"nil", "", "", e.User.Name + " " + t.Format("15:04:05")}
+							lcdtext = [4]string{"nil", "", "", e.User.Name + " " + t.Format("15:04:05")}
 							go hd44780.LcdDisplay(lcdtext, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 							BackLightTime.Reset(time.Duration(LCDBackLightTimeoutSecs) * time.Second)
 						}
 
 						if OLEDEnabled == true {
-							go oledDisplay(false,3,1,  e.User.Name + " " + t.Format("15:04:05"))
-		                                }
+							go oledDisplay(false, 3, 1, e.User.Name+" "+t.Format("15:04:05"))
+						}
 					}
 				}
 			}
@@ -281,7 +281,7 @@ func (s *Stream) sourceRoutine() {
 			}
 			return
 		case <-ticker.C:
-			//this is for encofing (transmitting)
+			//this is for encding (transmitting)
 			buff := s.deviceSource.CaptureSamples(uint32(frameSize))
 			if len(buff) != frameSize*2 {
 				continue

@@ -13,7 +13,6 @@
                         <channel>room A</channel>
                         <ident>Suvir Kumar</ident>
  		</account>
-
 	</accounts>
 
 	<!-- Global section for setting behaviour of talkkonnect, soundsfiles paths and volumes, physical connections of pinouts for buttons and leds, lcd screen connections and usb gps parameters -->
@@ -24,12 +23,11 @@
 
 			<!-- Logfile Settings -->
 			<settings>
-				<!-- Set Output Device to Speaker, Master, Headphone or whatever your OS/Alsa Detects as the Master Sound Card Device for Output in alsamixer -->
-				<outputdevice>Speaker</outputdevice>	
-				<logfilenameandpath>/var/log/talkkonnect.log</logfilenameandpath>	
+				<outputdevice>Speaker</outputdevice> <!-- Set Output Device to Speaker, Master, Headphone or whatever your OS/Alsa Detects as the Master Sound Card Device for Output in alsamixer -->
+				<logfilenameandpath>/var/log/talkkonnect.log</logfilenameandpath> <!-- location file of your talkkonnect.log YOU need to have write permission to this file -->	
 				<logging>screen</logging> <!--set logging to screen if screen only desired otherwise leave it as blank and talkkonnect will log to both screen and logfile -->
 				<daemonize>false</daemonize> <!-- deaemonize is not working yet planned for the future-->
- 				<cancellablestream>true</cancellablestream>				
+ 				<cancellablestream>true</cancellablestream> <!-- the ability to cancel an F11 Steam when someone presses TX in the channel -->				
 			</settings>
 
 			<!-- http autoprovisioning specify tkid with at least 8 characters of length, Put Complete URL with http:// and define local filename and path -->
@@ -165,7 +163,6 @@
 			</api>
 
 			<!-- Printout Read Varaibles from XML Config For Debugging When Pressing Ctrl-X -->
-
                         <printvariables>
                                 <printaccount>false</printaccount>
                                 <printlogging>false</printlogging>
@@ -193,10 +190,10 @@
 		<hardware targetboard="rpi"> <!-- set targetboard to "pc" for raspberry pi and other single board computers GPIO and "pc" for boards without gpios -->
 			<!-- Set GPIO for Panel LEDS -->
 			<lights>
-				<voiceactivityledpin>2</voiceactivityledpin>
-				<participantsledpin>3</participantsledpin> 
-				<transmitledpin>4</transmitledpin>     
-				<onlineledpin>5</onlineledpin>       
+				<voiceactivityledpin>2</voiceactivityledpin> <!-- this led lights up when someone is speaking in the channel -->
+				<participantsledpin>3</participantsledpin>   <!-- this led lights up when there is someone else in the channel -->
+				<transmitledpin>4</transmitledpin>           <!-- this led lights up when talkkonnect is in transmit mode -->
+				<onlineledpin>5</onlineledpin>               <!-- this led lights up when you are connected to a server and talkkonnect is online -->
 			</lights>
 
 			<!-- Set GPIO for Heart Beat LED to Indicate TK is alive -->
@@ -209,11 +206,11 @@
 
 			<!-- Set GPIO for Panel Buttons -->
 			<buttons>
-				<txbuttonpin>22</txbuttonpin>        
-				<txtogglepin>26</txtogglepin>        
-				<upbuttonpin>19</upbuttonpin>        
-				<downbuttonpin>13</downbuttonpin>      
-				<panicbuttonpin>14</panicbuttonpin>      
+				<txbuttonpin>26</txbuttonpin>         <!-- use this pin to connect to tx button for PTT (Push Transmit and Release to Receive -->
+				<txtogglepin>22</txtogglepin>         <!-- use this pin to toggle between tx and rx mode by short keypress -->     
+				<upbuttonpin>19</upbuttonpin>         <!-- use this pin to connect to button for channel up -->
+				<downbuttonpin>13</downbuttonpin>     <!-- use this pin to connect to button for channel down -->  
+				<panicbuttonpin>14</panicbuttonpin>   <!-- use this pin to connect to panic button -->   
 			</buttons>
 
 			<!-- Set GPIO for Away Toggle Switch and Away Message -->
@@ -290,6 +287,3 @@
 		</hardware>
 	</global>
 </document>
-
-
-

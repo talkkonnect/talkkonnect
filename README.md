@@ -450,6 +450,7 @@ Ctrl-M Ping Servers, Ctrl-N Connect Next Server, Ctrl-P Panic Simulation, Ctrl-S
 ##### The Buttons Section (INPUT)
 * This section defines the raspberry GPIO pins that are connected to push buttons that are pulled to ground by keypress and float upon release
 * The txbuttonpin tag is connected to the PTT push button 
+* The txtogglepin tag is connected to the PTT toggle button (Press and Release to Change State from RX to TX and vice versa) 
 * The upbuttonpin tag is conencted to the channel up button
 * The downbuttonpin tag is conencted to the channel down button 
 * The panic button tag is connected to a button that will set the talkkonnect into panic mode (request for help)

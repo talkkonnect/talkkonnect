@@ -108,7 +108,7 @@ func (b *Talkkonnect) initGPIO() {
 				}
 			} else {
 				_, err := b.TxButton.Read()
-				if err != nil {
+				if err != nil && b.IsConnected {
 					log.Println("warn: Error Reading TxButton")
 				}
 			}
@@ -147,8 +147,8 @@ func (b *Talkkonnect) initGPIO() {
 				}
 			} else {
 				_, err := b.TxToggle.Read()
-				if err != nil {
-					log.Println("warn: Error Reading TxToggle Button")
+				if err != nil && b.IsConnected {
+						log.Println("warn: Error Reading TxToggle Button")
 				}
 			}
 		}
@@ -176,8 +176,8 @@ func (b *Talkkonnect) initGPIO() {
 				}
 			} else {
 				_, err := b.UpButton.Read()
-				if err != nil {
-					log.Println("warn: Error Reading Up Button")
+				if err != nil && b.IsConnected {
+						log.Println("warn: Error Reading TxToggle Button")
 				}
 			}
 		}
@@ -204,7 +204,7 @@ func (b *Talkkonnect) initGPIO() {
 				}
 			} else {
 				_, err := b.DownButton.Read()
-				if err != nil {
+				if err != nil && b.IsConnected {
 					log.Println("warn: Error Reading Down Button")
 				}
 			}
@@ -232,7 +232,7 @@ func (b *Talkkonnect) initGPIO() {
 				}
 			} else {
 				_, err := b.PanicButton.Read()
-				if err != nil {
+				if err != nil && b.IsConnected {
 					log.Println("warn: Error Reading Panic Button ", err)
 				}
 			}
@@ -261,7 +261,7 @@ func (b *Talkkonnect) initGPIO() {
 				}
 			} else {
 				_, err := b.CommentButton.Read()
-				if err != nil {
+				if err != nil && b.IsConnected {
 					log.Println("warn: Error Reading Comment Button ", err)
 				}
 			}

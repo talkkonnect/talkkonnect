@@ -28,7 +28,7 @@
 				<outputdevice>Speaker</outputdevice>	
 				<logfilenameandpath>/var/log/talkkonnect.log</logfilenameandpath>	
 				<logging>screen</logging> <!--set logging to screen if screen only desired otherwise leave it as blank and talkkonnect will log to both screen and logfile -->
-				<daemonize>false</daemonize>
+				<daemonize>false</daemonize> <!-- deaemonize is not working yet planned for the future-->
  				<cancellablestream>true</cancellablestream>				
 			</settings>
 
@@ -168,7 +168,7 @@
 
                         <printvariables>
                                 <printaccount>false</printaccount>
-                                <printlogging>true</printlogging>
+                                <printlogging>false</printlogging>
 				<printprovisioning>false</printprovisioning>
 				<printbeacon>false</printbeacon>
 				<printtts>false</printtts>
@@ -179,10 +179,10 @@
 				<printtargetboard>false</printtargetboard>
 				<printleds>false</printleds>
 				<printheartbeat>false</printheartbeat>
-				<printbuttons>false</printbuttons>
+				<printbuttons>true</printbuttons>
 				<printcomment>false</printcomment>
 				<printlcd>false</printlcd>
-				<printoled>true</printoled>
+				<printoled>false</printoled>
 				<printgps>false</printgps>
 				<printpanic>false</printpanic>
                         </printvariables>
@@ -210,6 +210,7 @@
 			<!-- Set GPIO for Panel Buttons -->
 			<buttons>
 				<txbuttonpin>26</txbuttonpin>        
+				<txtogglepin>22</txtogglepin>        
 				<upbuttonpin>19</upbuttonpin>        
 				<downbuttonpin>13</downbuttonpin>      
 				<panicbuttonpin>14</panicbuttonpin>      

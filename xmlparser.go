@@ -239,6 +239,7 @@ var (
 //button settings
 var (
 	TxButtonPin    uint
+	TxTogglePin    uint
 	UpButtonPin    uint
 	DownButtonPin  uint
 	PanicButtonPin uint
@@ -577,6 +578,7 @@ type HeartBeat struct {
 type Buttons struct {
 	XMLName        xml.Name `xml:"buttons"`
 	TxButtonPin    uint     `xml:"txbuttonpin"`
+	TxTogglePin    uint     `xml:"txtogglepin"`
 	UpButtonPin    uint     `xml:"upbuttonpin"`
 	DownButtonPin  uint     `xml:"downbuttonpin"`
 	PanicButtonPin uint     `xml:"panicbuttonpin"`
@@ -833,6 +835,7 @@ func readxmlconfig(file string) error {
 	LEDOffmSecs = document.Global.Hardware.HeartBeat.LEDOffmSecs
 
 	TxButtonPin = document.Global.Hardware.Buttons.TxButtonPin
+	TxTogglePin = document.Global.Hardware.Buttons.TxTogglePin
 	UpButtonPin = document.Global.Hardware.Buttons.UpButtonPin
 	DownButtonPin = document.Global.Hardware.Buttons.DownButtonPin
 	PanicButtonPin = document.Global.Hardware.Buttons.PanicButtonPin
@@ -1088,6 +1091,7 @@ func printxmlconfig() {
 	if PrintButtons {
 		log.Println("info: ------------ Buttons  ------------------- ")
 		log.Println("info: Tx Button Pin           " + fmt.Sprintf("%v", TxButtonPin))
+		log.Println("info: Tx Toggle Pin           " + fmt.Sprintf("%v", TxTogglePin))
 		log.Println("info: Channel Up Button Pin   " + fmt.Sprintf("%v", UpButtonPin))
 		log.Println("info: Channel Down Button Pin " + fmt.Sprintf("%v", DownButtonPin))
 		log.Println("info: Panic Button Pin        " + fmt.Sprintf("%v", PanicButtonPin))

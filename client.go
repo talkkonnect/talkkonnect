@@ -1984,7 +1984,11 @@ func (b *Talkkonnect) repeatTx() {
 		b.TransmitStart()
 		b.IsTransmitting = true
 		time.Sleep(1 * time.Second)
-		b.TransmitStop(true) // with roger beep since calling with true
+		if RogerBeepSoundEnabled {
+			b.TransmitStop(true)
+		} else {
+			b.TransmitStop(false)
+		}
 		b.IsTransmitting = false
 		time.Sleep(1 * time.Second)
 		if i > 0 {

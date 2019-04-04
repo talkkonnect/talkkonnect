@@ -348,8 +348,8 @@ keyPressListenerLoop:
 						oledDisplay(true, 0, 0, "") // clear the screen
 					}
 				}
-			case term.KeyCtrlM:
-				b.commandKeyCtrlM()
+			case term.KeyCtrlO:
+				b.commandKeyCtrlO()
 			case term.KeyCtrlN:
 				b.commandKeyCtrlN()
 			case term.KeyCtrlP:
@@ -1285,9 +1285,9 @@ func (b *Talkkonnect) httpHandler(w http.ResponseWriter, r *http.Request) {
 		} else {
 			fmt.Fprintf(w, "API Send Email Congfig Denied\n")
 		}
-	case "commandKeyCtrlM":
+	case "commandKeyCtrlO":
 		if APIEmailEnabled {
-			b.commandKeyCtrlM()
+			b.commandKeyCtrlO()
 			fmt.Fprintf(w, "API Ping Servers Processed Succesfully\n")
 		} else {
 			fmt.Fprintf(w, "API Ping Servers Denied\n")
@@ -1725,8 +1725,8 @@ func (b *Talkkonnect) commandKeyCtrlE() {
 	log.Println("--")
 }
 
-func (b *Talkkonnect) commandKeyCtrlM() {
-	log.Println("Ctrl-M Ping Servers ")
+func (b *Talkkonnect) commandKeyCtrlO() {
+	log.Println("Ctrl-O Ping Servers ")
 
 	if TTSEnabled && TTSPingServers {
 		err := PlayWavLocal(TTSPingServersFileNameAndPath, TTSVolumeLevel)

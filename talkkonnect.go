@@ -99,7 +99,7 @@ func (b *Talkkonnect) talkkonnectMenu() {
 	log.Println("info: │<Ctrl-N> Connect Next Server │<Ctrl-P> Panic Simulation       │")
         log.Println("info: │<Ctrl-S> Scan Channels       │<Ctrl-V> Display Version        │")
 	log.Println("info: ├─────────────────────────────┼────────────────────────────────┤")
-	log.Println("info: │<Ctrl-L> Clear Screen        │<Ctrl-M> Ping Servers           │")
+	log.Println("info: │<Ctrl-L> Clear Screen        │<Ctrl-O> Ping Servers           │")
 	log.Println("info: │<Ctrl-R> Repeat TX Loop Test │<Ctrl-X> Dump XML Config        │")
 	log.Println("info: ├─────────────────────────────┼────────────────────────────────┤")
 	log.Println("info: │  visit us at www.talkkonnect.com and github.com/talkkonnect  │")

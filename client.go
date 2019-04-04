@@ -753,7 +753,8 @@ func (b *Talkkonnect) OnTextMessage(e *gumble.TextMessageEvent) {
 		message = strings.TrimSpace(cleanstring(e.Message))
 	}
 
-	var sender string = strings.TrimSpace(cleanstring(e.Sender.Name))
+	//var sender string = strings.TrimSpace(cleanstring(e.Sender.Name))
+	var sender string = "laloo pandae"
 
 	log.Println(fmt.Sprintf("alert: Message ("+strconv.Itoa(len(message))+") from %v %v\n", sender, message))
 

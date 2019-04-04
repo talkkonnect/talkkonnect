@@ -117,30 +117,44 @@ func (b *Talkkonnect) initGPIO() {
 
 	b.TxToggle = gpio.NewInput(TxTogglePin)
 	go func() {
+		var prevState uint = 1
 		for {
 			if b.IsConnected {
 
-				currentState1, err1 := b.TxToggle.Read()
-				time.Sleep(100 * time.Millisecond)
+				currentState, err := b.TxToggle.Read()
+				time.Sleep(150 * time.Millisecond)
 
-				currentState2, err2 := b.TxToggle.Read()
-				time.Sleep(100 * time.Millisecond)
-
-				if err1 != nil || err2 != nil {
+				if err != nil {
 					log.Println("warn: Error Opening TXToggle Pin")
 					break
 				}
 
-				if currentState1 != currentState2 {
+				if currentState != prevState {
 					isTx = !isTx
 					if isTx {
 						b.TransmitStop(true)
 						log.Println("info: Toggle Stopped Transmitting")
+						for {
+							currentState, err := b.TxToggle.Read()
+                                			time.Sleep(150 * time.Millisecond)
+							if currentState == 1 && err == nil {
+								break
+							}
+						}
+						prevState = 1
 						time.Sleep(200 * time.Millisecond)
 					}
 
 					if isTx == false {
 						b.TransmitStart()
+						for {
+							currentState, err := b.TxToggle.Read()
+                                			time.Sleep(150 * time.Millisecond)
+							if currentState == 1 && err ==nil {
+								break
+							}
+						}
+						prevState = 1
 						log.Println("info: Toggle Started Transmitting")
 						time.Sleep(200 * time.Millisecond)
 					}

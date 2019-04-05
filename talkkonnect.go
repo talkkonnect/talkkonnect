@@ -120,7 +120,7 @@ func (b *Talkkonnect) talkkonnectMenu() {
                 	log.Println("warn: Can't Get Volume Level From Sound Card!")
 		}
 	}
-
+	log.Printf ("info: Talkkonnect Version %v Released %v\n",talkkonnectVersion,talkkonnectReleased)
 }
 
 func localAddresses() {

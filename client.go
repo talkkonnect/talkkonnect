@@ -1016,6 +1016,11 @@ func (b *Talkkonnect) ChannelUp() {
 		return
 	}
 
+	if prevChannelID == 0 {
+		prevChannelID = b.Client.Self.Channel.ID
+	}
+
+
 	if TTSEnabled && TTSChannelUp {
 		err := PlayWavLocal(TTSChannelUpFileNameAndPath, TTSVolumeLevel)
 		if err != nil {
@@ -1082,6 +1087,10 @@ func (b *Talkkonnect) ChannelUp() {
 func (b *Talkkonnect) ChannelDown() {
 	if !(b.IsConnected) {
 		return
+	}
+
+	if prevChannelID == 0 {
+		prevChannelID = b.Client.Self.Channel.ID
 	}
 
 	if TTSEnabled && TTSChannelDown {

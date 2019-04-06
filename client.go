@@ -1327,6 +1327,8 @@ func (b *Talkkonnect) httpHandler(w http.ResponseWriter, r *http.Request) {
 		} else {
 			fmt.Fprintf(w, "API Print XML Congfig Denied\n")
 		}
+	default:
+			fmt.Fprintf(w, "API Command Not Defined\n")
 	}
 }
 

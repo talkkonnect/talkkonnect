@@ -45,7 +45,7 @@ func main() {
 	flag.Parse()
 
 	log.Println("info: Reading Config File: ", *config)
-	talkkonnect.PreInit(*config)
+	talkkonnect.PreInit0(*config)
 }
 
 func talkkonnectusage() {

@@ -131,7 +131,7 @@ func reset() {
 	term.Sync()
 }
 
-func PreInit(file string) {
+func PreInit0(file string) {
 
 	ConfigXMLFile = file
 	err := readxmlconfig(ConfigXMLFile)
@@ -338,18 +338,7 @@ keyPressListenerLoop:
 			case term.KeyCtrlE:
 				b.commandKeyCtrlE()
 			case term.KeyCtrlL:
-				reset()
-				log.Println("info: Ctrl-L Pressed Cleared Screen")
-				if TargetBoard == "rpi" {
-					if LCDEnabled == true {
-						LcdText = [4]string{"nil", "nil", "nil", "nil"}
-						go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
-					}
-
-					if OLEDEnabled == true {
-						oledDisplay(true, 0, 0, "") // clear the screen
-					}
-				}
+				b.commandKeyCtrlL()
 			case term.KeyCtrlO:
 				b.commandKeyCtrlO()
 			case term.KeyCtrlN:
@@ -1021,7 +1010,6 @@ func (b *Talkkonnect) ChannelUp() {
 	if prevChannelID == 0 {
 		prevChannelID = b.Client.Self.Channel.ID
 	}
-
 
 	if TTSEnabled && TTSChannelUp {
 		err := PlayWavLocal(TTSChannelUpFileNameAndPath, TTSVolumeLevel)
@@ -1750,6 +1738,21 @@ func (b *Talkkonnect) commandKeyCtrlE() {
 		log.Println("info: Sending Email Disabled in Config")
 	}
 	log.Println("--")
+}
+
+func (b *Talkkonnect) commandKeyCtrlL() {
+	reset()
+	log.Println("info: Ctrl-L Pressed Cleared Screen")
+	if TargetBoard == "rpi" {
+		if LCDEnabled == true {
+			LcdText = [4]string{"nil", "nil", "nil", "nil"}
+			go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+		}
+
+		if OLEDEnabled == true {
+			oledDisplay(true, 0, 0, "") // clear the screen
+		}
+	}
 }
 
 func (b *Talkkonnect) commandKeyCtrlO() {

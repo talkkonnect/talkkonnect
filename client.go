@@ -1904,7 +1904,6 @@ func (b *Talkkonnect) SetComment(comment string) {
 func (b *Talkkonnect) BackLightTimer() {
 
 	if LCDBackLightTimerEnabled == false || TargetBoard != "rpi" || LCDInterfaceType == "oled" {
-		b.LEDOn(b.BackLightLED)
 		return
 	}
 

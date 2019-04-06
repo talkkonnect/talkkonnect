@@ -132,7 +132,6 @@ func reset() {
 }
 
 func PreInit0(file string) {
-
 	ConfigXMLFile = file
 	err := readxmlconfig(ConfigXMLFile)
 	if err != nil {
@@ -170,7 +169,6 @@ func PreInit0(file string) {
 }
 
 func (b *Talkkonnect) PreInit1(httpServRunning bool) {
-
 	if len(b.Username) == 0 {
 		buf := make([]byte, 6)
 		_, err := rand.Read(buf)
@@ -218,12 +216,10 @@ func (b *Talkkonnect) PreInit1(httpServRunning bool) {
 
 	<-sigs
 	b.CleanUp()
-
 	os.Exit(exitStatus)
 }
 
 func (b *Talkkonnect) Init() {
-
 	f, err := os.OpenFile(LogFileNameAndPath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		log.Println("alert: Problem opening talkkonnect.log file Error: ", err)
@@ -398,7 +394,6 @@ func (b *Talkkonnect) CleanUp() {
 }
 
 func (b *Talkkonnect) Connect() {
-
 	time.Sleep(2 * time.Second)
 
 	var err error
@@ -413,9 +408,7 @@ func (b *Talkkonnect) Connect() {
 			b.ReConnect()
 		}
 	} else {
-
 		b.OpenStream()
-
 	}
 }
 
@@ -489,12 +482,9 @@ func (b *Talkkonnect) TransmitStart() {
 	}
 
 	b.BackLightTimer()
-
 	t := time.Now()
-
-	b.IsTransmitting = true
-
 	err := volume.Mute(OutputDevice)
+
 	if err != nil {
 		log.Println("warn: Unable to Mute ", err)
 	} else {
@@ -518,6 +508,7 @@ func (b *Talkkonnect) TransmitStart() {
 			oledDisplay(false, 7, 1, "www.talkkonnect.com")
 		}
 	}
+	b.IsTransmitting = true
 	b.Stream.StartSource()
 }
 
@@ -561,11 +552,11 @@ func (b *Talkkonnect) TransmitStop(withBeep bool) {
 }
 
 func (b *Talkkonnect) OnConnect(e *gumble.ConnectEvent) {
+	b.IsConnected = true
 	b.BackLightTimer()
 	b.Client = e.Client
 	b.ConnectAttempts = 0
 
-	b.IsConnected = true
 	b.LEDOn(b.OnlineLED)
 	log.Println("info: Connected to ", b.Name, " ", b.Client.Conn.RemoteAddr(), " on attempt", b.ConnectAttempts)
 	if e.WelcomeMessage != nil {
@@ -596,6 +587,7 @@ func (b *Talkkonnect) OnDisconnect(e *gumble.DisconnectEvent) {
 	}
 
 	var reason string
+
 	switch e.Type {
 	case gumble.DisconnectError:
 		reason = "connection error"
@@ -1358,9 +1350,7 @@ func (b *Talkkonnect) commandKeyDel() {
 func (b *Talkkonnect) commandKeyF1() {
 	log.Println("--")
 	log.Println("F1 pressed Channel Up (+) Requested")
-
 	b.ChannelUp()
-	//b.ParticipantLEDUpdate(true)
 	log.Println("--")
 }
 
@@ -1368,7 +1358,6 @@ func (b *Talkkonnect) commandKeyF2() {
 	log.Println("--")
 	log.Println("F2 pressed Channel Down (-) Requested")
 	b.ChannelDown()
-	//b.ParticipantLEDUpdate(true)
 	log.Println("--")
 }
 

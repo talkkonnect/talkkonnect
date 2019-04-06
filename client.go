@@ -252,6 +252,8 @@ func (b *Talkkonnect) Init() {
 	if TargetBoard == "rpi" {
 		log.Println("info: Target Board Set as RPI (gpio enabled) ")
 		b.initGPIO()
+	} else {
+		log.Println("info: Target Board Set as PC (gpio disabled) ")
 	}
 
 	talkkonnectBanner()

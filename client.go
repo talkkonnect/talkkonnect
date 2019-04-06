@@ -488,19 +488,18 @@ func (b *Talkkonnect) OpenStream() {
 
 func (b *Talkkonnect) ResetStream() {
 	b.Stream.Destroy()
-
 	time.Sleep(50 * time.Millisecond)
-
 	b.OpenStream()
 }
 
 func (b *Talkkonnect) TransmitStart() {
-	b.BackLightTimer()
-
-	t := time.Now()
 	if !(b.IsConnected) {
 		return
 	}
+
+	b.BackLightTimer()
+
+	t := time.Now()
 
 	b.IsTransmitting = true
 
@@ -527,21 +526,18 @@ func (b *Talkkonnect) TransmitStart() {
 			oledDisplay(false, 6, 1, "Please Visit")
 			oledDisplay(false, 7, 1, "www.talkkonnect.com")
 		}
-
 	}
-
 	b.Stream.StartSource()
-
 }
 
 func (b *Talkkonnect) TransmitStop(withBeep bool) {
+	if !(b.IsConnected) {
+		return
+	}
+
 	b.BackLightTimer()
 
 	if RogerBeepSoundEnabled {
-		if !(b.IsConnected) {
-			return
-		}
-
 		if withBeep {
 			err := b.RogerBeep(RogerBeepSoundFilenameAndPath, RogerBeepSoundVolume)
 			if err != nil {
@@ -551,7 +547,6 @@ func (b *Talkkonnect) TransmitStop(withBeep bool) {
 	}
 
 	if TargetBoard == "rpi" {
-
 		b.LEDOff(b.TransmitLED)
 
 		if LCDEnabled == true {
@@ -561,7 +556,6 @@ func (b *Talkkonnect) TransmitStop(withBeep bool) {
 		if OLEDEnabled == true {
 			oledDisplay(false, 0, 1, b.Address)
 		}
-
 	}
 
 	b.IsTransmitting = false
@@ -577,9 +571,7 @@ func (b *Talkkonnect) TransmitStop(withBeep bool) {
 
 func (b *Talkkonnect) OnConnect(e *gumble.ConnectEvent) {
 	b.BackLightTimer()
-
 	b.Client = e.Client
-
 	b.ConnectAttempts = 0
 
 	b.IsConnected = true
@@ -605,7 +597,6 @@ func (b *Talkkonnect) OnConnect(e *gumble.ConnectEvent) {
 		b.ChangeChannel(b.ChannelName)
 		prevChannelID = b.Client.Self.Channel.ID
 	}
-
 }
 
 func (b *Talkkonnect) OnDisconnect(e *gumble.DisconnectEvent) {
@@ -617,7 +608,6 @@ func (b *Talkkonnect) OnDisconnect(e *gumble.DisconnectEvent) {
 	switch e.Type {
 	case gumble.DisconnectError:
 		reason = "connection error"
-
 	}
 
 	b.IsConnected = false
@@ -644,6 +634,10 @@ func (b *Talkkonnect) OnDisconnect(e *gumble.DisconnectEvent) {
 }
 
 func (b *Talkkonnect) ChangeChannel(ChannelName string) {
+	if !(b.IsConnected) {
+		return
+	}
+
 	b.BackLightTimer()
 
 	channel := b.Client.Channels.Find(ChannelName)
@@ -672,6 +666,10 @@ func (b *Talkkonnect) ChangeChannel(ChannelName string) {
 }
 
 func (b *Talkkonnect) ParticipantLEDUpdate(verbose bool) {
+	if !(b.IsConnected) {
+		return
+	}
+
 	b.BackLightTimer()
 
 	time.Sleep(100 * time.Millisecond)
@@ -737,7 +735,6 @@ func (b *Talkkonnect) ParticipantLEDUpdate(verbose bool) {
 					oledDisplay(false, 0, 1, b.Address)
 					oledDisplay(false, 1, 1, "Alone in "+b.Client.Self.Channel.Name)
 				}
-
 			}
 		}
 	}
@@ -909,7 +906,6 @@ func (b *Talkkonnect) OnPermissionDenied(e *gumble.PermissionDeniedEvent) {
 				oledDisplay(false, 1, 1, LcdText[1])
 				oledDisplay(false, 2, 1, LcdText[2])
 			}
-
 		}
 
 	case gumble.PermissionDeniedSuperUser:
@@ -965,6 +961,10 @@ func cleanstring(str string) string {
 }
 
 func (b *Talkkonnect) ListUsers() {
+	if !(b.IsConnected) {
+		return
+	}
+
 	item := 0
 	for _, usr := range b.Client.Users {
 		if usr.Channel.ID == b.Client.Self.Channel.ID {
@@ -976,6 +976,9 @@ func (b *Talkkonnect) ListUsers() {
 }
 
 func (b *Talkkonnect) ListChannels(verbose bool) {
+	if !(b.IsConnected) {
+		return
+	}
 
 	var records = int(len(b.Client.Channels))
 	var channelsList [100]ChannelsListStruct
@@ -1009,6 +1012,9 @@ func (b *Talkkonnect) ListChannels(verbose bool) {
 }
 
 func (b *Talkkonnect) ChannelUp() {
+	if !(b.IsConnected) {
+		return
+	}
 
 	if TTSEnabled && TTSChannelUp {
 		err := PlayWavLocal(TTSChannelUpFileNameAndPath, TTSVolumeLevel)
@@ -1074,6 +1080,9 @@ func (b *Talkkonnect) ChannelUp() {
 }
 
 func (b *Talkkonnect) ChannelDown() {
+	if !(b.IsConnected) {
+		return
+	}
 
 	if TTSEnabled && TTSChannelDown {
 		err := PlayWavLocal(TTSChannelDownFileNameAndPath, TTSVolumeLevel)
@@ -1144,10 +1153,12 @@ func (b *Talkkonnect) ChannelDown() {
 		}
 	}
 	return
-
 }
 
 func (b *Talkkonnect) Scan() {
+	if !(b.IsConnected) {
+		return
+	}
 
 	b.ListChannels(false)
 
@@ -1775,6 +1786,9 @@ func (b *Talkkonnect) commandKeyCtrlN() {
 }
 
 func (b *Talkkonnect) commandKeyCtrlP() {
+	if !(b.IsConnected) {
+		return
+	}
 	b.BackLightTimer()
 	log.Println("--")
 	log.Println("Ctrl-P pressed Panic Button Start/Stop Simulation Requested")
@@ -1861,7 +1875,7 @@ func (b *Talkkonnect) commandKeyCtrlS() {
 func (b *Talkkonnect) commandKeyCtrlV() {
 	log.Println("--")
 	log.Println("Ctrl-V Version Request ")
-	log.Printf ("info: Talkkonnect Version %v Released %v\n",talkkonnectVersion,talkkonnectReleased)
+	log.Printf("info: Talkkonnect Version %v Released %v\n", talkkonnectVersion, talkkonnectReleased)
 	log.Println("--")
 }
 
@@ -1882,6 +1896,9 @@ func (b *Talkkonnect) commandKeyCtrlX() {
 }
 
 func (b *Talkkonnect) SendMessage(textmessage string, PRecursive bool) {
+	if !(b.IsConnected) {
+		return
+	}
 	b.Client.Self.Channel.Send(textmessage, PRecursive)
 }
 

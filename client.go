@@ -1290,7 +1290,21 @@ func (b *Talkkonnect) httpHandler(w http.ResponseWriter, r *http.Request) {
 			b.commandKeyCtrlE()
 			fmt.Fprintf(w, "API Send Email Processed Succesfully\n")
 		} else {
-			fmt.Fprintf(w, "API Send Email Congfig Denied\n")
+			fmt.Fprintf(w, "API Send Email Config Denied\n")
+		}
+	case "commandKeyCtrlN":
+		if APINextServer {
+			b.commandKeyCtrlN()
+			fmt.Fprintf(w, "API Next Server Processed Successfully\n")
+		} else {
+			fmt.Fprintf(w, "API Next Server Denied\n")
+		}
+	case "commandKeyCtrlL":
+		if APIClearScreen {
+			b.commandKeyCtrlL()
+			fmt.Fprintf(w, "API Clear Screen Processed Successfully\n")
+		} else {
+			fmt.Fprintf(w, "API Clear Screen Denied\n")
 		}
 	case "commandKeyCtrlO":
 		if APIEmailEnabled {
@@ -1299,13 +1313,6 @@ func (b *Talkkonnect) httpHandler(w http.ResponseWriter, r *http.Request) {
 		} else {
 			fmt.Fprintf(w, "API Ping Servers Denied\n")
 		}
-	case "commandKeyCtrlN":
-		if APINextServer {
-			b.commandKeyCtrlN()
-			fmt.Fprintf(w, "API Request Next Server Processed Succesfully\n")
-		} else {
-			fmt.Fprintf(w, "API Request Next Server Denied\n")
-		}
 	case "commandKeyCtrlP":
 		if APIPanicSimulation {
 			b.commandKeyCtrlP()
@@ -1313,12 +1320,26 @@ func (b *Talkkonnect) httpHandler(w http.ResponseWriter, r *http.Request) {
 		} else {
 			fmt.Fprintf(w, "API Request Panic Simulation Denied\n")
 		}
+	case "commandKeyCtrlR":
+		if APIRepeatTxLoopTest {
+			b.commandKeyCtrlR()
+			fmt.Fprintf(w, "API Request Repeat Tx Loop Test Processed Succesfully\n")
+		} else {
+			fmt.Fprintf(w, "API Request Repeat Tx Loop Test Denied\n")
+		}
 	case "commandKeyCtrlS":
 		if APIScanChannels {
 			b.commandKeyCtrlS()
 			fmt.Fprintf(w, "API Request Scan Processed Succesfully\n")
 		} else {
 			fmt.Fprintf(w, "API Request Scan Simulation Denied\n")
+		}
+	case "commandKeyCtrlV":
+		if APIDisplayVersion {
+			b.commandKeyCtrlV()
+			fmt.Fprintf(w, "API Request Current Version Succesfully\n")
+		} else {
+			fmt.Fprintf(w, "API Request Current Version Denied\n")
 		}
 	case "commandKeyCtrlX":
 		if APIPrintXmlConfig {

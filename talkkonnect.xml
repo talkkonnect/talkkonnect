@@ -172,14 +172,14 @@
 
                         <printvariables>
                                 <printaccount>false</printaccount>
-                                <printlogging>true</printlogging>
+                                <printlogging>false</printlogging>
 				<printprovisioning>false</printprovisioning>
 				<printbeacon>false</printbeacon>
 				<printtts>false</printtts>
 				<printsmtp>false</printsmtp>
 				<printsounds>false</printsounds>
-				<printtxtimeout>false</printtxtimeout>
-				<printhttpapi>false</printhttpapi>
+				<printtxtimeout>false</printtxtimeout> 
+				<printhttpapi>true</printhttpapi>
 				<printtargetboard>false</printtargetboard>
 				<printleds>false</printleds>
 				<printheartbeat>false</printheartbeat>

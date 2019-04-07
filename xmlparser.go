@@ -41,8 +41,8 @@ import (
 
 //version and release date
 const (
-        talkkonnectVersion string =  "1.46.10"
-        talkkonnectReleased string = "April 06 2019"
+        talkkonnectVersion string =  "1.46.11"
+        talkkonnectReleased string = "April 07 2019"
 )
 
 
@@ -184,12 +184,15 @@ var (
 	APIListOnlineUsers    bool
 	APIPlayChimes         bool
 	APIRequestGpsPosition bool
+	APIEmailEnabled       bool
 	APINextServer         bool
 	APIPanicSimulation    bool
-	APIPrintXmlConfig     bool
-	APIEmailEnabled       bool
+	APIScanChannels       bool
+	APIDisplayVersion     bool
+	APIClearScreen        bool
 	APIPingServersEnabled bool
-	APIScan               bool
+	APIRepeatTxLoopTest   bool
+	APIPrintXmlConfig     bool
 )
 
 //print xml config sections for easy debugging, set any section to false to prevent printing to screen
@@ -484,11 +487,15 @@ type API struct {
 	APIListOnlineUsers    bool     `xml:"listonlineusers"`
 	APIPlayChimes         bool     `xml:"playchimes"`
 	APIRequestGpsPosition bool     `xml:"requestgpsposition"`
+	APIEmailEnabled       bool     `xml:"sendemail"`
 	APINextServer         bool     `xml:"nextserver"`
 	APIPanicSimulation    bool     `xml:"panicsimulation"`
-	APIPrintXmlConfig     bool     `xml:"printxmlconfig"`
-	APIEmailEnabled       bool     `xml:"sendemail"`
+	APIScanChannels       bool     `xml:"scanchannels"`
+	APIDisplayVersion     bool     `xml:"displayversion"`
+	APIClearScreen        bool     `xml:"clearscreen"`
 	APIPingServersEnabled bool     `xml:"pingservers"`
+	APIRepeatTxLoopTest   bool     `xml:"repeattxlooptest"`
+	APIPrintXmlConfig     bool     `xml:"printxmlconfig"`
 }
 
 type PrintVariables struct {
@@ -797,11 +804,15 @@ func readxmlconfig(file string) error {
 	APIListOnlineUsers = document.Global.Software.API.APIListOnlineUsers
 	APIPlayChimes = document.Global.Software.API.APIPlayChimes
 	APIRequestGpsPosition = document.Global.Software.API.APIRequestGpsPosition
+	APIEmailEnabled = document.Global.Software.API.APIEmailEnabled
 	APINextServer = document.Global.Software.API.APINextServer
 	APIPanicSimulation = document.Global.Software.API.APIPanicSimulation
-	APIPrintXmlConfig = document.Global.Software.API.APIPrintXmlConfig
-	APIEmailEnabled = document.Global.Software.API.APIEmailEnabled
+	APIScanChannels = document.Global.Software.API.APIScanChannels
+	APIDisplayVersion = document.Global.Software.API.APIDisplayVersion
+	APIClearScreen = document.Global.Software.API.APIClearScreen
 	APIPingServersEnabled = document.Global.Software.API.APIPingServersEnabled
+	APIRepeatTxLoopTest = document.Global.Software.API.APIRepeatTxLoopTest
+	APIPrintXmlConfig = document.Global.Software.API.APIPrintXmlConfig
 
 	PrintAccount = document.Global.Software.PrintVariables.PrintAccount
 	PrintLogging = document.Global.Software.PrintVariables.PrintLogging
@@ -811,7 +822,10 @@ func readxmlconfig(file string) error {
 	PrintSMTP = document.Global.Software.PrintVariables.PrintSMTP
 	PrintSounds = document.Global.Software.PrintVariables.PrintSounds
 	PrintTxTimeout = document.Global.Software.PrintVariables.PrintTxTimeout
-	PrintHTTPAPI = document.Global.Software.PrintVariables.PrintHTTPAPI
+
+	PrintHTTPAPI   = document.Global.Software.PrintVariables.PrintHTTPAPI
+
+
 	PrintTargetboard = document.Global.Software.PrintVariables.PrintTargetboard
 	PrintLeds = document.Global.Software.PrintVariables.PrintLeds
 	PrintHeartbeat = document.Global.Software.PrintVariables.PrintHeartbeat
@@ -1051,14 +1065,18 @@ func printxmlconfig() {
 		log.Println("info: ListServerChannels " + fmt.Sprintf("%t", APIListServerChannels))
 		log.Println("info: StartTransmitting  " + fmt.Sprintf("%t", APIStartTransmitting))
 		log.Println("info: StopTransmitting   " + fmt.Sprintf("%t", APIStopTransmitting))
-		log.Println("info: GPS Position       " + fmt.Sprintf("%t", APIRequestGpsPosition))
+		log.Println("info: ListOnlineUsers    " + fmt.Sprintf("%t",APIListOnlineUsers))
 		log.Println("info: PlayChimes         " + fmt.Sprintf("%t", APIPlayChimes))
 		log.Println("info: RequestGpsPosition " + fmt.Sprintf("%t", APIRequestGpsPosition))
+		log.Println("info: EmailEnabled       " + fmt.Sprintf("%t", APIEmailEnabled))
 		log.Println("info: NextServer         " + fmt.Sprintf("%t", APINextServer))
 		log.Println("info: PanicSimulation    " + fmt.Sprintf("%t", APIPanicSimulation))
-		log.Println("info: PrintXmlConfig     " + fmt.Sprintf("%t", APIPrintXmlConfig))
-		log.Println("info: EmailEnabled       " + fmt.Sprintf("%t", APIEmailEnabled))
+		log.Println("info: ScanChannels       " + fmt.Sprintf("%t", APIScanChannels))
+		log.Println("info: DisplayVersion     " + fmt.Sprintf("%t", APIDisplayVersion))
+		log.Println("info: ClearScreen        " + fmt.Sprintf("%t", APIClearScreen))
 		log.Println("info: PingServersEnabled " + fmt.Sprintf("%t", APIPingServersEnabled))
+		log.Println("info: TxLoopTest         " + fmt.Sprintf("%t", APIRepeatTxLoopTest))
+		log.Println("info: PrintXmlConfig     " + fmt.Sprintf("%t", APIPrintXmlConfig))
 	} else {
 		log.Println("info: ------------ HTTP API  ----------------- SKIPPED ")
 	}

@@ -1314,7 +1314,7 @@ func (b *Talkkonnect) httpHandler(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprintf(w, "API Request Panic Simulation Denied\n")
 		}
 	case "commandKeyCtrlS":
-		if APIScan {
+		if APIScanChannels {
 			b.commandKeyCtrlS()
 			fmt.Fprintf(w, "API Request Scan Processed Succesfully\n")
 		} else {

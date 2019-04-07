@@ -1778,7 +1778,7 @@ func (b *Talkkonnect) commandKeyCtrlO() {
 
 	}
 
-	b.pingservers()
+	b.pingServers()
 }
 
 func (b *Talkkonnect) commandKeyCtrlN() {
@@ -1993,7 +1993,7 @@ func (b *Talkkonnect) TxLockTimer() {
 	}
 }
 
-func (b *Talkkonnect) pingservers() {
+func (b *Talkkonnect) pingServers() {
 
 	currentconn := " Not Connected "
 

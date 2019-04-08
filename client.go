@@ -226,7 +226,9 @@ func (b *Talkkonnect) Init() {
 		log.Fatal("Exiting talkkonnect! ...... bye!\n")
 	}
 
-	b.LEDOffAll()
+	if TargetBoard == "rpi" {
+		b.LEDOffAll()
+	}
 
 	if b.Logging == "screen" {
 		colog.Register()
@@ -557,13 +559,14 @@ func (b *Talkkonnect) OnConnect(e *gumble.ConnectEvent) {
 	b.Client = e.Client
 	b.ConnectAttempts = 0
 
-	b.LEDOn(b.OnlineLED)
 	log.Println("info: Connected to ", b.Name, " ", b.Client.Conn.RemoteAddr(), " on attempt", b.ConnectAttempts)
 	if e.WelcomeMessage != nil {
 		log.Print(fmt.Sprintf("info: Welcome message: %s\n", esc(*e.WelcomeMessage)))
 	}
 
 	if TargetBoard == "rpi" {
+		b.LEDOn(b.OnlineLED)
+
 		if LCDEnabled == true {
 			LcdText = [4]string{"nil", "nil", "nil", "nil"}
 			go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
@@ -595,9 +598,11 @@ func (b *Talkkonnect) OnDisconnect(e *gumble.DisconnectEvent) {
 
 	b.IsConnected = false
 
-	b.LEDOff(b.OnlineLED)
-	b.LEDOff(b.ParticipantsLED)
-	b.LEDOff(b.TransmitLED)
+	if TargetBoard == "rpi" {
+		b.LEDOff(b.OnlineLED)
+		b.LEDOff(b.ParticipantsLED)
+		b.LEDOff(b.TransmitLED)
+	}
 
 	if reason == "" {
 		log.Println("warn: Connection to ", b.Address, "disconnected")

@@ -405,8 +405,7 @@ func (b *Talkkonnect) Connect() {
 	if err != nil {
 		log.Println("warn: Connection Error ", err, " connecting to ", b.Address, " failed (%s), attempting again in 10 seconds...")
 		if !ServerHop {
-			log.Println("warn: In the Connect Function")
-			log.Println("warn: Trying With Username ", Username)
+			log.Println("warn: In the Connect Function & Trying With Username ", Username)
 			b.ReConnect()
 		}
 	} else {
@@ -616,7 +615,6 @@ func (b *Talkkonnect) OnDisconnect(e *gumble.DisconnectEvent) {
 		}
 	}
 	if !ServerHop {
-		log.Println("warn: In the OnDisconnect Function")
 		b.ReConnect()
 	}
 }
@@ -1420,7 +1418,7 @@ func (b *Talkkonnect) commandKeyF3() {
 				go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 			}
 			if OLEDEnabled == true {
-				oledDisplay(false, 1, 1, "Max Chan Reached")
+				oledDisplay(false, 6, 1, "Unmuted")
 			}
 
 		}

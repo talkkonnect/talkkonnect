@@ -59,28 +59,28 @@ func talkkonnectBanner() {
 }
 
 func talkkonnectAcknowledgements() {
-	log.Println("info: ┌───────────────────────────────────────────────────────────────────────────────────────────┐")
-	log.Println("info: │Acknowledgements & Inspriation from the talkkonnect team of developers and maintainers     │")
-	log.Println("info: ├───────────────────────────────────────────────────────────────────────────────────────────┤")
-	log.Println("info: │talkkonnect is based on the works of many people and many open source projects             │")
-	log.Println("info: │                                                                                           │")
-	log.Println("info: │Thanks to :-                                                                               │")
-	log.Println("info: │                                                                                           │")
-	log.Println("info: │Organizations :-                                                                           │")
-	log.Println("info: │The Mumble Development team, Raspberry Pi Foundation, Developers and Maintainers of Debian │")
-	log.Println("info: │The Creators and Maintainers of Golang and all the libraries available on github.com       │")
-	log.Println("info: │                                                                                           │")
-	log.Println("info: │Individuals :-                                                                             │")
-	log.Println("info: │Daniel Chote Creator of talkiepi and Tim Cooper Creator of Barnard and gumble library      │")
-	log.Println("info: │Tayeb Meftah and other people who wish to remain anonymous for their feedback and testing  │")
-	log.Println("info: ├───────────────────────────────────────────────────────────────────────────────────────────┤")
-	log.Println("info: │visit us at www.talkkonnect.com and github.com/talkkonnect <suvir@talkkonnect.com>         │")
-	log.Println("info: └───────────────────────────────────────────────────────────────────────────────────────────┘")
+	log.Println("info: ┌─────────────────────────────────────────────────────────────────────────────────────────────┐")
+	log.Println("info: │Acknowledgements & Inspriation from the talkkonnect team of developers, maintainers & testers│")
+	log.Println("info: ├─────────────────────────────────────────────────────────────────────────────────────────────┤")
+	log.Println("info: │talkkonnect is based on the works of many people and many open source projects               │")
+	log.Println("info: │                                                                                             │")
+	log.Println("info: │Thanks to :-                                                                                 │")
+	log.Println("info: │                                                                                             │")
+	log.Println("info: │Organizations :-                                                                             │")
+	log.Println("info: │The Mumble Development team, Raspberry Pi Foundation, Developers and Maintainers of Debian   │")
+	log.Println("info: │The Creators and Maintainers of Golang and all the libraries available on github.com         │")
+	log.Println("info: │                                                                                             │")
+	log.Println("info: │Individuals :-                                                                               │")
+	log.Println("info: │Daniel Chote Creator of talkiepi and Tim Cooper Creator of Barnard and gumble library        │")
+	log.Println("info: │Other people who wish to remain anonymous for their feedback and testing                     │")
+	log.Println("info: ├─────────────────────────────────────────────────────────────────────────────────────────────┤")
+	log.Println("info: │visit us at www.talkkonnect.com and github.com/talkkonnect                                   │")
+	log.Println("info: │talkkonnect was created by Suvir Kumar <suvir@talkkonnect.com> & Released under MPLV2 License│")
+	log.Println("info: └─────────────────────────────────────────────────────────────────────────────────────────────┘")
 }
 
 func (b *Talkkonnect) talkkonnectMenu() {
 	log.Println("info: ┌──────────────────────────────────────────────────────────────┐")
-	log.Println("info: │                 _                                            │")
 	log.Println("info: │ _ __ ___   __ _(_)_ __    _ __ ___   ___ _ __  _   _         │")
 	log.Println("info: │| '_ ` _ \\ / _` | | '_ \\  | '_ ` _ \\ / _ \\ '_ \\| | | |        │")
 	log.Println("info: │| | | | | | (_| | | | | | | | | | | |  __/ | | | |_| |        │")
@@ -117,7 +117,7 @@ func (b *Talkkonnect) talkkonnectMenu() {
         	if err == nil {
                 	log.Printf("info: Speaker Not Muted & Current Volume at Level %v%%\n", origVolume)
         	} else {
-                	log.Println("warn: Can't Get Volume Level From Sound Card!")
+                	log.Println("error: Can't Get Volume Level From Sound Card!")
 		}
 	}
 	log.Printf ("info: Talkkonnect Version %v Released %v\n",talkkonnectVersion,talkkonnectReleased)
@@ -151,7 +151,7 @@ func (b *Talkkonnect) pingconnectedserver() {
 	resp, err := gumble.Ping(b.Address, time.Second*1, time.Second*5)
 
 	if err != nil {
-		log.Println(fmt.Sprintf("warn: Ping Error ", err))
+		log.Println(fmt.Sprintf("error: Ping Error ", err))
 		return
 	}
 

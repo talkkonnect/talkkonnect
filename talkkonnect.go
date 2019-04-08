@@ -72,7 +72,7 @@ func talkkonnectAcknowledgements() {
 	log.Println("info: │                                                                                             │")
 	log.Println("info: │Individuals :-                                                                               │")
 	log.Println("info: │Daniel Chote Creator of talkiepi and Tim Cooper Creator of Barnard and gumble library        │")
-	log.Println("info: │Other people who wish to remain anonymous for their feedback and testing                     │")
+	log.Println("info: │Zoran Dimitrijevic for his commitment and feedback talking talkkonnect to the next level     │")
 	log.Println("info: ├─────────────────────────────────────────────────────────────────────────────────────────────┤")
 	log.Println("info: │visit us at www.talkkonnect.com and github.com/talkkonnect                                   │")
 	log.Println("info: │talkkonnect was created by Suvir Kumar <suvir@talkkonnect.com> & Released under MPLV2 License│")

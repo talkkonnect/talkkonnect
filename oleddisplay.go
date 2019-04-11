@@ -65,6 +65,9 @@ func oledDisplay(OledClear bool, OledRow int, OledColumn int, OledText string) {
 	if OledClear == true {
 		oled.Clear()
 		log.Println("warn: OLED Clearing Screen")
+		if len(OledText) == 0 {
+			return
+		}
 	}
 
 	oled.SetCursor(OledRow, 0)

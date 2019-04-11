@@ -379,8 +379,7 @@ func (b *Talkkonnect) CleanUp() {
 			go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 		}
 		if OLEDEnabled == true {
-			oledDisplay(true, 0, 0, "")
-			oledDisplay(false, 0, 1, "talkkonnect stopped")
+			oledDisplay(true, 0, 1, "talkkonnect stopped")
 			oledDisplay(false, 1, 1, t.Format("02-01-2006 15:04:05"))
 			oledDisplay(false, 6, 1, "Please Visit")
 			oledDisplay(false, 7, 1, "www.talkkonnect.com")
@@ -500,13 +499,11 @@ func (b *Talkkonnect) TransmitStart() {
 			go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 		}
 		if OLEDEnabled == true {
+			//oledDisplay(true, 0, 0, "") // clear the screen
 			oledDisplay(false, 0, 1, "Online/TX")
-			oledDisplay(false, 2, 1, "")
-			oledDisplay(false, 3, 1, "TX at "+t.Format("15:04:05"))
-			oledDisplay(false, 4, 1, "")
-			oledDisplay(false, 5, 1, "")
-			oledDisplay(false, 6, 1, "Please Visit")
-			oledDisplay(false, 7, 1, "www.talkkonnect.com")
+			oledDisplay(false, 3, 1, "TX at " +t.Format("15:04:05"))
+			//oledDisplay(false, 6, 1, "Please Visit       ")
+			//oledDisplay(false, 7, 1, "www.talkkonnect.com")
 		}
 	}
 	b.IsTransmitting = true

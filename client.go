@@ -502,8 +502,8 @@ func (b *Talkkonnect) TransmitStart() {
 			//oledDisplay(true, 0, 0, "") // clear the screen
 			oledDisplay(false, 0, 1, "Online/TX")
 			oledDisplay(false, 3, 1, "TX at " +t.Format("15:04:05"))
-			//oledDisplay(false, 6, 1, "Please Visit       ")
-			//oledDisplay(false, 7, 1, "www.talkkonnect.com")
+			oledDisplay(false, 6, 1, "Please Visit       ")
+			oledDisplay(false, 7, 1, "www.talkkonnect.com")
 		}
 	}
 	b.IsTransmitting = true

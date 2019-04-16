@@ -1,4 +1,4 @@
-<!-- talkkonnect-raspberrypi-hd44780-i2c.xml -->
+<!-- talkkonnect-raspberrypi-OLED-i2c.xml -->
 <!-- Sample for Raspberry Pi 3/A/B+3+ Target Board With OLED 0.96 or 1.3 Screen in I2C Mode           -->
 <!-- Copy this sample file to talkkonnect.xml and modify it to match your hardware configuration -->
 

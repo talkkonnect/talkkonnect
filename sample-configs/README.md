@@ -1,13 +1,12 @@
 # talKKonnect sample xml configuration files
 
-## This Readme file describes the various tested hardware scenarios and provides a corresponding sample configuration xml template
-
+### This Readme file describes the various tested hardware scenarios and provides a corresponding sample configuration xml template
 
 ---
 ### talkkonnect is tested and works on the following patforms
 
 * Raspberry Pi 3 and 3B+
-* Raspnerry Pi A+
+* Raspberry Pi A+
 * Orange Pi Zero
 * x86 Linux PC/VM
 ---

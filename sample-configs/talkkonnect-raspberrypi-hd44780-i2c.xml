@@ -1,11 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="talkkonnect/xml">
+
 <!-- talkkonnect-raspberrypi-hd44780-i2c.xml -->
 <!-- Sample for Raspberry Pi 3/A/B+3+ Target Board With HD44780 LCD Screen in I2C Mode           -->
 <!-- Copy this sample file to talkkonnect.xml and modify it to match your hardware configuration -->
 
-<!--  +-----------------------+---------------------+---------+---------+----+ +------+---------+---------+----------+----------------------| -->
+<!--  +=======================+=====================+=========+=========+====+ +======+=========+=========+==========+======================+ -->
 <!--  | I/O Device Physical   | XML Tag             | XML Tag | Pin     |  RPI3 GPIO  | Pin     | XML Tag | XML Tag  | I/O Device Physical  | -->
 <!--  | Connection            | Name                | Value   | Name    |    Header   | Name    | Value   | Name     | Connection           | -->
-<!--  +-----------------------+---------------------+---------+---------+----+ +------+---------+---------+----------+----------------------+ -->
+<!--  +=======================+=====================+=========+=========+====+ +======+=========+=========+==========+======================+ -->
 <!--  | NC                    |                     |         | 3.3v    |  1 | | 2    | 5v      |         |          | HD44780 PIN 2   (+5V)| -->
 <!--  | I2C SDA HD44780       |                     | 2       | SDA.1   |  3 | | 4    | 5v      |         |          | PAM8403 AMP VCC (+5V)| -->
 <!--  | I2C SCL HD44780       |                     | 3       | SCL.1   |  5 | | 6    | 0v      |         |          | HD44780 PIN 1   (GND)| -->
@@ -26,285 +29,272 @@
 <!--  | Button CH Up       (+)|<upbuttonpin>        | 19      | GPIO.24 | 35 | | 36   | GPIO.27 | 16      |          | NC                   | -->
 <!--  | TX Button          (+)|<txbuttonpin>        | 26      | GPIO.25 | 37 | | 38   | GPIO.28 | 20      |          | NC                   | -->
 <!--  | NC                    |                     |         | GND     | 39 | | 40   | GPIO.29 | 21      |          | NC                   | -->
-<!--  +-----------------------+---------------------+---------+---------+----+ +------+---------+---------+----------+----------------------+ -->
+<!--  +=======================+=====================+=========+=========+====+ +======+=========+=========+==========+======================+ -->
 
+  <!-- Need to Have At Least One Account Set as Default Account, The First Account With the default="true" will be the one used! -->
+  <accounts> 
+    <account name="fps2NetworkServer4" default="true">   <!-- Server identifier and enabler -->
+      <serverandport>218.219.148.36:8000</serverandport> <!-- server:port of mumble server to connect to -->
+      <username></username> <!-- Mumble Username that will be used to authenticate on the mumble server -->
+      <password></password> <!-- Mumble Password that will be used along with the username to authenticate on the mumble server -->
+      <insecure>true</insecure>   <!-- Set to true of your server doesnt require a certificate-->
+      <certificate></certificate> <!-- Full Path to Certificate if Certificate is needed by Server -->
+      <channel>room A</channel>   <!-- Initial Channel on The Server to Move to after successful connection -->
+      <ident></ident>             <!-- The identity to be sent in a panic situation -->
+    </account>
+  </accounts>
 
-<?xml version="1.0" encoding="UTF-8"?>
-<document type="talkkonnect/xml">
+  <!-- Global section for setting behaviour of talkkonnect, soundsfiles paths and volumes, physical connections of pinouts for buttons and leds, lcd screen connections and usb gps parameters -->
+  <global>
+    <software> <!-- Section for Setting the behaviour of talkkonnect software for logging and daemonization -->
+      <settings>
+        <outputdevice>Speaker</outputdevice> <!-- Set Output Device to Speaker, Master, Headphone or whatever your OS/Alsa Detects as the Master Sound Card Device for Output in alsamixer -->
+        <logfilenameandpath>/var/log/talkkonnect.log</logfilenameandpath> <!-- full path to writeable log file -->
+        <logging>screen</logging>    <!--set logging to screen if screen only desired otherwise leave it as blank and talkkonnect will log to both screen and logfile -->
+        <daemonize>false</daemonize> <!-- this feature is not implemented yet -->
+        <cancellablestream>true</cancellablestream> <!-- Set to true if you allow others to stop your streaming upon keying up -->
+      </settings>
 
-	<!-- Need to Have At Least One Account Set as Default Account, The First Account With the default="true" will be the one used! --> 
-	<accounts>
-        <account name="fps2NetworkServer4" default="true"> <!-- Server identifier and enabler -->
-            <serverandport>218.219.148.36:8000</serverandport> <!-- server:port of mumble server to connect to -->
-            <username></username>       <!-- Mumble Username that will be used to authenticate on the mumble server -->
-            <password></password>       <!-- Mumble Password that will be used along with the username to authenticate on the mumble server -->
-            <insecure>true</insecure>   <!-- Set to true -->
-            <certificate></certificate> <!-- Full Path to Certificate if Certificate is needed by Server -->
-            <channel>room A</channel>   <!-- Initial Channel on The Server to Connect to -->
-            <ident></ident>             <!-- The identity to be sent in a panic situation --> 
- 		</account>
-	</accounts>
+      <!-- http autoprovisioning server and client details -->
+      <autoprovisioning enabled="false">       <!-- enable autoprovisioning on talkkonnect startup -->
+        <tkid>00000001</tkid>                  <!-- unique identifier for xml filename to fetch upon autoprovisioning from provisioing server -->
+        <url>http://provsion.example.com</url> <!-- URL of server storing XML configuration file -->
+        <savefilepath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect</savefilepath> <!-- full path of config xml file in local host -->
+        <savefilename>talkkonnect.xml</savefilename> <!-- filename of config xml in local host -->
+      </autoprovisioning>
 
-	<!-- Global section for setting behaviour of talkkonnect, soundsfiles paths and volumes, physical connections of pinouts for buttons and leds, lcd screen connections and usb gps parameters -->
-	<global>
+      <!-- Repeater Beacon play Short WAV file every period (secs) to announce by playing sound file into stream to show that TK Repeater is alive and in service -->
+      <beacon enabled="false">
+        <beacontimersecs>10</beacontimersecs>
+        <beaconfileandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/Beacon.wav</beaconfileandpath>
+        <volume>1</volume>
+      </beacon>
 
-		<!-- Section for Setting the behaviour of talkkonnect software for logging and daemonization -->
-		<software>
+      <!-- Local Text to Speech for easy usage and accessability -->
+      <tts enabled="false">
+        <volumelevel>70</volumelevel>
+        <participants>false</participants>
+        <channelup>true</channelup>
+        <channelupfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/ChannelUp.wav</channelupfilenameandpath>
+        <channeldown>true</channeldown>
+        <channeldownfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/ChannelDown.wav</channeldownfilenameandpath>
+        <muteunmutespeaker>true</muteunmutespeaker>
+        <muteunmutespeakerfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/MuteUnMuteSpeaker.wav</muteunmutespeakerfilenameandpath>
+        <currentvolumelevel>true</currentvolumelevel>
+        <currentvolumelevelfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/CurrentVolumeLevel.wav</currentvolumelevelfilenameandpath>
+        <digitalvolumeup>true</digitalvolumeup>
+        <digitalvolumeupfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/DigitalVolumeUp.wav</digitalvolumeupfilenameandpath>
+        <digitalvolumedown>true</digitalvolumedown>
+        <digitalvolumedownfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/DigitalVolumeDown.wav</digitalvolumedownfilenameandpath>
+        <listserverchannels>true</listserverchannels>
+        <listserverchannelsfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/ListServerChannels.wav</listserverchannelsfilenameandpath>
+        <starttransmitting>true</starttransmitting>
+        <starttransmittingfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/StartTransmitting.wav</starttransmittingfilenameandpath>
+        <stoptransmitting>true</stoptransmitting>
+        <stoptransmittingfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/StopTransmitting.wav</stoptransmittingfilenameandpath>
+        <listonlineusers>true</listonlineusers>
+        <listonlineusersfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/ListOnlineUsers.wav</listonlineusersfilenameandpath>
+        <playchimes>true</playchimes>
+        <playchimesfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/PlayChimes.wav</playchimesfilenameandpath>
+        <requestgpsposition>true</requestgpsposition>
+        <requestgpspositionfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/RequestGpsPosition.wav</requestgpspositionfilenameandpath>
+        <panicsimulation>true</panicsimulation>
+        <panicsimulationfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/PanicSimulation.wav</panicsimulationfilenameandpath>
+        <printxmlconfig>true</printxmlconfig>
+        <printxmlconfigfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/PrintXmlConfig.wav</printxmlconfigfilenameandpath>
+        <sendemail>true</sendemail>
+        <sendemailfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/SendEmail.wav</sendemailfilenameandpath>
+        <displaymenu>true</displaymenu>
+        <displaymenufilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/DisplayMenu.wav</displaymenufilenameandpath>
+        <quittalkkonnect>true</quittalkkonnect>
+        <quittalkkonnectfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/QuitTalkkonnect.wav</quittalkkonnectfilenameandpath>
+        <talkkonnectloaded>true</talkkonnectloaded>
+        <talkkonnectloadedfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/Loaded.wav</talkkonnectloadedfilenameandpath>
+        <pingservers>true</pingservers>
+        <pingserversfilenameandpath/>
+        <scan>true</scan>
+        <scanfilenameandpath/>
+      </tts>
 
-			<!-- Logfile Settings -->
-			<settings>
-				<!-- Set Output Device to Speaker, Master, Headphone or whatever your OS/Alsa Detects as the Master Sound Card Device for Output in alsamixer -->
-				<outputdevice>Speaker</outputdevice> <!-- Set to your alsa output device in alsamixer -->	
-				<logfilenameandpath>/var/log/talkkonnect.log</logfilenameandpath> <!-- full path to writeable log file -->	
-				<logging>screen</logging> <!--set logging to screen if screen only desired otherwise leave it as blank and talkkonnect will log to both screen and logfile -->
-				<daemonize>false</daemonize> <!-- this feature is not implemented yet -->
-				<cancellablestream>true</cancellablestream> <!-- Set to true if you allow others to stop your streaming upon keying up -->
-			</settings>
+      <!-- Gmail Account Settings for Sending EMAIL from Talkkonnect -->
+      <smtp enabled="true">
+        <username>robot@email.com</username>
+        <password>user</password>
+        <receiver>suvir@talkkonnect.com</receiver>
+        <subject>Talkkonnect Email Message with GPS</subject>
+        <message>Hello From Talkkonnect</message>
+        <gpsdatetime>true</gpsdatetime>     <!-- Send the GPS Date/Time Stamp Received from Satellite -->
+        <gpslatlong>true</gpslatlong>       <!-- Sent LAT and LOG of current position -->
+        <googlemapsurl>true</googlemapsurl> <!-- Send in body of email URL showing current position in google maps -->
+      </smtp>
 
-			<!-- http autoprovisioning specify tkid with at least 8 characters of length, Put Complete URL with http:// and define local filename and path -->
-			<autoprovisioning enabled="false"> <!-- enable autoprovisioning on talkkonnect startup -->
-				<tkid>00000001</tkid> <!-- unique identifier for xml filename to fetch upon autoprovisioning from provisioing server -->
-				<url>http://provsion.example.com</url> <!-- URL of server storing XML configuration file -->
-				<savefilepath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect</savefilepath> <!-- full path of config xml file in local host -->  
-				<savefilename>talkkonnect.xml</savefilename> <!-- filename of config xml in local host -->
-			</autoprovisioning>
+      <!-- Section for Setting Sound file definitions for events, alerts, rogerbeep with their respective paths and playback volume -->
+      <sounds>
+        <event enabled="true"> <!-- Event Sound File (WAV format) to be locally played on event -->
+          <filenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/events/event.wav</filenameandpath>
+        </event>
 
-			<!-- Repeater Beacon play Short WAV file every period (secs) to announce by playing sound file into stream to show that TK Repeater is alive and in service -->
-			<beacon enabled="false">
-				<beacontimersecs>10</beacontimersecs>
-				<beaconfileandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/Beacon.wav</beaconfileandpath>
-				<volume>1</volume>
-			</beacon>
+        <!-- Panic Sound File (WAV format) to be played into stream -->
+        <alert enabled="true">
+          <filenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/alerts/alert.wav</filenameandpath>
+          <volume>1.0</volume>
+        </alert>
 
-			<!-- Local Text to Speech for easy usage and accessability -->
-            <tts enabled="false">
-                <volumelevel>70</volumelevel>
-                <participants>false</participants>
-				<channelup>true</channelup>
-				<channelupfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/ChannelUp.wav</channelupfilenameandpath>         
-				<channeldown>true</channeldown>
-				<channeldownfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/ChannelDown.wav</channeldownfilenameandpath>       
-				<muteunmutespeaker>true</muteunmutespeaker>
-				<muteunmutespeakerfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/MuteUnMuteSpeaker.wav</muteunmutespeakerfilenameandpath> 
-				<currentvolumelevel>true</currentvolumelevel>
-				<currentvolumelevelfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/CurrentVolumeLevel.wav</currentvolumelevelfilenameandpath>
-				<digitalvolumeup>true</digitalvolumeup>
-				<digitalvolumeupfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/DigitalVolumeUp.wav</digitalvolumeupfilenameandpath>   
-				<digitalvolumedown>true</digitalvolumedown>
-				<digitalvolumedownfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/DigitalVolumeDown.wav</digitalvolumedownfilenameandpath> 
-				<listserverchannels>true</listserverchannels>
-				<listserverchannelsfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/ListServerChannels.wav</listserverchannelsfilenameandpath>
-				<starttransmitting>true</starttransmitting>
-				<starttransmittingfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/StartTransmitting.wav</starttransmittingfilenameandpath> 
-				<stoptransmitting>true</stoptransmitting>
-				<stoptransmittingfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/StopTransmitting.wav</stoptransmittingfilenameandpath>  
-				<listonlineusers>true</listonlineusers>
-				<listonlineusersfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/ListOnlineUsers.wav</listonlineusersfilenameandpath>   
-				<playchimes>true</playchimes>
-				<playchimesfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/PlayChimes.wav</playchimesfilenameandpath>
-				<requestgpsposition>true</requestgpsposition>
-				<requestgpspositionfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/RequestGpsPosition.wav</requestgpspositionfilenameandpath>
-				<panicsimulation>true</panicsimulation>
-				<panicsimulationfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/PanicSimulation.wav</panicsimulationfilenameandpath>   
-				<printxmlconfig>true</printxmlconfig>
-				<printxmlconfigfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/PrintXmlConfig.wav</printxmlconfigfilenameandpath>    
-				<sendemail>true</sendemail>
-				<sendemailfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/SendEmail.wav</sendemailfilenameandpath>         
-				<displaymenu>true</displaymenu>
-				<displaymenufilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/DisplayMenu.wav</displaymenufilenameandpath>       
-				<quittalkkonnect>true</quittalkkonnect>
-				<quittalkkonnectfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/QuitTalkkonnect.wav</quittalkkonnectfilenameandpath>   
-				<talkkonnectloaded>true</talkkonnectloaded>
-				<talkkonnectloadedfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/Loaded.wav</talkkonnectloadedfilenameandpath> 
-				<pingservers>true</pingservers>
-				<pingserversfilenameandpath></pingserversfilenameandpath> 
-				<scan>true</scan>
-				<scanfilenameandpath></scanfilenameandpath> 
+        <!-- Roger Beep Sound File to be played if Rogerbeep Enabled into Stream Upon TX Button Release (Supports most sound formats via ffmpeg) -->
+        <rogerbeep enabled="true">
+          <filenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/rogerbeeps/Chirsp.wav</filenameandpath>
+          <volume>0.1</volume>
+        </rogerbeep>
 
-			</tts>
+        <!-- File/Streaming Service for playing into transmitted stream (Supports most sound formats via ffmpeg) -->
+        <chimes enabled="true">
+          <!--<filenameandpath>/root/whatever.mp3</filenameandpath>-->
+          <!--filenameandpath>http://d.liveatc.net/vtbs_app</filenameandpath>-->
+          <!--<filenameandpath>http://d.liveatc.net/kjfk_arinc</filenameandpath>-->
+          <!--<filenameandpath>http://d.liveatc.net/vtbs_atis</filenameandpath>-->
+          <filenameandpath>http://bbcwssc.ic.llnwd.net/stream/bbcwssc_mp1_ws-eieuk</filenameandpath>
+          <!--<filenameandpath>https://voa28.akacast.akamaistream.net/7/325/437810/v1/ibb.akacast.akamaistream.net/voa28</filenameandpath>-->
+          <volume>1</volume>
+        </chimes>
+      </sounds>
 
+      <!-- Transmit Timeout (Prevent Transmitter to Be keyed Longer [stuck key] than predefined time interval in seconds) -->
+      <txtimeout enabled="false">
+        <txtimeoutsecs>60</txtimeoutsecs>
+      </txtimeout>
 
-			<!-- Gmail Account Settings for Sending EMAIL from Talkkonnect -->
-			<smtp enabled="true">
-				<username>robot@email.com</username>
-				<password>user</password>
-				<receiver>suvir@talkkonnect.com</receiver>
-				<subject>Talkkonnect Email Message with GPS</subject>
-				<message>Hello From Talkkonnect</message>
-				<gpsdatetime>true</gpsdatetime>     <!-- Send the GPS Date/Time Stamp Received from Satellite -->
-				<gpslatlong>true</gpslatlong>       <!-- Sent LAT and LOG of current position -->
-				<googlemapsurl>true</googlemapsurl> <!-- Send in body of email URL showing current position in google maps -->
-			</smtp>
+      <!-- Global HTTP API Enabling and Listening Port, Commands Can Be Disabled/Enabled Individually -->
+      <api enabled="true"> <!-- global setting to enable/disable api remote controllability of talkkonnect -->
+        <apilistenport>8080</apilistenport>
+        <displaymenu>true</displaymenu>
+        <channelup>true</channelup>
+        <channeldown>true</channeldown>
+        <mute>true</mute>
+        <currentvolumelevel>true</currentvolumelevel>
+        <digitalvolumeup>true</digitalvolumeup>
+        <digitalvolumedown>true</digitalvolumedown>
+        <listserverchannels>true</listserverchannels>
+        <starttransmitting>true</starttransmitting>
+        <stoptransmitting>true</stoptransmitting>
+        <listonlineusers>true</listonlineusers>
+        <playchimes>true</playchimes>
+        <requestgpsposition>true</requestgpsposition>
+        <sendemail>true</sendemail>
+        <nextserver>true</nextserver>
+        <panicsimulation>true</panicsimulation>
+        <scanchannels>true</scanchannels>
+        <displayversion>true</displayversion>
+        <clearscreen>true</clearscreen>
+        <pingservers>true</pingservers>
+        <repeattxlooptest>true</repeattxlooptest>
+        <printxmlconfig>true</printxmlconfig>
+      </api>
 
-			<!-- Section for Setting event, alert, rogerbeep files with their respective paths and playback volume -->
-			<sounds>
-				<!-- Event Sound File (WAV format) to be locally played on event -->
-				<event enabled="true">
-					<filenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/events/event.wav</filenameandpath>
-				</event>
-				
-				<!-- Panic Sound File (WAV format) to be played into stream -->
-				<alert enabled="true">
-					<filenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/alerts/alert.wav</filenameandpath>
-					<volume>1.0</volume>     
-				</alert>
+      <!-- Printout Read Varaibles from XML Config For Debugging When Pressing Ctrl-X (Very useful for XML debugging) -->
+      <printvariables>
+        <printaccount>false</printaccount>
+        <printlogging>false</printlogging>
+        <printprovisioning>false</printprovisioning>
+        <printbeacon>false</printbeacon>
+        <printtts>false</printtts>
+        <printsmtp>false</printsmtp>
+        <printsounds>false</printsounds>
+        <printtxtimeout>false</printtxtimeout>
+        <printhttpapi>true</printhttpapi>
+        <printtargetboard>false</printtargetboard>
+        <printleds>false</printleds>
+        <printheartbeat>false</printheartbeat>
+        <printbuttons>false</printbuttons>
+        <printcomment>false</printcomment>
+        <printlcd>false</printlcd>
+        <printoled>true</printoled>
+        <printgps>false</printgps>
+        <printpanic>false</printpanic>
+      </printvariables>
+    </software>
 
-				<!-- Roger Beep Sound File to be played if Rogerbeep Enabled into Stream Upon TX Button Release (Supports most sound formats via ffmpeg) -->
-				<rogerbeep enabled="true">
-					<filenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/rogerbeeps/Chirsp.wav</filenameandpath>
-					<volume>0.1</volume>     
-				</rogerbeep>
+    <!-- Section for Configuring Rasperrry Pi GPIOs used for LEDs, Buttons, LCD Screens, GPS Serial Port Settings, Panic Functio Settings -->
+    <hardware targetboard="rpi"> <!-- set targetboard to "pc" for raspberry pi and other single board computers GPIO and "pc" for boards without gpios -->
+      <!-- Set GPIO for Panel LEDS -->
+      <lights>
+        <voiceactivityledpin>17</voiceactivityledpin>  <!-- lights up on received transmission -->
+        <participantsledpin>27</participantsledpin>    <!-- lights up when you are not alone in a channel -->
+        <transmitledpin>4</transmitledpin>            <!-- lights up to indicate talkkonnect is transmitting -->
+        <onlineledpin>5</onlineledpin>                <!-- lights up to indicate successful connection to server -->
+      </lights>
 
-				<!-- File/Streaming Service for playing into transmitted stream (Supports most sound formats via ffmpeg) -->
-				<chimes enabled="true">
-					<!--<filenameandpath>/root/whatever.mp3</filenameandpath>-->
-					<!--filenameandpath>http://d.liveatc.net/vtbs_app</filenameandpath>-->
-					<!--<filenameandpath>http://d.liveatc.net/kjfk_arinc</filenameandpath>-->
-					<!--<filenameandpath>http://d.liveatc.net/vtbs_atis</filenameandpath>-->
-					<filenameandpath>http://bbcwssc.ic.llnwd.net/stream/bbcwssc_mp1_ws-eieuk</filenameandpath>
-					<!--<filenameandpath>https://voa28.akacast.akamaistream.net/7/325/437810/v1/ibb.akacast.akamaistream.net/voa28</filenameandpath>-->
-					<volume>1</volume>     
-				</chimes>
-			</sounds>
-			
-			<!-- Transmit Timeout (Prevent Transmitter to Be keyed Longer [stuck key] than predefined time interval in seconds) -->
-			<txtimeout enabled="false">
-				<txtimeoutsecs>60</txtimeoutsecs>
-			</txtimeout>
+      <!-- Set GPIO for Heart Beat LED to Indicate TK is alive -->
+      <heartbeat enabled="true">
+        <heartbeatledpin>17</heartbeatledpin>
+        <periodmsecs>2000</periodmsecs>
+        <ledonmsecs>1000</ledonmsecs>
+        <ledoffmsecs>1010</ledoffmsecs>
+      </heartbeat>
 
+      <!-- Set GPIO for Panel Buttons -->
+      <buttons>
+        <txbuttonpin>26</txbuttonpin>         <!-- Push Button for TX on Push and RX on Release -->
+        <txtogglepin>11</txtogglepin>         <!-- Push Button to toggle TX mode -->
+        <upbuttonpin>19</upbuttonpin>         <!-- Push Button to Incement Channel -->
+        <downbuttonpin>13</downbuttonpin>     <!-- Push Button to Decrement Channel -->
+        <panicbuttonpin>14</panicbuttonpin>   <!-- Push Button to Send out Panic Distress Call -->
+      </buttons>
 
-			<!-- Global HTTP API Enabling and Listening Port, Commands Can Be Disabled/Enabled Individually -->
-			<api enabled="true"> <!-- global setting to enable/disable api remote controllability of talkkonnect -->
-				<apilistenport>8080</apilistenport>
-				<displaymenu>true</displaymenu>
-				<channelup>true</channelup>
-				<channeldown>true</channeldown>
-				<mute>true</mute>
-				<currentvolumelevel>true</currentvolumelevel>
-				<digitalvolumeup>true</digitalvolumeup>
-				<digitalvolumedown>true</digitalvolumedown>
-				<listserverchannels>true</listserverchannels>
-				<starttransmitting>true</starttransmitting>
-				<stoptransmitting>true</stoptransmitting>
-				<listonlineusers>true</listonlineusers>
-				<playchimes>true</playchimes>
-				<requestgpsposition>true</requestgpsposition>
-				<sendemail>true</sendemail>
-				<nextserver>true</nextserver>
-				<panicsimulation>true</panicsimulation>
-				<scanchannels>true</scanchannels>
-				<displayversion>true</displayversion>
-				<clearscreen>true</clearscreen>
-				<pingservers>true</pingservers>
-				<repeattxlooptest>true</repeattxlooptest>
-				<printxmlconfig>true</printxmlconfig>
-			</api>
+      <!-- Set GPIO for Away Toggle Switch and Away Message -->
+      <comment>
+        <commentbuttonpin>9</commentbuttonpin>
+        <commentmessageoff>Standby</commentmessageoff>
+        <commentmessageon>Unavailable</commentmessageon>
+      </comment>
 
-			<!-- Printout Read Varaibles from XML Config For Debugging When Pressing Ctrl-X (Very useful for XML debugging) -->
-            <printvariables>
-                <printaccount>false</printaccount>
-                <printlogging>false</printlogging>
-				<printprovisioning>false</printprovisioning>
-				<printbeacon>false</printbeacon>
-				<printtts>false</printtts>
-				<printsmtp>false</printsmtp>
-				<printsounds>false</printsounds>
-				<printtxtimeout>false</printtxtimeout> 
-				<printhttpapi>true</printhttpapi>
-				<printtargetboard>false</printtargetboard>
-				<printleds>false</printleds>
-				<printheartbeat>false</printheartbeat>
-				<printbuttons>false</printbuttons>
-				<printcomment>false</printcomment>
-				<printlcd>false</printlcd>
-				<printoled>true</printoled>
-				<printgps>false</printgps>
-				<printpanic>false</printpanic>
-             </printvariables>
+      <!-- To Use HD44780  I2C Interface Make Sure You Don't Define RPI GPIO Pins 2 & 3 For Anything Else! -->
+      <lcd enabled="true">
+        <lcdinterfacetype>i2c</lcdinterfacetype>                  <!-- put parallel or i2c depending on your display interface type here -->            
+        <lcdi2caddress>63</lcdi2caddress>                         <!-- put the decimal value of the i2c hex address your display was detected on -->            
+        <lcdbacklighttimerenabled>true</lcdbacklighttimerenabled> <!-- this value is necessary if you are going to control backlight both parallel and i2c -->               
+        <lcdbacklighttimeoutsecs>30</lcdbacklighttimeoutsecs>     <!-- this value is necessary if you are going to control backlight both parallel and i -->               
+        <lcdbacklightpin></lcdbacklightpin>                                    
+        <lcdrspin></lcdrspin>                  
+        <lcdepin></lcdepin>                    
+        <lcdd4pin></lcdd4pin>                  
+        <lcdd5pin></lcdd5pin>                  
+        <lcdd6pin></lcdd6pin>                  
+        <lcdd7pin></lcdd7pin>                  
+      </lcd>
 
-		</software>
+      <!-- Set Parameters for USB GPS Module ubnlox Neo-7 -->
+      <gps enabled="true">
+        <port>/dev/ttyACM0</port>
+        <baud>115200</baud>
+        <txdata/>
+        <even>false</even>
+        <odd>false</odd>
+        <rs485>false</rs485>
+        <rs485highduringsend>false</rs485highduringsend>
+        <rs485highaftersend>false</rs485highaftersend>
+        <stopbits>1</stopbits>
+        <databits>8</databits>
+        <chartimeout>100</chartimeout>
+        <minread>0</minread>
+        <rx>true</rx>
+      </gps>
 
-		<!-- Section for Configuring Rasperrry Pi GPIOs used for LEDs, Buttons, LCD Screens, GPS Serial Port Settings, Panic Functio Settings -->
-		<hardware targetboard="rpi"> <!-- set targetboard to "pc" for raspberry pi and other single board computers GPIO and "pc" for boards without gpios -->
-			<lights> <!-- Set GPIO for Panel LEDS -->
-				<voiceactivityledpin>17</voiceactivityledpin> <!-- lights up on received transmission -->
-				<participantsledpin>27</participantsledpin>   <!-- lights up when you are not alone in a channel --> 
-				<transmitledpin>4</transmitledpin>           <!-- lights up to indicate talkkonnect is transmitting -->
-				<onlineledpin>5</onlineledpin>               <!-- lights up to indicate successful connection to server -->
-			</lights>
-
-			<!-- Set GPIO for Heart Beat LED to Indicate TK is alive -->
-			<heartbeat enabled="true">
-				<heartbeatledpin>17</heartbeatledpin>
-				<periodmsecs>2000</periodmsecs>
-				<ledonmsecs>1000</ledonmsecs>
-				<ledoffmsecs>1010</ledoffmsecs>
-			</heartbeat>
-
-			<!-- Set GPIO for Panel Buttons -->
-			<buttons>
-				<txbuttonpin>26</txbuttonpin>        <!-- Push Button for TX on Push and RX on Release -->
-				<txtogglepin>11</txtogglepin>        <!-- Push Button to toggle TX mode -->
-				<upbuttonpin>19</upbuttonpin>        <!-- Push Button to Incement Channel -->      
-				<downbuttonpin>13</downbuttonpin>    <!-- Push Button to Decrement Channel -->     
-				<panicbuttonpin>14</panicbuttonpin>  <!-- Push Button to Send out Panic Distress Call -->    
-			</buttons>
-
-			<!-- Set GPIO for Away Toggle Switch and Away Message -->
-			<comment>
-				<commentbuttonpin>9</commentbuttonpin>
-				<commentmessageoff>Standby</commentmessageoff>
-				<commentmessageon>Unavailable</commentmessageon>
-			</comment>
-
-			<!-- settings for HD44780 I2C LCD -->
-			<!-- To Use HD44780  I2C Interface Make Sure You Don't Define RPI GPIO Pins 2 & 3 For Anything Else! -->
-			<lcd enabled="true">
-				<lcdinterfacetype>i2c</lcdinterfacetype>             <!-- put parallel or i2c depending on your display interface type here -->            
-				<lcdi2caddress>63</lcdi2caddress>                         <!-- put the decimal value of the i2c hex address your display was detected on -->            
-                <lcdbacklighttimerenabled>true</lcdbacklighttimerenabled> <!-- this value is necessary if you are going to control backlight both parallel and i2c -->               
-                <lcdbacklighttimeoutsecs>30</lcdbacklighttimeoutsecs>     <!-- this value is necessary if you are going to control backlight both parallel and i -->               
-				<lcdbacklightpin></lcdbacklightpin>                                    
-				<lcdrspin></lcdrspin>                  
-				<lcdepin></lcdepin>                    
-				<lcdd4pin></lcdd4pin>                  
-				<lcdd5pin></lcdd5pin>                  
-				<lcdd6pin></lcdd6pin>                  
-				<lcdd7pin></lcdd7pin>                  
-			</lcd>
-
-			<!-- Set Parameters for USB GPS Module ubnlox Neo-7 -->
-			<gps enabled="true">
-				<port>/dev/ttyACM0</port>
-				<baud>115200</baud>
-				<txdata></txdata>  
-				<even>false</even> 
-				<odd>false</odd> 
-				<rs485>false</rs485> 
-				<rs485highduringsend>false</rs485highduringsend> 
-				<rs485highaftersend>false</rs485highaftersend> 
-				<stopbits>1</stopbits> 
-				<databits>8</databits> 
-				<chartimeout>100</chartimeout>         
-				<minread>0</minread> 
-				<rx>true</rx>
-			</gps>
-
-
-			<!-- Set Parameters for Panic Button Simulation -->
-			<panicfunction enabled="true">
-				<filenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/alerts/alert.wav</filenameandpath>
-				<volume>0.5</volume>     
-				<sendident>true</sendident>
-				<panicmessage>Need Help! Now!</panicmessage>
-				<recursivesendmessage>false</recursivesendmessage>
-				<sendgpslocation>true</sendgpslocation>
-				<txlockenabled>true</txlockenabled>
-				<txlocktimeoutsecs>30</txlocktimeoutsecs>
-			</panicfunction>
-		</hardware>
-	</global>
+      <!-- Set Parameters for Panic Button Simulation -->
+      <panicfunction enabled="true">
+        <filenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/alerts/alert.wav</filenameandpath>
+        <volume>0.5</volume>
+        <sendident>true</sendident>
+        <panicmessage>Need Help! Now!</panicmessage>
+        <recursivesendmessage>false</recursivesendmessage>
+        <sendgpslocation>true</sendgpslocation>
+        <txlockenabled>true</txlockenabled>
+        <txlocktimeoutsecs>30</txlocktimeoutsecs>
+      </panicfunction>
+    </hardware>
+  </global>
 </document>
+
+
 
 
 

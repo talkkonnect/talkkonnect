@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="talkkonnect/xml">
 
-<!-- talkkonnect-pc.xml -->
+<!-- talkkonnect-pc-nogpio.xml -->
 <!-- Sample for Use with PC/VM Without GPIO -->
 <!-- Copy this sample file to talkkonnect.xml and modify it to match your hardware configuration -->
 

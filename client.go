@@ -347,6 +347,8 @@ keyPressListenerLoop:
 				b.commandKeyCtrlR()
 			case term.KeyCtrlS:
 				b.commandKeyCtrlS()
+			case term.KeyCtrlT:
+				b.commandKeyCtrlT()
 			case term.KeyCtrlV:
 				b.commandKeyCtrlV()
 			case term.KeyCtrlX:
@@ -1332,7 +1334,14 @@ func (b *Talkkonnect) httpHandler(w http.ResponseWriter, r *http.Request) {
 			b.commandKeyCtrlS()
 			fmt.Fprintf(w, "API Request Scan Processed Succesfully\n")
 		} else {
-			fmt.Fprintf(w, "API Request Scan Simulation Denied\n")
+			fmt.Fprintf(w, "API Request Scan Denied\n")
+		}
+	case "commandKeyCtrlT":
+		if true {
+			b.commandKeyCtrlT()
+			fmt.Fprintf(w, "API Request Show Acknowledgements Processed Succesfully\n")
+		} else {
+			fmt.Fprintf(w, "API Request Show Acknowledgements Denied\n")
 		}
 	case "commandKeyCtrlV":
 		if APIDisplayVersion {
@@ -1895,6 +1904,13 @@ func (b *Talkkonnect) commandKeyCtrlS() {
 	}
 
 	b.Scan()
+	log.Println("--")
+}
+
+func (b *Talkkonnect) commandKeyCtrlT() {
+	log.Println("--")
+	log.Println("Ctrl-T Thanks and Acknowledgements Screen Request ")
+	talkkonnectAcknowledgements()
 	log.Println("--")
 }
 

@@ -57,7 +57,7 @@
       <!-- http autoprovisioning server and client details -->
       <autoprovisioning enabled="false">       <!-- enable autoprovisioning on talkkonnect startup -->
         <tkid>00000001</tkid>                  <!-- unique identifier for xml filename to fetch upon autoprovisioning from provisioing server -->
-        <url>http://provsion.example.com</url> <!-- URL of server storing XML configuration file -->
+        <url>http://provision.example.com</url> <!-- URL of server storing XML configuration file -->
         <savefilepath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect</savefilepath> <!-- full path of config xml file in local host -->
         <savefilename>talkkonnect.xml</savefilename> <!-- filename of config xml in local host -->
       </autoprovisioning>
@@ -213,7 +213,7 @@
     </software>
 
     <!-- Section for Configuring Rasperrry Pi GPIOs used for LEDs, Buttons, LCD Screens, GPS Serial Port Settings, Panic Functio Settings -->
-    <hardware targetboard="rpi"> <!-- set targetboard to "pc" for raspberry pi and other single board computers GPIO and "pc" for boards without gpios -->
+    <hardware targetboard="rpi"> <!-- set targetboard to "rpi" for raspberry pi and other single board computers GPIO and "pc" for boards without gpios -->
       <!-- Set GPIO for Panel LEDS -->
       <lights>
         <voiceactivityledpin>2</voiceactivityledpin>  <!-- lights up on received transmission -->
@@ -261,7 +261,7 @@
         <lcdd7pin>18</lcdd7pin>              <!-- this value is necessary only if you are using parallel lcd interface -->
       </lcd>
 
-      <!-- Set Parameters for USB GPS Module ubnlox Neo-7 -->
+      <!-- Set Parameters for USB GPS Module Ublox Neo-7 -->
       <gps enabled="true">
         <port>/dev/ttyACM0</port>
         <baud>115200</baud>

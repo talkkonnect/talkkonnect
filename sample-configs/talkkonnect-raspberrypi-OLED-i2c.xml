@@ -214,7 +214,7 @@
     </software>
 
     <!-- Section for Configuring Rasperrry Pi GPIOs used for LEDs, Buttons, LCD Screens, GPS Serial Port Settings, Panic Functio Settings -->
-    <hardware targetboard="rpi"> <!-- set targetboard to "pc" for raspberry pi and other single board computers GPIO and "pc" for boards without gpios -->
+    <hardware targetboard="rpi"> <!-- set targetboard to "rpi" for raspberry pi and other single board computers GPIO and "pc" for boards without gpios -->
       <!-- Set GPIO for Panel LEDS -->
       <lights>
         <voiceactivityledpin>17</voiceactivityledpin>  <!-- lights up on received transmission -->

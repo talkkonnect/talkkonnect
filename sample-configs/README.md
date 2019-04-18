@@ -44,13 +44,17 @@
 /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/sample-configs/talkkonnect-pc-nogpio.xml
 ````
 
+#### For OrangePiZero with 4Pin IIC I2C OLED Display Module 12864  use the template
+````
+/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/sample-configs/talkkonnect-orangepizero-OLED-i2c.xml
+````
+
 
 ## Contributing 
 We invite interested individuals to provide feedback and improvements to the project. Currently we do not have a WIKI so send feedback to <suvir@talkkonnect.com> or open and Issue in github
 you can also check my blog  [www.talkkonnect.com](https://www.talkkonnect.com) for updates on the project
 
-Please visit our [blog](www.talkkonnect.com) for our blog or [github](github.com/talkkonnect) for the latest source code and our [facebook](https://www.facebook.com/talkkonnect) page for future updates and information. 
-You can also [download](https://talkkonnect.com/wp-content/uploads/2019/01/Readme-13-01-2019.pdf) an "OLDER" PDF version with pictures of this document.
+Please visit our [blog](www.talkkonnect.com) for our blog or [github](github.com/talkkonnect)
 
 ## License 
 [talKKonnect](http://www.talkkonnect.com) is open source and available under the MPL V2.00 license.

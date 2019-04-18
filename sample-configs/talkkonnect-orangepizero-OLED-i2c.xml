@@ -1,41 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="talkkonnect/xml">
 
-<!-- talkkonnect-raspberrypi-hd44780-i2c.xml -->
-<!-- Sample for Raspberry Pi 3/A/B+3+ Target Board With HD44780 LCD Screen in I2C Mode           -->
+<!-- talkkonnect-orangepizero-OLED-i2c.xml -->
+<!-- Sample for Orange Pi Zero with OLED 0.96 or 1.3 Screen in I2C Mode -->
 <!-- Copy this sample file to talkkonnect.xml and modify it to match your hardware configuration -->
 
-<!--  +=======================+=====================+=========+=========+====+ +======+=========+=========+==========+======================+ -->
-<!--  | I/O Device Physical   | XML Tag             | XML Tag | Pin     |  RPI3 GPIO  | Pin     | XML Tag | XML Tag  | I/O Device Physical  | -->
-<!--  | Connection            | Name                | Value   | Name    |    Header   | Name    | Value   | Name     | Connection           | -->
-<!--  +=======================+=====================+=========+=========+====+ +======+=========+=========+==========+======================+ -->
-<!--  | NC                    |                     |         | 3.3v    |  1 | | 2    | 5v      |         |          | HD44780 PIN 2   (+5V)| -->
-<!--  | I2C SDA HD44780       |                     | 2       | SDA.1   |  3 | | 4    | 5v      |         |          | PAM8403 AMP VCC (+5V)| -->
-<!--  | I2C SCL HD44780       |                     | 3       | SCL.1   |  5 | | 6    | 0v      |         |          | HD44780 PIN 1   (GND)| -->
-<!--  | LED Transmit       (+)|<transmitledpin>     | 4       | GPIO. 7 |  7 | | 8    | TxD     |         |          | NC                   | -->
-<!--  | LED Common Ground  (-)|                     |         | GND     |  9 | | 10   | RxD     |         |          | NC                   | -->
-<!--  | LED Heartbeat         |<heartbeatledpin>    | 17      | GPIO. 0 | 11 | | 12   | GPIO. 1 | 18      |          | NC                   | -->
-<!--  | LED Voice Activity (+)|<voiceactivityledpin>| 27      | GPIO. 2 | 13 | | 14   | GND     |         |          | NC                   | -->
-<!--  | LED Participants   (+)|<participantsledpin> | 22      | GPIO. 3 | 15 | | 16   | GPIO. 4 | 23      |          | NC                   | -->
-<!--  | NC                    |                     |         | 3.3v    | 17 | | 18   | GPIO. 5 | 24      |          | NC                   | -->
-<!--  | Button Panic          |<panicbuttonpin>     | 10      | MOSI    | 19 | | 20   | GND     |         |          | NC                   | -->
-<!--  | Switch Comment     (+)|<commentbuttonpin>   | 9       | MISO    | 21 | | 22   | GPIO. 6 | 25      |          | NC                   | -->
-<!--  | Button TX Toggle      |<txtogglepin>        | 11      | SCLK    | 23 | | 24   | CE0     | 8       |          | NC                   | -->
-<!--  | Button                |                     |         | GND     | 25 | | 26   | CE1     | 7       |          | NC                   | -->
-<!--  | NC                    |                     |         | SDA.0   | 27 | | 28   | SCL.0   |         |          | NC                   | -->
-<!--  | LED Online            |<onlineledpin>       | 5       | GPIO.21 | 29 | | 30   | GND     |         |          | NC                   | -->
-<!--  | Backlight Tr Base     |<lcdbacklightpin>    | 6       | GPIO.22 | 31 | | 32   | GPIO.26 | 12      |          | NC                   | -->
-<!--  | Button CH Down     (+)|<downbuttonpin>      | 13      | GPIO.23 | 33 | | 34   | GND     |         |          | PAM8403 AMP     (GND)| -->
-<!--  | Button CH Up       (+)|<upbuttonpin>        | 19      | GPIO.24 | 35 | | 36   | GPIO.27 | 16      |          | NC                   | -->
-<!--  | TX Button          (+)|<txbuttonpin>        | 26      | GPIO.25 | 37 | | 38   | GPIO.28 | 20      |          | NC                   | -->
-<!--  | NC                    |                     |         | GND     | 39 | | 40   | GPIO.29 | 21      |          | NC                   | -->
-<!--  +=======================+=====================+=========+=========+====+ +======+=========+=========+==========+======================+ -->
+<!--  +=======================+=====================+=========+==========+=====+ +=====+==========+=========+====================+======================+ -->
+<!--  | I/O Device Physical   | XML Tag             | XML Tag | Pin      |OrangePi Zero| Pin      | XML Tag | XML Tag             | I/O Device Physical  | -->
+<!--  | Connection            | Name                | Value   | Name     | GPIO Header | Name     | Value   | Name                | Connection           | -->
+<!--  +=======================+=====================+=========+==========+=====+ +=====+==========+=========+====================+======================+ -->
+<!--  | NC                    |                     |         | 3.3v     | 1   | | 2   | 5v       |         |                     | (+5V)                | -->
+<!--  | OLED SDA              |                     |         | SDA 0    | 3   | | 4   | 5v       |         |                     | (+5V)                | -->
+<!--  | OLED SCL              |                     |         | SCL 0    | 5   | | 6   | GND      |         |                     | NC                   | -->
+<!--  | LED Online        (+) |<onlineledpin>       | 6       | GPIO.6   | 7   | | 8   | GPIO. 198|         |                     | NC                   | -->
+<!--  | GND                   |                     |         | GND      | 9   | | 10  | GPIO. 199|         |                     | NC                   | -->
+<!--  | NC                    |                     |         | GPIO.1   | 11  | | 12  | GPIO. 7  | 7       |<participantsledpin> | LED Participants (+) | -->
+<!--  | NC                    |                     |         | GPIO.0   | 13  | | 14  | GND      |         |                     |                      | -->
+<!--  | NC                    |                     |         | GPIO.3   | 15  | | 16  | GPIO. 19 | 19      |<upbuttonpin>        | Button CH Up      (+)| -->
+<!--  | (+3.3V)               |                     |         | 3.3v     | 17  | | 18  | GPIO. 18 | 18      |<txbuttonpin>        | TX Button            | -->
+<!--  | NC                    |                     |         | GPIO.15  | 19  | | 20  | GND      |         |                     |                      | -->
+<!--  | NC                    |                     |         | GPIO.16  | 21  | | 22  | GPIO. 2  |         |                     |                      | -->
+<!--  | LED Voice Activity (+)|<voiceactivityledpin>|         | GPIO.14  | 23  | | 24  | GPIO. 13 | 13      |<downbuttonpin>      | TX Button        (+) | -->
+<!--  | GND                   |                     |         | GND      | 25  | | 26  | GPIO. 10 | 10      |<transmitledpin>     | LED Transmit     (+) | -->
+<!--  +=======================+=====================+=========+==========+=====+ +=====+==========+=========+=====================+======================+ -->
 
   <!-- Need to Have At Least One Account Set as Default Account, The First Account With the default="true" will be the one used! -->
   <accounts> 
     <account name="fps2NetworkServer4" default="true">   <!-- Server identifier and enabler -->
       <serverandport>218.219.148.36:8000</serverandport> <!-- server:port of mumble server to connect to -->
-      <username></username> <!-- Mumble Username that will be used to authenticate on the mumble server -->
+      <username>talkkonnect-test</username> <!-- Mumble Username that will be used to authenticate on the mumble server -->
       <password></password> <!-- Mumble Password that will be used along with the username to authenticate on the mumble server -->
       <insecure>true</insecure>   <!-- Set to true of your server doesnt require a certificate-->
       <certificate></certificate> <!-- Full Path to Certificate if Certificate is needed by Server -->
@@ -48,11 +41,13 @@
   <global>
     <software> <!-- Section for Setting the behaviour of talkkonnect software for logging and daemonization -->
       <settings>
-        <outputdevice>Speaker</outputdevice> <!-- Set Output Device to Speaker, Master, Headphone or whatever your OS/Alsa Detects as the Master Sound Card Device for Output in alsamixer -->
+        <outputdevice>'Line Out'</outputdevice>	<!-- Set Output Device to Speaker, Master, Headphone or whatever your OS/Alsa Detects as the Master Sound Card Device for Output in alsamixer -->
         <logfilenameandpath>/var/log/talkkonnect.log</logfilenameandpath> <!-- full path to writeable log file -->
-        <logging>screen</logging>    <!--set logging to screen if screen only desired otherwise leave it as blank and talkkonnect will log to both screen and logfile -->
-        <daemonize>false</daemonize> <!-- this feature is not implemented yet -->
+        <logging>screen</logging>		<!--set logging to screen if screen only desired otherwise leave it as blank and talkkonnect will log to both screen and logfile -->
+        <daemonize>false</daemonize>		<!-- this feature is not implemented yet -->
         <cancellablestream>true</cancellablestream> <!-- Set to true if you allow others to stop your streaming upon keying up -->
+	<pttmode>ptt</pttmode>			<!-- Set this field to "ptt" or "toggle" for desired behaviour of PTT button-->
+
       </settings>
 
       <!-- http autoprovisioning server and client details -->
@@ -217,15 +212,15 @@
     <hardware targetboard="rpi"> <!-- set targetboard to "pc" for raspberry pi and other single board computers GPIO and "pc" for boards without gpios -->
       <!-- Set GPIO for Panel LEDS -->
       <lights>
-        <voiceactivityledpin>17</voiceactivityledpin>  <!-- lights up on received transmission -->
-        <participantsledpin>27</participantsledpin>    <!-- lights up when you are not alone in a channel -->
-        <transmitledpin>4</transmitledpin>            <!-- lights up to indicate talkkonnect is transmitting -->
-        <onlineledpin>5</onlineledpin>                <!-- lights up to indicate successful connection to server -->
+        <voiceactivityledpin>14</voiceactivityledpin>  <!-- lights up on received transmission -->
+        <participantsledpin>7</participantsledpin>     <!-- lights up when you are not alone in a channel -->
+        <transmitledpin>10</transmitledpin>            <!-- lights up to indicate talkkonnect is transmitting -->
+        <onlineledpin>6</onlineledpin>                 <!-- lights up to indicate successful connection to server -->
       </lights>
 
       <!-- Set GPIO for Heart Beat LED to Indicate TK is alive -->
       <heartbeat enabled="true">
-        <heartbeatledpin>17</heartbeatledpin>
+        <heartbeatledpin>14</heartbeatledpin>
         <periodmsecs>2000</periodmsecs>
         <ledonmsecs>1000</ledonmsecs>
         <ledoffmsecs>1010</ledoffmsecs>
@@ -233,35 +228,36 @@
 
       <!-- Set GPIO for Panel Buttons -->
       <buttons>
-        <txbuttonpin>26</txbuttonpin>         <!-- Push Button for TX on Push and RX on Release -->
-        <txtogglepin>11</txtogglepin>         <!-- Push Button to toggle TX mode -->
-        <upbuttonpin>19</upbuttonpin>         <!-- Push Button to Incement Channel -->
-        <downbuttonpin>13</downbuttonpin>     <!-- Push Button to Decrement Channel -->
-        <panicbuttonpin>14</panicbuttonpin>   <!-- Push Button to Send out Panic Distress Call -->
+        <txbuttonpin>18</txbuttonpin>		<!-- Push Button for TX on Push and RX on Release -->
+        <txtogglepin>18</txtogglepin>		<!-- Push Button to toggle TX mode -->
+        <upbuttonpin>19</upbuttonpin>		<!-- Push Button to Incement Channel -->
+        <downbuttonpin>13</downbuttonpin>	<!-- Push Button to Decrement Channel -->
+        <panicbuttonpin></panicbuttonpin>	<!-- Push Button to Send out Panic Distress Call -->
       </buttons>
 
       <!-- Set GPIO for Away Toggle Switch and Away Message -->
       <comment>
-        <commentbuttonpin>9</commentbuttonpin>
+        <commentbuttonpin></commentbuttonpin>
         <commentmessageoff>Standby</commentmessageoff>
         <commentmessageon>Unavailable</commentmessageon>
       </comment>
 
-      <!-- To Use HD44780  I2C Interface Make Sure You Don't Define RPI GPIO Pins 2 & 3 For Anything Else! -->
-      <lcd enabled="true">
-        <lcdinterfacetype>i2c</lcdinterfacetype>                  <!-- put parallel or i2c depending on your display interface type here -->            
-        <lcdi2caddress>63</lcdi2caddress>                         <!-- put the decimal value of the i2c hex address your display was detected on -->            
-        <lcdbacklighttimerenabled>true</lcdbacklighttimerenabled> <!-- this value is necessary if you are going to control backlight both parallel and i2c -->               
-        <lcdbacklighttimeoutsecs>30</lcdbacklighttimeoutsecs>     <!-- this value is necessary if you are going to control backlight both parallel and i -->               
-        <lcdbacklightpin></lcdbacklightpin>                                    
-        <lcdrspin></lcdrspin>                  
-        <lcdepin></lcdepin>                    
-        <lcdd4pin></lcdd4pin>                  
-        <lcdd5pin></lcdd5pin>                  
-        <lcdd6pin></lcdd6pin>                  
-        <lcdd7pin></lcdd7pin>                  
-      </lcd>
-
+      <!-- settings for oled 0.96 and 1.3 inch Type with I2C Interface -->
+      <!-- To Use oled  I2C Interface Make Sure You Don't Define RPI GPIO Pins 2 & 3 For Anything Else! -->
+      <oled enabled="true">
+        <oledinterfacetype>i2c</oledinterfacetype>                    <!-- your current choice for oled interface type is now only limited to i2c --> 
+        <oleddisplayrows>8</oleddisplayrows>                          <!-- define the max rows of your oled screen supports -->
+	<oleddisplaycolumns>21</oleddisplaycolumns>                   <!-- define the max columns (characters) per line your display supports -->
+        <oleddefaulti2cbus>0</oleddefaulti2cbus>                      <!-- define the I2C Bus you connected your oled display -->   
+        <oleddefaulti2caddress>60</oleddefaulti2caddress>             <!-- define the decimal value of the i2c hex address your display was detected on -->
+        <oledscreenwidth>128</oledscreenwidth>                        <!-- define the width of your screen if you see some junk on the right of your screen increase this value from 128 -->
+        <oledscreenheight>64</oledscreenheight>                       <!-- define the height of your screen here -->
+ 	<oledcommandcolumnaddressing>33</oledcommandcolumnaddressing> <!-- define the decimal value of the column address of your screen -->
+	<oledaddressbasepagestart>176</oledaddressbasepagestart>      <!-- define the decimal value of the base page start address of your screen -->
+	<oledcharlength>6</oledcharlength>                            <!-- define the character length here -->
+	<oledstartcolumn>0</oledstartcolumn>                          <!-- if the 1st character of your display is half missing adjust this value to, 1 otherwise leave it at 0 -->
+       </oled>
+			
       <!-- Set Parameters for USB GPS Module Ublox Neo-7 -->
       <gps enabled="true">
         <port>/dev/ttyACM0</port>
@@ -280,7 +276,7 @@
       </gps>
 
       <!-- Set Parameters for Panic Button Simulation -->
-      <panicfunction enabled="true">
+      <panicfunction enabled="false">
         <filenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/alerts/alert.wav</filenameandpath>
         <volume>0.5</volume>
         <sendident>true</sendident>
@@ -293,8 +289,4 @@
     </hardware>
   </global>
 </document>
-
-
-
-
 

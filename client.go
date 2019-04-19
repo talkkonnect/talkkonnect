@@ -209,6 +209,8 @@ func (b *Talkkonnect) PreInit1(httpServRunning bool) {
 	}
 
 	b.Init()
+	b.IsConnected = false
+
 
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
@@ -397,6 +399,7 @@ func (b *Talkkonnect) CleanUp() {
 }
 
 func (b *Talkkonnect) Connect() {
+	b.IsConnected = false
 	time.Sleep(2 * time.Second)
 
 	var err error
@@ -415,6 +418,7 @@ func (b *Talkkonnect) Connect() {
 }
 
 func (b *Talkkonnect) ReConnect() {
+	b.IsConnected = false
 	if b.Client != nil {
 		log.Println("warn: Attempting Reconnection With Server")
 		b.Client.Disconnect()

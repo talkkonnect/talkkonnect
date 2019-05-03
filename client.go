@@ -1667,6 +1667,8 @@ func (b *Talkkonnect) commandKeyF11() {
 	log.Println("--")
 	log.Println("F11 pressed Start/Stop Chimes Stream into Current Channel Requested")
 
+	b.BackLightTimer()
+
 	if TTSEnabled && TTSPlayChimes {
 		err := PlayWavLocal(TTSPlayChimesFileNameAndPath, TTSVolumeLevel)
 		if err != nil {

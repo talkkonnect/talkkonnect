@@ -211,7 +211,6 @@ func (b *Talkkonnect) PreInit1(httpServRunning bool) {
 	b.Init()
 	b.IsConnected = false
 
-
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 	exitStatus := 0
@@ -507,7 +506,7 @@ func (b *Talkkonnect) TransmitStart() {
 		if OLEDEnabled == true {
 			//oledDisplay(true, 0, 0, "") // clear the screen
 			oledDisplay(false, 0, 1, "Online/TX")
-			oledDisplay(false, 3, 1, "TX at " +t.Format("15:04:05"))
+			oledDisplay(false, 3, 1, "TX at "+t.Format("15:04:05"))
 			oledDisplay(false, 6, 1, "Please Visit       ")
 			oledDisplay(false, 7, 1, "www.talkkonnect.com")
 		}
@@ -741,9 +740,11 @@ func (b *Talkkonnect) OnTextMessage(e *gumble.TextMessageEvent) {
 
 	var sender string
 
-	if e.Sender.Name != "" {
-		var sender string = strings.TrimSpace(cleanstring(e.Sender.Name))
+	if e.Sender != nil {
+		sender = strings.TrimSpace(cleanstring(e.Sender.Name))
 		log.Println("alert: Sender Name is ", sender)
+	} else {
+		sender = ""
 	}
 
 	log.Println(fmt.Sprintf("alert: Message ("+strconv.Itoa(len(message))+") from %v %v\n", sender, message))
@@ -1362,7 +1363,7 @@ func (b *Talkkonnect) httpHandler(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprintf(w, "API Print XML Congfig Denied\n")
 		}
 	default:
-			fmt.Fprintf(w, "API Command Not Defined\n")
+		fmt.Fprintf(w, "API Command Not Defined\n")
 	}
 }
 

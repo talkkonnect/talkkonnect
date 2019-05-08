@@ -36,15 +36,15 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"strconv"
 	"time"
 )
 
 //version and release date
 const (
-        talkkonnectVersion string =  "1.46.15"
-        talkkonnectReleased string = "May 07 2019"
+	talkkonnectVersion  string = "1.46.16"
+	talkkonnectReleased string = "May 08 2019"
 )
-
 
 // lcd timer
 var (
@@ -326,11 +326,11 @@ var (
 
 //other global variables used for state tracking
 var (
-	txcounter           int
-	togglecounter       int
-	isTx	            bool
-	isPlayStream        bool
-        CancellableStream   bool
+	txcounter         int
+	togglecounter     int
+	isTx              bool
+	isPlayStream      bool
+	CancellableStream bool
 )
 
 type Document struct {
@@ -568,16 +568,16 @@ type Hardware struct {
 
 type Lights struct {
 	XMLName             xml.Name `xml:"lights"`
-	VoiceActivityLedPin uint     `xml:"voiceactivityledpin"`
-	ParticipantsLedPin  uint     `xml:"participantsledpin"`
-	TransmitLedPin      uint     `xml:"transmitledpin"`
-	OnlineLedPin        uint     `xml:"onlineledpin"`
+	VoiceActivityLedPin string   `xml:"voiceactivityledpin"`
+	ParticipantsLedPin  string   `xml:"participantsledpin"`
+	TransmitLedPin      string   `xml:"transmitledpin"`
+	OnlineLedPin        string   `xml:"onlineledpin"`
 }
 
 type HeartBeat struct {
 	XMLName          xml.Name `xml:"heartbeat"`
 	HeartBeatEnabled bool     `xml:"enabled,attr"`
-	HeartBeatLEDPin  uint     `xml:"heartbeatledpin"`
+	HeartBeatLEDPin  string   `xml:"heartbeatledpin"`
 	PeriodmSecs      int      `xml:"periodmsecs"`
 	LEDOnmSecs       int      `xml:"ledonmsecs"`
 	LEDOffmSecs      int      `xml:"ledoffmsecs"`
@@ -585,16 +585,16 @@ type HeartBeat struct {
 
 type Buttons struct {
 	XMLName        xml.Name `xml:"buttons"`
-	TxButtonPin    uint     `xml:"txbuttonpin"`
-	TxTogglePin    uint     `xml:"txtogglepin"`
-	UpButtonPin    uint     `xml:"upbuttonpin"`
-	DownButtonPin  uint     `xml:"downbuttonpin"`
-	PanicButtonPin uint     `xml:"panicbuttonpin"`
+	TxButtonPin    string   `xml:"txbuttonpin"`
+	TxTogglePin    string   `xml:"txtogglepin"`
+	UpButtonPin    string   `xml:"upbuttonpin"`
+	DownButtonPin  string   `xml:"downbuttonpin"`
+	PanicButtonPin string   `xml:"panicbuttonpin"`
 }
 
 type Comment struct {
 	XMLName           xml.Name `xml:"comment"`
-	CommentButtonPin  uint     `xml:"commentbuttonpin"`
+	CommentButtonPin  string   `xml:"commentbuttonpin"`
 	CommentMessageOff string   `xml:"commentmessageoff"`
 	CommentMessageOn  string   `xml:"commentmessageon"`
 }
@@ -606,7 +606,7 @@ type LCD struct {
 	LCDI2CAddress            uint8    `xml:"lcdi2caddress"`
 	LCDBackLightTimerEnabled bool     `xml:"lcdbacklighttimerenabled"`
 	LCDBackLightTimeoutSecs  int      `xml:"lcdbacklighttimeoutsecs"`
-	BackLightLEDPin          int      `xml:"lcdbacklightpin"`
+	BackLightLEDPin          string   `xml:"lcdbacklightpin"`
 	RsPin                    int      `xml:"lcdrspin"`
 	EsPin                    int      `xml:"lcdepin"`
 	D4Pin                    int      `xml:"lcdd4pin"`
@@ -620,13 +620,13 @@ type OLED struct {
 	OLEDEnabled                 bool     `xml:"enabled,attr"`
 	OLEDInterfacetype           string   `xml:"oledinterfacetype"`
 	OLEDDisplayRows             int      `xml:"oleddisplayrows"`
-	OLEDDisplayColumns          uint8      `xml:"oleddisplaycolumns"`
+	OLEDDisplayColumns          uint8    `xml:"oleddisplaycolumns"`
 	OLEDDefaultI2cBus           int      `xml:"oleddefaulti2cbus"`
 	OLEDDefaultI2cAddress       uint8    `xml:"oleddefaulti2caddress"`
 	OLEDScreenWidth             int      `xml:"oledscreenwidth"`
 	OLEDScreenHeight            int      `xml:"oledscreenheight"`
-	OLEDCommandColumnAddressing int    `xml:"oledcommandcolumnaddressing"`
-	OLEDAddressBasePageStart    int    `xml:"oledaddressbasepagestart"`
+	OLEDCommandColumnAddressing int      `xml:"oledcommandcolumnaddressing"`
+	OLEDAddressBasePageStart    int      `xml:"oledaddressbasepagestart"`
 	OLEDCharLength              int      `xml:"oledcharlength"`
 	OLEDStartColumn             int      `xml:"oledstartcolumn"`
 }
@@ -823,8 +823,7 @@ func readxmlconfig(file string) error {
 	PrintSounds = document.Global.Software.PrintVariables.PrintSounds
 	PrintTxTimeout = document.Global.Software.PrintVariables.PrintTxTimeout
 
-	PrintHTTPAPI   = document.Global.Software.PrintVariables.PrintHTTPAPI
-
+	PrintHTTPAPI = document.Global.Software.PrintVariables.PrintHTTPAPI
 
 	PrintTargetboard = document.Global.Software.PrintVariables.PrintTargetboard
 	PrintLeds = document.Global.Software.PrintVariables.PrintLeds
@@ -838,24 +837,37 @@ func readxmlconfig(file string) error {
 
 	TargetBoard = document.Global.Hardware.TargetBoard
 
-	VoiceActivityLEDPin = document.Global.Hardware.Lights.VoiceActivityLedPin
-	ParticipantsLEDPin = document.Global.Hardware.Lights.ParticipantsLedPin
-	TransmitLEDPin = document.Global.Hardware.Lights.TransmitLedPin
-	OnlineLEDPin = document.Global.Hardware.Lights.OnlineLedPin
+	// my stupid work arround for null uint xml unmarshelling problem with numbers so use strings and convert it 2 times
+	temp0, _ := strconv.ParseUint(document.Global.Hardware.Lights.VoiceActivityLedPin, 10, 64)
+	VoiceActivityLEDPin = uint(temp0)
+	temp1, _ := strconv.ParseUint(document.Global.Hardware.Lights.VoiceActivityLedPin, 10, 64)
+	VoiceActivityLEDPin = uint(temp1)
+	temp2, _ := strconv.ParseUint(document.Global.Hardware.Lights.ParticipantsLedPin, 10, 64)
+	ParticipantsLEDPin = uint(temp2)
+	temp3, _ := strconv.ParseUint(document.Global.Hardware.Lights.TransmitLedPin, 10, 64)
+	TransmitLEDPin = uint(temp3)
+	temp4, _ := strconv.ParseUint(document.Global.Hardware.Lights.OnlineLedPin, 10, 64)
+	OnlineLEDPin = uint(temp4)
+	temp5, _ := strconv.ParseUint(document.Global.Hardware.HeartBeat.HeartBeatLEDPin, 10, 64)
 
-	HeartBeatEnabled = document.Global.Hardware.HeartBeat.HeartBeatEnabled
-	HeartBeatLEDPin = document.Global.Hardware.HeartBeat.HeartBeatLEDPin
+	HeartBeatLEDPin = uint(temp5)
 	PeriodmSecs = document.Global.Hardware.HeartBeat.PeriodmSecs
 	LEDOnmSecs = document.Global.Hardware.HeartBeat.LEDOnmSecs
 	LEDOffmSecs = document.Global.Hardware.HeartBeat.LEDOffmSecs
 
-	TxButtonPin = document.Global.Hardware.Buttons.TxButtonPin
-	TxTogglePin = document.Global.Hardware.Buttons.TxTogglePin
-	UpButtonPin = document.Global.Hardware.Buttons.UpButtonPin
-	DownButtonPin = document.Global.Hardware.Buttons.DownButtonPin
-	PanicButtonPin = document.Global.Hardware.Buttons.PanicButtonPin
-
-	CommentButtonPin = document.Global.Hardware.Comment.CommentButtonPin
+	// my stupid work arround for null uint xml unmarshelling problem with numbers so use strings and convert it 2 times
+	temp6, _ := strconv.ParseUint(document.Global.Hardware.Buttons.TxButtonPin, 10, 64)
+	TxButtonPin = uint(temp6)
+	temp7, _ := strconv.ParseUint(document.Global.Hardware.Buttons.TxTogglePin, 10, 64)
+	TxTogglePin = uint(temp7)
+	temp8, _ := strconv.ParseUint(document.Global.Hardware.Buttons.UpButtonPin, 10, 64)
+	UpButtonPin = uint(temp8)
+	temp9, _ := strconv.ParseUint(document.Global.Hardware.Buttons.DownButtonPin, 10, 64)
+	DownButtonPin = uint(temp9)
+	temp10, _ := strconv.ParseUint(document.Global.Hardware.Buttons.PanicButtonPin, 10, 64)
+	PanicButtonPin = uint(temp10)
+	temp11, _ := strconv.ParseUint(document.Global.Hardware.Comment.CommentButtonPin, 10, 64)
+	CommentButtonPin = uint(temp11)
 	CommentMessageOff = document.Global.Hardware.Comment.CommentMessageOff
 	CommentMessageOn = document.Global.Hardware.Comment.CommentMessageOn
 
@@ -864,7 +876,11 @@ func readxmlconfig(file string) error {
 	LCDI2CAddress = document.Global.Hardware.LCD.LCDI2CAddress
 	LCDBackLightTimerEnabled = document.Global.Hardware.LCD.LCDBackLightTimerEnabled
 	LCDBackLightTimeoutSecs = document.Global.Hardware.LCD.LCDBackLightTimeoutSecs
-	LCDBackLightLEDPin = document.Global.Hardware.LCD.BackLightLEDPin
+
+	// my stupid work arround for null uint xml unmarshelling problem with numbers so use strings and convert it 2 times
+	temp12, _ := strconv.ParseUint(document.Global.Hardware.LCD.BackLightLEDPin, 10, 64)
+	LCDBackLightLEDPin = int(temp12)
+
 	LCDRSPin = document.Global.Hardware.LCD.RsPin
 	LCDEPin = document.Global.Hardware.LCD.EsPin
 	LCDD4Pin = document.Global.Hardware.LCD.D4Pin
@@ -1065,7 +1081,7 @@ func printxmlconfig() {
 		log.Println("info: ListServerChannels " + fmt.Sprintf("%t", APIListServerChannels))
 		log.Println("info: StartTransmitting  " + fmt.Sprintf("%t", APIStartTransmitting))
 		log.Println("info: StopTransmitting   " + fmt.Sprintf("%t", APIStopTransmitting))
-		log.Println("info: ListOnlineUsers    " + fmt.Sprintf("%t",APIListOnlineUsers))
+		log.Println("info: ListOnlineUsers    " + fmt.Sprintf("%t", APIListOnlineUsers))
 		log.Println("info: PlayChimes         " + fmt.Sprintf("%t", APIPlayChimes))
 		log.Println("info: RequestGpsPosition " + fmt.Sprintf("%t", APIRequestGpsPosition))
 		log.Println("info: EmailEnabled       " + fmt.Sprintf("%t", APIEmailEnabled))

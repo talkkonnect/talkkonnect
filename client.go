@@ -399,6 +399,8 @@ func (b *Talkkonnect) CleanUp() {
 
 func (b *Talkkonnect) Connect() {
 	b.IsConnected = false
+	isPlayStream = false
+
 	time.Sleep(2 * time.Second)
 
 	var err error
@@ -418,6 +420,7 @@ func (b *Talkkonnect) Connect() {
 
 func (b *Talkkonnect) ReConnect() {
 	b.IsConnected = false
+	isPlayStream = false
 	if b.Client != nil {
 		log.Println("warn: Attempting Reconnection With Server")
 		b.Client.Disconnect()

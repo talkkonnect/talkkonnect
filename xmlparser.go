@@ -42,8 +42,8 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.46.17"
-	talkkonnectReleased string = "May 13 2019"
+	talkkonnectVersion  string = "1.46.18"
+	talkkonnectReleased string = "July 05 2019"
 )
 
 // lcd timer
@@ -851,6 +851,7 @@ func readxmlconfig(file string) error {
 	temp5, _ := strconv.ParseUint(document.Global.Hardware.HeartBeat.HeartBeatLEDPin, 10, 64)
 
 	HeartBeatLEDPin = uint(temp5)
+	HeartBeatEnabled = document.Global.Hardware.HeartBeat.HeartBeatEnabled
 	PeriodmSecs = document.Global.Hardware.HeartBeat.PeriodmSecs
 	LEDOnmSecs = document.Global.Hardware.HeartBeat.LEDOnmSecs
 	LEDOffmSecs = document.Global.Hardware.HeartBeat.LEDOffmSecs

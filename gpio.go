@@ -94,19 +94,18 @@ func (b *Talkkonnect) initGPIO() {
 			for {
 				if b.IsConnected {
 
-					currentState, err := b.TxButton.Read()
 					time.Sleep(200 * time.Millisecond)
+					currentState, err := b.TxButton.Read()
 
 					if currentState != b.TxButtonState && err == nil {
 						b.TxButtonState = currentState
 
 						if b.Stream != nil {
 							if b.TxButtonState == 1 {
-								log.Println("info: Tx Button is released")
-								if isTx {
+									if isTx {
+									isTx = false
 									b.TransmitStop(true)
 									time.Sleep(200 * time.Millisecond)
-									isTx = false
 									if loglevel > 2 {
 										txcounter++
 										log.Println("info: Tx Button Count ", txcounter)
@@ -116,9 +115,9 @@ func (b *Talkkonnect) initGPIO() {
 							} else {
 								log.Println("info: Tx Button is pressed")
 								if !isTx {
+									isTx = true
 									b.TransmitStart()
 									time.Sleep(200 * time.Millisecond)
-									isTx = true
 								}
 							}
 						}

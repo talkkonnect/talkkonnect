@@ -105,7 +105,7 @@ func (b *Talkkonnect) initGPIO() {
 									if isTx {
 									isTx = false
 									b.TransmitStop(true)
-									time.Sleep(200 * time.Millisecond)
+									time.Sleep(750 * time.Millisecond)
 									if loglevel > 2 {
 										txcounter++
 										log.Println("info: Tx Button Count ", txcounter)
@@ -117,7 +117,7 @@ func (b *Talkkonnect) initGPIO() {
 								if !isTx {
 									isTx = true
 									b.TransmitStart()
-									time.Sleep(200 * time.Millisecond)
+									time.Sleep(750 * time.Millisecond)
 								}
 							}
 						}

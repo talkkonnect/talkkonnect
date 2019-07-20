@@ -425,16 +425,16 @@ func (b *Talkkonnect) ReConnect() {
 		log.Println("warn: Attempting Reconnection With Server")
 		b.Client.Disconnect()
 	}
+	time.Sleep(10 * time.Second)
 
 	if b.ConnectAttempts < 10 {
-		go func() {
-			time.Sleep(10 * time.Second)
+		//go func() {
 			if !ServerHop {
 				b.Connect()
 				time.Sleep(3 * time.Second)
 				ServerHop = false
 			}
-		}()
+		//}()
 		return
 	} else {
 		log.Println("warn: Unable to connect, giving up")

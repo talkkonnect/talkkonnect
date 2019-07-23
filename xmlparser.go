@@ -42,8 +42,8 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.46.19"
-	talkkonnectReleased string = "July 20 2019"
+	talkkonnectVersion  string = "1.46.20"
+	talkkonnectReleased string = "July 23 2019"
 )
 
 // lcd timer
@@ -71,6 +71,7 @@ var (
 	LogFileNameAndPath string
 	Logging            string
 	Daemonize          bool
+        SimplexWithMute    bool
 )
 
 //autoprovision settings
@@ -383,6 +384,7 @@ type Settings struct {
 	Logging            string   `xml:"logging"`
 	Daemonize          bool     `xml:"daemonize"`
 	CancellableStream  bool     `xml:"cancellablestream"`
+        SimplexWithMute    bool	    `xml:"simplexwithmute"`
 }
 
 type AutoProvisioning struct {
@@ -705,6 +707,7 @@ func readxmlconfig(file string) error {
 	Logging = document.Global.Software.Settings.Logging
 	Daemonize = document.Global.Software.Settings.Daemonize
 	CancellableStream = document.Global.Software.Settings.CancellableStream
+        SimplexWithMute  = document.Global.Software.Settings.SimplexWithMute
 
 	APEnabled = document.Global.Software.AutoProvisioning.APEnabled
 	TkId = document.Global.Software.AutoProvisioning.TkId
@@ -953,6 +956,7 @@ func printxmlconfig() {
 		log.Println("info: Logging           " + Logging)
 		log.Println("info: Daemonize         " + fmt.Sprintf("%t", Daemonize))
 		log.Println("info: CancellableStream " + fmt.Sprintf("%t", CancellableStream))
+		log.Println("info: SimplexWithMute   " + fmt.Sprintf("%t", SimplexWithMute))
 	} else {
 		log.Println("info: --------   Logging & Daemonizing -------- SKIPPED ")
 	}

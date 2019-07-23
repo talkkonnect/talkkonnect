@@ -120,6 +120,8 @@ type Talkkonnect struct {
 	CommentButtonState uint
 }
 
+// new configurable functionality not yet moved to XML
+
 type ChannelsListStruct struct {
 	chanID     uint32
 	chanName   string
@@ -491,12 +493,15 @@ func (b *Talkkonnect) TransmitStart() {
 
 	b.BackLightTimer()
 	t := time.Now()
-	err := volume.Mute(OutputDevice)
 
-	if err != nil {
-		log.Println("warn: Unable to Mute ", err)
-	} else {
-		log.Println("info: Speaker Muted ")
+	if SimplexWithMute {
+
+		err := volume.Mute(OutputDevice)
+		if err != nil {
+			log.Println("warn: Unable to Mute ", err)
+		} else {
+			log.Println("info: Speaker Muted ")
+		}
 	}
 
 	if TargetBoard == "rpi" {
@@ -549,11 +554,13 @@ func (b *Talkkonnect) TransmitStop(withBeep bool) {
 	b.IsTransmitting = false
 	b.Stream.StopSource()
 
-	err := volume.Unmute(OutputDevice)
-	if err != nil {
-		log.Println("warn: Unable to Unmute ", err)
-	} else {
-		log.Println("info: Speaker UnMuted ")
+	if SimplexWithMute {
+		err := volume.Unmute(OutputDevice)
+		if err != nil {
+			log.Println("warn: Unable to Unmute ", err)
+		} else {
+			log.Println("info: Speaker UnMuted ")
+		}
 	}
 }
 

@@ -338,6 +338,8 @@ keyPressListenerLoop:
 				b.commandKeyCtrlC()
 			case term.KeyCtrlE:
 				b.commandKeyCtrlE()
+			case term.KeyCtrlF:
+				b.commandKeyCtrlF()
 			case term.KeyCtrlL:
 				b.commandKeyCtrlL()
 			case term.KeyCtrlO:
@@ -431,11 +433,11 @@ func (b *Talkkonnect) ReConnect() {
 
 	if b.ConnectAttempts < 10 {
 		//go func() {
-			if !ServerHop {
-				b.Connect()
-				time.Sleep(3 * time.Second)
-				ServerHop = false
-			}
+		if !ServerHop {
+			b.Connect()
+			time.Sleep(3 * time.Second)
+			ServerHop = false
+		}
 		//}()
 		return
 	} else {
@@ -1309,6 +1311,13 @@ func (b *Talkkonnect) httpHandler(w http.ResponseWriter, r *http.Request) {
 		} else {
 			fmt.Fprintf(w, "API Send Email Config Denied\n")
 		}
+	case "commandKeyCtrlF":
+		if APINextServer {
+			b.commandKeyCtrlF()
+			fmt.Fprintf(w, "API Previous Server Processed Successfully\n")
+		} else {
+			fmt.Fprintf(w, "API Previous Server Denied\n")
+		}
 	case "commandKeyCtrlN":
 		if APINextServer {
 			b.commandKeyCtrlN()
@@ -1775,6 +1784,36 @@ func (b *Talkkonnect) commandKeyCtrlE() {
 	} else {
 		log.Println("info: Sending Email Disabled in Config")
 	}
+	log.Println("--")
+}
+
+func (b *Talkkonnect) commandKeyCtrlF() {
+	log.Println("--")
+	log.Println("Ctrl-N Connect Previous Server Requested")
+
+	if TTSEnabled && TTSPreviousServer {
+		err := PlayWavLocal(TTSPreviousServerFileNameAndPath, TTSVolumeLevel)
+		if err != nil {
+			log.Println("Play Wav Local Module Returned Error: ", err)
+		}
+
+	}
+
+	if AccountIndex == 0 {
+		AccountIndex = (len(Name) - 1)
+	} else {
+		AccountIndex--
+	}
+	ServerHop = true
+	b.Client.Disconnect()
+
+	b.Name = Name[AccountIndex]
+	b.Address = Server[AccountIndex]
+	b.Username = Username[AccountIndex]
+	b.Ident = Ident[AccountIndex]
+	b.ChannelName = Channel[AccountIndex]
+
+	b.PreInit1(true)
 	log.Println("--")
 }
 

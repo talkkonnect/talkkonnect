@@ -42,7 +42,7 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.46.21"
+	talkkonnectVersion  string = "1.46.22"
 	talkkonnectReleased string = "July 24 2019"
 )
 
@@ -123,6 +123,8 @@ var (
 	TTSRequestGpsPositionFileNameAndPath string
 	TTSNextServer                        bool
 	TTSNextServerFileNameAndPath         string
+	TTSPreviousServer                    bool
+	TTSPreviousServerFileNameAndPath     string
 	TTSPanicSimulation                   bool
 	TTSPanicSimulationFileNameAndPath    string
 	TTSPrintXmlConfig                    bool
@@ -188,6 +190,7 @@ var (
 	APIRequestGpsPosition bool
 	APIEmailEnabled       bool
 	APINextServer         bool
+	APIPreviousServer     bool
 	APIPanicSimulation    bool
 	APIScanChannels       bool
 	APIDisplayVersion     bool
@@ -438,6 +441,8 @@ type TTS struct {
 	TTSRequestGpsPositionFileNameAndPath string   `xml:"requestgpspositionfilenameandpath"`
 	TTSNextServer                        bool     `xml:"nextserver"`
 	TTSNextServerFileNameAndPath         string   `xml:"nextserverfilenameandpath"`
+	TTSPreviousServer                    bool     `xml:"previousserver"`
+	TTSPreviousServerFileNameAndPath     string   `xml:"previousserverfilenameandpath"`
 	TTSPanicSimulation                   bool     `xml:"panicsimulation"`
 	TTSPanicSimulationFileNameAndPath    string   `xml:"panicsimulationfilenameandpath"`
 	TTSPrintXmlConfig                    bool     `xml:"printxmlconfig"`
@@ -494,6 +499,7 @@ type API struct {
 	APIRequestGpsPosition bool     `xml:"requestgpsposition"`
 	APIEmailEnabled       bool     `xml:"sendemail"`
 	APINextServer         bool     `xml:"nextserver"`
+	APIPreviousServer     bool     `xml:"previousserver"`
 	APIPanicSimulation    bool     `xml:"panicsimulation"`
 	APIScanChannels       bool     `xml:"scanchannels"`
 	APIDisplayVersion     bool     `xml:"displayversion"`
@@ -753,6 +759,8 @@ func readxmlconfig(file string) error {
 	TTSRequestGpsPositionFileNameAndPath = document.Global.Software.TTS.TTSRequestGpsPositionFileNameAndPath
 	TTSNextServer = document.Global.Software.TTS.TTSNextServer
 	TTSNextServerFileNameAndPath = document.Global.Software.TTS.TTSNextServerFileNameAndPath
+	TTSPreviousServer = document.Global.Software.TTS.TTSPreviousServer
+	TTSPreviousServerFileNameAndPath = document.Global.Software.TTS.TTSPreviousServerFileNameAndPath
 	TTSPanicSimulation = document.Global.Software.TTS.TTSPanicSimulation
 	TTSPanicSimulationFileNameAndPath = document.Global.Software.TTS.TTSPanicSimulationFileNameAndPath
 	TTSPrintXmlConfig = document.Global.Software.TTS.TTSPrintXmlConfig
@@ -813,6 +821,7 @@ func readxmlconfig(file string) error {
 	APIRequestGpsPosition = document.Global.Software.API.APIRequestGpsPosition
 	APIEmailEnabled = document.Global.Software.API.APIEmailEnabled
 	APINextServer = document.Global.Software.API.APINextServer
+	APIPreviousServer = document.Global.Software.API.APIPreviousServer
 	APIPanicSimulation = document.Global.Software.API.APIPanicSimulation
 	APIScanChannels = document.Global.Software.API.APIScanChannels
 	APIDisplayVersion = document.Global.Software.API.APIDisplayVersion
@@ -1018,6 +1027,8 @@ func printxmlconfig() {
 		log.Println("info: TTS RequestGpsPositionFileNameAndPath ", TTSRequestGpsPositionFileNameAndPath)
 		log.Println("info: TTS NextServer         ", fmt.Sprintf("%t", TTSNextServer))
 		log.Println("info: TTS NextServerFileNameAndPath         ", TTSNextServerFileNameAndPath)
+		log.Println("info: TTS PreviousServer     ", fmt.Sprintf("%t", TTSPreviousServer))
+		log.Println("info: TTS PreviousServerFileNameAndPath  ", TTSPreviousServerFileNameAndPath)
 		log.Println("info: TTS PanicSimulation    ", fmt.Sprintf("%t", TTSPanicSimulation))
 		log.Println("info: TTS PanicSimulationFileNameAndPath ", TTSPanicSimulationFileNameAndPath)
 		log.Println("info: TTS PrintXmlConfig     ", fmt.Sprintf("%t", TTSPrintXmlConfig))
@@ -1096,6 +1107,7 @@ func printxmlconfig() {
 		log.Println("info: RequestGpsPosition " + fmt.Sprintf("%t", APIRequestGpsPosition))
 		log.Println("info: EmailEnabled       " + fmt.Sprintf("%t", APIEmailEnabled))
 		log.Println("info: NextServer         " + fmt.Sprintf("%t", APINextServer))
+		log.Println("info: PreviousServer     " + fmt.Sprintf("%t", APIPreviousServer))
 		log.Println("info: PanicSimulation    " + fmt.Sprintf("%t", APIPanicSimulation))
 		log.Println("info: ScanChannels       " + fmt.Sprintf("%t", APIScanChannels))
 		log.Println("info: DisplayVersion     " + fmt.Sprintf("%t", APIDisplayVersion))

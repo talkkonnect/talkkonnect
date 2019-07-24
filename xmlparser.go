@@ -72,6 +72,7 @@ var (
 	Logging            string
 	Daemonize          bool
         SimplexWithMute    bool
+	TxCounter          bool
 )
 
 //autoprovision settings
@@ -385,6 +386,8 @@ type Settings struct {
 	Daemonize          bool     `xml:"daemonize"`
 	CancellableStream  bool     `xml:"cancellablestream"`
         SimplexWithMute    bool	    `xml:"simplexwithmute"`
+        TxCounter    	   bool	    `xml:"txcounter"`
+
 }
 
 type AutoProvisioning struct {
@@ -708,6 +711,7 @@ func readxmlconfig(file string) error {
 	Daemonize = document.Global.Software.Settings.Daemonize
 	CancellableStream = document.Global.Software.Settings.CancellableStream
         SimplexWithMute  = document.Global.Software.Settings.SimplexWithMute
+        TxCounter  = document.Global.Software.Settings.TxCounter
 
 	APEnabled = document.Global.Software.AutoProvisioning.APEnabled
 	TkId = document.Global.Software.AutoProvisioning.TkId
@@ -957,6 +961,7 @@ func printxmlconfig() {
 		log.Println("info: Daemonize         " + fmt.Sprintf("%t", Daemonize))
 		log.Println("info: CancellableStream " + fmt.Sprintf("%t", CancellableStream))
 		log.Println("info: SimplexWithMute   " + fmt.Sprintf("%t", SimplexWithMute))
+		log.Println("info: TxCounter         " + fmt.Sprintf("%t", TxCounter))
 	} else {
 		log.Println("info: --------   Logging & Daemonizing -------- SKIPPED ")
 	}

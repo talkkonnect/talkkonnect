@@ -37,7 +37,6 @@ import (
 )
 
 var ledpin = 0
-var loglevel = 3
 
 func (b *Talkkonnect) initGPIO() {
 
@@ -106,7 +105,7 @@ func (b *Talkkonnect) initGPIO() {
 									isTx = false
 									b.TransmitStop(true)
 									time.Sleep(750 * time.Millisecond)
-									if loglevel > 2 {
+									if TxCounter {
 										txcounter++
 										log.Println("info: Tx Button Count ", txcounter)
 									}

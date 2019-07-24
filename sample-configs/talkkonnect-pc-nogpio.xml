@@ -27,7 +27,8 @@
         <logging>screen</logging>    <!--set logging to screen if screen only desired otherwise leave it as blank and talkkonnect will log to both screen and logfile -->
         <daemonize>false</daemonize> <!-- this feature is not implemented yet -->
         <cancellablestream>true</cancellablestream> <!-- Set to true if you allow others to stop your streaming upon keying up -->
-	<simplexwithmute>true<simplexwithmute>
+	<simplexwithmute>true</simplexwithmute>
+	<txcounter>true</txcounter>
       </settings>
 
       <!-- http autoprovisioning server and client details -->

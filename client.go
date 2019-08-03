@@ -259,6 +259,13 @@ func (b *Talkkonnect) Init() {
 
 	talkkonnectBanner()
 
+	err = volume.Unmute(OutputDevice)
+	if err != nil {
+		log.Println("warn: Unable to Unmute ", err)
+	} else {
+		log.Println("info: Speaker UnMuted Before Connect to Server")
+	}
+
 	if TTSEnabled && TTSTalkkonnectLoaded {
 		err := PlayWavLocal(TTSTalkkonnectLoadedFileNameAndPath, TTSVolumeLevel)
 		if err != nil {

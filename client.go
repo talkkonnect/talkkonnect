@@ -539,15 +539,6 @@ func (b *Talkkonnect) TransmitStop(withBeep bool) {
 
 	b.BackLightTimer()
 
-	if RogerBeepSoundEnabled {
-		if withBeep {
-			err := b.RogerBeep(RogerBeepSoundFilenameAndPath, RogerBeepSoundVolume)
-			if err != nil {
-				log.Println("alert: Roger Beep Module Returned Error: ", err)
-			}
-		}
-	}
-
 	if TargetBoard == "rpi" {
 		b.LEDOff(b.TransmitLED)
 
@@ -562,6 +553,16 @@ func (b *Talkkonnect) TransmitStop(withBeep bool) {
 
 	b.IsTransmitting = false
 	b.Stream.StopSource()
+
+	if RogerBeepSoundEnabled {
+		if withBeep {
+			err := b.RogerBeep(RogerBeepSoundFilenameAndPath, RogerBeepSoundVolume)
+			if err != nil {
+				log.Println("alert: Roger Beep Module Returned Error: ", err)
+			}
+		}
+	}
+
 
 	if SimplexWithMute {
 		err := volume.Unmute(OutputDevice)

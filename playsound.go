@@ -43,14 +43,15 @@ var stream *gumbleffmpeg.Stream
 
 func (b *Talkkonnect) PlayIntoStream(filepath string, vol float32) {
 
-	if stream != nil && stream.State() == gumbleffmpeg.StatePlaying {
-		log.Println(fmt.Sprintf("info: Streaming Stopped", filepath))
+
+	if b.IsPlayStream == false {
+		log.Println(fmt.Sprintf("info: File %s Stopped!", filepath))
 		stream.Stop()
 		b.LEDOff(b.TransmitLED)
 		return
 	}
 
-	if ChimesSoundEnabled {
+	if ChimesSoundEnabled && b.IsPlayStream {
 		if stream != nil && stream.State() == gumbleffmpeg.StatePlaying {
 			time.Sleep(100 * time.Millisecond)
 			return
@@ -59,8 +60,8 @@ func (b *Talkkonnect) PlayIntoStream(filepath string, vol float32) {
 		b.LEDOn(b.TransmitLED)
 
 		time.Sleep(100 * time.Millisecond)
+		b.IsPlayStream = true
 		stream = gumbleffmpeg.New(b.Client, gumbleffmpeg.SourceFile(filepath), vol)
-
 		if err := stream.Play(); err != nil {
 			log.Println(fmt.Sprintf("alert: Can't play %s error %s", filepath, err))
 		} else {

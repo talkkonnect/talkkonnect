@@ -98,6 +98,7 @@ type Talkkonnect struct {
 
 	IsConnected    bool
 	IsTransmitting bool
+	IsPlayStream   bool
 
 	GPIOEnabled        bool
 	OnlineLED          gpio.Pin
@@ -410,7 +411,7 @@ func (b *Talkkonnect) CleanUp() {
 
 func (b *Talkkonnect) Connect() {
 	b.IsConnected = false
-	isPlayStream = false
+	b.IsPlayStream = false
 
 	time.Sleep(2 * time.Second)
 
@@ -431,7 +432,7 @@ func (b *Talkkonnect) Connect() {
 
 func (b *Talkkonnect) ReConnect() {
 	b.IsConnected = false
-	isPlayStream = false
+	b.IsPlayStream = false
 	if b.Client != nil {
 		log.Println("warn: Attempting Reconnection With Server")
 		b.Client.Disconnect()
@@ -528,6 +529,12 @@ func (b *Talkkonnect) TransmitStart() {
 			oledDisplay(false, 7, 1, "www.talkkonnect.com")
 		}
 	}
+
+	if b.IsPlayStream {
+		b.IsPlayStream = false
+		b.PlayIntoStream(ChimesSoundFilenameAndPath, ChimesSoundVolume)
+	}
+
 	b.IsTransmitting = true
 	b.Stream.StartSource()
 }
@@ -1632,23 +1639,29 @@ func (b *Talkkonnect) commandKeyF7() {
 }
 
 func (b *Talkkonnect) commandKeyF8() {
-	log.Println("--")
-	log.Println("F8 pressed TX Mode Requested (Start Transmitting)")
+        log.Println("--")
+        log.Println("F8 pressed TX Mode Requested (Start Transmitting)")
 
-	if TTSEnabled && TTSStartTransmitting {
-		err := PlayWavLocal(TTSStartTransmittingFileNameAndPath, TTSVolumeLevel)
-		if err != nil {
-			log.Println("Play Wav Local Module Returned Error: ", err)
-		}
+        if TTSEnabled && TTSStartTransmitting {
+                err := PlayWavLocal(TTSStartTransmittingFileNameAndPath, TTSVolumeLevel)
+                if err != nil {
+                        log.Println("Play Wav Local Module Returned Error: ", err)
+                }
 
+        }
+
+	if b.IsPlayStream {
+		b.IsPlayStream = false
+		b.PlayIntoStream(ChimesSoundFilenameAndPath, ChimesSoundVolume)
 	}
+
 	if !b.IsTransmitting {
-		b.TransmitStart()
-		time.Sleep(200 * time.Millisecond)
-	} else {
-		log.Println("warn: Already in Transmitting Mode")
-	}
-	log.Println("--")
+                b.TransmitStart()
+                time.Sleep(200 * time.Millisecond)
+        } else {
+                log.Println("warn: Already in Transmitting Mode")
+        }
+        log.Println("--")
 }
 
 func (b *Talkkonnect) commandKeyF9() {
@@ -1661,6 +1674,11 @@ func (b *Talkkonnect) commandKeyF9() {
 			log.Println("Play Wav Local Module Returned Error: ", err)
 		}
 
+	}
+
+	if b.IsPlayStream {
+		b.IsPlayStream = false
+		b.PlayIntoStream(ChimesSoundFilenameAndPath, ChimesSoundVolume)
 	}
 
 	if b.IsTransmitting {
@@ -1704,18 +1722,14 @@ func (b *Talkkonnect) commandKeyF11() {
 
 	}
 
-	if b.IsTransmitting {
-		log.Println("--")
-		b.TransmitStop(false)
-		isPlayStream = false
-	} else {
-		b.IsTransmitting = true
+	b.IsPlayStream =! b.IsPlayStream
+
+	if b.IsPlayStream {
 		b.SendMessage(fmt.Sprintf("%s Streaming", b.Username), false)
-		isPlayStream = true
-		go b.PlayIntoStream(ChimesSoundFilenameAndPath, ChimesSoundVolume)
 	}
-	b.IsTransmitting = false
-	log.Println("--")
+
+	go b.PlayIntoStream(ChimesSoundFilenameAndPath, ChimesSoundVolume)
+
 }
 
 func (b *Talkkonnect) commandKeyF12() {

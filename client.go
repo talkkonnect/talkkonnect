@@ -1657,7 +1657,7 @@ func (b *Talkkonnect) commandKeyF8() {
 
 	if !b.IsTransmitting {
                 b.TransmitStart()
-                time.Sleep(200 * time.Millisecond)
+                time.Sleep(100 * time.Millisecond)
         } else {
                 log.Println("warn: Already in Transmitting Mode")
         }
@@ -1683,7 +1683,7 @@ func (b *Talkkonnect) commandKeyF9() {
 
 	if b.IsTransmitting {
 		b.TransmitStop(true)
-		time.Sleep(200 * time.Millisecond)
+		time.Sleep(100 * time.Millisecond)
 	} else {
 		log.Println("warn: Already Stopped Transmitting")
 	}
@@ -2057,7 +2057,7 @@ func (b *Talkkonnect) BackLightTimer() {
 	go func() {
 		<-BackLightTime.C
 		//log.Printf("debug: LCD Backlight Timer Address %v", BackLightTime, " Off Timed Out After", LCDBackLightTimeoutSecs, " Seconds\n")
-		time.Sleep(200 * time.Millisecond)
+		time.Sleep(100 * time.Millisecond)
 		if LCDInterfaceType == "parallel" {
 			b.LEDOff(b.BackLightLED)
 		}

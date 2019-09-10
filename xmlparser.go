@@ -42,7 +42,7 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.46.26"
+	talkkonnectVersion  string = "1.46.27"
 	talkkonnectReleased string = "September 10 2019"
 )
 
@@ -251,6 +251,7 @@ var (
 	UpButtonPin    uint
 	DownButtonPin  uint
 	PanicButtonPin uint
+	ChimesButtonPin uint
 )
 
 //comment settings
@@ -601,6 +602,7 @@ type Buttons struct {
 	UpButtonPin    string   `xml:"upbuttonpin"`
 	DownButtonPin  string   `xml:"downbuttonpin"`
 	PanicButtonPin string   `xml:"panicbuttonpin"`
+	ChimesButtonPin string   `xml:"chimesbuttonpin"`
 }
 
 type Comment struct {
@@ -887,6 +889,8 @@ func readxmlconfig(file string) error {
 	CommentButtonPin = uint(temp11)
 	CommentMessageOff = document.Global.Hardware.Comment.CommentMessageOff
 	CommentMessageOn = document.Global.Hardware.Comment.CommentMessageOn
+	temp12, _ := strconv.ParseUint(document.Global.Hardware.Buttons.ChimesButtonPin, 10, 64)
+	ChimesButtonPin = uint(temp12)
 
 	LCDEnabled = document.Global.Hardware.LCD.LCDEnabled
 	LCDInterfaceType = document.Global.Hardware.LCD.LCDInterfaceType
@@ -895,8 +899,8 @@ func readxmlconfig(file string) error {
 	LCDBackLightTimeoutSecs = document.Global.Hardware.LCD.LCDBackLightTimeoutSecs
 
 	// my stupid work arround for null uint xml unmarshelling problem with numbers so use strings and convert it 2 times
-	temp12, _ := strconv.ParseUint(document.Global.Hardware.LCD.BackLightLEDPin, 10, 64)
-	LCDBackLightLEDPin = int(temp12)
+	temp13, _ := strconv.ParseUint(document.Global.Hardware.LCD.BackLightLEDPin, 10, 64)
+	LCDBackLightLEDPin = int(temp13)
 
 	LCDRSPin = document.Global.Hardware.LCD.RsPin
 	LCDEPin = document.Global.Hardware.LCD.EsPin
@@ -1152,6 +1156,7 @@ func printxmlconfig() {
 		log.Println("info: Channel Up Button Pin   " + fmt.Sprintf("%v", UpButtonPin))
 		log.Println("info: Channel Down Button Pin " + fmt.Sprintf("%v", DownButtonPin))
 		log.Println("info: Panic Button Pin        " + fmt.Sprintf("%v", PanicButtonPin))
+		log.Println("info: Chimes Button Pin       " + fmt.Sprintf("%v", ChimesButtonPin))
 	} else {
 		log.Println("info: ------------ Buttons  ------------------- SKIPPED ")
 	}

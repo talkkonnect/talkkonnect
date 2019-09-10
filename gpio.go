@@ -82,6 +82,11 @@ func (b *Talkkonnect) initGPIO() {
 		CommentButtonPinPullUp.PullUp()
 	}
 
+	if ChimesButtonPin > 0 {
+		ChimesButtonPinPullUp := rpio.Pin(ChimesButtonPin)
+		ChimesButtonPinPullUp.PullUp()
+	}
+
 	if TxButtonPin > 0 || TxTogglePin > 0 || UpButtonPin > 0 || DownButtonPin > 0 || PanicButtonPin > 0 || CommentButtonPin > 0 {
 		rpio.Close()
 	}
@@ -311,6 +316,38 @@ func (b *Talkkonnect) initGPIO() {
 		}()
 
 	}
+
+	if ChimesButtonPin > 0 {
+
+		b.ChimesButton = gpio.NewInput(ChimesButtonPin)
+		go func() {
+			for {
+				if b.IsConnected {
+
+					currentState, err := b.ChimesButton.Read()
+					time.Sleep(200 * time.Millisecond)
+
+					if currentState != b.ChimesButtonState && err == nil {
+						b.ChimesButtonState = currentState
+
+						if b.ChimesButtonState == 1 {
+							log.Println("info: Chimes Button is released")
+						} else {
+							log.Println("info: Chimes Button is pressed")
+ 							b.commandKeyF11()
+							time.Sleep(200 * time.Millisecond)
+						}
+					}
+				} else {
+					_, err := b.ChimesButton.Read()
+					if err != nil && b.IsConnected {
+						log.Println("warn: Error Reading Chimes Button ", err)
+					}
+				}
+			}
+		}()
+	}
+
 
 	if OnlineLEDPin > 0 {
 		b.OnlineLED = gpio.NewOutput(OnlineLEDPin, false)

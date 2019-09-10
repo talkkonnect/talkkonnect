@@ -120,6 +120,8 @@ type Talkkonnect struct {
 	PanicButtonState   uint
 	CommentButton      gpio.Pin
 	CommentButtonState uint
+	ChimesButton      gpio.Pin
+	ChimesButtonState uint
 }
 
 // new configurable functionality not yet moved to XML

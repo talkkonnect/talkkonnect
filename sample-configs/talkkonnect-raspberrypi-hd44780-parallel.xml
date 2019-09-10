@@ -239,6 +239,7 @@
         <upbuttonpin>19</upbuttonpin>         <!-- Push Button to Incement Channel -->
         <downbuttonpin>13</downbuttonpin>     <!-- Push Button to Decrement Channel -->
         <panicbuttonpin>14</panicbuttonpin>   <!-- Push Button to Send out Panic Distress Call -->
+  	<chimesbuttonpin></chimesbuttonpin>     <!-- Push Button to Start Stop Chimes/Streaming -->
       </buttons>
 
       <!-- Set GPIO for Away Toggle Switch and Away Message -->

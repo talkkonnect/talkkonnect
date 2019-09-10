@@ -35,8 +35,10 @@ import (
 	"github.com/talkkonnect/volume-go"
 	"log"
 	"net"
+	"os"
 	"time"
 )
+
 
 func talkkonnectBanner() {
 	log.Println("info: ┌────────────────────────────────────────────────────────────────┐")
@@ -54,8 +56,8 @@ func talkkonnectBanner() {
 	log.Println("info: │Additional Modifications Released under MPL 2.0 License         │")
 	log.Println("info: │visit us at www.talkkonnect.com and github.com/talkkonnect      │")
 	log.Println("info: └────────────────────────────────────────────────────────────────┘")
-	log.Printf ("info: Talkkonnect Version %v Released %v",talkkonnectVersion,talkkonnectReleased)
-	log.Printf ("info: ")
+	log.Printf("info: Talkkonnect Version %v Released %v", talkkonnectVersion, talkkonnectReleased)
+	log.Printf("info: ")
 }
 
 func talkkonnectAcknowledgements() {
@@ -96,7 +98,7 @@ func (b *Talkkonnect) talkkonnectMenu() {
 	log.Println("info: │<Ctrl-E> Send Email          │<Ctrl-N> Conn Next Server       │")
 	log.Println("info: │<Ctrl-F> Conn Previous Server│<Ctrl-P> Panic Simulation       │")
 	log.Println("info: │<Ctrl-Q> Reserved            │<Ctrl-S> Scan Channels          │")
-        log.Println("info: │<Ctrl-V> Display Version     │<Ctrl-T> Thanks/Acknowledgements│")
+	log.Println("info: │<Ctrl-V> Display Version     │<Ctrl-T> Thanks/Acknowledgements│")
 	log.Println("info: ├─────────────────────────────┼────────────────────────────────┤")
 	log.Println("info: │<Ctrl-L> Clear Screen        │<Ctrl-O> Ping Servers           │")
 	log.Println("info: │<Ctrl-R> Repeat TX Loop Test │<Ctrl-X> Dump XML Config        │")
@@ -113,13 +115,20 @@ func (b *Talkkonnect) talkkonnectMenu() {
 		log.Println("info: Speaker Currently Muted")
 	} else {
 		origVolume, err := volume.GetVolume(OutputDevice)
-        	if err == nil {
-                	log.Printf("info: Speaker Not Muted & Current Volume at Level %v%%\n", origVolume)
-        	} else {
-                	log.Println("error: Can't Get Volume Level From Sound Card!")
+		if err == nil {
+			log.Printf("info: Speaker Not Muted & Current Volume at Level %v%%\n", origVolume)
+		} else {
+			log.Println("error: Can't Get Volume Level From Sound Card!")
 		}
 	}
-	log.Printf ("info: Talkkonnect Version %v Released %v\n",talkkonnectVersion,talkkonnectReleased)
+	hostname, err1 := os.Hostname()
+	if err1 != nil {
+		log.Printf("error: Cannot Get Hostname\n")
+	} else {
+		log.Printf("info: Hostname is %s\n", hostname)
+	}
+
+	log.Printf("info: Talkkonnect Version %v Released %v\n", talkkonnectVersion, talkkonnectReleased)
 }
 
 func localAddresses() {

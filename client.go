@@ -76,6 +76,7 @@ var (
 	httpServRunning      bool
 	message              string
 	isrepeattx           bool = true
+	NowStreaming         bool
 )
 
 type Talkkonnect struct {
@@ -412,7 +413,7 @@ func (b *Talkkonnect) CleanUp() {
 func (b *Talkkonnect) Connect() {
 	b.IsConnected = false
 	b.IsPlayStream = false
-
+	NowStreaming = false
 	time.Sleep(2 * time.Second)
 
 	var err error
@@ -433,6 +434,8 @@ func (b *Talkkonnect) Connect() {
 func (b *Talkkonnect) ReConnect() {
 	b.IsConnected = false
 	b.IsPlayStream = false
+	NowStreaming = false
+
 	if b.Client != nil {
 		log.Println("warn: Attempting Reconnection With Server")
 		b.Client.Disconnect()
@@ -514,6 +517,14 @@ func (b *Talkkonnect) TransmitStart() {
 		}
 	}
 
+	if b.IsPlayStream {
+		b.IsPlayStream = false
+		NowStreaming = false
+		b.PlayIntoStream(ChimesSoundFilenameAndPath, ChimesSoundVolume)
+		time.Sleep(100 * time.Millisecond)
+	}
+
+
 	if TargetBoard == "rpi" {
 		b.LEDOn(b.TransmitLED)
 		if LCDEnabled == true {
@@ -528,11 +539,6 @@ func (b *Talkkonnect) TransmitStart() {
 			oledDisplay(false, 6, 1, "Please Visit       ")
 			oledDisplay(false, 7, 1, "www.talkkonnect.com")
 		}
-	}
-
-	if b.IsPlayStream {
-		b.IsPlayStream = false
-		b.PlayIntoStream(ChimesSoundFilenameAndPath, ChimesSoundVolume)
 	}
 
 	b.IsTransmitting = true
@@ -1652,6 +1658,8 @@ func (b *Talkkonnect) commandKeyF8() {
 
 	if b.IsPlayStream {
 		b.IsPlayStream = false
+		NowStreaming = false
+
 		b.PlayIntoStream(ChimesSoundFilenameAndPath, ChimesSoundVolume)
 	}
 
@@ -1678,6 +1686,8 @@ func (b *Talkkonnect) commandKeyF9() {
 
 	if b.IsPlayStream {
 		b.IsPlayStream = false
+		NowStreaming = false
+
 		b.PlayIntoStream(ChimesSoundFilenameAndPath, ChimesSoundVolume)
 	}
 
@@ -1723,6 +1733,7 @@ func (b *Talkkonnect) commandKeyF11() {
 	}
 
 	b.IsPlayStream =! b.IsPlayStream
+	NowStreaming = b.IsPlayStream
 
 	if b.IsPlayStream {
 		b.SendMessage(fmt.Sprintf("%s Streaming", b.Username), false)

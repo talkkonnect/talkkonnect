@@ -184,7 +184,7 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 		for packet := range e.C {
 			samples := len(packet.AudioBuffer)
 
-			if CancellableStream {
+			if CancellableStream && NowStreaming {
 				stream.Stop()
 			}
 

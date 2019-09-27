@@ -29,14 +29,18 @@
 
 package talkkonnect
 
+
 import (
 	"github.com/stianeikeland/go-rpio"
 	"github.com/talkkonnect/gpio"
 	"log"
 	"time"
+	"os"
+	"os/exec"
 )
 
 var ledpin = 0
+var connectFailCounter int = 0
 
 func (b *Talkkonnect) initGPIO() {
 
@@ -106,7 +110,7 @@ func (b *Talkkonnect) initGPIO() {
 
 						if b.Stream != nil {
 							if b.TxButtonState == 1 {
-									if isTx {
+								if isTx {
 									isTx = false
 									b.TransmitStop(true)
 									time.Sleep(750 * time.Millisecond)
@@ -127,10 +131,8 @@ func (b *Talkkonnect) initGPIO() {
 						}
 					}
 				} else {
-					_, err := b.TxButton.Read()
-					if err != nil && b.IsConnected {
-						log.Println("warn: Error Reading TxButton")
-					}
+					ConnectErrorMessage()
+					time.Sleep(2 * time.Second)
 				}
 			}
 		}()
@@ -183,10 +185,8 @@ func (b *Talkkonnect) initGPIO() {
 						}
 					}
 				} else {
-					_, err := b.TxToggle.Read()
-					if err != nil && b.IsConnected {
-						log.Println("warn: Error Reading TxToggle Button")
-					}
+					ConnectErrorMessage()
+					time.Sleep(2 * time.Second)
 				}
 			}
 		}()
@@ -214,10 +214,8 @@ func (b *Talkkonnect) initGPIO() {
 
 					}
 				} else {
-					_, err := b.UpButton.Read()
-					if err != nil && b.IsConnected {
-						log.Println("warn: Error Reading TxToggle Button")
-					}
+					ConnectErrorMessage()
+					time.Sleep(2 * time.Second)
 				}
 			}
 		}()
@@ -244,10 +242,8 @@ func (b *Talkkonnect) initGPIO() {
 						}
 					}
 				} else {
-					_, err := b.DownButton.Read()
-					if err != nil && b.IsConnected {
-						log.Println("warn: Error Reading Down Button")
-					}
+					ConnectErrorMessage()
+					time.Sleep(2 * time.Second)
 				}
 			}
 		}()
@@ -275,10 +271,8 @@ func (b *Talkkonnect) initGPIO() {
 						}
 					}
 				} else {
-					_, err := b.PanicButton.Read()
-					if err != nil && b.IsConnected {
-						log.Println("warn: Error Reading Panic Button ", err)
-					}
+					ConnectErrorMessage()
+					time.Sleep(2 * time.Second)
 				}
 			}
 		}()
@@ -307,10 +301,8 @@ func (b *Talkkonnect) initGPIO() {
 						time.Sleep(200 * time.Millisecond)
 					}
 				} else {
-					_, err := b.CommentButton.Read()
-					if err != nil && b.IsConnected {
-						log.Println("warn: Error Reading Comment Button ", err)
-					}
+					ConnectErrorMessage()
+					time.Sleep(2 * time.Second)
 				}
 			}
 		}()
@@ -334,20 +326,17 @@ func (b *Talkkonnect) initGPIO() {
 							log.Println("info: Chimes Button is released")
 						} else {
 							log.Println("info: Chimes Button is pressed")
- 							b.commandKeyF11()
+							b.commandKeyF11()
 							time.Sleep(200 * time.Millisecond)
 						}
 					}
 				} else {
-					_, err := b.ChimesButton.Read()
-					if err != nil && b.IsConnected {
-						log.Println("warn: Error Reading Chimes Button ", err)
-					}
+					ConnectErrorMessage()
+					time.Sleep(2 * time.Second)
 				}
 			}
 		}()
 	}
-
 
 	if OnlineLEDPin > 0 {
 		b.OnlineLED = gpio.NewOutput(OnlineLEDPin, false)
@@ -428,3 +417,22 @@ func (b *Talkkonnect) LEDOffAll() {
 		LEDOffFunc(b.VoiceActivityLED)
 	}
 }
+
+func ConnectErrorMessage() {
+	connectFailCounter++
+	if connectFailCounter == 5 || connectFailCounter == 30 || connectFailCounter == 90 {
+		log.Println("warn: Cannot Connect to Server, Retrying")
+		return
+	}
+
+	if connectFailCounter == 100 {
+		log.Println("warn: Cannot Connect to Server! Giving Up")
+		log.Println("warn: Shutting Down talkkonnect due to multiple connection to server failures")
+		time.Sleep(2 * time.Second)
+        	c := exec.Command("reset")
+        	c.Stdout = os.Stdout
+        	c.Run()
+        	os.Exit(0)
+	}
+}
+

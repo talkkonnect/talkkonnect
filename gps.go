@@ -36,16 +36,18 @@ import (
 	"fmt"
 	"github.com/jacobsa/go-serial/serial"
 	"github.com/talkkonnect/go-nmea"
+	"io/ioutil"
 	"log"
+	"net/http"
 )
 
 var (
-	tracCarUrl string = "http://demo.traccar.org"
-	tracCarPort string = "5060"
-	tracCarID string = "12345"
+	sendToTracCar  bool   = true
+	tracCarUrl     string = "http://demo.traccar.org"
+	tracCarPort    string = "5060"
+	tracCarID      string = "12345"
+	tracCarFullUrl string = ""
 )
-
-
 
 var goodGPSRead bool = false
 
@@ -130,6 +132,7 @@ func getGpsPosition(verbose bool) (bool, error) {
 						m := s.(nmea.RMC)
 						if m.Latitude != 0 && m.Longitude != 0 {
 							goodGPSRead = true
+							tracCarFullUrl = fmt.Sprintf(tracCarUrl + ":" + tracCarPort + "?" + "id=" + tracCarID + "&" + "lat={" + nmea.FormatGPS(m.Latitude) + "}" + "&" + "lon={" + nmea.FormatGPS(m.Longitude) + "}" + "&" + "timestamp={" + GPSTime + "}" + "&" + "hdop={" + "}" + "&a")
 							GPSTime = fmt.Sprintf("%v", m.Time)
 							GPSDate = fmt.Sprintf("%v", m.Date)
 							GPSLatitude = m.Latitude
@@ -145,8 +148,11 @@ func getGpsPosition(verbose bool) (bool, error) {
 								log.Println("info: Course: ", m.Course)
 								log.Println("info: Date: ", m.Date)
 								log.Println("info: Variation: ", m.Variation)
-log.Println(fmt.Sprintf(tracCarUrl+":"+tracCarPort+"?"+"id="+tracCarID+"&"+"lat={"+nmea.FormatGPS(m.Latitude)+"}"+"&"+"lon={"+nmea.FormatGPS(m.Longitude)+"}"+"&"+"timestamp={"+GPSTime+"}"+"&"+"hdop={"+"}"+"&a"))
+								log.Println(tracCarFullUrl)
 
+							}
+							if sendToTracCar {
+								httpSendTracCar()
 							}
 							break
 						} else {
@@ -166,4 +172,21 @@ log.Println(fmt.Sprintf(tracCarUrl+":"+tracCarPort+"?"+"id="+tracCarID+"&"+"lat=
 		return goodGPSRead, nil
 	}
 	return false, errors.New("GPS Not Enabled")
+}
+
+func httpSendTracCar() {
+	response, err := http.Get(tracCarFullUrl)
+	if err != nil {
+		log.Println("error: Cannot Read traccar Webpage! Error ", err)
+		return
+	} else {
+		defer response.Body.Close()
+		contents, err := ioutil.ReadAll(response.Body)
+		if err != nil {
+			log.Println("error: Error Sending Data to traccar Webpage!", )
+		} else {
+			log.Println("info: traccar web response ", string(contents))
+			}
+	}
+
 }

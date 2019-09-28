@@ -120,8 +120,8 @@ type Talkkonnect struct {
 	PanicButtonState   uint
 	CommentButton      gpio.Pin
 	CommentButtonState uint
-	ChimesButton      gpio.Pin
-	ChimesButtonState uint
+	ChimesButton       gpio.Pin
+	ChimesButtonState  uint
 }
 
 // new configurable functionality not yet moved to XML
@@ -526,7 +526,6 @@ func (b *Talkkonnect) TransmitStart() {
 		time.Sleep(100 * time.Millisecond)
 	}
 
-
 	if TargetBoard == "rpi" {
 		b.LEDOn(b.TransmitLED)
 		if LCDEnabled == true {
@@ -577,7 +576,6 @@ func (b *Talkkonnect) TransmitStop(withBeep bool) {
 			}
 		}
 	}
-
 
 	if SimplexWithMute {
 		err := volume.Unmute(OutputDevice)
@@ -1647,16 +1645,16 @@ func (b *Talkkonnect) commandKeyF7() {
 }
 
 func (b *Talkkonnect) commandKeyF8() {
-        log.Println("--")
-        log.Println("F8 pressed TX Mode Requested (Start Transmitting)")
+	log.Println("--")
+	log.Println("F8 pressed TX Mode Requested (Start Transmitting)")
 
-        if TTSEnabled && TTSStartTransmitting {
-                err := PlayWavLocal(TTSStartTransmittingFileNameAndPath, TTSVolumeLevel)
-                if err != nil {
-                        log.Println("Play Wav Local Module Returned Error: ", err)
-                }
+	if TTSEnabled && TTSStartTransmitting {
+		err := PlayWavLocal(TTSStartTransmittingFileNameAndPath, TTSVolumeLevel)
+		if err != nil {
+			log.Println("Play Wav Local Module Returned Error: ", err)
+		}
 
-        }
+	}
 
 	if b.IsPlayStream {
 		b.IsPlayStream = false
@@ -1666,12 +1664,12 @@ func (b *Talkkonnect) commandKeyF8() {
 	}
 
 	if !b.IsTransmitting {
-                b.TransmitStart()
-                time.Sleep(100 * time.Millisecond)
-        } else {
-                log.Println("warn: Already in Transmitting Mode")
-        }
-        log.Println("--")
+		b.TransmitStart()
+		time.Sleep(100 * time.Millisecond)
+	} else {
+		log.Println("warn: Already in Transmitting Mode")
+	}
+	log.Println("--")
 }
 
 func (b *Talkkonnect) commandKeyF9() {
@@ -1734,7 +1732,7 @@ func (b *Talkkonnect) commandKeyF11() {
 
 	}
 
-	b.IsPlayStream =! b.IsPlayStream
+	b.IsPlayStream = !b.IsPlayStream
 	NowStreaming = b.IsPlayStream
 
 	if b.IsPlayStream {
@@ -1757,10 +1755,27 @@ func (b *Talkkonnect) commandKeyF12() {
 
 	}
 
-	err := getGpsPosition(true)
-	if err != nil {
-		log.Println("warn: GPS Function Returned Error Message", err)
+	var i int = 0
+	var tries int = 10
+
+	for i = 0; i < tries; i++ {
+		goodGPSRead, err := getGpsPosition(true)
+
+		if err != nil {
+			log.Println("warn: GPS Function Returned Error Message", err)
+			break
+		}
+
+		if goodGPSRead == true {
+			break
+		}
+
 	}
+
+	if i == tries {
+		log.Println("warn: Could Not Get a Good GPS Read")
+	}
+
 	log.Println("--")
 }
 
@@ -1784,7 +1799,28 @@ func (b *Talkkonnect) commandKeyCtrlE() {
 	log.Println("--")
 	log.Println("Ctrl-E Pressed Send Email Requested")
 
-	getGpsPosition(false)
+	var i int = 0
+	var tries int = 10
+
+	for i = 0; i < tries; i++ {
+		goodGPSRead, err := getGpsPosition(false)
+
+		if err != nil {
+			log.Println("warn: GPS Function Returned Error Message", err)
+			break
+		}
+
+		if goodGPSRead == true {
+			break
+		}
+
+	}
+
+	if i == tries {
+		log.Println("warn: Could Not Get a Good GPS Read")
+		log.Println("--")
+		return
+	}
 
 	if TTSEnabled && TTSSendEmail {
 		err := PlayWavLocal(TTSSendEmailFileNameAndPath, TTSVolumeLevel)
@@ -1943,35 +1979,54 @@ func (b *Talkkonnect) commandKeyCtrlP() {
 		}
 
 		if PSendGpsLocation && GpsEnabled {
-			err := getGpsPosition(false)
-			if err != nil {
-				log.Println("warn: GPS Module Returned Error: ", err)
-			} else {
+
+			var i int = 0
+			var tries int = 10
+
+			for i = 0; i < tries; i++ {
+				goodGPSRead, err := getGpsPosition(false)
+
+				if err != nil {
+					log.Println("warn: GPS Function Returned Error Message", err)
+					break
+				}
+
+				if goodGPSRead == true {
+					break
+				}
+			}
+
+			if i == tries {
+				log.Println("warn: Could Not Get a Good GPS Read")
+			}
+
+			if goodGPSRead == true && i != tries {
+				log.Println("Sending GPS Info My Message")
 				gpsMessage := "My GPS Coordinates are " + fmt.Sprintf(" Latitude "+strconv.FormatFloat(GPSLatitude, 'f', 6, 64)) + fmt.Sprintf(" Longitude "+strconv.FormatFloat(GPSLongitude, 'f', 6, 64))
 				b.SendMessage(gpsMessage, PRecursive)
 			}
-		}
 
-		b.PlayIntoStream(PFileNameAndPath, PVolume)
-		if TargetBoard == "rpi" {
-			if LCDEnabled == true {
-				LcdText = [4]string{"nil", "nil", "nil", "Panic Message Sent!"}
-				go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+			b.PlayIntoStream(PFileNameAndPath, PVolume)
+			if TargetBoard == "rpi" {
+				if LCDEnabled == true {
+					LcdText = [4]string{"nil", "nil", "nil", "Panic Message Sent!"}
+					go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+				}
+				if OLEDEnabled == true {
+					oledDisplay(false, 6, 1, "Panic Message Sent!")
+				}
 			}
-			if OLEDEnabled == true {
-				oledDisplay(false, 6, 1, "Panic Message Sent!")
+			if PTxLockEnabled && PTxlockTimeOutSecs > 0 {
+				b.TxLockTimer()
 			}
-		}
-		if PTxLockEnabled && PTxlockTimeOutSecs > 0 {
-			b.TxLockTimer()
-		}
 
-	} else {
-		log.Println("info: Panic Function Disabled in Config")
+		} else {
+			log.Println("info: Panic Function Disabled in Config")
+		}
+		b.IsTransmitting = false
+		b.LEDOff(b.TransmitLED)
+		log.Println("--")
 	}
-	b.IsTransmitting = false
-	b.LEDOff(b.TransmitLED)
-	log.Println("--")
 }
 
 func (b *Talkkonnect) commandKeyCtrlR() {

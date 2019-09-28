@@ -39,15 +39,17 @@ import (
 	"log"
 )
 
-func getGpsPosition(verbose bool) error {
+var goodGPSRead bool = false
+
+func getGpsPosition(verbose bool) (bool,error) {
 	if GpsEnabled {
 
 		if Port == "" {
-			return errors.New("You Must Specify Port")
+			return false,errors.New("You Must Specify Port")
 		}
 
 		if Even && Odd {
-			return errors.New("can't specify both even and odd parity")
+			return false,errors.New("can't specify both even and odd parity")
 		}
 
 		parity := serial.PARITY_NONE
@@ -75,7 +77,7 @@ func getGpsPosition(verbose bool) error {
 
 		if err != nil {
 			GpsEnabled = false
-			return errors.New("Cannot Open Serial Port")
+			return false,errors.New("Cannot Open Serial Port")
 		} else {
 			defer f.Close()
 		}
@@ -85,7 +87,7 @@ func getGpsPosition(verbose bool) error {
 
 			if err != nil {
 				GpsEnabled = false
-				return errors.New("Cannot Decode Hex Data")
+				return false,errors.New("Cannot Decode Hex Data")
 			}
 
 			log.Println("Sending: ", hex.EncodeToString(txData_))
@@ -93,7 +95,7 @@ func getGpsPosition(verbose bool) error {
 			count, err := f.Write(txData_)
 
 			if err != nil {
-				return errors.New("Error writing to serial port")
+				return false,errors.New("Error writing to serial port")
 			} else {
 				log.Println("Wrote %v bytes\n", count)
 			}
@@ -101,10 +103,9 @@ func getGpsPosition(verbose bool) error {
 		}
 
 		if Rx {
-
 			serialPort, err := serial.Open(options)
 			if err != nil {
-				log.Fatalf("serial.Open: %v", err)
+				log.Println("warn: Unable to Open Serial Port Error ", err)
 			}
 
 			defer serialPort.Close()
@@ -112,17 +113,15 @@ func getGpsPosition(verbose bool) error {
 			reader := bufio.NewReader(serialPort)
 			scanner := bufio.NewScanner(reader)
 
+			goodGPSRead = false
 			for scanner.Scan() {
 				s, err := nmea.Parse(scanner.Text())
-				if err == nil {
 
+				if err == nil {
 					if s.DataType() == nmea.TypeRMC {
 						m := s.(nmea.RMC)
-
 						if m.Latitude != 0 && m.Longitude != 0 {
-
-							m := s.(nmea.RMC)
-
+							goodGPSRead = true
 							GPSTime = fmt.Sprintf("%v", m.Time)
 							GPSDate = fmt.Sprintf("%v", m.Date)
 							GPSLatitude = m.Latitude
@@ -140,14 +139,21 @@ func getGpsPosition(verbose bool) error {
 								log.Println("info: Variation: ", m.Variation)
 							}
 							break
+						} else {
+							log.Println("warn: Got Latitude 0 and Longtitude 0 from GPS")
 						}
+					} else {
+						log.Println("warn: GPS Sentence Format Was not nmea.RMC")
 					}
+				} else {
+					log.Println("warn: Scanner Function ", err)
 				}
 			}
 		} else {
-			return errors.New("GPS Disabled in config")
+			return false,errors.New("Rx Not Set")
 		}
-		return nil
+		return goodGPSRead,nil
+	} else {
 	}
-	return nil
+	return false,errors.New("GPS Not Enabled")
 }

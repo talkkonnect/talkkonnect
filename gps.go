@@ -41,15 +41,15 @@ import (
 
 var goodGPSRead bool = false
 
-func getGpsPosition(verbose bool) (bool,error) {
+func getGpsPosition(verbose bool) (bool, error) {
 	if GpsEnabled {
 
 		if Port == "" {
-			return false,errors.New("You Must Specify Port")
+			return false, errors.New("You Must Specify Port")
 		}
 
 		if Even && Odd {
-			return false,errors.New("can't specify both even and odd parity")
+			return false, errors.New("can't specify both even and odd parity")
 		}
 
 		parity := serial.PARITY_NONE
@@ -77,7 +77,7 @@ func getGpsPosition(verbose bool) (bool,error) {
 
 		if err != nil {
 			GpsEnabled = false
-			return false,errors.New("Cannot Open Serial Port")
+			return false, errors.New("Cannot Open Serial Port")
 		} else {
 			defer f.Close()
 		}
@@ -87,7 +87,7 @@ func getGpsPosition(verbose bool) (bool,error) {
 
 			if err != nil {
 				GpsEnabled = false
-				return false,errors.New("Cannot Decode Hex Data")
+				return false, errors.New("Cannot Decode Hex Data")
 			}
 
 			log.Println("Sending: ", hex.EncodeToString(txData_))
@@ -95,7 +95,7 @@ func getGpsPosition(verbose bool) (bool,error) {
 			count, err := f.Write(txData_)
 
 			if err != nil {
-				return false,errors.New("Error writing to serial port")
+				return false, errors.New("Error writing to serial port")
 			} else {
 				log.Println("Wrote %v bytes\n", count)
 			}
@@ -146,14 +146,14 @@ func getGpsPosition(verbose bool) (bool,error) {
 						log.Println("warn: GPS Sentence Format Was not nmea.RMC")
 					}
 				} else {
-					log.Println("warn: Scanner Function ", err)
+					log.Println("warn: Scanner Function Error ", err)
 				}
 			}
 		} else {
-			return false,errors.New("Rx Not Set")
+			return false, errors.New("Rx Not Set")
 		}
-		return goodGPSRead,nil
-	} else {
+
+		return goodGPSRead, nil
 	}
-	return false,errors.New("GPS Not Enabled")
+	return false, errors.New("GPS Not Enabled")
 }

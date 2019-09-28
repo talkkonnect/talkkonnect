@@ -30,14 +30,13 @@
 package talkkonnect
 
 import (
+	"bufio"
 	"encoding/hex"
 	"errors"
 	"fmt"
 	"github.com/jacobsa/go-serial/serial"
 	"github.com/talkkonnect/go-nmea"
-	"io"
 	"log"
-	"strings"
 )
 
 func getGpsPosition(verbose bool) error {
@@ -102,46 +101,53 @@ func getGpsPosition(verbose bool) error {
 		}
 
 		if Rx {
-			for {
-				buf := make([]byte, 90)
-				n, err := f.Read(buf)
-				if err != nil {
-					if err != io.EOF {
-						return errors.New(fmt.Sprintf("Error reading from serial port: ", err))
-					}
-				} else {
-					buf = buf[:n]
-					// sentence format "$GPRMC,220516,A,5133.82,N,00042.24,W,173.8,231.8,130694,004.2,W*70"
-					sentence := strings.TrimSpace(fmt.Sprintf("%s\n", buf))
-					if len(sentence) > 0 && sentence[:6] == "$GPRMC" {
-						s, err := nmea.Parse(sentence)
-						if err != nil {
-							log.Fatal(err)
+
+			serialPort, err := serial.Open(options)
+			if err != nil {
+				log.Fatalf("serial.Open: %v", err)
+			}
+
+			defer serialPort.Close()
+
+			reader := bufio.NewReader(serialPort)
+			scanner := bufio.NewScanner(reader)
+
+			for scanner.Scan() {
+				s, err := nmea.Parse(scanner.Text())
+				if err == nil {
+
+					if s.DataType() == nmea.TypeRMC {
+						m := s.(nmea.RMC)
+
+						if m.Latitude != 0 && m.Longitude != 0 {
+
+							m := s.(nmea.RMC)
+
+							GPSTime = fmt.Sprintf("%v", m.Time)
+							GPSDate = fmt.Sprintf("%v", m.Date)
+							GPSLatitude = m.Latitude
+							GPSLongitude = m.Longitude
+							if verbose {
+								log.Println("info: Time: ", m.Time)
+								log.Println("info: Validity: ", m.Validity)
+								log.Println("info: Latitude GPS: ", nmea.FormatGPS(m.Latitude))
+								log.Println("info: Latitude DMS: ", nmea.FormatDMS(m.Latitude))
+								log.Println("info: Longitude GPS: ", nmea.FormatGPS(m.Longitude))
+								log.Println("info: Longitude DMS: ", nmea.FormatDMS(m.Longitude))
+								log.Println("info: Speed: ", m.Speed)
+								log.Println("info: Course: ", m.Course)
+								log.Println("info: Date: ", m.Date)
+								log.Println("info: Variation: ", m.Variation)
+							}
+							break
 						}
-						m := s.(nmea.GPRMC)
-						GPSTime = fmt.Sprintf("%v", m.Time)
-						GPSDate = fmt.Sprintf("%v", m.Date)
-						GPSLatitude = m.Latitude
-						GPSLongitude = m.Longitude
-						if verbose {
-							log.Println("info: Time: ", m.Time)
-							log.Println("info: Validity: ", m.Validity)
-							log.Println("info: Latitude GPS: ", nmea.FormatGPS(m.Latitude))
-							log.Println("info: Latitude DMS: ", nmea.FormatDMS(m.Latitude))
-							log.Println("info: Longitude GPS: ", nmea.FormatGPS(m.Longitude))
-							log.Println("info: Longitude DMS: ", nmea.FormatDMS(m.Longitude))
-							log.Println("info: Speed: ", m.Speed)
-							log.Println("info: Course: ", m.Course)
-							log.Println("info: Date: ", m.Date)
-							log.Println("info: Variation: ", m.Variation)
-						}
-						break
 					}
 				}
 			}
+		} else {
+			return errors.New("GPS Disabled in config")
 		}
-	} else {
-		return errors.New("GPS Disabled in config")
+		return nil
 	}
 	return nil
 }

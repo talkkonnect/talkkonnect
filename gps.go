@@ -39,6 +39,14 @@ import (
 	"log"
 )
 
+var (
+	tracCarUrl string = "http://demo.traccar.org"
+	tracCarPort string = "5060"
+	tracCarID string = "12345"
+)
+
+
+
 var goodGPSRead bool = false
 
 func getGpsPosition(verbose bool) (bool, error) {
@@ -137,6 +145,8 @@ func getGpsPosition(verbose bool) (bool, error) {
 								log.Println("info: Course: ", m.Course)
 								log.Println("info: Date: ", m.Date)
 								log.Println("info: Variation: ", m.Variation)
+log.Println(fmt.Sprintf(tracCarUrl+":"+tracCarPort+"?"+"id="+tracCarID+"&"+"lat={"+nmea.FormatGPS(m.Latitude)+"}"+"&"+"lon={"+nmea.FormatGPS(m.Longitude)+"}"+"&"+"timestamp={"+GPSTime+"}"+"&"+"hdop={"+"}"+"&a"))
+
 							}
 							break
 						} else {

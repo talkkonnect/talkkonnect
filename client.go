@@ -2006,6 +2006,7 @@ func (b *Talkkonnect) commandKeyCtrlP() {
 				b.SendMessage(gpsMessage, PRecursive)
 			}
 
+			b.IsPlayStream = true
 			b.PlayIntoStream(PFileNameAndPath, PVolume)
 			if TargetBoard == "rpi" {
 				if LCDEnabled == true {
@@ -2023,6 +2024,7 @@ func (b *Talkkonnect) commandKeyCtrlP() {
 		} else {
 			log.Println("info: Panic Function Disabled in Config")
 		}
+		b.IsPlayStream = false
 		b.IsTransmitting = false
 		b.LEDOff(b.TransmitLED)
 		log.Println("--")

@@ -44,7 +44,7 @@ var stream *gumbleffmpeg.Stream
 func (b *Talkkonnect) PlayIntoStream(filepath string, vol float32) {
 
 
-	if b.IsPlayStream == false {
+	if b.IsPlayStream == false && stream != nil {
 		log.Println(fmt.Sprintf("info: File %s Stopped!", filepath))
 		stream.Stop()
 		b.LEDOff(b.TransmitLED)

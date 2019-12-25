@@ -299,7 +299,9 @@ func (b *Talkkonnect) Init() {
 
 		go func() {
 			for _ = range BeaconTicker.C {
+ 				b.IsPlayStream = true
 				b.PlayIntoStream(BeaconFileNameAndPath, BVolume)
+ 				b.IsPlayStream = false
 				log.Println("warn: Beacon Enabled and Timed Out Auto Played File ", BeaconFileNameAndPath, " Into Stream")
 			}
 		}()

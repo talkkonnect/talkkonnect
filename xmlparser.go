@@ -42,8 +42,8 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.46.34"
-	talkkonnectReleased string = "December 25 2019"
+	talkkonnectVersion  string = "1.46.35"
+	talkkonnectReleased string = "January 03 2020"
 )
 
 // lcd timer
@@ -71,7 +71,7 @@ var (
 	LogFileNameAndPath string
 	Logging            string
 	Daemonize          bool
-        SimplexWithMute    bool
+	SimplexWithMute    bool
 	TxCounter          bool
 )
 
@@ -220,6 +220,7 @@ var (
 	PrintOled         bool
 	PrintGps          bool
 	PrintPanic        bool
+	PrintAudioRecord  bool //New
 )
 
 // target board settings
@@ -246,11 +247,11 @@ var (
 
 //button settings
 var (
-	TxButtonPin    uint
-	TxTogglePin    uint
-	UpButtonPin    uint
-	DownButtonPin  uint
-	PanicButtonPin uint
+	TxButtonPin     uint
+	TxTogglePin     uint
+	UpButtonPin     uint
+	DownButtonPin   uint
+	PanicButtonPin  uint
 	ChimesButtonPin uint
 )
 
@@ -330,6 +331,25 @@ var (
 	PTxlockTimeOutSecs uint
 )
 
+//audio recording settings // New
+var (
+	AudioRecordEnabled     bool   // New
+	AudioRecordOnStart     bool   // New. Incoming Traffic
+	AudioRecordMode        string // New. traffic, ambient, both.
+	AudioRecordTimeout     int64  // New. Incoming Traffic
+	AudioRecordFromOutput  string // New. Audio device name. Loopback name, Monitor, source, etc. Depends... Alsa, pulseaudo and/or Jack?
+	AudioRecordFromInput   string // New. Audio Input Device (mic), that sox unerstands, e.g. default, plughw:1,0, hw:1,0
+	AudioRecordMicTimeout  int64  // New. For recording from mic, a timeout. If "0", then continous.
+	AudioRecordSoft        string // New
+	AudioRecordSavePath    string // New
+	AudioRecordArchivePath string // New
+	AudioRecordProfile     string // New. Sox recording profile. vox, silence detect and trim, file chunks.
+	AudioRecordFileFormat  string // New. wav, mp3, ogg
+	AudioRecordChunkSize   string // New. Size of audio file chunks in seconds.
+)
+
+//
+
 //other global variables used for state tracking
 var (
 	txcounter         int
@@ -389,9 +409,8 @@ type Settings struct {
 	Logging            string   `xml:"logging"`
 	Daemonize          bool     `xml:"daemonize"`
 	CancellableStream  bool     `xml:"cancellablestream"`
-        SimplexWithMute    bool	    `xml:"simplexwithmute"`
-        TxCounter    	   bool	    `xml:"txcounter"`
-
+	SimplexWithMute    bool     `xml:"simplexwithmute"`
+	TxCounter          bool     `xml:"txcounter"`
 }
 
 type AutoProvisioning struct {
@@ -530,6 +549,7 @@ type PrintVariables struct {
 	PrintOled         bool     `xml:"printoled"`
 	PrintGps          bool     `xml:"printgps"`
 	PrintPanic        bool     `xml:"printpanic"`
+	PrintAudioRecord  bool     `xml:"printaudiorecord"` // New
 }
 
 type Event struct {
@@ -566,16 +586,17 @@ type Chimes struct {
 }
 
 type Hardware struct {
-	XMLName       xml.Name      `xml:"hardware"`
-	TargetBoard   string        `xml:"targetboard,attr"`
-	Lights        Lights        `xml:"lights"`
-	HeartBeat     HeartBeat     `xml:"heartbeat"`
-	Buttons       Buttons       `xml:"buttons"`
-	Comment       Comment       `xml:"comment"`
-	LCD           LCD           `xml:"lcd"`
-	OLED          OLED          `xml:"oled"`
-	GPS           GPS           `xml:"gps"`
-	PanicFunction PanicFunction `xml:"panicfunction"`
+	XMLName             xml.Name            `xml:"hardware"`
+	TargetBoard         string              `xml:"targetboard,attr"`
+	Lights              Lights              `xml:"lights"`
+	HeartBeat           HeartBeat           `xml:"heartbeat"`
+	Buttons             Buttons             `xml:"buttons"`
+	Comment             Comment             `xml:"comment"`
+	LCD                 LCD                 `xml:"lcd"`
+	OLED                OLED                `xml:"oled"`
+	GPS                 GPS                 `xml:"gps"`
+	PanicFunction       PanicFunction       `xml:"panicfunction"`
+	AudioRecordFunction AudioRecordFunction `xml:"audiorecordfunction"` //New
 }
 
 type Lights struct {
@@ -596,12 +617,12 @@ type HeartBeat struct {
 }
 
 type Buttons struct {
-	XMLName        xml.Name `xml:"buttons"`
-	TxButtonPin    string   `xml:"txbuttonpin"`
-	TxTogglePin    string   `xml:"txtogglepin"`
-	UpButtonPin    string   `xml:"upbuttonpin"`
-	DownButtonPin  string   `xml:"downbuttonpin"`
-	PanicButtonPin string   `xml:"panicbuttonpin"`
+	XMLName         xml.Name `xml:"buttons"`
+	TxButtonPin     string   `xml:"txbuttonpin"`
+	TxTogglePin     string   `xml:"txtogglepin"`
+	UpButtonPin     string   `xml:"upbuttonpin"`
+	DownButtonPin   string   `xml:"downbuttonpin"`
+	PanicButtonPin  string   `xml:"panicbuttonpin"`
 	ChimesButtonPin string   `xml:"chimesbuttonpin"`
 }
 
@@ -675,6 +696,23 @@ type PanicFunction struct {
 	PTxlockTimeOutSecs uint     `xml:"txlocktimeoutsecs"`
 }
 
+type AudioRecordFunction struct {
+	XMLName                xml.Name `xml:"audiorecordfunction"` // New
+	AudioRecordEnabled     bool     `xml:"enabled,attr"`        // New
+	AudioRecordOnStart     bool     `xml:"recordonstart"`       // New
+	AudioRecordMode        string   `xml:"recordmode"`          // New
+	AudioRecordTimeout     int64    `xml:"recordtimeout"`       // New
+	AudioRecordFromOutput  string   `xml:"recordfromoutput"`    // New
+	AudioRecordFromInput   string   `xml:"recordfrominput"`     // New
+	AudioRecordMicTimeout  int64    `xml:"recordmictimeout"`    // New
+	AudioRecordSoft        string   `xml:"recordsoft"`          // New
+	AudioRecordSavePath    string   `xml:"recordsavepath"`      // New
+	AudioRecordArchivePath string   `xml:"recordarchivepath"`   // New
+	AudioRecordProfile     string   `xml:"recordprofile"`       // New
+	AudioRecordFileFormat  string   `xml:"recordfileformat"`    // New
+	AudioRecordChunkSize   string   `xml:"recordchunksize"`     // New
+}
+
 func readxmlconfig(file string) error {
 	var counter int = 0
 	xmlFile, err := os.Open(file)
@@ -718,8 +756,8 @@ func readxmlconfig(file string) error {
 	Logging = document.Global.Software.Settings.Logging
 	Daemonize = document.Global.Software.Settings.Daemonize
 	CancellableStream = document.Global.Software.Settings.CancellableStream
-        SimplexWithMute  = document.Global.Software.Settings.SimplexWithMute
-        TxCounter  = document.Global.Software.Settings.TxCounter
+	SimplexWithMute = document.Global.Software.Settings.SimplexWithMute
+	TxCounter = document.Global.Software.Settings.TxCounter
 
 	APEnabled = document.Global.Software.AutoProvisioning.APEnabled
 	TkId = document.Global.Software.AutoProvisioning.TkId
@@ -852,6 +890,7 @@ func readxmlconfig(file string) error {
 	PrintOled = document.Global.Software.PrintVariables.PrintOled
 	PrintGps = document.Global.Software.PrintVariables.PrintGps
 	PrintPanic = document.Global.Software.PrintVariables.PrintPanic
+	PrintAudioRecord = document.Global.Software.PrintVariables.PrintAudioRecord // New
 
 	TargetBoard = document.Global.Hardware.TargetBoard
 
@@ -945,6 +984,20 @@ func readxmlconfig(file string) error {
 	PSendGpsLocation = document.Global.Hardware.PanicFunction.PSendGpsLocation
 	PTxLockEnabled = document.Global.Hardware.PanicFunction.PTxLockEnabled
 	PTxlockTimeOutSecs = document.Global.Hardware.PanicFunction.PTxlockTimeOutSecs
+
+	AudioRecordEnabled = document.Global.Hardware.AudioRecordFunction.AudioRecordEnabled         // New
+	AudioRecordOnStart = document.Global.Hardware.AudioRecordFunction.AudioRecordOnStart         // New
+	AudioRecordMode = document.Global.Hardware.AudioRecordFunction.AudioRecordMode               // New
+	AudioRecordTimeout = document.Global.Hardware.AudioRecordFunction.AudioRecordTimeout         // New
+	AudioRecordFromOutput = document.Global.Hardware.AudioRecordFunction.AudioRecordFromOutput   // New
+	AudioRecordFromInput = document.Global.Hardware.AudioRecordFunction.AudioRecordFromInput     // New
+	AudioRecordMicTimeout = document.Global.Hardware.AudioRecordFunction.AudioRecordMicTimeout   // New
+	AudioRecordSavePath = document.Global.Hardware.AudioRecordFunction.AudioRecordSavePath       // New
+	AudioRecordArchivePath = document.Global.Hardware.AudioRecordFunction.AudioRecordArchivePath // New
+	AudioRecordSoft = document.Global.Hardware.AudioRecordFunction.AudioRecordSoft               // New
+	AudioRecordProfile = document.Global.Hardware.AudioRecordFunction.AudioRecordProfile         // New
+	AudioRecordFileFormat = document.Global.Hardware.AudioRecordFunction.AudioRecordFileFormat   // New
+	AudioRecordChunkSize = document.Global.Hardware.AudioRecordFunction.AudioRecordChunkSize     // New
 
 	log.Println("Successfully loaded configuration file into memory")
 	return nil
@@ -1241,4 +1294,22 @@ func printxmlconfig() {
 		log.Println("info: ------------ PANIC Function -------------- SKIPPED ")
 	}
 
+	if PrintAudioRecord {
+		log.Println("info: ------------ AUDIO RECORDING Function -------------- ")
+		log.Println("info: Audio Recording Enabled " + fmt.Sprintf("%v", AudioRecordEnabled))          // New
+		log.Println("info: Audio Recording On Start " + fmt.Sprintf("%v", AudioRecordOnStart))         // New
+		log.Println("info: Audio Record Mode " + fmt.Sprintf("%v", AudioRecordMode))                   // New
+		log.Println("info: Audio Record Timeout " + fmt.Sprintf("%v", AudioRecordTimeout))             // New
+		log.Println("info: Audio Record From Output " + fmt.Sprintf("%v", AudioRecordFromOutput))      // New
+		log.Println("info: Audio Record From Input " + fmt.Sprintf("%v", AudioRecordFromInput))        // New
+		log.Println("info: Audio Recording Mic Timeout " + fmt.Sprintf("%v", AudioRecordMicTimeout))   // New
+		log.Println("info: Audio Recording Save Path " + fmt.Sprintf("%v", AudioRecordSavePath))       // New
+		log.Println("info: Audio Recording Archive Path " + fmt.Sprintf("%v", AudioRecordArchivePath)) // New
+		log.Println("info: Audio Recording Soft " + fmt.Sprintf("%v", AudioRecordSoft))                // New}
+		log.Println("info: Audio Recording Profile " + fmt.Sprintf("%v", AudioRecordProfile))          // New
+		log.Println("info: Audio Recording File Format " + fmt.Sprintf("%v", AudioRecordFileFormat))   // New
+		log.Println("info: Audio Recording Chunk Size " + fmt.Sprintf("%v", AudioRecordChunkSize))     // New
+	} else {
+		log.Println("info: ------------ AUDIO RECORDING Function ------- SKIPPED ")
+	}
 }

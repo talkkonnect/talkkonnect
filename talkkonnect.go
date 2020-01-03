@@ -39,7 +39,6 @@ import (
 	"time"
 )
 
-
 func talkkonnectBanner() {
 	log.Println("info: ┌────────────────────────────────────────────────────────────────┐")
 	log.Println("info: │  _        _ _    _                               _             │")

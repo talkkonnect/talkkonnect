@@ -299,15 +299,66 @@ func (b *Talkkonnect) Init() {
 
 		go func() {
 			for _ = range BeaconTicker.C {
- 				b.IsPlayStream = true
+				b.IsPlayStream = true
 				b.PlayIntoStream(BeaconFileNameAndPath, BVolume)
- 				b.IsPlayStream = false
+				b.IsPlayStream = false
 				log.Println("warn: Beacon Enabled and Timed Out Auto Played File ", BeaconFileNameAndPath, " Into Stream")
 			}
 		}()
 	}
 
 	b.BackLightTimer()
+
+	if AudioRecordEnabled == true {
+
+		if AudioRecordOnStart == true {
+
+			if AudioRecordMode != "" {
+
+				if AudioRecordMode == "traffic" {
+					log.Println("info: Incoming Traffic will be Recorded with sox")
+					AudioRecordTraffic()
+					if TargetBoard == "rpi" {
+						if LCDEnabled == true {
+							LcdText = [4]string{"nil", "nil", "nil", "Traffic Recording ->"} // 4
+							go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+						}
+						if OLEDEnabled == true {
+							oledDisplay(false, 6, 1, "Traffic Recording") // 6
+						}
+					}
+				}
+				if AudioRecordMode == "ambient" {
+					log.Println("info: Ambient Audio from Mic will be Recorded with sox")
+					AudioRecordAmbient()
+					if TargetBoard == "rpi" {
+						if LCDEnabled == true {
+							LcdText = [4]string{"nil", "nil", "nil", "Mic Recording ->"} // 4
+							go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+						}
+						if OLEDEnabled == true {
+							oledDisplay(false, 6, 1, "Mic Recording") // 6
+						}
+					}
+				}
+				if AudioRecordMode == "combo" {
+					log.Println("info: Both Incoming Traffic and Ambient Audio from Mic will be Recorded with sox")
+					AudioRecordCombo()
+					if TargetBoard == "rpi" {
+						if LCDEnabled == true {
+							LcdText = [4]string{"nil", "nil", "nil", "Combo Recording ->"} // 4
+							go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+						}
+						if OLEDEnabled == true {
+							oledDisplay(false, 6, 1, "Combo Recording") //6
+						}
+					}
+				}
+
+			}
+
+		}
+	}
 
 keyPressListenerLoop:
 	for {
@@ -353,6 +404,12 @@ keyPressListenerLoop:
 				b.commandKeyCtrlE()
 			case term.KeyCtrlF:
 				b.commandKeyCtrlF()
+			case term.KeyCtrlI: // New. Audio Recording. Traffic
+				b.commandKeyCtrlI()
+			case term.KeyCtrlJ: // New. Audio Recording. Mic
+				b.commandKeyCtrlJ()
+			case term.KeyCtrlK: // New/ Audio Recording. Combo
+				b.commandKeyCtrlK()
 			case term.KeyCtrlL:
 				b.commandKeyCtrlL()
 			case term.KeyCtrlO:
@@ -1348,6 +1405,7 @@ func (b *Talkkonnect) httpHandler(w http.ResponseWriter, r *http.Request) {
 		} else {
 			fmt.Fprintf(w, "API Next Server Denied\n")
 		}
+
 	case "commandKeyCtrlL":
 		if APIClearScreen {
 			b.commandKeyCtrlL()
@@ -1947,6 +2005,127 @@ func (b *Talkkonnect) commandKeyCtrlN() {
 
 	b.PreInit1(true)
 	log.Println("--")
+}
+
+//New
+func (b *Talkkonnect) commandKeyCtrlI() {
+	log.Println("--")
+	log.Println("Ctrl-I Traffic Recording Requested")
+	if AudioRecordEnabled != true {
+		log.Println("warn: Audio Recording Function Not Enabled")
+	}
+	if AudioRecordMode != "traffic" {
+		log.Println("warn: Traffic Recording Not Enabled")
+	}
+
+	/* if TTSEnabled && TTSTrafficRecoding {
+	        err := PlayWavLocal(TTSTrafficRecordingFileNameAndPath, TTSVolumeLevel)
+	        if err != nil {
+	                log.Println("Play Wav Local Module Returned Error: ", err)
+	        }
+	} */ // Create TTS
+
+	if AudioRecordEnabled == true {
+		if AudioRecordMode == "traffic" {
+			if AudioRecordFromOutput != "" {
+				if AudioRecordSoft == "sox" {
+					//log.Println("info: sox is Recording Traffic")
+					go AudioRecordTraffic()
+					if TargetBoard == "rpi" {
+						if LCDEnabled == true {
+							LcdText = [4]string{"nil", "nil", "Traffic Audio Rec ->", "nil"} // 4 or 3
+							go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+						}
+						if OLEDEnabled == true {
+							oledDisplay(false, 5, 1, "Traffic Audio Rec ->") // 6 or 5
+						}
+					}
+				} else {
+					log.Println("info: Traffic Recording is not Enabled or sox Encountered Problems")
+				}
+			}
+		}
+	}
+}
+
+func (b *Talkkonnect) commandKeyCtrlJ() {
+	log.Println("--")
+	log.Println("Ctrl-J Ambient (Mic) Recording Requested")
+	if AudioRecordEnabled != true {
+		log.Println("warn: Audio Recording Function Not Enabled")
+	}
+	if AudioRecordMode != "ambient" {
+		log.Println("warn: Ambient (Mic) Recording Not Enabled")
+	}
+
+	/* if TTSEnabled && TTMicRecoding {
+	        err := PlayWavLocal(TTSMicRecordingFileNameAndPath, TTSVolumeLevel)
+	        if err != nil {
+	                log.Println("Play Wav Local Module Returned Error: ", err)
+	        }
+	} */ // Create TTS
+
+	if AudioRecordEnabled == true {
+		if AudioRecordMode == "ambient" {
+			if AudioRecordFromInput != "" {
+				if AudioRecordSoft == "sox" {
+					// log.Println("info: sox is Recording Traffic")
+					go AudioRecordAmbient()
+					if TargetBoard == "rpi" {
+						if LCDEnabled == true {
+							LcdText = [4]string{"nil", "nil", "Mic Audio Rec ->", "nil"} // 4 or 3
+							go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+						}
+						if OLEDEnabled == true {
+							oledDisplay(false, 5, 1, "Mic Audio Rec ->") // 6 or 5
+						}
+					}
+				} else {
+					log.Println("info: Ambient (Mic) Recording is not Enabled or sox Encountered Problems")
+				}
+			}
+		}
+	}
+}
+
+func (b *Talkkonnect) commandKeyCtrlK() {
+	log.Println("--")
+	log.Println("Ctrl-K Combo Recording (Traffic and Mic) Requested")
+	if AudioRecordEnabled != true {
+		log.Println("warn: Audio Recording Function Not Enabled")
+	}
+	if AudioRecordMode != "combo" {
+		log.Println("warn: Combo Recording (Traffic and Mic) Not Enabled")
+	}
+
+	/* if TTSEnabled && TTSComboRecoding {
+	        err := PlayWavLocal(TTSComboRecordingFileNameAndPath, TTSVolumeLevel)
+	        if err != nil {
+	                log.Println("Play Wav Local Module Returned Error: ", err)
+	        }
+	} */ // Create TTS
+
+	if AudioRecordEnabled == true {
+		if AudioRecordMode == "combo" {
+			if AudioRecordFromInput != "" {
+				if AudioRecordSoft == "sox" {
+					// log.Println("info: sox is Recording Traffica and Mic (Combo)")
+					go AudioRecordCombo()
+					if TargetBoard == "rpi" {
+						if LCDEnabled == true {
+							LcdText = [4]string{"nil", "nil", "Combo Audio Rec ->", "nil"} // 4 or 3
+							go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+						}
+						if OLEDEnabled == true {
+							oledDisplay(false, 5, 1, "Combo Audio Rec ->") // 6 or 5
+						}
+					}
+				} else {
+					log.Println("info: Combo Recording (Traffic and Mic) is not Enabled or sox Encountered Problems")
+				}
+			}
+		}
+	}
 }
 
 func (b *Talkkonnect) commandKeyCtrlP() {

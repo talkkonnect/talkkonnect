@@ -183,10 +183,10 @@ func httpSendTracCar() {
 		defer response.Body.Close()
 		contents, err := ioutil.ReadAll(response.Body)
 		if err != nil {
-			log.Println("error: Error Sending Data to traccar Webpage!", )
+			log.Println("error: Error Sending Data to traccar Webpage!")
 		} else {
 			log.Println("info: traccar web response ", string(contents))
-			}
+		}
 	}
 
 }

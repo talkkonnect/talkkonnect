@@ -29,14 +29,13 @@
 
 package talkkonnect
 
-
 import (
 	"github.com/stianeikeland/go-rpio"
 	"github.com/talkkonnect/gpio"
 	"log"
-	"time"
 	"os"
 	"os/exec"
+	"time"
 )
 
 var ledpin = 0
@@ -429,10 +428,9 @@ func ConnectErrorMessage() {
 		log.Println("warn: Cannot Connect to Server! Giving Up")
 		log.Println("warn: Shutting Down talkkonnect due to multiple connection to server failures")
 		time.Sleep(2 * time.Second)
-        	c := exec.Command("reset")
-        	c.Stdout = os.Stdout
-        	c.Run()
-        	os.Exit(0)
+		c := exec.Command("reset")
+		c.Stdout = os.Stdout
+		c.Run()
+		os.Exit(0)
 	}
 }
-

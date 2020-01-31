@@ -36,6 +36,7 @@ import (
 	"os"
 	"os/exec"
 	"time"
+	hd44780 "github.com/talkkonnect/go-hd44780"
 )
 
 var ledpin = 0
@@ -427,6 +428,18 @@ func ConnectErrorMessage() {
 	if connectFailCounter == 100 {
 		log.Println("warn: Cannot Connect to Server! Giving Up")
 		log.Println("warn: Shutting Down talkkonnect due to multiple connection to server failures")
+		t := time.Now()
+               if LCDEnabled == true {
+                        LcdText = [4]string{"Disconnected At", t.Format("02-01-2006 15:04:05"), "Multiple Reconnect", "Failures!!"}
+			go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+                }
+		if OLEDEnabled == true {
+                        oledDisplay(true, 0, 1, "Disconnected At")
+                        oledDisplay(false, 1, 1, t.Format("02-01-2006 15:04:05"))
+                        oledDisplay(false, 6, 1, "Multiple Reconnect")
+                        oledDisplay(false, 7, 1, "Failures!!")
+  		}
+
 		time.Sleep(2 * time.Second)
 		c := exec.Command("reset")
 		c.Stdout = os.Stdout

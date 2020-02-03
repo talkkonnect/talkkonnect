@@ -95,14 +95,24 @@ func (b *Talkkonnect) RogerBeep(filepath string, vol float32) error {
 
 func PlayWavLocal(filepath string, playbackvolume int) error {
 	origVolume, _ = volume.GetVolume(OutputDevice)
-	cmd := exec.Command("/usr/bin/aplay", filepath)
+	var player string
+	if path, err := exec.LookPath("aplay"); err == nil {
+		fmt.Println("aplay found at ", path)
+		player = path
+	} else if path, err := exec.LookPath("paplay"); err == nil {
+		fmt.Println("paplay found at ", path)
+		player = path
+	} else {
+		return errors.New("Failed to find either aplay or paplay in PATH")
+	}
+	cmd := exec.Command(player, filepath)
 	err := volume.SetVolume(playbackvolume, OutputDevice)
 	if err != nil {
 		return errors.New(fmt.Sprintf("alert: set volume failed: %+v", err))
 	}
 	_, err = cmd.CombinedOutput()
 	if err != nil {
-		return errors.New(fmt.Sprintf("alert: cmd.Run() for aplay failed with %s\n", err))
+		return errors.New(fmt.Sprintf("alert: cmd.Run() for %s failed with %s\n", player, err))
 	}
 	err = volume.SetVolume(origVolume, OutputDevice)
 	if err != nil {

@@ -39,6 +39,7 @@ import (
 	"time"
 )
 
+
 func talkkonnectBanner() {
 	log.Println("info: ┌────────────────────────────────────────────────────────────────┐")
 	log.Println("info: │  _        _ _    _                               _             │")
@@ -101,6 +102,9 @@ func (b *Talkkonnect) talkkonnectMenu() {
 	log.Println("info: ├─────────────────────────────┼────────────────────────────────┤")
 	log.Println("info: │<Ctrl-L> Clear Screen        │<Ctrl-O> Ping Servers           │")
 	log.Println("info: │<Ctrl-R> Repeat TX Loop Test │<Ctrl-X> Dump XML Config        │")
+	log.Println("info: ├─────────────────────────────┼────────────────────────────────┤")
+	log.Println("info: │<Ctrl-I> Traffic Record      │<Ctrl-J> Mic Record             │")
+	log.Println("info: │<Ctrl-K> Traffic & Mic Record│                                │")
 	log.Println("info: ├─────────────────────────────┼────────────────────────────────┤")
 	log.Println("info: │  visit us at www.talkkonnect.com and github.com/talkkonnect  │")
 	log.Println("info: └──────────────────────────────────────────────────────────────┘")

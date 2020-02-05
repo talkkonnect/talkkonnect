@@ -273,7 +273,7 @@ func (b *Talkkonnect) Init() {
 	if TTSEnabled && TTSTalkkonnectLoaded {
 		err := PlayWavLocal(TTSTalkkonnectLoadedFileNameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("Play Wav Local Module Returned Error: ", err)
+			log.Println("PlayWavLocal(TTSTalkkonnectLoadedFileNameAndPath) Returned Error: ", err)
 		}
 	}
 
@@ -581,7 +581,7 @@ func (b *Talkkonnect) TransmitStart() {
 	if b.IsPlayStream {
 		b.IsPlayStream = false
 		NowStreaming = false
-		b.PlayIntoStream(ChimesSoundFilenameAndPath, ChimesSoundVolume)
+		b.PlayIntoStream(ChimesSoundFileNameAndPath, ChimesSoundVolume)
 		time.Sleep(100 * time.Millisecond)
 	}
 
@@ -629,7 +629,7 @@ func (b *Talkkonnect) TransmitStop(withBeep bool) {
 
 	if RogerBeepSoundEnabled {
 		if withBeep {
-			err := b.RogerBeep(RogerBeepSoundFilenameAndPath, RogerBeepSoundVolume)
+			err := b.RogerBeep(RogerBeepSoundFileNameAndPath, RogerBeepSoundVolume)
 			if err != nil {
 				log.Println("alert: Roger Beep Module Returned Error: ", err)
 			}
@@ -762,9 +762,11 @@ func (b *Talkkonnect) ParticipantLEDUpdate(verbose bool) {
 			speech := htgotts.Speech{Folder: "audio", Language: "en"}
 			speech.Speak("There Are Currently " + strconv.Itoa(participantCount) + " Users in The Channel " + b.Client.Self.Channel.Name)
 		}
-		err := PlayWavLocal(EventSoundFilenameAndPath, 100)
-		if err != nil {
-			log.Println("Play Wav Local Module Returned Error: ", err)
+		if EventSoundEnabled {
+			err := PlayWavLocal(EventSoundFileNameAndPath, 100)
+			if err != nil {
+				log.Println("PlayWavLocal(EventSoundFileNameAndPath) Returned Error: ", err)
+			}
 		}
 
 		prevParticipantCount = participantCount
@@ -883,9 +885,11 @@ func (b *Talkkonnect) OnTextMessage(e *gumble.TextMessageEvent) {
 		}
 	}
 
-	err := PlayWavLocal(EventSoundFilenameAndPath, 100)
-	if err != nil {
-		log.Println("Play Wav Local Module Returned Error: ", err)
+	if EventSoundEnabled {
+		err := PlayWavLocal(EventSoundFileNameAndPath, 100)
+		if err != nil {
+			log.Println("PlayWavLocal(EventSoundFileNameAndPath) Returned Error: ", err)
+		}
 	}
 
 }
@@ -1105,7 +1109,7 @@ func (b *Talkkonnect) ChannelUp() {
 	if TTSEnabled && TTSChannelUp {
 		err := PlayWavLocal(TTSChannelUpFileNameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("Play Wav Local Module Returned Error: ", err)
+			log.Println("PlayWavLocal(TTSChannelUpFileNameAndPath) Returned Error: ", err)
 		}
 
 	}
@@ -1177,7 +1181,7 @@ func (b *Talkkonnect) ChannelDown() {
 	if TTSEnabled && TTSChannelDown {
 		err := PlayWavLocal(TTSChannelDownFileNameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("Play Wav Local Module Returned Error: ", err)
+			log.Println("PlayWavLocal(TTSChannelDownFileNameAndPath) Returned Error: ", err)
 		}
 
 	}
@@ -1474,7 +1478,7 @@ func (b *Talkkonnect) commandKeyDel() {
 	if TTSEnabled && TTSDisplayMenu {
 		err := PlayWavLocal(TTSDisplayMenuFileNameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("Play Wav Local Module Returned Error: ", err)
+			log.Println("PlayWavLocal(TTSDisplayMenuFileNameAndPath) Returned Error: ", err)
 		}
 
 	}
@@ -1519,7 +1523,7 @@ func (b *Talkkonnect) commandKeyF3() {
 		if TTSEnabled && TTSMuteUnMuteSpeaker {
 			err := PlayWavLocal(TTSMuteUnMuteSpeakerFileNameAndPath, TTSVolumeLevel)
 			if err != nil {
-				log.Println("Play Wav Local Module Returned Error: ", err)
+				log.Println("PlayWavLocal(TTSMuteUnMuteSpeakerFileNameAndPath) Returned Error: ", err)
 			}
 
 		}
@@ -1537,7 +1541,7 @@ func (b *Talkkonnect) commandKeyF3() {
 		if TTSEnabled && TTSMuteUnMuteSpeaker {
 			err := PlayWavLocal(TTSMuteUnMuteSpeakerFileNameAndPath, TTSVolumeLevel)
 			if err != nil {
-				log.Println("Play Wav Local Module Returned Error: ", err)
+				log.Println("PlayWavLocal(TTSMuteUnMuteSpeakerFileNameAndPath) Returned Error: ", err)
 			}
 
 		}
@@ -1574,7 +1578,7 @@ func (b *Talkkonnect) commandKeyF4() {
 	if TTSEnabled && TTSCurrentVolumeLevel {
 		err := PlayWavLocal(TTSCurrentVolumeLevelFileNameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("Play Wav Local Module Returned Error: ", err)
+			log.Println("PlayWavLocal(TTSCurrentVolumeLevelFileNameAndPath) Returned Error: ", err)
 		}
 
 	}
@@ -1630,7 +1634,7 @@ func (b *Talkkonnect) commandKeyF5() {
 	if TTSEnabled && TTSDigitalVolumeUp {
 		err := PlayWavLocal(TTSDigitalVolumeUpFileNameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("Play Wav Local Module Returned Error: ", err)
+			log.Println("PlayWavLocal(TTSDigitalVolumeUpFileNameAndPath) Returned Error: ", err)
 		}
 
 	}
@@ -1679,7 +1683,7 @@ func (b *Talkkonnect) commandKeyF6() {
 	if TTSEnabled && TTSDigitalVolumeDown {
 		err := PlayWavLocal(TTSDigitalVolumeDownFileNameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("Play Wav Local Module Returned Error: ", err)
+			log.Println("PlayWavLocal(TTSDigitalVolumeDownFileNameAndPath) Returned Error: ", err)
 		}
 
 	}
@@ -1694,7 +1698,7 @@ func (b *Talkkonnect) commandKeyF7() {
 	if TTSEnabled && TTSListServerChannels {
 		err := PlayWavLocal(TTSListServerChannelsFileNameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("Play Wav Local Module Returned Error: ", err)
+			log.Println("PlayWavLocal(TTSListServerChannelsFileNameAndPath) Returned Error: ", err)
 		}
 
 	}
@@ -1711,7 +1715,7 @@ func (b *Talkkonnect) commandKeyF8() {
 	if TTSEnabled && TTSStartTransmitting {
 		err := PlayWavLocal(TTSStartTransmittingFileNameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("Play Wav Local Module Returned Error: ", err)
+			log.Println("PlayWavLocal(TTSStartTransmittingFileNameAndPath) Returned Error: ", err)
 		}
 
 	}
@@ -1720,7 +1724,7 @@ func (b *Talkkonnect) commandKeyF8() {
 		b.IsPlayStream = false
 		NowStreaming = false
 
-		b.PlayIntoStream(ChimesSoundFilenameAndPath, ChimesSoundVolume)
+		b.PlayIntoStream(ChimesSoundFileNameAndPath, ChimesSoundVolume)
 	}
 
 	if !b.IsTransmitting {
@@ -1739,7 +1743,7 @@ func (b *Talkkonnect) commandKeyF9() {
 	if TTSEnabled && TTSStopTransmitting {
 		err := PlayWavLocal(TTSStopTransmittingFileNameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("Play Wav Local Module Returned Error: ", err)
+			log.Println("PlayWavLocal(TTSStopTransmittingFileNameAndPath) Returned Error: ", err)
 		}
 
 	}
@@ -1748,7 +1752,7 @@ func (b *Talkkonnect) commandKeyF9() {
 		b.IsPlayStream = false
 		NowStreaming = false
 
-		b.PlayIntoStream(ChimesSoundFilenameAndPath, ChimesSoundVolume)
+		b.PlayIntoStream(ChimesSoundFileNameAndPath, ChimesSoundVolume)
 	}
 
 	if b.IsTransmitting {
@@ -1767,7 +1771,7 @@ func (b *Talkkonnect) commandKeyF10() {
 	if TTSEnabled && TTSListOnlineUsers {
 		err := PlayWavLocal(TTSListOnlineUsersFileNameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("Play Wav Local Module Returned Error: ", err)
+			log.Println("PlayWavLocal(TTSListOnlineUsersFileNameAndPath) Returned Error: ", err)
 		}
 
 	}
@@ -1787,7 +1791,7 @@ func (b *Talkkonnect) commandKeyF11() {
 	if TTSEnabled && TTSPlayChimes {
 		err := PlayWavLocal(TTSPlayChimesFileNameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("Play Wav Local Module Returned Error: ", err)
+			log.Println("PlayWavLocal(TTSPlayChimesFileNameAndPath) Returned Error: ", err)
 		}
 
 	}
@@ -1799,7 +1803,7 @@ func (b *Talkkonnect) commandKeyF11() {
 		b.SendMessage(fmt.Sprintf("%s Streaming", b.Username), false)
 	}
 
-	go b.PlayIntoStream(ChimesSoundFilenameAndPath, ChimesSoundVolume)
+	go b.PlayIntoStream(ChimesSoundFileNameAndPath, ChimesSoundVolume)
 
 }
 
@@ -1810,7 +1814,7 @@ func (b *Talkkonnect) commandKeyF12() {
 	if TTSEnabled && TTSRequestGpsPosition {
 		err := PlayWavLocal(TTSRequestGpsPositionFileNameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("Play Wav Local Module Returned Error: ", err)
+			log.Println("PlayWavLocal(TTSRequestGpsPositionFileNameAndPath) Returned Error: ", err)
 		}
 
 	}
@@ -1846,7 +1850,7 @@ func (b *Talkkonnect) commandKeyCtrlC() {
 	if TTSEnabled && TTSQuitTalkkonnect {
 		err := PlayWavLocal(TTSQuitTalkkonnectFileNameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("Play Wav Local Module Returned Error: ", err)
+			log.Println("PlayWavLocal(TTSQuitTalkkonnectFileNameAndPath) Returned Error: ", err)
 		}
 
 	}
@@ -1885,7 +1889,7 @@ func (b *Talkkonnect) commandKeyCtrlE() {
 	if TTSEnabled && TTSSendEmail {
 		err := PlayWavLocal(TTSSendEmailFileNameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("Play Wav Local Module Returned Error: ", err)
+			log.Println("PlayWavLocal(TTSSendEmailFileNameAndPath) Returned Error: ", err)
 		}
 
 	}
@@ -1925,7 +1929,7 @@ func (b *Talkkonnect) commandKeyCtrlF() {
 	if TTSEnabled && TTSPreviousServer {
 		err := PlayWavLocal(TTSPreviousServerFileNameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("Play Wav Local Module Returned Error: ", err)
+			log.Println("PlayWavLocal(TTSPreviousServerFileNameAndPath) Returned Error: ", err)
 		}
 
 	}
@@ -1969,7 +1973,7 @@ func (b *Talkkonnect) commandKeyCtrlO() {
 	if TTSEnabled && TTSPingServers {
 		err := PlayWavLocal(TTSPingServersFileNameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("Play Wav Local Module Returned Error: ", err)
+			log.Println("PlayWavLocal(TTSPingServersFileNameAndPath) Returned Error: ", err)
 		}
 
 	}
@@ -1984,7 +1988,7 @@ func (b *Talkkonnect) commandKeyCtrlN() {
 	if TTSEnabled && TTSNextServer {
 		err := PlayWavLocal(TTSNextServerFileNameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("Play Wav Local Module Returned Error: ", err)
+			log.Println("PlayWavLocal(TTSNextServerFileNameAndPath) Returned Error: ", err)
 		}
 
 	}
@@ -2021,7 +2025,7 @@ func (b *Talkkonnect) commandKeyCtrlI() {
 	/* if TTSEnabled && TTSTrafficRecoding {
 	        err := PlayWavLocal(TTSTrafficRecordingFileNameAndPath, TTSVolumeLevel)
 	        if err != nil {
-	                log.Println("Play Wav Local Module Returned Error: ", err)
+	                log.Println("PlayWavLocal(TTSTrafficRecordingFileNameAndPath) Returned Error: ", err)
 	        }
 	} */ // Create TTS
 
@@ -2061,7 +2065,7 @@ func (b *Talkkonnect) commandKeyCtrlJ() {
 	/* if TTSEnabled && TTMicRecoding {
 	        err := PlayWavLocal(TTSMicRecordingFileNameAndPath, TTSVolumeLevel)
 	        if err != nil {
-	                log.Println("Play Wav Local Module Returned Error: ", err)
+	                log.Println("PlayWavLocal(TTSMicRecordingFileNameAndPath) Returned Error: ", err)
 	        }
 	} */ // Create TTS
 
@@ -2101,7 +2105,7 @@ func (b *Talkkonnect) commandKeyCtrlK() {
 	/* if TTSEnabled && TTSComboRecoding {
 	        err := PlayWavLocal(TTSComboRecordingFileNameAndPath, TTSVolumeLevel)
 	        if err != nil {
-	                log.Println("Play Wav Local Module Returned Error: ", err)
+	                log.Println("PlayWavLocal(TTSComboRecordingFileNameAndPath) Returned Error: ", err)
 	        }
 	} */ // Create TTS
 
@@ -2139,7 +2143,7 @@ func (b *Talkkonnect) commandKeyCtrlP() {
 	if TTSEnabled && TTSPanicSimulation {
 		err := PlayWavLocal(TTSPanicSimulationFileNameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("Play Wav Local Module Returned Error: ", err)
+			log.Println("PlayWavLocal(TTSPanicSimulationFileNameAndPath) Returned Error: ", err)
 		}
 
 	}
@@ -2227,7 +2231,7 @@ func (b *Talkkonnect) commandKeyCtrlS() {
 	if TTSEnabled && TTSScan {
 		err := PlayWavLocal(TTSScanFileNameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("Play Wav Local Module Returned Error: ", err)
+			log.Println("PlayWavLocal(TTSScanFileNameAndPath) Returned Error: ", err)
 		}
 
 	}
@@ -2257,7 +2261,7 @@ func (b *Talkkonnect) commandKeyCtrlX() {
 	if TTSEnabled && TTSPrintXmlConfig {
 		err := PlayWavLocal(TTSPrintXmlConfigFileNameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("Play Wav Local Module Returned Error: ", err)
+			log.Println("PlayWavLocal(TTSPrintXmlConfigFileNameAndPath) Returned Error: ", err)
 		}
 
 	}

@@ -35,12 +35,42 @@ import (
 	"github.com/talkkonnect/talkkonnect"
 	"fmt"
 	"log"
+	"os"
+	"path/filepath"
 )
 
+var exec string
+
 func main() {
+	// NOTE: If using symlinks and you've found yourself here, see the
+	//  info in os.Executable about how its inconsistant with symlinks
+	//   and implement a fix for your problem. Its better that way.
+	var err error
+	if exec, err = os.Executable(); err != nil {
+		panic(err)
+	}
+	// Avoid hardcoding by using the executable name (nothing should change though, unless the user likes a different name)
+	configPath := os.Getenv("HOME") + "/.config/" + filepath.Base(exec) + "/" + filepath.Base(exec) + ".xml"
+	if _, err := os.Stat(configPath); err != nil {
+		//Well, maybe we'll try the same dir as the executable...
+		if _, err := os.Stat(filepath.Dir(exec) + "/" + filepath.Base(exec) + ".xml"); err == nil {
+			configPath = filepath.Dir(exec) + "/" + filepath.Base(exec) + ".xml"
+		} else if _, err := os.Stat(filepath.Dir(exec) + "/talkkonnect.xml"); err == nil {
+			// Renamed binary, not renamed xml
+			configPath = filepath.Dir(exec) + "/talkkonnect.xml"
+		} else {
+			_, err := os.Stat(os.Getenv("HOME") + "/.config/talkkonnect/talkkonnect.xml")
+			if err == nil {
+				configPath = os.Getenv("HOME") + "/.config/talkkonnect/talkkonnect.xml"
+			} else {
+				//I guess just set it here since it doesn't exist in any of our search paths
+				//Hopefully the user set something that actually exists
+				configPath = filepath.Dir(exec) + "/" + filepath.Base(exec) + ".xml"
+			}
 
-	config := flag.String("config", "/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/talkkonnect.xml", "full path to talkkonnect.xml configuration file")
-
+		}
+	}
+	config := flag.String("config", configPath, "full path to "+filepath.Base(exec)+".xml configuration file")
 	flag.Usage = talkkonnectusage
 	flag.Parse()
 
@@ -50,11 +80,11 @@ func main() {
 
 func talkkonnectusage() {
 	fmt.Println("---------------------------------------------------------------------------------------")
-	fmt.Println("Usage: talkkonnect [-config=[full path and file to talkkonnect.xml configuration file]]")
+	fmt.Println("Usage: talkkonnect [-config=[full path and file to " + filepath.Base(exec) + ".xml configuration file]]")
 	fmt.Println("By Suvir Kumar <suvir@talkkonnect.com>")
 	fmt.Println("For more information visit http://www.talkkonnect.com and github.com/talkkonnect")
 	fmt.Println("---------------------------------------------------------------------------------------")
-	fmt.Println("-config=/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/talkkonnect.xml")
+	fmt.Println("-config=$HOME/.config/" + filepath.Base(exec) + "/" + filepath.Base(exec) + ".xml")
 	fmt.Println("-version for the version")
 	fmt.Println("-help for this screen")
 }

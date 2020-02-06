@@ -294,13 +294,6 @@
         <txlocktimeoutsecs>30</txlocktimeoutsecs>
       </panicfunction>
 
-      <!-- Set Parameters for Line Messaging Button -->
-      <linemessenger enabled="true">
-	<sendident>true</sendident>
-        <linetoken>"7RhhLfx0101C2CpAZasHR3codUehzVkyWMHrs4IMES2"</linetoken>
-	<linemessagebody>"Please Log in to Channel 1"</linemessagebody>
-      </linemessenger>
-
     </hardware>
   </global>
 </document>

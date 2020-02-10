@@ -31,7 +31,7 @@ package talkkonnect
 
 import (
 	"errors"
-	"fmt"
+
 	hd44780 "github.com/talkkonnect/go-hd44780"
 	"github.com/xackery/gomail"
 )
@@ -40,7 +40,7 @@ func sendviagmail(username string, password string, receiver string, subject str
 
 	err := gomail.Send(username, password, []string{receiver}, subject, message)
 	if err != nil {
-		return errors.New(fmt.Sprintf("Sending Email Via GMAIL Error: ", err.Error()))
+		return errors.New("Sending Email Via GMAIL Error")
 	}
 
 	go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)

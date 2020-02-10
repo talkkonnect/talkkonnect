@@ -137,7 +137,7 @@ func (b *Talkkonnect) talkkonnectMenu() {
 func localAddresses() {
 	ifaces, err := net.Interfaces()
 	if err != nil {
-		log.Print(fmt.Errorf("error: localAddresses %v\n", err.Error()))
+		log.Print(fmt.Errorf("error: localAddresses %v", err.Error()))
 		return
 	}
 
@@ -145,7 +145,7 @@ func localAddresses() {
 		addrs, err := i.Addrs()
 
 		if err != nil {
-			log.Print(fmt.Errorf("error: localAddresses %v\n", err.Error()))
+			log.Print(fmt.Errorf("error: localAddresses %v", err.Error()))
 			continue
 		}
 
@@ -162,7 +162,7 @@ func (b *Talkkonnect) pingconnectedserver() {
 	resp, err := gumble.Ping(b.Address, time.Second*1, time.Second*5)
 
 	if err != nil {
-		log.Println(fmt.Sprintf("error: Ping Error ", err))
+		log.Println(fmt.Sprintf("error: Ping Error %s", err))
 		return
 	}
 

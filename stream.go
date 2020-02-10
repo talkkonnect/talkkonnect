@@ -32,16 +32,17 @@ package talkkonnect
 import (
 	"encoding/binary"
 	"errors"
+	"log"
+	"time"
+
 	hd44780 "github.com/talkkonnect/go-hd44780"
 	"github.com/talkkonnect/go-openal/openal"
 	"github.com/talkkonnect/gpio"
 	"github.com/talkkonnect/gumble/gumble"
-	"log"
-	"time"
 )
 
 var (
-	ErrState         = errors.New("gumbleopenal: invalid state")
+	errState         = errors.New("gumbleopenal: invalid state")
 	lastspeaker      = "Nil"
 	lcdtext          = [4]string{"nil", "nil", "nil", ""}
 	BackLightLED     = gpio.NewOutput(uint(LCDBackLightLEDPin), false)
@@ -102,7 +103,7 @@ func (s *Stream) StartSourceFile() error {
 		log.Println("alert: Start Source File")
 	}
 	if s.sourceStop != nil {
-		return ErrState
+		return errState
 	}
 	s.deviceSource.CaptureStart()
 	s.sourceStop = make(chan bool)
@@ -115,7 +116,7 @@ func (s *Stream) StartSource() error {
 		log.Println("alert: Start Source")
 	}
 	if s.sourceStop != nil {
-		return ErrState
+		return errState
 	}
 	s.deviceSource.CaptureStart()
 	s.sourceStop = make(chan bool)
@@ -128,7 +129,7 @@ func (s *Stream) StopSource() error {
 		log.Println("alert: Stop Source File")
 	}
 	if s.sourceStop == nil {
-		return ErrState
+		return errState
 	}
 	close(s.sourceStop)
 	s.sourceStop = nil

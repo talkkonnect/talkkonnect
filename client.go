@@ -148,7 +148,7 @@ func PreInit0(file string) {
 
 	if APEnabled {
 		log.Println("info: Contacting http Provisioning Server Pls Wait")
-		err := AutoProvision()
+		err := autoProvision()
 		time.Sleep(5 * time.Second)
 		if err != nil {
 			log.Println("alert: Error from AutoProvisioning Module: ", err)

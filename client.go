@@ -33,16 +33,6 @@ import (
 	"crypto/rand"
 	"crypto/tls"
 	"fmt"
-	"github.com/comail/colog"
-	"github.com/hegedustibor/htgo-tts"
-	"github.com/kennygrant/sanitize"
-	hd44780 "github.com/talkkonnect/go-hd44780"
-	"github.com/talkkonnect/gpio"
-	"github.com/talkkonnect/gumble/gumble"
-	"github.com/talkkonnect/gumble/gumbleutil"
-	_ "github.com/talkkonnect/gumble/opus"
-	term "github.com/talkkonnect/termbox-go"
-	"github.com/talkkonnect/volume-go"
 	"io"
 	"log"
 	"net"
@@ -54,6 +44,17 @@ import (
 	"strings"
 	"syscall"
 	"time"
+
+	"github.com/comail/colog"
+	htgotts "github.com/hegedustibor/htgo-tts"
+	"github.com/kennygrant/sanitize"
+	hd44780 "github.com/talkkonnect/go-hd44780"
+	"github.com/talkkonnect/gpio"
+	"github.com/talkkonnect/gumble/gumble"
+	"github.com/talkkonnect/gumble/gumbleutil"
+	_ "github.com/talkkonnect/gumble/opus"
+	term "github.com/talkkonnect/termbox-go"
+	"github.com/talkkonnect/volume-go"
 )
 
 var (
@@ -2308,6 +2309,7 @@ func (b *Talkkonnect) BackLightTimer() {
 	go func() {
 		<-BackLightTime.C
 		//log.Printf("debug: LCD Backlight Timer Address %v", BackLightTime, " Off Timed Out After", LCDBackLightTimeoutSecs, " Seconds\n")
+
 		time.Sleep(100 * time.Millisecond)
 		if LCDInterfaceType == "parallel" {
 			b.LEDOff(b.BackLightLED)
@@ -2319,6 +2321,9 @@ func (b *Talkkonnect) BackLightTimer() {
 				return
 			}
 			lcd.ToggleBacklight()
+		}
+		if OLEDInterfacetype == "i2c" {
+			oledDisplay(true, 0, 0, "") // clear the screen is the same as turning off the backlight
 		}
 	}()
 }

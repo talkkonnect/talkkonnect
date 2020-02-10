@@ -301,7 +301,7 @@ func (b *Talkkonnect) Init() {
 		go func() {
 			for _ = range BeaconTicker.C {
 				b.IsPlayStream = true
-				b.PlayIntoStream(BeaconFileNameAndPath, BVolume)
+				b.playIntoStream(BeaconFileNameAndPath, BVolume)
 				b.IsPlayStream = false
 				log.Println("warn: Beacon Enabled and Timed Out Auto Played File ", BeaconFileNameAndPath, " Into Stream")
 			}
@@ -582,7 +582,7 @@ func (b *Talkkonnect) TransmitStart() {
 	if b.IsPlayStream {
 		b.IsPlayStream = false
 		NowStreaming = false
-		b.PlayIntoStream(ChimesSoundFilenameAndPath, ChimesSoundVolume)
+		b.playIntoStream(ChimesSoundFilenameAndPath, ChimesSoundVolume)
 		time.Sleep(100 * time.Millisecond)
 	}
 
@@ -1721,7 +1721,7 @@ func (b *Talkkonnect) commandKeyF8() {
 		b.IsPlayStream = false
 		NowStreaming = false
 
-		b.PlayIntoStream(ChimesSoundFilenameAndPath, ChimesSoundVolume)
+		b.playIntoStream(ChimesSoundFilenameAndPath, ChimesSoundVolume)
 	}
 
 	if !b.IsTransmitting {
@@ -1749,7 +1749,7 @@ func (b *Talkkonnect) commandKeyF9() {
 		b.IsPlayStream = false
 		NowStreaming = false
 
-		b.PlayIntoStream(ChimesSoundFilenameAndPath, ChimesSoundVolume)
+		b.playIntoStream(ChimesSoundFilenameAndPath, ChimesSoundVolume)
 	}
 
 	if b.IsTransmitting {
@@ -1800,7 +1800,7 @@ func (b *Talkkonnect) commandKeyF11() {
 		b.SendMessage(fmt.Sprintf("%s Streaming", b.Username), false)
 	}
 
-	go b.PlayIntoStream(ChimesSoundFilenameAndPath, ChimesSoundVolume)
+	go b.playIntoStream(ChimesSoundFilenameAndPath, ChimesSoundVolume)
 
 }
 
@@ -2189,7 +2189,7 @@ func (b *Talkkonnect) commandKeyCtrlP() {
 			}
 
 			b.IsPlayStream = true
-			b.PlayIntoStream(PFileNameAndPath, PVolume)
+			b.playIntoStream(PFileNameAndPath, PVolume)
 			if TargetBoard == "rpi" {
 				if LCDEnabled == true {
 					LcdText = [4]string{"nil", "nil", "nil", "Panic Message Sent!"}

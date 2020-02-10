@@ -41,7 +41,7 @@ import (
 
 var stream *gumbleffmpeg.Stream
 
-func (b *Talkkonnect) PlayIntoStream(filepath string, vol float32) {
+func (b *Talkkonnect) playIntoStream(filepath string, vol float32) {
 
 	if b.IsPlayStream == false {
 		log.Println(fmt.Sprintf("info: File %s Stopped!", filepath))

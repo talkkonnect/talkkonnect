@@ -31,14 +31,14 @@ package talkkonnect
 
 import (
 	"fmt"
-	"github.com/talkkonnect/gumble/gumble"
-	"github.com/talkkonnect/volume-go"
 	"log"
 	"net"
 	"os"
 	"time"
-)
 
+	"github.com/talkkonnect/gumble/gumble"
+	"github.com/talkkonnect/volume-go"
+)
 
 func talkkonnectBanner() {
 	log.Println("info: ┌────────────────────────────────────────────────────────────────┐")

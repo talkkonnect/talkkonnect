@@ -33,16 +33,6 @@ import (
 	"crypto/rand"
 	"crypto/tls"
 	"fmt"
-	"github.com/comail/colog"
-	"github.com/hegedustibor/htgo-tts"
-	"github.com/kennygrant/sanitize"
-	hd44780 "github.com/talkkonnect/go-hd44780"
-	"github.com/talkkonnect/gpio"
-	"github.com/talkkonnect/gumble/gumble"
-	"github.com/talkkonnect/gumble/gumbleutil"
-	_ "github.com/talkkonnect/gumble/opus"
-	term "github.com/talkkonnect/termbox-go"
-	"github.com/talkkonnect/volume-go"
 	"io"
 	"log"
 	"net"
@@ -54,6 +44,17 @@ import (
 	"strings"
 	"syscall"
 	"time"
+
+	"github.com/comail/colog"
+	htgotts "github.com/hegedustibor/htgo-tts"
+	"github.com/kennygrant/sanitize"
+	hd44780 "github.com/talkkonnect/go-hd44780"
+	"github.com/talkkonnect/gpio"
+	"github.com/talkkonnect/gumble/gumble"
+	"github.com/talkkonnect/gumble/gumbleutil"
+	_ "github.com/talkkonnect/gumble/opus"
+	term "github.com/talkkonnect/termbox-go"
+	"github.com/talkkonnect/volume-go"
 )
 
 var (
@@ -147,7 +148,7 @@ func PreInit0(file string) {
 
 	if APEnabled {
 		log.Println("info: Contacting http Provisioning Server Pls Wait")
-		err := AutoProvision()
+		err := autoProvision()
 		time.Sleep(5 * time.Second)
 		if err != nil {
 			log.Println("alert: Error from AutoProvisioning Module: ", err)
@@ -300,7 +301,7 @@ func (b *Talkkonnect) Init() {
 		go func() {
 			for _ = range BeaconTicker.C {
 				b.IsPlayStream = true
-				b.PlayIntoStream(BeaconFileNameAndPath, BVolume)
+				b.playIntoStream(BeaconFileNameAndPath, BVolume)
 				b.IsPlayStream = false
 				log.Println("warn: Beacon Enabled and Timed Out Auto Played File ", BeaconFileNameAndPath, " Into Stream")
 			}
@@ -581,7 +582,7 @@ func (b *Talkkonnect) TransmitStart() {
 	if b.IsPlayStream {
 		b.IsPlayStream = false
 		NowStreaming = false
-		b.PlayIntoStream(ChimesSoundFileNameAndPath, ChimesSoundVolume)
+		b.playIntoStream(ChimesSoundFilenameAndPath, ChimesSoundVolume)
 		time.Sleep(100 * time.Millisecond)
 	}
 
@@ -1724,7 +1725,7 @@ func (b *Talkkonnect) commandKeyF8() {
 		b.IsPlayStream = false
 		NowStreaming = false
 
-		b.PlayIntoStream(ChimesSoundFileNameAndPath, ChimesSoundVolume)
+		b.playIntoStream(ChimesSoundFilenameAndPath, ChimesSoundVolume)
 	}
 
 	if !b.IsTransmitting {
@@ -1752,7 +1753,7 @@ func (b *Talkkonnect) commandKeyF9() {
 		b.IsPlayStream = false
 		NowStreaming = false
 
-		b.PlayIntoStream(ChimesSoundFileNameAndPath, ChimesSoundVolume)
+		b.playIntoStream(ChimesSoundFilenameAndPath, ChimesSoundVolume)
 	}
 
 	if b.IsTransmitting {
@@ -1803,7 +1804,7 @@ func (b *Talkkonnect) commandKeyF11() {
 		b.SendMessage(fmt.Sprintf("%s Streaming", b.Username), false)
 	}
 
-	go b.PlayIntoStream(ChimesSoundFileNameAndPath, ChimesSoundVolume)
+	go b.playIntoStream(ChimesSoundFilenameAndPath, ChimesSoundVolume)
 
 }
 
@@ -2192,7 +2193,7 @@ func (b *Talkkonnect) commandKeyCtrlP() {
 			}
 
 			b.IsPlayStream = true
-			b.PlayIntoStream(PFileNameAndPath, PVolume)
+			b.playIntoStream(PFileNameAndPath, PVolume)
 			if TargetBoard == "rpi" {
 				if LCDEnabled == true {
 					LcdText = [4]string{"nil", "nil", "nil", "Panic Message Sent!"}
@@ -2312,6 +2313,7 @@ func (b *Talkkonnect) BackLightTimer() {
 	go func() {
 		<-BackLightTime.C
 		//log.Printf("debug: LCD Backlight Timer Address %v", BackLightTime, " Off Timed Out After", LCDBackLightTimeoutSecs, " Seconds\n")
+
 		time.Sleep(100 * time.Millisecond)
 		if LCDInterfaceType == "parallel" {
 			b.LEDOff(b.BackLightLED)
@@ -2323,6 +2325,9 @@ func (b *Talkkonnect) BackLightTimer() {
 				return
 			}
 			lcd.ToggleBacklight()
+		}
+		if OLEDInterfacetype == "i2c" {
+			oledDisplay(true, 0, 0, "") // clear the screen is the same as turning off the backlight
 		}
 	}()
 }

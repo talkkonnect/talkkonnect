@@ -33,17 +33,20 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
+	"golang.org/x/sys/unix"
 	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 )
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.46.38"
-	talkkonnectReleased string = "February 10 2020"
+	talkkonnectVersion  string = "1.46.39"
+	talkkonnectReleased string = "February 14 2020"
 )
 
 // lcd timer
@@ -68,7 +71,7 @@ var (
 //software settings
 var (
 	OutputDevice       string
-	LogFileNameAndPath string
+	LogFilenameAndPath string
 	Logging            string
 	Daemonize          bool
 	SimplexWithMute    bool
@@ -81,14 +84,14 @@ var (
 	TkId         string
 	Url          string
 	SaveFilePath string
-	SaveFileName string
+	SaveFilename string
 )
 
 //beacon settings
 var (
 	BeaconEnabled         bool
 	BeaconTimerSecs       int
-	BeaconFileNameAndPath string
+	BeaconFilenameAndPath string
 	BVolume               float32
 )
 
@@ -98,49 +101,49 @@ var (
 	TTSVolumeLevel                       int
 	TTSParticipants                      bool
 	TTSChannelUp                         bool
-	TTSChannelUpFileNameAndPath          string
+	TTSChannelUpFilenameAndPath          string
 	TTSChannelDown                       bool
-	TTSChannelDownFileNameAndPath        string
+	TTSChannelDownFilenameAndPath        string
 	TTSMuteUnMuteSpeaker                 bool
-	TTSMuteUnMuteSpeakerFileNameAndPath  string
+	TTSMuteUnMuteSpeakerFilenameAndPath  string
 	TTSCurrentVolumeLevel                bool
-	TTSCurrentVolumeLevelFileNameAndPath string
+	TTSCurrentVolumeLevelFilenameAndPath string
 	TTSDigitalVolumeUp                   bool
-	TTSDigitalVolumeUpFileNameAndPath    string
+	TTSDigitalVolumeUpFilenameAndPath    string
 	TTSDigitalVolumeDown                 bool
-	TTSDigitalVolumeDownFileNameAndPath  string
+	TTSDigitalVolumeDownFilenameAndPath  string
 	TTSListServerChannels                bool
-	TTSListServerChannelsFileNameAndPath string
+	TTSListServerChannelsFilenameAndPath string
 	TTSStartTransmitting                 bool
-	TTSStartTransmittingFileNameAndPath  string
+	TTSStartTransmittingFilenameAndPath  string
 	TTSStopTransmitting                  bool
-	TTSStopTransmittingFileNameAndPath   string
+	TTSStopTransmittingFilenameAndPath   string
 	TTSListOnlineUsers                   bool
-	TTSListOnlineUsersFileNameAndPath    string
+	TTSListOnlineUsersFilenameAndPath    string
 	TTSPlayChimes                        bool
-	TTSPlayChimesFileNameAndPath         string
+	TTSPlayChimesFilenameAndPath         string
 	TTSRequestGpsPosition                bool
-	TTSRequestGpsPositionFileNameAndPath string
+	TTSRequestGpsPositionFilenameAndPath string
 	TTSNextServer                        bool
-	TTSNextServerFileNameAndPath         string
+	TTSNextServerFilenameAndPath         string
 	TTSPreviousServer                    bool
-	TTSPreviousServerFileNameAndPath     string
+	TTSPreviousServerFilenameAndPath     string
 	TTSPanicSimulation                   bool
-	TTSPanicSimulationFileNameAndPath    string
+	TTSPanicSimulationFilenameAndPath    string
 	TTSPrintXmlConfig                    bool
-	TTSPrintXmlConfigFileNameAndPath     string
+	TTSPrintXmlConfigFilenameAndPath     string
 	TTSSendEmail                         bool
-	TTSSendEmailFileNameAndPath          string
+	TTSSendEmailFilenameAndPath          string
 	TTSDisplayMenu                       bool
-	TTSDisplayMenuFileNameAndPath        string
+	TTSDisplayMenuFilenameAndPath        string
 	TTSQuitTalkkonnect                   bool
-	TTSQuitTalkkonnectFileNameAndPath    string
+	TTSQuitTalkkonnectFilenameAndPath    string
 	TTSTalkkonnectLoaded                 bool
-	TTSTalkkonnectLoadedFileNameAndPath  string
+	TTSTalkkonnectLoadedFilenameAndPath  string
 	TTSPingServers                       bool
-	TTSPingServersFileNameAndPath        string
+	TTSPingServersFilenameAndPath        string
 	TTSScan                              bool
-	TTSScanFileNameAndPath               string
+	TTSScanFilenameAndPath               string
 )
 
 //gmail smtp settings
@@ -321,7 +324,7 @@ var (
 //panic function settings
 var (
 	PEnabled           bool
-	PFileNameAndPath   string
+	PFilenameAndPath   string
 	PMessage           string
 	PRecursive         bool
 	PVolume            float32
@@ -405,7 +408,7 @@ type Software struct {
 type Settings struct {
 	XMLName            xml.Name `xml:"settings"`
 	OutputDevice       string   `xml:"outputdevice"`
-	LogFileNameAndPath string   `xml:"logfilenameandpath"`
+	LogFilenameAndPath string   `xml:"logFilenameandpath"`
 	Logging            string   `xml:"logging"`
 	Daemonize          bool     `xml:"daemonize"`
 	CancellableStream  bool     `xml:"cancellablestream"`
@@ -419,14 +422,14 @@ type AutoProvisioning struct {
 	TkId         string   `xml:"tkid"`
 	Url          string   `xml:"url"`
 	SaveFilePath string   `xml:"savefilepath"`
-	SaveFileName string   `xml:"savefilename"`
+	SaveFilename string   `xml:"saveFilename"`
 }
 
 type Beacon struct {
 	XMLName               xml.Name `xml:"beacon"`
 	BeaconEnabled         bool     `xml:"enabled,attr"`
 	BeaconTimerSecs       int      `xml:"beacontimersecs"`
-	BeaconFileNameAndPath string   `xml:"beaconfileandpath"`
+	BeaconFilenameAndPath string   `xml:"beaconfileandpath"`
 	BVolume               float32  `xml:"volume"`
 }
 
@@ -436,47 +439,47 @@ type TTS struct {
 	TTSVolumeLevel                       int      `xml:"volumelevel"`
 	TTSParticipants                      bool     `xml:"participants"`
 	TTSChannelUp                         bool     `xml:"channelup"`
-	TTSChannelUpFileNameAndPath          string   `xml:"channelupfilenameandpath"`
+	TTSChannelUpFilenameAndPath          string   `xml:"channelupFilenameandpath"`
 	TTSChannelDown                       bool     `xml:"channeldown"`
-	TTSChannelDownFileNameAndPath        string   `xml:"channeldownfilenameandpath"`
+	TTSChannelDownFilenameAndPath        string   `xml:"channeldownFilenameandpath"`
 	TTSMuteUnMuteSpeaker                 bool     `xml:"muteunmutespeaker"`
-	TTSMuteUnMuteSpeakerFileNameAndPath  string   `xml:"muteunmutespeakerfilenameandpath"`
+	TTSMuteUnMuteSpeakerFilenameAndPath  string   `xml:"muteunmutespeakerFilenameandpath"`
 	TTSCurrentVolumeLevel                bool     `xml:"currentvolumelevel"`
-	TTSCurrentVolumeLevelFileNameAndPath string   `xml:"currentvolumelevelfilenameandpath"`
+	TTSCurrentVolumeLevelFilenameAndPath string   `xml:"currentvolumelevelFilenameandpath"`
 	TTSDigitalVolumeUp                   bool     `xml:"digitalvolumeup"`
-	TTSDigitalVolumeUpFileNameAndPath    string   `xml:"digitalvolumeupfilenameandpath"`
+	TTSDigitalVolumeUpFilenameAndPath    string   `xml:"digitalvolumeupFilenameandpath"`
 	TTSDigitalVolumeDown                 bool     `xml:"digitalvolumedown"`
-	TTSDigitalVolumeDownFileNameAndPath  string   `xml:"digitalvolumedownfilenameandpath"`
+	TTSDigitalVolumeDownFilenameAndPath  string   `xml:"digitalvolumedownFilenameandpath"`
 	TTSListServerChannels                bool     `xml:"listserverchannels"`
-	TTSListServerChannelsFileNameAndPath string   `xml:"listserverchannelsfilenameandpath"`
+	TTSListServerChannelsFilenameAndPath string   `xml:"listserverchannelsFilenameandpath"`
 	TTSStartTransmitting                 bool     `xml:"starttransmitting"`
-	TTSStartTransmittingFileNameAndPath  string   `xml:"starttransmittingfilenameandpath"`
+	TTSStartTransmittingFilenameAndPath  string   `xml:"starttransmittingFilenameandpath"`
 	TTSStopTransmitting                  bool     `xml:"stoptransmitting"`
-	TTSStopTransmittingFileNameAndPath   string   `xml:"stoptransmittingfilenameandpath"`
+	TTSStopTransmittingFilenameAndPath   string   `xml:"stoptransmittingFilenameandpath"`
 	TTSListOnlineUsers                   bool     `xml:"listonlineusers"`
-	TTSListOnlineUsersFileNameAndPath    string   `xml:"listonlineusersfilenameandpath"`
+	TTSListOnlineUsersFilenameAndPath    string   `xml:"listonlineusersFilenameandpath"`
 	TTSPlayChimes                        bool     `xml:"playchimes"`
-	TTSPlayChimesFileNameAndPath         string   `xml:"playchimesfilenameandpath"`
+	TTSPlayChimesFilenameAndPath         string   `xml:"playchimesFilenameandpath"`
 	TTSRequestGpsPosition                bool     `xml:"requestgpsposition"`
-	TTSRequestGpsPositionFileNameAndPath string   `xml:"requestgpspositionfilenameandpath"`
+	TTSRequestGpsPositionFilenameAndPath string   `xml:"requestgpspositionFilenameandpath"`
 	TTSNextServer                        bool     `xml:"nextserver"`
-	TTSNextServerFileNameAndPath         string   `xml:"nextserverfilenameandpath"`
+	TTSNextServerFilenameAndPath         string   `xml:"nextserverFilenameandpath"`
 	TTSPreviousServer                    bool     `xml:"previousserver"`
-	TTSPreviousServerFileNameAndPath     string   `xml:"previousserverfilenameandpath"`
+	TTSPreviousServerFilenameAndPath     string   `xml:"previousserverFilenameandpath"`
 	TTSPanicSimulation                   bool     `xml:"panicsimulation"`
-	TTSPanicSimulationFileNameAndPath    string   `xml:"panicsimulationfilenameandpath"`
+	TTSPanicSimulationFilenameAndPath    string   `xml:"panicsimulationFilenameandpath"`
 	TTSPrintXmlConfig                    bool     `xml:"printxmlconfig"`
-	TTSPrintXmlConfigFileNameAndPath     string   `xml:"printxmlconfigfilenameandpath"`
+	TTSPrintXmlConfigFilenameAndPath     string   `xml:"printxmlconfigFilenameandpath"`
 	TTSSendEmail                         bool     `xml:"sendemail"`
-	TTSSendEmailFileNameAndPath          string   `xml:"sendemailfilenameandpath"`
+	TTSSendEmailFilenameAndPath          string   `xml:"sendemailFilenameandpath"`
 	TTSDisplayMenu                       bool     `xml:"displaymenu"`
-	TTSDisplayMenuFileNameAndPath        string   `xml:"displaymenufilenameandpath"`
+	TTSDisplayMenuFilenameAndPath        string   `xml:"displaymenuFilenameandpath"`
 	TTSQuitTalkkonnect                   bool     `xml:"quittalkkonnect"`
-	TTSQuitTalkkonnectFileNameAndPath    string   `xml:"quittalkkonnectfilenameandpath"`
+	TTSQuitTalkkonnectFilenameAndPath    string   `xml:"quittalkkonnectFilenameandpath"`
 	TTSTalkkonnectLoaded                 bool     `xml:"talkkonnectloaded"`
-	TTSTalkkonnectLoadedFileNameAndPath  string   `xml:"talkkonnectloadedfilenameandpath"`
+	TTSTalkkonnectLoadedFilenameAndPath  string   `xml:"talkkonnectloadedFilenameandpath"`
 	TTSPingServers                       bool     `xml:"pingservers"`
-	TTSPingServersFileNameAndPath        string   `xml:"pingserversfilenameandpath"`
+	TTSPingServersFilenameAndPath        string   `xml:"pingserversFilenameandpath"`
 }
 
 type Smtp struct {
@@ -535,7 +538,7 @@ type PrintVariables struct {
 	PrintLogging      bool     `xml:"printlogging"`
 	PrintProvisioning bool     `xml:"printprovisioning"`
 	PrintBeacon       bool     `xml:"printbeacon"`
-	PrintTTS          bool     `xml:"printts"`
+	PrintTTS          bool     `xml:"printtss"`
 	PrintSMTP         bool     `xml:"printsmtp"`
 	PrintSounds       bool     `xml:"printsounds"`
 	PrintTxTimeout    bool     `xml:"printtxtimeout"`
@@ -555,20 +558,20 @@ type PrintVariables struct {
 type Event struct {
 	XMLName          xml.Name `xml:"event"`
 	EEnabled         bool     `xml:"enabled,attr"`
-	EFileNameAndPath string   `xml:"filenameandpath"`
+	EFilenameAndPath string   `xml:"Filenameandpath"`
 }
 
 type Alert struct {
 	XMLName          xml.Name `xml:"alert"`
 	AEnabled         bool     `xml:"enabled,attr"`
-	AFileNameAndPath string   `xml:"filenameandpath"`
+	AFilenameAndPath string   `xml:"Filenameandpath"`
 	AVolume          float32  `xml:"volume"`
 }
 
 type RogerBeep struct {
 	XMLName          xml.Name `xml:"rogerbeep"`
 	REnabled         bool     `xml:"enabled,attr"`
-	RFileNameAndPath string   `xml:"filenameandpath"`
+	RFilenameAndPath string   `xml:"Filenameandpath"`
 	RBeepVolume      float32  `xml:"volume"`
 }
 
@@ -581,7 +584,7 @@ type TxTimeOut struct {
 type Chimes struct {
 	XMLName          xml.Name `xml:"chimes"`
 	CEnabled         bool     `xml:"enabled,attr"`
-	CFileNameAndPath string   `xml:"filenameandpath"`
+	CFilenameAndPath string   `xml:"Filenameandpath"`
 	CVolume          float32  `xml:"volume"`
 }
 
@@ -688,7 +691,7 @@ type PanicFunction struct {
 	PEnabled           bool     `xml:"enabled,attr"`
 	PMessage           string   `xml:"panicmessage"`
 	PRecursive         string   `xml:"recursivesendmessage"`
-	PFileNameAndPath   string   `xml:"filenameandpath"`
+	PFilenameAndPath   string   `xml:"Filenameandpath"`
 	PVolume            float32  `xml:"volume"`
 	PSendIdent         bool     `xml:"sendident"`
 	PSendGpsLocation   bool     `xml:"sendgpslocation"`
@@ -717,10 +720,9 @@ func readxmlconfig(file string) error {
 	var counter int = 0
 	xmlFile, err := os.Open(file)
 	if err != nil {
-		return errors.New(fmt.Sprintf("cannot open configuration file talkkonnect.xml", err))
+		return errors.New(fmt.Sprintf("cannot open configuration file "+filepath.Base(file), err))
 	}
-
-	log.Println("info: Successfully Opened file talkkonnect.xml")
+	log.Println("info: Successfully Opened file " + filepath.Base(file))
 	defer xmlFile.Close()
 
 	byteValue, _ := ioutil.ReadAll(xmlFile)
@@ -729,7 +731,7 @@ func readxmlconfig(file string) error {
 
 	err = xml.Unmarshal(byteValue, &document)
 	if err != nil {
-		errors.New(fmt.Sprintf("File talkkonnect.xml formatting error Please fix! ", err))
+		errors.New(fmt.Sprintf("File "+filepath.Base(file)+" formatting error Please fix! ", err))
 	}
 	log.Println("Document               : " + document.Type)
 
@@ -751,9 +753,78 @@ func readxmlconfig(file string) error {
 		log.Fatal("No Default Accounts Found! Please Add at least 1 Default Account in XML File")
 	}
 
+	exec, err := os.Executable()
+	if err != nil {
+		exec = "./talkkonnect" //Hardcode our default name
+	}
+
+	// Set our default config file path (for autoprovision)
+	defaultConfPath, err := filepath.Abs(filepath.Dir(file))
+	if err != nil {
+		// log.Println("Error collecting abs path: " + err.Error())
+		// defaultConfPath = "/tmp"
+		log.Fatal("Unable to get path for config file: " + err.Error())
+	}
+
+	// Set our default logging path
+	//This section is pretty unix specific.. sorry if you like windows support.
+	defaultLogPath := "/tmp/" + filepath.Base(exec) + ".log" // Safe assumption as it should be writable for everyone
+	// First see if we can write in our CWD and use it over /tmp
+	cwd, err := os.Getwd()
+	if err == nil {
+		cwd, err := filepath.Abs(cwd)
+		if err == nil {
+			if unix.Access(cwd, unix.W_OK) == nil {
+				defaultLogPath = cwd + "/" + filepath.Base(exec) + ".log"
+			}
+		}
+	}
+
+	// Next try a file in our config path and favor it over CWD
+	if unix.Access(defaultConfPath, unix.W_OK) == nil {
+		defaultLogPath = defaultConfPath + "/" + filepath.Base(exec) + ".log"
+	}
+
+	// Last, see if the system talkkonnect log exists and is writeable and do that over CWD, HOME and /tmp
+	if _, err := os.Stat("/var/log/" + filepath.Base(exec) + ".log"); err == nil {
+		f, err := os.OpenFile("/var/log/"+filepath.Base(exec)+".log", os.O_WRONLY, 0664)
+		if err == nil {
+			defaultLogPath = "/var/log/" + filepath.Base(exec) + ".log"
+		}
+		f.Close()
+	}
+
+	// Set our default sharefile path
+	defaultSharePath := "/tmp"
+	dir := filepath.Dir(exec)
+	//Check for soundfiles directory in various locations
+	// First, check env for $GOPATH and check in the hardcoded talkkonnect/talkkonnect dir
+	if os.Getenv("GOPATH") != "" {
+		defaultRepo := os.Getenv("GOPATH") + "/src/github.com/talkkonnect/talkkonnect"
+		if stat, err := os.Stat(defaultRepo); err == nil && stat.IsDir() {
+			defaultSharePath = defaultRepo
+		}
+	}
+	// Next, check the same dir as executable for 'soundfiles'
+	if stat, err := os.Stat(dir + "/soundfiles"); err == nil && stat.IsDir() {
+		defaultSharePath = dir
+	}
+	// Last, if its in a bin directory, we check for ../share/talkkonnect/ and prioritize it if it exists
+	if strings.HasSuffix(dir, "bin") {
+		shareDir := filepath.Dir(dir) + "/share/" + filepath.Base(exec)
+		if stat, err := os.Stat(shareDir); err == nil && stat.IsDir() {
+			defaultSharePath = shareDir
+		}
+	}
+
 	OutputDevice = document.Global.Software.Settings.OutputDevice
-	LogFileNameAndPath = document.Global.Software.Settings.LogFileNameAndPath
+	LogFilenameAndPath = document.Global.Software.Settings.LogFilenameAndPath
 	Logging = document.Global.Software.Settings.Logging
+
+	if strings.ToLower(Logging) != "screen" && LogFilenameAndPath == "" {
+		LogFilenameAndPath = defaultLogPath
+	}
+
 	Daemonize = document.Global.Software.Settings.Daemonize
 	CancellableStream = document.Global.Software.Settings.CancellableStream
 	SimplexWithMute = document.Global.Software.Settings.SimplexWithMute
@@ -763,58 +834,247 @@ func readxmlconfig(file string) error {
 	TkId = document.Global.Software.AutoProvisioning.TkId
 	Url = document.Global.Software.AutoProvisioning.Url
 	SaveFilePath = document.Global.Software.AutoProvisioning.SaveFilePath
-	SaveFileName = document.Global.Software.AutoProvisioning.SaveFileName
+	SaveFilename = document.Global.Software.AutoProvisioning.SaveFilename
+
+	if APEnabled && SaveFilePath == "" {
+		SaveFilePath = defaultConfPath
+	}
+
+	if APEnabled && SaveFilename == "" {
+		SaveFilename = filepath.Base(exec) + ".xml" //Should default to talkkonnect.xml
+	}
 
 	BeaconEnabled = document.Global.Software.Beacon.BeaconEnabled
 	BeaconTimerSecs = document.Global.Software.Beacon.BeaconTimerSecs
-	BeaconFileNameAndPath = document.Global.Software.Beacon.BeaconFileNameAndPath
+	BeaconFilenameAndPath = document.Global.Software.Beacon.BeaconFilenameAndPath
+	if BeaconEnabled && BeaconFilenameAndPath == "" {
+		path := defaultSharePath + "/soundfiles/voiceprompts/Beacon.wav"
+		if _, err := os.Stat(path); err == nil {
+			BeaconFilenameAndPath = path
+		}
+	}
+
 	BVolume = document.Global.Software.Beacon.BVolume
 
 	TTSEnabled = document.Global.Software.TTS.TTSEnabled
 	TTSVolumeLevel = document.Global.Software.TTS.TTSVolumeLevel
 	TTSParticipants = document.Global.Software.TTS.TTSParticipants
 	TTSChannelUp = document.Global.Software.TTS.TTSChannelUp
-	TTSChannelUpFileNameAndPath = document.Global.Software.TTS.TTSChannelUpFileNameAndPath
+
+	if TTSChannelUp && TTSChannelUpFilenameAndPath == "" {
+		path := defaultSharePath + "/soundfiles/voiceprompts/ChannelUp.wav"
+		if _, err := os.Stat(path); err == nil {
+			TTSChannelUpFilenameAndPath = path
+		}
+	}
+
+	TTSChannelUpFilenameAndPath = document.Global.Software.TTS.TTSChannelUpFilenameAndPath
 	TTSChannelDown = document.Global.Software.TTS.TTSChannelDown
-	TTSChannelDownFileNameAndPath = document.Global.Software.TTS.TTSChannelDownFileNameAndPath
+	TTSChannelDownFilenameAndPath = document.Global.Software.TTS.TTSChannelDownFilenameAndPath
+
+	if TTSChannelDown && TTSChannelDownFilenameAndPath == "" {
+		path := defaultSharePath + "/soundfiles/voiceprompts/ChannelDown.wav"
+		if _, err := os.Stat(path); err == nil {
+			TTSChannelDownFilenameAndPath = path
+		}
+	}
+
 	TTSMuteUnMuteSpeaker = document.Global.Software.TTS.TTSMuteUnMuteSpeaker
-	TTSMuteUnMuteSpeakerFileNameAndPath = document.Global.Software.TTS.TTSMuteUnMuteSpeakerFileNameAndPath
+	TTSMuteUnMuteSpeakerFilenameAndPath = document.Global.Software.TTS.TTSMuteUnMuteSpeakerFilenameAndPath
+
+	if TTSMuteUnMuteSpeaker && TTSMuteUnMuteSpeakerFilenameAndPath == "" {
+		path := defaultSharePath + "/soundfiles/voiceprompts/MuteUnMuteSpeaker.wav"
+		if _, err := os.Stat(path); err == nil {
+			TTSMuteUnMuteSpeakerFilenameAndPath = path
+		}
+	}
+
 	TTSCurrentVolumeLevel = document.Global.Software.TTS.TTSCurrentVolumeLevel
-	TTSCurrentVolumeLevelFileNameAndPath = document.Global.Software.TTS.TTSCurrentVolumeLevelFileNameAndPath
+	TTSCurrentVolumeLevelFilenameAndPath = document.Global.Software.TTS.TTSCurrentVolumeLevelFilenameAndPath
+
+	if TTSCurrentVolumeLevel && TTSCurrentVolumeLevelFilenameAndPath == "" {
+		path := defaultSharePath + "/soundfiles/voiceprompts/CurrentVolumeLevel.wav"
+		if _, err := os.Stat(path); err == nil {
+			TTSCurrentVolumeLevelFilenameAndPath = path
+		}
+	}
+
 	TTSDigitalVolumeUp = document.Global.Software.TTS.TTSDigitalVolumeUp
-	TTSDigitalVolumeUpFileNameAndPath = document.Global.Software.TTS.TTSDigitalVolumeUpFileNameAndPath
+	TTSDigitalVolumeUpFilenameAndPath = document.Global.Software.TTS.TTSDigitalVolumeUpFilenameAndPath
+
+	if TTSDigitalVolumeUp && TTSDigitalVolumeUpFilenameAndPath == "" {
+		path := defaultSharePath + "/soundfiles/voiceprompts/DigitalVolumeUp.wav"
+		if _, err := os.Stat(path); err == nil {
+			TTSDigitalVolumeUpFilenameAndPath = path
+		}
+	}
+
 	TTSDigitalVolumeDown = document.Global.Software.TTS.TTSDigitalVolumeDown
-	TTSDigitalVolumeDownFileNameAndPath = document.Global.Software.TTS.TTSDigitalVolumeDownFileNameAndPath
+	TTSDigitalVolumeDownFilenameAndPath = document.Global.Software.TTS.TTSDigitalVolumeDownFilenameAndPath
+
+	if TTSDigitalVolumeDown && TTSDigitalVolumeDownFilenameAndPath == "" {
+		path := defaultSharePath + "/soundfiles/voiceprompts/DigitalVolumeDown.wav"
+		if _, err := os.Stat(path); err == nil {
+			TTSDigitalVolumeDownFilenameAndPath = path
+		}
+	}
+
 	TTSListServerChannels = document.Global.Software.TTS.TTSListServerChannels
-	TTSListServerChannelsFileNameAndPath = document.Global.Software.TTS.TTSListServerChannelsFileNameAndPath
+	TTSListServerChannelsFilenameAndPath = document.Global.Software.TTS.TTSListServerChannelsFilenameAndPath
+
+	if TTSListServerChannels && TTSListServerChannelsFilenameAndPath == "" {
+		path := defaultSharePath + "/soundfiles/voiceprompts/ListServerChannels.wav"
+		if _, err := os.Stat(path); err == nil {
+			TTSListServerChannelsFilenameAndPath = path
+		}
+	}
+
 	TTSStartTransmitting = document.Global.Software.TTS.TTSStartTransmitting
-	TTSStartTransmittingFileNameAndPath = document.Global.Software.TTS.TTSStartTransmittingFileNameAndPath
+	TTSStartTransmittingFilenameAndPath = document.Global.Software.TTS.TTSStartTransmittingFilenameAndPath
+
+	if TTSStartTransmitting && TTSStartTransmittingFilenameAndPath == "" {
+		path := defaultSharePath + "/soundfiles/voiceprompts/StartTransmitting.wav"
+		if _, err := os.Stat(path); err == nil {
+			TTSStartTransmittingFilenameAndPath = path
+		}
+	}
+
 	TTSStopTransmitting = document.Global.Software.TTS.TTSStopTransmitting
-	TTSStopTransmittingFileNameAndPath = document.Global.Software.TTS.TTSStopTransmittingFileNameAndPath
+	TTSStopTransmittingFilenameAndPath = document.Global.Software.TTS.TTSStopTransmittingFilenameAndPath
+
+	if TTSStopTransmitting && TTSStopTransmittingFilenameAndPath == "" {
+		path := defaultSharePath + "/soundfiles/voiceprompts/StopTransmitting.wav"
+		if _, err := os.Stat(path); err == nil {
+			TTSStopTransmittingFilenameAndPath = path
+		}
+	}
+
 	TTSListOnlineUsers = document.Global.Software.TTS.TTSListOnlineUsers
-	TTSListOnlineUsersFileNameAndPath = document.Global.Software.TTS.TTSListOnlineUsersFileNameAndPath
+	TTSListOnlineUsersFilenameAndPath = document.Global.Software.TTS.TTSListOnlineUsersFilenameAndPath
+
+	if TTSListOnlineUsers && TTSListOnlineUsersFilenameAndPath == "" {
+		path := defaultSharePath + "/soundfiles/voiceprompts/ListOnlineUsers.wav"
+		if _, err := os.Stat(path); err == nil {
+			TTSListOnlineUsersFilenameAndPath = path
+		}
+	}
+
 	TTSPlayChimes = document.Global.Software.TTS.TTSPlayChimes
-	TTSPlayChimesFileNameAndPath = document.Global.Software.TTS.TTSPlayChimesFileNameAndPath
+	TTSPlayChimesFilenameAndPath = document.Global.Software.TTS.TTSPlayChimesFilenameAndPath
+
+	if TTSPlayChimes && TTSPlayChimesFilenameAndPath == "" {
+		path := defaultSharePath + "/soundfiles/voiceprompts/PlayChimes.wav"
+		if _, err := os.Stat(path); err == nil {
+			TTSPlayChimesFilenameAndPath = path
+		}
+	}
+
 	TTSRequestGpsPosition = document.Global.Software.TTS.TTSRequestGpsPosition
-	TTSRequestGpsPositionFileNameAndPath = document.Global.Software.TTS.TTSRequestGpsPositionFileNameAndPath
+	TTSRequestGpsPositionFilenameAndPath = document.Global.Software.TTS.TTSRequestGpsPositionFilenameAndPath
+
+	if TTSRequestGpsPosition && TTSRequestGpsPositionFilenameAndPath == "" {
+		path := defaultSharePath + "/soundfiles/voiceprompts/RequestGpsPosition.wav"
+		if _, err := os.Stat(path); err == nil {
+			TTSRequestGpsPositionFilenameAndPath = path
+		}
+	}
+
 	TTSNextServer = document.Global.Software.TTS.TTSNextServer
-	TTSNextServerFileNameAndPath = document.Global.Software.TTS.TTSNextServerFileNameAndPath
+	TTSNextServerFilenameAndPath = document.Global.Software.TTS.TTSNextServerFilenameAndPath
+	/*
+		//TODO: No default sound available. Placeholder for now
+		if TTSNextServer && TTSNextServerFilenameAndPath == "" {
+			path := defaultSharePath + "/soundfiles/voiceprompts/TODO"
+			if _, err := os.Stat(path); err == nil {
+				TTSNextServerFilenameAndPath = path
+			}
+		}
+	*/
+
 	TTSPreviousServer = document.Global.Software.TTS.TTSPreviousServer
-	TTSPreviousServerFileNameAndPath = document.Global.Software.TTS.TTSPreviousServerFileNameAndPath
+	TTSPreviousServerFilenameAndPath = document.Global.Software.TTS.TTSPreviousServerFilenameAndPath
+
+	/*
+		//TODO: No default sound available. Placeholder for now
+		if TTSPreviousServer && TTSPreviousServerFilenameAndPath == "" {
+			path := defaultSharePath + "/soundfiles/voiceprompts/TODO"
+			if _, err := os.Stat(path); err == nil {
+				TTSPreviousServerFilenameAndPath = path
+			}
+		}
+	*/
+
 	TTSPanicSimulation = document.Global.Software.TTS.TTSPanicSimulation
-	TTSPanicSimulationFileNameAndPath = document.Global.Software.TTS.TTSPanicSimulationFileNameAndPath
+	TTSPanicSimulationFilenameAndPath = document.Global.Software.TTS.TTSPanicSimulationFilenameAndPath
+	if TTSPanicSimulation && TTSPanicSimulationFilenameAndPath == "" {
+		path := defaultSharePath + "/soundfiles/voiceprompts/PanicSimulation.wav"
+		if _, err := os.Stat(path); err == nil {
+			TTSPanicSimulationFilenameAndPath = path
+		}
+	}
+
 	TTSPrintXmlConfig = document.Global.Software.TTS.TTSPrintXmlConfig
-	TTSPrintXmlConfigFileNameAndPath = document.Global.Software.TTS.TTSPrintXmlConfigFileNameAndPath
+	TTSPrintXmlConfigFilenameAndPath = document.Global.Software.TTS.TTSPrintXmlConfigFilenameAndPath
+
+	if TTSPrintXmlConfig && TTSPrintXmlConfigFilenameAndPath == "" {
+		path := defaultSharePath + "/soundfiles/voiceprompts/PrintXmlConfig.wav"
+		if _, err := os.Stat(path); err == nil {
+			TTSPrintXmlConfigFilenameAndPath = path
+		}
+	}
+
 	TTSSendEmail = document.Global.Software.TTS.TTSSendEmail
-	TTSSendEmailFileNameAndPath = document.Global.Software.TTS.TTSSendEmailFileNameAndPath
+	TTSSendEmailFilenameAndPath = document.Global.Software.TTS.TTSSendEmailFilenameAndPath
+
+	if TTSSendEmail && TTSSendEmailFilenameAndPath == "" {
+		path := defaultSharePath + "/soundfiles/voiceprompts/SendEmail.wav"
+		if _, err := os.Stat(path); err == nil {
+			TTSSendEmailFilenameAndPath = path
+		}
+	}
+
 	TTSDisplayMenu = document.Global.Software.TTS.TTSDisplayMenu
-	TTSDisplayMenuFileNameAndPath = document.Global.Software.TTS.TTSDisplayMenuFileNameAndPath
+	TTSDisplayMenuFilenameAndPath = document.Global.Software.TTS.TTSDisplayMenuFilenameAndPath
+
+	if TTSDisplayMenu && TTSDisplayMenuFilenameAndPath == "" {
+		path := defaultSharePath + "/soundfiles/voiceprompts/DisplayMenu.wav"
+		if _, err := os.Stat(path); err == nil {
+			TTSDisplayMenuFilenameAndPath = path
+		}
+	}
+
 	TTSQuitTalkkonnect = document.Global.Software.TTS.TTSQuitTalkkonnect
-	TTSQuitTalkkonnectFileNameAndPath = document.Global.Software.TTS.TTSQuitTalkkonnectFileNameAndPath
+	TTSQuitTalkkonnectFilenameAndPath = document.Global.Software.TTS.TTSQuitTalkkonnectFilenameAndPath
+
+	if TTSQuitTalkkonnect && TTSQuitTalkkonnectFilenameAndPath == "" {
+		path := defaultSharePath + "/soundfiles/voiceprompts/QuitTalkkonnect.wav"
+		if _, err := os.Stat(path); err == nil {
+			TTSQuitTalkkonnectFilenameAndPath = path
+		}
+	}
+
 	TTSTalkkonnectLoaded = document.Global.Software.TTS.TTSTalkkonnectLoaded
-	TTSTalkkonnectLoadedFileNameAndPath = document.Global.Software.TTS.TTSTalkkonnectLoadedFileNameAndPath
+	TTSTalkkonnectLoadedFilenameAndPath = document.Global.Software.TTS.TTSTalkkonnectLoadedFilenameAndPath
+
+	if TTSTalkkonnectLoaded && TTSTalkkonnectLoadedFilenameAndPath == "" {
+		path := defaultSharePath + "/soundfiles/voiceprompts/Loaded.wav"
+		if _, err := os.Stat(path); err == nil {
+			TTSTalkkonnectLoadedFilenameAndPath = path
+		}
+	}
+
 	TTSPingServers = document.Global.Software.TTS.TTSPingServers
-	TTSPingServersFileNameAndPath = document.Global.Software.TTS.TTSPingServersFileNameAndPath
+	TTSPingServersFilenameAndPath = document.Global.Software.TTS.TTSPingServersFilenameAndPath
+
+	/*
+		//TODO: No default sound available. Placeholder for now
+		if TTSPingServers && TTSPingServersFilenameAndPath == "" {
+			path := defaultSharePath + "/soundfiles/voiceprompts/TODO"
+			if _, err := os.Stat(path); err == nil {
+				TTSPingServersFilenameAndPath = path
+			}
+		}
+	*/
 
 	EmailEnabled = document.Global.Software.Smtp.EmailEnabled
 	EmailUsername = document.Global.Software.Smtp.EmailUsername
@@ -827,18 +1087,48 @@ func readxmlconfig(file string) error {
 	EmailGoogleMapsUrl = document.Global.Software.Smtp.EmailGoogleMapsUrl
 
 	EventSoundEnabled = document.Global.Software.Sounds.Event.EEnabled
-	EventSoundFilenameAndPath = document.Global.Software.Sounds.Event.EFileNameAndPath
+	EventSoundFilenameAndPath = document.Global.Software.Sounds.Event.EFilenameAndPath
 
+	if EventSoundEnabled && EventSoundFilenameAndPath == "" {
+		path := defaultSharePath + "/soundfiles/events/event.wav"
+		if _, err := os.Stat(path); err == nil {
+			EventSoundFilenameAndPath = path
+		}
+	}
 	AlertSoundEnabled = document.Global.Software.Sounds.Alert.AEnabled
-	AlertSoundFilenameAndPath = document.Global.Software.Sounds.Alert.AFileNameAndPath
+	AlertSoundFilenameAndPath = document.Global.Software.Sounds.Alert.AFilenameAndPath
+
+	if AlertSoundEnabled && AlertSoundFilenameAndPath == "" {
+		path := defaultSharePath + "/soundfiles/alerts/alert.wav"
+		if _, err := os.Stat(path); err == nil {
+			AlertSoundFilenameAndPath = path
+		}
+	}
+
 	AlertSoundVolume = document.Global.Software.Sounds.Alert.AVolume
 
 	RogerBeepSoundEnabled = document.Global.Software.Sounds.RogerBeep.REnabled
-	RogerBeepSoundFilenameAndPath = document.Global.Software.Sounds.RogerBeep.RFileNameAndPath
+	RogerBeepSoundFilenameAndPath = document.Global.Software.Sounds.RogerBeep.RFilenameAndPath
+
+	if RogerBeepSoundEnabled && RogerBeepSoundFilenameAndPath == "" {
+		path := defaultSharePath + "/soundfiles/rogerbeeps/Chirsp.wav"
+		if _, err := os.Stat(path); err == nil {
+			RogerBeepSoundFilenameAndPath = path
+		}
+	}
+
 	RogerBeepSoundVolume = document.Global.Software.Sounds.RogerBeep.RBeepVolume
 
 	ChimesSoundEnabled = document.Global.Software.Sounds.Chimes.CEnabled
-	ChimesSoundFilenameAndPath = document.Global.Software.Sounds.Chimes.CFileNameAndPath
+	ChimesSoundFilenameAndPath = document.Global.Software.Sounds.Chimes.CFilenameAndPath
+
+	if ChimesSoundEnabled && ChimesSoundFilenameAndPath == "" {
+		path := defaultSharePath + "/soundfiles/alerts/chimes.wav"
+		if _, err := os.Stat(path); err == nil {
+			ChimesSoundFilenameAndPath = path
+		}
+	}
+
 	ChimesSoundVolume = document.Global.Software.Sounds.Chimes.CVolume
 
 	TxTimeOutEnabled = document.Global.Software.TxTimeOut.TxTimeOutEnabled
@@ -977,7 +1267,15 @@ func readxmlconfig(file string) error {
 	Rx = document.Global.Hardware.GPS.Rx
 
 	PEnabled = document.Global.Hardware.PanicFunction.PEnabled
-	PFileNameAndPath = document.Global.Hardware.PanicFunction.PFileNameAndPath
+	PFilenameAndPath = document.Global.Hardware.PanicFunction.PFilenameAndPath
+
+	if PEnabled && PFilenameAndPath == "" {
+		path := defaultSharePath + "/soundfiles/alerts/alert.wav"
+		if _, err := os.Stat(path); err == nil {
+			PFilenameAndPath = path
+		}
+	}
+
 	PMessage = document.Global.Hardware.PanicFunction.PMessage
 	PVolume = document.Global.Hardware.PanicFunction.PVolume
 	PSendIdent = document.Global.Hardware.PanicFunction.PSendIdent
@@ -1022,7 +1320,7 @@ func printxmlconfig() {
 	if PrintLogging {
 		log.Println("info: -------- Logging & Daemonizing -------- ")
 		log.Println("info: Output Device     " + OutputDevice)
-		log.Println("info: Log File          " + LogFileNameAndPath)
+		log.Println("info: Log File          " + LogFilenameAndPath)
 		log.Println("info: Logging           " + Logging)
 		log.Println("info: Daemonize         " + fmt.Sprintf("%t", Daemonize))
 		log.Println("info: CancellableStream " + fmt.Sprintf("%t", CancellableStream))
@@ -1038,7 +1336,7 @@ func printxmlconfig() {
 		log.Println("info: Talkkonned ID (tkid)        " + TkId)
 		log.Println("info: AutoProvisioning Server URL " + Url)
 		log.Println("info: Config Local Path           " + SaveFilePath)
-		log.Println("info: Config Local FileName       " + SaveFileName)
+		log.Println("info: Config Local Filename       " + SaveFilename)
 	} else {
 		log.Println("info: --------   AutoProvisioning   --------- SKIPPED ")
 	}
@@ -1047,7 +1345,7 @@ func printxmlconfig() {
 		log.Println("info: --------  Beacon   --------- ")
 		log.Println("info: Beacon Enabled         " + fmt.Sprintf("%t", BeaconEnabled))
 		log.Println("info: Beacon Time (Secs)     " + fmt.Sprintf("%v", BeaconTimerSecs))
-		log.Println("info: Beacon FileName & Path " + BeaconFileNameAndPath)
+		log.Println("info: Beacon Filename & Path " + BeaconFilenameAndPath)
 		log.Println("info: Beacon Playback Volume " + fmt.Sprintf("%v", BVolume))
 	} else {
 		log.Println("info: --------   Beacon   --------- SKIPPED ")
@@ -1059,47 +1357,47 @@ func printxmlconfig() {
 		log.Println("info: TTS Volume Level (%)   ", fmt.Sprintf("%d", TTSVolumeLevel))
 		log.Println("info: TTS Participants       ", fmt.Sprintf("%t", TTSParticipants))
 		log.Println("info: TTS ChannelUp          ", fmt.Sprintf("%t", TTSChannelUp))
-		log.Println("info: TTS ChannelUpFileNameAndPath ", TTSChannelUpFileNameAndPath)
+		log.Println("info: TTS ChannelUpFilenameAndPath ", TTSChannelUpFilenameAndPath)
 		log.Println("info: TTS ChannelDown        ", fmt.Sprintf("%t", TTSChannelDown))
-		log.Println("info: TTS ChannelDownFileNameAndPath  ", TTSChannelDownFileNameAndPath)
+		log.Println("info: TTS ChannelDownFilenameAndPath  ", TTSChannelDownFilenameAndPath)
 		log.Println("info: TTS MuteUnMuteSpeaker  ", fmt.Sprintf("%t", TTSMuteUnMuteSpeaker))
-		log.Println("info: TTS MuteUnMuteSpeakerFileNameAndPath ", TTSMuteUnMuteSpeakerFileNameAndPath)
+		log.Println("info: TTS MuteUnMuteSpeakerFilenameAndPath ", TTSMuteUnMuteSpeakerFilenameAndPath)
 		log.Println("info: TTS CurrentVolumeLevel ", fmt.Sprintf("%t", TTSCurrentVolumeLevel))
-		log.Println("info: TTS CurrentVolumeLevelFileNameAndPath ", TTSCurrentVolumeLevelFileNameAndPath)
+		log.Println("info: TTS CurrentVolumeLevelFilenameAndPath ", TTSCurrentVolumeLevelFilenameAndPath)
 		log.Println("info: TTS DigitalVolumeUp    ", fmt.Sprintf("%t", TTSDigitalVolumeUp))
-		log.Println("info: TTS DigitalVolumeUpFileNameAndPath ", TTSDigitalVolumeUpFileNameAndPath)
+		log.Println("info: TTS DigitalVolumeUpFilenameAndPath ", TTSDigitalVolumeUpFilenameAndPath)
 		log.Println("info: TTS DigitalVolumeDown  ", fmt.Sprintf("%t", TTSDigitalVolumeDown))
-		log.Println("info: TTS DigitalVolumeDownFileNameAndPath ", TTSDigitalVolumeDownFileNameAndPath)
+		log.Println("info: TTS DigitalVolumeDownFilenameAndPath ", TTSDigitalVolumeDownFilenameAndPath)
 		log.Println("info: TTS ListServerChannels ", fmt.Sprintf("%t", TTSListServerChannels))
-		log.Println("info: TTS ListServerChannelsFileNameAndPath  ", TTSListServerChannelsFileNameAndPath)
+		log.Println("info: TTS ListServerChannelsFilenameAndPath  ", TTSListServerChannelsFilenameAndPath)
 		log.Println("info: TTS StartTransmitting  ", fmt.Sprintf("%t", TTSStartTransmitting))
-		log.Println("info: TTS StartTransmittingFileNameAndPath ", TTSStartTransmittingFileNameAndPath)
+		log.Println("info: TTS StartTransmittingFilenameAndPath ", TTSStartTransmittingFilenameAndPath)
 		log.Println("info: TTS StopTransmitting   ", fmt.Sprintf("%t", TTSStopTransmitting))
-		log.Println("info: TTS StopTransmittingFileNameAndPath ", TTSStopTransmittingFileNameAndPath)
+		log.Println("info: TTS StopTransmittingFilenameAndPath ", TTSStopTransmittingFilenameAndPath)
 		log.Println("info: TTS ListOnlineUsers    ", fmt.Sprintf("%t", TTSListOnlineUsers))
-		log.Println("info: TTS ListOnlineUsersFileNameAndPath ", TTSListOnlineUsersFileNameAndPath)
+		log.Println("info: TTS ListOnlineUsersFilenameAndPath ", TTSListOnlineUsersFilenameAndPath)
 		log.Println("info: TTS PlayChimes         ", fmt.Sprintf("%t", TTSPlayChimes))
-		log.Println("info: TTS PlayChimesFileNameAndPath ", TTSPlayChimesFileNameAndPath)
+		log.Println("info: TTS PlayChimesFilenameAndPath ", TTSPlayChimesFilenameAndPath)
 		log.Println("info: TTS RequestGpsPosition ", fmt.Sprintf("%t", TTSRequestGpsPosition))
-		log.Println("info: TTS RequestGpsPositionFileNameAndPath ", TTSRequestGpsPositionFileNameAndPath)
+		log.Println("info: TTS RequestGpsPositionFilenameAndPath ", TTSRequestGpsPositionFilenameAndPath)
 		log.Println("info: TTS NextServer         ", fmt.Sprintf("%t", TTSNextServer))
-		log.Println("info: TTS NextServerFileNameAndPath         ", TTSNextServerFileNameAndPath)
+		log.Println("info: TTS NextServerFilenameAndPath         ", TTSNextServerFilenameAndPath)
 		log.Println("info: TTS PreviousServer     ", fmt.Sprintf("%t", TTSPreviousServer))
-		log.Println("info: TTS PreviousServerFileNameAndPath  ", TTSPreviousServerFileNameAndPath)
+		log.Println("info: TTS PreviousServerFilenameAndPath  ", TTSPreviousServerFilenameAndPath)
 		log.Println("info: TTS PanicSimulation    ", fmt.Sprintf("%t", TTSPanicSimulation))
-		log.Println("info: TTS PanicSimulationFileNameAndPath ", TTSPanicSimulationFileNameAndPath)
+		log.Println("info: TTS PanicSimulationFilenameAndPath ", TTSPanicSimulationFilenameAndPath)
 		log.Println("info: TTS PrintXmlConfig     ", fmt.Sprintf("%t", TTSPrintXmlConfig))
-		log.Println("info: TTS PrintXmlConfigFileNameAndPath ", TTSPrintXmlConfigFileNameAndPath)
+		log.Println("info: TTS PrintXmlConfigFilenameAndPath ", TTSPrintXmlConfigFilenameAndPath)
 		log.Println("info: TTS SendEmail          ", fmt.Sprintf("%t", TTSSendEmail))
-		log.Println("info: TTS SendEmailFileNameAndPath ", TTSSendEmailFileNameAndPath)
+		log.Println("info: TTS SendEmailFilenameAndPath ", TTSSendEmailFilenameAndPath)
 		log.Println("info: TTS DisplayMenu        ", fmt.Sprintf("%t", TTSDisplayMenu))
-		log.Println("info: TTS DisplayMenuFileNameAndPath ", TTSDisplayMenuFileNameAndPath)
+		log.Println("info: TTS DisplayMenuFilenameAndPath ", TTSDisplayMenuFilenameAndPath)
 		log.Println("info: TTS QuitTalkkonnect    ", fmt.Sprintf("%t", TTSQuitTalkkonnect))
-		log.Println("info: TTS QuitTalkkonnectFileNameAndPath ", TTSQuitTalkkonnectFileNameAndPath)
+		log.Println("info: TTS QuitTalkkonnectFilenameAndPath ", TTSQuitTalkkonnectFilenameAndPath)
 		log.Println("info: TTS TalkkonnectLoaded  ", fmt.Sprintf("%t", TTSTalkkonnectLoaded))
-		log.Println("info: TTS TalkkonnectLoadedFileNameAndPath ", TTSTalkkonnectLoadedFileNameAndPath)
+		log.Println("info: TTS TalkkonnectLoadedFilenameAndPath ", TTSTalkkonnectLoadedFilenameAndPath)
 		log.Println("info: TTS TalkkonnectLoaded  " + fmt.Sprintf("%t", TTSTalkkonnectLoaded))
-		log.Println("info: TTS PingServersFileNameAndPath ", TTSPingServersFileNameAndPath)
+		log.Println("info: TTS PingServersFilenameAndPath ", TTSPingServersFilenameAndPath)
 		log.Println("info: TTS PingServers " + fmt.Sprintf("%t", TTSPingServers))
 	} else {
 		log.Println("info: --------   TTS  -------- SKIPPED ")
@@ -1282,7 +1580,7 @@ func printxmlconfig() {
 	if PrintPanic {
 		log.Println("info: ------------ PANIC Function -------------- ")
 		log.Println("info: Panic Function Enable          " + fmt.Sprintf("%t", PEnabled))
-		log.Println("info: Panic Sound Filename and Path  " + fmt.Sprintf("%s", PFileNameAndPath))
+		log.Println("info: Panic Sound Filename and Path  " + fmt.Sprintf("%s", PFilenameAndPath))
 		log.Println("info: Panic Message                  " + fmt.Sprintf("%s", PMessage))
 		log.Println("info: Panic Message Send Recursively " + fmt.Sprintf("%t", PRecursive))
 		log.Println("info: Panic Volume                   " + fmt.Sprintf("%v", PVolume))

@@ -59,7 +59,7 @@ func autoProvision() error {
 
 	fileUrl := Url + TkId
 	log.Println("info: Contacting Provisioning Server to Download XML Config File")
-	err := DownloadFile(SaveFilePath, SaveFileName, fileUrl)
+	err := DownloadFile(SaveFilePath, SaveFilename, fileUrl)
 
 	if err != nil {
 		return errors.New(fmt.Sprintf("DownloadFile Module Returned an Error: ", err))
@@ -69,7 +69,7 @@ func autoProvision() error {
 
 }
 
-func DownloadFile(SaveFilePath string, SaveFileName string, Url string) error {
+func DownloadFile(SaveFilePath string, SaveFilename string, Url string) error {
 
 	resp, err := http.Get(Url)
 	if err != nil {
@@ -84,7 +84,7 @@ func DownloadFile(SaveFilePath string, SaveFileName string, Url string) error {
 
 	}
 
-	out, err := os.Create(SaveFilePath + SaveFileName)
+	out, err := os.Create(SaveFilePath + SaveFilename)
 	if err != nil {
 		return errors.New(fmt.Sprintf("Cannot Create File Error: ", err))
 	}

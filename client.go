@@ -61,7 +61,7 @@ var (
 	LcdText              = [4]string{"nil", "nil", "nil", "nil"}
 	currentChannelID     uint32
 	prevChannelID        uint32
-	prevParticipantCount int
+	prevParticipantCount int = 0
 	prevButtonPress      string = "none"
 	maxchannelid         uint32
 	origVolume           int
@@ -807,6 +807,8 @@ func (b *Talkkonnect) ParticipantLEDUpdate(verbose bool) {
 			}
 			log.Println("info: Channel ", b.Client.Self.Channel.Name, " has no other participants")
 
+			prevParticipantCount = 0
+
 			if TargetBoard == "rpi" {
 
 				b.LEDOff(b.ParticipantsLED)
@@ -1289,7 +1291,7 @@ func (b *Talkkonnect) Scan() {
 func (b *Talkkonnect) httpHandler(w http.ResponseWriter, r *http.Request) {
 	commands, ok := r.URL.Query()["command"]
 	if !ok || len(commands[0]) < 1 {
-		log.Println("warn: Url Param 'command' is missing")
+		log.Println("warn: URL Param 'command' is missing")
 		return
 	}
 
@@ -1910,7 +1912,7 @@ func (b *Talkkonnect) commandKeyCtrlE() {
 			emailMessage = emailMessage + fmt.Sprintf("Latitude "+strconv.FormatFloat(GPSLatitude, 'f', 6, 64)+" Longitude "+strconv.FormatFloat(GPSLongitude, 'f', 6, 64)+"\n")
 		}
 
-		if EmailGoogleMapsUrl {
+		if EmailGoogleMapsURL {
 			emailMessage = emailMessage + "http://www.google.com/maps/place/" + strconv.FormatFloat(GPSLatitude, 'f', 6, 64) + "," + strconv.FormatFloat(GPSLongitude, 'f', 6, 64)
 		}
 

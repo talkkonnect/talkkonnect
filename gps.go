@@ -43,10 +43,10 @@ import (
 
 var (
 	sendToTracCar  bool   = true
-	tracCarUrl     string = "http://demo.traccar.org"
+	tracCarURL     string = "http://demo.traccar.org"
 	tracCarPort    string = "5060"
 	tracCarID      string = "12345"
-	tracCarFullUrl string = ""
+	tracCarFullURL string = ""
 )
 
 var goodGPSRead bool = false
@@ -93,16 +93,16 @@ func getGpsPosition(verbose bool) (bool, error) {
 		}
 
 		if TxData != "" {
-			txData_, err := hex.DecodeString(TxData)
+			txData, err := hex.DecodeString(TxData)
 
 			if err != nil {
 				GpsEnabled = false
 				return false, errors.New("Cannot Decode Hex Data")
 			}
 
-			log.Println("Sending: ", hex.EncodeToString(txData_))
+			log.Println("Sending: ", hex.EncodeToString(txData))
 
-			count, err := f.Write(txData_)
+			count, err := f.Write(txData)
 
 			if err != nil {
 				return false, errors.New("Error writing to serial port")
@@ -132,7 +132,7 @@ func getGpsPosition(verbose bool) (bool, error) {
 						m := s.(nmea.RMC)
 						if m.Latitude != 0 && m.Longitude != 0 {
 							goodGPSRead = true
-							tracCarFullUrl = fmt.Sprintf(tracCarUrl + ":" + tracCarPort + "?" + "id=" + tracCarID + "&" + "lat={" + nmea.FormatGPS(m.Latitude) + "}" + "&" + "lon={" + nmea.FormatGPS(m.Longitude) + "}" + "&" + "timestamp={" + GPSTime + "}" + "&" + "hdop={" + "}" + "&a")
+							tracCarFullURL = fmt.Sprintf(tracCarURL + ":" + tracCarPort + "?" + "id=" + tracCarID + "&" + "lat={" + nmea.FormatGPS(m.Latitude) + "}" + "&" + "lon={" + nmea.FormatGPS(m.Longitude) + "}" + "&" + "timestamp={" + GPSTime + "}" + "&" + "hdop={" + "}" + "&a")
 							GPSTime = fmt.Sprintf("%v", m.Time)
 							GPSDate = fmt.Sprintf("%v", m.Date)
 							GPSLatitude = m.Latitude
@@ -148,7 +148,7 @@ func getGpsPosition(verbose bool) (bool, error) {
 								log.Println("info: Course: ", m.Course)
 								log.Println("info: Date: ", m.Date)
 								log.Println("info: Variation: ", m.Variation)
-								log.Println(tracCarFullUrl)
+								log.Println(tracCarFullURL)
 
 							}
 							if sendToTracCar {
@@ -175,7 +175,7 @@ func getGpsPosition(verbose bool) (bool, error) {
 }
 
 func httpSendTracCar() {
-	response, err := http.Get(tracCarFullUrl)
+	response, err := http.Get(tracCarFullURL)
 	if err != nil {
 		log.Println("error: Cannot Read traccar Webpage! Error ", err)
 		return

@@ -45,7 +45,7 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.46.39"
+	talkkonnectVersion  string = "1.46.40"
 	talkkonnectReleased string = "February 14 2020"
 )
 
@@ -81,8 +81,8 @@ var (
 //autoprovision settings
 var (
 	APEnabled    bool
-	TkId         string
-	Url          string
+	TkID         string
+	URL          string
 	SaveFilePath string
 	SaveFilename string
 )
@@ -156,7 +156,7 @@ var (
 	EmailMessage       string
 	EmailGpsDateTime   bool
 	EmailGpsLatLong    bool
-	EmailGoogleMapsUrl bool
+	EmailGoogleMapsURL bool
 )
 
 //sound settings
@@ -419,8 +419,8 @@ type Settings struct {
 type AutoProvisioning struct {
 	XMLName      xml.Name `xml:"autoprovisioning"`
 	APEnabled    bool     `xml:"enabled,attr"`
-	TkId         string   `xml:"tkid"`
-	Url          string   `xml:"url"`
+	TkID         string   `xml:"tkid"`
+	URL          string   `xml:"url"`
 	SaveFilePath string   `xml:"savefilepath"`
 	SaveFilename string   `xml:"savefilename"`
 }
@@ -492,7 +492,7 @@ type Smtp struct {
 	EmailMessage       string   `xml:"message"`
 	EmailGpsDateTime   bool     `xml:"gpsdatetime"`
 	EmailGpsLatLong    bool     `xml:"gpslatlong"`
-	EmailGoogleMapsUrl bool     `xml:"googlemapsurl"`
+	EmailGoogleMapsURL bool     `xml:"googlemapsurl"`
 }
 
 type Sounds struct {
@@ -831,8 +831,8 @@ func readxmlconfig(file string) error {
 	TxCounter = document.Global.Software.Settings.TxCounter
 
 	APEnabled = document.Global.Software.AutoProvisioning.APEnabled
-	TkId = document.Global.Software.AutoProvisioning.TkId
-	Url = document.Global.Software.AutoProvisioning.Url
+	TkID = document.Global.Software.AutoProvisioning.TkID
+	URL = document.Global.Software.AutoProvisioning.URL
 	SaveFilePath = document.Global.Software.AutoProvisioning.SaveFilePath
 	SaveFilename = document.Global.Software.AutoProvisioning.SaveFilename
 
@@ -1084,7 +1084,7 @@ func readxmlconfig(file string) error {
 	EmailMessage = document.Global.Software.Smtp.EmailMessage
 	EmailGpsDateTime = document.Global.Software.Smtp.EmailGpsDateTime
 	EmailGpsLatLong = document.Global.Software.Smtp.EmailGpsLatLong
-	EmailGoogleMapsUrl = document.Global.Software.Smtp.EmailGoogleMapsUrl
+	EmailGoogleMapsURL = document.Global.Software.Smtp.EmailGoogleMapsURL
 
 	EventSoundEnabled = document.Global.Software.Sounds.Event.EEnabled
 	EventSoundFilenameAndPath = document.Global.Software.Sounds.Event.EFilenameAndPath
@@ -1333,8 +1333,8 @@ func printxmlconfig() {
 	if PrintProvisioning {
 		log.Println("info: --------   AutoProvisioning   --------- ")
 		log.Println("info: AutoProvisioning Enabled    " + fmt.Sprintf("%t", APEnabled))
-		log.Println("info: Talkkonned ID (tkid)        " + TkId)
-		log.Println("info: AutoProvisioning Server URL " + Url)
+		log.Println("info: Talkkonned ID (tkid)        " + TkID)
+		log.Println("info: AutoProvisioning Server URL " + URL)
 		log.Println("info: Config Local Path           " + SaveFilePath)
 		log.Println("info: Config Local Filename       " + SaveFilename)
 	} else {
@@ -1413,7 +1413,7 @@ func printxmlconfig() {
 		log.Println("info: Message         " + EmailMessage)
 		log.Println("info: GPS Date/Time   " + fmt.Sprintf("%t", EmailGpsDateTime))
 		log.Println("info: GPS Lat/Long    " + fmt.Sprintf("%t", EmailGpsLatLong))
-		log.Println("info: Google Maps Url " + fmt.Sprintf("%t", EmailGoogleMapsUrl))
+		log.Println("info: Google Maps URL " + fmt.Sprintf("%t", EmailGoogleMapsURL))
 	} else {
 		log.Println("info: --------   Gmail SMTP Settings  -------- SKIPPED ")
 	}

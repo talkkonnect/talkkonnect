@@ -41,25 +41,25 @@ import (
 
 func autoProvision() error {
 
-	if len(TkId) < 8 {
-		return errors.New("TkId Configuration Provisioning XML File should be at least 8 characters!")
+	if len(TkID) < 8 {
+		return errors.New("TkID Configuration Provisioning XML File should be at least 8 characters!")
 	}
 
-	if string(TkId[len(TkId)-4]) != ".xml" {
-		TkId = TkId + ".xml"
+	if string(TkID[len(TkID)-4]) != ".xml" {
+		TkID = TkID + ".xml"
 	}
 
-	if string(Url[len(Url)-1]) != "/" {
-		Url = Url + "/"
+	if string(URL[len(URL)-1]) != "/" {
+		URL = URL + "/"
 	}
 
 	if string(SaveFilePath[len(SaveFilePath)-1]) != "/" {
 		SaveFilePath = SaveFilePath + "/"
 	}
 
-	fileUrl := Url + TkId
+	fileURL := URL + TkID
 	log.Println("info: Contacting Provisioning Server to Download XML Config File")
-	err := DownloadFile(SaveFilePath, SaveFilename, fileUrl)
+	err := DownloadFile(SaveFilePath, SaveFilename, fileURL)
 
 	if err != nil {
 		return errors.New(fmt.Sprintf("DownloadFile Module Returned an Error: ", err))
@@ -69,9 +69,9 @@ func autoProvision() error {
 
 }
 
-func DownloadFile(SaveFilePath string, SaveFilename string, Url string) error {
+func DownloadFile(SaveFilePath string, SaveFilename string, URL string) error {
 
-	resp, err := http.Get(Url)
+	resp, err := http.Get(URL)
 	if err != nil {
 		return err
 	}

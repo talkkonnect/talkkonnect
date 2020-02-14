@@ -229,6 +229,7 @@ func (b *Talkkonnect) PreInit1(httpServRunning bool) {
 
 func (b *Talkkonnect) Init() {
 	f, err := os.OpenFile(LogFilenameAndPath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+		log.Println("alert: Trying to Open File ", LogFilenameAndPath)
 	if err != nil {
 		log.Println("alert: Problem opening talkkonnect.log file Error: ", err)
 		log.Fatal("Exiting talkkonnect! ...... bye!\n")

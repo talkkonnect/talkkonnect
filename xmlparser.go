@@ -408,7 +408,7 @@ type Software struct {
 type Settings struct {
 	XMLName            xml.Name `xml:"settings"`
 	OutputDevice       string   `xml:"outputdevice"`
-	LogFilenameAndPath string   `xml:"logFilenameandpath"`
+	LogFilenameAndPath string   `xml:"logfilenameandpath"`
 	Logging            string   `xml:"logging"`
 	Daemonize          bool     `xml:"daemonize"`
 	CancellableStream  bool     `xml:"cancellablestream"`

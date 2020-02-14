@@ -98,10 +98,8 @@ func PlayWavLocal(filepath string, playbackvolume int) error {
 
 	var player string
 	if path, err := exec.LookPath("aplay"); err == nil {
-		fmt.Println("aplay found at ", path)
 		player = path
 	} else if path, err := exec.LookPath("paplay"); err == nil {
-		fmt.Println("paplay found at ", path)
 		player = path
 	} else {
 		return errors.New("Failed to find either aplay or paplay in PATH")

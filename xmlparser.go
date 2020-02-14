@@ -422,7 +422,7 @@ type AutoProvisioning struct {
 	TkId         string   `xml:"tkid"`
 	Url          string   `xml:"url"`
 	SaveFilePath string   `xml:"savefilepath"`
-	SaveFilename string   `xml:"saveFilename"`
+	SaveFilename string   `xml:"savefilename"`
 }
 
 type Beacon struct {
@@ -439,47 +439,47 @@ type TTS struct {
 	TTSVolumeLevel                       int      `xml:"volumelevel"`
 	TTSParticipants                      bool     `xml:"participants"`
 	TTSChannelUp                         bool     `xml:"channelup"`
-	TTSChannelUpFilenameAndPath          string   `xml:"channelupFilenameandpath"`
+	TTSChannelUpFilenameAndPath          string   `xml:"channelupfilenameandpath"`
 	TTSChannelDown                       bool     `xml:"channeldown"`
-	TTSChannelDownFilenameAndPath        string   `xml:"channeldownFilenameandpath"`
+	TTSChannelDownFilenameAndPath        string   `xml:"channeldownfilenameandpath"`
 	TTSMuteUnMuteSpeaker                 bool     `xml:"muteunmutespeaker"`
-	TTSMuteUnMuteSpeakerFilenameAndPath  string   `xml:"muteunmutespeakerFilenameandpath"`
+	TTSMuteUnMuteSpeakerFilenameAndPath  string   `xml:"muteunmutespeakerfilenameandpath"`
 	TTSCurrentVolumeLevel                bool     `xml:"currentvolumelevel"`
-	TTSCurrentVolumeLevelFilenameAndPath string   `xml:"currentvolumelevelFilenameandpath"`
+	TTSCurrentVolumeLevelFilenameAndPath string   `xml:"currentvolumelevelfilenameandpath"`
 	TTSDigitalVolumeUp                   bool     `xml:"digitalvolumeup"`
-	TTSDigitalVolumeUpFilenameAndPath    string   `xml:"digitalvolumeupFilenameandpath"`
+	TTSDigitalVolumeUpFilenameAndPath    string   `xml:"digitalvolumeupfilenameandpath"`
 	TTSDigitalVolumeDown                 bool     `xml:"digitalvolumedown"`
-	TTSDigitalVolumeDownFilenameAndPath  string   `xml:"digitalvolumedownFilenameandpath"`
+	TTSDigitalVolumeDownFilenameAndPath  string   `xml:"digitalvolumedownfilenameandpath"`
 	TTSListServerChannels                bool     `xml:"listserverchannels"`
-	TTSListServerChannelsFilenameAndPath string   `xml:"listserverchannelsFilenameandpath"`
+	TTSListServerChannelsFilenameAndPath string   `xml:"listserverchannelsfilenameandpath"`
 	TTSStartTransmitting                 bool     `xml:"starttransmitting"`
-	TTSStartTransmittingFilenameAndPath  string   `xml:"starttransmittingFilenameandpath"`
+	TTSStartTransmittingFilenameAndPath  string   `xml:"starttransmittingfilenameandpath"`
 	TTSStopTransmitting                  bool     `xml:"stoptransmitting"`
-	TTSStopTransmittingFilenameAndPath   string   `xml:"stoptransmittingFilenameandpath"`
+	TTSStopTransmittingFilenameAndPath   string   `xml:"stoptransmittingfilenameandpath"`
 	TTSListOnlineUsers                   bool     `xml:"listonlineusers"`
-	TTSListOnlineUsersFilenameAndPath    string   `xml:"listonlineusersFilenameandpath"`
+	TTSListOnlineUsersFilenameAndPath    string   `xml:"listonlineusersfilenameandpath"`
 	TTSPlayChimes                        bool     `xml:"playchimes"`
-	TTSPlayChimesFilenameAndPath         string   `xml:"playchimesFilenameandpath"`
+	TTSPlayChimesFilenameAndPath         string   `xml:"playchimesfilenameandpath"`
 	TTSRequestGpsPosition                bool     `xml:"requestgpsposition"`
-	TTSRequestGpsPositionFilenameAndPath string   `xml:"requestgpspositionFilenameandpath"`
+	TTSRequestGpsPositionFilenameAndPath string   `xml:"requestgpspositionfilenameandpath"`
 	TTSNextServer                        bool     `xml:"nextserver"`
-	TTSNextServerFilenameAndPath         string   `xml:"nextserverFilenameandpath"`
+	TTSNextServerFilenameAndPath         string   `xml:"nextserverfilenameandpath"`
 	TTSPreviousServer                    bool     `xml:"previousserver"`
-	TTSPreviousServerFilenameAndPath     string   `xml:"previousserverFilenameandpath"`
+	TTSPreviousServerFilenameAndPath     string   `xml:"previousserverfilenameandpath"`
 	TTSPanicSimulation                   bool     `xml:"panicsimulation"`
-	TTSPanicSimulationFilenameAndPath    string   `xml:"panicsimulationFilenameandpath"`
+	TTSPanicSimulationFilenameAndPath    string   `xml:"panicsimulationfilenameandpath"`
 	TTSPrintXmlConfig                    bool     `xml:"printxmlconfig"`
-	TTSPrintXmlConfigFilenameAndPath     string   `xml:"printxmlconfigFilenameandpath"`
+	TTSPrintXmlConfigFilenameAndPath     string   `xml:"printxmlconfigfilenameandpath"`
 	TTSSendEmail                         bool     `xml:"sendemail"`
-	TTSSendEmailFilenameAndPath          string   `xml:"sendemailFilenameandpath"`
+	TTSSendEmailFilenameAndPath          string   `xml:"sendemailfilenameandpath"`
 	TTSDisplayMenu                       bool     `xml:"displaymenu"`
-	TTSDisplayMenuFilenameAndPath        string   `xml:"displaymenuFilenameandpath"`
+	TTSDisplayMenuFilenameAndPath        string   `xml:"displaymenufilenameandpath"`
 	TTSQuitTalkkonnect                   bool     `xml:"quittalkkonnect"`
-	TTSQuitTalkkonnectFilenameAndPath    string   `xml:"quittalkkonnectFilenameandpath"`
+	TTSQuitTalkkonnectFilenameAndPath    string   `xml:"quittalkkonnectfilenameandpath"`
 	TTSTalkkonnectLoaded                 bool     `xml:"talkkonnectloaded"`
-	TTSTalkkonnectLoadedFilenameAndPath  string   `xml:"talkkonnectloadedFilenameandpath"`
+	TTSTalkkonnectLoadedFilenameAndPath  string   `xml:"talkkonnectloadedfilenameandpath"`
 	TTSPingServers                       bool     `xml:"pingservers"`
-	TTSPingServersFilenameAndPath        string   `xml:"pingserversFilenameandpath"`
+	TTSPingServersFilenameAndPath        string   `xml:"pingserversfilenameandpath"`
 }
 
 type Smtp struct {
@@ -558,20 +558,20 @@ type PrintVariables struct {
 type Event struct {
 	XMLName          xml.Name `xml:"event"`
 	EEnabled         bool     `xml:"enabled,attr"`
-	EFilenameAndPath string   `xml:"Filenameandpath"`
+	EFilenameAndPath string   `xml:"filenameandpath"`
 }
 
 type Alert struct {
 	XMLName          xml.Name `xml:"alert"`
 	AEnabled         bool     `xml:"enabled,attr"`
-	AFilenameAndPath string   `xml:"Filenameandpath"`
+	AFilenameAndPath string   `xml:"filenameandpath"`
 	AVolume          float32  `xml:"volume"`
 }
 
 type RogerBeep struct {
 	XMLName          xml.Name `xml:"rogerbeep"`
 	REnabled         bool     `xml:"enabled,attr"`
-	RFilenameAndPath string   `xml:"Filenameandpath"`
+	RFilenameAndPath string   `xml:"filenameandpath"`
 	RBeepVolume      float32  `xml:"volume"`
 }
 
@@ -584,7 +584,7 @@ type TxTimeOut struct {
 type Chimes struct {
 	XMLName          xml.Name `xml:"chimes"`
 	CEnabled         bool     `xml:"enabled,attr"`
-	CFilenameAndPath string   `xml:"Filenameandpath"`
+	CFilenameAndPath string   `xml:"filenameandpath"`
 	CVolume          float32  `xml:"volume"`
 }
 
@@ -691,7 +691,7 @@ type PanicFunction struct {
 	PEnabled           bool     `xml:"enabled,attr"`
 	PMessage           string   `xml:"panicmessage"`
 	PRecursive         string   `xml:"recursivesendmessage"`
-	PFilenameAndPath   string   `xml:"Filenameandpath"`
+	PFilenameAndPath   string   `xml:"filenameandpath"`
 	PVolume            float32  `xml:"volume"`
 	PSendIdent         bool     `xml:"sendident"`
 	PSendGpsLocation   bool     `xml:"sendgpslocation"`

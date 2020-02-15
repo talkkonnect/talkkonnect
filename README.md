@@ -77,7 +77,7 @@ networks. (Under Development).
 * Configuration is kept in a single *highly granular XML file*, where options can be enabled or disabled.
 
 
-### Installation Instructions For Raspberry Pi 3 ###
+### Installation Instructions For Raspberry Pi 3/4 ###
 
 
 Download the latest version of [Raspbian Stretch Lite](https://www.raspberrypi.org/downloads/raspbian). 
@@ -137,8 +137,34 @@ Now you should be able to log in remotely via ssh using the root account and con
 ##### Install prerequisite programs ##### 
 (Note: If building talkkonnect on other than Raspberry Pi board, install mplayer instead of omxplayer) 
 
-` apt-get install golang libopenal-dev libopus-dev libasound2-dev git ffmpeg omxplayer screen `
+` apt-get install libopenal-dev libopus-dev libasound2-dev git ffmpeg omxplayer screen `
 
+##### Install prerequisite programs ##### 
+
+To get the newer versions of golang used for this project I suggest installing a precompiled binary of golang. If you use apt-get to install golang at this moment you will get an older incompatable version of golang.
+
+To install GO as required for this project on the raspberry pi. First with your browser look on the website https://golang.org/dl/ on your browser and choose the latest version for the 
+arm archecture. At the time of this writing the version is go1.13.8.linux-armv6l.tar.gz.
+
+As root user Get the link and use wget to download the binary to your talkkonnect
+
+` cd /usr/local `
+
+` wget https://dl.google.com/go/go1.13.8.linux-armv6l.tar.gz `
+
+` tar -C /usr/local -xzf go1.13.8.linux-armv6l.tar.gz `
+
+` nano ~/.profile `
+
+` PATH=$PATH:/usr/local/go/bin `
+
+` GOPATH=$HOME/talkkonnect/gocode `
+
+Then log out and log in as root again and check if go in installed properly
+
+` go version `
+
+You should see the version that you just installed if all is ok you can continue to the next step
 
 Decide if you want to run talKKonnect as a local user or root? Up to you. 
 

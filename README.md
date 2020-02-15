@@ -533,5 +533,5 @@ You can also [download](https://talkkonnect.com/wp-content/uploads/2019/01/Readm
 ## License 
 [talKKonnect](http://www.talkkonnect.com) is open source and available under the MPL V2.00 license.
 
-<suvir@talkkonnect.com> Updated 29/March/2019  talkkonnect version 1.42.3 is the latest release as of this writing.
+<suvir@talkkonnect.com> Updated 15/February/2020 talkkonnect version 1.46.40 is the latest release as of this writing.
 

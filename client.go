@@ -775,6 +775,7 @@ func (b *Talkkonnect) ParticipantLEDUpdate(verbose bool) {
 
 		if verbose {
 			log.Println("info: Current Channel ", b.Client.Self.Channel.Name, " has (", participantCount, ") participants")
+			b.ListUsers()
 			if TargetBoard == "rpi" {
 				if LCDEnabled == true {
 					LcdText[0] = b.Address

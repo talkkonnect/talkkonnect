@@ -150,9 +150,9 @@ As root user Get the link and use wget to download the binary to your talkkonnec
 
 ` cd /usr/local `
 
-` wget https://dl.google.com/go/go1.13.8.linux-armv6l.tar.gz `
+` wget https://dl.google.com/go/go1.14.3.linux-arm64.tar.gz `
 
-` tar -C /usr/local -xzf go1.13.8.linux-armv6l.tar.gz `
+` tar -C /usr/local -xzf go1.14.3.linux-arm64.tar.gz `
 
 ` nano ~/.profile `
 

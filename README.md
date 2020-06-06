@@ -88,7 +88,7 @@ Use any USB / SD card imaging software for Windows or your other OS. Some of the
 * [USB Image Tool](https://www.alexpage.de/usb-image-tool)
 * [Win32 Disk Imager](https://sourceforge.net/projects/win32diskimager)
 * [Rufus](https://rufus.ie) 
-* [Etcher](http://www.etcher.io)
+* [balenaEtcher](https://www.balena.io/etcher/)
 * [Linux dd tool](https://elinux.org/RPi_Easy_SD_Card_Setup)
 
 
@@ -144,21 +144,21 @@ Now you should be able to log in remotely via ssh using the root account and con
 To get the newer versions of golang used for this project I suggest installing a precompiled binary of golang. If you use apt-get to install golang at this moment you will get an older incompatable version of golang.
 
 To install GO as required for this project on the raspberry pi. First with your browser look on the website https://golang.org/dl/ on your browser and choose the latest version for the 
-arm archecture. At the time of this writing the version is go1.13.8.linux-armv6l.tar.gz.
+arm archecture. At the time of this writing the version is go1.14.4.linux-armv6l.tar.gz.
 
 As root user Get the link and use wget to download the binary to your talkkonnect
 
 ` cd /usr/local `
 
-` wget https://dl.google.com/go/go1.14.3.linux-arm64.tar.gz `
+` wget https://dl.google.com/go/go1.14.4.linux-armv6l.tar.gz `
 
-` tar -C /usr/local -xzf go1.14.3.linux-arm64.tar.gz `
+` tar -zxvf go1.14.4.linux-armv6l.tar.gz `
 
-` nano ~/.profile `
+` nano ~/.bashrc `
 
 ` PATH=$PATH:/usr/local/go/bin `
 
-` GOPATH=$HOME/talkkonnect/gocode `
+` GOPATH=/home/talkkonnect/gocode `
 
 Then log out and log in as root again and check if go in installed properly
 
@@ -240,23 +240,22 @@ sleep 2
 ##### talKKonnect welcome screen #####
 
 ````
-┌────────────────────────────────────────────────────────────────┐
-│  _        _ _    _                               _             │
-│ | |_ __ _| | | _| | _____  _ __  _ __   ___  ___| |_           │
-│ | __/ _` | | |/ / |/ / _ \| '_ \| '_ \ / _ \/ __|  __|         │
-│ | || (_| | |   <|   < (_) | | | | | | |  __/ (__| |_           │
-│  \__\__,_|_|_|\_\_|\_\___/|_| |_|_| |_|\___|\_ _|\__|          │
-├────────────────────────────────────────────────────────────────┤
-│A Flexible Headless Mumble Transceiver/Gateway for RPi/PC/VM    │
-├────────────────────────────────────────────────────────────────┤
-│Created By : Suvir Kumar  <suvir@talkkonnect.com>               │
-├────────────────────────────────────────────────────────────────┤
-│Version 1.42.3 Released March 29 2019                           │
-│Additional Modifications Released under MPL 2.0 License         │
-├────────────────────────────────────────────────────────────────┤
-│visit us at www.talkkonnect.com and github.com/talkkonnect      │
-└────────────────────────────────────────────────────────────────┘
-Press the <Del> key for Menu Options or <Ctrl-c> to Quit talkkonnect
+ ┌────────────────────────────────────────────────────────────────┐
+ │  _        _ _    _                               _             │
+ │ | |_ __ _| | | _| | _____  _ __  _ __   ___  ___| |_           │
+ │ | __/ _` | | |/ / |/ / _ \| '_ \| '_ \ / _ \/ __|  __|         │
+ │ | || (_| | |   <|   < (_) | | | | | | |  __/ (__| |_           │
+ │  \__\__,_|_|_|\_\_|\_\___/|_| |_|_| |_|\___|\_ _|\__|          │
+ ├────────────────────────────────────────────────────────────────┤
+ │A Flexible Headless Mumble Transceiver/Gateway for RPi/PC/VM    │
+ ├────────────────────────────────────────────────────────────────┤
+ │Created By : Suvir Kumar  <suvir@talkkonnect.com>               │
+ ├────────────────────────────────────────────────────────────────┤
+ │Press the <Del> key for Menu or <Ctrl-c> to Quit talkkonnect    │
+ │Additional Modifications Released under MPL 2.0 License         │
+ │visit us at www.talkkonnect.com and github.com/talkkonnect      │
+ └────────────────────────────────────────────────────────────────┘
+ Talkkonnect Version 1.46.41 Released March 29 2020
 ````
 
 
@@ -335,7 +334,7 @@ For simple USB card cards .asound configuration like this will work:
 
 When creating .asoundrc. match the sound card index number to the exact number of the device in your system. Run ”aplay -l” or ”amixer” to check on this. You also need to match the names of capture and playback devices in this config file for your particular sound device.
 
-Note: If the sound device was configured in global /usr/share/alsa/alsa.conf coniguration file, there is no need to create a local .asoundrc file.
+Note: If the sound device was configured in global /usr/share/alsa/alsa.conf configuration file, there is no need to create a local .asoundrc file.
 
 Microphone or input device needs to be “captured” for talKKonnect to work.   Run alsamixer and find your input device (mic or line in), then select it and press a space key. Red “capture” sign should show under the device in alsamixer.
 
@@ -528,10 +527,10 @@ We invite interested individuals to provide feedback and improvements to the pro
 you can also check my blog  [www.talkkonnect.com](https://www.talkkonnect.com) for updates on the project
 
 Please visit our [blog](www.talkkonnect.com) for our blog or [github](github.com/talkkonnect) for the latest source code and our [facebook](https://www.facebook.com/talkkonnect) page for future updates and information. 
-You can also [download](https://talkkonnect.com/wp-content/uploads/2019/01/Readme-13-01-2019.pdf) an "OLDER" PDF version with pictures of this document.
+You can also [download](https://talkkonnect.com/wp-content/uploads/2019/01/Readme-13-01-2019.pdf) an "VERY MUCH OLDER" PDF version with pictures of this document.
 
 ## License 
 [talKKonnect](http://www.talkkonnect.com) is open source and available under the MPL V2.00 license.
 
-<suvir@talkkonnect.com> Updated 15/February/2020 talkkonnect version 1.46.40 is the latest release as of this writing.
+<suvir@talkkonnect.com> Updated 06/06/2020 talkkonnect version 1.46.41 is the latest release as of this writing.
 

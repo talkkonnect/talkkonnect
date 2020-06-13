@@ -46,7 +46,7 @@ import (
 	"time"
 
 	"github.com/comail/colog"
-	htgotts "github.com/hegedustibor/htgo-tts"
+	htgotts "github.com/talkkonnect/htgo-tts"
 	"github.com/kennygrant/sanitize"
 	hd44780 "github.com/talkkonnect/go-hd44780"
 	"github.com/talkkonnect/gpio"

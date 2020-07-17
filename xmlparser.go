@@ -45,8 +45,8 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.46.41"
-	talkkonnectReleased string = "March 29 2020"
+	talkkonnectVersion  string = "1.47.01"
+	talkkonnectReleased string = "July 18 2020"
 )
 
 // lcd timer

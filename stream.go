@@ -136,7 +136,7 @@ func (s *Stream) StopSource() error {
 	s.deviceSource.CaptureStop()
 
 	// on stop source adjust from 100ms to 5 ms helps reduce recovery time and helps with audio chopping (suvir kumar)
-	time.Sleep(5 * time.Millisecond)
+	//time.Sleep(5 * time.Millisecond)
 
 	s.deviceSource.CaptureCloseDevice()
 	s.deviceSource = nil
@@ -169,18 +169,22 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 		}
 	}()
 
-	go func() {
-		source := openal.NewSource()
-		emptyBufs := openal.NewBuffers(12)
+	//experiment to move out these settings out of the go func
+	source := openal.NewSource()
+	emptyBufs := openal.NewBuffers(16)
 
-		reclaim := func() {
-			if n := source.BuffersProcessed(); n > 0 {
-				reclaimedBufs := make(openal.Buffers, n)
-				source.UnqueueBuffers(reclaimedBufs)
-				emptyBufs = append(emptyBufs, reclaimedBufs...)
-			}
+	reclaim := func() {
+		if n := source.BuffersProcessed(); n > 0 {
+			reclaimedBufs := make(openal.Buffers, n)
+			source.UnqueueBuffers(reclaimedBufs)
+			emptyBufs = append(emptyBufs, reclaimedBufs...)
 		}
-		var raw [gumble.AudioMaximumFrameSize * 2]byte
+	}
+	var raw [gumble.AudioMaximumFrameSize * 2]byte
+
+	go func() {
+		//source := openal.NewSource()
+		//		emptyBufs := openal.NewBuffers(12)
 
 		for packet := range e.C {
 			samples := len(packet.AudioBuffer)
@@ -204,12 +208,15 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 				binary.LittleEndian.PutUint16(raw[i*2:], uint16(value))
 
 			}
+
 			reclaim()
 
 			if len(emptyBufs) == 0 {
 				if debuglevel >= 3 {
 					log.Println("alert: emptybuffs exhausted!")
 				}
+				// if buffers empty create new emptybuffs here
+				emptyBufs = openal.NewBuffers(16)
 				continue
 			}
 

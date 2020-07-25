@@ -30,7 +30,6 @@
 package talkkonnect
 
 import (
-	goled "github.com/talkkonnect/go-oled-i2c"
 	"log"
 	"strings"
 	"sync"
@@ -52,25 +51,16 @@ func oledDisplay(OledClear bool, OledRow int, OledColumn int, OledText string) {
 		return
 	}
 
-	oled, err := goled.BeginOled(OLEDDefaultI2cAddress, OLEDDefaultI2cBus, OLEDScreenWidth, OLEDScreenHeight, OLEDDisplayRows, OLEDDisplayColumns, OLEDStartColumn, OLEDCharLength, OLEDCommandColumnAddressing, OLEDAddressBasePageStart)
-
-	if err != nil {
-		log.Fatal(err)
-		return
-	}
-
-	defer oled.Close()
-
 	// clear oled screen command
 	if OledClear == true {
-		oled.Clear()
+		Oled.Clear()
 		log.Println("warn: OLED Clearing Screen")
 		if len(OledText) == 0 {
 			return
 		}
 	}
 
-	oled.SetCursor(OledRow, 0)
+	Oled.SetCursor(OledRow, 0)
 
 	var rpadding = int(OLEDDisplayColumns)
 
@@ -80,11 +70,11 @@ func oledDisplay(OledClear bool, OledRow int, OledColumn int, OledText string) {
 
 	var text string = OledText + strings.Repeat(" ", rpadding)
 
-	oled.SetCursor(OledRow, OLEDStartColumn)
+	Oled.SetCursor(OledRow, OLEDStartColumn)
 
 	if len(OledText) >= int(OLEDDisplayColumns) {
-		oled.Write(OledText[:OLEDDisplayColumns])
+		Oled.Write(OledText[:OLEDDisplayColumns])
 	} else {
-		oled.Write(text)
+		Oled.Write(text)
 	}
 }

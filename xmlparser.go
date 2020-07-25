@@ -41,12 +41,13 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	goled "github.com/talkkonnect/go-oled-i2c"
 )
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.47.01"
-	talkkonnectReleased string = "July 18 2020"
+	talkkonnectVersion  string = "1.47.02"
+	talkkonnectReleased string = "July 25 2020"
 )
 
 // lcd timer
@@ -295,6 +296,7 @@ var (
 	OLEDCharLength              int
 	OLEDCommandColumnAddressing int //uint8
 	OLEDAddressBasePageStart    int //uint8
+	Oled                        *goled.Oled
 )
 
 //txtimeout settings
@@ -1296,6 +1298,10 @@ func readxmlconfig(file string) error {
 	AudioRecordProfile = document.Global.Hardware.AudioRecordFunction.AudioRecordProfile         // New
 	AudioRecordFileFormat = document.Global.Hardware.AudioRecordFunction.AudioRecordFileFormat   // New
 	AudioRecordChunkSize = document.Global.Hardware.AudioRecordFunction.AudioRecordChunkSize     // New
+
+       if OLEDEnabled == true {
+                Oled, err = goled.BeginOled(OLEDDefaultI2cAddress, OLEDDefaultI2cBus, OLEDScreenWidth, OLEDScreenHeight, OLEDDisplayRows, OLEDDisplayColumns, OLEDStartColumn, OLEDCharLength, OLEDCommandColumnAddressing, OLEDAddressBasePageStart)
+        }
 
 	log.Println("Successfully loaded configuration file into memory")
 	return nil

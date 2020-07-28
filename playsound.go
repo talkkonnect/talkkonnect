@@ -39,19 +39,19 @@ import (
 	"time"
 )
 
-var stream *gumbleffmpeg.Stream
+var pstream *gumbleffmpeg.Stream 
 
 func (b *Talkkonnect) playIntoStream(filepath string, vol float32) {
 
 	if b.IsPlayStream == false {
 		log.Println(fmt.Sprintf("info: File %s Stopped!", filepath))
-		stream.Stop()
+		pstream.Stop()
 		b.LEDOff(b.TransmitLED)
 		return
 	}
 
 	if ChimesSoundEnabled && b.IsPlayStream {
-		if stream != nil && stream.State() == gumbleffmpeg.StatePlaying {
+		if pstream != nil && pstream.State() == gumbleffmpeg.StatePlaying {
 			time.Sleep(100 * time.Millisecond)
 			return
 		}
@@ -60,13 +60,13 @@ func (b *Talkkonnect) playIntoStream(filepath string, vol float32) {
 
 		time.Sleep(100 * time.Millisecond)
 		b.IsPlayStream = true
-		stream = gumbleffmpeg.New(b.Client, gumbleffmpeg.SourceFile(filepath), vol)
-		if err := stream.Play(); err != nil {
+		pstream = gumbleffmpeg.New(b.Client, gumbleffmpeg.SourceFile(filepath), vol)
+		if err := pstream.Play(); err != nil {
 			log.Println(fmt.Sprintf("alert: Can't play %s error %s", filepath, err))
 		} else {
 			log.Println(fmt.Sprintf("info: File %s Playing!", filepath))
-			stream.Wait()
-			stream.Stop()
+			pstream.Wait()
+			pstream.Stop()
 			b.LEDOff(b.TransmitLED)
 		}
 	} else {
@@ -75,14 +75,29 @@ func (b *Talkkonnect) playIntoStream(filepath string, vol float32) {
 	return
 }
 
+func (b *Talkkonnect) RepeaterTone(filepath string, vol float32) {
+		time.Sleep(100 * time.Millisecond)
+		pstream = gumbleffmpeg.New(b.Client, gumbleffmpeg.SourceFile(filepath), vol)
+		if err := pstream.Play(); err != nil {
+			log.Println("alert: Error Playing Repeater Tone ", err)
+			return
+		} else {
+			log.Println("info: Repeater Tone File " + filepath + " Playing!")
+			pstream.Wait()
+			pstream.Stop()
+			time.Sleep(100 * time.Millisecond)
+			return
+		}
+}
+
 func (b *Talkkonnect) RogerBeep(filepath string, vol float32) error {
 	if RogerBeepSoundEnabled {
-		if stream != nil && stream.State() == gumbleffmpeg.StatePlaying {
+		if pstream != nil && pstream.State() == gumbleffmpeg.StatePlaying {
 			time.Sleep(100 * time.Millisecond)
 			return nil
 		}
-		stream = gumbleffmpeg.New(b.Client, gumbleffmpeg.SourceFile(filepath), vol)
-		if err := stream.Play(); err != nil {
+		pstream = gumbleffmpeg.New(b.Client, gumbleffmpeg.SourceFile(filepath), vol)
+		if err := pstream.Play(); err != nil {
 			return errors.New(fmt.Sprintf("alert: Can't Play Roger beep File %s error %s", filepath, err))
 		} else {
 			log.Println("info: Roger Beep File " + filepath + " Playing!")

@@ -190,7 +190,7 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 			samples := len(packet.AudioBuffer)
 
 			if CancellableStream && NowStreaming {
-				stream.Stop()
+				pstream.Stop()
 			}
 
 			if TargetBoard == "rpi" {

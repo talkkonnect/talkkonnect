@@ -46,8 +46,8 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.47.02"
-	talkkonnectReleased string = "July 25 2020"
+	talkkonnectVersion  string = "1.47.03"
+	talkkonnectReleased string = "July 27 2020"
 )
 
 // lcd timer
@@ -170,6 +170,9 @@ var (
 	RogerBeepSoundEnabled         bool
 	RogerBeepSoundFilenameAndPath string
 	RogerBeepSoundVolume          float32
+	RepeaterToneEnabled           bool
+	RepeaterToneFilenameAndPath   string
+	RepeaterToneVolume            float32
 	ChimesSoundEnabled            bool
 	ChimesSoundFilenameAndPath    string
 	ChimesSoundVolume             float32
@@ -502,6 +505,7 @@ type Sounds struct {
 	Event     Event     `xml:"event"`
 	Alert     Alert     `xml:"alert"`
 	RogerBeep RogerBeep `xml:"rogerbeep"`
+	RepeaterTone RepeaterTone `xml:"repeatertone"`
 	Chimes    Chimes    `xml:"chimes"`
 }
 
@@ -575,6 +579,13 @@ type RogerBeep struct {
 	REnabled         bool     `xml:"enabled,attr"`
 	RFilenameAndPath string   `xml:"filenameandpath"`
 	RBeepVolume      float32  `xml:"volume"`
+}
+
+type RepeaterTone struct {
+	XMLName          xml.Name `xml:"repeatertone"`
+	RTEnabled         bool     `xml:"enabled,attr"`
+	RepeaterToneFilenameAndPath string   `xml:"filenameandpath"`
+	RepeaterToneVolume      float32  `xml:"volume"`
 }
 
 type TxTimeOut struct {
@@ -1121,6 +1132,18 @@ func readxmlconfig(file string) error {
 
 	RogerBeepSoundVolume = document.Global.Software.Sounds.RogerBeep.RBeepVolume
 
+	RepeaterToneEnabled = document.Global.Software.Sounds.RepeaterTone.RTEnabled
+	RepeaterToneFilenameAndPath = document.Global.Software.Sounds.RepeaterTone.RepeaterToneFilenameAndPath
+
+	if RepeaterToneEnabled && RepeaterToneFilenameAndPath == "" {
+		path := defaultSharePath + "/soundfiles/repeatertones/Chirsp.wav"
+		if _, err := os.Stat(path); err == nil {
+			RepeaterToneFilenameAndPath = path
+		}
+	}
+
+	RepeaterToneVolume = document.Global.Software.Sounds.RepeaterTone.RepeaterToneVolume
+
 	ChimesSoundEnabled = document.Global.Software.Sounds.Chimes.CEnabled
 	ChimesSoundFilenameAndPath = document.Global.Software.Sounds.Chimes.CFilenameAndPath
 
@@ -1431,12 +1454,15 @@ func printxmlconfig() {
 		log.Println("info: Alert Sound Enabled  " + fmt.Sprintf("%t", AlertSoundEnabled))
 		log.Println("info: Alert Sound Filename " + AlertSoundFilenameAndPath)
 		log.Println("info: Alert Sound Volume   " + fmt.Sprintf("%v", AlertSoundVolume))
-		log.Println("info: Roger Beep Enabled " + fmt.Sprintf("%t", RogerBeepSoundEnabled))
-		log.Println("info: Roger Beep File    " + RogerBeepSoundFilenameAndPath)
-		log.Println("info: Roger Beep Volume  " + fmt.Sprintf("%v", RogerBeepSoundVolume))
-		log.Println("info: Chimes Enabled     " + fmt.Sprintf("%t", ChimesSoundEnabled))
-		log.Println("info: Chimes File        " + ChimesSoundFilenameAndPath)
-		log.Println("info: Chimes Volume      " + fmt.Sprintf("%v", ChimesSoundVolume))
+		log.Println("info: Roger Beep Enabled   " + fmt.Sprintf("%t", RogerBeepSoundEnabled))
+		log.Println("info: Roger Beep File      " + RogerBeepSoundFilenameAndPath)
+		log.Println("info: Roger Beep Volume    " + fmt.Sprintf("%v", RogerBeepSoundVolume))
+		log.Println("info: Repeater Tone Enabled " + fmt.Sprintf("%t", RepeaterToneEnabled))
+		log.Println("info: Repeater Tone File   " + RepeaterToneFilenameAndPath)
+		log.Println("info: Repeater Tone Volume  " + fmt.Sprintf("%v", RepeaterToneVolume))
+		log.Println("info: Chimes Enabled       " + fmt.Sprintf("%t", ChimesSoundEnabled))
+		log.Println("info: Chimes File          " + ChimesSoundFilenameAndPath)
+		log.Println("info: Chimes Volume        " + fmt.Sprintf("%v", ChimesSoundVolume))
 	} else {
 		log.Println("info: ------------ Sounds  ------------------ SKIPPED ")
 	}

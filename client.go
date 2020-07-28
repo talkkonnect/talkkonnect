@@ -571,7 +571,6 @@ func (b *Talkkonnect) TransmitStart() {
 	t := time.Now()
 
 	if SimplexWithMute {
-
 		err := volume.Mute(OutputDevice)
 		if err != nil {
 			log.Println("warn: Unable to Mute ", err)
@@ -586,6 +585,8 @@ func (b *Talkkonnect) TransmitStart() {
 		b.playIntoStream(ChimesSoundFilenameAndPath, ChimesSoundVolume)
 		time.Sleep(100 * time.Millisecond)
 	}
+
+
 
 	if TargetBoard == "rpi" {
 		b.LEDOn(b.TransmitLED)
@@ -604,7 +605,13 @@ func (b *Talkkonnect) TransmitStart() {
 	}
 
 	b.IsTransmitting = true
+
+	if RepeaterToneEnabled {
+		b.RepeaterTone(RepeaterToneFilenameAndPath, RepeaterToneVolume)
+	}
+
 	b.Stream.StartSource()
+
 }
 
 func (b *Talkkonnect) TransmitStop(withBeep bool) {

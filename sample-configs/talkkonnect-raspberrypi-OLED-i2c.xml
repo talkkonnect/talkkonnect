@@ -256,7 +256,7 @@
       <!-- To Use oled  I2C Interface Make Sure You Don't Define RPI GPIO Pins 2 & 3 For Anything Else! -->
       <oled enabled="true">
         <oledinterfacetype>i2c</oledinterfacetype>                    <!-- your current choice for oled interface type is now only limited to i2c --> 
-        <oleddisplayrows>8</oleddisplayrows>                          <!-- define the max rows of your oled screen supports -->
+        <oleddisplayrows>9</oleddisplayrows>                          <!-- define the max rows of your oled screen supports -->
 	<oleddisplaycolumns>21</oleddisplaycolumns>                   <!-- define the max columns (characters) per line your display supports -->
         <oleddefaulti2cbus>1</oleddefaulti2cbus>                      <!-- define the I2C Bus you connected your oled display -->   
         <oleddefaulti2caddress>60</oleddefaulti2caddress>             <!-- define the decimal value of the i2c hex address your display was detected on -->

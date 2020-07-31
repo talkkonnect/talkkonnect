@@ -311,6 +311,10 @@ func (b *Talkkonnect) Init() {
 
 	b.BackLightTimer()
 
+        if OLEDEnabled == true {
+                Oled.DisplayOn()
+        }
+
 	if AudioRecordEnabled == true {
 
 		if AudioRecordOnStart == true {
@@ -458,6 +462,7 @@ func (b *Talkkonnect) CleanUp() {
 			go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 		}
 		if OLEDEnabled == true {
+			Oled.DisplayOn()
 			oledDisplay(true, 0, 1, "talkkonnect stopped")
 			oledDisplay(false, 1, 1, t.Format("02-01-2006 15:04:05"))
 			oledDisplay(false, 6, 1, "Please Visit")
@@ -596,6 +601,7 @@ func (b *Talkkonnect) TransmitStart() {
 			go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 		}
 		if OLEDEnabled == true {
+	                Oled.DisplayOn()
 			//oledDisplay(true, 0, 0, "") // clear the screen
 			oledDisplay(false, 0, 1, "Online/TX")
 			oledDisplay(false, 3, 1, "TX at "+t.Format("15:04:05"))
@@ -674,6 +680,7 @@ func (b *Talkkonnect) OnConnect(e *gumble.ConnectEvent) {
 			go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 		}
 		if OLEDEnabled == true {
+	                Oled.DisplayOn()
 			oledDisplay(true, 0, 0, "") // clear the screen
 		}
 
@@ -1974,6 +1981,7 @@ func (b *Talkkonnect) commandKeyCtrlL() {
 		}
 
 		if OLEDEnabled == true {
+	                Oled.DisplayOn()
 			oledDisplay(true, 0, 0, "") // clear the screen
 		}
 	}
@@ -2311,7 +2319,7 @@ func (b *Talkkonnect) SetComment(comment string) {
 
 func (b *Talkkonnect) BackLightTimer() {
 
-	if LCDBackLightTimerEnabled == false || TargetBoard != "rpi" || LCDInterfaceType == "oled" {
+	if LCDBackLightTimerEnabled == false || TargetBoard != "rpi" {
 		return
 	}
 
@@ -2338,7 +2346,7 @@ func (b *Talkkonnect) BackLightTimer() {
 			lcd.ToggleBacklight()
 		}
 		if OLEDInterfacetype == "i2c" {
-			oledDisplay(true, 0, 0, "") // clear the screen is the same as turning off the backlight
+			Oled.DisplayOff()
 		}
 	}()
 }

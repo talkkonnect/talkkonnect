@@ -247,7 +247,9 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 						}
 
 						if OLEDEnabled == true {
+							Oled.DisplayOn()
 							go oledDisplay(false, 3, 1, e.User.Name+" "+t.Format("15:04:05"))
+							BackLightTime.Reset(time.Duration(LCDBackLightTimeoutSecs) * time.Second)
 						}
 					}
 				}

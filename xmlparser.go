@@ -46,7 +46,7 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.47.04"
+	talkkonnectVersion  string = "1.47.05"
 	talkkonnectReleased string = "August 01 2020"
 )
 
@@ -283,6 +283,7 @@ var (
 	LCDD5Pin                 int
 	LCDD6Pin                 int
 	LCDD7Pin                 int
+	LCDIsDark                bool = false
 )
 
 //OLED screen settings

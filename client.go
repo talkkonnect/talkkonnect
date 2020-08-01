@@ -313,6 +313,7 @@ func (b *Talkkonnect) Init() {
 
         if OLEDEnabled == true {
                 Oled.DisplayOn()
+		LCDIsDark = false
         }
 
 	if AudioRecordEnabled == true {
@@ -463,6 +464,7 @@ func (b *Talkkonnect) CleanUp() {
 		}
 		if OLEDEnabled == true {
 			Oled.DisplayOn()
+			LCDIsDark = false
 			oledDisplay(true, 0, 1, "talkkonnect stopped")
 			oledDisplay(false, 1, 1, t.Format("02-01-2006 15:04:05"))
 			oledDisplay(false, 6, 1, "Please Visit")
@@ -602,6 +604,7 @@ func (b *Talkkonnect) TransmitStart() {
 		}
 		if OLEDEnabled == true {
 	                Oled.DisplayOn()
+			LCDIsDark = false
 			//oledDisplay(true, 0, 0, "") // clear the screen
 			oledDisplay(false, 0, 1, "Online/TX")
 			oledDisplay(false, 3, 1, "TX at "+t.Format("15:04:05"))
@@ -681,6 +684,7 @@ func (b *Talkkonnect) OnConnect(e *gumble.ConnectEvent) {
 		}
 		if OLEDEnabled == true {
 	                Oled.DisplayOn()
+			LCDIsDark = false
 			oledDisplay(true, 0, 0, "") // clear the screen
 		}
 
@@ -1982,6 +1986,7 @@ func (b *Talkkonnect) commandKeyCtrlL() {
 
 		if OLEDEnabled == true {
 	                Oled.DisplayOn()
+			LCDIsDark = false
 			oledDisplay(true, 0, 0, "") // clear the screen
 		}
 	}
@@ -2320,6 +2325,7 @@ func (b *Talkkonnect) SetComment(comment string) {
 func (b *Talkkonnect) BackLightTimer() {
 
 	if LCDBackLightTimerEnabled == false || TargetBoard != "rpi" {
+		log.Println("warn: Backlight Function Called In Error Board Settings Not SBC (Raspberry Pi) And LCDBacklightTimer No Enabled!")
 		return
 	}
 
@@ -2332,7 +2338,7 @@ func (b *Talkkonnect) BackLightTimer() {
 	go func() {
 		<-BackLightTime.C
 		//log.Printf("debug: LCD Backlight Timer Address %v", BackLightTime, " Off Timed Out After", LCDBackLightTimeoutSecs, " Seconds\n")
-
+		LCDIsDark = true
 		time.Sleep(100 * time.Millisecond)
 		if LCDInterfaceType == "parallel" {
 			b.LEDOff(b.BackLightLED)
@@ -2347,6 +2353,7 @@ func (b *Talkkonnect) BackLightTimer() {
 		}
 		if OLEDInterfacetype == "i2c" {
 			Oled.DisplayOff()
+			LCDIsDark = true
 		}
 	}()
 }

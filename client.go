@@ -309,6 +309,7 @@ func (b *Talkkonnect) Init() {
 		}()
 	}
 
+	
 	b.BackLightTimer()
 
         if OLEDEnabled == true {
@@ -2324,13 +2325,20 @@ func (b *Talkkonnect) SetComment(comment string) {
 
 func (b *Talkkonnect) BackLightTimer() {
 
-	if LCDBackLightTimerEnabled == false || TargetBoard != "rpi" {
-		log.Println("warn: Backlight Function Called In Error Board Settings Not SBC (Raspberry Pi) And LCDBacklightTimer No Enabled!")
+	BackLightTime = *BackLightTimePtr
+
+	if (TargetBoard != "rpi" || LCDBackLightTimerEnabled == false) {
+		log.Println("warn: Backlight Function Called In Error Board Settings Not SBC (Raspberry Pi) or Backlight Timer Not Enabled!")
 		return
 	}
 
-	BackLightTime = *BackLightTimePtr
+	if (OLEDEnabled == true && LCDBackLightTimerEnabled == false) {
+		log.Println("warn: You are Using OLED Screen without Backlight Timer Enabled! Please Enable Backlight to prevent burnout")
+		return
+	}
+
 	BackLightTime.Reset(time.Duration(LCDBackLightTimeoutSecs) * time.Second)
+
 
 	//log.Printf("debug: LCD Backlight Timer Address %v", BackLightTime, " On\n")
 	b.LEDOn(b.BackLightLED)

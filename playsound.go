@@ -36,7 +36,6 @@ import (
 	"github.com/talkkonnect/volume-go"
 	"log"
 	"os/exec"
-	"time"
 )
 
 func (b *Talkkonnect) playIntoStream(filepath string, vol float32) {
@@ -50,12 +49,12 @@ func (b *Talkkonnect) playIntoStream(filepath string, vol float32) {
 
 	if ChimesSoundEnabled && b.IsPlayStream {
 		if pstream != nil && pstream.State() == gumbleffmpeg.StatePlaying {
+			pstream.Stop()
 			return
 		}
 
 		b.LEDOn(b.TransmitLED)
 
-		time.Sleep(100 * time.Millisecond)
 		b.IsPlayStream = true
 		pstream = gumbleffmpeg.New(b.Client, gumbleffmpeg.SourceFile(filepath), vol)
 		if err := pstream.Play(); err != nil {
@@ -73,7 +72,10 @@ func (b *Talkkonnect) playIntoStream(filepath string, vol float32) {
 }
 
 func (b *Talkkonnect) RepeaterTone(filepath string, vol float32) {
-		time.Sleep(100 * time.Millisecond)
+		if pstream != nil && pstream.State() == gumbleffmpeg.StatePlaying {
+			pstream.Stop()
+			return
+		}
 		pstream = gumbleffmpeg.New(b.Client, gumbleffmpeg.SourceFile(filepath), vol)
 		if err := pstream.Play(); err != nil {
 			log.Println("alert: Error Playing Repeater Tone ", err)
@@ -82,7 +84,7 @@ func (b *Talkkonnect) RepeaterTone(filepath string, vol float32) {
 			log.Println("info: Repeater Tone File " + filepath + " Playing!")
 			pstream.Wait()
 			pstream.Stop()
-			time.Sleep(100 * time.Millisecond)
+			b.LEDOff(b.TransmitLED)
 			return
 		}
 }
@@ -90,6 +92,7 @@ func (b *Talkkonnect) RepeaterTone(filepath string, vol float32) {
 func (b *Talkkonnect) RogerBeep(filepath string, vol float32) error {
 	if RogerBeepSoundEnabled {
 		if pstream != nil && pstream.State() == gumbleffmpeg.StatePlaying {
+			pstream.Stop()
 			return nil
 		}
 		pstream = gumbleffmpeg.New(b.Client, gumbleffmpeg.SourceFile(filepath), vol)

@@ -39,8 +39,6 @@ import (
 	"time"
 )
 
-var pstream *gumbleffmpeg.Stream 
-
 func (b *Talkkonnect) playIntoStream(filepath string, vol float32) {
 
 	if b.IsPlayStream == false {
@@ -52,7 +50,6 @@ func (b *Talkkonnect) playIntoStream(filepath string, vol float32) {
 
 	if ChimesSoundEnabled && b.IsPlayStream {
 		if pstream != nil && pstream.State() == gumbleffmpeg.StatePlaying {
-			time.Sleep(100 * time.Millisecond)
 			return
 		}
 
@@ -93,7 +90,6 @@ func (b *Talkkonnect) RepeaterTone(filepath string, vol float32) {
 func (b *Talkkonnect) RogerBeep(filepath string, vol float32) error {
 	if RogerBeepSoundEnabled {
 		if pstream != nil && pstream.State() == gumbleffmpeg.StatePlaying {
-			time.Sleep(100 * time.Millisecond)
 			return nil
 		}
 		pstream = gumbleffmpeg.New(b.Client, gumbleffmpeg.SourceFile(filepath), vol)

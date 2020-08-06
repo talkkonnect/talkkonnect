@@ -55,6 +55,7 @@ import (
 	_ "github.com/talkkonnect/gumble/opus"
 	term "github.com/talkkonnect/termbox-go"
 	"github.com/talkkonnect/volume-go"
+	"github.com/talkkonnect/gumble/gumbleffmpeg"
 )
 
 var (
@@ -280,6 +281,8 @@ func (b *Talkkonnect) Init() {
 	}
 
 	b.Connect()
+
+	pstream = gumbleffmpeg.New(b.Client, gumbleffmpeg.SourceFile(""), 0)
 
 	if HeartBeatEnabled && TargetBoard == "rpi" {
 		HeartBeat := time.NewTicker(time.Duration(PeriodmSecs) * time.Millisecond)
@@ -619,6 +622,10 @@ func (b *Talkkonnect) TransmitStart() {
 	if RepeaterToneEnabled {
 		b.RepeaterTone(RepeaterToneFilenameAndPath, RepeaterToneVolume)
 	}
+
+        if pstream.State() == gumbleffmpeg.StatePlaying {
+                pstream.Stop()
+        }
 
 	b.Stream.StartSource()
 

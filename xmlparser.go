@@ -42,13 +42,17 @@ import (
 	"strings"
 	"time"
 	goled "github.com/talkkonnect/go-oled-i2c"
+	"github.com/talkkonnect/gumble/gumbleffmpeg"
 )
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.47.06"
-	talkkonnectReleased string = "August 03 2020"
+	talkkonnectVersion  string = "1.47.07"
+	talkkonnectReleased string = "August 06 2020"
 )
+
+//ffmpeg stream struct variable pointer
+var pstream *gumbleffmpeg.Stream
 
 // lcd timer
 var (

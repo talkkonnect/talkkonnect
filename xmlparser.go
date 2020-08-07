@@ -42,16 +42,16 @@ import (
 	"strings"
 	"time"
 	goled "github.com/talkkonnect/go-oled-i2c"
-	"github.com/talkkonnect/gumble/gumbleffmpeg"
+	 "github.com/talkkonnect/gumble/gumbleffmpeg"
 )
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.47.07"
-	talkkonnectReleased string = "August 06 2020"
+	talkkonnectVersion  string = "1.47.08"
+	talkkonnectReleased string = "August 07 2020"
 )
 
-//ffmpeg stream struct variable pointer
+
 var pstream *gumbleffmpeg.Stream
 
 // lcd timer
@@ -1326,6 +1326,8 @@ func readxmlconfig(file string) error {
 	AudioRecordProfile = document.Global.Hardware.AudioRecordFunction.AudioRecordProfile         // New
 	AudioRecordFileFormat = document.Global.Hardware.AudioRecordFunction.AudioRecordFileFormat   // New
 	AudioRecordChunkSize = document.Global.Hardware.AudioRecordFunction.AudioRecordChunkSize     // New
+
+
 
        if OLEDEnabled == true {
                 Oled, err = goled.BeginOled(OLEDDefaultI2cAddress, OLEDDefaultI2cBus, OLEDScreenWidth, OLEDScreenHeight, OLEDDisplayRows, OLEDDisplayColumns, OLEDStartColumn, OLEDCharLength, OLEDCommandColumnAddressing, OLEDAddressBasePageStart)

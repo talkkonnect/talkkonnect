@@ -126,8 +126,6 @@ type Talkkonnect struct {
 	ChimesButtonState  uint
 }
 
-// new configurable functionality not yet moved to XML
-
 type ChannelsListStruct struct {
 	chanID     uint32
 	chanName   string
@@ -140,10 +138,20 @@ func reset() {
 }
 
 func PreInit0(file string) {
-	ConfigXMLFile = file
-	err := readxmlconfig(ConfigXMLFile)
+	err := term.Init()
 	if err != nil {
-		log.Println("XML Parser Module Returned Error: ", err)
+		log.Println("alert: Cannot Initalize Terminal Error: ", err)
+		log.Fatal("Exiting talkkonnect! ...... bye!\n")
+	}
+
+	colog.Register()
+	colog.SetOutput(os.Stdout)
+
+
+	ConfigXMLFile = file
+	err = readxmlconfig(ConfigXMLFile)
+	if err != nil {
+		log.Println("alert: XML Parser Module Returned Error: ", err)
 		log.Fatal("Please Make Sure the XML Configuration File is In the Correct Path with the Correct Format, Exiting talkkonnect! ...... bye\n")
 	}
 
@@ -230,7 +238,7 @@ func (b *Talkkonnect) PreInit1(httpServRunning bool) {
 
 func (b *Talkkonnect) Init() {
 	f, err := os.OpenFile(LogFilenameAndPath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-		log.Println("alert: Trying to Open File ", LogFilenameAndPath)
+		log.Println("info: Trying to Open File ", LogFilenameAndPath)
 	if err != nil {
 		log.Println("alert: Problem opening talkkonnect.log file Error: ", err)
 		log.Fatal("Exiting talkkonnect! ...... bye!\n")
@@ -241,18 +249,18 @@ func (b *Talkkonnect) Init() {
 	}
 
 	if b.Logging == "screen" {
-		colog.Register()
+		//colog.Register()
 		colog.SetOutput(os.Stdout)
 	} else {
 		wrt := io.MultiWriter(os.Stdout, f)
 		log.SetOutput(wrt)
 	}
 
-	err = term.Init()
-	if err != nil {
-		log.Println("alert: Cannot Initalize Terminal Error: ", err)
-		log.Fatal("Exiting talkkonnect! ...... bye!\n")
-	}
+//	err = term.Init()
+//	if err != nil {
+//		log.Println("alert: Cannot Initalize Terminal Error: ", err)
+//		log.Fatal("Exiting talkkonnect! ...... bye!\n")
+//	}
 
 	b.Config.Attach(gumbleutil.AutoBitrate)
 	b.Config.Attach(b)
@@ -312,7 +320,7 @@ func (b *Talkkonnect) Init() {
 		}()
 	}
 
-	
+
 	b.BackLightTimer()
 
         if OLEDEnabled == true {
@@ -593,8 +601,8 @@ func (b *Talkkonnect) TransmitStart() {
 	if b.IsPlayStream {
 		b.IsPlayStream = false
 		NowStreaming = false
-		b.playIntoStream(ChimesSoundFilenameAndPath, ChimesSoundVolume)
 		time.Sleep(100 * time.Millisecond)
+		b.playIntoStream(ChimesSoundFilenameAndPath, ChimesSoundVolume)
 	}
 
 
@@ -779,8 +787,6 @@ func (b *Talkkonnect) ParticipantLEDUpdate(verbose bool) {
 	}
 
 	b.BackLightTimer()
-
-	time.Sleep(100 * time.Millisecond)
 
 	var participantCount = len(b.Client.Self.Channel.Users)
 
@@ -1758,8 +1764,8 @@ func (b *Talkkonnect) commandKeyF8() {
 	}
 
 	if !b.IsTransmitting {
-		b.TransmitStart()
 		time.Sleep(100 * time.Millisecond)
+		b.TransmitStart()
 	} else {
 		log.Println("warn: Already in Transmitting Mode")
 	}
@@ -1786,8 +1792,8 @@ func (b *Talkkonnect) commandKeyF9() {
 	}
 
 	if b.IsTransmitting {
-		b.TransmitStop(true)
 		time.Sleep(100 * time.Millisecond)
+		b.TransmitStop(true)
 	} else {
 		log.Println("warn: Already Stopped Transmitting")
 	}
@@ -2335,12 +2341,6 @@ func (b *Talkkonnect) BackLightTimer() {
 	BackLightTime = *BackLightTimePtr
 
 	if (TargetBoard != "rpi" || LCDBackLightTimerEnabled == false) {
-		log.Println("warn: Backlight Function Called In Error Board Settings Not SBC (Raspberry Pi) or Backlight Timer Not Enabled!")
-		return
-	}
-
-	if (OLEDEnabled == true && LCDBackLightTimerEnabled == false) {
-		log.Println("warn: You are Using OLED Screen without Backlight Timer Enabled! Please Enable Backlight to prevent burnout")
 		return
 	}
 

@@ -47,17 +47,21 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.47.08"
-	talkkonnectReleased string = "August 07 2020"
+	talkkonnectVersion  string = "1.47.09"
+	talkkonnectReleased string = "August 10 2020"
 )
 
 
-var pstream *gumbleffmpeg.Stream
-
+var (
+	pstream *gumbleffmpeg.Stream
+	AccountCount int = 0
+)
 // lcd timer
 var (
 	BackLightTime    = time.NewTimer(1 * time.Millisecond)
 	BackLightTimePtr = &BackLightTime
+	ConnectAttempts = 0
+	IsConnected bool = false
 )
 
 //account settings
@@ -735,7 +739,6 @@ type AudioRecordFunction struct {
 }
 
 func readxmlconfig(file string) error {
-	var counter int = 0
 	xmlFile, err := os.Open(file)
 	if err != nil {
 		return errors.New(fmt.Sprintf("cannot open configuration file "+filepath.Base(file), err))
@@ -746,6 +749,7 @@ func readxmlconfig(file string) error {
 	byteValue, _ := ioutil.ReadAll(xmlFile)
 
 	var document Document
+
 
 	err = xml.Unmarshal(byteValue, &document)
 	if err != nil {
@@ -763,11 +767,12 @@ func readxmlconfig(file string) error {
 			Certificate = append(Certificate, document.Accounts.Accounts[i].Certificate)
 			Channel = append(Channel, document.Accounts.Accounts[i].Channel)
 			Ident = append(Ident, document.Accounts.Accounts[i].Ident)
-			counter++
+			log.Printf("info: Successfully Added Account %s to Index [%d]\n",document.Accounts.Accounts[i].Name, AccountCount)
+			AccountCount++
 		}
 	}
 
-	if counter == 0 {
+	if AccountCount == 0 {
 		log.Fatal("No Default Accounts Found! Please Add at least 1 Default Account in XML File")
 	}
 

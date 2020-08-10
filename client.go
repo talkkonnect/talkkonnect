@@ -73,7 +73,7 @@ var (
 	GPSLatitude          float64
 	GPSLongitude         float64
 	Streaming            bool
-	AccountIndex         int
+	AccountIndex         int = 0
 	ServerHop            bool
 	httpServRunning      bool
 	message              string
@@ -99,7 +99,6 @@ type Talkkonnect struct {
 	Logging     string
 	Daemonize   bool
 
-	IsConnected    bool
 	IsTransmitting bool
 	IsPlayStream   bool
 
@@ -225,7 +224,7 @@ func (b *Talkkonnect) PreInit1(httpServRunning bool) {
 	}
 
 	b.Init()
-	b.IsConnected = false
+	IsConnected = false
 
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
@@ -249,22 +248,16 @@ func (b *Talkkonnect) Init() {
 	}
 
 	if b.Logging == "screen" {
-		//colog.Register()
 		colog.SetOutput(os.Stdout)
 	} else {
 		wrt := io.MultiWriter(os.Stdout, f)
 		log.SetOutput(wrt)
 	}
 
-//	err = term.Init()
-//	if err != nil {
-//		log.Println("alert: Cannot Initalize Terminal Error: ", err)
-//		log.Fatal("Exiting talkkonnect! ...... bye!\n")
-//	}
-
 	b.Config.Attach(gumbleutil.AutoBitrate)
 	b.Config.Attach(b)
 
+ 	log.Printf("info: %d Default Mumble Accounts Found\n", AccountCount)
 	if TargetBoard == "rpi" {
 		log.Println("info: Target Board Set as RPI (gpio enabled) ")
 		b.initGPIO()
@@ -493,19 +486,20 @@ func (b *Talkkonnect) CleanUp() {
 }
 
 func (b *Talkkonnect) Connect() {
-	b.IsConnected = false
+	IsConnected = false
 	b.IsPlayStream = false
 	NowStreaming = false
-	time.Sleep(2 * time.Second)
 
 	var err error
-	b.ConnectAttempts++
+	ConnectAttempts++
 
 	_, err = gumble.DialWithDialer(new(net.Dialer), b.Address, b.Config, &b.TLSConfig)
+	time.Sleep(2 * time.Second)
 	if err != nil {
 		log.Println("warn: Connection Error ", err, " connecting to ", b.Address, " failed (%s), attempting again in 10 seconds...")
 		if !ServerHop {
 			log.Println("warn: In the Connect Function & Trying With Username ", Username)
+			log.Println("warn: DEBUG Serverhop  Not Set Reconnecting!!")
 			b.ReConnect()
 		}
 	} else {
@@ -514,7 +508,9 @@ func (b *Talkkonnect) Connect() {
 }
 
 func (b *Talkkonnect) ReConnect() {
-	b.IsConnected = false
+return
+//for testing
+	IsConnected = false
 	b.IsPlayStream = false
 	NowStreaming = false
 
@@ -524,7 +520,7 @@ func (b *Talkkonnect) ReConnect() {
 	}
 	time.Sleep(10 * time.Second)
 
-	if b.ConnectAttempts < 10 {
+	if ConnectAttempts < 10 {
 		//go func() {
 		if !ServerHop {
 			b.Connect()
@@ -582,7 +578,7 @@ func (b *Talkkonnect) ResetStream() {
 }
 
 func (b *Talkkonnect) TransmitStart() {
-	if !(b.IsConnected) {
+	if !(IsConnected) {
 		return
 	}
 
@@ -640,7 +636,7 @@ func (b *Talkkonnect) TransmitStart() {
 }
 
 func (b *Talkkonnect) TransmitStop(withBeep bool) {
-	if !(b.IsConnected) {
+	if !(IsConnected) {
 		return
 	}
 
@@ -681,12 +677,16 @@ func (b *Talkkonnect) TransmitStop(withBeep bool) {
 }
 
 func (b *Talkkonnect) OnConnect(e *gumble.ConnectEvent) {
-	b.IsConnected = true
+	if IsConnected == true  {
+		return
+	}
+
+	IsConnected = true
 	b.BackLightTimer()
 	b.Client = e.Client
-	b.ConnectAttempts = 0
+	ConnectAttempts = 1
 
-	log.Println("info: Connected to ", b.Name, " ", b.Client.Conn.RemoteAddr(), " on attempt", b.ConnectAttempts)
+	log.Printf("info: Connected to %s Address %s on attempt %d index [%d]\n ",b.Name, b.Client.Conn.RemoteAddr(),  b.ConnectAttempts, AccountIndex)
 	if e.WelcomeMessage != nil {
 		log.Print(fmt.Sprintf("info: Welcome message: %s\n", esc(*e.WelcomeMessage)))
 	}
@@ -725,7 +725,7 @@ func (b *Talkkonnect) OnDisconnect(e *gumble.DisconnectEvent) {
 		reason = "connection error"
 	}
 
-	b.IsConnected = false
+	IsConnected = false
 
 	if TargetBoard == "rpi" {
 		b.LEDOff(b.OnlineLED)
@@ -741,16 +741,17 @@ func (b *Talkkonnect) OnDisconnect(e *gumble.DisconnectEvent) {
 	} else {
 		log.Println("warn: Connection to ", b.Address, " disconnected ", reason)
 		if !ServerHop {
-			log.Println("warn: Aattempting Reconnect in 10 seconds...\n")
+			log.Println("warn: Attempting Reconnect in 10 seconds...")
 		}
 	}
 	if !ServerHop {
+		log.Println("warn: Attempting Reconnection at Debug Point #1")
 		b.ReConnect()
 	}
 }
 
 func (b *Talkkonnect) ChangeChannel(ChannelName string) {
-	if !(b.IsConnected) {
+	if !(IsConnected) {
 		return
 	}
 
@@ -782,7 +783,7 @@ func (b *Talkkonnect) ChangeChannel(ChannelName string) {
 }
 
 func (b *Talkkonnect) ParticipantLEDUpdate(verbose bool) {
-	if !(b.IsConnected) {
+	if !(IsConnected) {
 		return
 	}
 
@@ -790,17 +791,20 @@ func (b *Talkkonnect) ParticipantLEDUpdate(verbose bool) {
 
 	var participantCount = len(b.Client.Self.Channel.Users)
 
-	if participantCount > 1 && participantCount != prevParticipantCount {
-
-		if TTSEnabled && TTSParticipants {
-			speech := htgotts.Speech{Folder: "audio", Language: "en"}
-			speech.Speak("There Are Currently " + strconv.Itoa(participantCount) + " Users in The Channel " + b.Client.Self.Channel.Name)
-		}
+	if participantCount != prevParticipantCount {
 		if EventSoundEnabled {
 			err := PlayWavLocal(EventSoundFilenameAndPath, 100)
 			if err != nil {
 				log.Println("PlayWavLocal(EventSoundFilenameAndPath) Returned Error: ", err)
 			}
+		}
+	}
+
+	if participantCount > 1 && participantCount != prevParticipantCount {
+
+		if TTSEnabled && TTSParticipants {
+			speech := htgotts.Speech{Folder: "audio", Language: "en"}
+			speech.Speak("There Are Currently " + strconv.Itoa(participantCount) + " Users in The Channel " + b.Client.Self.Channel.Name)
 		}
 
 		prevParticipantCount = participantCount
@@ -1083,7 +1087,7 @@ func cleanstring(str string) string {
 }
 
 func (b *Talkkonnect) ListUsers() {
-	if !(b.IsConnected) {
+	if !(IsConnected) {
 		return
 	}
 
@@ -1098,7 +1102,7 @@ func (b *Talkkonnect) ListUsers() {
 }
 
 func (b *Talkkonnect) ListChannels(verbose bool) {
-	if !(b.IsConnected) {
+	if !(IsConnected) {
 		return
 	}
 
@@ -1134,7 +1138,7 @@ func (b *Talkkonnect) ListChannels(verbose bool) {
 }
 
 func (b *Talkkonnect) ChannelUp() {
-	if !(b.IsConnected) {
+	if !(IsConnected) {
 		return
 	}
 
@@ -1206,7 +1210,7 @@ func (b *Talkkonnect) ChannelUp() {
 }
 
 func (b *Talkkonnect) ChannelDown() {
-	if !(b.IsConnected) {
+	if !(IsConnected) {
 		return
 	}
 
@@ -1286,7 +1290,7 @@ func (b *Talkkonnect) ChannelDown() {
 }
 
 func (b *Talkkonnect) Scan() {
-	if !(b.IsConnected) {
+	if !(IsConnected) {
 		return
 	}
 
@@ -1961,7 +1965,7 @@ func (b *Talkkonnect) commandKeyCtrlE() {
 
 func (b *Talkkonnect) commandKeyCtrlF() {
 	log.Println("--")
-	log.Println("Ctrl-N Connect Previous Server Requested")
+	log.Println("Ctrl-F Connect Previous Server Requested")
 
 	if TTSEnabled && TTSPreviousServer {
 		err := PlayWavLocal(TTSPreviousServerFilenameAndPath, TTSVolumeLevel)
@@ -1971,21 +1975,25 @@ func (b *Talkkonnect) commandKeyCtrlF() {
 
 	}
 
-	if AccountIndex == 0 {
-		AccountIndex = (len(Name) - 1)
-	} else {
+
+	if AccountIndex > 0  {
 		AccountIndex--
+	} else {
+		AccountIndex=AccountCount-1
 	}
-	ServerHop = true
-	b.Client.Disconnect()
+ 		ConnectAttempts = 0
+		log.Printf("Connecting to Account Index [%d] \n", AccountIndex)
 
-	b.Name = Name[AccountIndex]
-	b.Address = Server[AccountIndex]
-	b.Username = Username[AccountIndex]
-	b.Ident = Ident[AccountIndex]
-	b.ChannelName = Channel[AccountIndex]
+		ServerHop = true
+		b.Client.Disconnect()
 
-	b.PreInit1(true)
+		b.Name = Name[AccountIndex]
+		b.Address = Server[AccountIndex]
+		b.Username = Username[AccountIndex]
+		b.Ident = Ident[AccountIndex]
+		b.ChannelName = Channel[AccountIndex]
+		b.PreInit1(true)
+
 	log.Println("--")
 }
 
@@ -2012,7 +2020,7 @@ func (b *Talkkonnect) commandKeyCtrlO() {
 	if TTSEnabled && TTSPingServers {
 		err := PlayWavLocal(TTSPingServersFilenameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("PlayWavLocal(TTSPingServersFilenameAndPath) Returned Error: ", err)
+			log.Println("alert: PlayWavLocal(TTSPingServersFilenameAndPath) Returned Error: ", err)
 		}
 
 	}
@@ -2027,26 +2035,30 @@ func (b *Talkkonnect) commandKeyCtrlN() {
 	if TTSEnabled && TTSNextServer {
 		err := PlayWavLocal(TTSNextServerFilenameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("PlayWavLocal(TTSNextServerFilenameAndPath) Returned Error: ", err)
+			log.Println("alert: PlayWavLocal(TTSNextServerFilenameAndPath) Returned Error: ", err)
 		}
 
 	}
 
-	if AccountIndex == (len(Name) - 1) {
-		AccountIndex = 0
-	} else {
+
+	if AccountIndex < AccountCount-1 {
 		AccountIndex++
+	} else {
+		AccountIndex=0
 	}
-	ServerHop = true
-	b.Client.Disconnect()
+ 		ConnectAttempts = 0
+		log.Printf("Connecting to Account Index [%d] \n", AccountIndex)
 
-	b.Name = Name[AccountIndex]
-	b.Address = Server[AccountIndex]
-	b.Username = Username[AccountIndex]
-	b.Ident = Ident[AccountIndex]
-	b.ChannelName = Channel[AccountIndex]
+		ServerHop = true
+		b.Client.Disconnect()
 
-	b.PreInit1(true)
+		b.Name = Name[AccountIndex]
+		b.Address = Server[AccountIndex]
+		b.Username = Username[AccountIndex]
+		b.Ident = Ident[AccountIndex]
+		b.ChannelName = Channel[AccountIndex]
+		b.PreInit1(true)
+
 	log.Println("--")
 }
 
@@ -2172,7 +2184,7 @@ func (b *Talkkonnect) commandKeyCtrlK() {
 }
 
 func (b *Talkkonnect) commandKeyCtrlP() {
-	if !(b.IsConnected) {
+	if !(IsConnected) {
 		return
 	}
 	b.BackLightTimer()
@@ -2310,14 +2322,14 @@ func (b *Talkkonnect) commandKeyCtrlX() {
 }
 
 func (b *Talkkonnect) SendMessage(textmessage string, PRecursive bool) {
-	if !(b.IsConnected) {
+	if !(IsConnected) {
 		return
 	}
 	b.Client.Self.Channel.Send(textmessage, PRecursive)
 }
 
 func (b *Talkkonnect) SetComment(comment string) {
-	if b.IsConnected {
+	if IsConnected {
 		b.BackLightTimer()
 		b.Client.Self.SetComment(comment)
 		t := time.Now()

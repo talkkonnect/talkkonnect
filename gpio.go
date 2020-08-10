@@ -33,10 +33,10 @@ import (
 	"github.com/stianeikeland/go-rpio"
 	"github.com/talkkonnect/gpio"
 	"log"
-	"os"
-	"os/exec"
+//	"os"
+//	"os/exec"
 	"time"
-	hd44780 "github.com/talkkonnect/go-hd44780"
+//	hd44780 "github.com/talkkonnect/go-hd44780"
 )
 
 var ledpin = 0
@@ -100,7 +100,7 @@ func (b *Talkkonnect) initGPIO() {
 
 		go func() {
 			for {
-				if b.IsConnected {
+				if IsConnected {
 
 					time.Sleep(200 * time.Millisecond)
 					currentState, err := b.TxButton.Read()
@@ -131,7 +131,6 @@ func (b *Talkkonnect) initGPIO() {
 						}
 					}
 				} else {
-					ConnectErrorMessage()
 					time.Sleep(2 * time.Second)
 				}
 			}
@@ -144,7 +143,7 @@ func (b *Talkkonnect) initGPIO() {
 		go func() {
 			var prevState uint = 1
 			for {
-				if b.IsConnected {
+				if IsConnected {
 
 					currentState, err := b.TxToggle.Read()
 					time.Sleep(150 * time.Millisecond)
@@ -185,7 +184,6 @@ func (b *Talkkonnect) initGPIO() {
 						}
 					}
 				} else {
-					ConnectErrorMessage()
 					time.Sleep(2 * time.Second)
 				}
 			}
@@ -196,7 +194,7 @@ func (b *Talkkonnect) initGPIO() {
 		b.UpButton = gpio.NewInput(UpButtonPin)
 		go func() {
 			for {
-				if b.IsConnected {
+				if IsConnected {
 
 					currentState, err := b.UpButton.Read()
 					time.Sleep(200 * time.Millisecond)
@@ -214,7 +212,6 @@ func (b *Talkkonnect) initGPIO() {
 
 					}
 				} else {
-					ConnectErrorMessage()
 					time.Sleep(2 * time.Second)
 				}
 			}
@@ -225,7 +222,7 @@ func (b *Talkkonnect) initGPIO() {
 		b.DownButton = gpio.NewInput(DownButtonPin)
 		go func() {
 			for {
-				if b.IsConnected {
+				if IsConnected {
 
 					currentState, err := b.DownButton.Read()
 					time.Sleep(200 * time.Millisecond)
@@ -242,7 +239,6 @@ func (b *Talkkonnect) initGPIO() {
 						}
 					}
 				} else {
-					ConnectErrorMessage()
 					time.Sleep(2 * time.Second)
 				}
 			}
@@ -254,7 +250,7 @@ func (b *Talkkonnect) initGPIO() {
 		b.PanicButton = gpio.NewInput(PanicButtonPin)
 		go func() {
 			for {
-				if b.IsConnected {
+				if IsConnected {
 
 					currentState, err := b.PanicButton.Read()
 					time.Sleep(200 * time.Millisecond)
@@ -271,7 +267,6 @@ func (b *Talkkonnect) initGPIO() {
 						}
 					}
 				} else {
-					ConnectErrorMessage()
 					time.Sleep(2 * time.Second)
 				}
 			}
@@ -283,7 +278,7 @@ func (b *Talkkonnect) initGPIO() {
 		b.CommentButton = gpio.NewInput(CommentButtonPin)
 		go func() {
 			for {
-				if b.IsConnected {
+				if IsConnected {
 
 					currentState, err := b.CommentButton.Read()
 					time.Sleep(200 * time.Millisecond)
@@ -301,7 +296,6 @@ func (b *Talkkonnect) initGPIO() {
 						time.Sleep(200 * time.Millisecond)
 					}
 				} else {
-					ConnectErrorMessage()
 					time.Sleep(2 * time.Second)
 				}
 			}
@@ -314,7 +308,7 @@ func (b *Talkkonnect) initGPIO() {
 		b.ChimesButton = gpio.NewInput(ChimesButtonPin)
 		go func() {
 			for {
-				if b.IsConnected {
+				if IsConnected {
 
 					currentState, err := b.ChimesButton.Read()
 					time.Sleep(200 * time.Millisecond)
@@ -331,7 +325,6 @@ func (b *Talkkonnect) initGPIO() {
 						}
 					}
 				} else {
-					ConnectErrorMessage()
 					time.Sleep(2 * time.Second)
 				}
 			}
@@ -418,32 +411,3 @@ func (b *Talkkonnect) LEDOffAll() {
 	}
 }
 
-func ConnectErrorMessage() {
-	connectFailCounter++
-	if connectFailCounter == 5 || connectFailCounter == 30 || connectFailCounter == 90 {
-		log.Println("warn: Cannot Connect to Server, Retrying")
-		return
-	}
-
-	if connectFailCounter == 100 {
-		log.Println("warn: Cannot Connect to Server! Giving Up")
-		log.Println("warn: Shutting Down talkkonnect due to multiple connection to server failures")
-		t := time.Now()
-               if LCDEnabled == true {
-                        LcdText = [4]string{"Disconnected At", t.Format("02-01-2006 15:04:05"), "Multiple Reconnect", "Failures!!"}
-			go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
-                }
-		if OLEDEnabled == true {
-                        oledDisplay(true, 0, 1, "Disconnected At")
-                        oledDisplay(false, 1, 1, t.Format("02-01-2006 15:04:05"))
-                        oledDisplay(false, 6, 1, "Multiple Reconnect")
-                        oledDisplay(false, 7, 1, "Failures!!")
-  		}
-
-		time.Sleep(2 * time.Second)
-		c := exec.Command("reset")
-		c.Stdout = os.Stdout
-		c.Run()
-		os.Exit(0)
-	}
-}

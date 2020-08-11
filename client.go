@@ -508,8 +508,6 @@ func (b *Talkkonnect) Connect() {
 }
 
 func (b *Talkkonnect) ReConnect() {
-return
-//for testing
 	IsConnected = false
 	b.IsPlayStream = false
 	NowStreaming = false

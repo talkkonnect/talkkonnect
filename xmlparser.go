@@ -47,14 +47,15 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.47.09"
-	talkkonnectReleased string = "August 10 2020"
+	talkkonnectVersion  string = "1.47.10"
+	talkkonnectReleased string = "August 11 2020"
 )
 
 
 var (
 	pstream *gumbleffmpeg.Stream
 	AccountCount int = 0
+	KillHeartBeat bool = false
 )
 // lcd timer
 var (

@@ -296,6 +296,11 @@ func (b *Talkkonnect) Init() {
 				b.LEDOn(b.HeartBeatLED)
 				<-timer2.C
 				b.LEDOff(b.HeartBeatLED)
+
+				if KillHeartBeat == true {
+					HeartBeat.Stop()
+				}
+
 			}
 		}()
 	}
@@ -489,7 +494,7 @@ func (b *Talkkonnect) Connect() {
 	IsConnected = false
 	b.IsPlayStream = false
 	NowStreaming = false
-
+	KillHeartBeat = false
 	var err error
 	ConnectAttempts++
 
@@ -1983,6 +1988,7 @@ func (b *Talkkonnect) commandKeyCtrlF() {
 		log.Printf("Connecting to Account Index [%d] \n", AccountIndex)
 
 		ServerHop = true
+		KillHeartBeat = true
 		b.Client.Disconnect()
 
 		b.Name = Name[AccountIndex]
@@ -2048,6 +2054,7 @@ func (b *Talkkonnect) commandKeyCtrlN() {
 		log.Printf("Connecting to Account Index [%d] \n", AccountIndex)
 
 		ServerHop = true
+		KillHeartBeat = true
 		b.Client.Disconnect()
 
 		b.Name = Name[AccountIndex]

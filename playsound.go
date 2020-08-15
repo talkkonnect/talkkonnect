@@ -40,14 +40,14 @@ import (
 
 func (b *Talkkonnect) playIntoStream(filepath string, vol float32) {
 
-	if b.IsPlayStream == false {
+	if IsPlayStream == false {
 		log.Println(fmt.Sprintf("info: File %s Stopped!", filepath))
 		pstream.Stop()
 		b.LEDOff(b.TransmitLED)
 		return
 	}
 
-	if ChimesSoundEnabled && b.IsPlayStream {
+	if ChimesSoundEnabled && IsPlayStream {
 		if pstream != nil && pstream.State() == gumbleffmpeg.StatePlaying {
 			pstream.Stop()
 			return
@@ -55,7 +55,7 @@ func (b *Talkkonnect) playIntoStream(filepath string, vol float32) {
 
 		b.LEDOn(b.TransmitLED)
 
-		b.IsPlayStream = true
+		IsPlayStream = true
 		pstream = gumbleffmpeg.New(b.Client, gumbleffmpeg.SourceFile(filepath), vol)
 		if err := pstream.Play(); err != nil {
 			log.Println(fmt.Sprintf("alert: Can't play %s error %s", filepath, err))

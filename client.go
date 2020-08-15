@@ -310,9 +310,9 @@ func (b *Talkkonnect) Init() {
 
 		go func() {
 			for _ = range BeaconTicker.C {
-				b.IsPlayStream = true
+				IsPlayStream = true
 				b.playIntoStream(BeaconFilenameAndPath, BVolume)
-				b.IsPlayStream = false
+				IsPlayStream = false
 				log.Println("warn: Beacon Enabled and Timed Out Auto Played File ", BeaconFilenameAndPath, " Into Stream")
 			}
 		}()
@@ -492,7 +492,7 @@ func (b *Talkkonnect) CleanUp() {
 
 func (b *Talkkonnect) Connect() {
 	IsConnected = false
-	b.IsPlayStream = false
+	IsPlayStream = false
 	NowStreaming = false
 	KillHeartBeat = false
 	var err error
@@ -515,7 +515,7 @@ func (b *Talkkonnect) Connect() {
 
 func (b *Talkkonnect) ReConnect() {
 	IsConnected = false
-	b.IsPlayStream = false
+	IsPlayStream = false
 	NowStreaming = false
 
 	if b.Client != nil {
@@ -595,8 +595,8 @@ func (b *Talkkonnect) TransmitStart() {
 		}
 	}
 
-	if b.IsPlayStream {
-		b.IsPlayStream = false
+	if IsPlayStream {
+		IsPlayStream = false
 		NowStreaming = false
 		time.Sleep(100 * time.Millisecond)
 		b.playIntoStream(ChimesSoundFilenameAndPath, ChimesSoundVolume)
@@ -1758,8 +1758,8 @@ func (b *Talkkonnect) commandKeyF8() {
 
 	}
 
-	if b.IsPlayStream {
-		b.IsPlayStream = false
+	if IsPlayStream {
+		IsPlayStream = false
 		NowStreaming = false
 
 		b.playIntoStream(ChimesSoundFilenameAndPath, ChimesSoundVolume)
@@ -1786,8 +1786,8 @@ func (b *Talkkonnect) commandKeyF9() {
 
 	}
 
-	if b.IsPlayStream {
-		b.IsPlayStream = false
+	if IsPlayStream {
+		IsPlayStream = false
 		NowStreaming = false
 
 		b.playIntoStream(ChimesSoundFilenameAndPath, ChimesSoundVolume)
@@ -1835,10 +1835,10 @@ func (b *Talkkonnect) commandKeyF11() {
 
 	}
 
-	b.IsPlayStream = !b.IsPlayStream
-	NowStreaming = b.IsPlayStream
+	IsPlayStream = !IsPlayStream
+	NowStreaming = IsPlayStream
 
-	if b.IsPlayStream {
+	if IsPlayStream {
 		b.SendMessage(fmt.Sprintf("%s Streaming", b.Username), false)
 	}
 
@@ -2242,7 +2242,7 @@ func (b *Talkkonnect) commandKeyCtrlP() {
 				b.SendMessage(gpsMessage, PRecursive)
 			}
 
-			b.IsPlayStream = true
+			IsPlayStream = true
 			b.playIntoStream(PFilenameAndPath, PVolume)
 			if TargetBoard == "rpi" {
 				if LCDEnabled == true {
@@ -2260,7 +2260,7 @@ func (b *Talkkonnect) commandKeyCtrlP() {
 		} else {
 			log.Println("info: Panic Function Disabled in Config")
 		}
-		b.IsPlayStream = false
+		IsPlayStream = false
 		b.IsTransmitting = false
 		b.LEDOff(b.TransmitLED)
 		log.Println("--")

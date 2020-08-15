@@ -507,7 +507,9 @@ func (b *Talkkonnect) Connect() {
 			b.ReConnect()
 		}
 	} else {
-		b.OpenStream()
+		if !ServerHop { 
+			b.OpenStream() 
+		}
 	}
 }
 

@@ -687,7 +687,11 @@ func (b *Talkkonnect) OnConnect(e *gumble.ConnectEvent) {
 
 	log.Printf("info: Connected to %s Address %s on attempt %d index [%d]\n ",b.Name, b.Client.Conn.RemoteAddr(),  b.ConnectAttempts, AccountIndex)
 	if e.WelcomeMessage != nil {
-		log.Print(fmt.Sprintf("info: Welcome message: %s\n", esc(*e.WelcomeMessage)))
+		var message string = fmt.Sprintf(esc(*e.WelcomeMessage))
+		log.Println("info: Welcome message: ")
+		for _, line := range strings.Split(strings.TrimSuffix(message, "\n"), "\n") {
+    			log.Println("info: ", line)
+		}
 	}
 
 	if TargetBoard == "rpi" {

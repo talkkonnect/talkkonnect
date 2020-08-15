@@ -483,7 +483,7 @@ func (b *Talkkonnect) CleanUp() {
 		b.LEDOffAll()
 	}
 
-	b.Client.Disconnect()
+	//b.Client.Disconnect()
 	c := exec.Command("reset")
 	c.Stdout = os.Stdout
 	c.Run()
@@ -496,12 +496,11 @@ func (b *Talkkonnect) Connect() {
 	NowStreaming = false
 	KillHeartBeat = false
 	var err error
-	ConnectAttempts++
 
 	_, err = gumble.DialWithDialer(new(net.Dialer), b.Address, b.Config, &b.TLSConfig)
-	time.Sleep(2 * time.Second)
+
 	if err != nil {
-		log.Println("warn: Connection Error ", err, " connecting to ", b.Address, " failed (%s), attempting again in 10 seconds...")
+		log.Printf("warn: Connection Error %v  connecting to %v failed, attempting again...",err, b.Address)
 		if !ServerHop {
 			log.Println("warn: In the Connect Function & Trying With Username ", Username)
 			log.Println("warn: DEBUG Serverhop  Not Set Reconnecting!!")
@@ -521,17 +520,14 @@ func (b *Talkkonnect) ReConnect() {
 		log.Println("warn: Attempting Reconnection With Server")
 		b.Client.Disconnect()
 	}
-	time.Sleep(10 * time.Second)
 
-	if ConnectAttempts < 10 {
+	if ConnectAttempts < 3 {
 		//go func() {
 		if !ServerHop {
+			ConnectAttempts++
 			b.Connect()
-			time.Sleep(3 * time.Second)
-			ServerHop = false
 		}
 		//}()
-		return
 	} else {
 		log.Println("warn: Unable to connect, giving up")
 		if TargetBoard == "rpi" {
@@ -736,21 +732,14 @@ func (b *Talkkonnect) OnDisconnect(e *gumble.DisconnectEvent) {
 		b.LEDOff(b.TransmitLED)
 	}
 
-	if reason == "" {
-		log.Println("warn: Connection to ", b.Address, "disconnected")
-		if !ServerHop {
-			log.Println("warn: Attempting Reconnect in 10 seconds...")
-		}
-	} else {
-		log.Println("warn: Connection to ", b.Address, " disconnected ", reason)
-		if !ServerHop {
-			log.Println("warn: Attempting Reconnect in 10 seconds...")
-		}
-	}
-	if !ServerHop {
-		log.Println("warn: Attempting Reconnection at Debug Point #1")
-		b.ReConnect()
-	}
+     if !ServerHop {
+                log.Println("warn: Attempting Reconnect in 10 seconds...")
+                log.Println("warn: Connection to ", b.Address, "disconnected")
+                log.Println("warn: Disconnection Reason ", reason)
+                b.ReConnect()
+        }
+
+
 }
 
 func (b *Talkkonnect) ChangeChannel(ChannelName string) {

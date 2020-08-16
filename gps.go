@@ -100,14 +100,14 @@ func getGpsPosition(verbose bool) (bool, error) {
 				return false, errors.New("Cannot Decode Hex Data")
 			}
 
-			log.Println("Sending: ", hex.EncodeToString(txData))
+			log.Println("info: Sending: ", hex.EncodeToString(txData))
 
 			count, err := f.Write(txData)
 
 			if err != nil {
 				return false, errors.New("Error writing to serial port")
 			} else {
-				log.Println("Wrote %v bytes\n", count)
+				log.Println("info: Wrote %v bytes\n", count)
 			}
 
 		}

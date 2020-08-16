@@ -507,9 +507,7 @@ func (b *Talkkonnect) Connect() {
 			b.ReConnect()
 		}
 	} else {
-		if !ServerHop { 
-			b.OpenStream() 
-		}
+			b.OpenStream()
 	}
 }
 
@@ -551,6 +549,11 @@ func (b *Talkkonnect) OpenStream() {
 		os.Setenv("ALSOFT_LOGLEVEL", "0")
 	}
 
+	if ServerHop {
+		log.Println("warn: Server Hop Requested Will Now Destroy Old Server Stream")
+		b.Stream.Destroy()
+	}
+
 	if stream, err := New(b.Client); err != nil {
 
 		log.Println("warn: Stream open error ", err)
@@ -566,9 +569,7 @@ func (b *Talkkonnect) OpenStream() {
 		}
 		log.Fatal("Exiting talkkonnect! ...... bye!\n")
 	} else {
-
 		b.Stream = stream
-
 	}
 }
 

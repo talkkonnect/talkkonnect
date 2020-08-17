@@ -137,6 +137,12 @@
           <volume>1.0</volume>
         </alert>
 
+       <!-- File for Sound Playing into Transmitted Stream (Supports Most Audio Formats -->
+        <incommingbeep enabled="true">
+          <filenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/rogerbeeps/Incoming.wav</filenameandpath>
+          <volume>1</volume>
+        </incommingbeep>
+
         <!-- Roger Beep Sound File to be played if Rogerbeep Enabled into Stream Upon TX Button Release (Supports most sound formats via ffmpeg) -->
         <rogerbeep enabled="true">
           <filenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/rogerbeeps/Chirsp.wav</filenameandpath>

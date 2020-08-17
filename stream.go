@@ -39,6 +39,9 @@ import (
 	"github.com/talkkonnect/go-openal/openal"
 	"github.com/talkkonnect/gpio"
 	"github.com/talkkonnect/gumble/gumble"
+
+	"fmt"
+	"github.com/talkkonnect/gumble/gumbleffmpeg"
 )
 
 var (
@@ -98,19 +101,6 @@ func (s *Stream) Destroy() {
 	}
 }
 
-func (s *Stream) StartSourceFile() error {
-	if debuglevel >= 3 {
-		log.Println("alert: Start Source File")
-	}
-	if s.sourceStop != nil {
-		return errState
-	}
-	s.deviceSource.CaptureStart()
-	s.sourceStop = make(chan bool)
-	go s.sourceRoutine()
-	return nil
-}
-
 func (s *Stream) StartSource() error {
 	if debuglevel >= 3 {
 		log.Println("alert: Start Source")
@@ -118,6 +108,11 @@ func (s *Stream) StartSource() error {
 	if s.sourceStop != nil {
 		return errState
 	}
+
+	if IncommingBeepSoundEnabled {
+		s.playIntoStream(IncommingBeepSoundFilenameAndPath, IncommingBeepSoundVolume)
+	}
+
 	s.deviceSource.CaptureStart()
 	s.sourceStop = make(chan bool)
 	go s.sourceRoutine()
@@ -134,12 +129,11 @@ func (s *Stream) StopSource() error {
 	close(s.sourceStop)
 	s.sourceStop = nil
 	s.deviceSource.CaptureStop()
-
-	// on stop source adjust from 100ms to 5 ms helps reduce recovery time and helps with audio chopping (suvir kumar)
-	//time.Sleep(5 * time.Millisecond)
-
 	s.deviceSource.CaptureCloseDevice()
-	s.deviceSource = nil
+
+	if RogerBeepSoundEnabled {
+		s.playIntoStream(RogerBeepSoundFilenameAndPath, RogerBeepSoundVolume)
+	}
 
 	s.deviceSource = openal.CaptureOpenDevice("", gumble.AudioSampleRate, openal.FormatMono16, uint32(s.sourceFrameSize))
 
@@ -182,6 +176,7 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 	}
 	var raw [gumble.AudioMaximumFrameSize * 2]byte
 
+
 	go func() {
 		//source := openal.NewSource()
 		//		emptyBufs := openal.NewBuffers(12)
@@ -189,9 +184,7 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 		for packet := range e.C {
 			samples := len(packet.AudioBuffer)
 
-			if CancellableStream && NowStreaming && IsPlayStream {
-				log.Println("alert: Streaming Stopped By Cancellable Stream!")
-				IsPlayStream = false
+			if CancellableStream && NowStreaming {
 				pstream.Stop()
 			}
 
@@ -261,6 +254,7 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 		reclaim()
 		emptyBufs.Delete()
 		source.Delete()
+
 	}()
 }
 
@@ -304,3 +298,66 @@ func (s *Stream) sourceRoutine() {
 		}
 	}
 }
+
+func (s *Stream) playIntoStream(filepath string, vol float32) {
+	pstream = gumbleffmpeg.New(s.client, gumbleffmpeg.SourceFile(filepath), vol)
+	if err := pstream.Play(); err != nil {
+		log.Println(fmt.Sprintf("alert: Can't play %s error %s", filepath, err))
+	} else {
+		log.Println(fmt.Sprintf("info: File %s Playing!", filepath))
+		pstream.Wait()
+		pstream.Stop()
+	}
+}
+
+func (b *Talkkonnect) playIntoStream(filepath string, vol float32) {
+
+	if IsPlayStream == false {
+		log.Println(fmt.Sprintf("info: File %s Stopped!", filepath))
+		pstream.Stop()
+		b.LEDOff(b.TransmitLED)
+		return
+	}
+
+	if ChimesSoundEnabled && IsPlayStream {
+		if pstream != nil && pstream.State() == gumbleffmpeg.StatePlaying {
+			pstream.Stop()
+			return
+		}
+
+		b.LEDOn(b.TransmitLED)
+
+		IsPlayStream = true
+		pstream = gumbleffmpeg.New(b.Client, gumbleffmpeg.SourceFile(filepath), vol)
+		if err := pstream.Play(); err != nil {
+			log.Println(fmt.Sprintf("alert: Can't play %s error %s", filepath, err))
+		} else {
+			log.Println(fmt.Sprintf("info: File %s Playing!", filepath))
+			pstream.Wait()
+			pstream.Stop()
+			b.LEDOff(b.TransmitLED)
+		}
+	} else {
+		log.Println(fmt.Sprintf("alert: Sound Disabled by Config"))
+	}
+	return
+}
+
+func (b *Talkkonnect) RepeaterTone(filepath string, vol float32) {
+	if pstream != nil && pstream.State() == gumbleffmpeg.StatePlaying {
+		pstream.Stop()
+		return
+	}
+	pstream = gumbleffmpeg.New(b.Client, gumbleffmpeg.SourceFile(filepath), vol)
+	if err := pstream.Play(); err != nil {
+		log.Println("alert: Error Playing Repeater Tone ", err)
+		return
+	} else {
+		log.Println("info: Repeater Tone File " + filepath + " Playing!")
+		pstream.Wait()
+		pstream.Stop()
+		b.LEDOff(b.TransmitLED)
+		return
+	}
+}
+

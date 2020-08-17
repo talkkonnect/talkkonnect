@@ -655,15 +655,6 @@ func (b *Talkkonnect) TransmitStop(withBeep bool) {
 	b.IsTransmitting = false
 	b.Stream.StopSource()
 
-	if RogerBeepSoundEnabled {
-		if withBeep {
-			err := b.RogerBeep(RogerBeepSoundFilenameAndPath, RogerBeepSoundVolume)
-			if err != nil {
-				log.Println("alert: Roger Beep Module Returned Error: ", err)
-			}
-		}
-	}
-
 	if SimplexWithMute {
 		err := volume.Unmute(OutputDevice)
 		if err != nil {
@@ -2442,11 +2433,6 @@ func (b *Talkkonnect) repeatTx() {
 		b.TransmitStart()
 		b.IsTransmitting = true
 		time.Sleep(1 * time.Second)
-		if RogerBeepSoundEnabled {
-			b.TransmitStop(true)
-		} else {
-			b.TransmitStop(false)
-		}
 		b.IsTransmitting = false
 		time.Sleep(1 * time.Second)
 		if i > 0 {

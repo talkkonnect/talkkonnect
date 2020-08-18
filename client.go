@@ -250,7 +250,7 @@ func (b *Talkkonnect) Init() {
 		colog.SetOutput(os.Stdout)
 	} else {
 		wrt := io.MultiWriter(os.Stdout, f)
-		log.SetOutput(wrt)
+		colog.SetOutput(wrt)
 	}
 
 	b.Config.Attach(gumbleutil.AutoBitrate)
@@ -543,9 +543,9 @@ func (b *Talkkonnect) ReConnect() {
 
 func (b *Talkkonnect) OpenStream() {
 
-	if os.Getenv("ALSOFT_LOGLEVEL") == "" {
-		os.Setenv("ALSOFT_LOGLEVEL", "0")
-	}
+	//if os.Getenv("ALSOFT_LOGLEVEL") == "" {
+	//	os.Setenv("ALSOFT_LOGLEVEL", "0")
+	//}
 
 	if ServerHop {
 		log.Println("warn: Server Hop Requested Will Now Destroy Old Server Stream")

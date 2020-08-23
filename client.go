@@ -96,7 +96,6 @@ type Talkkonnect struct {
 	Stream *Stream
 
 	ChannelName string
-	Logging     string
 	Daemonize   bool
 
 	IsTransmitting bool
@@ -139,18 +138,26 @@ func reset() {
 func PreInit0(file string) {
 	err := term.Init()
 	if err != nil {
-		log.Println("alert: Cannot Initalize Terminal Error: ", err)
+		log.Println("Cannot Initalize Terminal Error: ", err)
 		log.Fatal("Exiting talkkonnect! ...... bye!\n")
 	}
-
-	colog.Register()
-	colog.SetOutput(os.Stdout)
 
 	ConfigXMLFile = file
 	err = readxmlconfig(ConfigXMLFile)
 	if err != nil {
 		log.Println("alert: XML Parser Module Returned Error: ", err)
 		log.Fatal("Please Make Sure the XML Configuration File is In the Correct Path with the Correct Format, Exiting talkkonnect! ...... bye\n")
+	}
+
+	colog.Register()
+	colog.SetOutput(os.Stdout)
+
+	if Logging == "screen" {
+		colog.SetFlags(log.Ldate | log.Ltime)
+	}
+
+	if Logging == "screenwithlineno" {
+		colog.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 	}
 
 	if APEnabled {
@@ -175,7 +182,6 @@ func PreInit0(file string) {
 		Username:    Username[AccountIndex],
 		Ident:       Ident[AccountIndex],
 		ChannelName: Channel[AccountIndex],
-		Logging:     Logging,
 		Daemonize:   Daemonize,
 	}
 
@@ -246,17 +252,17 @@ func (b *Talkkonnect) Init() {
 		b.LEDOffAll()
 	}
 
-	if b.Logging == "screen" {
-		colog.SetOutput(os.Stdout)
-	} else {
+	if Logging == "screenandfile" {
+		log.Println("debug: Logging is set to: ", Logging)
 		wrt := io.MultiWriter(os.Stdout, f)
+		colog.SetFlags(log.Ldate | log.Ltime)
 		colog.SetOutput(wrt)
 	}
 
 	b.Config.Attach(gumbleutil.AutoBitrate)
 	b.Config.Attach(b)
 
-	log.Printf("info: %d Default Mumble Accounts Found\n", AccountCount)
+	log.Printf("info: [%d] Default Mumble Accounts Found in XML config\n", AccountCount)
 	if TargetBoard == "rpi" {
 		log.Println("info: Target Board Set as RPI (gpio enabled) ")
 		b.initGPIO()
@@ -550,6 +556,25 @@ func (b *Talkkonnect) OpenStream() {
 	if ServerHop {
 		log.Println("warn: Server Hop Requested Will Now Destroy Old Server Stream")
 		b.Stream.Destroy()
+		//here
+		var participantCount = len(b.Client.Self.Channel.Users)
+
+			log.Println("info: Current Channel ", b.Client.Self.Channel.Name, " has (", participantCount, ") participants")
+			b.ListUsers()
+			if TargetBoard == "rpi" {
+				if LCDEnabled == true {
+					LcdText[0] = b.Address
+					LcdText[1] = b.Client.Self.Channel.Name + " (" + strconv.Itoa(participantCount) + " Users)"
+					go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+				}
+				if OLEDEnabled == true {
+					oledDisplay(false, 0, 1, b.Address)
+					oledDisplay(false, 1, 1, b.Client.Self.Channel.Name+" ("+strconv.Itoa(participantCount)+" Users)")
+					oledDisplay(false, 6, 1, "Please Visit")
+					oledDisplay(false, 7, 1, "www.talkkonnect.com")
+				}
+
+			}
 	}
 
 	if stream, err := New(b.Client); err != nil {
@@ -611,7 +636,6 @@ func (b *Talkkonnect) TransmitStart() {
 		if OLEDEnabled == true {
 			Oled.DisplayOn()
 			LCDIsDark = false
-			//oledDisplay(true, 0, 0, "") // clear the screen
 			oledDisplay(false, 0, 1, "Online/TX")
 			oledDisplay(false, 3, 1, "TX at "+t.Format("15:04:05"))
 			oledDisplay(false, 6, 1, "Please Visit       ")
@@ -1969,7 +1993,6 @@ func (b *Talkkonnect) commandKeyCtrlF() {
 		}
 
 		ConnectAttempts = 0
-		log.Printf("info: Connecting to Account Index [%d] \n", AccountIndex)
 
 		ServerHop = true
 		KillHeartBeat = true
@@ -1980,10 +2003,13 @@ func (b *Talkkonnect) commandKeyCtrlF() {
 		b.Username = Username[AccountIndex]
 		b.Ident = Ident[AccountIndex]
 		b.ChannelName = Channel[AccountIndex]
+
+		log.Printf("info: Connecting to Account Name [%s], Account Server Address [%s], Account Index [%d] \n", b.Name, b.Address, AccountIndex)
+
 		b.PreInit1(true)
 
 	} else {
-		log.Println("info: talkkonnect will remain connected to the same server as only 1 Account is Set as Default")
+		log.Printf("info: talkkonnect will remain connected to Account Name [%s], Account Server Address [%s], Account Index [%d] \n", b.Name, b.Address, AccountIndex)
 	}
 
 	log.Println("--")
@@ -2040,7 +2066,6 @@ func (b *Talkkonnect) commandKeyCtrlN() {
 		}
 
 		ConnectAttempts = 0
-		log.Printf("info: Connecting to Account Index [%d] \n", AccountIndex)
 
 		ServerHop = true
 		KillHeartBeat = true
@@ -2051,9 +2076,12 @@ func (b *Talkkonnect) commandKeyCtrlN() {
 		b.Username = Username[AccountIndex]
 		b.Ident = Ident[AccountIndex]
 		b.ChannelName = Channel[AccountIndex]
+
+		log.Printf("info: Connecting to Account Name [%s], Account Server Address [%s], Account Index [%d] \n", b.Name, b.Address, AccountIndex)
+
 		b.PreInit1(true)
 	} else {
-		log.Println("info: talkkonnect will remain connected to the same server as only 1 Account is Set as Default")
+		log.Printf("info: talkkonnect will remain connected to Account Name [%s], Account Server Address [%s], Account Index [%d] \n", b.Name, b.Address, AccountIndex)
 	}
 
 	log.Println("--")

@@ -86,7 +86,9 @@ func New(client *gumble.Client) (*Stream, error) {
 }
 
 func (s *Stream) Destroy() {
-	log.Println("alert: Destroy Source")
+	if debuglevel >= 3 {
+		log.Println("info: Destroy Stream Source")
+	}
 	s.link.Detach()
 	if s.deviceSource != nil {
 		s.StopSource()
@@ -103,7 +105,7 @@ func (s *Stream) Destroy() {
 
 func (s *Stream) StartSource() error {
 	if debuglevel >= 3 {
-		log.Println("alert: Start Source")
+		log.Println("debug: Start Stream Source")
 	}
 	if s.sourceStop != nil {
 		return errState
@@ -175,7 +177,6 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 		}
 	}
 	var raw [gumble.AudioMaximumFrameSize * 2]byte
-
 
 	go func() {
 		//source := openal.NewSource()
@@ -360,4 +361,3 @@ func (b *Talkkonnect) RepeaterTone(filepath string, vol float32) {
 		return
 	}
 }
-

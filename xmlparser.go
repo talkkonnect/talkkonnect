@@ -33,6 +33,8 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
+	goled "github.com/talkkonnect/go-oled-i2c"
+	"github.com/talkkonnect/gumble/gumbleffmpeg"
 	"golang.org/x/sys/unix"
 	"io/ioutil"
 	"log"
@@ -41,29 +43,27 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	goled "github.com/talkkonnect/go-oled-i2c"
-	 "github.com/talkkonnect/gumble/gumbleffmpeg"
 )
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.47.16"
-	talkkonnectReleased string = "August 18 2020"
+	talkkonnectVersion  string = "1.47.17"
+	talkkonnectReleased string = "August 23 2020"
 )
-
 
 var (
-	pstream *gumbleffmpeg.Stream
-	AccountCount int = 0
+	pstream       *gumbleffmpeg.Stream
+	AccountCount  int  = 0
 	KillHeartBeat bool = false
-	IsPlayStream bool = false
+	IsPlayStream  bool = false
 )
+
 // Generic Global Variables
 var (
-	BackLightTime    = time.NewTimer(1 * time.Millisecond)
-	BackLightTimePtr = &BackLightTime
-	ConnectAttempts = 0
-	IsConnected bool = false
+	BackLightTime         = time.NewTimer(1 * time.Millisecond)
+	BackLightTimePtr      = &BackLightTime
+	ConnectAttempts       = 0
+	IsConnected      bool = false
 )
 
 //account settings
@@ -83,7 +83,7 @@ var (
 var (
 	OutputDevice       string
 	LogFilenameAndPath string
-	Logging            string
+	Logging            string = "screen"
 	Daemonize          bool
 	SimplexWithMute    bool
 	TxCounter          bool
@@ -172,23 +172,23 @@ var (
 
 //sound settings
 var (
-	EventSoundEnabled             bool
-	EventSoundFilenameAndPath     string
-	AlertSoundEnabled             bool
-	AlertSoundFilenameAndPath     string
-	AlertSoundVolume              float32
+	EventSoundEnabled                 bool
+	EventSoundFilenameAndPath         string
+	AlertSoundEnabled                 bool
+	AlertSoundFilenameAndPath         string
+	AlertSoundVolume                  float32
 	IncommingBeepSoundEnabled         bool
 	IncommingBeepSoundFilenameAndPath string
 	IncommingBeepSoundVolume          float32
-	RogerBeepSoundEnabled         bool
-	RogerBeepSoundFilenameAndPath string
-	RogerBeepSoundVolume          float32
-	RepeaterToneEnabled           bool
-	RepeaterToneFilenameAndPath   string
-	RepeaterToneVolume            float32
-	ChimesSoundEnabled            bool
-	ChimesSoundFilenameAndPath    string
-	ChimesSoundVolume             float32
+	RogerBeepSoundEnabled             bool
+	RogerBeepSoundFilenameAndPath     string
+	RogerBeepSoundVolume              float32
+	RepeaterToneEnabled               bool
+	RepeaterToneFilenameAndPath       string
+	RepeaterToneVolume                float32
+	ChimesSoundEnabled                bool
+	ChimesSoundFilenameAndPath        string
+	ChimesSoundVolume                 float32
 )
 
 //api settings
@@ -515,13 +515,13 @@ type Smtp struct {
 }
 
 type Sounds struct {
-	XMLName   xml.Name  `xml:"sounds"`
-	Event     Event     `xml:"event"`
-	Alert     Alert     `xml:"alert"`
+	XMLName       xml.Name      `xml:"sounds"`
+	Event         Event         `xml:"event"`
+	Alert         Alert         `xml:"alert"`
 	IncommingBeep IncommingBeep `xml:"incommingbeep"`
-	RogerBeep RogerBeep `xml:"rogerbeep"`
-	RepeaterTone RepeaterTone `xml:"repeatertone"`
-	Chimes    Chimes    `xml:"chimes"`
+	RogerBeep     RogerBeep     `xml:"rogerbeep"`
+	RepeaterTone  RepeaterTone  `xml:"repeatertone"`
+	Chimes        Chimes        `xml:"chimes"`
 }
 
 type API struct {
@@ -604,10 +604,10 @@ type RogerBeep struct {
 }
 
 type RepeaterTone struct {
-	XMLName          xml.Name `xml:"repeatertone"`
-	RTEnabled         bool     `xml:"enabled,attr"`
+	XMLName                     xml.Name `xml:"repeatertone"`
+	RTEnabled                   bool     `xml:"enabled,attr"`
 	RepeaterToneFilenameAndPath string   `xml:"filenameandpath"`
-	RepeaterToneVolume      float32  `xml:"volume"`
+	RepeaterToneVolume          float32  `xml:"volume"`
 }
 
 type TxTimeOut struct {
@@ -763,7 +763,6 @@ func readxmlconfig(file string) error {
 
 	var document Document
 
-
 	err = xml.Unmarshal(byteValue, &document)
 	if err != nil {
 		errors.New(fmt.Sprintf("File "+filepath.Base(file)+" formatting error Please fix! ", err))
@@ -780,7 +779,6 @@ func readxmlconfig(file string) error {
 			Certificate = append(Certificate, document.Accounts.Accounts[i].Certificate)
 			Channel = append(Channel, document.Accounts.Accounts[i].Channel)
 			Ident = append(Ident, document.Accounts.Accounts[i].Ident)
-			log.Printf("info: Successfully Added Account %s to Index [%d]\n",document.Accounts.Accounts[i].Name, AccountCount)
 			AccountCount++
 		}
 	}
@@ -1357,13 +1355,18 @@ func readxmlconfig(file string) error {
 	AudioRecordFileFormat = document.Global.Hardware.AudioRecordFunction.AudioRecordFileFormat   // New
 	AudioRecordChunkSize = document.Global.Hardware.AudioRecordFunction.AudioRecordChunkSize     // New
 
+	if OLEDEnabled == true {
+		Oled, err = goled.BeginOled(OLEDDefaultI2cAddress, OLEDDefaultI2cBus, OLEDScreenWidth, OLEDScreenHeight, OLEDDisplayRows, OLEDDisplayColumns, OLEDStartColumn, OLEDCharLength, OLEDCommandColumnAddressing, OLEDAddressBasePageStart)
+	}
 
+	log.Println("Successfully loaded XML configuration file into memory")
 
-       if OLEDEnabled == true {
-                Oled, err = goled.BeginOled(OLEDDefaultI2cAddress, OLEDDefaultI2cBus, OLEDScreenWidth, OLEDScreenHeight, OLEDDisplayRows, OLEDDisplayColumns, OLEDStartColumn, OLEDCharLength, OLEDCommandColumnAddressing, OLEDAddressBasePageStart)
-        }
+	for i := 0; i < len(document.Accounts.Accounts); i++ {
+		if document.Accounts.Accounts[i].Default == true {
+			log.Printf("info: Successfully Added Account %s to Index [%d]\n", document.Accounts.Accounts[i].Name, i)
+		}
+	}
 
-	log.Println("Successfully loaded configuration file into memory")
 	return nil
 }
 

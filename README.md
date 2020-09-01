@@ -144,15 +144,15 @@ Now you should be able to log in remotely via ssh using the root account and con
 To get the newer versions of golang used for this project I suggest installing a precompiled binary of golang. If you use apt-get to install golang at this moment you will get an older incompatable version of golang.
 
 To install GO as required for this project on the raspberry pi. First with your browser look on the website https://golang.org/dl/ on your browser and choose the latest version for the 
-arm archecture. At the time of this writing the version is go1.14.4.linux-armv6l.tar.gz.
+arm archecture. At the time of this writing the version is go1.14.5.linux-armv6l.tar.gz.
 
 As root user Get the link and use wget to download the binary to your talkkonnect
 
 ` cd /usr/local `
 
-` wget https://dl.google.com/go/go1.14.4.linux-armv6l.tar.gz `
+` wget https://golang.org/dl/go1.15.linux-armv6l.tar.gz `
 
-` tar -zxvf go1.14.4.linux-armv6l.tar.gz `
+` tar -zxvf go1.15.linux-armv6l.tar.gz `
 
 ` nano ~/.bashrc `
 

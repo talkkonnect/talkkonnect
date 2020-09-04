@@ -47,8 +47,8 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.47.17"
-	talkkonnectReleased string = "August 23 2020"
+	talkkonnectVersion  string = "1.47.18"
+	talkkonnectReleased string = "September 04 2020"
 )
 
 var (

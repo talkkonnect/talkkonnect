@@ -399,7 +399,7 @@ keyPressListenerLoop:
 			case term.KeyF2:
 				b.commandKeyF2()
 			case term.KeyF3:
-				b.commandKeyF3()
+				b.commandKeyF3("toggle")
 			case term.KeyF4:
 				b.commandKeyF4()
 			case term.KeyF5:
@@ -1369,7 +1369,21 @@ func (b *Talkkonnect) httpHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	case "F3":
 		if APIMute {
-			b.commandKeyF3()
+			b.commandKeyF3("toggle")
+			fmt.Fprintf(w, "API Mute/UnMute Speaker Request Processed Succesfully\n")
+		} else {
+			fmt.Fprintf(w, "API Mute/Unmute Speaker Request Denied\n")
+		}
+	case "F3-mute":
+		if APIMute {
+			b.commandKeyF3("mute")
+			fmt.Fprintf(w, "API Mute/UnMute Speaker Request Processed Succesfully\n")
+		} else {
+			fmt.Fprintf(w, "API Mute/Unmute Speaker Request Denied\n")
+		}
+	case "F3-unmute":
+		if APIMute {
+			b.commandKeyF3("unmute")
 			fmt.Fprintf(w, "API Mute/UnMute Speaker Request Processed Succesfully\n")
 		} else {
 			fmt.Fprintf(w, "API Mute/Unmute Speaker Request Denied\n")
@@ -1551,15 +1565,27 @@ func (b *Talkkonnect) commandKeyF2() {
 	log.Println("--")
 }
 
-func (b *Talkkonnect) commandKeyF3() {
+func (b *Talkkonnect) commandKeyF3(subCommand string) {
 	log.Println("--")
 	log.Println("info: ", TTSMuteUnMuteSpeakerFilenameAndPath)
 
+	//any other subcommand besides mute and unmute will get the current status of mute from volume.go
 	origMuted, err := volume.GetMuted(OutputDevice)
 
 	if err != nil {
 		log.Println("warn: get muted failed: %+v", err)
 	}
+
+	//force mute
+	if subCommand == "mute" {
+		origMuted = false
+	}
+
+	//force unmute
+	if subCommand == "unmute" {
+		origMuted = true
+	}
+
 
 	if origMuted {
 		err := volume.Unmute(OutputDevice)

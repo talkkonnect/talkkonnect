@@ -165,12 +165,12 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 		}
 	}()
 
+	source := openal.NewSource()
+	emptyBufs := openal.NewBuffers(16)
 	var raw [gumble.AudioMaximumFrameSize * 2]byte
 
 	go func() {
 
-		source := openal.NewSource()
-		emptyBufs := openal.NewBuffers(16)
 
 		reclaim := func() {
 			if n := source.BuffersProcessed(); n > 0 {

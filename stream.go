@@ -165,22 +165,25 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 		}
 	}()
 
-	//experiment to move out these settings out of the go func
-	source := openal.NewSource()
-	emptyBufs := openal.NewBuffers(16)
-
-	reclaim := func() {
-		if n := source.BuffersProcessed(); n > 0 {
-			reclaimedBufs := make(openal.Buffers, n)
-			source.UnqueueBuffers(reclaimedBufs)
-			emptyBufs = append(emptyBufs, reclaimedBufs...)
-		}
-	}
 	var raw [gumble.AudioMaximumFrameSize * 2]byte
 
 	go func() {
-		//source := openal.NewSource()
-		//		emptyBufs := openal.NewBuffers(12)
+
+		source := openal.NewSource()
+		emptyBufs := openal.NewBuffers(16)
+
+		reclaim := func() {
+			if n := source.BuffersProcessed(); n > 0 {
+				// Silly Hack to send only 2 buffers to openal
+				if n > 2 {
+					n = 2
+				}
+				reclaimedBufs := make(openal.Buffers, n)
+				source.UnqueueBuffers(reclaimedBufs)
+				emptyBufs = append(emptyBufs, reclaimedBufs...)
+			}
+		}
+
 
 		for packet := range e.C {
 			samples := len(packet.AudioBuffer)
@@ -208,11 +211,6 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 			reclaim()
 
 			if len(emptyBufs) == 0 {
-				if debuglevel >= 3 {
-					log.Println("alert: emptybuffs exhausted!")
-				}
-				// if buffers empty create new emptybuffs here
-				emptyBufs = openal.NewBuffers(16)
 				continue
 			}
 

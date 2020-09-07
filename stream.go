@@ -41,6 +41,7 @@ import (
 	"github.com/talkkonnect/gumble/gumble"
 
 	"fmt"
+
 	"github.com/talkkonnect/gumble/gumbleffmpeg"
 )
 
@@ -169,23 +170,19 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 	emptyBufs := openal.NewBuffers(16)
 	var raw [gumble.AudioMaximumFrameSize * 2]byte
 
+	reclaim := func() {
+		if n := source.BuffersProcessed(); n > 0 {
+			reclaimedBufs := make(openal.Buffers, n)
+			source.UnqueueBuffers(reclaimedBufs)
+			emptyBufs = append(emptyBufs, reclaimedBufs...)
+		}
+	}
+
 	go func() {
 
-
-		reclaim := func() {
-			if n := source.BuffersProcessed(); n > 0 {
-				// Silly Hack to send only 2 buffers to openal
-				if n > 2 {
-					n = 2
-				}
-				reclaimedBufs := make(openal.Buffers, n)
-				source.UnqueueBuffers(reclaimedBufs)
-				emptyBufs = append(emptyBufs, reclaimedBufs...)
-			}
-		}
-
-
 		for packet := range e.C {
+
+			emptyBufs = openal.NewBuffers(16)
 			samples := len(packet.AudioBuffer)
 
 			if CancellableStream && NowStreaming {
@@ -203,9 +200,9 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 			if samples > cap(raw) {
 				continue
 			}
+
 			for i, value := range packet.AudioBuffer {
 				binary.LittleEndian.PutUint16(raw[i*2:], uint16(value))
-
 			}
 
 			reclaim()
@@ -220,7 +217,10 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 
 			buffer.SetData(openal.FormatMono16, raw[:samples*2], gumble.AudioSampleRate)
 			source.QueueBuffer(buffer)
+
 			if source.State() != openal.Playing {
+				source.Play()
+				reclaim()
 				now = time.Now()
 				if LastTime != now.Unix() && debuglevel >= 3 {
 					log.Println("alert: Source State is", source.State())
@@ -228,7 +228,7 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 					LastTime = now.Unix()
 				}
 
-				source.Play()
+
 				if lastspeaker != e.User.Name {
 					log.Println("info: Speaking->", e.User.Name)
 					lastspeaker = e.User.Name
@@ -249,11 +249,8 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 				}
 			}
 		}
-		watchpin = false
-		reclaim()
-		emptyBufs.Delete()
-		source.Delete()
 
+		watchpin = false
 	}()
 }
 

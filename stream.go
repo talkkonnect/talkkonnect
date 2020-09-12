@@ -34,14 +34,11 @@ import (
 	"errors"
 	"log"
 	"time"
-
 	hd44780 "github.com/talkkonnect/go-hd44780"
 	"github.com/talkkonnect/go-openal/openal"
 	"github.com/talkkonnect/gpio"
 	"github.com/talkkonnect/gumble/gumble"
-
 	"fmt"
-
 	"github.com/talkkonnect/gumble/gumbleffmpeg"
 )
 
@@ -220,14 +217,12 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 
 			if source.State() != openal.Playing {
 				source.Play()
-				reclaim()
 				now = time.Now()
 				if LastTime != now.Unix() && debuglevel >= 3 {
 					log.Println("alert: Source State is", source.State())
 					now = time.Now()
 					LastTime = now.Unix()
 				}
-
 
 				if lastspeaker != e.User.Name {
 					log.Println("info: Speaking->", e.User.Name)
@@ -251,6 +246,9 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 		}
 
 		watchpin = false
+		reclaim()
+		emptyBufs.Delete()
+		source.Delete()
 	}()
 }
 

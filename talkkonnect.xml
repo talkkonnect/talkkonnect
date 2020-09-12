@@ -40,7 +40,7 @@
       <insecure>true</insecure>   <!-- Set to true of your server doesnt require a certificate-->
       <certificate></certificate> <!-- Full Path to Certificate if Certificate is needed by Server -->
       <channel></channel>   <!-- Initial Channel on The Server to Move to after successful connection -->
-      <ident>unknown individual</ident>             <!-- The identity to be sent in a panic situation -->
+      <ident>Name Surname</ident>             <!-- The identity to be sent in a panic situation -->
     </account>
   </accounts>
 
@@ -50,7 +50,7 @@
       <settings>
         <outputdevice>Speaker</outputdevice> <!-- Set Output Device to Speaker, Master, Headphone or whatever your OS/Alsa Detects as the Master Sound Card Device for Output in alsamixer -->
         <logfilenameandpath>/var/log/talkkonnect.log</logfilenameandpath> <!-- full path to writeable log file -->
-        <logging>screen</logging>    <!--set logging to screen if screen only desired otherwise leave it as blank and talkkonnect will log to both screen and logfile -->
+        <logging>screenwithlineno</logging>    <!--set logging to screen if screen only desired otherwise leave it as blank and talkkonnect will log to both screen and logfile -->
         <daemonize>false</daemonize> <!-- this feature is not implemented yet -->
         <cancellablestream>true</cancellablestream> <!-- Set to true if you allow others to stop your streaming upon keying up -->
 	<simplexwithmute>false</simplexwithmute>
@@ -118,10 +118,10 @@
       </tts>
 
       <!-- Gmail Account Settings for Sending EMAIL from Talkkonnect -->
-      <smtp enabled="true">
+      <smtp enabled="false">
         <username>robot@email.com</username>
         <password>user</password>
-        <receiver>suvir@talkkonnect.com</receiver>
+        <receiver>someone@somedomain.com</receiver>
         <subject>Talkkonnect Email Message with GPS</subject>
         <message>Hello From Talkkonnect</message>
         <gpsdatetime>true</gpsdatetime>     <!-- Send the GPS Date/Time Stamp Received from Satellite -->
@@ -142,7 +142,7 @@
         </alert>
 
         <!-- File for Sound Playing into Transmitted Stream (Supports Most Audio Formats -->
-        <incommingbeep enabled="true">
+        <incommingbeep enabled="false">
           <filenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/rogerbeeps/Incoming.wav</filenameandpath>
           <volume>1</volume>
         </incommingbeep>
@@ -161,8 +161,9 @@
 
         <!-- File/Streaming Service for playing into transmitted stream (Supports most sound formats via ffmpeg) -->
         <chimes enabled="true">
-          <filenameandpath>http://212.83.172.11:8504/stream</filenameandpath> 
-          <!--<filenameandpath>http://d.liveatc.net/kjfk_arinc</filenameandpath>--> 
+          <filenameandpath>http://212.83.172.11:8504/stream</filenameandpath>
+	  <!--<filenameandpath>http://212.83.172.11:8504/stream</filenameandpath>-->
+	  <!--<filenameandpath>http://d.liveatc.net/kjfk_arinc</filenameandpath>-->
 	  <!--<filenameandpath>http://d.liveatc.net/vtbs_atis</filenameandpath>--> 
           <!--<filenameandpath>http://bbcwssc.ic.llnwd.net/stream/bbcwssc_mp1_ws-eieuk</filenameandpath>--> 
 	  <!--<filenameandpath>http://rstream.mcot.net:8000/fm1005</filenameandpath>--> 
@@ -262,7 +263,7 @@
       </comment>
 
       <!-- settings for HD44780 LCD PARALLEL -->
-      <lcd enabled="true">
+      <lcd enabled="false">
         <lcdinterfacetype>parallel</lcdinterfacetype>             <!-- put parallel or i2c depending on your display interface type here -->
         <lcdi2caddress>63</lcdi2caddress>    <!-- put the decimal value of the i2c hex address your display was detected on -->
         <lcdbacklighttimerenabled>true</lcdbacklighttimerenabled> <!-- this value is necessary if you are going to control backlight both parallel and i2c -->
@@ -276,8 +277,25 @@
         <lcdd7pin>18</lcdd7pin>              <!-- this value is necessary only if you are using parallel lcd interface -->
       </lcd>
 
+      <!-- settings for oled 0.96 and 1.3 inch Type with I2C Interface -->
+      <!-- To Use oled  I2C Interface Make Sure You Don't Define RPI GPIO Pins 2 & 3 For Anything Else! -->
+      <oled enabled="false">
+        <oledinterfacetype>i2c</oledinterfacetype>                    <!-- your current choice for oled interface type is now only limited to i2c -->
+        <oleddisplayrows>6</oleddisplayrows>                          <!-- define the max rows of your oled screen supports -->
+        <oleddisplaycolumns>21</oleddisplaycolumns>                   <!-- define the max columns (characters) per line your display supports -->
+        <oleddefaulti2cbus>1</oleddefaulti2cbus>                      <!-- define the I2C Bus you connected your oled display -->
+        <oleddefaulti2caddress>60</oleddefaulti2caddress>             <!-- define the decimal value of the i2c hex address your display was detected on -->
+        <oledscreenwidth>128</oledscreenwidth>                        <!-- define the width of your screen if you see some junk on the right of your screen increase this value -->
+        <oledscreenheight>64</oledscreenheight>                       <!-- define the height of your screen here -->
+        <oledcommandcolumnaddressing>33</oledcommandcolumnaddressing> <!-- define the decimal value of the column address of your screen -->
+        <oledaddressbasepagestart>176</oledaddressbasepagestart>      <!-- define the decimal value of the base page start address of your screen -->
+        <oledcharlength>9</oledcharlength>                            <!-- define the character length here -->
+         <oledstartcolumn>0</oledstartcolumn>                          <!-- if the 1st character of your display is half missing adjust this value to 1 otherwise leave it at$
+      </oled>
+
+
       <!-- Set Parameters for USB GPS Module Ublox Neo-7 -->
-      <gps enabled="true">
+      <gps enabled="false">
         <port>/dev/ttyACM0</port>
         <baud>115200</baud>
         <txdata/>
@@ -294,7 +312,7 @@
       </gps>
 
       <!-- Set Parameters for Panic Button Simulation -->
-      <panicfunction enabled="true">
+      <panicfunction enabled="false">
         <filenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/alerts/alert.wav</filenameandpath>
         <volume>0.5</volume>
         <sendident>true</sendident>

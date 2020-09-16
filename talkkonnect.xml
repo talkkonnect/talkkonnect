@@ -266,7 +266,7 @@
       <lcd enabled="false">
         <lcdinterfacetype>parallel</lcdinterfacetype>             <!-- put parallel or i2c depending on your display interface type here -->
         <lcdi2caddress>63</lcdi2caddress>    <!-- put the decimal value of the i2c hex address your display was detected on -->
-        <lcdbacklighttimerenabled>true</lcdbacklighttimerenabled> <!-- this value is necessary if you are going to control backlight both parallel and i2c -->
+        <lcdbacklighttimerenabled>false</lcdbacklighttimerenabled> <!-- this value is necessary if you are going to control backlight both parallel and i2c -->
         <lcdbacklighttimeoutsecs>30</lcdbacklighttimeoutsecs>     <!-- this value is necessary if you are going to control backlight both parallel and i -->
         <lcdbacklightpin>6</lcdbacklightpin> <!-- this value is necessary if you are going to control backlight with external transistor -->
         <lcdrspin>7</lcdrspin>               <!-- this value is necessary only if you are using parallel lcd interface -->

@@ -580,7 +580,7 @@ func (b *Talkkonnect) OpenStream() {
 	if stream, err := New(b.Client); err != nil {
 
 		log.Println("warn: Stream open error ", err)
-		if TargetBoard == "pi" {
+		if TargetBoard == "rpi" {
 			if LCDEnabled == true {
 				LcdText = [4]string{"Stream Error!", "nil", "nil", "nil"}
 				go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
@@ -2403,7 +2403,7 @@ func (b *Talkkonnect) BackLightTimer() {
 
 	BackLightTime = *BackLightTimePtr
 
-	if TargetBoard != "rpi" || LCDBackLightTimerEnabled == false {
+	if TargetBoard != "rpi" || LCDBackLightTimerEnabled == false ||  OLEDEnabled == false {
 		return
 	}
 

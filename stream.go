@@ -163,20 +163,19 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 		}
 	}()
 
-	source := openal.NewSource()
-	emptyBufs := openal.NewBuffers(16)
-	var raw [gumble.AudioMaximumFrameSize * 2]byte
-
-	reclaim := func() {
-		if n := source.BuffersProcessed(); n > 0 {
-			reclaimedBufs := make(openal.Buffers, n)
-			source.UnqueueBuffers(reclaimedBufs)
-			emptyBufs = append(emptyBufs, reclaimedBufs...)
-		}
-	}
-
 	go func() {
+		source := openal.NewSource()
+		emptyBufs := openal.NewBuffers(16)
 
+		reclaim := func() {
+			if n := source.BuffersProcessed(); n > 0 {
+				reclaimedBufs := make(openal.Buffers, n)
+				source.UnqueueBuffers(reclaimedBufs)
+				emptyBufs = append(emptyBufs, reclaimedBufs...)
+			}
+		}
+
+		var raw [gumble.AudioMaximumFrameSize * 2]byte
 		for packet := range e.C {
 
 			emptyBufs = openal.NewBuffers(16)

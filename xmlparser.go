@@ -47,8 +47,8 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.47.23"
-	talkkonnectReleased string = "September 18 2020"
+	talkkonnectVersion  string = "1.47.24"
+	talkkonnectReleased string = "September 21 2020"
 )
 
 var (
@@ -81,17 +81,17 @@ var (
 
 //software settings
 var (
-	OutputDevice       string
+	OutputDevice       string = "PCM"
 	LogFilenameAndPath string
 	Logging            string = "screen"
 	Daemonize          bool
-	SimplexWithMute    bool
+	SimplexWithMute    bool = true
 	TxCounter          bool
 )
 
 //autoprovision settings
 var (
-	APEnabled    bool
+	APEnabled    bool 
 	TkID         string
 	URL          string
 	SaveFilePath string
@@ -101,9 +101,9 @@ var (
 //beacon settings
 var (
 	BeaconEnabled         bool
-	BeaconTimerSecs       int
+	BeaconTimerSecs       int     = 30
 	BeaconFilenameAndPath string
-	BVolume               float32
+	BVolume               float32 = 1.0
 )
 
 //tts
@@ -176,7 +176,7 @@ var (
 	EventSoundFilenameAndPath         string
 	AlertSoundEnabled                 bool
 	AlertSoundFilenameAndPath         string
-	AlertSoundVolume                  float32
+	AlertSoundVolume                  float32 = 1
 	IncommingBeepSoundEnabled         bool
 	IncommingBeepSoundFilenameAndPath string
 	IncommingBeepSoundVolume          float32
@@ -240,7 +240,7 @@ var (
 	PrintOled         bool
 	PrintGps          bool
 	PrintPanic        bool
-	PrintAudioRecord  bool //New
+	PrintAudioRecord  bool
 )
 
 // target board settings
@@ -296,7 +296,7 @@ var (
 	LCDD5Pin                 int
 	LCDD6Pin                 int
 	LCDD7Pin                 int
-	LCDIsDark                bool = false
+	LCDIsDark                bool
 )
 
 //OLED screen settings
@@ -1354,6 +1354,17 @@ func readxmlconfig(file string) error {
 	AudioRecordProfile = document.Global.Hardware.AudioRecordFunction.AudioRecordProfile         // New
 	AudioRecordFileFormat = document.Global.Hardware.AudioRecordFunction.AudioRecordFileFormat   // New
 	AudioRecordChunkSize = document.Global.Hardware.AudioRecordFunction.AudioRecordChunkSize     // New
+
+	//logical test for xml config
+	if TargetBoard != "rpi" {
+		LCDBackLightTimerEnabled = false
+	}
+
+  	if  LCDBackLightTimerEnabled == true && (OLEDEnabled == false && LCDEnabled == false) {
+		log.Println("Alert: Logical Error in LCDBacklight Timer Check XML config file")
+		log.Fatal("Backlight Timer Enabled but both LCD and OLED disabled!\n")
+
+	}
 
 	if OLEDEnabled == true {
 		Oled, err = goled.BeginOled(OLEDDefaultI2cAddress, OLEDDefaultI2cBus, OLEDScreenWidth, OLEDScreenHeight, OLEDDisplayRows, OLEDDisplayColumns, OLEDStartColumn, OLEDCharLength, OLEDCommandColumnAddressing, OLEDAddressBasePageStart)

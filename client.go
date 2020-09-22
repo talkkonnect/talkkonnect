@@ -1116,7 +1116,7 @@ func (b *Talkkonnect) ListChannels(verbose bool) {
 	}
 
 	var records = int(len(b.Client.Channels))
-	var channelsList [100]ChannelsListStruct
+	channelsList := make([]ChannelsListStruct, len(b.Client.Channels))
 	counter := 0
 
 	for _, ch := range b.Client.Channels {

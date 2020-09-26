@@ -43,12 +43,13 @@ import (
 	"strconv"
 	"strings"
 	"time"
+        "github.com/talkkonnect/go-openal/openal"
 )
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.47.25"
-	talkkonnectReleased string = "September 22 2020"
+	talkkonnectVersion  string = "1.47.26"
+	talkkonnectReleased string = "September 26 2020"
 )
 
 var (
@@ -64,6 +65,7 @@ var (
 	BackLightTimePtr      = &BackLightTime
 	ConnectAttempts       = 0
 	IsConnected      bool = false
+	source                = openal.NewSource()
 )
 
 //account settings

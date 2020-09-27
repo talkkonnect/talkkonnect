@@ -155,6 +155,7 @@ As root user Get the link and use wget to download the binary to your talkkonnec
 ` tar -zxvf go1.15.linux-armv6l.tar.gz `
 
 ` nano ~/.bashrc `
+
 ` PATH=$PATH:/usr/local/go/bin `
 
 ` export GOPATH=/home/talkkonnect/gocode `

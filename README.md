@@ -156,7 +156,7 @@ As root user Get the link and use wget to download the binary to your talkkonnec
 
 ` nano ~/.bashrc `
 
-` PATH=$PATH:/usr/local/go/bin `
+` export PATH=$PATH:/usr/local/go/bin `
 
 ` export GOPATH=/home/talkkonnect/gocode `
 

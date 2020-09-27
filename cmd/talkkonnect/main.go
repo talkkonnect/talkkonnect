@@ -74,9 +74,6 @@ func main() {
         f.Close()
     }
 
-	log.Println("info: Sleep Before")
-	time.Sleep(5 * time.Second)
-	log.Println("info: Sleep After")
 	talkkonnect.PreInit0(*config)
 
 

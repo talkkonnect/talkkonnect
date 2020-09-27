@@ -132,12 +132,12 @@ Now you should be able to log in remotely via ssh using the root account and con
 
 ##### Update Raspbian with the command #####
 
-` apt-get update`
+` apt update`
 
 ##### Install prerequisite programs ##### 
 (Note: If building talkkonnect on other than Raspberry Pi board, install mplayer instead of omxplayer) 
 
-` apt-get install libopenal-dev libopus-dev libasound2-dev git ffmpeg omxplayer screen `
+` apt install libopenal-dev libopus-dev libasound2-dev git ffmpeg omxplayer screen `
 
 ##### Install prerequisite programs ##### 
 

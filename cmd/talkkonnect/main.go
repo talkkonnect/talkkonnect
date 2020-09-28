@@ -38,7 +38,6 @@ import (
 	"os"
 	"runtime/pprof"
 	"runtime"
-	"time"
 )
 
 var cpuprofile = flag.String("cpuprofile", "", "write cpu profile `file`")

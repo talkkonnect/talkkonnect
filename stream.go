@@ -52,6 +52,7 @@ var (
 	LastTime         = now.Unix()
 	debuglevel       = 2
 	watchpin         = true
+	emptyBufs 	 = openal.NewBuffers(16)
 )
 
 type Stream struct {
@@ -263,8 +264,7 @@ func (b *Talkkonnect) RepeaterTone(filepath string, vol float32) {
 }
 
 func streamAudio(e *gumble.AudioStreamEvent) {
-	source = openal.NewSource()
-	emptyBufs := openal.NewBuffers(16)
+
 
 	reclaim := func() {
 		if n := source.BuffersProcessed(); n > 0 {
@@ -275,9 +275,11 @@ func streamAudio(e *gumble.AudioStreamEvent) {
 	}
 
 	var raw [gumble.AudioMaximumFrameSize * 2]byte
+	source = openal.NewSource()
+	emptyBufs = openal.NewBuffers(16)
+
 	for packet := range e.C {
 
-		emptyBufs = openal.NewBuffers(16)
 		samples := len(packet.AudioBuffer)
 
 		if CancellableStream && NowStreaming {
@@ -302,6 +304,7 @@ func streamAudio(e *gumble.AudioStreamEvent) {
 		reclaim()
 
 		if len(emptyBufs) == 0 {
+			emptyBufs = openal.NewBuffers(16)
 			continue
 		}
 

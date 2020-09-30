@@ -290,7 +290,7 @@
         <oledcommandcolumnaddressing>33</oledcommandcolumnaddressing> <!-- define the decimal value of the column address of your screen -->
         <oledaddressbasepagestart>176</oledaddressbasepagestart>      <!-- define the decimal value of the base page start address of your screen -->
         <oledcharlength>9</oledcharlength>                            <!-- define the character length here -->
-         <oledstartcolumn>0</oledstartcolumn>                          <!-- if the 1st character of your display is half missing adjust this value to 1 otherwise leave it at$
+         <oledstartcolumn>0</oledstartcolumn>                          <!-- if the 1st character of your display is half missing adjust this value to 1 otherwise leave it at -->
       </oled>
 
 

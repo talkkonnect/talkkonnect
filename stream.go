@@ -52,7 +52,6 @@ var (
 	LastTime         = now.Unix()
 	debuglevel       = 2
 	emptyBufs        = openal.NewBuffers(16)
-	timertalked      = time.NewTimer(time.Millisecond * 200)
 )
 
 type Stream struct {
@@ -144,11 +143,8 @@ func (s *Stream) StopSource() error {
 
 func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 
-	if TargetBoard == "rpi" {
-		LEDOnFunc(VoiceActivityLED)
-		if LCDEnabled == true {
-			LEDOffFunc(BackLightLED)
-		}
+	if TargetBoard == "rpi" && LCDEnabled == true {
+		LEDOffFunc(BackLightLED)
 	}
 
 	go func() {
@@ -167,11 +163,8 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 
 		for packet := range e.C {
 
-			if TargetBoard == "rpi" {
-				LEDOnFunc(VoiceActivityLED)
-				if LCDEnabled == true {
-					LEDOnFunc(BackLightLED)
-				}
+			if TargetBoard == "rpi" && LCDEnabled == true {
+				LEDOnFunc(BackLightLED)
 			}
 
 			samples := len(packet.AudioBuffer)
@@ -204,13 +197,6 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 
 			if source.State() != openal.Playing {
 				source.Play()
-				now = time.Now()
-				if LastTime != now.Unix() && debuglevel >= 3 {
-					log.Println("alert: Source State is", source.State())
-					now = time.Now()
-					LastTime = now.Unix()
-				}
-
 				if lastspeaker != e.User.Name {
 					log.Println("info: Speaking->", e.User.Name)
 					lastspeaker = e.User.Name
@@ -229,6 +215,8 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 						}
 					}
 				}
+			} else {
+				lastspeaker = ""
 			}
 			LEDOnFunc(VoiceActivityLED)
 		}

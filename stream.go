@@ -51,8 +51,8 @@ var (
 	now              = time.Now()
 	LastTime         = now.Unix()
 	debuglevel       = 2
-	watchpin         = true
-	emptyBufs 	 = openal.NewBuffers(16)
+	emptyBufs        = openal.NewBuffers(16)
+	timertalked      = time.NewTimer(time.Millisecond * 200)
 )
 
 type Stream struct {
@@ -145,18 +145,96 @@ func (s *Stream) StopSource() error {
 func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 
 	if TargetBoard == "rpi" {
-		LEDOffFunc(VoiceActivityLED)
+		LEDOnFunc(VoiceActivityLED)
 		if LCDEnabled == true {
 			LEDOffFunc(BackLightLED)
 		}
 	}
 
-	defer func() {
-		go pinWatcher(e)
-	}()
+	go func() {
+		source = openal.NewSource()
+		emptyBufs = openal.NewBuffers(16)
 
-	defer func() {
-		go streamAudio(e)
+		reclaim := func() {
+			if n := source.BuffersProcessed(); n > 0 {
+				reclaimedBufs := make(openal.Buffers, n)
+				source.UnqueueBuffers(reclaimedBufs)
+				emptyBufs = append(emptyBufs, reclaimedBufs...)
+			}
+		}
+
+		var raw [gumble.AudioMaximumFrameSize * 2]byte
+
+		for packet := range e.C {
+
+			if TargetBoard == "rpi" {
+				LEDOnFunc(VoiceActivityLED)
+				if LCDEnabled == true {
+					LEDOnFunc(BackLightLED)
+				}
+			}
+
+			samples := len(packet.AudioBuffer)
+
+			if CancellableStream && NowStreaming {
+				pstream.Stop()
+			}
+
+			if samples > cap(raw) {
+				continue
+			}
+
+			for i, value := range packet.AudioBuffer {
+				binary.LittleEndian.PutUint16(raw[i*2:], uint16(value))
+			}
+
+			reclaim()
+
+			if len(emptyBufs) == 0 {
+				emptyBufs = openal.NewBuffers(16)
+				continue
+			}
+
+			last := len(emptyBufs) - 1
+			buffer := emptyBufs[last]
+			emptyBufs = emptyBufs[:last]
+
+			buffer.SetData(openal.FormatMono16, raw[:samples*2], gumble.AudioSampleRate)
+			source.QueueBuffer(buffer)
+
+			if source.State() != openal.Playing {
+				source.Play()
+				now = time.Now()
+				if LastTime != now.Unix() && debuglevel >= 3 {
+					log.Println("alert: Source State is", source.State())
+					now = time.Now()
+					LastTime = now.Unix()
+				}
+
+				if lastspeaker != e.User.Name {
+					log.Println("info: Speaking->", e.User.Name)
+					lastspeaker = e.User.Name
+					t := time.Now()
+					if TargetBoard == "rpi" {
+						if LCDEnabled == true {
+							lcdtext = [4]string{"nil", "", "", e.User.Name + " " + t.Format("15:04:05")}
+							go hd44780.LcdDisplay(lcdtext, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+							BackLightTime.Reset(time.Duration(LCDBackLightTimeoutSecs) * time.Second)
+						}
+
+						if OLEDEnabled == true {
+							Oled.DisplayOn()
+							go oledDisplay(false, 3, 1, e.User.Name+" "+t.Format("15:04:05"))
+							BackLightTime.Reset(time.Duration(LCDBackLightTimeoutSecs) * time.Second)
+						}
+					}
+				}
+			}
+			LEDOnFunc(VoiceActivityLED)
+		}
+		reclaim()
+		emptyBufs.Delete()
+		source.Delete()
 	}()
 }
 
@@ -260,103 +338,5 @@ func (b *Talkkonnect) RepeaterTone(filepath string, vol float32) {
 		pstream.Stop()
 		b.LEDOff(b.TransmitLED)
 		return
-	}
-}
-
-func streamAudio(e *gumble.AudioStreamEvent) {
-
-
-	reclaim := func() {
-		if n := source.BuffersProcessed(); n > 0 {
-			reclaimedBufs := make(openal.Buffers, n)
-			source.UnqueueBuffers(reclaimedBufs)
-			emptyBufs = append(emptyBufs, reclaimedBufs...)
-		}
-	}
-
-	var raw [gumble.AudioMaximumFrameSize * 2]byte
-	source = openal.NewSource()
-	emptyBufs = openal.NewBuffers(16)
-
-	for packet := range e.C {
-
-		samples := len(packet.AudioBuffer)
-
-		if CancellableStream && NowStreaming {
-			pstream.Stop()
-		}
-
-		if TargetBoard == "rpi" {
-			LEDOnFunc(VoiceActivityLED)
-			if LCDEnabled == true {
-				LEDOnFunc(BackLightLED)
-			}
-		}
-
-		if samples > cap(raw) {
-			continue
-		}
-
-		for i, value := range packet.AudioBuffer {
-			binary.LittleEndian.PutUint16(raw[i*2:], uint16(value))
-		}
-
-		reclaim()
-
-		if len(emptyBufs) == 0 {
-			emptyBufs = openal.NewBuffers(16)
-			continue
-		}
-
-		last := len(emptyBufs) - 1
-		buffer := emptyBufs[last]
-		emptyBufs = emptyBufs[:last]
-
-		buffer.SetData(openal.FormatMono16, raw[:samples*2], gumble.AudioSampleRate)
-		source.QueueBuffer(buffer)
-
-		if source.State() != openal.Playing {
-			source.Play()
-			now = time.Now()
-			if LastTime != now.Unix() && debuglevel >= 3 {
-				log.Println("alert: Source State is", source.State())
-				now = time.Now()
-				LastTime = now.Unix()
-			}
-
-			if lastspeaker != e.User.Name {
-				log.Println("info: Speaking->", e.User.Name)
-				lastspeaker = e.User.Name
-				t := time.Now()
-				if TargetBoard == "rpi" {
-					if LCDEnabled == true {
-						lcdtext = [4]string{"nil", "", "", e.User.Name + " " + t.Format("15:04:05")}
-						go hd44780.LcdDisplay(lcdtext, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
-						BackLightTime.Reset(time.Duration(LCDBackLightTimeoutSecs) * time.Second)
-					}
-
-					if OLEDEnabled == true {
-						Oled.DisplayOn()
-						go oledDisplay(false, 3, 1, e.User.Name+" "+t.Format("15:04:05"))
-						BackLightTime.Reset(time.Duration(LCDBackLightTimeoutSecs) * time.Second)
-					}
-				}
-			}
-		}
-	}
-	watchpin = false
-	reclaim()
-	emptyBufs.Delete()
-	source.Delete()
-}
-
-func pinWatcher(e *gumble.AudioStreamEvent) {
-	Timertalkled := time.NewTimer(time.Millisecond * 200)
-	for watchpin {
-		<-Timertalkled.C
-		if TargetBoard == "rpi" {
-			LEDOffFunc(VoiceActivityLED)
-		}
-		lastspeaker = "Nil"
 	}
 }

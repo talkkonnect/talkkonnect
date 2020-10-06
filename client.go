@@ -1924,6 +1924,8 @@ func (b *Talkkonnect) commandKeyF12() {
 func (b *Talkkonnect) commandKeyCtrlC() {
 	log.Println("--")
 	log.Println("info: Ctrl-C Terminate Program Requested")
+	duration := time.Since(StartTime)
+	log.Printf("info: Talkkonnect Now Running For %v \n", secondsToHuman(int(duration.Seconds())))
 
 	if TTSEnabled && TTSQuitTalkkonnect {
 		err := PlayWavLocal(TTSQuitTalkkonnectFilenameAndPath, TTSVolumeLevel)

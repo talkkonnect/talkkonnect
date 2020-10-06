@@ -2361,7 +2361,8 @@ func (b *Talkkonnect) commandKeyCtrlV() {
 func (b *Talkkonnect) commandKeyCtrlU() {
 	log.Println("--")
 	log.Println("info: Ctrl-U Talkkonnect Running Time Request ")
-	log.Printf("info: Talkkonnect Now Running For %v \n", time.Since(StartTime))
+	duration := time.Since(StartTime)
+	log.Printf("info: Talkkonnect Now Running For %v \n", secondsToHuman(int(duration.Seconds())))
 	log.Println("--")
 }
 

@@ -216,7 +216,7 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 					}
 				}
 			} else {
-				lastspeaker = ""
+				lastspeaker = e.User.Name
 			}
 			LEDOnFunc(VoiceActivityLED)
 		}

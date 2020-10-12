@@ -56,6 +56,7 @@ import (
 	htgotts "github.com/talkkonnect/htgo-tts"
 	term "github.com/talkkonnect/termbox-go"
 	"github.com/talkkonnect/volume-go"
+	"runtime"
 )
 
 var (
@@ -421,6 +422,8 @@ keyPressListenerLoop:
 			case term.KeyCtrlC:
 				talkkonnectAcknowledgements()
 				b.commandKeyCtrlC()
+			case term.KeyCtrlD:
+				b.commandKeyCtrlD()
 			case term.KeyCtrlE:
 				b.commandKeyCtrlE()
 			case term.KeyCtrlF:
@@ -1453,6 +1456,7 @@ func (b *Talkkonnect) httpHandler(w http.ResponseWriter, r *http.Request) {
 		} else {
 			fmt.Fprintf(w, "API Request GPS Position Denied\n")
 		}
+
 	case "commandKeyCtrlE":
 		if APIEmailEnabled {
 			b.commandKeyCtrlE()
@@ -1939,6 +1943,16 @@ func (b *Talkkonnect) commandKeyCtrlC() {
 	log.Println("--")
 }
 
+func (b *Talkkonnect) commandKeyCtrlD() {
+        log.Println("---------START-STACKTRACE------------------------------")
+        log.Println("info: Ctrl-D Debug Stacktrace Requested")
+        buf := make([]byte, 1<<16)
+        runtime.Stack(buf, true)
+        fmt.Printf("%s", buf)
+        log.Println("---------END-STACKTRACE--------------------------------")
+}
+
+
 func (b *Talkkonnect) commandKeyCtrlE() {
 	log.Println("--")
 	log.Println("info: Ctrl-E Pressed Send Email Requested")
@@ -2117,7 +2131,6 @@ func (b *Talkkonnect) commandKeyCtrlN() {
 	log.Println("--")
 }
 
-//New
 func (b *Talkkonnect) commandKeyCtrlI() {
 	log.Println("--")
 	log.Println("info: Ctrl-I Traffic Recording Requested")

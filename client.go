@@ -57,6 +57,8 @@ import (
 	term "github.com/talkkonnect/termbox-go"
 	"github.com/talkkonnect/volume-go"
 	"runtime"
+	"bytes"
+	"bufio"
 )
 
 var (
@@ -1944,12 +1946,19 @@ func (b *Talkkonnect) commandKeyCtrlC() {
 }
 
 func (b *Talkkonnect) commandKeyCtrlD() {
-        log.Println("---------START-STACKTRACE------------------------------")
-        log.Println("info: Ctrl-D Debug Stacktrace Requested")
         buf := make([]byte, 1<<16)
-        runtime.Stack(buf, true)
-        fmt.Printf("%s", buf)
-        log.Println("---------END-STACKTRACE--------------------------------")
+        stackSize := runtime.Stack(buf, true)
+	var debug bytes.Buffer
+	debug.WriteString(string(buf[0:stackSize]))
+	scanner := bufio.NewScanner(&debug)
+	var line int = 1
+	log.Println("--")
+	log.Println("info: Ctrl-D Debug Stack Dump Requested")
+	for scanner.Scan() {
+		log.Printf("debug: line: %d %s", line, scanner.Text())
+		line++
+	}
+	log.Println("--")
 }
 
 

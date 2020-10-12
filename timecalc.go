@@ -17,6 +17,8 @@
  * Suvir Kumar <suvir@talkkonnect.com>
  * Portions created by the Initial Developer are Copyright (C) Suvir Kumar. All Rights Reserved.
  *
+ * Code Copied from https://www.socketloop.com/tutorials/golang-convert-seconds-to-human-readable-time-format-example
+ *
  * Contributor(s):
  *
  * Suvir Kumar <suvir@talkkonnect.com>

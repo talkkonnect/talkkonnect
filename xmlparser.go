@@ -48,8 +48,8 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.47.34"
-	talkkonnectReleased string = "October 12 2020"
+	talkkonnectVersion  string = "1.47.35"
+	talkkonnectReleased string = "October 13 2020"
 )
 
 var (
@@ -61,7 +61,7 @@ var (
 
 // Generic Global Variables
 var (
-	BackLightTime         = time.NewTimer(1 * time.Millisecond)
+	BackLightTime         = time.NewTicker(5 * time.Second)
 	BackLightTimePtr      = &BackLightTime
 	ConnectAttempts       = 0
 	IsConnected      bool = false

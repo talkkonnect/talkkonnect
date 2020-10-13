@@ -45,6 +45,8 @@ import (
 	"syscall"
 	"time"
 
+	"bufio"
+	"bytes"
 	"github.com/comail/colog"
 	"github.com/kennygrant/sanitize"
 	hd44780 "github.com/talkkonnect/go-hd44780"
@@ -57,8 +59,6 @@ import (
 	term "github.com/talkkonnect/termbox-go"
 	"github.com/talkkonnect/volume-go"
 	"runtime"
-	"bytes"
-	"bufio"
 )
 
 var (
@@ -271,6 +271,38 @@ func (b *Talkkonnect) Init() {
 		b.initGPIO()
 	} else {
 		log.Println("info: Target Board Set as PC (gpio disabled) ")
+	}
+
+	if (TargetBoard == "rpi" && LCDBackLightTimerEnabled == true) && (OLEDEnabled == true || LCDEnabled == true) {
+
+		log.Println("info: Backlight Timer Enabled by Config")
+		BackLightTime = *BackLightTimePtr
+		BackLightTime = time.NewTicker(5 * time.Second)
+
+		go func() {
+			for {
+				<-BackLightTime.C
+				log.Println("debug: LCD Backlight Ticker Timed Out After ", LCDBackLightTimeoutSecs," Seconds")
+				LCDIsDark = true
+				if LCDInterfaceType == "parallel" {
+					b.LEDOff(b.BackLightLED)
+				}
+				if LCDInterfaceType == "i2c" {
+					lcd := hd44780.NewI2C4bit(LCDI2CAddress)
+					if err := lcd.Open(); err != nil {
+						log.Println("alert: Can't open lcd: " + err.Error())
+						return
+					}
+					lcd.ToggleBacklight()
+				}
+				if OLEDInterfacetype == "i2c" {
+					Oled.DisplayOff()
+					LCDIsDark = true
+				}
+			}
+		}()
+	} else {
+		log.Println("info: Backlight Timer Disabled by Config")
 	}
 
 	talkkonnectBanner()
@@ -566,22 +598,22 @@ func (b *Talkkonnect) OpenStream() {
 		//here
 		var participantCount = len(b.Client.Self.Channel.Users)
 
-			log.Println("info: Current Channel ", b.Client.Self.Channel.Name, " has (", participantCount, ") participants")
-			b.ListUsers()
-			if TargetBoard == "rpi" {
-				if LCDEnabled == true {
-					LcdText[0] = b.Address
-					LcdText[1] = b.Client.Self.Channel.Name + " (" + strconv.Itoa(participantCount) + " Users)"
-					go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
-				}
-				if OLEDEnabled == true {
-					oledDisplay(false, 0, 1, b.Address)
-					oledDisplay(false, 1, 1, b.Client.Self.Channel.Name+" ("+strconv.Itoa(participantCount)+" Users)")
-					oledDisplay(false, 6, 1, "Please Visit")
-					oledDisplay(false, 7, 1, "www.talkkonnect.com")
-				}
-
+		log.Println("info: Current Channel ", b.Client.Self.Channel.Name, " has (", participantCount, ") participants")
+		b.ListUsers()
+		if TargetBoard == "rpi" {
+			if LCDEnabled == true {
+				LcdText[0] = b.Address
+				LcdText[1] = b.Client.Self.Channel.Name + " (" + strconv.Itoa(participantCount) + " Users)"
+				go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 			}
+			if OLEDEnabled == true {
+				oledDisplay(false, 0, 1, b.Address)
+				oledDisplay(false, 1, 1, b.Client.Self.Channel.Name+" ("+strconv.Itoa(participantCount)+" Users)")
+				oledDisplay(false, 6, 1, "Please Visit")
+				oledDisplay(false, 7, 1, "www.talkkonnect.com")
+			}
+
+		}
 	}
 
 	if stream, err := New(b.Client); err != nil {
@@ -1594,7 +1626,6 @@ func (b *Talkkonnect) commandKeyF3(subCommand string) {
 		origMuted = true
 	}
 
-
 	if origMuted {
 		err := volume.Unmute(OutputDevice)
 
@@ -1946,8 +1977,8 @@ func (b *Talkkonnect) commandKeyCtrlC() {
 }
 
 func (b *Talkkonnect) commandKeyCtrlD() {
-        buf := make([]byte, 1<<16)
-        stackSize := runtime.Stack(buf, true)
+	buf := make([]byte, 1<<16)
+	stackSize := runtime.Stack(buf, true)
 	var debug bytes.Buffer
 	debug.WriteString(string(buf[0:stackSize]))
 	scanner := bufio.NewScanner(&debug)
@@ -1960,7 +1991,6 @@ func (b *Talkkonnect) commandKeyCtrlD() {
 	}
 	log.Println("--")
 }
-
 
 func (b *Talkkonnect) commandKeyCtrlE() {
 	log.Println("--")
@@ -2437,7 +2467,7 @@ func (b *Talkkonnect) BackLightTimer() {
 
 	BackLightTime = *BackLightTimePtr
 
-	if TargetBoard != "rpi" || LCDBackLightTimerEnabled == false ||  OLEDEnabled == false {
+	if TargetBoard != "rpi" || LCDBackLightTimerEnabled == false || OLEDEnabled == false {
 		return
 	}
 
@@ -2445,28 +2475,6 @@ func (b *Talkkonnect) BackLightTimer() {
 
 	//log.Printf("debug: LCD Backlight Timer Address %v", BackLightTime, " On\n")
 	b.LEDOn(b.BackLightLED)
-
-	go func() {
-		<-BackLightTime.C
-		//log.Printf("debug: LCD Backlight Timer Address %v", BackLightTime, " Off Timed Out After", LCDBackLightTimeoutSecs, " Seconds\n")
-		LCDIsDark = true
-		time.Sleep(100 * time.Millisecond)
-		if LCDInterfaceType == "parallel" {
-			b.LEDOff(b.BackLightLED)
-		}
-		if LCDInterfaceType == "i2c" {
-			lcd := hd44780.NewI2C4bit(LCDI2CAddress)
-			if err := lcd.Open(); err != nil {
-				log.Println("alert: Can't open lcd: " + err.Error())
-				return
-			}
-			lcd.ToggleBacklight()
-		}
-		if OLEDInterfacetype == "i2c" {
-			Oled.DisplayOff()
-			LCDIsDark = true
-		}
-	}()
 }
 
 func (b *Talkkonnect) TxLockTimer() {

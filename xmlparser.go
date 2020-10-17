@@ -48,8 +48,8 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.47.35"
-	talkkonnectReleased string = "October 13 2020"
+	talkkonnectVersion  string = "1.47.36"
+	talkkonnectReleased string = "October 17 2020"
 )
 
 var (
@@ -291,7 +291,7 @@ var (
 	LCDInterfaceType         string
 	LCDI2CAddress            uint8
 	LCDBackLightTimerEnabled bool
-	LCDBackLightTimeoutSecs  int
+	LCDBackLightTimeoutSecs  time.Duration
 	LCDBackLightLEDPin       int
 	LCDRSPin                 int
 	LCDEPin                  int
@@ -1286,7 +1286,7 @@ func readxmlconfig(file string) error {
 	LCDInterfaceType = document.Global.Hardware.LCD.LCDInterfaceType
 	LCDI2CAddress = document.Global.Hardware.LCD.LCDI2CAddress
 	LCDBackLightTimerEnabled = document.Global.Hardware.LCD.LCDBackLightTimerEnabled
-	LCDBackLightTimeoutSecs = document.Global.Hardware.LCD.LCDBackLightTimeoutSecs
+	LCDBackLightTimeoutSecs = time.Duration(document.Global.Hardware.LCD.LCDBackLightTimeoutSecs)
 
 	// my stupid work arround for null uint xml unmarshelling problem with numbers so use strings and convert it 2 times
 	temp13, _ := strconv.ParseUint(document.Global.Hardware.LCD.BackLightLEDPin, 10, 64)

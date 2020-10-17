@@ -277,12 +277,12 @@ func (b *Talkkonnect) Init() {
 
 		log.Println("info: Backlight Timer Enabled by Config")
 		BackLightTime = *BackLightTimePtr
-		BackLightTime = time.NewTicker(5 * time.Second)
+		BackLightTime = time.NewTicker(LCDBackLightTimeoutSecs * time.Second)
 
 		go func() {
 			for {
 				<-BackLightTime.C
-				log.Println("debug: LCD Backlight Ticker Timed Out After ", LCDBackLightTimeoutSecs," Seconds")
+				log.Printf("debug: LCD Backlight Ticker Timed Out After %d Seconds", LCDBackLightTimeoutSecs)
 				LCDIsDark = true
 				if LCDInterfaceType == "parallel" {
 					b.LEDOff(b.BackLightLED)
@@ -295,7 +295,7 @@ func (b *Talkkonnect) Init() {
 					}
 					lcd.ToggleBacklight()
 				}
-				if OLEDInterfacetype == "i2c" {
+				if OLEDEnabled == true && OLEDInterfacetype == "i2c" {
 					Oled.DisplayOff()
 					LCDIsDark = true
 				}

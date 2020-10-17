@@ -360,6 +360,11 @@ func (b *Talkkonnect) Init() {
 
 	b.BackLightTimer()
 
+	if LCDEnabled == true {
+		b.LEDOn(b.BackLightLED)
+		LCDIsDark = false
+	}
+
 	if OLEDEnabled == true {
 		Oled.DisplayOn()
 		LCDIsDark = false
@@ -2467,14 +2472,20 @@ func (b *Talkkonnect) BackLightTimer() {
 
 	BackLightTime = *BackLightTimePtr
 
-	if TargetBoard != "rpi" || LCDBackLightTimerEnabled == false || OLEDEnabled == false {
+	if TargetBoard != "rpi" || (LCDBackLightTimerEnabled == false && OLEDEnabled == false && LCDEnabled == false) {
 		return
+	}
+
+	if LCDEnabled == true {
+		b.LEDOn(b.BackLightLED)
+	}
+
+	if OLEDEnabled == true {
+		Oled.DisplayOn()
 	}
 
 	BackLightTime.Reset(time.Duration(LCDBackLightTimeoutSecs) * time.Second)
 
-	//log.Printf("debug: LCD Backlight Timer Address %v", BackLightTime, " On\n")
-	b.LEDOn(b.BackLightLED)
 }
 
 func (b *Talkkonnect) TxLockTimer() {

@@ -48,7 +48,7 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.47.36"
+	talkkonnectVersion  string = "1.47.37"
 	talkkonnectReleased string = "October 17 2020"
 )
 
@@ -67,6 +67,7 @@ var (
 	IsConnected      bool = false
 	source                = openal.NewSource()
 	StartTime             = time.Now()
+ 	BufferToOpenALCounter = 0
 )
 
 //account settings

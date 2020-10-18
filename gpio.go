@@ -33,10 +33,7 @@ import (
 	"github.com/stianeikeland/go-rpio"
 	"github.com/talkkonnect/gpio"
 	"log"
-//	"os"
-//	"os/exec"
 	"time"
-//	hd44780 "github.com/talkkonnect/go-hd44780"
 )
 
 var ledpin = 0
@@ -113,7 +110,7 @@ func (b *Talkkonnect) initGPIO() {
 								if isTx {
 									isTx = false
 									b.TransmitStop(true)
-									time.Sleep(750 * time.Millisecond)
+									time.Sleep(250 * time.Millisecond)
 									if TxCounter {
 										txcounter++
 										log.Println("info: Tx Button Count ", txcounter)
@@ -125,13 +122,13 @@ func (b *Talkkonnect) initGPIO() {
 								if !isTx {
 									isTx = true
 									b.TransmitStart()
-									time.Sleep(750 * time.Millisecond)
+									time.Sleep(250 * time.Millisecond)
 								}
 							}
 						}
 					}
 				} else {
-					time.Sleep(2 * time.Second)
+					time.Sleep(1 * time.Second)
 				}
 			}
 		}()
@@ -184,7 +181,7 @@ func (b *Talkkonnect) initGPIO() {
 						}
 					}
 				} else {
-					time.Sleep(2 * time.Second)
+					time.Sleep(1 * time.Second)
 				}
 			}
 		}()
@@ -212,7 +209,7 @@ func (b *Talkkonnect) initGPIO() {
 
 					}
 				} else {
-					time.Sleep(2 * time.Second)
+					time.Sleep(1 * time.Second)
 				}
 			}
 		}()
@@ -239,7 +236,7 @@ func (b *Talkkonnect) initGPIO() {
 						}
 					}
 				} else {
-					time.Sleep(2 * time.Second)
+					time.Sleep(1 * time.Second)
 				}
 			}
 		}()
@@ -267,7 +264,7 @@ func (b *Talkkonnect) initGPIO() {
 						}
 					}
 				} else {
-					time.Sleep(2 * time.Second)
+					time.Sleep(1 * time.Second)
 				}
 			}
 		}()
@@ -296,7 +293,7 @@ func (b *Talkkonnect) initGPIO() {
 						time.Sleep(200 * time.Millisecond)
 					}
 				} else {
-					time.Sleep(2 * time.Second)
+					time.Sleep(1 * time.Second)
 				}
 			}
 		}()
@@ -325,7 +322,7 @@ func (b *Talkkonnect) initGPIO() {
 						}
 					}
 				} else {
-					time.Sleep(2 * time.Second)
+					time.Sleep(1 * time.Second)
 				}
 			}
 		}()

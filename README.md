@@ -146,6 +146,9 @@ To get the newer versions of golang used for this project I suggest installing a
 To install GO as required for this project on the raspberry pi. First with your browser look on the website https://golang.org/dl/ on your browser and choose the latest version for the 
 arm archecture. At the time of this writing the version is go1.14.5.linux-armv6l.tar.gz.
 
+Please Note that if you use apt-get to install golang instead of follow the recommended instructions in this blog you will get the following error when compiling 
+BackLightTime.Reset undefined (type * time.Ticker has no field or method Reset) 
+
 As root user Get the link and use wget to download the binary to your talkkonnect
 
 ` cd /usr/local `

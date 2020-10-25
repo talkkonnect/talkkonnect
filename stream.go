@@ -52,6 +52,7 @@ var (
 	LastTime         = now.Unix()
 	debuglevel       = 2
 	emptyBufs        = openal.NewBuffers(16)
+	StreamCounter = 0
 )
 
 type Stream struct {
@@ -147,7 +148,14 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 		LEDOffFunc(BackLightLED)
 	}
 
+	// Work arround for leaking killing leaky go routines as users connect
+	StreamCounter++
 	go func() {
+		if StreamCounter > 2 {
+			StreamCounter--
+			return
+		}
+
 		source = openal.NewSource()
 		emptyBufs = openal.NewBuffers(16)
 

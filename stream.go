@@ -151,7 +151,7 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 	// Work arround for leaking killing leaky go routines as users connect
 	StreamCounter++
 	go func() {
-		if StreamCounter > 2 {
+		if StreamCounter > 1 {
 			StreamCounter--
 			return
 		}

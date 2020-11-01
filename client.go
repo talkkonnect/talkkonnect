@@ -159,7 +159,7 @@ func PreInit0(file string) {
 		colog.SetFlags(log.Ldate | log.Ltime)
 	}
 
-	if Logging == "screenwithlineno" {
+	if Logging == "screenwithlineno" ||  Logging == "screenandfilewithlineno" {
 		colog.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 	}
 
@@ -259,6 +259,13 @@ func (b *Talkkonnect) Init() {
 		log.Println("debug: Logging is set to: ", Logging)
 		wrt := io.MultiWriter(os.Stdout, f)
 		colog.SetFlags(log.Ldate | log.Ltime)
+		colog.SetOutput(wrt)
+	}
+
+	if Logging == "screenandfilewithlineno" {
+		log.Println("debug: Logging is set to: ", Logging)
+		wrt := io.MultiWriter(os.Stdout, f)
+		colog.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 		colog.SetOutput(wrt)
 	}
 

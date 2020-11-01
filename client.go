@@ -325,7 +325,7 @@ func (b *Talkkonnect) Init() {
 
 	pstream = gumbleffmpeg.New(b.Client, gumbleffmpeg.SourceFile(""), 0)
 
-	if HeartBeatEnabled && TargetBoard == "rpi" {
+	if (HeartBeatEnabled || VoiceActivityLEDPin > 0) && (TargetBoard == "rpi") {
 		HeartBeat := time.NewTicker(time.Duration(PeriodmSecs) * time.Millisecond)
 
 		go func() {
@@ -333,10 +333,16 @@ func (b *Talkkonnect) Init() {
 				timer1 := time.NewTimer(time.Duration(LEDOnmSecs) * time.Millisecond)
 				timer2 := time.NewTimer(time.Duration(LEDOffmSecs) * time.Millisecond)
 				<-timer1.C
-				b.LEDOn(b.HeartBeatLED)
+				if HeartBeatEnabled {
+					b.LEDOn(b.HeartBeatLED)
+				}
 				<-timer2.C
-				b.LEDOff(b.HeartBeatLED)
-
+				if HeartBeatEnabled {
+					b.LEDOff(b.HeartBeatLED)
+				}
+				if VoiceActivityLEDPin > 0 {
+					LEDOffFunc(VoiceActivityLED)
+				}
 				if KillHeartBeat == true {
 					HeartBeat.Stop()
 				}

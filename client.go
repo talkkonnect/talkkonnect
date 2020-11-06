@@ -155,11 +155,30 @@ func PreInit0(file string) {
 	colog.Register()
 	colog.SetOutput(os.Stdout)
 
+	switch Loglevel {
+	case "trace":
+		colog.SetDefaultLevel(colog.LTrace)
+	case "debug":
+		colog.SetDefaultLevel(colog.LDebug)
+	case "info":
+		colog.SetDefaultLevel(colog.LInfo)
+	case "warning":
+		colog.SetDefaultLevel(colog.LWarning)
+	case "error":
+		colog.SetDefaultLevel(colog.LError)
+	case "alert":
+		colog.SetDefaultLevel(colog.LAlert)
+	default:
+		colog.SetDefaultLevel(colog.LInfo)
+	}
+
+	log.Println("debug: Loglevel Set to ", Loglevel)
+
 	if Logging == "screen" {
 		colog.SetFlags(log.Ldate | log.Ltime)
 	}
 
-	if Logging == "screenwithlineno" ||  Logging == "screenandfilewithlineno" {
+	if Logging == "screenwithlineno" || Logging == "screenandfilewithlineno" {
 		colog.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 	}
 
@@ -613,7 +632,6 @@ func (b *Talkkonnect) OpenStream() {
 	if ServerHop {
 		log.Println("warn: Server Hop Requested Will Now Destroy Old Server Stream")
 		b.Stream.Destroy()
-		//here
 		var participantCount = len(b.Client.Self.Channel.Users)
 
 		log.Println("info: Current Channel ", b.Client.Self.Channel.Name, " has (", participantCount, ") participants")

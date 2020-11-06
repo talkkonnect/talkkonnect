@@ -51,6 +51,7 @@
         <outputdevice>Speaker</outputdevice> <!-- Set Output Device to Speaker, Master, Headphone or whatever your OS/Alsa Detects as the Master Sound Card Device for Output in alsamixer -->
         <logfilenameandpath>/var/log/talkkonnect.log</logfilenameandpath> <!-- full path to writeable log file -->
         <logging>screenwithlineno</logging>    <!--set logging to screen if screen only desired otherwise leave it as blank and talkkonnect will log to both screen and logfile -->
+        <loglevel>info</loglevel>    <!--set the level of logging verbosity from trace, debug, info, warning, error, alert recommended setting is info -->
         <daemonize>false</daemonize> <!-- this feature is not implemented yet -->
         <cancellablestream>true</cancellablestream> <!-- Set to true if you allow others to stop your streaming upon keying up -->
 	<simplexwithmute>false</simplexwithmute>
@@ -207,21 +208,21 @@
       <!-- Printout Read Varaibles from XML Config For Debugging When Pressing Ctrl-X (Very useful for XML debugging) -->
       <printvariables>
         <printaccount>false</printaccount>
-        <printlogging>false</printlogging>
+        <printlogging>true</printlogging>
         <printprovisioning>false</printprovisioning>
         <printbeacon>false</printbeacon>
         <printtts>false</printtts>
         <printsmtp>false</printsmtp>
         <printsounds>true</printsounds>
         <printtxtimeout>false</printtxtimeout>
-        <printhttpapi>true</printhttpapi>
+        <printhttpapi>false</printhttpapi>
         <printtargetboard>false</printtargetboard>
         <printleds>false</printleds>
         <printheartbeat>false</printheartbeat>
         <printbuttons>false</printbuttons>
         <printcomment>false</printcomment>
         <printlcd>false</printlcd>
-        <printoled>true</printoled>
+        <printoled>false</printoled>
         <printgps>false</printgps>
         <printpanic>false</printpanic>
       </printvariables>

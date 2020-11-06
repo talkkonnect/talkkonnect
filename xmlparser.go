@@ -48,8 +48,8 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.48.04"
-	talkkonnectReleased string = "November 01 2020"
+	talkkonnectVersion  string = "1.49.01"
+	talkkonnectReleased string = "November 06 2020"
 )
 
 var (
@@ -88,6 +88,7 @@ var (
 	OutputDevice       string = "PCM"
 	LogFilenameAndPath string
 	Logging            string = "screen"
+	Loglevel           string = "info"
 	Daemonize          bool
 	SimplexWithMute    bool = true
 	TxCounter          bool
@@ -433,6 +434,7 @@ type Settings struct {
 	OutputDevice       string   `xml:"outputdevice"`
 	LogFilenameAndPath string   `xml:"logfilenameandpath"`
 	Logging            string   `xml:"logging"`
+	Loglevel           string   `xml:"loglevel"`
 	Daemonize          bool     `xml:"daemonize"`
 	CancellableStream  bool     `xml:"cancellablestream"`
 	SimplexWithMute    bool     `xml:"simplexwithmute"`
@@ -858,6 +860,10 @@ func readxmlconfig(file string) error {
 	OutputDevice = document.Global.Software.Settings.OutputDevice
 	LogFilenameAndPath = document.Global.Software.Settings.LogFilenameAndPath
 	Logging = document.Global.Software.Settings.Logging
+
+	if document.Global.Software.Settings.Loglevel == "trace" || document.Global.Software.Settings.Loglevel == "debug" || document.Global.Software.Settings.Loglevel == "info" || document.Global.Software.Settings.Loglevel == "warning" || document.Global.Software.Settings.Loglevel == "error" || document.Global.Software.Settings.Loglevel == "alert" { 
+		Loglevel = document.Global.Software.Settings.Loglevel
+	}
 
 	if strings.ToLower(Logging) != "screen" && LogFilenameAndPath == "" {
 		LogFilenameAndPath = defaultLogPath
@@ -1406,6 +1412,7 @@ func printxmlconfig() {
 		log.Println("info: Output Device     " + OutputDevice)
 		log.Println("info: Log File          " + LogFilenameAndPath)
 		log.Println("info: Logging           " + Logging)
+		log.Println("info: Loglevel          " + Loglevel)
 		log.Println("info: Daemonize         " + fmt.Sprintf("%t", Daemonize))
 		log.Println("info: CancellableStream " + fmt.Sprintf("%t", CancellableStream))
 		log.Println("info: SimplexWithMute   " + fmt.Sprintf("%t", SimplexWithMute))

@@ -196,7 +196,7 @@ export GOBIN=/home/talkkonnect/bin
 
 ````
 cd $GOPATH 
-go get github.com/talkkonnect/talkkonnect 
+go get -v github.com/talkkonnect/talkkonnect 
 cd $GOPATH/src/github.com/talkkonnect/talkkonnect
 ````
 

@@ -1949,6 +1949,11 @@ func (b *Talkkonnect) commandKeyF11() {
 
 	}
 
+	if b.IsTransmitting {
+		log.Println("info: talkkonnect was already transmitting will not stop transmitting and start the stream")
+		b.TransmitStop(false)
+	}
+
 	IsPlayStream = !IsPlayStream
 	NowStreaming = IsPlayStream
 

@@ -25,6 +25,7 @@
 
 
 ## Installation BASH Script for talkkonnect on fresh install of raspbian
+## Copy this file to /root folder and run it from there!
 ## Please RUN this Script as root user
 
 SERVICE="talkkonnect"

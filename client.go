@@ -197,6 +197,8 @@ func PreInit0(file string, ServerIndex string) {
 		}
 	}
 
+	AccountIndex, err = strconv.Atoi(ServerIndex)
+
 	b := Talkkonnect{
 		Config:      gumble.NewConfig(),
 		Name:        Name[AccountIndex],

@@ -42,6 +42,8 @@ import (
 
 var cpuprofile = flag.String("cpuprofile", "", "write cpu profile `file`")
 var memprofile = flag.String("memprofile", "", "write memory profile to `file`")
+var serverindex = flag.String("serverindex", "0", "jump to server index [n]")
+
 
 func main() {
 
@@ -73,7 +75,7 @@ func main() {
         f.Close()
     }
 
-	talkkonnect.PreInit0(*config)
+	talkkonnect.PreInit0(*config, *serverindex)
 
 
 
@@ -86,6 +88,7 @@ func talkkonnectusage() {
 	fmt.Println("For more information visit http://www.talkkonnect.com and github.com/talkkonnect")
 	fmt.Println("---------------------------------------------------------------------------------------")
 	fmt.Println("-config=/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/talkkonnect.xml")
+	fmt.Println("-serverindex=[n] for the index of the enabled server to connect to in XML file")
 	fmt.Println("-version for the version")
 	fmt.Println("-help for this screen")
 }

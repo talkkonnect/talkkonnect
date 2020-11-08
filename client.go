@@ -138,7 +138,7 @@ func reset() {
 	term.Sync()
 }
 
-func PreInit0(file string) {
+func PreInit0(file string, ServerIndex string) {
 	err := term.Init()
 	if err != nil {
 		log.Println("Cannot Initalize Terminal Error: ", err)
@@ -331,7 +331,7 @@ func (b *Talkkonnect) Init() {
 		log.Println("info: Backlight Timer Disabled by Config")
 	}
 
-	talkkonnectBanner()
+	talkkonnectBanner("\u001b[44;1m") // add blue background to banner reference https://www.lihaoyi.com/post/BuildyourownCommandLinewithANSIescapecodes.html#background-colors
 
 	err = volume.Unmute(OutputDevice)
 	if err != nil {
@@ -491,7 +491,7 @@ keyPressListenerLoop:
 			case term.KeyF12:
 				b.commandKeyF12()
 			case term.KeyCtrlC:
-				talkkonnectAcknowledgements()
+				talkkonnectAcknowledgements("\u001b[44;1m") // add blue background to banner reference https://www.lihaoyi.com/post/BuildyourownCommandLinewithANSIescapecodes.html#background-colors
 				b.commandKeyCtrlC()
 			case term.KeyCtrlD:
 				b.commandKeyCtrlD()
@@ -1622,7 +1622,7 @@ func (b *Talkkonnect) commandKeyDel() {
 
 	}
 
-	b.talkkonnectMenu()
+	b.talkkonnectMenu("\u001b[44;1m") // add blue background to banner reference https://www.lihaoyi.com/post/BuildyourownCommandLinewithANSIescapecodes.html#background-colors
 	b.ParticipantLEDUpdate(true)
 	log.Println("--")
 }
@@ -2437,7 +2437,7 @@ func (b *Talkkonnect) commandKeyCtrlS() {
 func (b *Talkkonnect) commandKeyCtrlT() {
 	log.Println("--")
 	log.Println("info: Ctrl-T Thanks and Acknowledgements Screen Request ")
-	talkkonnectAcknowledgements()
+	talkkonnectAcknowledgements("\u001b[44;1m") // add blue background to banner reference https://www.lihaoyi.com/post/BuildyourownCommandLinewithANSIescapecodes.html#background-colors
 	log.Println("--")
 }
 

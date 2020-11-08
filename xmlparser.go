@@ -48,7 +48,7 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.49.03"
+	talkkonnectVersion  string = "1.49.04"
 	talkkonnectReleased string = "November 08 2020"
 )
 
@@ -388,373 +388,318 @@ var (
 
 type Document struct {
 	XMLName  xml.Name `xml:"document"`
+	Text     string   `xml:",chardata"`
 	Type     string   `xml:"type,attr"`
-	Accounts Accounts `xml:"accounts"`
-	Global   Global   `xml:"global"`
-}
-type Accounts struct {
-	XMLName  xml.Name  `xml:"accounts"`
-	Accounts []Account `xml:"account"`
-}
-
-type Account struct {
-	XMLName       xml.Name `xml:"account"`
-	Name          string   `xml:"name,attr"`
-	Default       bool     `xml:"default,attr"`
-	ServerAndPort string   `xml:"serverandport"`
-	UserName      string   `xml:"username"`
-	Password      string   `xml:"password"`
-	Insecure      bool     `xml:"insecure"`
-	Certificate   string   `xml:"certificate"`
-	Channel       string   `xml:"channel"`
-	Ident         string   `xml:"ident"`
-}
-
-type Global struct {
-	XMLName  xml.Name `xml:"global"`
-	Software Software `xml:"software"`
-	Hardware Hardware `xml:"hardware"`
-}
-
-type Software struct {
-	XMLName          xml.Name         `xml:"software"`
-	AutoProvisioning AutoProvisioning `xml:"autoprovisioning"`
-	Beacon           Beacon           `xml:"beacon"`
-	Settings         Settings         `xml:"settings"`
-	Smtp             Smtp             `xml:"smtp"`
-	Sounds           Sounds           `xml:"sounds"`
-	TxTimeOut        TxTimeOut        `xml:"txtimeout"`
-	API              API              `xml:"api"`
-	PrintVariables   PrintVariables   `xml:"printvariables"`
-	TTS              TTS              `xml:"tts"`
-}
-
-type Settings struct {
-	XMLName            xml.Name `xml:"settings"`
-	OutputDevice       string   `xml:"outputdevice"`
-	LogFilenameAndPath string   `xml:"logfilenameandpath"`
-	Logging            string   `xml:"logging"`
-	Loglevel           string   `xml:"loglevel"`
-	Daemonize          bool     `xml:"daemonize"`
-	CancellableStream  bool     `xml:"cancellablestream"`
-	SimplexWithMute    bool     `xml:"simplexwithmute"`
-	TxCounter          bool     `xml:"txcounter"`
-}
-
-type AutoProvisioning struct {
-	XMLName      xml.Name `xml:"autoprovisioning"`
-	APEnabled    bool     `xml:"enabled,attr"`
-	TkID         string   `xml:"tkid"`
-	URL          string   `xml:"url"`
-	SaveFilePath string   `xml:"savefilepath"`
-	SaveFilename string   `xml:"savefilename"`
-}
-
-type Beacon struct {
-	XMLName               xml.Name `xml:"beacon"`
-	BeaconEnabled         bool     `xml:"enabled,attr"`
-	BeaconTimerSecs       int      `xml:"beacontimersecs"`
-	BeaconFilenameAndPath string   `xml:"beaconfileandpath"`
-	BVolume               float32  `xml:"volume"`
-}
-
-type TTS struct {
-	XMLName                              xml.Name `xml:"tts"`
-	TTSEnabled                           bool     `xml:"enabled,attr"`
-	TTSVolumeLevel                       int      `xml:"volumelevel"`
-	TTSParticipants                      bool     `xml:"participants"`
-	TTSChannelUp                         bool     `xml:"channelup"`
-	TTSChannelUpFilenameAndPath          string   `xml:"channelupfilenameandpath"`
-	TTSChannelDown                       bool     `xml:"channeldown"`
-	TTSChannelDownFilenameAndPath        string   `xml:"channeldownfilenameandpath"`
-	TTSMuteUnMuteSpeaker                 bool     `xml:"muteunmutespeaker"`
-	TTSMuteUnMuteSpeakerFilenameAndPath  string   `xml:"muteunmutespeakerfilenameandpath"`
-	TTSCurrentVolumeLevel                bool     `xml:"currentvolumelevel"`
-	TTSCurrentVolumeLevelFilenameAndPath string   `xml:"currentvolumelevelfilenameandpath"`
-	TTSDigitalVolumeUp                   bool     `xml:"digitalvolumeup"`
-	TTSDigitalVolumeUpFilenameAndPath    string   `xml:"digitalvolumeupfilenameandpath"`
-	TTSDigitalVolumeDown                 bool     `xml:"digitalvolumedown"`
-	TTSDigitalVolumeDownFilenameAndPath  string   `xml:"digitalvolumedownfilenameandpath"`
-	TTSListServerChannels                bool     `xml:"listserverchannels"`
-	TTSListServerChannelsFilenameAndPath string   `xml:"listserverchannelsfilenameandpath"`
-	TTSStartTransmitting                 bool     `xml:"starttransmitting"`
-	TTSStartTransmittingFilenameAndPath  string   `xml:"starttransmittingfilenameandpath"`
-	TTSStopTransmitting                  bool     `xml:"stoptransmitting"`
-	TTSStopTransmittingFilenameAndPath   string   `xml:"stoptransmittingfilenameandpath"`
-	TTSListOnlineUsers                   bool     `xml:"listonlineusers"`
-	TTSListOnlineUsersFilenameAndPath    string   `xml:"listonlineusersfilenameandpath"`
-	TTSPlayChimes                        bool     `xml:"playchimes"`
-	TTSPlayChimesFilenameAndPath         string   `xml:"playchimesfilenameandpath"`
-	TTSRequestGpsPosition                bool     `xml:"requestgpsposition"`
-	TTSRequestGpsPositionFilenameAndPath string   `xml:"requestgpspositionfilenameandpath"`
-	TTSNextServer                        bool     `xml:"nextserver"`
-	TTSNextServerFilenameAndPath         string   `xml:"nextserverfilenameandpath"`
-	TTSPreviousServer                    bool     `xml:"previousserver"`
-	TTSPreviousServerFilenameAndPath     string   `xml:"previousserverfilenameandpath"`
-	TTSPanicSimulation                   bool     `xml:"panicsimulation"`
-	TTSPanicSimulationFilenameAndPath    string   `xml:"panicsimulationfilenameandpath"`
-	TTSPrintXmlConfig                    bool     `xml:"printxmlconfig"`
-	TTSPrintXmlConfigFilenameAndPath     string   `xml:"printxmlconfigfilenameandpath"`
-	TTSSendEmail                         bool     `xml:"sendemail"`
-	TTSSendEmailFilenameAndPath          string   `xml:"sendemailfilenameandpath"`
-	TTSDisplayMenu                       bool     `xml:"displaymenu"`
-	TTSDisplayMenuFilenameAndPath        string   `xml:"displaymenufilenameandpath"`
-	TTSQuitTalkkonnect                   bool     `xml:"quittalkkonnect"`
-	TTSQuitTalkkonnectFilenameAndPath    string   `xml:"quittalkkonnectfilenameandpath"`
-	TTSTalkkonnectLoaded                 bool     `xml:"talkkonnectloaded"`
-	TTSTalkkonnectLoadedFilenameAndPath  string   `xml:"talkkonnectloadedfilenameandpath"`
-	TTSPingServers                       bool     `xml:"pingservers"`
-	TTSPingServersFilenameAndPath        string   `xml:"pingserversfilenameandpath"`
-}
-
-type Smtp struct {
-	XMLName            xml.Name `xml:"smtp"`
-	EmailEnabled       bool     `xml:"enabled,attr"`
-	EmailUsername      string   `xml:"username"`
-	EmailPassword      string   `xml:"password"`
-	EmailReceiver      string   `xml:"receiver"`
-	EmailSubject       string   `xml:"subject"`
-	EmailMessage       string   `xml:"message"`
-	EmailGpsDateTime   bool     `xml:"gpsdatetime"`
-	EmailGpsLatLong    bool     `xml:"gpslatlong"`
-	EmailGoogleMapsURL bool     `xml:"googlemapsurl"`
-}
-
-type Sounds struct {
-	XMLName       xml.Name      `xml:"sounds"`
-	Event         Event         `xml:"event"`
-	Alert         Alert         `xml:"alert"`
-	IncommingBeep IncommingBeep `xml:"incommingbeep"`
-	RogerBeep     RogerBeep     `xml:"rogerbeep"`
-	RepeaterTone  RepeaterTone  `xml:"repeatertone"`
-	Chimes        Chimes        `xml:"chimes"`
-}
-
-type API struct {
-	XMLName               xml.Name `xml:"api"`
-	APIEnabled            bool     `xml:"enabled,attr"`
-	APIListenPort         string   `xml:"apilistenport"`
-	APIDisplayMenu        bool     `xml:"displaymenu"`
-	APIChannelUp          bool     `xml:"channelup"`
-	APIChannelDown        bool     `xml:"channeldown"`
-	APIMute               bool     `xml:"mute"`
-	APICurrentVolumeLevel bool     `xml:"currentvolumelevel"`
-	APIDigitalVolumeUp    bool     `xml:"digitalvolumeup"`
-	APIDigitalVolumeDown  bool     `xml:"digitalvolumedown"`
-	APIListServerChannels bool     `xml:"listserverchannels"`
-	APIStartTransmitting  bool     `xml:"starttransmitting"`
-	APIStopTransmitting   bool     `xml:"stoptransmitting"`
-	APIListOnlineUsers    bool     `xml:"listonlineusers"`
-	APIPlayChimes         bool     `xml:"playchimes"`
-	APIRequestGpsPosition bool     `xml:"requestgpsposition"`
-	APIEmailEnabled       bool     `xml:"sendemail"`
-	APINextServer         bool     `xml:"nextserver"`
-	APIPreviousServer     bool     `xml:"previousserver"`
-	APIPanicSimulation    bool     `xml:"panicsimulation"`
-	APIScanChannels       bool     `xml:"scanchannels"`
-	APIDisplayVersion     bool     `xml:"displayversion"`
-	APIClearScreen        bool     `xml:"clearscreen"`
-	APIPingServersEnabled bool     `xml:"pingservers"`
-	APIRepeatTxLoopTest   bool     `xml:"repeattxlooptest"`
-	APIPrintXmlConfig     bool     `xml:"printxmlconfig"`
-}
-
-type PrintVariables struct {
-	XMLName           xml.Name `xml:"printvariables"`
-	PrintAccount      bool     `xml:"printaccount"`
-	PrintLogging      bool     `xml:"printlogging"`
-	PrintProvisioning bool     `xml:"printprovisioning"`
-	PrintBeacon       bool     `xml:"printbeacon"`
-	PrintTTS          bool     `xml:"printtss"`
-	PrintSMTP         bool     `xml:"printsmtp"`
-	PrintSounds       bool     `xml:"printsounds"`
-	PrintTxTimeout    bool     `xml:"printtxtimeout"`
-	PrintHTTPAPI      bool     `xml:"printhttpapi"`
-	PrintTargetboard  bool     `xml:"printtargetboard"`
-	PrintLeds         bool     `xml:"printleds"`
-	PrintHeartbeat    bool     `xml:"printheartbeat"`
-	PrintButtons      bool     `xml:"printbuttons"`
-	PrintComment      bool     `xml:"printcomment"`
-	PrintLcd          bool     `xml:"printlcd"`
-	PrintOled         bool     `xml:"printoled"`
-	PrintGps          bool     `xml:"printgps"`
-	PrintPanic        bool     `xml:"printpanic"`
-	PrintAudioRecord  bool     `xml:"printaudiorecord"` // New
-}
-
-type Event struct {
-	XMLName          xml.Name `xml:"event"`
-	EEnabled         bool     `xml:"enabled,attr"`
-	EFilenameAndPath string   `xml:"filenameandpath"`
-}
-
-type Alert struct {
-	XMLName          xml.Name `xml:"alert"`
-	AEnabled         bool     `xml:"enabled,attr"`
-	AFilenameAndPath string   `xml:"filenameandpath"`
-	AVolume          float32  `xml:"volume"`
-}
-
-type IncommingBeep struct {
-	XMLName          xml.Name `xml:"incommingbeep"`
-	IEnabled         bool     `xml:"enabled,attr"`
-	IFilenameAndPath string   `xml:"filenameandpath"`
-	IBeepVolume      float32  `xml:"volume"`
-}
-
-type RogerBeep struct {
-	XMLName          xml.Name `xml:"rogerbeep"`
-	REnabled         bool     `xml:"enabled,attr"`
-	RFilenameAndPath string   `xml:"filenameandpath"`
-	RBeepVolume      float32  `xml:"volume"`
-}
-
-type RepeaterTone struct {
-	XMLName                     xml.Name `xml:"repeatertone"`
-	RTEnabled                   bool     `xml:"enabled,attr"`
-	RepeaterToneFilenameAndPath string   `xml:"filenameandpath"`
-	RepeaterToneVolume          float32  `xml:"volume"`
-}
-
-type TxTimeOut struct {
-	XMLName          xml.Name `xml:"txtimeout"`
-	TxTimeOutEnabled bool     `xml:"enabled,attr"`
-	TxTimeOutSecs    int      `xml:"txtimeoutsecs"`
-}
-
-type Chimes struct {
-	XMLName          xml.Name `xml:"chimes"`
-	CEnabled         bool     `xml:"enabled,attr"`
-	CFilenameAndPath string   `xml:"filenameandpath"`
-	CVolume          float32  `xml:"volume"`
-}
-
-type Hardware struct {
-	XMLName             xml.Name            `xml:"hardware"`
-	TargetBoard         string              `xml:"targetboard,attr"`
-	Lights              Lights              `xml:"lights"`
-	HeartBeat           HeartBeat           `xml:"heartbeat"`
-	Buttons             Buttons             `xml:"buttons"`
-	Comment             Comment             `xml:"comment"`
-	LCD                 LCD                 `xml:"lcd"`
-	OLED                OLED                `xml:"oled"`
-	GPS                 GPS                 `xml:"gps"`
-	PanicFunction       PanicFunction       `xml:"panicfunction"`
-	AudioRecordFunction AudioRecordFunction `xml:"audiorecordfunction"` //New
-}
-
-type Lights struct {
-	XMLName             xml.Name `xml:"lights"`
-	VoiceActivityLedPin string   `xml:"voiceactivityledpin"`
-	ParticipantsLedPin  string   `xml:"participantsledpin"`
-	TransmitLedPin      string   `xml:"transmitledpin"`
-	OnlineLedPin        string   `xml:"onlineledpin"`
-}
-
-type HeartBeat struct {
-	XMLName          xml.Name `xml:"heartbeat"`
-	HeartBeatEnabled bool     `xml:"enabled,attr"`
-	HeartBeatLEDPin  string   `xml:"heartbeatledpin"`
-	PeriodmSecs      int      `xml:"periodmsecs"`
-	LEDOnmSecs       int      `xml:"ledonmsecs"`
-	LEDOffmSecs      int      `xml:"ledoffmsecs"`
-}
-
-type Buttons struct {
-	XMLName         xml.Name `xml:"buttons"`
-	TxButtonPin     string   `xml:"txbuttonpin"`
-	TxTogglePin     string   `xml:"txtogglepin"`
-	UpButtonPin     string   `xml:"upbuttonpin"`
-	DownButtonPin   string   `xml:"downbuttonpin"`
-	PanicButtonPin  string   `xml:"panicbuttonpin"`
-	ChimesButtonPin string   `xml:"chimesbuttonpin"`
-}
-
-type Comment struct {
-	XMLName           xml.Name `xml:"comment"`
-	CommentButtonPin  string   `xml:"commentbuttonpin"`
-	CommentMessageOff string   `xml:"commentmessageoff"`
-	CommentMessageOn  string   `xml:"commentmessageon"`
-}
-
-type LCD struct {
-	XMLName                  xml.Name `xml:"lcd"`
-	LCDEnabled               bool     `xml:"enabled,attr"`
-	LCDInterfaceType         string   `xml:"lcdinterfacetype"`
-	LCDI2CAddress            uint8    `xml:"lcdi2caddress"`
-	LCDBackLightTimerEnabled bool     `xml:"lcdbacklighttimerenabled"`
-	LCDBackLightTimeoutSecs  int      `xml:"lcdbacklighttimeoutsecs"`
-	BackLightLEDPin          string   `xml:"lcdbacklightpin"`
-	RsPin                    int      `xml:"lcdrspin"`
-	EsPin                    int      `xml:"lcdepin"`
-	D4Pin                    int      `xml:"lcdd4pin"`
-	D5Pin                    int      `xml:"lcdd5pin"`
-	D6Pin                    int      `xml:"lcdd6pin"`
-	D7Pin                    int      `xml:"lcdd7pin"`
-}
-
-type OLED struct {
-	XMLName                     xml.Name `xml:"oled"`
-	OLEDEnabled                 bool     `xml:"enabled,attr"`
-	OLEDInterfacetype           string   `xml:"oledinterfacetype"`
-	OLEDDisplayRows             int      `xml:"oleddisplayrows"`
-	OLEDDisplayColumns          uint8    `xml:"oleddisplaycolumns"`
-	OLEDDefaultI2cBus           int      `xml:"oleddefaulti2cbus"`
-	OLEDDefaultI2cAddress       uint8    `xml:"oleddefaulti2caddress"`
-	OLEDScreenWidth             int      `xml:"oledscreenwidth"`
-	OLEDScreenHeight            int      `xml:"oledscreenheight"`
-	OLEDCommandColumnAddressing int      `xml:"oledcommandcolumnaddressing"`
-	OLEDAddressBasePageStart    int      `xml:"oledaddressbasepagestart"`
-	OLEDCharLength              int      `xml:"oledcharlength"`
-	OLEDStartColumn             int      `xml:"oledstartcolumn"`
-}
-
-type GPS struct {
-	XMLName             xml.Name `xml:"gps"`
-	GpsEnabled          bool     `xml:"enabled,attr"`
-	Port                string   `xml:"port"`
-	Baud                uint     `xml:"baud"`
-	TxData              string   `xml:"txdata"`
-	Even                bool     `xml:"even"`
-	Odd                 bool     `xml:"odd"`
-	Rs485               bool     `xml:"rs485"`
-	Rs485highduringsend bool     `xml:"rs485highduringsend"`
-	Rs485highaftersend  bool     `xml:"rs485highaftersend"`
-	StopBits            uint     `xml:"stopbits"`
-	DataBits            uint     `xml:"databits"`
-	CharTimeOut         uint     `xml:"chartimeout"`
-	MinRead             uint     `xml:"minread"`
-	Rx                  bool     `xml:"rx"`
-}
-
-type PanicFunction struct {
-	XMLName            xml.Name `xml:"panicfunction"`
-	PEnabled           bool     `xml:"enabled,attr"`
-	PMessage           string   `xml:"panicmessage"`
-	PRecursive         string   `xml:"recursivesendmessage"`
-	PFilenameAndPath   string   `xml:"filenameandpath"`
-	PVolume            float32  `xml:"volume"`
-	PSendIdent         bool     `xml:"sendident"`
-	PSendGpsLocation   bool     `xml:"sendgpslocation"`
-	PTxLockEnabled     bool     `xml:"txlockenabled"`
-	PTxlockTimeOutSecs uint     `xml:"txlocktimeoutsecs"`
-}
-
-type AudioRecordFunction struct {
-	XMLName                xml.Name `xml:"audiorecordfunction"` // New
-	AudioRecordEnabled     bool     `xml:"enabled,attr"`        // New
-	AudioRecordOnStart     bool     `xml:"recordonstart"`       // New
-	AudioRecordMode        string   `xml:"recordmode"`          // New
-	AudioRecordTimeout     int64    `xml:"recordtimeout"`       // New
-	AudioRecordFromOutput  string   `xml:"recordfromoutput"`    // New
-	AudioRecordFromInput   string   `xml:"recordfrominput"`     // New
-	AudioRecordMicTimeout  int64    `xml:"recordmictimeout"`    // New
-	AudioRecordSoft        string   `xml:"recordsoft"`          // New
-	AudioRecordSavePath    string   `xml:"recordsavepath"`      // New
-	AudioRecordArchivePath string   `xml:"recordarchivepath"`   // New
-	AudioRecordProfile     string   `xml:"recordprofile"`       // New
-	AudioRecordFileFormat  string   `xml:"recordfileformat"`    // New
-	AudioRecordChunkSize   string   `xml:"recordchunksize"`     // New
+	Accounts struct {
+		Text    string `xml:",chardata"`
+		Account []struct {
+			Text          string `xml:",chardata"`
+			Name          string `xml:"name,attr"`
+			Default       bool   `xml:"default,attr"`
+			ServerAndPort string `xml:"serverandport"`
+			UserName      string `xml:"username"`
+			Password      string `xml:"password"`
+			Insecure      bool   `xml:"insecure"`
+			Certificate   string `xml:"certificate"`
+			Channel       string `xml:"channel"`
+			Ident         string `xml:"ident"`
+		} `xml:"account"`
+	} `xml:"accounts"`
+	Global struct {
+		Text     string `xml:",chardata"`
+		Software struct {
+			Text     string `xml:",chardata"`
+			Settings struct {
+				Text               string `xml:",chardata"`
+				OutputDevice       string `xml:"outputdevice"`
+				LogFilenameAndPath string `xml:"logfilenameandpath"`
+				Logging            string `xml:"logging"`
+				Loglevel           string `xml:"loglevel"`
+				Daemonize          bool   `xml:"daemonize"`
+				CancellableStream  bool   `xml:"cancellablestream"`
+				SimplexWithMute    bool   `xml:"simplexwithmute"`
+				TxCounter          bool   `xml:"txcounter"`
+			} `xml:"settings"`
+			AutoProvisioning struct {
+				Text         string `xml:",chardata"`
+				Enabled      bool   `xml:"enabled,attr"`
+				TkID         string `xml:"tkid"`
+				URL          string `xml:"url"`
+				SaveFilePath string `xml:"savefilepath"`
+				SaveFilename string `xml:"savefilename"`
+			} `xml:"autoprovisioning"`
+			Beacon struct {
+				Text              string  `xml:",chardata"`
+				Enabled           bool    `xml:"enabled,attr"`
+				BeaconTimerSecs   int     `xml:"beacontimersecs"`
+				BeaconFileAndPath string  `xml:"beaconfileandpath"`
+				Volume            float32 `xml:"volume"`
+			} `xml:"beacon"`
+			TTS struct {
+				Text                              string `xml:",chardata"`
+				Enabled                           bool   `xml:"enabled,attr"`
+				VolumeLevel                       int    `xml:"volumelevel"`
+				Participants                      bool   `xml:"participants"`
+				ChannelUp                         bool   `xml:"channelup"`
+				ChannelUpFilenameAndPath          string `xml:"channelupfilenameandpath"`
+				ChannelDown                       bool   `xml:"channeldown"`
+				ChannelDownFilenameAndPath        string `xml:"channeldownfilenameandpath"`
+				MuteUnmuteSpeaker                 bool   `xml:"muteunmutespeaker"`
+				MuteUnmuteSpeakerFilenameAndPath  string `xml:"muteunmutespeakerfilenameandpath"`
+				CurrentVolumeLevel                bool   `xml:"currentvolumelevel"`
+				CurrentVolumeLevelFilenameAndPath string `xml:"currentvolumelevelfilenameandpath"`
+				DigitalVolumeUp                   bool   `xml:"digitalvolumeup"`
+				DigitalVolumeUpFilenameAndPath    string `xml:"digitalvolumeupfilenameandpath"`
+				DigitalVolumeDown                 bool   `xml:"digitalvolumedown"`
+				DigitalVolumeDownFilenameAndPath  string `xml:"digitalvolumedownfilenameandpath"`
+				ListServerChannels                bool   `xml:"listserverchannels"`
+				ListServerChannelsFilenameAndPath string `xml:"listserverchannelsfilenameandpath"`
+				StartTransmitting                 bool   `xml:"starttransmitting"`
+				StartTransmittingFilenameAndPath  string `xml:"starttransmittingfilenameandpath"`
+				StopTransmitting                  bool   `xml:"stoptransmitting"`
+				StopTransmittingFilenameAndPath   string `xml:"stoptransmittingfilenameandpath"`
+				ListOnlineUsers                   bool   `xml:"listonlineusers"`
+				ListOnlineUsersFilenameAndPath    string `xml:"listonlineusersfilenameandpath"`
+				PlayChimes                        bool   `xml:"playchimes"`
+				PlayChimesFilenameAndPath         string `xml:"playchimesfilenameandpath"`
+				RequestGpsPosition                bool   `xml:"requestgpsposition"`
+				RequestGpsPositionFilenameAndPath string `xml:"requestgpspositionfilenameandpath"`
+				NextServer                        bool   `xml:"nextserver"`
+				NextServerFilenameAndPath         string `xml:"nextserverfilenameandpath"`
+				PreviousServer                    bool   `xml:"previousserver"`
+				PreviousServerFilenameAndPath     string `xml:"previousserverfilenameandpath"`
+				PanicSimulation                   bool   `xml:"panicsimulation"`
+				PanicSimulationFilenameAndPath    string `xml:"panicsimulationfilenameandpath"`
+				PrintXmlConfig                    bool   `xml:"printxmlconfig"`
+				PrintXmlConfigFilenameAndPath     string `xml:"printxmlconfigfilenameandpath"`
+				SendEmail                         bool   `xml:"sendemail"`
+				SendEmailFilenameAndPath          string `xml:"sendemailfilenameandpath"`
+				DisplayMenu                       bool   `xml:"displaymenu"`
+				DisplayMenuFilenameAndPath        string `xml:"displaymenufilenameandpath"`
+				QuitTalkkonnect                   bool   `xml:"quittalkkonnect"`
+				QuitTalkkonnectFilenameAndPath    string `xml:"quittalkkonnectfilenameandpath"`
+				TalkkonnectLoaded                 bool   `xml:"talkkonnectloaded"`
+				TalkkonnectLoadedFilenameAndPath  string `xml:"talkkonnectloadedfilenameandpath"`
+				PingServers                       bool   `xml:"pingservers"`
+				PingServersFilenameAndPath        string `xml:"pingserversfilenameandpath"`
+			} `xml:"tts"`
+			SMTP struct {
+				Text          string `xml:",chardata"`
+				Enabled       bool   `xml:"enabled,attr"`
+				Username      string `xml:"username"`
+				Password      string `xml:"password"`
+				Receiver      string `xml:"receiver"`
+				Subject       string `xml:"subject"`
+				Message       string `xml:"message"`
+				GpsDateTime   bool   `xml:"gpsdatetime"`
+				GpsLatLong    bool   `xml:"gpslatlong"`
+				GoogleMapsURL bool   `xml:"googlemapsurl"`
+			} `xml:"smtp"`
+			Sounds struct {
+				Text  string `xml:",chardata"`
+				Event struct {
+					Text            string `xml:",chardata"`
+					Enabled         bool   `xml:"enabled,attr"`
+					FilenameAndPath string `xml:"filenameandpath"`
+				} `xml:"event"`
+				Alert struct {
+					Text            string  `xml:",chardata"`
+					Enabled         bool    `xml:"enabled,attr"`
+					FilenameAndPath string  `xml:"filenameandpath"`
+					Volume          float32 `xml:"volume"`
+				} `xml:"alert"`
+				IncommingBeep struct {
+					Text            string  `xml:",chardata"`
+					Enabled         bool    `xml:"enabled,attr"`
+					FilenameAndPath string  `xml:"filenameandpath"`
+					Volume          float32 `xml:"volume"`
+				} `xml:"incommingbeep"`
+				RogerBeep struct {
+					Text            string  `xml:",chardata"`
+					Enabled         bool    `xml:"enabled,attr"`
+					FilenameAndPath string  `xml:"filenameandpath"`
+					Volume          float32 `xml:"volume"`
+				} `xml:"rogerbeep"`
+				RepeaterTone struct {
+					Text            string  `xml:",chardata"`
+					Enabled         bool    `xml:"enabled,attr"`
+					FilenameAndPath string  `xml:"filenameandpath"`
+					Volume          float32 `xml:"volume"`
+				} `xml:"repeatertone"`
+				Chimes struct {
+					Text            string `xml:",chardata"`
+					Enabled         bool   `xml:"enabled,attr"`
+					FilenameAndPath string `xml:"filenameandpath"`
+					Volume          float32 `xml:"volume"`
+				} `xml:"chimes"`
+			} `xml:"sounds"`
+			TxTimeOut struct {
+				Text          string `xml:",chardata"`
+				Enabled       bool   `xml:"enabled,attr"`
+				TxTimeOutSecs int `xml:"txtimeoutsecs"`
+			} `xml:"txtimeout"`
+			API struct {
+				Text               string `xml:",chardata"`
+				Enabled            bool   `xml:"enabled,attr"`
+				ListenPort         string `xml:"apilistenport"`
+				DisplayMenu        bool   `xml:"displaymenu"`
+				ChannelUp          bool   `xml:"channelup"`
+				ChannelDown        bool   `xml:"channeldown"`
+				Mute               bool   `xml:"mute"`
+				CurrentVolumeLevel bool   `xml:"currentvolumelevel"`
+				DigitalVolumeUp    bool   `xml:"digitalvolumeup"`
+				DigitalVolumeDown  bool   `xml:"digitalvolumedown"`
+				ListServerChannels bool   `xml:"listserverchannels"`
+				StartTransmitting  bool   `xml:"starttransmitting"`
+				StopTransmitting   bool   `xml:"stoptransmitting"`
+				ListOnlineUsers    bool   `xml:"listonlineusers"`
+				PlayChimes         bool   `xml:"playchimes"`
+				RequestGpsPosition bool   `xml:"requestgpsposition"`
+				PreviousServer     bool   `xml:"previousserver"`
+				NextServer         bool   `xml:"nextserver"`
+				PanicSimulation    bool   `xml:"panicsimulation"`
+				ScanChannels       bool   `xml:"scanchannels"`
+				DisplayVersion     bool   `xml:"displayversion"`
+				ClearScreen        bool   `xml:"clearscreen"`
+				RepeatTxLoopTest   bool   `xml:"repeattxlooptest"`
+				PrintXmlConfig     bool   `xml:"printxmlconfig"`
+				SendEmail          bool   `xml:"sendemail"`
+				PingServers        bool   `xml:"pingservers"`
+			} `xml:"api"`
+			PrintVariables struct {
+				Text              string   `xml:",chardata"`
+				PrintAccount      bool     `xml:"printaccount"`
+				PrintLogging      bool     `xml:"printlogging"`
+				PrintProvisioning bool     `xml:"printprovisioning"`
+				PrintBeacon       bool     `xml:"printbeacon"`
+				PrintTTS          bool     `xml:"printtts"`
+				PrintSMTP         bool     `xml:"printsmtp"`
+				PrintSounds       bool     `xml:"printsounds"`
+				PrintTxTimeout    bool     `xml:"printtxtimeout"`
+				PrintHTTPAPI      bool     `xml:"printhttpapi"`
+				PrintTargetBoard  bool     `xml:"printtargetboard"`
+				PrintLeds         bool     `xml:"printleds"`
+				PrintHeartbeat    bool     `xml:"printheartbeat"`
+				PrintButtons      bool     `xml:"printbuttons"`
+				PrintComment      bool     `xml:"printcomment"`
+				PrintLcd          bool     `xml:"printlcd"`
+				PrintOled         bool     `xml:"printoled"`
+				PrintGps          bool     `xml:"printgps"`
+				PrintPanic        bool     `xml:"printpanic"`
+				PrintAudioRecord  bool     `xml:"printaudiorecord"`
+			} `xml:"printvariables"`
+		} `xml:"software"`
+		Hardware struct {
+			Text        string `xml:",chardata"`
+			TargetBoard string `xml:"targetboard,attr"`
+			Lights      struct {
+				Text                string `xml:",chardata"`
+				VoiceActivityLedPin string `xml:"voiceactivityledpin"`
+				ParticipantsLedPin  string `xml:"participantsledpin"`
+				TransmitLedPin      string `xml:"transmitledpin"`
+				OnlineLedPin        string `xml:"onlineledpin"`
+			} `xml:"lights"`
+			HeartBeat struct {
+				Text            string `xml:",chardata"`
+				Enabled         bool   `xml:"enabled,attr"`
+				LEDPin          string `xml:"heartbeatledpin"`
+				Periodmsecs     int    `xml:"periodmsecs"`
+				LEDOnmsecs      int    `xml:"ledonmsecs"`
+				LEDOffmsecs     int    `xml:"ledoffmsecs"`
+			} `xml:"heartbeat"`
+			Buttons struct {
+				Text            string `xml:",chardata"`
+				TxButtonPin     string `xml:"txbuttonpin"`
+				TxTogglePin     string `xml:"txtogglepin"`
+				UpButtonPin     string `xml:"upbuttonpin"`
+				DownButtonPin   string `xml:"downbuttonpin"`
+				PanicButtonPin  string `xml:"panicbuttonpin"`
+				ChimesButtonPin string `xml:"chimesbuttonpin"`
+			} `xml:"buttons"`
+			Comment struct {
+				Text              string `xml:",chardata"`
+				CommentButtonPin  string `xml:"commentbuttonpin"`
+				CommentMessageOff string `xml:"commentmessageoff"`
+				CommentMessageOn  string `xml:"commentmessageon"`
+			} `xml:"comment"`
+			LCD struct {
+				Text                  string `xml:",chardata"`
+				Enabled               bool   `xml:"enabled,attr"`
+				InterfaceType         string `xml:"lcdinterfacetype"`
+				I2CAddress            uint8  `xml:"lcdi2caddress"`
+				BacklightTimerEnabled bool   `xml:"lcdbacklighttimerenabled"`
+				BackLightTimeoutSecs  int    `xml:"lcdbacklighttimeoutsecs"`
+				BackLightPin          string `xml:"lcdbacklightpin"`
+				BackLightLEDPin       string `xml:"lcdbacklightledpin"`
+				RsPin                 int    `xml:"lcdrspin"`
+				EsPin                 int    `xml:"lcdespin"`
+				D4Pin                 int    `xml:"lcdd4pin"`
+				D5Pin                 int    `xml:"lcdd5pin"`
+				D6Pin                 int    `xml:"lcdd6pin"`
+				D7Pin                 int    `xml:"lcdd7pin"`
+			} `xml:"lcd"`
+			OLED struct {
+				Text                    string `xml:",chardata"`
+				Enabled                 bool   `xml:"enabled,attr"`
+				InterfaceType           string `xml:"oledinterfacetype"`
+				DisplayRows             int    `xml:"oleddisplayrows"`
+				DisplayColumns          uint8  `xml:"oleddisplaycolumns"`
+				DefaultI2CBus           int    `xml:"oleddefaulti2cbus"`
+				DefaultI2CAddress       uint8  `xml:"oleddefaulti2caddress"`
+				ScreenWidth             int    `xml:"oledscreenwidth"`
+				ScreenHeight            int    `xml:"oledscreenheight"`
+				CommandColumnAddressing int    `xml:"oledcommandcolumnaddressing"`
+				AddressBasePageStart    int    `xml:"oledaddressbasepagestart"`
+				CharLength              int    `xml:"oledcharlength"`
+				StartColumn             int    `xml:"oledstartcolumn"`
+			} `xml:"oled"`
+			GPS struct {
+				Text                string `xml:",chardata"`
+				Enabled             bool    `xml:"enabled,attr"`
+				Port                string `xml:"port"`
+				Baud                uint   `xml:"baud"`
+				TxData              string `xml:"txdata"`
+				Even                bool   `xml:"even"`
+				Odd                 bool   `xml:"odd"`
+				Rs485               bool   `xml:"rs485"`
+				Rs485HighDuringSend bool   `xml:"rs485highduringsend"`
+				Rs485HighAfterSend  bool   `xml:"rs485highaftersend"`
+				StopBits            uint   `xml:"stopbits"`
+				DataBits            uint   `xml:"databits"`
+				CharTimeOut         uint   `xml:"chartimeout"`
+				MinRead             uint   `xml:"minread"`
+				Rx                  bool `xml:"rx"`
+			} `xml:"gps"`
+			PanicFunction struct {
+				Text                 string  `xml:",chardata"`
+				Enabled              bool    `xml:"enabled,attr"`
+				FilenameAndPath      string  `xml:"filenameandpath"`
+				Volume               float32 `xml:"volume"`
+				SendIdent            bool    `xml:"sendident"`
+				Message              string  `xml:"panicmessage"`
+				RecursiveSendMessage string  `xml:"recursivesendmessage"`
+				SendGpsLocation      bool    `xml:"sendgpslocation"`
+				TxLockEnabled        bool    `xml:"txlockenabled"`
+				TxLockTimeOutSecs    uint    `xml:"txlocktimeoutsecs"`
+			} `xml:"panicfunction"`
+			AudioRecordFunction struct {
+				Text              string `xml:",chardata"`
+				Enabled           bool   `xml:"enabled,attr"`
+				RecordOnStart     bool   `xml:"recordonstart"`
+				RecordMode        string `xml:"recordmode"`
+				RecordTimeout     int64  `xml:"recordtimeout"`
+				RecordFromOutput  string `xml:"recordfromoutput"`
+				RecordFromInput   string `xml:"recordfrominput"`
+				RecordMicTimeout  int64  `xml:"recordmictimeout"`
+				RecordSoft        string `xml:"recordsoft"`
+				RecordSavePath    string `xml:"recordsavepath"`
+				RecordArchivePath string `xml:"recordarchivepath"`
+				RecordProfile     string `xml:"recordprofile"`
+				RecordFileFormat  string `xml:"recordfileformat"`
+				RecordChunkSize   string `xml:"recordchunksize"`
+			} `xml:"audiorecordfunction"`
+		} `xml:"hardware"`
+	} `xml:"global"`
 }
 
 func readxmlconfig(file string) error {
@@ -775,16 +720,16 @@ func readxmlconfig(file string) error {
 	}
 	log.Println("Document               : " + document.Type)
 
-	for i := 0; i < len(document.Accounts.Accounts); i++ {
-		if document.Accounts.Accounts[i].Default == true {
-			Name = append(Name, document.Accounts.Accounts[i].Name)
-			Server = append(Server, document.Accounts.Accounts[i].ServerAndPort)
-			Username = append(Username, document.Accounts.Accounts[i].UserName)
-			Password = append(Password, document.Accounts.Accounts[i].Password)
-			Insecure = append(Insecure, document.Accounts.Accounts[i].Insecure)
-			Certificate = append(Certificate, document.Accounts.Accounts[i].Certificate)
-			Channel = append(Channel, document.Accounts.Accounts[i].Channel)
-			Ident = append(Ident, document.Accounts.Accounts[i].Ident)
+	for i := 0; i < len(document.Accounts.Account); i++ {
+		if document.Accounts.Account[i].Default == true {
+			Name = append(Name, document.Accounts.Account[i].Name)
+			Server = append(Server, document.Accounts.Account[i].ServerAndPort)
+			Username = append(Username, document.Accounts.Account[i].UserName)
+			Password = append(Password, document.Accounts.Account[i].Password)
+			Insecure = append(Insecure, document.Accounts.Account[i].Insecure)
+			Certificate = append(Certificate, document.Accounts.Account[i].Certificate)
+			Channel = append(Channel, document.Accounts.Account[i].Channel)
+			Ident = append(Ident, document.Accounts.Account[i].Ident)
 			AccountCount++
 		}
 	}
@@ -874,7 +819,7 @@ func readxmlconfig(file string) error {
 	SimplexWithMute = document.Global.Software.Settings.SimplexWithMute
 	TxCounter = document.Global.Software.Settings.TxCounter
 
-	APEnabled = document.Global.Software.AutoProvisioning.APEnabled
+	APEnabled = document.Global.Software.AutoProvisioning.Enabled
 	TkID = document.Global.Software.AutoProvisioning.TkID
 	URL = document.Global.Software.AutoProvisioning.URL
 	SaveFilePath = document.Global.Software.AutoProvisioning.SaveFilePath
@@ -888,9 +833,9 @@ func readxmlconfig(file string) error {
 		SaveFilename = filepath.Base(exec) + ".xml" //Should default to talkkonnect.xml
 	}
 
-	BeaconEnabled = document.Global.Software.Beacon.BeaconEnabled
+	BeaconEnabled = document.Global.Software.Beacon.Enabled
 	BeaconTimerSecs = document.Global.Software.Beacon.BeaconTimerSecs
-	BeaconFilenameAndPath = document.Global.Software.Beacon.BeaconFilenameAndPath
+	BeaconFilenameAndPath = document.Global.Software.Beacon.BeaconFileAndPath
 	if BeaconEnabled && BeaconFilenameAndPath == "" {
 		path := defaultSharePath + "/soundfiles/voiceprompts/Beacon.wav"
 		if _, err := os.Stat(path); err == nil {
@@ -898,12 +843,13 @@ func readxmlconfig(file string) error {
 		}
 	}
 
-	BVolume = document.Global.Software.Beacon.BVolume
+	BVolume = document.Global.Software.Beacon.Volume
 
-	TTSEnabled = document.Global.Software.TTS.TTSEnabled
-	TTSVolumeLevel = document.Global.Software.TTS.TTSVolumeLevel
-	TTSParticipants = document.Global.Software.TTS.TTSParticipants
-	TTSChannelUp = document.Global.Software.TTS.TTSChannelUp
+	TTSEnabled = document.Global.Software.TTS.Enabled
+	TTSVolumeLevel = document.Global.Software.TTS.VolumeLevel
+	TTSParticipants = document.Global.Software.TTS.Participants
+	TTSChannelUp = document.Global.Software.TTS.ChannelUp
+ 	TTSChannelUpFilenameAndPath = document.Global.Software.TTS.ChannelUpFilenameAndPath
 
 	if TTSChannelUp && TTSChannelUpFilenameAndPath == "" {
 		path := defaultSharePath + "/soundfiles/voiceprompts/ChannelUp.wav"
@@ -912,9 +858,9 @@ func readxmlconfig(file string) error {
 		}
 	}
 
-	TTSChannelUpFilenameAndPath = document.Global.Software.TTS.TTSChannelUpFilenameAndPath
-	TTSChannelDown = document.Global.Software.TTS.TTSChannelDown
-	TTSChannelDownFilenameAndPath = document.Global.Software.TTS.TTSChannelDownFilenameAndPath
+	TTSChannelUpFilenameAndPath = document.Global.Software.TTS.ChannelUpFilenameAndPath
+	TTSChannelDown = document.Global.Software.TTS.ChannelDown
+	TTSChannelDownFilenameAndPath = document.Global.Software.TTS.ChannelDownFilenameAndPath
 
 	if TTSChannelDown && TTSChannelDownFilenameAndPath == "" {
 		path := defaultSharePath + "/soundfiles/voiceprompts/ChannelDown.wav"
@@ -923,8 +869,8 @@ func readxmlconfig(file string) error {
 		}
 	}
 
-	TTSMuteUnMuteSpeaker = document.Global.Software.TTS.TTSMuteUnMuteSpeaker
-	TTSMuteUnMuteSpeakerFilenameAndPath = document.Global.Software.TTS.TTSMuteUnMuteSpeakerFilenameAndPath
+	TTSMuteUnMuteSpeaker = document.Global.Software.TTS.MuteUnmuteSpeaker
+	TTSMuteUnMuteSpeakerFilenameAndPath = document.Global.Software.TTS.MuteUnmuteSpeakerFilenameAndPath
 
 	if TTSMuteUnMuteSpeaker && TTSMuteUnMuteSpeakerFilenameAndPath == "" {
 		path := defaultSharePath + "/soundfiles/voiceprompts/MuteUnMuteSpeaker.wav"
@@ -933,8 +879,8 @@ func readxmlconfig(file string) error {
 		}
 	}
 
-	TTSCurrentVolumeLevel = document.Global.Software.TTS.TTSCurrentVolumeLevel
-	TTSCurrentVolumeLevelFilenameAndPath = document.Global.Software.TTS.TTSCurrentVolumeLevelFilenameAndPath
+	TTSCurrentVolumeLevel = document.Global.Software.TTS.CurrentVolumeLevel
+	TTSCurrentVolumeLevelFilenameAndPath = document.Global.Software.TTS.CurrentVolumeLevelFilenameAndPath
 
 	if TTSCurrentVolumeLevel && TTSCurrentVolumeLevelFilenameAndPath == "" {
 		path := defaultSharePath + "/soundfiles/voiceprompts/CurrentVolumeLevel.wav"
@@ -943,8 +889,8 @@ func readxmlconfig(file string) error {
 		}
 	}
 
-	TTSDigitalVolumeUp = document.Global.Software.TTS.TTSDigitalVolumeUp
-	TTSDigitalVolumeUpFilenameAndPath = document.Global.Software.TTS.TTSDigitalVolumeUpFilenameAndPath
+	TTSDigitalVolumeUp = document.Global.Software.TTS.DigitalVolumeUp
+	TTSDigitalVolumeUpFilenameAndPath = document.Global.Software.TTS.DigitalVolumeUpFilenameAndPath
 
 	if TTSDigitalVolumeUp && TTSDigitalVolumeUpFilenameAndPath == "" {
 		path := defaultSharePath + "/soundfiles/voiceprompts/DigitalVolumeUp.wav"
@@ -953,8 +899,8 @@ func readxmlconfig(file string) error {
 		}
 	}
 
-	TTSDigitalVolumeDown = document.Global.Software.TTS.TTSDigitalVolumeDown
-	TTSDigitalVolumeDownFilenameAndPath = document.Global.Software.TTS.TTSDigitalVolumeDownFilenameAndPath
+	TTSDigitalVolumeDown = document.Global.Software.TTS.DigitalVolumeDown
+	TTSDigitalVolumeDownFilenameAndPath = document.Global.Software.TTS.DigitalVolumeDownFilenameAndPath
 
 	if TTSDigitalVolumeDown && TTSDigitalVolumeDownFilenameAndPath == "" {
 		path := defaultSharePath + "/soundfiles/voiceprompts/DigitalVolumeDown.wav"
@@ -963,8 +909,8 @@ func readxmlconfig(file string) error {
 		}
 	}
 
-	TTSListServerChannels = document.Global.Software.TTS.TTSListServerChannels
-	TTSListServerChannelsFilenameAndPath = document.Global.Software.TTS.TTSListServerChannelsFilenameAndPath
+	TTSListServerChannels = document.Global.Software.TTS.ListServerChannels
+	TTSListServerChannelsFilenameAndPath = document.Global.Software.TTS.ListServerChannelsFilenameAndPath
 
 	if TTSListServerChannels && TTSListServerChannelsFilenameAndPath == "" {
 		path := defaultSharePath + "/soundfiles/voiceprompts/ListServerChannels.wav"
@@ -973,8 +919,8 @@ func readxmlconfig(file string) error {
 		}
 	}
 
-	TTSStartTransmitting = document.Global.Software.TTS.TTSStartTransmitting
-	TTSStartTransmittingFilenameAndPath = document.Global.Software.TTS.TTSStartTransmittingFilenameAndPath
+	TTSStartTransmitting = document.Global.Software.TTS.StartTransmitting
+	TTSStartTransmittingFilenameAndPath = document.Global.Software.TTS.StartTransmittingFilenameAndPath
 
 	if TTSStartTransmitting && TTSStartTransmittingFilenameAndPath == "" {
 		path := defaultSharePath + "/soundfiles/voiceprompts/StartTransmitting.wav"
@@ -983,8 +929,8 @@ func readxmlconfig(file string) error {
 		}
 	}
 
-	TTSStopTransmitting = document.Global.Software.TTS.TTSStopTransmitting
-	TTSStopTransmittingFilenameAndPath = document.Global.Software.TTS.TTSStopTransmittingFilenameAndPath
+	TTSStopTransmitting = document.Global.Software.TTS.StopTransmitting
+	TTSStopTransmittingFilenameAndPath = document.Global.Software.TTS.StopTransmittingFilenameAndPath
 
 	if TTSStopTransmitting && TTSStopTransmittingFilenameAndPath == "" {
 		path := defaultSharePath + "/soundfiles/voiceprompts/StopTransmitting.wav"
@@ -993,8 +939,8 @@ func readxmlconfig(file string) error {
 		}
 	}
 
-	TTSListOnlineUsers = document.Global.Software.TTS.TTSListOnlineUsers
-	TTSListOnlineUsersFilenameAndPath = document.Global.Software.TTS.TTSListOnlineUsersFilenameAndPath
+	TTSListOnlineUsers = document.Global.Software.TTS.ListOnlineUsers
+	TTSListOnlineUsersFilenameAndPath = document.Global.Software.TTS.ListOnlineUsersFilenameAndPath
 
 	if TTSListOnlineUsers && TTSListOnlineUsersFilenameAndPath == "" {
 		path := defaultSharePath + "/soundfiles/voiceprompts/ListOnlineUsers.wav"
@@ -1003,8 +949,8 @@ func readxmlconfig(file string) error {
 		}
 	}
 
-	TTSPlayChimes = document.Global.Software.TTS.TTSPlayChimes
-	TTSPlayChimesFilenameAndPath = document.Global.Software.TTS.TTSPlayChimesFilenameAndPath
+	TTSPlayChimes = document.Global.Software.TTS.PlayChimes
+	TTSPlayChimesFilenameAndPath = document.Global.Software.TTS.PlayChimesFilenameAndPath
 
 	if TTSPlayChimes && TTSPlayChimesFilenameAndPath == "" {
 		path := defaultSharePath + "/soundfiles/voiceprompts/PlayChimes.wav"
@@ -1013,8 +959,8 @@ func readxmlconfig(file string) error {
 		}
 	}
 
-	TTSRequestGpsPosition = document.Global.Software.TTS.TTSRequestGpsPosition
-	TTSRequestGpsPositionFilenameAndPath = document.Global.Software.TTS.TTSRequestGpsPositionFilenameAndPath
+	TTSRequestGpsPosition = document.Global.Software.TTS.RequestGpsPosition
+	TTSRequestGpsPositionFilenameAndPath = document.Global.Software.TTS.RequestGpsPositionFilenameAndPath
 
 	if TTSRequestGpsPosition && TTSRequestGpsPositionFilenameAndPath == "" {
 		path := defaultSharePath + "/soundfiles/voiceprompts/RequestGpsPosition.wav"
@@ -1023,8 +969,8 @@ func readxmlconfig(file string) error {
 		}
 	}
 
-	TTSNextServer = document.Global.Software.TTS.TTSNextServer
-	TTSNextServerFilenameAndPath = document.Global.Software.TTS.TTSNextServerFilenameAndPath
+	TTSNextServer = document.Global.Software.TTS.NextServer
+	TTSNextServerFilenameAndPath = document.Global.Software.TTS.NextServerFilenameAndPath
 	/*
 		//TODO: No default sound available. Placeholder for now
 		if TTSNextServer && TTSNextServerFilenameAndPath == "" {
@@ -1035,8 +981,8 @@ func readxmlconfig(file string) error {
 		}
 	*/
 
-	TTSPreviousServer = document.Global.Software.TTS.TTSPreviousServer
-	TTSPreviousServerFilenameAndPath = document.Global.Software.TTS.TTSPreviousServerFilenameAndPath
+	TTSPreviousServer = document.Global.Software.TTS.PreviousServer
+	TTSPreviousServerFilenameAndPath = document.Global.Software.TTS.PreviousServerFilenameAndPath
 
 	/*
 		//TODO: No default sound available. Placeholder for now
@@ -1048,8 +994,8 @@ func readxmlconfig(file string) error {
 		}
 	*/
 
-	TTSPanicSimulation = document.Global.Software.TTS.TTSPanicSimulation
-	TTSPanicSimulationFilenameAndPath = document.Global.Software.TTS.TTSPanicSimulationFilenameAndPath
+	TTSPanicSimulation = document.Global.Software.TTS.PanicSimulation
+	TTSPanicSimulationFilenameAndPath = document.Global.Software.TTS.PanicSimulationFilenameAndPath
 	if TTSPanicSimulation && TTSPanicSimulationFilenameAndPath == "" {
 		path := defaultSharePath + "/soundfiles/voiceprompts/PanicSimulation.wav"
 		if _, err := os.Stat(path); err == nil {
@@ -1057,8 +1003,8 @@ func readxmlconfig(file string) error {
 		}
 	}
 
-	TTSPrintXmlConfig = document.Global.Software.TTS.TTSPrintXmlConfig
-	TTSPrintXmlConfigFilenameAndPath = document.Global.Software.TTS.TTSPrintXmlConfigFilenameAndPath
+	TTSPrintXmlConfig = document.Global.Software.TTS.PrintXmlConfig
+	TTSPrintXmlConfigFilenameAndPath = document.Global.Software.TTS.PrintXmlConfigFilenameAndPath
 
 	if TTSPrintXmlConfig && TTSPrintXmlConfigFilenameAndPath == "" {
 		path := defaultSharePath + "/soundfiles/voiceprompts/PrintXmlConfig.wav"
@@ -1067,8 +1013,8 @@ func readxmlconfig(file string) error {
 		}
 	}
 
-	TTSSendEmail = document.Global.Software.TTS.TTSSendEmail
-	TTSSendEmailFilenameAndPath = document.Global.Software.TTS.TTSSendEmailFilenameAndPath
+	TTSSendEmail = document.Global.Software.TTS.SendEmail
+	TTSSendEmailFilenameAndPath = document.Global.Software.TTS.SendEmailFilenameAndPath
 
 	if TTSSendEmail && TTSSendEmailFilenameAndPath == "" {
 		path := defaultSharePath + "/soundfiles/voiceprompts/SendEmail.wav"
@@ -1077,8 +1023,8 @@ func readxmlconfig(file string) error {
 		}
 	}
 
-	TTSDisplayMenu = document.Global.Software.TTS.TTSDisplayMenu
-	TTSDisplayMenuFilenameAndPath = document.Global.Software.TTS.TTSDisplayMenuFilenameAndPath
+	TTSDisplayMenu = document.Global.Software.TTS.DisplayMenu
+	TTSDisplayMenuFilenameAndPath = document.Global.Software.TTS.DisplayMenuFilenameAndPath
 
 	if TTSDisplayMenu && TTSDisplayMenuFilenameAndPath == "" {
 		path := defaultSharePath + "/soundfiles/voiceprompts/DisplayMenu.wav"
@@ -1087,8 +1033,8 @@ func readxmlconfig(file string) error {
 		}
 	}
 
-	TTSQuitTalkkonnect = document.Global.Software.TTS.TTSQuitTalkkonnect
-	TTSQuitTalkkonnectFilenameAndPath = document.Global.Software.TTS.TTSQuitTalkkonnectFilenameAndPath
+	TTSQuitTalkkonnect = document.Global.Software.TTS.QuitTalkkonnect
+	TTSQuitTalkkonnectFilenameAndPath = document.Global.Software.TTS.QuitTalkkonnectFilenameAndPath
 
 	if TTSQuitTalkkonnect && TTSQuitTalkkonnectFilenameAndPath == "" {
 		path := defaultSharePath + "/soundfiles/voiceprompts/QuitTalkkonnect.wav"
@@ -1097,8 +1043,8 @@ func readxmlconfig(file string) error {
 		}
 	}
 
-	TTSTalkkonnectLoaded = document.Global.Software.TTS.TTSTalkkonnectLoaded
-	TTSTalkkonnectLoadedFilenameAndPath = document.Global.Software.TTS.TTSTalkkonnectLoadedFilenameAndPath
+	TTSTalkkonnectLoaded = document.Global.Software.TTS.TalkkonnectLoaded
+	TTSTalkkonnectLoadedFilenameAndPath = document.Global.Software.TTS.TalkkonnectLoadedFilenameAndPath
 
 	if TTSTalkkonnectLoaded && TTSTalkkonnectLoadedFilenameAndPath == "" {
 		path := defaultSharePath + "/soundfiles/voiceprompts/Loaded.wav"
@@ -1107,8 +1053,8 @@ func readxmlconfig(file string) error {
 		}
 	}
 
-	TTSPingServers = document.Global.Software.TTS.TTSPingServers
-	TTSPingServersFilenameAndPath = document.Global.Software.TTS.TTSPingServersFilenameAndPath
+	TTSPingServers = document.Global.Software.TTS.PingServers
+	TTSPingServersFilenameAndPath = document.Global.Software.TTS.PingServersFilenameAndPath
 
 	/*
 		//TODO: No default sound available. Placeholder for now
@@ -1120,18 +1066,18 @@ func readxmlconfig(file string) error {
 		}
 	*/
 
-	EmailEnabled = document.Global.Software.Smtp.EmailEnabled
-	EmailUsername = document.Global.Software.Smtp.EmailUsername
-	EmailPassword = document.Global.Software.Smtp.EmailPassword
-	EmailReceiver = document.Global.Software.Smtp.EmailReceiver
-	EmailSubject = document.Global.Software.Smtp.EmailSubject
-	EmailMessage = document.Global.Software.Smtp.EmailMessage
-	EmailGpsDateTime = document.Global.Software.Smtp.EmailGpsDateTime
-	EmailGpsLatLong = document.Global.Software.Smtp.EmailGpsLatLong
-	EmailGoogleMapsURL = document.Global.Software.Smtp.EmailGoogleMapsURL
+	EmailEnabled = document.Global.Software.SMTP.Enabled
+	EmailUsername = document.Global.Software.SMTP.Username
+	EmailPassword = document.Global.Software.SMTP.Password
+	EmailReceiver = document.Global.Software.SMTP.Receiver
+	EmailSubject = document.Global.Software.SMTP.Subject
+	EmailMessage = document.Global.Software.SMTP.Message
+	EmailGpsDateTime = document.Global.Software.SMTP.GpsDateTime
+	EmailGpsLatLong = document.Global.Software.SMTP.GpsLatLong
+	EmailGoogleMapsURL = document.Global.Software.SMTP.GoogleMapsURL
 
-	EventSoundEnabled = document.Global.Software.Sounds.Event.EEnabled
-	EventSoundFilenameAndPath = document.Global.Software.Sounds.Event.EFilenameAndPath
+	EventSoundEnabled = document.Global.Software.Sounds.Event.Enabled
+	EventSoundFilenameAndPath = document.Global.Software.Sounds.Event.FilenameAndPath
 
 	if EventSoundEnabled && EventSoundFilenameAndPath == "" {
 		path := defaultSharePath + "/soundfiles/events/event.wav"
@@ -1139,8 +1085,8 @@ func readxmlconfig(file string) error {
 			EventSoundFilenameAndPath = path
 		}
 	}
-	AlertSoundEnabled = document.Global.Software.Sounds.Alert.AEnabled
-	AlertSoundFilenameAndPath = document.Global.Software.Sounds.Alert.AFilenameAndPath
+	AlertSoundEnabled = document.Global.Software.Sounds.Alert.Enabled
+	AlertSoundFilenameAndPath = document.Global.Software.Sounds.Alert.FilenameAndPath
 
 	if AlertSoundEnabled && AlertSoundFilenameAndPath == "" {
 		path := defaultSharePath + "/soundfiles/alerts/alert.wav"
@@ -1149,10 +1095,10 @@ func readxmlconfig(file string) error {
 		}
 	}
 
-	AlertSoundVolume = document.Global.Software.Sounds.Alert.AVolume
+	AlertSoundVolume = document.Global.Software.Sounds.Alert.Volume
 
-	IncommingBeepSoundEnabled = document.Global.Software.Sounds.IncommingBeep.IEnabled
-	IncommingBeepSoundFilenameAndPath = document.Global.Software.Sounds.IncommingBeep.IFilenameAndPath
+	IncommingBeepSoundEnabled = document.Global.Software.Sounds.IncommingBeep.Enabled
+	IncommingBeepSoundFilenameAndPath = document.Global.Software.Sounds.IncommingBeep.FilenameAndPath
 
 	if IncommingBeepSoundEnabled && IncommingBeepSoundFilenameAndPath == "" {
 		path := defaultSharePath + "/soundfiles/rogerbeeps/Chirsp.wav"
@@ -1161,10 +1107,10 @@ func readxmlconfig(file string) error {
 		}
 	}
 
-	IncommingBeepSoundVolume = document.Global.Software.Sounds.IncommingBeep.IBeepVolume
+	IncommingBeepSoundVolume = document.Global.Software.Sounds.IncommingBeep.Volume
 
-	RogerBeepSoundEnabled = document.Global.Software.Sounds.RogerBeep.REnabled
-	RogerBeepSoundFilenameAndPath = document.Global.Software.Sounds.RogerBeep.RFilenameAndPath
+	RogerBeepSoundEnabled = document.Global.Software.Sounds.RogerBeep.Enabled
+	RogerBeepSoundFilenameAndPath = document.Global.Software.Sounds.RogerBeep.FilenameAndPath
 
 	if RogerBeepSoundEnabled && RogerBeepSoundFilenameAndPath == "" {
 		path := defaultSharePath + "/soundfiles/rogerbeeps/Chirsp.wav"
@@ -1173,10 +1119,10 @@ func readxmlconfig(file string) error {
 		}
 	}
 
-	RogerBeepSoundVolume = document.Global.Software.Sounds.RogerBeep.RBeepVolume
+	RogerBeepSoundVolume = document.Global.Software.Sounds.RogerBeep.Volume
 
-	RepeaterToneEnabled = document.Global.Software.Sounds.RepeaterTone.RTEnabled
-	RepeaterToneFilenameAndPath = document.Global.Software.Sounds.RepeaterTone.RepeaterToneFilenameAndPath
+	RepeaterToneEnabled = document.Global.Software.Sounds.RepeaterTone.Enabled
+	RepeaterToneFilenameAndPath = document.Global.Software.Sounds.RepeaterTone.FilenameAndPath
 
 	if RepeaterToneEnabled && RepeaterToneFilenameAndPath == "" {
 		path := defaultSharePath + "/soundfiles/repeatertones/Chirsp.wav"
@@ -1185,10 +1131,10 @@ func readxmlconfig(file string) error {
 		}
 	}
 
-	RepeaterToneVolume = document.Global.Software.Sounds.RepeaterTone.RepeaterToneVolume
+	RepeaterToneVolume = document.Global.Software.Sounds.RepeaterTone.Volume
 
-	ChimesSoundEnabled = document.Global.Software.Sounds.Chimes.CEnabled
-	ChimesSoundFilenameAndPath = document.Global.Software.Sounds.Chimes.CFilenameAndPath
+	ChimesSoundEnabled = document.Global.Software.Sounds.Chimes.Enabled
+	ChimesSoundFilenameAndPath = document.Global.Software.Sounds.Chimes.FilenameAndPath
 
 	if ChimesSoundEnabled && ChimesSoundFilenameAndPath == "" {
 		path := defaultSharePath + "/soundfiles/alerts/chimes.wav"
@@ -1197,36 +1143,35 @@ func readxmlconfig(file string) error {
 		}
 	}
 
-	ChimesSoundVolume = document.Global.Software.Sounds.Chimes.CVolume
+	ChimesSoundVolume = document.Global.Software.Sounds.Chimes.Volume
 
-	TxTimeOutEnabled = document.Global.Software.TxTimeOut.TxTimeOutEnabled
+	TxTimeOutEnabled = document.Global.Software.TxTimeOut.Enabled
 	TxTimeOutSecs = document.Global.Software.TxTimeOut.TxTimeOutSecs
 
-	APIEnabled = document.Global.Software.API.APIEnabled
-	APIListenPort = document.Global.Software.API.APIListenPort
-	APIDisplayMenu = document.Global.Software.API.APIDisplayMenu
-	APIChannelUp = document.Global.Software.API.APIChannelUp
-	APIChannelDown = document.Global.Software.API.APIChannelDown
-	APIMute = document.Global.Software.API.APIMute
-	APICurrentVolumeLevel = document.Global.Software.API.APICurrentVolumeLevel
-	APIDigitalVolumeUp = document.Global.Software.API.APIDigitalVolumeUp
-	APIDigitalVolumeDown = document.Global.Software.API.APIDigitalVolumeDown
-	APIListServerChannels = document.Global.Software.API.APIListServerChannels
-	APIStartTransmitting = document.Global.Software.API.APIStartTransmitting
-	APIStopTransmitting = document.Global.Software.API.APIStopTransmitting
-	APIListOnlineUsers = document.Global.Software.API.APIListOnlineUsers
-	APIPlayChimes = document.Global.Software.API.APIPlayChimes
-	APIRequestGpsPosition = document.Global.Software.API.APIRequestGpsPosition
-	APIEmailEnabled = document.Global.Software.API.APIEmailEnabled
-	APINextServer = document.Global.Software.API.APINextServer
-	APIPreviousServer = document.Global.Software.API.APIPreviousServer
-	APIPanicSimulation = document.Global.Software.API.APIPanicSimulation
-	APIScanChannels = document.Global.Software.API.APIScanChannels
-	APIDisplayVersion = document.Global.Software.API.APIDisplayVersion
-	APIClearScreen = document.Global.Software.API.APIClearScreen
-	APIPingServersEnabled = document.Global.Software.API.APIPingServersEnabled
-	APIRepeatTxLoopTest = document.Global.Software.API.APIRepeatTxLoopTest
-	APIPrintXmlConfig = document.Global.Software.API.APIPrintXmlConfig
+	APIEnabled = document.Global.Software.API.Enabled
+	APIListenPort = document.Global.Software.API.ListenPort
+	APIDisplayMenu = document.Global.Software.API.DisplayMenu
+	APIChannelUp = document.Global.Software.API.ChannelUp
+	APIChannelDown = document.Global.Software.API.ChannelDown
+	APIMute = document.Global.Software.API.Mute
+	APICurrentVolumeLevel = document.Global.Software.API.CurrentVolumeLevel
+	APIDigitalVolumeUp = document.Global.Software.API.DigitalVolumeUp
+	APIDigitalVolumeDown = document.Global.Software.API.DigitalVolumeDown
+	APIListServerChannels = document.Global.Software.API.ListServerChannels
+	APIStartTransmitting = document.Global.Software.API.StartTransmitting
+	APIStopTransmitting = document.Global.Software.API.StopTransmitting
+	APIListOnlineUsers = document.Global.Software.API.ListOnlineUsers
+	APIPlayChimes = document.Global.Software.API.PlayChimes
+	APIRequestGpsPosition = document.Global.Software.API.RequestGpsPosition
+	APIEmailEnabled = document.Global.Software.API.Enabled
+	APINextServer = document.Global.Software.API.NextServer
+	APIPreviousServer = document.Global.Software.API.PreviousServer
+	APIPanicSimulation = document.Global.Software.API.PanicSimulation
+	APIDisplayVersion = document.Global.Software.API.DisplayVersion
+	APIClearScreen = document.Global.Software.API.ClearScreen
+	APIPingServersEnabled = document.Global.Software.API.Enabled
+	APIRepeatTxLoopTest = document.Global.Software.API.RepeatTxLoopTest
+	APIPrintXmlConfig = document.Global.Software.API.PrintXmlConfig
 
 	PrintAccount = document.Global.Software.PrintVariables.PrintAccount
 	PrintLogging = document.Global.Software.PrintVariables.PrintLogging
@@ -1239,7 +1184,7 @@ func readxmlconfig(file string) error {
 
 	PrintHTTPAPI = document.Global.Software.PrintVariables.PrintHTTPAPI
 
-	PrintTargetboard = document.Global.Software.PrintVariables.PrintTargetboard
+	PrintTargetboard = document.Global.Software.PrintVariables.PrintTargetBoard
 	PrintLeds = document.Global.Software.PrintVariables.PrintLeds
 	PrintHeartbeat = document.Global.Software.PrintVariables.PrintHeartbeat
 	PrintButtons = document.Global.Software.PrintVariables.PrintButtons
@@ -1263,13 +1208,13 @@ func readxmlconfig(file string) error {
 	TransmitLEDPin = uint(temp3)
 	temp4, _ := strconv.ParseUint(document.Global.Hardware.Lights.OnlineLedPin, 10, 64)
 	OnlineLEDPin = uint(temp4)
-	temp5, _ := strconv.ParseUint(document.Global.Hardware.HeartBeat.HeartBeatLEDPin, 10, 64)
+	temp5, _ := strconv.ParseUint(document.Global.Hardware.HeartBeat.LEDPin, 10, 64)
 
 	HeartBeatLEDPin = uint(temp5)
-	HeartBeatEnabled = document.Global.Hardware.HeartBeat.HeartBeatEnabled
-	PeriodmSecs = document.Global.Hardware.HeartBeat.PeriodmSecs
-	LEDOnmSecs = document.Global.Hardware.HeartBeat.LEDOnmSecs
-	LEDOffmSecs = document.Global.Hardware.HeartBeat.LEDOffmSecs
+	HeartBeatEnabled = document.Global.Hardware.HeartBeat.Enabled
+	PeriodmSecs = document.Global.Hardware.HeartBeat.Periodmsecs
+	LEDOnmSecs = document.Global.Hardware.HeartBeat.LEDOnmsecs
+	LEDOffmSecs = document.Global.Hardware.HeartBeat.LEDOffmsecs
 
 	// my stupid work arround for null uint xml unmarshelling problem with numbers so use strings and convert it 2 times
 	temp6, _ := strconv.ParseUint(document.Global.Hardware.Buttons.TxButtonPin, 10, 64)
@@ -1289,11 +1234,11 @@ func readxmlconfig(file string) error {
 	temp12, _ := strconv.ParseUint(document.Global.Hardware.Buttons.ChimesButtonPin, 10, 64)
 	ChimesButtonPin = uint(temp12)
 
-	LCDEnabled = document.Global.Hardware.LCD.LCDEnabled
-	LCDInterfaceType = document.Global.Hardware.LCD.LCDInterfaceType
-	LCDI2CAddress = document.Global.Hardware.LCD.LCDI2CAddress
-	LCDBackLightTimerEnabled = document.Global.Hardware.LCD.LCDBackLightTimerEnabled
-	LCDBackLightTimeoutSecs = time.Duration(document.Global.Hardware.LCD.LCDBackLightTimeoutSecs)
+	LCDEnabled = document.Global.Hardware.LCD.Enabled
+	LCDInterfaceType = document.Global.Hardware.LCD.InterfaceType
+	LCDI2CAddress = document.Global.Hardware.LCD.I2CAddress
+	LCDBackLightTimerEnabled = document.Global.Hardware.LCD.Enabled
+	LCDBackLightTimeoutSecs = time.Duration(document.Global.Hardware.LCD.BackLightTimeoutSecs)
 
 	// my stupid work arround for null uint xml unmarshelling problem with numbers so use strings and convert it 2 times
 	temp13, _ := strconv.ParseUint(document.Global.Hardware.LCD.BackLightLEDPin, 10, 64)
@@ -1306,36 +1251,36 @@ func readxmlconfig(file string) error {
 	LCDD6Pin = document.Global.Hardware.LCD.D6Pin
 	LCDD7Pin = document.Global.Hardware.LCD.D7Pin
 
-	OLEDEnabled = document.Global.Hardware.OLED.OLEDEnabled
-	OLEDInterfacetype = document.Global.Hardware.OLED.OLEDInterfacetype
-	OLEDDisplayRows = document.Global.Hardware.OLED.OLEDDisplayRows
-	OLEDDisplayColumns = document.Global.Hardware.OLED.OLEDDisplayColumns
-	OLEDDefaultI2cBus = document.Global.Hardware.OLED.OLEDDefaultI2cBus
-	OLEDDefaultI2cAddress = document.Global.Hardware.OLED.OLEDDefaultI2cAddress
-	OLEDScreenWidth = document.Global.Hardware.OLED.OLEDScreenWidth
-	OLEDScreenHeight = document.Global.Hardware.OLED.OLEDScreenHeight
-	OLEDCommandColumnAddressing = document.Global.Hardware.OLED.OLEDCommandColumnAddressing
-	OLEDAddressBasePageStart = document.Global.Hardware.OLED.OLEDAddressBasePageStart
-	OLEDCharLength = document.Global.Hardware.OLED.OLEDCharLength
-	OLEDStartColumn = document.Global.Hardware.OLED.OLEDStartColumn
+	OLEDEnabled = document.Global.Hardware.OLED.Enabled
+	OLEDInterfacetype = document.Global.Hardware.OLED.InterfaceType
+	OLEDDisplayRows = document.Global.Hardware.OLED.DisplayRows
+	OLEDDisplayColumns = document.Global.Hardware.OLED.DisplayColumns
+	OLEDDefaultI2cBus = document.Global.Hardware.OLED.DefaultI2CBus
+	OLEDDefaultI2cAddress = document.Global.Hardware.OLED.DefaultI2CAddress
+	OLEDScreenWidth = document.Global.Hardware.OLED.ScreenWidth
+	OLEDScreenHeight = document.Global.Hardware.OLED.ScreenHeight
+	OLEDCommandColumnAddressing = document.Global.Hardware.OLED.CommandColumnAddressing
+	OLEDAddressBasePageStart = document.Global.Hardware.OLED.AddressBasePageStart
+	OLEDCharLength = document.Global.Hardware.OLED.CharLength
+	OLEDStartColumn = document.Global.Hardware.OLED.StartColumn
 
-	GpsEnabled = document.Global.Hardware.GPS.GpsEnabled
+	GpsEnabled = document.Global.Hardware.GPS.Enabled
 	Port = document.Global.Hardware.GPS.Port
 	Baud = document.Global.Hardware.GPS.Baud
 	TxData = document.Global.Hardware.GPS.TxData
 	Even = document.Global.Hardware.GPS.Even
 	Odd = document.Global.Hardware.GPS.Odd
 	Rs485 = document.Global.Hardware.GPS.Rs485
-	Rs485HighDuringSend = document.Global.Hardware.GPS.Rs485highduringsend
-	Rs485HighAfterSend = document.Global.Hardware.GPS.Rs485highaftersend
+	Rs485HighDuringSend = document.Global.Hardware.GPS.Rs485HighDuringSend
+	Rs485HighAfterSend = document.Global.Hardware.GPS.Rs485HighAfterSend
 	StopBits = document.Global.Hardware.GPS.StopBits
 	DataBits = document.Global.Hardware.GPS.DataBits
 	CharTimeOut = document.Global.Hardware.GPS.CharTimeOut
 	MinRead = document.Global.Hardware.GPS.MinRead
 	Rx = document.Global.Hardware.GPS.Rx
 
-	PEnabled = document.Global.Hardware.PanicFunction.PEnabled
-	PFilenameAndPath = document.Global.Hardware.PanicFunction.PFilenameAndPath
+	PEnabled = document.Global.Hardware.PanicFunction.Enabled
+	PFilenameAndPath = document.Global.Hardware.PanicFunction.FilenameAndPath
 
 	if PEnabled && PFilenameAndPath == "" {
 		path := defaultSharePath + "/soundfiles/alerts/alert.wav"
@@ -1344,26 +1289,26 @@ func readxmlconfig(file string) error {
 		}
 	}
 
-	PMessage = document.Global.Hardware.PanicFunction.PMessage
-	PVolume = document.Global.Hardware.PanicFunction.PVolume
-	PSendIdent = document.Global.Hardware.PanicFunction.PSendIdent
-	PSendGpsLocation = document.Global.Hardware.PanicFunction.PSendGpsLocation
-	PTxLockEnabled = document.Global.Hardware.PanicFunction.PTxLockEnabled
-	PTxlockTimeOutSecs = document.Global.Hardware.PanicFunction.PTxlockTimeOutSecs
+	PMessage = document.Global.Hardware.PanicFunction.Message
+	PVolume = document.Global.Hardware.PanicFunction.Volume
+	PSendIdent = document.Global.Hardware.PanicFunction.SendIdent
+	PSendGpsLocation = document.Global.Hardware.PanicFunction.SendGpsLocation
+	PTxLockEnabled = document.Global.Hardware.PanicFunction.TxLockEnabled
+	PTxlockTimeOutSecs = document.Global.Hardware.PanicFunction.TxLockTimeOutSecs
 
-	AudioRecordEnabled = document.Global.Hardware.AudioRecordFunction.AudioRecordEnabled         // New
-	AudioRecordOnStart = document.Global.Hardware.AudioRecordFunction.AudioRecordOnStart         // New
-	AudioRecordMode = document.Global.Hardware.AudioRecordFunction.AudioRecordMode               // New
-	AudioRecordTimeout = document.Global.Hardware.AudioRecordFunction.AudioRecordTimeout         // New
-	AudioRecordFromOutput = document.Global.Hardware.AudioRecordFunction.AudioRecordFromOutput   // New
-	AudioRecordFromInput = document.Global.Hardware.AudioRecordFunction.AudioRecordFromInput     // New
-	AudioRecordMicTimeout = document.Global.Hardware.AudioRecordFunction.AudioRecordMicTimeout   // New
-	AudioRecordSavePath = document.Global.Hardware.AudioRecordFunction.AudioRecordSavePath       // New
-	AudioRecordArchivePath = document.Global.Hardware.AudioRecordFunction.AudioRecordArchivePath // New
-	AudioRecordSoft = document.Global.Hardware.AudioRecordFunction.AudioRecordSoft               // New
-	AudioRecordProfile = document.Global.Hardware.AudioRecordFunction.AudioRecordProfile         // New
-	AudioRecordFileFormat = document.Global.Hardware.AudioRecordFunction.AudioRecordFileFormat   // New
-	AudioRecordChunkSize = document.Global.Hardware.AudioRecordFunction.AudioRecordChunkSize     // New
+	AudioRecordEnabled = document.Global.Hardware.AudioRecordFunction.Enabled         // New
+	AudioRecordOnStart = document.Global.Hardware.AudioRecordFunction.RecordOnStart         // New
+	AudioRecordMode = document.Global.Hardware.AudioRecordFunction.RecordMode               // New
+	AudioRecordTimeout = document.Global.Hardware.AudioRecordFunction.RecordTimeout         // New
+	AudioRecordFromOutput = document.Global.Hardware.AudioRecordFunction.RecordFromOutput   // New
+	AudioRecordFromInput = document.Global.Hardware.AudioRecordFunction.RecordFromInput     // New
+	AudioRecordMicTimeout = document.Global.Hardware.AudioRecordFunction.RecordMicTimeout   // New
+	AudioRecordSavePath = document.Global.Hardware.AudioRecordFunction.RecordSavePath       // New
+	AudioRecordArchivePath = document.Global.Hardware.AudioRecordFunction.RecordArchivePath // New
+	AudioRecordSoft = document.Global.Hardware.AudioRecordFunction.RecordSoft               // New
+	AudioRecordProfile = document.Global.Hardware.AudioRecordFunction.RecordProfile         // New
+	AudioRecordFileFormat = document.Global.Hardware.AudioRecordFunction.RecordFileFormat   // New
+	AudioRecordChunkSize = document.Global.Hardware.AudioRecordFunction.RecordChunkSize     // New
 
 	//logical test for xml config
 	if TargetBoard != "rpi" {
@@ -1382,9 +1327,9 @@ func readxmlconfig(file string) error {
 
 	log.Println("Successfully loaded XML configuration file into memory")
 
-	for i := 0; i < len(document.Accounts.Accounts); i++ {
-		if document.Accounts.Accounts[i].Default == true {
-			log.Printf("info: Successfully Added Account %s to Index [%d]\n", document.Accounts.Accounts[i].Name, i)
+	for i := 0; i < len(document.Accounts.Account); i++ {
+		if document.Accounts.Account[i].Default == true {
+			log.Printf("info: Successfully Added Account %s to Index [%d]\n", document.Accounts.Account[i].Name, i)
 		}
 	}
 

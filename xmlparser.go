@@ -48,7 +48,7 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.49.05"
+	talkkonnectVersion  string = "1.49.06"
 	talkkonnectReleased string = "November 08 2020"
 )
 
@@ -629,10 +629,9 @@ type Document struct {
 				I2CAddress            uint8  `xml:"lcdi2caddress"`
 				BacklightTimerEnabled bool   `xml:"lcdbacklighttimerenabled"`
 				BackLightTimeoutSecs  int    `xml:"lcdbacklighttimeoutsecs"`
-				BackLightPin          string `xml:"lcdbacklightpin"`
-				BackLightLEDPin       string `xml:"lcdbacklightledpin"`
+				BackLightLEDPin       string `xml:"lcdbacklightpin"`
 				RsPin                 int    `xml:"lcdrspin"`
-				EsPin                 int    `xml:"lcdespin"`
+				EPin                  int    `xml:"lcdepin"`
 				D4Pin                 int    `xml:"lcdd4pin"`
 				D5Pin                 int    `xml:"lcdd5pin"`
 				D6Pin                 int    `xml:"lcdd6pin"`
@@ -1245,7 +1244,7 @@ func readxmlconfig(file string) error {
 	LCDBackLightLEDPin = int(temp13)
 
 	LCDRSPin = document.Global.Hardware.LCD.RsPin
-	LCDEPin = document.Global.Hardware.LCD.EsPin
+	LCDEPin = document.Global.Hardware.LCD.EPin
 	LCDD4Pin = document.Global.Hardware.LCD.D4Pin
 	LCDD5Pin = document.Global.Hardware.LCD.D5Pin
 	LCDD6Pin = document.Global.Hardware.LCD.D6Pin

@@ -20,7 +20,7 @@
  * Contributor(s):
  *
  * Suvir Kumar <suvir@talkkonnect.com>
- *
+ * Zoran Dimitrijevic
  * My Blog is at www.talkkonnect.com
  * The source code is hosted at github.com/talkkonnect
  *
@@ -34,6 +34,7 @@ import (
 	"errors"
 	"fmt"
 	goled "github.com/talkkonnect/go-oled-i2c"
+	"github.com/talkkonnect/go-openal/openal"
 	"github.com/talkkonnect/gumble/gumbleffmpeg"
 	"golang.org/x/sys/unix"
 	"io/ioutil"
@@ -43,13 +44,12 @@ import (
 	"strconv"
 	"strings"
 	"time"
-        "github.com/talkkonnect/go-openal/openal"
 )
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.49.06"
-	talkkonnectReleased string = "November 08 2020"
+	talkkonnectVersion  string = "1.49.07"
+	talkkonnectReleased string = "November 14 2020"
 )
 
 var (
@@ -61,13 +61,13 @@ var (
 
 // Generic Global Variables
 var (
-	BackLightTime         = time.NewTicker(5 * time.Second)
-	BackLightTimePtr      = &BackLightTime
-	ConnectAttempts       = 0
-	IsConnected      bool = false
-	source                = openal.NewSource()
-	StartTime             = time.Now()
- 	BufferToOpenALCounter = 0
+	BackLightTime              = time.NewTicker(5 * time.Second)
+	BackLightTimePtr           = &BackLightTime
+	ConnectAttempts            = 0
+	IsConnected           bool = false
+	source                     = openal.NewSource()
+	StartTime                  = time.Now()
+	BufferToOpenALCounter      = 0
 )
 
 //account settings
@@ -96,7 +96,7 @@ var (
 
 //autoprovision settings
 var (
-	APEnabled    bool 
+	APEnabled    bool
 	TkID         string
 	URL          string
 	SaveFilePath string
@@ -106,7 +106,7 @@ var (
 //beacon settings
 var (
 	BeaconEnabled         bool
-	BeaconTimerSecs       int     = 30
+	BeaconTimerSecs       int = 30
 	BeaconFilenameAndPath string
 	BVolume               float32 = 1.0
 )
@@ -313,11 +313,11 @@ var (
 	OLEDScreenWidth             int
 	OLEDScreenHeight            int
 	OLEDDisplayRows             int
-	OLEDDisplayColumns          uint8 // int
+	OLEDDisplayColumns          uint8
 	OLEDStartColumn             int
 	OLEDCharLength              int
-	OLEDCommandColumnAddressing int //uint8
-	OLEDAddressBasePageStart    int //uint8
+	OLEDCommandColumnAddressing int
+	OLEDAddressBasePageStart    int
 	Oled                        *goled.Oled
 )
 
@@ -360,22 +360,21 @@ var (
 
 //audio recording settings // New
 var (
-	AudioRecordEnabled     bool   // New
-	AudioRecordOnStart     bool   // New. Incoming Traffic
-	AudioRecordMode        string // New. traffic, ambient, both.
-	AudioRecordTimeout     int64  // New. Incoming Traffic
-	AudioRecordFromOutput  string // New. Audio device name. Loopback name, Monitor, source, etc. Depends... Alsa, pulseaudo and/or Jack?
-	AudioRecordFromInput   string // New. Audio Input Device (mic), that sox unerstands, e.g. default, plughw:1,0, hw:1,0
-	AudioRecordMicTimeout  int64  // New. For recording from mic, a timeout. If "0", then continous.
-	AudioRecordSoft        string // New
-	AudioRecordSavePath    string // New
-	AudioRecordArchivePath string // New
-	AudioRecordProfile     string // New. Sox recording profile. vox, silence detect and trim, file chunks.
-	AudioRecordFileFormat  string // New. wav, mp3, ogg
-	AudioRecordChunkSize   string // New. Size of audio file chunks in seconds.
+	AudioRecordEnabled     bool
+	AudioRecordOnStart     bool
+	AudioRecordSystem      string
+	AudioRecordMode        string
+	AudioRecordTimeout     int64
+	AudioRecordFromOutput  string
+	AudioRecordFromInput   string
+	AudioRecordMicTimeout  int64
+	AudioRecordSoft        string
+	AudioRecordSavePath    string
+	AudioRecordArchivePath string
+	AudioRecordProfile     string
+	AudioRecordFileFormat  string
+	AudioRecordChunkSize   string
 )
-
-//
 
 //other global variables used for state tracking
 var (
@@ -527,16 +526,16 @@ type Document struct {
 					Volume          float32 `xml:"volume"`
 				} `xml:"repeatertone"`
 				Chimes struct {
-					Text            string `xml:",chardata"`
-					Enabled         bool   `xml:"enabled,attr"`
-					FilenameAndPath string `xml:"filenameandpath"`
+					Text            string  `xml:",chardata"`
+					Enabled         bool    `xml:"enabled,attr"`
+					FilenameAndPath string  `xml:"filenameandpath"`
 					Volume          float32 `xml:"volume"`
 				} `xml:"chimes"`
 			} `xml:"sounds"`
 			TxTimeOut struct {
 				Text          string `xml:",chardata"`
 				Enabled       bool   `xml:"enabled,attr"`
-				TxTimeOutSecs int `xml:"txtimeoutsecs"`
+				TxTimeOutSecs int    `xml:"txtimeoutsecs"`
 			} `xml:"txtimeout"`
 			API struct {
 				Text               string `xml:",chardata"`
@@ -567,26 +566,26 @@ type Document struct {
 				PingServers        bool   `xml:"pingservers"`
 			} `xml:"api"`
 			PrintVariables struct {
-				Text              string   `xml:",chardata"`
-				PrintAccount      bool     `xml:"printaccount"`
-				PrintLogging      bool     `xml:"printlogging"`
-				PrintProvisioning bool     `xml:"printprovisioning"`
-				PrintBeacon       bool     `xml:"printbeacon"`
-				PrintTTS          bool     `xml:"printtts"`
-				PrintSMTP         bool     `xml:"printsmtp"`
-				PrintSounds       bool     `xml:"printsounds"`
-				PrintTxTimeout    bool     `xml:"printtxtimeout"`
-				PrintHTTPAPI      bool     `xml:"printhttpapi"`
-				PrintTargetBoard  bool     `xml:"printtargetboard"`
-				PrintLeds         bool     `xml:"printleds"`
-				PrintHeartbeat    bool     `xml:"printheartbeat"`
-				PrintButtons      bool     `xml:"printbuttons"`
-				PrintComment      bool     `xml:"printcomment"`
-				PrintLcd          bool     `xml:"printlcd"`
-				PrintOled         bool     `xml:"printoled"`
-				PrintGps          bool     `xml:"printgps"`
-				PrintPanic        bool     `xml:"printpanic"`
-				PrintAudioRecord  bool     `xml:"printaudiorecord"`
+				Text              string `xml:",chardata"`
+				PrintAccount      bool   `xml:"printaccount"`
+				PrintLogging      bool   `xml:"printlogging"`
+				PrintProvisioning bool   `xml:"printprovisioning"`
+				PrintBeacon       bool   `xml:"printbeacon"`
+				PrintTTS          bool   `xml:"printtts"`
+				PrintSMTP         bool   `xml:"printsmtp"`
+				PrintSounds       bool   `xml:"printsounds"`
+				PrintTxTimeout    bool   `xml:"printtxtimeout"`
+				PrintHTTPAPI      bool   `xml:"printhttpapi"`
+				PrintTargetBoard  bool   `xml:"printtargetboard"`
+				PrintLeds         bool   `xml:"printleds"`
+				PrintHeartbeat    bool   `xml:"printheartbeat"`
+				PrintButtons      bool   `xml:"printbuttons"`
+				PrintComment      bool   `xml:"printcomment"`
+				PrintLcd          bool   `xml:"printlcd"`
+				PrintOled         bool   `xml:"printoled"`
+				PrintGps          bool   `xml:"printgps"`
+				PrintPanic        bool   `xml:"printpanic"`
+				PrintAudioRecord  bool   `xml:"printaudiorecord"`
 			} `xml:"printvariables"`
 		} `xml:"software"`
 		Hardware struct {
@@ -600,12 +599,12 @@ type Document struct {
 				OnlineLedPin        string `xml:"onlineledpin"`
 			} `xml:"lights"`
 			HeartBeat struct {
-				Text            string `xml:",chardata"`
-				Enabled         bool   `xml:"enabled,attr"`
-				LEDPin          string `xml:"heartbeatledpin"`
-				Periodmsecs     int    `xml:"periodmsecs"`
-				LEDOnmsecs      int    `xml:"ledonmsecs"`
-				LEDOffmsecs     int    `xml:"ledoffmsecs"`
+				Text        string `xml:",chardata"`
+				Enabled     bool   `xml:"enabled,attr"`
+				LEDPin      string `xml:"heartbeatledpin"`
+				Periodmsecs int    `xml:"periodmsecs"`
+				LEDOnmsecs  int    `xml:"ledonmsecs"`
+				LEDOffmsecs int    `xml:"ledoffmsecs"`
 			} `xml:"heartbeat"`
 			Buttons struct {
 				Text            string `xml:",chardata"`
@@ -654,7 +653,7 @@ type Document struct {
 			} `xml:"oled"`
 			GPS struct {
 				Text                string `xml:",chardata"`
-				Enabled             bool    `xml:"enabled,attr"`
+				Enabled             bool   `xml:"enabled,attr"`
 				Port                string `xml:"port"`
 				Baud                uint   `xml:"baud"`
 				TxData              string `xml:"txdata"`
@@ -667,7 +666,7 @@ type Document struct {
 				DataBits            uint   `xml:"databits"`
 				CharTimeOut         uint   `xml:"chartimeout"`
 				MinRead             uint   `xml:"minread"`
-				Rx                  bool `xml:"rx"`
+				Rx                  bool   `xml:"rx"`
 			} `xml:"gps"`
 			PanicFunction struct {
 				Text                 string  `xml:",chardata"`
@@ -685,6 +684,7 @@ type Document struct {
 				Text              string `xml:",chardata"`
 				Enabled           bool   `xml:"enabled,attr"`
 				RecordOnStart     bool   `xml:"recordonstart"`
+				RecordSystem      string `xml:"recordsystem"` // New
 				RecordMode        string `xml:"recordmode"`
 				RecordTimeout     int64  `xml:"recordtimeout"`
 				RecordFromOutput  string `xml:"recordfromoutput"`
@@ -805,7 +805,7 @@ func readxmlconfig(file string) error {
 	LogFilenameAndPath = document.Global.Software.Settings.LogFilenameAndPath
 	Logging = document.Global.Software.Settings.Logging
 
-	if document.Global.Software.Settings.Loglevel == "trace" || document.Global.Software.Settings.Loglevel == "debug" || document.Global.Software.Settings.Loglevel == "info" || document.Global.Software.Settings.Loglevel == "warning" || document.Global.Software.Settings.Loglevel == "error" || document.Global.Software.Settings.Loglevel == "alert" { 
+	if document.Global.Software.Settings.Loglevel == "trace" || document.Global.Software.Settings.Loglevel == "debug" || document.Global.Software.Settings.Loglevel == "info" || document.Global.Software.Settings.Loglevel == "warning" || document.Global.Software.Settings.Loglevel == "error" || document.Global.Software.Settings.Loglevel == "alert" {
 		Loglevel = document.Global.Software.Settings.Loglevel
 	}
 
@@ -848,7 +848,7 @@ func readxmlconfig(file string) error {
 	TTSVolumeLevel = document.Global.Software.TTS.VolumeLevel
 	TTSParticipants = document.Global.Software.TTS.Participants
 	TTSChannelUp = document.Global.Software.TTS.ChannelUp
- 	TTSChannelUpFilenameAndPath = document.Global.Software.TTS.ChannelUpFilenameAndPath
+	TTSChannelUpFilenameAndPath = document.Global.Software.TTS.ChannelUpFilenameAndPath
 
 	if TTSChannelUp && TTSChannelUpFilenameAndPath == "" {
 		path := defaultSharePath + "/soundfiles/voiceprompts/ChannelUp.wav"
@@ -1192,7 +1192,7 @@ func readxmlconfig(file string) error {
 	PrintOled = document.Global.Software.PrintVariables.PrintOled
 	PrintGps = document.Global.Software.PrintVariables.PrintGps
 	PrintPanic = document.Global.Software.PrintVariables.PrintPanic
-	PrintAudioRecord = document.Global.Software.PrintVariables.PrintAudioRecord // New
+	PrintAudioRecord = document.Global.Software.PrintVariables.PrintAudioRecord
 
 	TargetBoard = document.Global.Hardware.TargetBoard
 
@@ -1295,26 +1295,26 @@ func readxmlconfig(file string) error {
 	PTxLockEnabled = document.Global.Hardware.PanicFunction.TxLockEnabled
 	PTxlockTimeOutSecs = document.Global.Hardware.PanicFunction.TxLockTimeOutSecs
 
-	AudioRecordEnabled = document.Global.Hardware.AudioRecordFunction.Enabled         // New
-	AudioRecordOnStart = document.Global.Hardware.AudioRecordFunction.RecordOnStart         // New
-	AudioRecordMode = document.Global.Hardware.AudioRecordFunction.RecordMode               // New
-	AudioRecordTimeout = document.Global.Hardware.AudioRecordFunction.RecordTimeout         // New
-	AudioRecordFromOutput = document.Global.Hardware.AudioRecordFunction.RecordFromOutput   // New
-	AudioRecordFromInput = document.Global.Hardware.AudioRecordFunction.RecordFromInput     // New
-	AudioRecordMicTimeout = document.Global.Hardware.AudioRecordFunction.RecordMicTimeout   // New
-	AudioRecordSavePath = document.Global.Hardware.AudioRecordFunction.RecordSavePath       // New
-	AudioRecordArchivePath = document.Global.Hardware.AudioRecordFunction.RecordArchivePath // New
-	AudioRecordSoft = document.Global.Hardware.AudioRecordFunction.RecordSoft               // New
-	AudioRecordProfile = document.Global.Hardware.AudioRecordFunction.RecordProfile         // New
-	AudioRecordFileFormat = document.Global.Hardware.AudioRecordFunction.RecordFileFormat   // New
-	AudioRecordChunkSize = document.Global.Hardware.AudioRecordFunction.RecordChunkSize     // New
+	AudioRecordEnabled = document.Global.Hardware.AudioRecordFunction.Enabled
+	AudioRecordOnStart = document.Global.Hardware.AudioRecordFunction.RecordOnStart
+	AudioRecordSystem = document.Global.Hardware.AudioRecordFunction.RecordSystem
+	AudioRecordMode = document.Global.Hardware.AudioRecordFunction.RecordMode
+	AudioRecordTimeout = document.Global.Hardware.AudioRecordFunction.RecordTimeout
+	AudioRecordFromOutput = document.Global.Hardware.AudioRecordFunction.RecordFromOutput
+	AudioRecordFromInput = document.Global.Hardware.AudioRecordFunction.RecordFromInput
+	AudioRecordMicTimeout = document.Global.Hardware.AudioRecordFunction.RecordMicTimeout
+	AudioRecordSavePath = document.Global.Hardware.AudioRecordFunction.RecordSavePath
+	AudioRecordArchivePath = document.Global.Hardware.AudioRecordFunction.RecordArchivePath
+	AudioRecordSoft = document.Global.Hardware.AudioRecordFunction.RecordSoft
+	AudioRecordProfile = document.Global.Hardware.AudioRecordFunction.RecordProfile
+	AudioRecordFileFormat = document.Global.Hardware.AudioRecordFunction.RecordFileFormat
+	AudioRecordChunkSize = document.Global.Hardware.AudioRecordFunction.RecordChunkSize
 
-	//logical test for xml config
 	if TargetBoard != "rpi" {
 		LCDBackLightTimerEnabled = false
 	}
 
-  	if  LCDBackLightTimerEnabled == true && (OLEDEnabled == false && LCDEnabled == false) {
+	if LCDBackLightTimerEnabled == true && (OLEDEnabled == false && LCDEnabled == false) {
 		log.Println("Alert: Logical Error in LCDBacklight Timer Check XML config file")
 		log.Fatal("Backlight Timer Enabled but both LCD and OLED disabled!\n")
 
@@ -1635,19 +1635,20 @@ func printxmlconfig() {
 
 	if PrintAudioRecord {
 		log.Println("info: ------------ AUDIO RECORDING Function -------------- ")
-		log.Println("info: Audio Recording Enabled " + fmt.Sprintf("%v", AudioRecordEnabled))          // New
-		log.Println("info: Audio Recording On Start " + fmt.Sprintf("%v", AudioRecordOnStart))         // New
-		log.Println("info: Audio Record Mode " + fmt.Sprintf("%v", AudioRecordMode))                   // New
-		log.Println("info: Audio Record Timeout " + fmt.Sprintf("%v", AudioRecordTimeout))             // New
-		log.Println("info: Audio Record From Output " + fmt.Sprintf("%v", AudioRecordFromOutput))      // New
-		log.Println("info: Audio Record From Input " + fmt.Sprintf("%v", AudioRecordFromInput))        // New
-		log.Println("info: Audio Recording Mic Timeout " + fmt.Sprintf("%v", AudioRecordMicTimeout))   // New
-		log.Println("info: Audio Recording Save Path " + fmt.Sprintf("%v", AudioRecordSavePath))       // New
-		log.Println("info: Audio Recording Archive Path " + fmt.Sprintf("%v", AudioRecordArchivePath)) // New
-		log.Println("info: Audio Recording Soft " + fmt.Sprintf("%v", AudioRecordSoft))                // New}
-		log.Println("info: Audio Recording Profile " + fmt.Sprintf("%v", AudioRecordProfile))          // New
-		log.Println("info: Audio Recording File Format " + fmt.Sprintf("%v", AudioRecordFileFormat))   // New
-		log.Println("info: Audio Recording Chunk Size " + fmt.Sprintf("%v", AudioRecordChunkSize))     // New
+		log.Println("info: Audio Recording Enabled " + fmt.Sprintf("%v", AudioRecordEnabled))
+		log.Println("info: Audio Recording On Start " + fmt.Sprintf("%v", AudioRecordOnStart))
+		log.Println("info: Audio Recording System " + fmt.Sprintf("%v", AudioRecordSystem))
+		log.Println("info: Audio Record Mode " + fmt.Sprintf("%v", AudioRecordMode))
+		log.Println("info: Audio Record Timeout " + fmt.Sprintf("%v", AudioRecordTimeout))
+		log.Println("info: Audio Record From Output " + fmt.Sprintf("%v", AudioRecordFromOutput))
+		log.Println("info: Audio Record From Input " + fmt.Sprintf("%v", AudioRecordFromInput))
+		log.Println("info: Audio Recording Mic Timeout " + fmt.Sprintf("%v", AudioRecordMicTimeout))
+		log.Println("info: Audio Recording Save Path " + fmt.Sprintf("%v", AudioRecordSavePath))
+		log.Println("info: Audio Recording Archive Path " + fmt.Sprintf("%v", AudioRecordArchivePath))
+		log.Println("info: Audio Recording Soft " + fmt.Sprintf("%v", AudioRecordSoft))
+		log.Println("info: Audio Recording Profile " + fmt.Sprintf("%v", AudioRecordProfile))
+		log.Println("info: Audio Recording File Format " + fmt.Sprintf("%v", AudioRecordFileFormat))
+		log.Println("info: Audio Recording Chunk Size " + fmt.Sprintf("%v", AudioRecordChunkSize))
 	} else {
 		log.Println("info: ------------ AUDIO RECORDING Function ------- SKIPPED ")
 	}

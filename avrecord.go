@@ -20,7 +20,7 @@
  * Contributor(s):
  *
  * Suvir Kumar <suvir@talkkonnect.com>
- *
+ * Zoran Dimitrijevic
  * My Blog is at www.talkkonnect.com
  * The source code is hosted at github.com/talkkonnect
  *
@@ -84,11 +84,13 @@ func AudioRecordTraffic() {
 	//go audiorecordtrafficmux()
 	go audiorecordtraffic()
 	log.Println("info: sox is Recording Traffic to", AudioRecordSavePath)
+
 	//go func() {
 	//fileserve3mux()  //8085  mp3, wav files // mux?
 	//fileserve3()   //8085  mp3, wav files
 	//log.Println("info: Running http server on port 8085")
 	//}()
+
 	return
 }
 
@@ -100,7 +102,7 @@ func AudioRecordTraffic() {
       return
   default:
   fileserve3()   //8085  mp3, wav files
-  close(quitfs) // stop fileserve too.
+  close(quitfs)  // stop fileserve too.
 */
 
 // Record ambient audio from microphone with sox
@@ -121,12 +123,14 @@ func AudioRecordAmbient() {
 	}
 	time.Sleep(1 * time.Second)
 	go audiorecordambientmux()
+
 	//go audiorecordambient()
 	//log.Println("info: sox is Recording Ambient Audio from Mic to", AudioRecordSavePath )
 	//go func() {
 	//fileserve3()   //8085  mp3, wav files
 	//log.Println("info: Running http server on port 8085")
 	//}()
+
 	return
 }
 
@@ -148,58 +152,16 @@ func AudioRecordCombo() {
 	}
 	time.Sleep(1 * time.Second)
 	go audiorecordcombomux()
+
 	//go audiorecordcombo()
 	//log.Println("info: sox is Recording Traffic and Ambient Audio Mix to", AudioRecordSavePath )
 	//go func() {
 	//fileserve3()   //8085  mp3, wav files
 	//log.Println("info: Running http server on port 8085")
 	//}()
+
 	return
 }
-
-/*
-// TO DO. helper to break sox arguments to different "profiles" and select slices with settings to command sox.
-
-func getsoxargs() []string {
-
-	audrecfile := time.Now().Format("20060102150405") + "." + AudioRecordFileFormat
-
-	args0 := []string{"-t", "alsa", AudioRecordFromOutput, "-t", AudioRecordFileFormat, audrecfile} // "standard". Just record.
-
-	silence := []string{"silence", "1", "1", "2%", "-1", "0.5", "2%"}      // Detect and omit silence from recording
-
-	chunks := []string{"trim", "0", "300", ":", "newfile", ":", "restart"} // Break recording to chunks
-
-	args1 := append(args0, silence...)                                     // "vox-trimsilence". Detect vox and trim silence
-	args2 := append(args0, chunks...)                                      // "chunks". Make file chunks
-	args3 := append(args1, chunks...)                                      // "vox-trimsilence-chunks". vox, trim silence and make chunks
-
-	if AudioRecordMode == "standard" {
-		//args := args0
-		fmt.Print(args0)
-	}
-
-	if AudioRecordMode == "vox-trimsilence" {
-		args := args1
-		fmt.Print(args)
-
-	}
-	if AudioRecordMode == "chunks" {
-		args := args2
-		fmt.Println(args)
-	}
-	if AudioRecordMode == "vox-trimsilence-chunks" {
-		args := args3
-		fmt.Println(args)
-	}
-
-	return args
-}
-
-// test: getsoxargs() should return sox arguments.
-// it should return something like this [-t alsa hw:1,0 -t mp3 20091110230000.mp3 trim 0 300 : newfile : restart]
-
-*/
 
 //Record traffic with mux exclusion. Allow new start only if currently not running.
 
@@ -232,52 +194,13 @@ func audiorecordtraffic() {
 		log.Println("info: sox is Missing. Is the Package Installed?")
 	}
 
-	//Need apt-get install sox libsox-fmt-mp3 (lame) (or pulseaudio and libsox-fmt-pulse)
-
-	/*Need snd-aloop Alsa module. Should be standard kernel module. Just load snd-aloop
-		and define loopback, dsnoop and dmix in .asoundrc or /usr/share/alsa/alsa.conf
-	        modprobe modprobe snd-aloop (add to rc.local)
-	        or echo "modprobe snd-aloop index=0 pcm_substreams=1" | sudo tee -a /etc/modules
-	        or echo 'snd-aloop' >> /etc/modules
-		or create snd-aloop.conf in /etc/modprobe.d/
-	        to load snd-aloop on startup. For quick test just load with modprobe, remove with modprobe -r.
-	*/
-
 	audrecfile := time.Now().Format("20060102150405") + "." + AudioRecordFileFormat
 	log.Println("info: sox is Recording Traffic to", AudioRecordSavePath+"/"+audrecfile)
 	log.Println("info: Audio Recording Mode:", AudioRecordMode)
 
-	if AudioRecordTimeout != 0 { // Record traffic, but stop it after timeout, if specified. "0" no timeout.
+	if AudioRecordTimeout != 0 { // Record traffic, but stop it after timeout, if specified. "0" for no timeout.
 
-		/*	//TEST. Can switch be used for sox args? Need function to return args?
-			//var args []string
-			switch AudioRecordMode  {
-			case "standard":
-			if AudioRecordMode == "standard" {
-			args := []string{"-t", "alsa", AudioRecordFromOutput, "-t", AudioRecordFileFormat, audrecfile}
-			log.Println("info: standard", args)
-			}
-			case "vox-trimsilence":
-			if AudioRecordMode == "vox-trimsilence" {
-			args := []string{"-t", "alsa", AudioRecordFromOutput, "-t", AudioRecordFileFormat, audrecfile, "silence", "1", "1", `2%`, "-1", "0.5", `2%`}
-			log.Println("info: vox-trimsilence", args)
-			}
-			case "chunks":
-			if AudioRecordMode == "chunks" {
-			args := []string{"-t", "alsa", AudioRecordFromOutput, "-t", AudioRecordFileFormat, audrecfile, "trim", "0", "300", ":", "newfile", ":", "restart"}
-			log.Println("info: chunks", args)
-			}
-			case "vox-trimsilence-chunks":
-			if AudioRecordMode == "vox-trimsilence-chunks" {
-			args := []string{"-t", "alsa", AudioRecordFromOutput, "-t", AudioRecordFileFormat, audrecfile, "silence", "1", "1", `2%`, "-1", "0.5", `2%`,  "trim", "0", "300", ":", "newfile", ":", "restart"}
-			log.Println("info: vox-trimsilence-chunks", args)
-			}
-			default:
-			args := []string{"-t", "alsa", AudioRecordFromOutput, "-t", AudioRecordFileFormat, audrecfile}
-			log.Println("info: standard", args)
-			}
-		*/
-		args := []string{"-t", "alsa", AudioRecordFromOutput, "-t", AudioRecordFileFormat, audrecfile, "trim", "0", AudioRecordChunkSize, ":", "newfile", ":", "restart"}
+		args := []string{"-t", AudioRecordSystem, AudioRecordFromOutput, "-t", AudioRecordFileFormat, audrecfile, "trim", "0", AudioRecordChunkSize, ":", "newfile", ":", "restart"}
 
 		log.Println("info: sox Arguments: " + fmt.Sprint(strings.Trim(fmt.Sprint(args), "[]")))
 		log.Println("info: Traffic Recording will Timeout After:", AudioRecordTimeout, "seconds")
@@ -312,34 +235,7 @@ func audiorecordtraffic() {
 
 		audrecfile := time.Now().Format("20060102150405") + "." + AudioRecordFileFormat // mp3, wav
 
-		args := []string{"-t", "alsa", AudioRecordFromOutput, "-t", "mp3", audrecfile, "silence", "1", "1", "2%", "-1", "0.5", "2%", "trim", "0", AudioRecordChunkSize, ":", "newfile", ":", "restart"}
-
-		//getsoxargs()
-		//fmt.Println(getsoxargs())
-		//fmt.Sprint(strings.Trim(fmt.Sprint(getsoxargs()),"[]"))
-
-		//args := []string{"-t", "alsa", "hw:Loopback,1,0", "-t", "mp3", audrecfile}         				               // Continous
-		//test args := []string{"-t", "alsa", "hw:Loopback,1,0", "-t", "mp3", test.mp3, "silence", "1", "1", "2%", "-1", "0.5", "2%", "trim" ,"0" , "300", ":", "newfile", ":", "restart"}
-		//Break recording to 5 min audio chunks. Detect silence.
-
-		//devices "loopin", "loopout", "plughw:1,0, hw:Loopback,1,0, plug:dsnoop(er)...
-		//args := []string{"-t", "alsa", AudioRecordFromOutput, "-t", AudioRecordFileFormat, audrecfile, "trim", "0" ,"300",":", "newfile", ":", "restart"}  // Continous with 5 min audio chunks
-		//args := []string{"-t", "alsa", "loopout", "-t", "mp3", audrecfile,"silence", "1", "1", `2%`, "-1", "0.5", `2%`}      // skip silence.
-		//Break recording to 5 min audio chunks.
-		//args := []string{"-t", "alsa", "loopout", "-t", "mp3", audrecfile, "silence", "1", "1", `2%`, "-1", "0.5", `2%`, "trim", "0" ,"300",":", "newfile", ":", "restart"}
-
-		//Break recording to 5 minute chunks. And omitt silence. Requires approximatelly 1MB / minute of disk space.
-		//args := []string{`--combine`, "mix", "-t", "alsa", "loopout", "-t", "plug:dsnoop", "-t", "mp3", audrecfile, "silence", "1", "1", `2%`, "-1", "0.5", `2%`, "trim", "0" ,"300",":", "newfile", ":", "restart"}
-
-		//Break recording to 5 minute chunks, omit silence, record both incomming traffic and mic input. For Alsa test config 1. (multi and dsnoop)
-		//args := []string{"-m", "-t", "alsa", "loopout", "-t", "alsa", "plug:dsnooped", "-t", "mp3", audrecfile, "silence", "1", "1", `2%`, "-1", "0.5", `2%`, "trim", "0" , "300",":", "newfile", ":", "restart"}
-
-		//Break recording to 5 minute chunks, omit silence, record both incomming traffic and mic input. For Alsa test config 2 (dmix and multi)
-		//args := []string{"-m", "-t", "alsa", "AudioRecordFromOutput", "-t", "alsa", "AudioRecordFromInput", "-t", "mp3", audrecfile, "silence", "-l", "1", "1", `2%`, "-1", "0.5", `2%`, "trim", "0" , "300",":", "newfile", ":", "restart"}
-
-		// if Alsa device paramerers are wrong or have changed, sox process will launch, but it
-		// won't start recording to file. No file wils be created. Check for new file and log print if it doesn's start?
-		// Check if recording dir is still empty after launching sox?
+		args := []string{"-t", AudioRecordSystem, AudioRecordFromOutput, "-t", "mp3", audrecfile, "silence", "-l", "1", "1", "2%", "-1", "0.5", "2%", "trim", "0", AudioRecordChunkSize, ":", "newfile", ":", "restart"}
 
 		cmd := exec.Command("/usr/bin/sox", args...)
 		cmd.Dir = AudioRecordSavePath
@@ -359,7 +255,7 @@ func audiorecordtraffic() {
 			go func() {
 				for range ticker.C {
 					checked := time.Since(starttime)
-					checkedshort := fmt.Sprintf(before(fmt.Sprint(checked), ".")) // trim  milliseconds after .  Format 00h00m00s.
+					checkedshort := fmt.Sprintf(before(fmt.Sprint(checked), ".")) // trim  milliseconds after.  Format 00h00m00s.
 					//elapsed := checked.Sub(starttime)
 					//log.Println("info: sox is Still Running. Time:", elapsed)
 					elapsed := fmtDuration(checked) // hh:mm format
@@ -377,7 +273,6 @@ func audiorecordtraffic() {
 }
 
 // If talkkonnect stops or hangs. Must close sox manually. No signaling to sox for closing in this case.
-
 //Record traffic and Mic mux exclusion.  Allow new start only if currently not running.
 
 func audiorecordambientmux() {
@@ -417,22 +312,9 @@ func audiorecordambient() {
 
 	if AudioRecordMicTimeout != 0 { // Record ambient audio, but stop it after timeout, if specified. "0" no timeout.
 
-		args := []string{"-t", "alsa", AudioRecordFromInput, "-t", "mp3", audrecfile, "trim", "0", AudioRecordChunkSize, ":", "newfile", ":", "restart"}
+		args := []string{"-t", AudioRecordSystem, AudioRecordFromInput, "-t", "mp3", audrecfile, "trim", "0", AudioRecordChunkSize, ":", "newfile", ":", "restart"}
 
 		cmd := exec.Command("/usr/bin/sox", args...)
-
-		//cmd := exec.Command("/root/soxrecord1.sh")
-		//cmd := exec.Command("bash", "-c", "soxrecord1.sh")
-
-		/*Some cmd examples:
-		sox -t alsa default -t test.wav
-		sox -t alsa dsnoop -t test.wav
-		sox -t pulse default -t mp3 test.mp3 silence 1 1 2% -1 0.5 2%
-		sox -t alsa plughw:1,0 -c 1 -r 16k r.wav silence 1 0.1 0.3% 1 3.0 0.3% : newfile : restart
-		sox -t alsa default -c 1 -r 16k r.wav
-		sox --combine mix -t alsa loopout -t alsa plug:dsnoop -t mp3 test.mp3 silence 1 1 2% -1 0.5 2% trim 0 30 : newfile : restart
-		arecord -D plughw:1,0 -f S16_LE $(date +%Y%m%d-%H%M%S).wav
-		*/
 
 		cmd.Dir = AudioRecordSavePath // save audio recording
 		err := cmd.Start()
@@ -459,11 +341,8 @@ func audiorecordambient() {
 		cmd.Process.Kill()
 	} else {
 		audrecfile := time.Now().Format("20060102150405") + "." + AudioRecordFileFormat // mp3, wav
-		//args := []string{"-t", "alsa", "plughw:1,0", "-t", "mp3", audrecfile} 	// Continous
-		//args := []string{"-t", "alsa", "plug:dsnooper", "-t", "mp3", audrecfile,"silence", "1", "1", `2%`, "-1", "0.5", `2%`}   // skip silence.
-		//args := []string{"-t", "alsa", "plug:dsnooper", "-t", "mp3", audrecfile, "trim", "0" ,"300", ":", "newfile", ":", "restart"} 	// Continous with 5 min audio chunks
 
-		args := []string{"-t", "alsa", "plug:dsnooper", "-t", "mp3", audrecfile, "silence", "1", "1", `2%`, "-1", "0.5", `2%`, "trim", "0", AudioRecordChunkSize, ":", "newfile", ":", "restart"} // voice detect, trim silence with 5 min audio chunks
+		args := []string{"-t", AudioRecordSystem, AudioRecordFromInput, "-t", "mp3", audrecfile, "silence", "-l", "1", "1", `2%`, "-1", "0.5", `2%`, "trim", "0", AudioRecordChunkSize, ":", "newfile", ":", "restart"} // voice detect, trim silence with 5 min audio chunks
 
 		cmd := exec.Command("/usr/bin/sox", args...)
 		cmd.Dir = AudioRecordSavePath // save audio recording to dir
@@ -538,7 +417,7 @@ func audiorecordcombo() {
 
 	if AudioRecordTimeout != 0 { // Record traffic, but stop it after timeout, if specified. "0" no timeout.
 
-		args := []string{"-m", "-t", "alsa", AudioRecordFromOutput, "-t", "alsa", AudioRecordFromInput, "-t", AudioRecordFileFormat, audrecfile, "silence", "1", "1", `2%`, "-1", "0.5", `2%`, "trim", "0", AudioRecordChunkSize, ":", "newfile", ":", "restart"}
+		args := []string{"-m", "-t", AudioRecordSystem, AudioRecordFromOutput, "-t", AudioRecordSystem, AudioRecordFromInput, "-t", AudioRecordFileFormat, audrecfile, "silence", "-l", "1", "1", `2%`, "-1", "0.5", `2%`, "trim", "0", AudioRecordChunkSize, ":", "newfile", ":", "restart"}
 
 		log.Println("info: sox Arguments: " + fmt.Sprint(strings.Trim(fmt.Sprint(args), "[]")))
 		log.Println("info: Audio Combo Recording will Timeout After:", AudioRecordTimeout, "seconds")
@@ -574,7 +453,7 @@ func audiorecordcombo() {
 
 		audrecfile := time.Now().Format("20060102150405") + "." + AudioRecordFileFormat // mp3, wav
 
-		args := []string{"-m", "-t", "alsa", AudioRecordFromOutput, "-t", "alsa", AudioRecordFromInput, "-t", "mp3", audrecfile, "silence", "1", "1", `2%`, "-1", "0.5", `2%`, "trim", "0", AudioRecordChunkSize, ":", "newfile", ":", "restart"}
+		args := []string{"-m", "-t", AudioRecordSystem, AudioRecordFromOutput, "-t", AudioRecordSystem, AudioRecordFromInput, "-t", "mp3", audrecfile, "silence", "-l", "1", "1", `2%`, "-1", "0.5", `2%`, "trim", "0", AudioRecordChunkSize, ":", "newfile", ":", "restart"}
 
 		cmd := exec.Command("/usr/bin/sox", args...)
 		cmd.Dir = AudioRecordSavePath
@@ -622,28 +501,6 @@ func clearfiles() { // Testing os.Remove to delete files
 		return
 	}
 }
-
-// http server test
-/*func fileserve() {
-	port := flag.String("p", "8083", "port to serve on")
-	directory := flag.String("d", "./img", "the directory of static file to host")
-	//. or /
-	flag.Parse()
-
-	http.Handle("/", http.FileServer(http.Dir(*directory)))
-	//http.Handle("/img/", http.StripPrefix("/img/", http.FileServer(http.Dir("./img/"))))
-	// in case of problem with img dir
-        time.Sleep(3 * time.Second)
-	log.Println("info: Serving Location", *directory, "over HTTP port:", *port)
-	log.Println("info: HTTP Server Waiting")
-	log.Fatal(http.ListenAndServe(":" + *port, nil))
-
-// Error with Talkkonnect when serving files
-// panic: http: multiple registrations for /
-// When running alone with "go run" not a problem.
-// Problem: defaultHTTPMux, doesn’t support multiple registrations.
-// Try to fix with mux exclusion.
-*/
 
 // mux for server
 
@@ -708,7 +565,7 @@ zipit("/tmp/documents", "/tmp/backup.zip")
 zipit("/tmp/report.txt", "/tmp/report-2015.zip")
 unzip("/tmp/report-2015.zip", "/tmp/reports/")
 Example from: https://gist.github.com/svett/424e6784facc0ba907ae
-Reuse this for compressing logs, backup , etc.
+Reuse for compressing logs, backup, etc.
 */
 
 func zipit(source, target string) error {
@@ -972,16 +829,4 @@ func after(value string, a string) string {
 		return ""
 	}
 	return value[adjustedPos:len(value)]
-}
-
-// /|\- Spinner for indicating program running
-//go spinner(time.Duration(AudioRecordTimeout)*time.Millisecond)
-
-func spinner(delay time.Duration) {
-	for {
-		for _, r := range `-\|/` {
-			fmt.Printf("\r%c", r)
-			time.Sleep(delay)
-		}
-	}
 }

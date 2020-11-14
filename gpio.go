@@ -407,4 +407,3 @@ func (b *Talkkonnect) LEDOffAll() {
 		LEDOffFunc(b.VoiceActivityLED)
 	}
 }
-

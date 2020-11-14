@@ -52,7 +52,7 @@ var (
 	LastTime         = now.Unix()
 	debuglevel       = 2
 	emptyBufs        = openal.NewBuffers(16)
-	StreamCounter = 0
+	StreamCounter    = 0
 )
 
 type Stream struct {

@@ -51,8 +51,7 @@ func oledDisplay(OledClear bool, OledRow int, OledColumn int, OledText string) {
 		return
 	}
 
-
-	if OledClear == false && len(OledText) > 0 && LCDIsDark ==true {
+	if OledClear == false && len(OledText) > 0 && LCDIsDark == true {
 		Oled.DisplayOn()
 	}
 

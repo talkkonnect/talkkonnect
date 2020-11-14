@@ -77,4 +77,3 @@ func secondsToHuman(input int) (result string) {
 
 	return
 }
-

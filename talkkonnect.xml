@@ -324,6 +324,23 @@
         <txlocktimeoutsecs>30</txlocktimeoutsecs>
       </panicfunction>
 
+      <!-- Set Parameters for Recording using Sox Supports Alsa and Pulse Audio -->
+      <audiorecordfunction enabled="false">
+       <recordsystem>alsa</recordsystem> <!-- Sox Use alsa or pulseaudio for recording -->
+       <recordonstart>false</recordonstart> <!--Record on Program Start (Incoming Traffic, Ambient Audio)-->
+       <recordmode>traffic</recordmode> <!--Traffic (traffic), Ambient (ambient), Both (combo)-->
+       <recordtimeout>0</recordtimeout> <!--Record Incoming Traffic Timeout (seconds). "0" for Continous-->
+       <recordfromoutput>1</recordfromoutput> <!--Name of the Audio Output... Loopback, Monitor, Source from Alsa, Pulseaudio, Jack. -->
+       <recordfrominput>1</recordfrominput> <!--Device Name for Mic. sound Config, dsnoop, plug:dsnooper, plughw:1,0, pulseaudio sink id or name-->
+       <recordmictimeout>0</recordmictimeout> <!--When to Stop Recording from Microphone (seconds). "0" for Continous-->
+       <recordsoft>sox</recordsoft> <!--External Audio Software: /usr/bin/sox, arecord, ffmpeg, other-->
+       <recordsavepath>/avrec/audio</recordsavepath> <!--Where To Save Audio Records-->
+       <recordarchivepath>/avrec/archive/audio</recordarchivepath> <!--Where to Archive Recorded Audio Files-->
+       <recordprofile>standard</recordprofile> <!--Recording Mode. standard, vox-trimsilence, vox-trimsilence-chunks -->
+       <recordfileformat>mp3</recordfileformat> <!--Recording Format (wav, mp3, ogg)-->
+       <recordchunksize>600</recordchunksize> <!--Size of Audio FIle Chunks in Seconds-->
+     </audiorecordfunction>
+
     </hardware>
   </global>
 </document>

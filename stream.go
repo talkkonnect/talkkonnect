@@ -53,6 +53,7 @@ var (
 	debuglevel       = 2
 	emptyBufs        = openal.NewBuffers(16)
 	StreamCounter    = 0
+	LastSpeaker	 = ""
 )
 
 type Stream struct {
@@ -205,26 +206,24 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 
 			if source.State() != openal.Playing {
 				source.Play()
-				if lastspeaker != e.User.Name {
-					log.Println("info: Speaking->", e.User.Name)
-					lastspeaker = e.User.Name
+				if LastSpeaker != *e.LastSpeaker {
+					LastSpeaker = *e.LastSpeaker
+					log.Println("info: Speaking->", LastSpeaker)
 					t := time.Now()
 					if TargetBoard == "rpi" {
 						if LCDEnabled == true {
-							lcdtext = [4]string{"nil", "", "", e.User.Name + " " + t.Format("15:04:05")}
+							lcdtext = [4]string{"nil", "", "", LastSpeaker + " " + t.Format("15:04:05")}
 							go hd44780.LcdDisplay(lcdtext, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 							BackLightTime.Reset(time.Duration(LCDBackLightTimeoutSecs) * time.Second)
 						}
 
 						if OLEDEnabled == true {
 							Oled.DisplayOn()
-							go oledDisplay(false, 3, 1, e.User.Name+" "+t.Format("15:04:05"))
+							go oledDisplay(false, 3, 1, LastSpeaker+" "+t.Format("15:04:05"))
 							BackLightTime.Reset(time.Duration(LCDBackLightTimeoutSecs) * time.Second)
 						}
 					}
 				}
-			} else {
-				lastspeaker = e.User.Name
 			}
 			LEDOnFunc(VoiceActivityLED)
 		}

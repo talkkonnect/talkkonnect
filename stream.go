@@ -151,6 +151,24 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 
 	// Work arround for leaking killing leaky go routines as users connect
 	StreamCounter++
+
+	timertalkled := time.NewTimer(time.Millisecond * 200)
+	var watchpin = true
+
+	go func() {
+		if StreamCounter == 1 {
+			for watchpin {
+				<-timertalkled.C
+				if TargetBoard == "rpi" {
+					LEDOffFunc(VoiceActivityLED)
+				}
+				lastspeaker = "Nil"
+			}
+		} else {
+			return
+		}
+	}()
+
 	go func() {
 		if StreamCounter > 1 {
 			StreamCounter--
@@ -171,6 +189,11 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 		var raw [gumble.AudioMaximumFrameSize * 2]byte
 
 		for packet := range e.C {
+
+			if TargetBoard == "rpi" {
+					LEDOnFunc(VoiceActivityLED)
+			}
+
 
 			if TargetBoard == "rpi" && LCDEnabled == true {
 				LEDOnFunc(BackLightLED)
@@ -227,6 +250,7 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 			}
 			LEDOnFunc(VoiceActivityLED)
 		}
+		watchpin = false
 		reclaim()
 		emptyBufs.Delete()
 		source.Delete()

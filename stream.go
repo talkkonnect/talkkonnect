@@ -44,7 +44,6 @@ import (
 
 var (
 	errState         = errors.New("gumbleopenal: invalid state")
-	lastspeaker      = "Nil"
 	lcdtext          = [4]string{"nil", "nil", "nil", ""}
 	BackLightLED     = gpio.NewOutput(uint(LCDBackLightLEDPin), false)
 	VoiceActivityLED = gpio.NewOutput(VoiceActivityLEDPin, false)
@@ -53,7 +52,9 @@ var (
 	debuglevel       = 2
 	emptyBufs        = openal.NewBuffers(16)
 	StreamCounter    = 0
-	LastSpeaker	 = ""
+	LastSpeaker      = ""
+	TimerTalked      = time.NewTicker(time.Millisecond * 200)
+	RXLEDStatus      = false
 )
 
 type Stream struct {
@@ -149,25 +150,46 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 		LEDOffFunc(BackLightLED)
 	}
 
-	// Work arround for leaking killing leaky go routines as users connect
 	StreamCounter++
 
-	timertalkled := time.NewTimer(time.Millisecond * 200)
-	var watchpin = true
+	TalkedTicker := time.NewTicker(200 * time.Millisecond)
+	Talking := make(chan bool)
 
-	go func() {
-		if StreamCounter == 1 {
-			for watchpin {
-				<-timertalkled.C
-				if TargetBoard == "rpi" {
+	if StreamCounter == 1 {
+		go func() {
+			for {
+				select {
+				case <-Talking:
+					TalkedTicker.Reset(200 * time.Millisecond)
+					if RXLEDStatus == false {
+						RXLEDStatus = true
+						LEDOnFunc(VoiceActivityLED)
+						log.Println("info: Speaking->", LastSpeaker)
+						t := time.Now()
+						if TargetBoard == "rpi" {
+							if LCDEnabled == true {
+								lcdtext = [4]string{"nil", "", "", LastSpeaker + " " + t.Format("15:04:05")}
+								go hd44780.LcdDisplay(lcdtext, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+								BackLightTime.Reset(time.Duration(LCDBackLightTimeoutSecs) * time.Second)
+							}
+
+							if OLEDEnabled == true {
+								Oled.DisplayOn()
+								go oledDisplay(false, 3, 1, LastSpeaker+" "+t.Format("15:04:05"))
+								BackLightTime.Reset(time.Duration(LCDBackLightTimeoutSecs) * time.Second)
+							}
+						}
+					}
+				case <-TalkedTicker.C:
+					RXLEDStatus = false
 					LEDOffFunc(VoiceActivityLED)
+					LastSpeaker = ""
+					TalkedTicker.Stop()
+
 				}
-				lastspeaker = "Nil"
 			}
-		} else {
-			return
-		}
-	}()
+		}()
+	}
 
 	go func() {
 		if StreamCounter > 1 {
@@ -189,68 +211,31 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 		var raw [gumble.AudioMaximumFrameSize * 2]byte
 
 		for packet := range e.C {
-
-			if TargetBoard == "rpi" {
-					LEDOnFunc(VoiceActivityLED)
-			}
-
-
-			if TargetBoard == "rpi" && LCDEnabled == true {
-				LEDOnFunc(BackLightLED)
-			}
-
+			Talking <- true
 			samples := len(packet.AudioBuffer)
-
-			if CancellableStream && NowStreaming {
-				pstream.Stop()
-			}
 
 			if samples > cap(raw) {
 				continue
 			}
-
 			for i, value := range packet.AudioBuffer {
 				binary.LittleEndian.PutUint16(raw[i*2:], uint16(value))
 			}
-
 			reclaim()
-
 			if len(emptyBufs) == 0 {
 				emptyBufs = openal.NewBuffers(16)
 				continue
 			}
-
 			last := len(emptyBufs) - 1
 			buffer := emptyBufs[last]
 			emptyBufs = emptyBufs[:last]
-
 			buffer.SetData(openal.FormatMono16, raw[:samples*2], gumble.AudioSampleRate)
 			source.QueueBuffer(buffer)
-
 			if source.State() != openal.Playing {
 				source.Play()
-				if LastSpeaker != *e.LastSpeaker {
-					LastSpeaker = *e.LastSpeaker
-					log.Println("info: Speaking->", LastSpeaker)
-					t := time.Now()
-					if TargetBoard == "rpi" {
-						if LCDEnabled == true {
-							lcdtext = [4]string{"nil", "", "", LastSpeaker + " " + t.Format("15:04:05")}
-							go hd44780.LcdDisplay(lcdtext, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
-							BackLightTime.Reset(time.Duration(LCDBackLightTimeoutSecs) * time.Second)
-						}
-
-						if OLEDEnabled == true {
-							Oled.DisplayOn()
-							go oledDisplay(false, 3, 1, LastSpeaker+" "+t.Format("15:04:05"))
-							BackLightTime.Reset(time.Duration(LCDBackLightTimeoutSecs) * time.Second)
-						}
-					}
-				}
 			}
-			LEDOnFunc(VoiceActivityLED)
+			LastSpeaker = *e.LastSpeaker
+			Talking <- false
 		}
-		watchpin = false
 		reclaim()
 		emptyBufs.Delete()
 		source.Delete()
@@ -284,7 +269,7 @@ func (s *Stream) sourceRoutine() {
 			}
 			return
 		case <-ticker.C:
-			//this is for encding (transmitting)
+			//this is for encoding (transmitting)
 			buff := s.deviceSource.CaptureSamples(uint32(frameSize))
 			if len(buff) != frameSize*2 {
 				continue

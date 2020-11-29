@@ -168,6 +168,7 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 						t := time.Now()
 						if TargetBoard == "rpi" {
 							if LCDEnabled == true {
+								LEDOnFunc(BackLightLED)
 								lcdtext = [4]string{"nil", "", "", LastSpeaker + " " + t.Format("15:04:05")}
 								go hd44780.LcdDisplay(lcdtext, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 								BackLightTime.Reset(time.Duration(LCDBackLightTimeoutSecs) * time.Second)

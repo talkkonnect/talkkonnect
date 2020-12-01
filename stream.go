@@ -213,6 +213,15 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 
 		for packet := range e.C {
 			Talking <- true
+
+			if TargetBoard == "rpi" && LCDEnabled == true {
+				LEDOnFunc(BackLightLED)
+			}
+
+			if CancellableStream && NowStreaming {
+				pstream.Stop()
+			}
+
 			samples := len(packet.AudioBuffer)
 
 			if samples > cap(raw) {

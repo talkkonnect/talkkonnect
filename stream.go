@@ -52,7 +52,6 @@ var (
 	debuglevel       = 2
 	emptyBufs        = openal.NewBuffers(16)
 	StreamCounter    = 0
-	LastSpeaker      = ""
 	TimerTalked      = time.NewTicker(time.Millisecond * 200)
 	RXLEDStatus      = false
 )
@@ -164,19 +163,19 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 					if RXLEDStatus == false {
 						RXLEDStatus = true
 						LEDOnFunc(VoiceActivityLED)
-						log.Println("info: Speaking->", LastSpeaker)
+						log.Println("info: Speaking->", *e.LastSpeaker)
 						t := time.Now()
 						if TargetBoard == "rpi" {
 							if LCDEnabled == true {
 								LEDOnFunc(BackLightLED)
-								lcdtext = [4]string{"nil", "", "", LastSpeaker + " " + t.Format("15:04:05")}
+								lcdtext = [4]string{"nil", "", "", *e.LastSpeaker + " " + t.Format("15:04:05")}
 								go hd44780.LcdDisplay(lcdtext, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 								BackLightTime.Reset(time.Duration(LCDBackLightTimeoutSecs) * time.Second)
 							}
 
 							if OLEDEnabled == true {
 								Oled.DisplayOn()
-								go oledDisplay(false, 3, 1, LastSpeaker+" "+t.Format("15:04:05"))
+								go oledDisplay(false, 3, 1, *e.LastSpeaker+" "+t.Format("15:04:05"))
 								BackLightTime.Reset(time.Duration(LCDBackLightTimeoutSecs) * time.Second)
 							}
 						}
@@ -184,7 +183,6 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 				case <-TalkedTicker.C:
 					RXLEDStatus = false
 					LEDOffFunc(VoiceActivityLED)
-					LastSpeaker = ""
 					TalkedTicker.Stop()
 
 				}
@@ -243,7 +241,6 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 			if source.State() != openal.Playing {
 				source.Play()
 			}
-			LastSpeaker = *e.LastSpeaker
 			Talking <- false
 		}
 		reclaim()

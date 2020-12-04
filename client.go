@@ -155,25 +155,6 @@ func PreInit0(file string, ServerIndex string) {
 	colog.Register()
 	colog.SetOutput(os.Stdout)
 
-	switch Loglevel {
-	case "trace":
-		colog.SetDefaultLevel(colog.LTrace)
-	case "debug":
-		colog.SetDefaultLevel(colog.LDebug)
-	case "info":
-		colog.SetDefaultLevel(colog.LInfo)
-	case "warning":
-		colog.SetDefaultLevel(colog.LWarning)
-	case "error":
-		colog.SetDefaultLevel(colog.LError)
-	case "alert":
-		colog.SetDefaultLevel(colog.LAlert)
-	default:
-		colog.SetDefaultLevel(colog.LInfo)
-	}
-
-	log.Println("info: Loglevel Set to ", Loglevel)
-
 	if Logging == "screen" {
 		colog.SetFlags(log.Ldate | log.Ltime)
 	}
@@ -181,6 +162,32 @@ func PreInit0(file string, ServerIndex string) {
 	if Logging == "screenwithlineno" || Logging == "screenandfilewithlineno" {
 		colog.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 	}
+
+
+	switch Loglevel {
+	case "trace":
+		colog.SetMinLevel(colog.LTrace)
+		log.Println("info: Loglevel Set to Trace")
+	case "debug":
+		colog.SetMinLevel(colog.LDebug)
+		log.Println("info: Loglevel Set to Debug")
+	case "info":
+		colog.SetMinLevel(colog.LInfo)
+		log.Println("info: Loglevel Set to Info")
+	case "warning":
+		colog.SetMinLevel(colog.LWarning)
+		log.Println("info: Loglevel Set to Warning")
+	case "error":
+		colog.SetMinLevel(colog.LError)
+		log.Println("info: Loglevel Set to Error")
+	case "alert":
+		colog.SetMinLevel(colog.LAlert)
+		log.Println("info: Loglevel Set to Alert")
+	default:
+		colog.SetMinLevel(colog.LInfo)
+		log.Println("info: Default Loglevel unset in XML config automatically loglevel to Info")
+	}
+
 
 	if APEnabled {
 		log.Println("info: Contacting http Provisioning Server Pls Wait")

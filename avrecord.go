@@ -61,10 +61,10 @@ func AudioRecordTraffic() {
 	// Need a way to prevent multiple sox instances running, or kill old one.
 	_, err := exec.Command("sh", "-c", "killall -SIGINT sox").Output()
 	if err != nil {
-		log.Println("info: No Old sox Instance is Running. It is OK to Start sox")
+		log.Println("debug: No Old sox Instance is Running. It is OK to Start sox")
 	} else {
 		time.Sleep(1 * time.Second)
-		log.Println("info: Old sox instance was Killed Before Running New")
+		log.Println("debug: Old sox instance was Killed Before Running New")
 	}
 
 	CreateDirIfNotExist(AudioRecordSavePath)
@@ -74,36 +74,18 @@ func AudioRecordTraffic() {
 
 		filezip := time.Now().Format("20060102150405") + ".zip"
 		go zipit(AudioRecordSavePath+"/", AudioRecordArchivePath+"/"+filezip)
-		log.Println("info: Archiving Old Audio Files to", AudioRecordArchivePath+"/"+filezip)
+		log.Println("debug: Archiving Old Audio Files to", AudioRecordArchivePath+"/"+filezip)
 		time.Sleep(1 * time.Second)
 		cleardir(AudioRecordSavePath)
 	} else {
-		log.Println("info: Audio Recording Folder Is Empty. No Old Files to Archive")
+		log.Println("debug: Audio Recording Folder Is Empty. No Old Files to Archive")
 	}
 	time.Sleep(1 * time.Second)
-	//go audiorecordtrafficmux()
 	go audiorecordtraffic()
-	log.Println("info: sox is Recording Traffic to", AudioRecordSavePath)
-
-	//go func() {
-	//fileserve3mux()  //8085  mp3, wav files // mux?
-	//fileserve3()   //8085  mp3, wav files
-	//log.Println("info: Running http server on port 8085")
-	//}()
+	log.Println("debug: sox is Recording Traffic to", AudioRecordSavePath)
 
 	return
 }
-
-/*quitfs := make(chan struct{}) // for sanitizing fileserve
-  go func() { // to run fileserve
-  for {
-  select {
-  case <-quitfs:
-      return
-  default:
-  fileserve3()   //8085  mp3, wav files
-  close(quitfs)  // stop fileserve too.
-*/
 
 // Record ambient audio from microphone with sox
 
@@ -119,17 +101,10 @@ func AudioRecordAmbient() {
 		time.Sleep(1 * time.Second)
 		cleardir(AudioRecordSavePath) // Remove old files
 	} else {
-		log.Println("info: Audio Recording Folder Is Empty. No Old Files to Archive")
+		log.Println("debug: Audio Recording Folder Is Empty. No Old Files to Archive")
 	}
 	time.Sleep(1 * time.Second)
 	go audiorecordambientmux()
-
-	//go audiorecordambient()
-	//log.Println("info: sox is Recording Ambient Audio from Mic to", AudioRecordSavePath )
-	//go func() {
-	//fileserve3()   //8085  mp3, wav files
-	//log.Println("info: Running http server on port 8085")
-	//}()
 
 	return
 }
@@ -148,17 +123,10 @@ func AudioRecordCombo() {
 		time.Sleep(1 * time.Second)
 		cleardir(AudioRecordSavePath)
 	} else {
-		log.Println("info: Audio Recording Folder Is Empty. No Old Files to Archive")
+		log.Println("debug: Audio Recording Folder Is Empty. No Old Files to Archive")
 	}
 	time.Sleep(1 * time.Second)
 	go audiorecordcombomux()
-
-	//go audiorecordcombo()
-	//log.Println("info: sox is Recording Traffic and Ambient Audio Mix to", AudioRecordSavePath )
-	//go func() {
-	//fileserve3()   //8085  mp3, wav files
-	//log.Println("info: Running http server on port 8085")
-	//}()
 
 	return
 }
@@ -191,7 +159,7 @@ func audiorecordtraffic() {
 	// check if external program is installed?
 	checkfile := isCommandAvailable("/usr/bin/sox")
 	if checkfile == false {
-		log.Println("info: sox is Missing. Is the Package Installed?")
+		log.Println("error: sox is Missing. Is the Package Installed?")
 	}
 
 	audrecfile := time.Now().Format("20060102150405") + "." + AudioRecordFileFormat
@@ -202,8 +170,8 @@ func audiorecordtraffic() {
 
 		args := []string{"-t", AudioRecordSystem, AudioRecordFromOutput, "-t", AudioRecordFileFormat, audrecfile, "trim", "0", AudioRecordChunkSize, ":", "newfile", ":", "restart"}
 
-		log.Println("info: sox Arguments: " + fmt.Sprint(strings.Trim(fmt.Sprint(args), "[]")))
-		log.Println("info: Traffic Recording will Timeout After:", AudioRecordTimeout, "seconds")
+		log.Println("debug: sox Arguments: " + fmt.Sprint(strings.Trim(fmt.Sprint(args), "[]")))
+		log.Println("debug: Traffic Recording will Timeout After:", AudioRecordTimeout, "seconds")
 
 		cmd := exec.Command("/usr/bin/sox", args...)
 		cmd.Dir = AudioRecordSavePath
@@ -218,11 +186,11 @@ func audiorecordtraffic() {
 			exitStatus := status.ExitStatus()
 			signaled := status.Signaled()
 			signal := status.Signal()
-			log.Println("info: sox Error:", err)
+			log.Println("error: sox Error:", err)
 			if signaled {
-				log.Println("info: sox Signal:", signal)
+				log.Println("debug: sox Signal:", signal)
 			} else {
-				log.Println("info: sox Status:", exitStatus)
+				log.Println("debug: sox Status:", exitStatus)
 			}
 			close(done)
 			// Did sox close ?
@@ -247,7 +215,7 @@ func audiorecordtraffic() {
 
 		if err == nil && emptydirchk == false {
 			log.Println("info: sox is Recording Traffic to", AudioRecordSavePath)
-			log.Println("warn: sox will Go On Recording, Until it Runs out of Space or is Interrupted")
+			log.Println("info: sox will Go On Recording, Until it Runs out of Space or is Interrupted")
 
 			starttime := time.Now()
 			ticker := time.NewTicker(300 * time.Second) // Reminder if sox recording program is still recording after ... 5 minutes (no timeout)
@@ -256,12 +224,8 @@ func audiorecordtraffic() {
 				for range ticker.C {
 					checked := time.Since(starttime)
 					checkedshort := fmt.Sprintf(before(fmt.Sprint(checked), ".")) // trim  milliseconds after.  Format 00h00m00s.
-					//elapsed := checked.Sub(starttime)
-					//log.Println("info: sox is Still Running. Time:", elapsed)
 					elapsed := fmtDuration(checked) // hh:mm format
-					//fmt.Println(elapsedn)
-					//log.Println("info: sox is Still Running. Time:", elapsed[:9])
-					log.Println("info: sox is Still Running After", checkedshort+"s", "|", elapsed)
+					log.Println("debug: sox is Still Running After", checkedshort+"s", "|", elapsed)
 				}
 			}()
 
@@ -300,7 +264,7 @@ func audiorecordambient() {
 
 	checkfile := isCommandAvailable("/usr/bin/sox")
 	if checkfile == false {
-		log.Println("info: sox is Missing. Is the Package Installed?")
+		log.Println("error: sox is Missing. Is the Package Installed?")
 	}
 
 	//Need apt-get install sox libsox-fmt-mp3 (lame)
@@ -328,11 +292,11 @@ func audiorecordambient() {
 			exitStatus := status.ExitStatus()
 			signaled := status.Signaled()
 			signal := status.Signal()
-			log.Println("info: sox Error:", err)
+			log.Println("error: sox Error:", err)
 			if signaled {
-				log.Println("info: sox Signal:", signal)
+				log.Println("debug: sox Signal:", signal)
 			} else {
-				log.Println("info: sox Status:", exitStatus)
+				log.Println("debug: sox Status:", exitStatus)
 			}
 			close(done)
 			// Did sox close ?
@@ -363,11 +327,7 @@ func audiorecordambient() {
 				for range ticker.C {
 					checked := time.Since(starttime)
 					checkedshort := fmt.Sprintf(before(fmt.Sprint(checked), ".")) // trim  milliseconds after .  Format 00h00m00s.
-					//elapsed := checked.Sub(starttime)
-					//log.Println("info: sox is Still Running. Time:", elapsed)
 					elapsed := fmtDuration(checked) // hh:mm format
-					//fmt.Println(elapsedn)
-					//log.Println("info: sox is Still Running. Time:", elapsed[:9])
 					log.Println("info: sox is Still Running After", checkedshort+"s", "|", elapsed)
 				}
 			}()
@@ -406,7 +366,7 @@ func audiorecordcombo() {
 
 	checkfile := isCommandAvailable("/usr/bin/sox")
 	if checkfile == false {
-		log.Println("info: sox is Missing. Is the Package Installed?")
+		log.Println("error: sox is Missing. Is the Package Installed?")
 	}
 
 	//Need apt-get install sox libsox-fmt-mp3 (lame)
@@ -419,7 +379,7 @@ func audiorecordcombo() {
 
 		args := []string{"-m", "-t", AudioRecordSystem, AudioRecordFromOutput, "-t", AudioRecordSystem, AudioRecordFromInput, "-t", AudioRecordFileFormat, audrecfile, "silence", "-l", "1", "1", `2%`, "-1", "0.5", `2%`, "trim", "0", AudioRecordChunkSize, ":", "newfile", ":", "restart"}
 
-		log.Println("info: sox Arguments: " + fmt.Sprint(strings.Trim(fmt.Sprint(args), "[]")))
+		log.Println("debug: sox Arguments: " + fmt.Sprint(strings.Trim(fmt.Sprint(args), "[]")))
 		log.Println("info: Audio Combo Recording will Timeout After:", AudioRecordTimeout, "seconds")
 
 		cmd := exec.Command("/usr/bin/sox", args...)
@@ -436,11 +396,11 @@ func audiorecordcombo() {
 			exitStatus := status.ExitStatus()
 			signaled := status.Signaled()
 			signal := status.Signal()
-			log.Println("info: sox Error:", err)
+			log.Println("erroe: sox Error:", err)
 			if signaled {
-				log.Println("info: sox Signal:", signal)
+				log.Println("debug: sox Signal:", signal)
 			} else {
-				log.Println("info: sox Status:", exitStatus)
+				log.Println("debug: sox Status:", exitStatus)
 			}
 			close(done)
 			// Did sox close ?
@@ -475,11 +435,7 @@ func audiorecordcombo() {
 				for range ticker.C {
 					checked := time.Since(starttime)
 					checkedshort := fmt.Sprintf(before(fmt.Sprint(checked), ".")) // trim  milliseconds after .  Format 00h00m00s.
-					//elapsed := checked.Sub(starttime)
-					//log.Println("info: sox is Still Running. Time:", elapsed)
 					elapsed := fmtDuration(checked) // hh:mm format
-					//fmt.Println(elapsedn)
-					//log.Println("info: sox is Still Running. Time:", elapsed[:9])
 					log.Println("info: sox is Still Running After", checkedshort+"s", "|", elapsed)
 				}
 			}()
@@ -494,7 +450,6 @@ func audiorecordcombo() {
 //
 
 func clearfiles() { // Testing os.Remove to delete files
-	//err := os.Remove("/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/img/test.file")
 	err := os.RemoveAll(`/avrec`)
 	if err != nil {
 		fmt.Println(err)
@@ -535,11 +490,10 @@ func fileserve3() {
 	//http.Handle("/img/", http.StripPrefix("/img/", http.FileServer(http.Dir("./img/"))))
 	// in case of problem with img dir
 	time.Sleep(5 * time.Second)
-	log.Println("info: Serving Audio Files", *directory, "over HTTP port:", *port)
+	log.Println("debug: Serving Audio Files", *directory, "over HTTP port:", *port)
 	log.Println("info: HTTP Server Waiting")
 	// log.Fatal(http.ListenAndServe(":" + *port, nil))
 	log.Fatal(http.ListenAndServe(":"+*port, mux))
-	//return
 }
 
 func fileserve4() {
@@ -551,22 +505,11 @@ func fileserve4() {
 	//http.Handle("/img/", http.StripPrefix("/img/", http.FileServer(http.Dir("./img/"))))
 	// in case of problem with img dir
 	time.Sleep(5 * time.Second)
-	log.Println("info: Serving Directory", *directory, "over HTTP port:", *port)
+	log.Println("debug: Serving Directory", *directory, "over HTTP port:", *port)
 	log.Println("info: HTTP Server Waiting")
 	// log.Fatal(http.ListenAndServe(":" + *port, nil))
 	log.Fatal(http.ListenAndServe(":"+*port, mux))
-	//return
 }
-
-// ZIP Compressing function
-
-/* Usage:
-zipit("/tmp/documents", "/tmp/backup.zip")
-zipit("/tmp/report.txt", "/tmp/report-2015.zip")
-unzip("/tmp/report-2015.zip", "/tmp/reports/")
-Example from: https://gist.github.com/svett/424e6784facc0ba907ae
-Reuse for compressing logs, backup, etc.
-*/
 
 func zipit(source, target string) error {
 	zipfile, err := os.Create(target)
@@ -724,14 +667,14 @@ func DirIsEmpty(name string) (bool, error) {
 	f, err := os.Open(name)
 	if err != nil {
 		return false, err // Not Empty
-		fmt.Println("Dir is Not Empty", "%t")
+		log.Println("debug: Dir is Not Empty", "%t")
 	}
 	defer f.Close()
 
 	_, err = f.Readdirnames(1) // Or f.Readdir(1)  // empty
 	if err == io.EOF {
 		return true, nil
-		fmt.Println("Dir is Empty", "%t")
+		log.Println("debug: Dir is Empty", "%t")
 	}
 	return false, err // Either not empty or error, suits both cases
 }

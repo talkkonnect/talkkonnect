@@ -48,8 +48,8 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.51.04"
-	talkkonnectReleased string = "December 01 2020"
+	talkkonnectVersion  string = "1.52.01"
+	talkkonnectReleased string = "December 04 2020"
 )
 
 var (
@@ -704,7 +704,7 @@ type Document struct {
 func readxmlconfig(file string) error {
 	xmlFile, err := os.Open(file)
 	if err != nil {
-		return errors.New(fmt.Sprintf("cannot open configuration file "+filepath.Base(file), err))
+		return errors.New(fmt.Sprintf("error: cannot open configuration file "+filepath.Base(file), err))
 	}
 	log.Println("info: Successfully Opened file " + filepath.Base(file))
 	defer xmlFile.Close()
@@ -715,9 +715,9 @@ func readxmlconfig(file string) error {
 
 	err = xml.Unmarshal(byteValue, &document)
 	if err != nil {
-		errors.New(fmt.Sprintf("File "+filepath.Base(file)+" formatting error Please fix! ", err))
+		errors.New(fmt.Sprintf("error: File "+filepath.Base(file)+" formatting error Please fix! ", err))
 	}
-	log.Println("Document               : " + document.Type)
+	log.Println("info: Document               : " + document.Type)
 
 	for i := 0; i < len(document.Accounts.Account); i++ {
 		if document.Accounts.Account[i].Default == true {
@@ -745,9 +745,7 @@ func readxmlconfig(file string) error {
 	// Set our default config file path (for autoprovision)
 	defaultConfPath, err := filepath.Abs(filepath.Dir(file))
 	if err != nil {
-		// log.Println("Error collecting abs path: " + err.Error())
-		// defaultConfPath = "/tmp"
-		log.Fatal("Unable to get path for config file: " + err.Error())
+		log.Fatal("error: Unable to get path for config file: " + err.Error())
 	}
 
 	// Set our default logging path

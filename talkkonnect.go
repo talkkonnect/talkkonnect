@@ -125,12 +125,12 @@ func (b *Talkkonnect) talkkonnectMenu(backgroundcolor string) {
 		if err == nil {
 			log.Printf("info: Speaker Not Muted & Current Volume at Level %v%%\n", origVolume)
 		} else {
-			log.Println("alert: Can't Get Volume Level From Sound Card!")
+			log.Println("error: Can't Get Volume Level From Sound Card!")
 		}
 	}
 	hostname, err1 := os.Hostname()
 	if err1 != nil {
-		log.Printf("alert: Cannot Get Hostname\n")
+		log.Printf("warn: Cannot Get Hostname\n")
 	} else {
 		log.Printf("info: Hostname is %s\n", hostname)
 	}

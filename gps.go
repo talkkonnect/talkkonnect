@@ -97,17 +97,17 @@ func getGpsPosition(verbose bool) (bool, error) {
 
 			if err != nil {
 				GpsEnabled = false
-				return false, errors.New("Cannot Decode Hex Data")
+				return false, errors.New("error: Cannot Decode Hex Data")
 			}
 
-			log.Println("info: Sending: ", hex.EncodeToString(txData))
+			log.Println("debug: Sending: ", hex.EncodeToString(txData))
 
 			count, err := f.Write(txData)
 
 			if err != nil {
-				return false, errors.New("Error writing to serial port")
+				return false, errors.New("error: Error writing to serial port")
 			} else {
-				log.Println("info: Wrote %v bytes\n", count)
+				log.Println("debug: Wrote %v bytes\n", count)
 			}
 
 		}
@@ -115,7 +115,7 @@ func getGpsPosition(verbose bool) (bool, error) {
 		if Rx {
 			serialPort, err := serial.Open(options)
 			if err != nil {
-				log.Println("warn: Unable to Open Serial Port Error ", err)
+				log.Println("error: Unable to Open Serial Port Error ", err)
 			}
 
 			defer serialPort.Close()
@@ -156,13 +156,13 @@ func getGpsPosition(verbose bool) (bool, error) {
 							}
 							break
 						} else {
-							log.Println("warn: Got Latitude 0 and Longtitude 0 from GPS")
+							log.Println("error: Got Latitude 0 and Longtitude 0 from GPS")
 						}
 					} else {
-						log.Println("warn: GPS Sentence Format Was not nmea.RMC")
+						log.Println("error: GPS Sentence Format Was not nmea.RMC")
 					}
 				} else {
-					log.Println("warn: Scanner Function Error ", err)
+					log.Println("error: Scanner Function Error ", err)
 				}
 			}
 		} else {
@@ -185,7 +185,7 @@ func httpSendTracCar() {
 		if err != nil {
 			log.Println("error: Error Sending Data to traccar Webpage!")
 		} else {
-			log.Println("info: traccar web response ", string(contents))
+			log.Println("debug: traccar web response ", string(contents))
 		}
 	}
 

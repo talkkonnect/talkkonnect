@@ -88,7 +88,7 @@ func New(client *gumble.Client) (*Stream, error) {
 
 func (s *Stream) Destroy() {
 	if debuglevel >= 3 {
-		log.Println("info: Destroy Stream Source")
+		log.Println("debug: Destroy Stream Source")
 	}
 	s.link.Detach()
 	if s.deviceSource != nil {
@@ -124,7 +124,7 @@ func (s *Stream) StartSource() error {
 
 func (s *Stream) StopSource() error {
 	if debuglevel >= 3 {
-		log.Println("alert: Stop Source File")
+		log.Println("debug: Stop Source File")
 	}
 	if s.sourceStop == nil {
 		return errState
@@ -135,6 +135,7 @@ func (s *Stream) StopSource() error {
 	s.deviceSource.CaptureCloseDevice()
 
 	if RogerBeepSoundEnabled {
+		log.Println("debug: Rogerbeep Playing")
 		s.playIntoStream(RogerBeepSoundFilenameAndPath, RogerBeepSoundVolume)
 	}
 
@@ -254,7 +255,7 @@ func (s *Stream) sourceRoutine() {
 	frameSize := s.client.Config.AudioFrameSize()
 
 	if frameSize != s.sourceFrameSize {
-		log.Println("alert: FrameSize Error!")
+		log.Println("error: FrameSize Error!")
 		s.deviceSource.CaptureCloseDevice()
 		s.sourceFrameSize = frameSize
 		s.deviceSource = openal.CaptureOpenDevice("", gumble.AudioSampleRate, openal.FormatMono16, uint32(s.sourceFrameSize))
@@ -272,7 +273,7 @@ func (s *Stream) sourceRoutine() {
 		select {
 		case <-stop:
 			if debuglevel >= 3 {
-				log.Println("alert: Ticker Stop!")
+				log.Println("debug: Ticker Stop!")
 			}
 			return
 		case <-ticker.C:
@@ -293,7 +294,7 @@ func (s *Stream) sourceRoutine() {
 func (s *Stream) playIntoStream(filepath string, vol float32) {
 	pstream = gumbleffmpeg.New(s.client, gumbleffmpeg.SourceFile(filepath), vol)
 	if err := pstream.Play(); err != nil {
-		log.Println(fmt.Sprintf("alert: Can't play %s error %s", filepath, err))
+		log.Println(fmt.Sprintf("error: Can't play %s error %s", filepath, err))
 	} else {
 		log.Println(fmt.Sprintf("info: File %s Playing!", filepath))
 		pstream.Wait()
@@ -321,7 +322,7 @@ func (b *Talkkonnect) playIntoStream(filepath string, vol float32) {
 		IsPlayStream = true
 		pstream = gumbleffmpeg.New(b.Client, gumbleffmpeg.SourceFile(filepath), vol)
 		if err := pstream.Play(); err != nil {
-			log.Println(fmt.Sprintf("alert: Can't play %s error %s", filepath, err))
+			log.Println(fmt.Sprintf("error: Can't play %s error %s", filepath, err))
 		} else {
 			log.Println(fmt.Sprintf("info: File %s Playing!", filepath))
 			pstream.Wait()
@@ -329,7 +330,7 @@ func (b *Talkkonnect) playIntoStream(filepath string, vol float32) {
 			b.LEDOff(b.TransmitLED)
 		}
 	} else {
-		log.Println(fmt.Sprintf("alert: Sound Disabled by Config"))
+		log.Println(fmt.Sprintf("warn: Sound Disabled by Config"))
 	}
 	return
 }
@@ -341,7 +342,7 @@ func (b *Talkkonnect) RepeaterTone(filepath string, vol float32) {
 	}
 	pstream = gumbleffmpeg.New(b.Client, gumbleffmpeg.SourceFile(filepath), vol)
 	if err := pstream.Play(); err != nil {
-		log.Println("alert: Error Playing Repeater Tone ", err)
+		log.Println("error: Error Playing Repeater Tone ", err)
 		return
 	} else {
 		log.Println("info: Repeater Tone File " + filepath + " Playing!")

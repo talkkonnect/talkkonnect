@@ -50,15 +50,15 @@ func PlayWavLocal(filepath string, playbackvolume int) error {
 	cmd := exec.Command(player, filepath)
 	err := volume.SetVolume(playbackvolume, OutputDevice)
 	if err != nil {
-		return errors.New(fmt.Sprintf("alert: set volume failed: %+v", err))
+		return errors.New(fmt.Sprintf("error: set volume failed: %+v", err))
 	}
 	_, err = cmd.CombinedOutput()
 	if err != nil {
-		return errors.New(fmt.Sprintf("alert: cmd.Run() for %s failed with %s\n", player, err))
+		return errors.New(fmt.Sprintf("error: cmd.Run() for %s failed with %s\n", player, err))
 	}
 	err = volume.SetVolume(origVolume, OutputDevice)
 	if err != nil {
-		return errors.New(fmt.Sprintf("alert: set volume failed: %+v", err))
+		return errors.New(fmt.Sprintf("error: set volume failed: %+v", err))
 	}
 	return nil
 }

@@ -46,7 +46,7 @@ func (b *Talkkonnect) initGPIO() {
 	}
 
 	if err := rpio.Open(); err != nil {
-		log.Println("alert: GPIO Error, ", err)
+		log.Println("error: GPIO Error, ", err)
 		b.GPIOEnabled = false
 		return
 	} else {
@@ -113,12 +113,12 @@ func (b *Talkkonnect) initGPIO() {
 									time.Sleep(250 * time.Millisecond)
 									if TxCounter {
 										txcounter++
-										log.Println("info: Tx Button Count ", txcounter)
+										log.Println("debug: Tx Button Count ", txcounter)
 									}
 								}
 
 							} else {
-								log.Println("info: Tx Button is pressed")
+								log.Println("debug: Tx Button is pressed")
 								if !isTx {
 									isTx = true
 									b.TransmitStart()
@@ -146,7 +146,7 @@ func (b *Talkkonnect) initGPIO() {
 					time.Sleep(150 * time.Millisecond)
 
 					if err != nil {
-						log.Println("warn: Error Opening TXToggle Pin")
+						log.Println("error: Error Opening TXToggle Pin")
 						break
 					}
 
@@ -154,7 +154,7 @@ func (b *Talkkonnect) initGPIO() {
 						isTx = !isTx
 						if isTx {
 							b.TransmitStop(true)
-							log.Println("info: Toggle Stopped Transmitting")
+							log.Println("debug: Toggle Stopped Transmitting")
 							for {
 								currentState, err := b.TxToggle.Read()
 								time.Sleep(150 * time.Millisecond)
@@ -176,7 +176,7 @@ func (b *Talkkonnect) initGPIO() {
 								}
 							}
 							prevState = 1
-							log.Println("info: Toggle Started Transmitting")
+							log.Println("debug: Toggle Started Transmitting")
 							time.Sleep(200 * time.Millisecond)
 						}
 					}
@@ -200,9 +200,9 @@ func (b *Talkkonnect) initGPIO() {
 						b.UpButtonState = currentState
 
 						if b.UpButtonState == 1 {
-							log.Println("info: UP Button is released")
+							log.Println("debug: UP Button is released")
 						} else {
-							log.Println("info: UP Button is pressed")
+							log.Println("debug: UP Button is pressed")
 							b.ChannelUp()
 							time.Sleep(200 * time.Millisecond)
 						}
@@ -228,9 +228,9 @@ func (b *Talkkonnect) initGPIO() {
 						b.DownButtonState = currentState
 
 						if b.DownButtonState == 1 {
-							log.Println("info: Ch Down Button is released")
+							log.Println("debug: Ch Down Button is released")
 						} else {
-							log.Println("info: Ch Down Button is pressed")
+							log.Println("debug: Ch Down Button is pressed")
 							b.ChannelDown()
 							time.Sleep(200 * time.Millisecond)
 						}
@@ -256,9 +256,9 @@ func (b *Talkkonnect) initGPIO() {
 						b.PanicButtonState = currentState
 
 						if b.PanicButtonState == 1 {
-							log.Println("info: Panic Button is released")
+							log.Println("debug: Panic Button is released")
 						} else {
-							log.Println("info: Panic Button is pressed")
+							log.Println("debug: Panic Button is pressed")
 							b.commandKeyCtrlP()
 							time.Sleep(200 * time.Millisecond)
 						}
@@ -284,10 +284,10 @@ func (b *Talkkonnect) initGPIO() {
 						b.CommentButtonState = currentState
 
 						if b.CommentButtonState == 1 {
-							log.Println("info: Comment Button State 1 setting comment to State 1 Message")
+							log.Println("debug: Comment Button State 1 setting comment to State 1 Message")
 							b.SetComment(CommentMessageOff)
 						} else {
-							log.Println("info: Comment Button State 2 setting comment to State 2 Message")
+							log.Println("debug: Comment Button State 2 setting comment to State 2 Message")
 							b.SetComment(CommentMessageOn)
 						}
 						time.Sleep(200 * time.Millisecond)
@@ -314,9 +314,9 @@ func (b *Talkkonnect) initGPIO() {
 						b.ChimesButtonState = currentState
 
 						if b.ChimesButtonState == 1 {
-							log.Println("info: Chimes Button is released")
+							log.Println("debug: Chimes Button is released")
 						} else {
-							log.Println("info: Chimes Button is pressed")
+							log.Println("debug: Chimes Button is pressed")
 							b.commandKeyF11()
 							time.Sleep(200 * time.Millisecond)
 						}
@@ -386,7 +386,7 @@ func (b *Talkkonnect) LEDOffAll() {
 	if TargetBoard != "rpi" {
 		return
 	}
-	log.Println("warn: Turning Off All LEDS!")
+	log.Println("debug: Turning Off All LEDS!")
 
 	if OnlineLEDPin > 0 {
 		b.LEDOff(b.OnlineLED)

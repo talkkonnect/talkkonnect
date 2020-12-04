@@ -141,14 +141,14 @@ func reset() {
 func PreInit0(file string, ServerIndex string) {
 	err := term.Init()
 	if err != nil {
-		log.Println("Cannot Initalize Terminal Error: ", err)
-		log.Fatal("Exiting talkkonnect! ...... bye!\n")
+		log.Println("error: Cannot Initalize Terminal Error: ", err)
+		log.Fatal("warn: Exiting talkkonnect! ...... bye!\n")
 	}
 
 	ConfigXMLFile = file
 	err = readxmlconfig(ConfigXMLFile)
 	if err != nil {
-		log.Println("alert: XML Parser Module Returned Error: ", err)
+		log.Println("error: XML Parser Module Returned Error: ", err)
 		log.Fatal("Please Make Sure the XML Configuration File is In the Correct Path with the Correct Format, Exiting talkkonnect! ...... bye\n")
 	}
 
@@ -172,7 +172,7 @@ func PreInit0(file string, ServerIndex string) {
 		colog.SetDefaultLevel(colog.LInfo)
 	}
 
-	log.Println("debug: Loglevel Set to ", Loglevel)
+	log.Println("info: Loglevel Set to ", Loglevel)
 
 	if Logging == "screen" {
 		colog.SetFlags(log.Ldate | log.Ltime)
@@ -187,11 +187,11 @@ func PreInit0(file string, ServerIndex string) {
 		err := autoProvision()
 		time.Sleep(5 * time.Second)
 		if err != nil {
-			log.Println("alert: Error from AutoProvisioning Module: ", err)
+			log.Println("error: Error from AutoProvisioning Module: ", err)
 			log.Println("alert: Please Fix Problem with Provisioning Configuration or use Static File By Disabling AutoProvisioning ")
 			log.Fatal("Exiting talkkonnect! ...... bye\n")
 		} else {
-			log.Println("info: Got New Configuration Reloading XML Config")
+			log.Println("info: Loading XML Config")
 			ConfigXMLFile = file
 			readxmlconfig(ConfigXMLFile)
 		}
@@ -217,7 +217,7 @@ func (b *Talkkonnect) PreInit1(httpServRunning bool) {
 		buf := make([]byte, 6)
 		_, err := rand.Read(buf)
 		if err != nil {
-			log.Println("alert: Cannot Generate Random Name Error: ", err)
+			log.Println("error: Cannot Generate Random Name Error: ", err)
 			log.Fatal("Exiting talkkonnect! ...... bye!\n")
 		}
 
@@ -235,7 +235,7 @@ func (b *Talkkonnect) PreInit1(httpServRunning bool) {
 	if Certificate[AccountIndex] != "" {
 		cert, err := tls.LoadX509KeyPair(Certificate[AccountIndex], Certificate[AccountIndex])
 		if err != nil {
-			log.Println("alert: Certificate Error: ", err)
+			log.Println("error: Certificate Error: ", err)
 			log.Fatal("Exiting talkkonnect! ...... bye!\n")
 		}
 		b.TLSConfig.Certificates = append(b.TLSConfig.Certificates, cert)
@@ -246,7 +246,7 @@ func (b *Talkkonnect) PreInit1(httpServRunning bool) {
 			http.HandleFunc("/", b.httpHandler)
 
 			if err := http.ListenAndServe(":"+APIListenPort, nil); err != nil {
-				log.Println("alert: Problem With Starting HTTP API Server Error: ", err)
+				log.Println("error: Problem With Starting HTTP API Server Error: ", err)
 				log.Fatal("Please Fix Problem or Disable API in XML Config, Exiting talkkonnect! ...... bye!\n")
 			}
 		}()
@@ -268,7 +268,7 @@ func (b *Talkkonnect) Init() {
 	f, err := os.OpenFile(LogFilenameAndPath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	log.Println("info: Trying to Open File ", LogFilenameAndPath)
 	if err != nil {
-		log.Println("alert: Problem opening talkkonnect.log file Error: ", err)
+		log.Println("error: Problem opening talkkonnect.log file Error: ", err)
 		log.Fatal("Exiting talkkonnect! ...... bye!\n")
 	}
 
@@ -277,14 +277,14 @@ func (b *Talkkonnect) Init() {
 	}
 
 	if Logging == "screenandfile" {
-		log.Println("debug: Logging is set to: ", Logging)
+		log.Println("info: Logging is set to: ", Logging)
 		wrt := io.MultiWriter(os.Stdout, f)
 		colog.SetFlags(log.Ldate | log.Ltime)
 		colog.SetOutput(wrt)
 	}
 
 	if Logging == "screenandfilewithlineno" {
-		log.Println("debug: Logging is set to: ", Logging)
+		log.Println("info: Logging is set to: ", Logging)
 		wrt := io.MultiWriter(os.Stdout, f)
 		colog.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 		colog.SetOutput(wrt)
@@ -318,7 +318,7 @@ func (b *Talkkonnect) Init() {
 				if LCDInterfaceType == "i2c" {
 					lcd := hd44780.NewI2C4bit(LCDI2CAddress)
 					if err := lcd.Open(); err != nil {
-						log.Println("alert: Can't open lcd: " + err.Error())
+						log.Println("error: Can't open lcd: " + err.Error())
 						return
 					}
 					lcd.ToggleBacklight()
@@ -330,22 +330,22 @@ func (b *Talkkonnect) Init() {
 			}
 		}()
 	} else {
-		log.Println("info: Backlight Timer Disabled by Config")
+		log.Println("debug: Backlight Timer Disabled by Config")
 	}
 
 	talkkonnectBanner("\u001b[44;1m") // add blue background to banner reference https://www.lihaoyi.com/post/BuildyourownCommandLinewithANSIescapecodes.html#background-colors
 
 	err = volume.Unmute(OutputDevice)
 	if err != nil {
-		log.Println("warn: Unable to Unmute ", err)
+		log.Println("error: Unable to Unmute ", err)
 	} else {
-		log.Println("info: Speaker UnMuted Before Connect to Server")
+		log.Println("debug: Speaker UnMuted Before Connect to Server")
 	}
 
 	if TTSEnabled && TTSTalkkonnectLoaded {
 		err := PlayWavLocal(TTSTalkkonnectLoadedFilenameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("warn: PlayWavLocal(TTSTalkkonnectLoadedFilenameAndPath) Returned Error: ", err)
+			log.Println("error: PlayWavLocal(TTSTalkkonnectLoadedFilenameAndPath) Returned Error: ", err)
 		}
 	}
 
@@ -384,7 +384,7 @@ func (b *Talkkonnect) Init() {
 				IsPlayStream = true
 				b.playIntoStream(BeaconFilenameAndPath, BVolume)
 				IsPlayStream = false
-				log.Println("warn: Beacon Enabled and Timed Out Auto Played File ", BeaconFilenameAndPath, " Into Stream")
+				log.Println("info: Beacon Enabled and Timed Out Auto Played File ", BeaconFilenameAndPath, " Into Stream")
 			}
 		}()
 	}
@@ -458,11 +458,9 @@ keyPressListenerLoop:
 		case term.EventKey:
 			switch ev.Key {
 			case term.KeyEsc:
-				log.Println("--")
-				log.Println("warn: ESC Key is Invalid")
+				log.Println("error: ESC Key is Invalid")
 				reset()
 				break keyPressListenerLoop
-				log.Println("--")
 			case term.KeyDelete:
 				b.commandKeyDel()
 			case term.KeyF1:
@@ -525,16 +523,14 @@ keyPressListenerLoop:
 			case term.KeyCtrlX:
 				b.commandKeyCtrlX()
 			default:
-				log.Println("--")
 				if ev.Ch != 0 {
-					log.Println("warn: Invalid Keypress ASCII", ev.Ch)
+					log.Println("error: Invalid Keypress ASCII", ev.Ch)
 				} else {
-					log.Println("warn: Key Not Mapped")
+					log.Println("error: Key Not Mapped")
 				}
-				log.Println("--")
 			}
 		case term.EventError:
-			log.Println("alert: Terminal Error: ", ev.Err)
+			log.Println("error: Terminal Error: ", ev.Err)
 			log.Fatal("Exiting talkkonnect! ...... bye!\n")
 		}
 
@@ -579,10 +575,10 @@ func (b *Talkkonnect) Connect() {
 	_, err = gumble.DialWithDialer(new(net.Dialer), b.Address, b.Config, &b.TLSConfig)
 
 	if err != nil {
-		log.Printf("warn: Connection Error %v  connecting to %v failed, attempting again...", err, b.Address)
+		log.Printf("error: Connection Error %v  connecting to %v failed, attempting again...", err, b.Address)
 		if !ServerHop {
-			log.Println("warn: In the Connect Function & Trying With Username ", Username)
-			log.Println("warn: DEBUG Serverhop  Not Set Reconnecting!!")
+			log.Println("debug: In the Connect Function & Trying With Username ", Username)
+			log.Println("debug: DEBUG Serverhop  Not Set Reconnecting!!")
 			b.ReConnect()
 		}
 	} else {
@@ -596,7 +592,7 @@ func (b *Talkkonnect) ReConnect() {
 	NowStreaming = false
 
 	if b.Client != nil {
-		log.Println("warn: Attempting Reconnection With Server")
+		log.Println("info: Attempting Reconnection With Server")
 		b.Client.Disconnect()
 	}
 
@@ -608,7 +604,7 @@ func (b *Talkkonnect) ReConnect() {
 		}
 		//}()
 	} else {
-		log.Println("warn: Unable to connect, giving up")
+		log.Println("alert: Unable to connect, giving up")
 		if TargetBoard == "rpi" {
 			if LCDEnabled == true {
 				LcdText = [4]string{"Failed to Connect!", "nil", "nil", "nil"}
@@ -629,7 +625,7 @@ func (b *Talkkonnect) OpenStream() {
 	//}
 
 	if ServerHop {
-		log.Println("warn: Server Hop Requested Will Now Destroy Old Server Stream")
+		log.Println("debug: Server Hop Requested Will Now Destroy Old Server Stream")
 		b.Stream.Destroy()
 		var participantCount = len(b.Client.Self.Channel.Users)
 
@@ -653,7 +649,7 @@ func (b *Talkkonnect) OpenStream() {
 
 	if stream, err := New(b.Client); err != nil {
 
-		log.Println("warn: Stream open error ", err)
+		log.Println("error: Stream open error ", err)
 		if TargetBoard == "rpi" {
 			if LCDEnabled == true {
 				LcdText = [4]string{"Stream Error!", "nil", "nil", "nil"}
@@ -687,7 +683,7 @@ func (b *Talkkonnect) TransmitStart() {
 	if SimplexWithMute {
 		err := volume.Mute(OutputDevice)
 		if err != nil {
-			log.Println("warn: Unable to Mute ", err)
+			log.Println("error: Unable to Mute ", err)
 		} else {
 			log.Println("info: Speaker Muted ")
 		}
@@ -756,7 +752,7 @@ func (b *Talkkonnect) TransmitStop(withBeep bool) {
 	if SimplexWithMute {
 		err := volume.Unmute(OutputDevice)
 		if err != nil {
-			log.Println("warn: Unable to Unmute ", err)
+			log.Println("error: Unable to Unmute ", err)
 		} else {
 			log.Println("info: Speaker UnMuted ")
 		}
@@ -773,7 +769,7 @@ func (b *Talkkonnect) OnConnect(e *gumble.ConnectEvent) {
 	b.Client = e.Client
 	ConnectAttempts = 1
 
-	log.Printf("info: Connected to %s Address %s on attempt %d index [%d]\n ", b.Name, b.Client.Conn.RemoteAddr(), b.ConnectAttempts, AccountIndex)
+	log.Printf("debug: Connected to %s Address %s on attempt %d index [%d]\n ", b.Name, b.Client.Conn.RemoteAddr(), b.ConnectAttempts, AccountIndex)
 	if e.WelcomeMessage != nil {
 		var message string = fmt.Sprintf(esc(*e.WelcomeMessage))
 		log.Println("info: Welcome message: ")
@@ -825,9 +821,9 @@ func (b *Talkkonnect) OnDisconnect(e *gumble.DisconnectEvent) {
 	}
 
 	if !ServerHop {
-		log.Println("warn: Attempting Reconnect in 10 seconds...")
-		log.Println("warn: Connection to ", b.Address, "disconnected")
-		log.Println("warn: Disconnection Reason ", reason)
+		log.Println("alert: Attempting Reconnect in 10 seconds...")
+		log.Println("alert: Connection to ", b.Address, "disconnected")
+		log.Println("alert: Disconnection Reason ", reason)
 		b.ReConnect()
 	}
 
@@ -878,7 +874,7 @@ func (b *Talkkonnect) ParticipantLEDUpdate(verbose bool) {
 		if EventSoundEnabled {
 			err := PlayWavLocal(EventSoundFilenameAndPath, 100)
 			if err != nil {
-				log.Println("warn: PlayWavLocal(EventSoundFilenameAndPath) Returned Error: ", err)
+				log.Println("error: PlayWavLocal(EventSoundFilenameAndPath) Returned Error: ", err)
 			}
 		}
 	}
@@ -960,12 +956,12 @@ func (b *Talkkonnect) OnTextMessage(e *gumble.TextMessageEvent) {
 
 	if e.Sender != nil {
 		sender = strings.TrimSpace(cleanstring(e.Sender.Name))
-		log.Println("alert: Sender Name is ", sender)
+		log.Println("info: Sender Name is ", sender)
 	} else {
 		sender = ""
 	}
 
-	log.Println(fmt.Sprintf("alert: Message ("+strconv.Itoa(len(message))+") from %v %v\n", sender, message))
+	log.Println(fmt.Sprintf("info: Message ("+strconv.Itoa(len(message))+") from %v %v\n", sender, message))
 
 	if TargetBoard == "rpi" {
 		if LCDEnabled == true {
@@ -1012,7 +1008,7 @@ func (b *Talkkonnect) OnTextMessage(e *gumble.TextMessageEvent) {
 	if EventSoundEnabled {
 		err := PlayWavLocal(EventSoundFilenameAndPath, 100)
 		if err != nil {
-			log.Println("warn: PlayWavLocal(EventSoundFilenameAndPath) Returned Error: ", err)
+			log.Println("error: PlayWavLocal(EventSoundFilenameAndPath) Returned Error: ", err)
 		}
 	}
 }
@@ -1085,12 +1081,12 @@ func (b *Talkkonnect) OnPermissionDenied(e *gumble.PermissionDeniedEvent) {
 
 		// Set Upper Boundary
 		if prevButtonPress == "ChannelUp" && b.Client.Self.Channel.ID == maxchannelid {
-			log.Println("info: Can't Increment Channel Maximum Channel Reached")
+			log.Println("error: Can't Increment Channel Maximum Channel Reached")
 		}
 
 		// Set Lower Boundary
 		if prevButtonPress == "ChannelDown" && currentChannelID == 0 {
-			log.Println("info: Can't Increment Channel Minumum Channel Reached")
+			log.Println("error: Can't Increment Channel Minumum Channel Reached")
 		}
 
 		// Implement Seek Up Until Permissions are Sufficient for User to Join Channel whilst avoiding all null channels
@@ -1137,7 +1133,7 @@ func (b *Talkkonnect) OnPermissionDenied(e *gumble.PermissionDeniedEvent) {
 
 	LcdText[2] = info
 
-	log.Println("warn: Permission denied  ", info)
+	log.Println("error: Permission denied  ", info)
 }
 
 func (b *Talkkonnect) OnChannelChange(e *gumble.ChannelChangeEvent) {
@@ -1232,7 +1228,7 @@ func (b *Talkkonnect) ChannelUp() {
 	if TTSEnabled && TTSChannelUp {
 		err := PlayWavLocal(TTSChannelUpFilenameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("warn: PlayWavLocal(TTSChannelDownFilenameAndPath) Returned Error: ", err)
+			log.Println("error: PlayWavLocal(TTSChannelDownFilenameAndPath) Returned Error: ", err)
 		}
 
 	}
@@ -1243,7 +1239,7 @@ func (b *Talkkonnect) ChannelUp() {
 
 	// Set Upper Boundary
 	if b.Client.Self.Channel.ID == maxchannelid {
-		log.Println("info: Can't Increment Channel Maximum Channel Reached")
+		log.Println("error: Can't Increment Channel Maximum Channel Reached")
 		if TargetBoard == "rpi" {
 			if LCDEnabled == true {
 				LcdText[2] = "Max Chan Reached"
@@ -1304,7 +1300,7 @@ func (b *Talkkonnect) ChannelDown() {
 	if TTSEnabled && TTSChannelDown {
 		err := PlayWavLocal(TTSChannelDownFilenameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("warn: PlayWavLocal(TTSChannelDownFilenameAndPath) Returned Error: ", err)
+			log.Println("error: PlayWavLocal(TTSChannelDownFilenameAndPath) Returned Error: ", err)
 		}
 
 	}
@@ -1314,7 +1310,7 @@ func (b *Talkkonnect) ChannelDown() {
 
 	// Set Lower Boundary
 	if int(b.Client.Self.Channel.ID) == 0 {
-		log.Println("info: Can't Decrement Channel Root Channel Reached")
+		log.Println("error: Can't Decrement Channel Root Channel Reached")
 		channel := b.Client.Channels[uint32(AccountIndex)]
 		b.Client.Self.Move(channel)
 		//displaychannel
@@ -1399,7 +1395,7 @@ func (b *Talkkonnect) Scan() {
 					break
 				} else {
 
-					log.Println("warn: Found Someone Online Stopped Scan on Channel ", b.Client.Self.Channel.Name)
+					log.Println("info: Found Someone Online Stopped Scan on Channel ", b.Client.Self.Channel.Name)
 					return
 				}
 			}
@@ -1411,12 +1407,12 @@ func (b *Talkkonnect) Scan() {
 func (b *Talkkonnect) httpHandler(w http.ResponseWriter, r *http.Request) {
 	commands, ok := r.URL.Query()["command"]
 	if !ok || len(commands[0]) < 1 {
-		log.Println("warn: URL Param 'command' is missing")
+		log.Println("error: URL Param 'command' is missing")
 		return
 	}
 
 	command := commands[0]
-	log.Println("info: http command " + string(command))
+	log.Println("debug: http command " + string(command))
 	b.BackLightTimer()
 
 	switch string(command) {
@@ -1610,45 +1606,38 @@ func (b *Talkkonnect) httpHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (b *Talkkonnect) commandKeyDel() {
-	log.Println("--")
-	log.Println("info: Delete Key Pressed Menu and Session Information Requested")
+	log.Println("debug: Delete Key Pressed Menu and Session Information Requested")
 
 	if TTSEnabled && TTSDisplayMenu {
 		err := PlayWavLocal(TTSDisplayMenuFilenameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("warn: PlayWavLocal(TTSDisplayMenuFilenameAndPath) Returned Error: ", err)
+			log.Println("error: PlayWavLocal(TTSDisplayMenuFilenameAndPath) Returned Error: ", err)
 		}
 
 	}
 
 	b.talkkonnectMenu("\u001b[44;1m") // add blue background to banner reference https://www.lihaoyi.com/post/BuildyourownCommandLinewithANSIescapecodes.html#background-colors
 	b.ParticipantLEDUpdate(true)
-	log.Println("--")
 }
 
 func (b *Talkkonnect) commandKeyF1() {
-	log.Println("--")
-	log.Println("info: F1 pressed Channel Up (+) Requested")
+	log.Println("debug: F1 pressed Channel Up (+) Requested")
 	b.ChannelUp()
-	log.Println("--")
 }
 
 func (b *Talkkonnect) commandKeyF2() {
-	log.Println("--")
-	log.Println("info: F2 pressed Channel Down (-) Requested")
+	log.Println("debug: F2 pressed Channel Down (-) Requested")
 	b.ChannelDown()
-	log.Println("--")
 }
 
 func (b *Talkkonnect) commandKeyF3(subCommand string) {
-	log.Println("--")
-	log.Println("info: ", TTSMuteUnMuteSpeakerFilenameAndPath)
+	log.Println("debug: ", TTSMuteUnMuteSpeakerFilenameAndPath)
 
 	//any other subcommand besides mute and unmute will get the current status of mute from volume.go
 	origMuted, err := volume.GetMuted(OutputDevice)
 
 	if err != nil {
-		log.Println("warn: get muted failed: %+v", err)
+		log.Println("error: get muted failed: %+v", err)
 	}
 
 	//force mute
@@ -1665,14 +1654,14 @@ func (b *Talkkonnect) commandKeyF3(subCommand string) {
 		err := volume.Unmute(OutputDevice)
 
 		if err != nil {
-			log.Println("warn: unmute failed: %+v", err)
+			log.Println("error: unmute failed: %+v", err)
 		}
 
-		log.Println("info: F3 pressed Mute/Unmute Speaker Requested Now UnMuted")
+		log.Println("debug: F3 pressed Mute/Unmute Speaker Requested Now UnMuted")
 		if TTSEnabled && TTSMuteUnMuteSpeaker {
 			err := PlayWavLocal(TTSMuteUnMuteSpeakerFilenameAndPath, TTSVolumeLevel)
 			if err != nil {
-				log.Println("warn: PlayWavLocal(TTSMuteUnMuteSpeakerFilenameAndPath) Returned Error: ", err)
+				log.Println("error: PlayWavLocal(TTSMuteUnMuteSpeakerFilenameAndPath) Returned Error: ", err)
 			}
 
 		}
@@ -1690,16 +1679,16 @@ func (b *Talkkonnect) commandKeyF3(subCommand string) {
 		if TTSEnabled && TTSMuteUnMuteSpeaker {
 			err := PlayWavLocal(TTSMuteUnMuteSpeakerFilenameAndPath, TTSVolumeLevel)
 			if err != nil {
-				log.Println("warn: PlayWavLocal(TTSMuteUnMuteSpeakerFilenameAndPath) Returned Error: ", err)
+				log.Println("error: PlayWavLocal(TTSMuteUnMuteSpeakerFilenameAndPath) Returned Error: ", err)
 			}
 
 		}
 		err = volume.Mute(OutputDevice)
 		if err != nil {
-			log.Println("warn: Mute failed: %+v", err)
+			log.Println("error: Mute failed: %+v", err)
 		}
 
-		log.Println("info: F3 pressed Mute/Unmute Speaker Requested Now Muted")
+		log.Println("debug: F3 pressed Mute/Unmute Speaker Requested Now Muted")
 		if TargetBoard == "rpi" {
 			if LCDEnabled == true {
 				LcdText = [4]string{"nil", "nil", "nil", "Muted"}
@@ -1712,22 +1701,21 @@ func (b *Talkkonnect) commandKeyF3(subCommand string) {
 		}
 	}
 
-	log.Println("--")
 }
 
 func (b *Talkkonnect) commandKeyF4() {
-	log.Println("--")
 	origVolume, err := volume.GetVolume(OutputDevice)
 	if err != nil {
-		log.Println("warn: Unable to get current volume: %+v", err)
+		log.Println("error: Unable to get current volume: %+v", err)
 	}
 
-	log.Println("info: F4 pressed Volume Level Requested and is at", origVolume, "%")
+	log.Println("debug: F4 pressed Volume Level Requested")
+	log.Println("info: Volume Level is at", origVolume, "%")
 
 	if TTSEnabled && TTSCurrentVolumeLevel {
 		err := PlayWavLocal(TTSCurrentVolumeLevelFilenameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("warn: PlayWavLocal(TTSCurrentVolumeLevelFilenameAndPath) Returned Error: ", err)
+			log.Println("error: PlayWavLocal(TTSCurrentVolumeLevelFilenameAndPath) Returned Error: ", err)
 		}
 
 	}
@@ -1741,11 +1729,9 @@ func (b *Talkkonnect) commandKeyF4() {
 		}
 
 	}
-	log.Println("--")
 }
 
 func (b *Talkkonnect) commandKeyF5() {
-	log.Println("--")
 	origVolume, err := volume.GetVolume(OutputDevice)
 	if err != nil {
 		log.Println("warn: unable to get original volume: %+v", err)
@@ -1757,7 +1743,8 @@ func (b *Talkkonnect) commandKeyF5() {
 			log.Println("warn: F5 Increase Volume Failed! ", err)
 		}
 
-		log.Println("info: F5 pressed Volume UP (+) Now At ", origVolume, "%")
+		log.Println("debug: F5 pressed Volume UP (+)")
+		log.Println("info: Volume UP (+) Now At ", origVolume, "%")
 		if TargetBoard == "rpi" {
 			if LCDEnabled == true {
 				LcdText = [4]string{"nil", "nil", "nil", "Volume + " + strconv.Itoa(origVolume)}
@@ -1768,7 +1755,8 @@ func (b *Talkkonnect) commandKeyF5() {
 			}
 		}
 	} else {
-		log.Println("info: F5 Increase Volume Already at Maximum Possible Volume")
+		log.Println("debug: F5 Increase Volume")
+		log.Println("info: Already at Maximum Possible Volume")
 		if TargetBoard == "rpi" {
 			if LCDEnabled == true {
 				LcdText = [4]string{"nil", "nil", "nil", "Max Vol"}
@@ -1783,29 +1771,28 @@ func (b *Talkkonnect) commandKeyF5() {
 	if TTSEnabled && TTSDigitalVolumeUp {
 		err := PlayWavLocal(TTSDigitalVolumeUpFilenameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("warn: PlayWavLocal(TTSDigitalVolumeUpFilenameAndPath) Returned Error: ", err)
+			log.Println("error: PlayWavLocal(TTSDigitalVolumeUpFilenameAndPath) Returned Error: ", err)
 		}
 
 	}
 
-	log.Println("--")
 }
 
 func (b *Talkkonnect) commandKeyF6() {
-	log.Println("--")
 	origVolume, err := volume.GetVolume(OutputDevice)
 	if err != nil {
-		log.Println("warn: unable to get original volume: %+v", err)
+		log.Println("error: unable to get original volume: %+v", err)
 	}
 
 	if origVolume > 0 {
 		origVolume--
 		err := volume.IncreaseVolume(-1, OutputDevice)
 		if err != nil {
-			log.Println("warn: F6 Decrease Volume Failed! ", err)
+			log.Println("error: F6 Decrease Volume Failed! ", err)
 		}
 
-		log.Println("info: F6 pressed Volume Down (-) Now At ", origVolume, "%")
+		log.Println("info: F6 pressed Volume Down (-)")
+		log.Println("debug: Volume Down (-) Now At ", origVolume, "%")
 		if TargetBoard == "rpi" {
 			if LCDEnabled == true {
 				LcdText = [4]string{"nil", "nil", "nil", "Volume - " + strconv.Itoa(origVolume)}
@@ -1817,7 +1804,8 @@ func (b *Talkkonnect) commandKeyF6() {
 
 		}
 	} else {
-		log.Println("info: F6 Increase Volume Already at Minimum Possible Volume")
+		log.Println("debug: F6 Increase Volume Already")
+		log.Println("info: Already at Minimum Possible Volume")
 		if TargetBoard == "rpi" {
 			if LCDEnabled == true {
 				LcdText = [4]string{"nil", "nil", "nil", "Min Vol"}
@@ -1832,39 +1820,36 @@ func (b *Talkkonnect) commandKeyF6() {
 	if TTSEnabled && TTSDigitalVolumeDown {
 		err := PlayWavLocal(TTSDigitalVolumeDownFilenameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("warn: PlayWavLocal(TTSDigitalVolumeDownFilenameAndPath) Returned Error: ", err)
+			log.Println("error: PlayWavLocal(TTSDigitalVolumeDownFilenameAndPath) Returned Error: ", err)
 		}
 
 	}
 
-	log.Println("--")
 }
 
 func (b *Talkkonnect) commandKeyF7() {
-	log.Println("--")
-	log.Println("info: F7 pressed Channel List Requested")
+	log.Println("debug: F7 pressed Channel List Requested")
 
 	if TTSEnabled && TTSListServerChannels {
 		err := PlayWavLocal(TTSListServerChannelsFilenameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("warn: PlayWavLocal(TTSListServerChannelsFilenameAndPath) Returned Error: ", err)
+			log.Println("error: PlayWavLocal(TTSListServerChannelsFilenameAndPath) Returned Error: ", err)
 		}
 
 	}
 
 	b.ListChannels(true)
 	b.ParticipantLEDUpdate(true)
-	log.Println("--")
 }
 
 func (b *Talkkonnect) commandKeyF8() {
-	log.Println("--")
-	log.Println("info: F8 pressed TX Mode Requested (Start Transmitting)")
+	log.Println("debug: F8 pressed TX Mode Requested (Start Transmitting)")
+	log.Println("info: Start Transmitting")
 
 	if TTSEnabled && TTSStartTransmitting {
 		err := PlayWavLocal(TTSStartTransmittingFilenameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("warn: PlayWavLocal(TTSStartTransmittingFilenameAndPath) Returned Error: ", err)
+			log.Println("error: PlayWavLocal(TTSStartTransmittingFilenameAndPath) Returned Error: ", err)
 		}
 
 	}
@@ -1880,19 +1865,18 @@ func (b *Talkkonnect) commandKeyF8() {
 		time.Sleep(100 * time.Millisecond)
 		b.TransmitStart()
 	} else {
-		log.Println("warn: Already in Transmitting Mode")
+		log.Println("error: Already in Transmitting Mode")
 	}
-	log.Println("--")
 }
 
 func (b *Talkkonnect) commandKeyF9() {
-	log.Println("--")
-	log.Println("info: F9 pressed RX Mode Request (Stop Transmitting)")
+	log.Println("debug: F9 pressed RX Mode Request (Stop Transmitting)")
+	log.Println("info: Stop Transmitting")
 
 	if TTSEnabled && TTSStopTransmitting {
 		err := PlayWavLocal(TTSStopTransmittingFilenameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("warn: Play Wav Local Module Returned Error: ", err)
+			log.Println("error: Play Wav Local Module Returned Error: ", err)
 		}
 
 	}
@@ -1908,19 +1892,18 @@ func (b *Talkkonnect) commandKeyF9() {
 		time.Sleep(100 * time.Millisecond)
 		b.TransmitStop(true)
 	} else {
-		log.Println("warn: Already Stopped Transmitting")
+		log.Println("info: Not Already Transmitting")
 	}
-	log.Println("--")
 }
 
 func (b *Talkkonnect) commandKeyF10() {
-	log.Println("--")
-	log.Println("info: F10 pressed Online User(s) in Current Channel Requested")
+	log.Println("debug: F10 pressed Online User(s) in Current Channel Requested")
+	log.Println("info: F10 Online User(s) in Current Channel")
 
 	if TTSEnabled && TTSListOnlineUsers {
 		err := PlayWavLocal(TTSListOnlineUsersFilenameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("warn: PlayWavLocal(TTSListOnlineUsersFilenameAndPath) Returned Error: ", err)
+			log.Println("error: PlayWavLocal(TTSListOnlineUsersFilenameAndPath) Returned Error: ", err)
 		}
 
 	}
@@ -1928,26 +1911,25 @@ func (b *Talkkonnect) commandKeyF10() {
 	log.Println(fmt.Sprintf("info: Channel %#v Has %d Online User(s)", b.Client.Self.Channel.Name, len(b.Client.Self.Channel.Users)))
 	b.ListUsers()
 	b.ParticipantLEDUpdate(true)
-	log.Println("--")
 }
 
 func (b *Talkkonnect) commandKeyF11() {
-	log.Println("--")
-	log.Println("info: F11 pressed Start/Stop Chimes Stream into Current Channel Requested")
+	log.Println("debug: F11 pressed Start/Stop Chimes Stream into Current Channel Requested")
+	log.Println("info: Stream into Current Channel")
 
 	b.BackLightTimer()
 
 	if TTSEnabled && TTSPlayChimes {
 		err := PlayWavLocal(TTSPlayChimesFilenameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("warn: PlayWavLocal(TTSPlayChimesFilenameAndPath) Returned Error: ", err)
+			log.Println("error: PlayWavLocal(TTSPlayChimesFilenameAndPath) Returned Error: ", err)
 
 		}
 
 	}
 
 	if b.IsTransmitting {
-		log.Println("info: talkkonnect was already transmitting will not stop transmitting and start the stream")
+		log.Println("alert: talkkonnect was already transmitting will now stop transmitting and start the stream")
 		b.TransmitStop(false)
 	}
 
@@ -1963,13 +1945,13 @@ func (b *Talkkonnect) commandKeyF11() {
 }
 
 func (b *Talkkonnect) commandKeyF12() {
-	log.Println("--")
-	log.Println("info: F12 pressed GPS details requested")
+	log.Println("debug: F12 pressed")
+	log.Println("info: GPS details requested")
 
 	if TTSEnabled && TTSRequestGpsPosition {
 		err := PlayWavLocal(TTSRequestGpsPositionFilenameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("warn: PlayWavLocal(TTSRequestGpsPositionFilenameAndPath) Returned Error: ", err)
+			log.Println("error: PlayWavLocal(TTSRequestGpsPositionFilenameAndPath) Returned Error: ", err)
 		}
 
 	}
@@ -1981,7 +1963,7 @@ func (b *Talkkonnect) commandKeyF12() {
 		goodGPSRead, err := getGpsPosition(true)
 
 		if err != nil {
-			log.Println("warn: GPS Function Returned Error Message", err)
+			log.Println("error: GPS Function Returned Error Message", err)
 			break
 		}
 
@@ -1995,25 +1977,22 @@ func (b *Talkkonnect) commandKeyF12() {
 		log.Println("warn: Could Not Get a Good GPS Read")
 	}
 
-	log.Println("--")
 }
 
 func (b *Talkkonnect) commandKeyCtrlC() {
-	log.Println("--")
-	log.Println("info: Ctrl-C Terminate Program Requested")
+	log.Println("debug: Ctrl-C Terminate Program Requested")
 	duration := time.Since(StartTime)
 	log.Printf("info: Talkkonnect Now Running For %v \n", secondsToHuman(int(duration.Seconds())))
 
 	if TTSEnabled && TTSQuitTalkkonnect {
 		err := PlayWavLocal(TTSQuitTalkkonnectFilenameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("warn: PlayWavLocal(TTSQuitTalkkonnectFilenameAndPath) Returned Error: ", err)
+			log.Println("error: PlayWavLocal(TTSQuitTalkkonnectFilenameAndPath) Returned Error: ", err)
 		}
 
 	}
 	ServerHop = true
 	b.CleanUp()
-	log.Println("--")
 }
 
 func (b *Talkkonnect) commandKeyCtrlD() {
@@ -2023,18 +2002,17 @@ func (b *Talkkonnect) commandKeyCtrlD() {
 	debug.WriteString(string(buf[0:stackSize]))
 	scanner := bufio.NewScanner(&debug)
 	var line int = 1
-	log.Println("--")
-	log.Println("info: Ctrl-D Debug Stack Dump Requested")
+	log.Println("debug: Pressed Ctrl-D")
+	log.Println("info: Stack Dump Requested")
 	for scanner.Scan() {
 		log.Printf("debug: line: %d %s", line, scanner.Text())
 		line++
 	}
-	log.Println("--")
 }
 
 func (b *Talkkonnect) commandKeyCtrlE() {
-	log.Println("--")
-	log.Println("info: Ctrl-E Pressed Send Email Requested")
+	log.Println("debug: Ctrl-E Pressed")
+	log.Println("info: Send Email Requested")
 
 	var i int = 0
 	var tries int = 10
@@ -2043,7 +2021,7 @@ func (b *Talkkonnect) commandKeyCtrlE() {
 		goodGPSRead, err := getGpsPosition(false)
 
 		if err != nil {
-			log.Println("warn: GPS Function Returned Error Message", err)
+			log.Println("error: GPS Function Returned Error Message", err)
 			break
 		}
 
@@ -2055,7 +2033,6 @@ func (b *Talkkonnect) commandKeyCtrlE() {
 
 	if i == tries {
 		log.Println("warn: Could Not Get a Good GPS Read")
-		log.Println("--")
 		return
 	}
 
@@ -2087,22 +2064,21 @@ func (b *Talkkonnect) commandKeyCtrlE() {
 
 		err := sendviagmail(EmailUsername, EmailPassword, EmailReceiver, EmailSubject, emailMessage)
 		if err != nil {
-			log.Println("alert: Error from Email Module: ", err)
+			log.Println("error: Error from Email Module: ", err)
 		}
 	} else {
-		log.Println("info: Sending Email Disabled in Config")
+		log.Println("warning: Sending Email Disabled in Config")
 	}
-	log.Println("--")
 }
 
 func (b *Talkkonnect) commandKeyCtrlF() {
-	log.Println("--")
-	log.Println("info: Ctrl-F Connect Previous Server Requested")
+	log.Println("debug: Ctrl-F Pressed")
+	log.Println("info: Previous Server Requested")
 
 	if TTSEnabled && TTSPreviousServer {
 		err := PlayWavLocal(TTSPreviousServerFilenameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("warn: PlayWavLocal(TTSPreviousServerFilenameAndPath) Returned Error: ", err)
+			log.Println("error: PlayWavLocal(TTSPreviousServerFilenameAndPath) Returned Error: ", err)
 		}
 
 	}
@@ -2135,12 +2111,11 @@ func (b *Talkkonnect) commandKeyCtrlF() {
 		log.Printf("info: talkkonnect will remain connected to Account Name [%s], Account Server Address [%s], Account Index [%d] \n", b.Name, b.Address, AccountIndex)
 	}
 
-	log.Println("--")
 }
 
 func (b *Talkkonnect) commandKeyCtrlL() {
 	reset()
-	log.Println("info: Ctrl-L Pressed Cleared Screen")
+	log.Println("debug: Ctrl-L Pressed Cleared Screen")
 	if TargetBoard == "rpi" {
 		if LCDEnabled == true {
 			LcdText = [4]string{"nil", "nil", "nil", "nil"}
@@ -2156,7 +2131,8 @@ func (b *Talkkonnect) commandKeyCtrlL() {
 }
 
 func (b *Talkkonnect) commandKeyCtrlO() {
-	log.Println("info: Ctrl-O Ping Servers ")
+	log.Println("debug: Ctrl-O Pressed")
+	log.Println("info: Ping Servers")
 
 	if TTSEnabled && TTSPingServers {
 		err := PlayWavLocal(TTSPingServersFilenameAndPath, TTSVolumeLevel)
@@ -2170,8 +2146,8 @@ func (b *Talkkonnect) commandKeyCtrlO() {
 }
 
 func (b *Talkkonnect) commandKeyCtrlN() {
-	log.Println("--")
-	log.Println("info: Ctrl-N Connect Next Server Requested")
+	log.Println("debug: Ctrl-N Pressed")
+	log.Println("info: Next Server Requested")
 
 	if TTSEnabled && TTSNextServer {
 		err := PlayWavLocal(TTSNextServerFilenameAndPath, TTSVolumeLevel)
@@ -2207,12 +2183,11 @@ func (b *Talkkonnect) commandKeyCtrlN() {
 		log.Printf("info: talkkonnect will remain connected to Account Name [%s], Account Server Address [%s], Account Index [%d] \n", b.Name, b.Address, AccountIndex)
 	}
 
-	log.Println("--")
 }
 
 func (b *Talkkonnect) commandKeyCtrlI() {
-	log.Println("--")
-	log.Println("info: Ctrl-I Traffic Recording Requested")
+	log.Println("debug: Ctrl-I Pressed")
+	log.Println("info: Traffic Recording Requested")
 	if AudioRecordEnabled != true {
 		log.Println("warn: Audio Recording Function Not Enabled")
 	}
@@ -2220,18 +2195,10 @@ func (b *Talkkonnect) commandKeyCtrlI() {
 		log.Println("warn: Traffic Recording Not Enabled")
 	}
 
-	/* if TTSEnabled && TTSTrafficRecoding {
-		        err := PlayWavLocal(TTSTrafficRecordingFilenameAndPath, TTSVolumeLevel)
-		        if err != nil {
-	log.Println("PlayWavLocal(TTSTrafficRecordingFilenameAndPath) Returned Error: ", err)
-		        }
-		} */ // Create TTS
-
 	if AudioRecordEnabled == true {
 		if AudioRecordMode == "traffic" {
 			if AudioRecordFromOutput != "" {
 				if AudioRecordSoft == "sox" {
-					//log.Println("info: sox is Recording Traffic")
 					go AudioRecordTraffic()
 					if TargetBoard == "rpi" {
 						if LCDEnabled == true {
@@ -2251,8 +2218,8 @@ func (b *Talkkonnect) commandKeyCtrlI() {
 }
 
 func (b *Talkkonnect) commandKeyCtrlJ() {
-	log.Println("--")
-	log.Println("info: Ctrl-J Ambient (Mic) Recording Requested")
+	log.Println("debug: Ctrl-J Pressed")
+	log.Println("info: Ambient (Mic) Recording Requested")
 	if AudioRecordEnabled != true {
 		log.Println("warn: Audio Recording Function Not Enabled")
 	}
@@ -2260,18 +2227,10 @@ func (b *Talkkonnect) commandKeyCtrlJ() {
 		log.Println("warn: Ambient (Mic) Recording Not Enabled")
 	}
 
-	/* if TTSEnabled && TTMicRecoding {
-		        err := PlayWavLocal(TTSMicRecordingFilenameAndPath, TTSVolumeLevel)
-		        if err != nil {
-	  log.Println("PlayWavLocal(TTSMicRecordingFilenameAndPath) Returned Error: ", err)
-		        }
-		} */ // Create TTS
-
 	if AudioRecordEnabled == true {
 		if AudioRecordMode == "ambient" {
 			if AudioRecordFromInput != "" {
 				if AudioRecordSoft == "sox" {
-					// log.Println("info: sox is Recording Traffic")
 					go AudioRecordAmbient()
 					if TargetBoard == "rpi" {
 						if LCDEnabled == true {
@@ -2283,7 +2242,7 @@ func (b *Talkkonnect) commandKeyCtrlJ() {
 						}
 					}
 				} else {
-					log.Println("info: Ambient (Mic) Recording is not Enabled or sox Encountered Problems")
+					log.Println("error: Ambient (Mic) Recording is not Enabled or sox Encountered Problems")
 				}
 			}
 		}
@@ -2291,8 +2250,8 @@ func (b *Talkkonnect) commandKeyCtrlJ() {
 }
 
 func (b *Talkkonnect) commandKeyCtrlK() {
-	log.Println("--")
-	log.Println("info: Ctrl-K Combo Recording (Traffic and Mic) Requested")
+	log.Println("debug: Ctrl-K Pressed")
+	log.Println("info: Recording (Traffic and Mic) Requested")
 	if AudioRecordEnabled != true {
 		log.Println("warn: Audio Recording Function Not Enabled")
 	}
@@ -2300,18 +2259,10 @@ func (b *Talkkonnect) commandKeyCtrlK() {
 		log.Println("warn: Combo Recording (Traffic and Mic) Not Enabled")
 	}
 
-	/* if TTSEnabled && TTSComboRecoding {
-		        err := PlayWavLocal(TTSComboRecordingFilenameAndPath, TTSVolumeLevel)
-		        if err != nil {
-	log.Println("PlayWavLocal(TTSComboRecordingFilenameAndPath) Returned Error: ", err)
-		        }
-		} */ // Create TTS
-
 	if AudioRecordEnabled == true {
 		if AudioRecordMode == "combo" {
 			if AudioRecordFromInput != "" {
 				if AudioRecordSoft == "sox" {
-					// log.Println("info: sox is Recording Traffica and Mic (Combo)")
 					go AudioRecordCombo()
 					if TargetBoard == "rpi" {
 						if LCDEnabled == true {
@@ -2323,7 +2274,7 @@ func (b *Talkkonnect) commandKeyCtrlK() {
 						}
 					}
 				} else {
-					log.Println("info: Combo Recording (Traffic and Mic) is not Enabled or sox Encountered Problems")
+					log.Println("error: Combo Recording (Traffic and Mic) is not Enabled or sox Encountered Problems")
 				}
 			}
 		}
@@ -2335,13 +2286,13 @@ func (b *Talkkonnect) commandKeyCtrlP() {
 		return
 	}
 	b.BackLightTimer()
-	log.Println("--")
-	log.Println("info: Ctrl-P pressed Panic Button Start/Stop Simulation Requested")
+	log.Println("debug: Ctrl-P Pressed")
+	log.Println("info: Panic Button Start/Stop Simulation Requested")
 
 	if TTSEnabled && TTSPanicSimulation {
 		err := PlayWavLocal(TTSPanicSimulationFilenameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("warn: PlayWavLocal(TTSPanicSimulationFilenameAndPath) Returned Error: ", err)
+			log.Println("error: PlayWavLocal(TTSPanicSimulationFilenameAndPath) Returned Error: ", err)
 		}
 
 	}
@@ -2349,7 +2300,6 @@ func (b *Talkkonnect) commandKeyCtrlP() {
 	if PEnabled {
 
 		if b.IsTransmitting {
-			log.Println("--")
 			b.TransmitStop(false)
 		} else {
 			b.IsTransmitting = true
@@ -2370,7 +2320,7 @@ func (b *Talkkonnect) commandKeyCtrlP() {
 				goodGPSRead, err := getGpsPosition(false)
 
 				if err != nil {
-					log.Println("warn: GPS Function Returned Error Message", err)
+					log.Println("error: GPS Function Returned Error Message", err)
 					break
 				}
 
@@ -2405,75 +2355,68 @@ func (b *Talkkonnect) commandKeyCtrlP() {
 			}
 
 		} else {
-			log.Println("info: Panic Function Disabled in Config")
+			log.Println("warn: Panic Function Disabled in Config")
 		}
 		IsPlayStream = false
 		b.IsTransmitting = false
 		b.LEDOff(b.TransmitLED)
-		log.Println("--")
 	}
 }
 
 func (b *Talkkonnect) commandKeyCtrlR() {
-	log.Println("--")
-	log.Println("info: Ctrl-R Repeat TX test")
+	log.Println("debug: Ctrl-R Pressed")
+	log.Println("info: Repeat TX Test Requested")
 	isrepeattx = !isrepeattx
 	go b.repeatTx()
-	log.Println("--")
 }
 
 func (b *Talkkonnect) commandKeyCtrlS() {
-	log.Println("--")
-	log.Println("info: Ctrl-S Scan Channels ")
+	log.Println("debug: Ctrl-S Pressed")
+	log.Println("info: Scanning Channels")
 
 	if TTSEnabled && TTSScan {
 		err := PlayWavLocal(TTSScanFilenameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("warn: PlayWavLocal(TTSScanFilenameAndPath) Returned Error: ", err)
+			log.Println("error: PlayWavLocal(TTSScanFilenameAndPath) Returned Error: ", err)
 		}
 
 	}
 
 	b.Scan()
-	log.Println("--")
 }
 
 func (b *Talkkonnect) commandKeyCtrlT() {
-	log.Println("--")
-	log.Println("info: Ctrl-T Thanks and Acknowledgements Screen Request ")
+	log.Println("debug: Ctrl-T Pressed")
+	log.Println("info: Thanks and Acknowledgements Screen Request ")
 	talkkonnectAcknowledgements("\u001b[44;1m") // add blue background to banner reference https://www.lihaoyi.com/post/BuildyourownCommandLinewithANSIescapecodes.html#background-colors
-	log.Println("--")
 }
 
 func (b *Talkkonnect) commandKeyCtrlV() {
-	log.Println("--")
-	log.Println("info: Ctrl-V Version Request ")
+	log.Println("debug: Ctrl-V Pressed")
+	log.Println("info: Ctrl-V Version Request")
 	log.Printf("info: Talkkonnect Version %v Released %v\n", talkkonnectVersion, talkkonnectReleased)
-	log.Println("--")
 }
 
 func (b *Talkkonnect) commandKeyCtrlU() {
-	log.Println("--")
-	log.Println("info: Ctrl-U Talkkonnect Running Time Request ")
+	log.Println("debug: Ctrl-U Pressed")
+	log.Println("info: Talkkonnect Uptime Request ")
 	duration := time.Since(StartTime)
 	log.Printf("info: Talkkonnect Now Running For %v \n", secondsToHuman(int(duration.Seconds())))
-	log.Println("--")
 }
 
 func (b *Talkkonnect) commandKeyCtrlX() {
-	log.Println("--")
-	log.Println("info: Ctrl-X Print XML Config " + ConfigXMLFile)
+	log.Println("debug: Ctrl-X Pressed")
+	log.Println("info: Print XML Config " + ConfigXMLFile)
 
 	if TTSEnabled && TTSPrintXmlConfig {
 		err := PlayWavLocal(TTSPrintXmlConfigFilenameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("warn: PlayWavLocal(TTSPrintXmlConfigFilenameAndPath) Returned Error: ", err)
+			log.Println("error: PlayWavLocal(TTSPrintXmlConfigFilenameAndPath) Returned Error: ", err)
 		}
 
 	}
 
 	printxmlconfig()
-	log.Println("--")
 }
 
 func (b *Talkkonnect) SendMessage(textmessage string, PRecursive bool) {
@@ -2526,14 +2469,14 @@ func (b *Talkkonnect) BackLightTimer() {
 func (b *Talkkonnect) TxLockTimer() {
 	if PTxLockEnabled {
 		TxLockTicker := time.NewTicker(time.Duration(PTxlockTimeOutSecs) * time.Second)
-		log.Println("warn: TX Locked for ", PTxlockTimeOutSecs, " seconds")
+		log.Println("info: TX Locked for ", PTxlockTimeOutSecs, " seconds")
 		b.TransmitStop(false)
 		b.TransmitStart()
 
 		go func() {
 			<-TxLockTicker.C
 			b.TransmitStop(true)
-			log.Println("warn: TX UnLocked After ", PTxlockTimeOutSecs, " seconds")
+			log.Println("info: TX UnLocked After ", PTxlockTimeOutSecs, " seconds")
 		}()
 	}
 }
@@ -2554,8 +2497,7 @@ func (b *Talkkonnect) pingServers() {
 		log.Println("info: Server # ", i+1, "["+Name[i]+"]"+currentconn)
 
 		if err != nil {
-			log.Println(fmt.Sprintf("warn: Ping Error ", err))
-			log.Println("--")
+			log.Println(fmt.Sprintf("error: Ping Error ", err))
 			continue
 		}
 
@@ -2566,7 +2508,6 @@ func (b *Talkkonnect) pingServers() {
 		log.Println("info: Server Version:         ", major, ".", minor, ".", patch)
 		log.Println("info: Server Users:           ", resp.ConnectedUsers, "/", resp.MaximumUsers)
 		log.Println("info: Server Maximum Bitrate: ", resp.MaximumBitrate)
-		log.Println("info: --")
 	}
 }
 
@@ -2581,7 +2522,7 @@ func (b *Talkkonnect) repeatTx() {
 		if i > 0 {
 			log.Println("info: TX Cycle ", i)
 			if isrepeattx {
-				log.Println("warn: Repeat Tx Loop Text Forcefully Stopped")
+				log.Println("info: Repeat Tx Loop Text Forcefully Stopped")
 			}
 		}
 

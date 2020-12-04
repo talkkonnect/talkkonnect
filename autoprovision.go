@@ -58,11 +58,11 @@ func autoProvision() error {
 	}
 
 	fileURL := URL + TkID
-	log.Println("info: Contacting Provisioning Server to Download XML Config File")
+	log.Println("debug: Contacting Provisioning Server to Download XML Config File")
 	err := DownloadFile(SaveFilePath, SaveFilename, fileURL)
 
 	if err != nil {
-		return errors.New(fmt.Sprintf("DownloadFile Module Returned an Error: ", err))
+		return errors.New(fmt.Sprintf("error: DownloadFile Module Returned an Error: ", err))
 	}
 
 	return nil
@@ -78,7 +78,7 @@ func DownloadFile(SaveFilePath string, SaveFilename string, URL string) error {
 	defer resp.Body.Close()
 
 	if resp.StatusCode == 200 {
-		log.Println("info: HTTP Provisioning Server Responded With Status 200 OK ")
+		log.Println("debug: HTTP Provisioning Server Responded With Status 200 OK ")
 	} else {
 		return errors.New(fmt.Sprintf("error: HTTP Provisioning Server Returned Status ", resp.StatusCode, " ", http.StatusText(resp.StatusCode)))
 
@@ -86,13 +86,13 @@ func DownloadFile(SaveFilePath string, SaveFilename string, URL string) error {
 
 	out, err := os.Create(SaveFilePath + SaveFilename)
 	if err != nil {
-		return errors.New(fmt.Sprintf("Cannot Create File Error: ", err))
+		return errors.New(fmt.Sprintf("error: Cannot Create File Error: ", err))
 	}
 	defer out.Close()
 
 	_, err = io.Copy(out, resp.Body)
 	if err != nil {
-		return errors.New(fmt.Sprintf("Cannot Copy File Error: ", err))
+		return errors.New(fmt.Sprintf("error: Cannot Copy File Error: ", err))
 	}
 
 	return nil

@@ -42,12 +42,12 @@ func oledDisplay(OledClear bool, OledRow int, OledColumn int, OledText string) {
 	defer mutex.Unlock()
 
 	if OLEDEnabled == false {
-		log.Println("warn: OLED Function Called in Error!")
+		log.Println("error: OLED Function Called in Error!")
 		return
 	}
 
 	if OLEDInterfacetype != "i2c" {
-		log.Println("warn: Only i2c OLED Screens Supported Now!")
+		log.Println("error: Only i2c OLED Screens Supported Now!")
 		return
 	}
 
@@ -58,7 +58,7 @@ func oledDisplay(OledClear bool, OledRow int, OledColumn int, OledText string) {
 	// clear oled screen command
 	if OledClear == true {
 		Oled.Clear()
-		log.Println("warn: OLED Clearing Screen")
+		log.Println("debug: OLED Clearing Screen")
 		if len(OledText) == 0 {
 			return
 		}

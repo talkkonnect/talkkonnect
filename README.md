@@ -52,20 +52,6 @@ Low cost audio amplifiers like [PAM8403](https://www.instructables.com/id/PAM840
 
 
 
-#### The tkio arduino daughter board (USB Interface) (Under Development) ####
-
-The USB arduino due daughter I/O board enables talKKonnect to be used in the datacenter as a Gateway to physically interface at the hardware level between different radio 
-networks. (Under Development).
-
-* 4 x relays *(output)*
-* 4 x leds *(output)*
-* 1 x Buzzer *(output)*
-* 1 x DTMF encoder *(output)*
-* 4 x opto inputs *(input)*
-* 2 x push buttons *(input)*
-* 1 x DTMF decoder *(input)*
-
-
 ### Software Features ###
 
 * *Colorized LOGs* are shown on the debugging terminal for events as they happen in real time. 

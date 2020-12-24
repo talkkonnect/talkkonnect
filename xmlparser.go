@@ -44,12 +44,13 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"io"
 )
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.52.02"
-	talkkonnectReleased string = "December 04 2020"
+	talkkonnectVersion  string = "1.53.01"
+	talkkonnectReleased string = "December 24 2020"
 )
 
 var (
@@ -92,6 +93,8 @@ var (
 	Daemonize          bool
 	SimplexWithMute    bool = true
 	TxCounter          bool
+	NextServerIndex    float32 = 0
+	PrevServerIndex    float32 = 0
 )
 
 //autoprovision settings
@@ -387,12 +390,9 @@ var (
 
 type Document struct {
 	XMLName  xml.Name `xml:"document"`
-	Text     string   `xml:",chardata"`
 	Type     string   `xml:"type,attr"`
 	Accounts struct {
-		Text    string `xml:",chardata"`
 		Account []struct {
-			Text          string `xml:",chardata"`
 			Name          string `xml:"name,attr"`
 			Default       bool   `xml:"default,attr"`
 			ServerAndPort string `xml:"serverandport"`
@@ -405,22 +405,21 @@ type Document struct {
 		} `xml:"account"`
 	} `xml:"accounts"`
 	Global struct {
-		Text     string `xml:",chardata"`
 		Software struct {
-			Text     string `xml:",chardata"`
 			Settings struct {
-				Text               string `xml:",chardata"`
-				OutputDevice       string `xml:"outputdevice"`
-				LogFilenameAndPath string `xml:"logfilenameandpath"`
-				Logging            string `xml:"logging"`
-				Loglevel           string `xml:"loglevel"`
-				Daemonize          bool   `xml:"daemonize"`
-				CancellableStream  bool   `xml:"cancellablestream"`
-				SimplexWithMute    bool   `xml:"simplexwithmute"`
-				TxCounter          bool   `xml:"txcounter"`
+				OutputDevice       string  `xml:"outputdevice"`
+				LogFilenameAndPath string  `xml:"logfilenameandpath"`
+				Logging            string  `xml:"logging"`
+				Loglevel           string  `xml:"loglevel"`
+				Daemonize          bool    `xml:"daemonize"`
+				CancellableStream  bool    `xml:"cancellablestream"`
+				SimplexWithMute    bool    `xml:"simplexwithmute"`
+				TxCounter          bool    `xml:"txcounter"`
+				NextServerIndex    float32 `xml:"nextserverindex"`
+				PrevServerIndex    float32 `xml:"prevserverindex"`
+
 			} `xml:"settings"`
 			AutoProvisioning struct {
-				Text         string `xml:",chardata"`
 				Enabled      bool   `xml:"enabled,attr"`
 				TkID         string `xml:"tkid"`
 				URL          string `xml:"url"`
@@ -428,14 +427,12 @@ type Document struct {
 				SaveFilename string `xml:"savefilename"`
 			} `xml:"autoprovisioning"`
 			Beacon struct {
-				Text              string  `xml:",chardata"`
 				Enabled           bool    `xml:"enabled,attr"`
 				BeaconTimerSecs   int     `xml:"beacontimersecs"`
 				BeaconFileAndPath string  `xml:"beaconfileandpath"`
 				Volume            float32 `xml:"volume"`
 			} `xml:"beacon"`
 			TTS struct {
-				Text                              string `xml:",chardata"`
 				Enabled                           bool   `xml:"enabled,attr"`
 				VolumeLevel                       int    `xml:"volumelevel"`
 				Participants                      bool   `xml:"participants"`
@@ -483,7 +480,6 @@ type Document struct {
 				PingServersFilenameAndPath        string `xml:"pingserversfilenameandpath"`
 			} `xml:"tts"`
 			SMTP struct {
-				Text          string `xml:",chardata"`
 				Enabled       bool   `xml:"enabled,attr"`
 				Username      string `xml:"username"`
 				Password      string `xml:"password"`
@@ -495,50 +491,41 @@ type Document struct {
 				GoogleMapsURL bool   `xml:"googlemapsurl"`
 			} `xml:"smtp"`
 			Sounds struct {
-				Text  string `xml:",chardata"`
 				Event struct {
-					Text            string `xml:",chardata"`
 					Enabled         bool   `xml:"enabled,attr"`
 					FilenameAndPath string `xml:"filenameandpath"`
 				} `xml:"event"`
 				Alert struct {
-					Text            string  `xml:",chardata"`
 					Enabled         bool    `xml:"enabled,attr"`
 					FilenameAndPath string  `xml:"filenameandpath"`
 					Volume          float32 `xml:"volume"`
 				} `xml:"alert"`
 				IncommingBeep struct {
-					Text            string  `xml:",chardata"`
 					Enabled         bool    `xml:"enabled,attr"`
 					FilenameAndPath string  `xml:"filenameandpath"`
 					Volume          float32 `xml:"volume"`
 				} `xml:"incommingbeep"`
 				RogerBeep struct {
-					Text            string  `xml:",chardata"`
 					Enabled         bool    `xml:"enabled,attr"`
 					FilenameAndPath string  `xml:"filenameandpath"`
 					Volume          float32 `xml:"volume"`
 				} `xml:"rogerbeep"`
 				RepeaterTone struct {
-					Text            string  `xml:",chardata"`
 					Enabled         bool    `xml:"enabled,attr"`
 					FilenameAndPath string  `xml:"filenameandpath"`
 					Volume          float32 `xml:"volume"`
 				} `xml:"repeatertone"`
 				Chimes struct {
-					Text            string  `xml:",chardata"`
 					Enabled         bool    `xml:"enabled,attr"`
 					FilenameAndPath string  `xml:"filenameandpath"`
 					Volume          float32 `xml:"volume"`
 				} `xml:"chimes"`
 			} `xml:"sounds"`
 			TxTimeOut struct {
-				Text          string `xml:",chardata"`
 				Enabled       bool   `xml:"enabled,attr"`
 				TxTimeOutSecs int    `xml:"txtimeoutsecs"`
 			} `xml:"txtimeout"`
 			API struct {
-				Text               string `xml:",chardata"`
 				Enabled            bool   `xml:"enabled,attr"`
 				ListenPort         string `xml:"apilistenport"`
 				DisplayMenu        bool   `xml:"displaymenu"`
@@ -566,7 +553,6 @@ type Document struct {
 				PingServers        bool   `xml:"pingservers"`
 			} `xml:"api"`
 			PrintVariables struct {
-				Text              string `xml:",chardata"`
 				PrintAccount      bool   `xml:"printaccount"`
 				PrintLogging      bool   `xml:"printlogging"`
 				PrintProvisioning bool   `xml:"printprovisioning"`
@@ -589,17 +575,14 @@ type Document struct {
 			} `xml:"printvariables"`
 		} `xml:"software"`
 		Hardware struct {
-			Text        string `xml:",chardata"`
 			TargetBoard string `xml:"targetboard,attr"`
 			Lights      struct {
-				Text                string `xml:",chardata"`
 				VoiceActivityLedPin string `xml:"voiceactivityledpin"`
 				ParticipantsLedPin  string `xml:"participantsledpin"`
 				TransmitLedPin      string `xml:"transmitledpin"`
 				OnlineLedPin        string `xml:"onlineledpin"`
 			} `xml:"lights"`
 			HeartBeat struct {
-				Text        string `xml:",chardata"`
 				Enabled     bool   `xml:"enabled,attr"`
 				LEDPin      string `xml:"heartbeatledpin"`
 				Periodmsecs int    `xml:"periodmsecs"`
@@ -607,7 +590,6 @@ type Document struct {
 				LEDOffmsecs int    `xml:"ledoffmsecs"`
 			} `xml:"heartbeat"`
 			Buttons struct {
-				Text            string `xml:",chardata"`
 				TxButtonPin     string `xml:"txbuttonpin"`
 				TxTogglePin     string `xml:"txtogglepin"`
 				UpButtonPin     string `xml:"upbuttonpin"`
@@ -616,13 +598,11 @@ type Document struct {
 				ChimesButtonPin string `xml:"chimesbuttonpin"`
 			} `xml:"buttons"`
 			Comment struct {
-				Text              string `xml:",chardata"`
 				CommentButtonPin  string `xml:"commentbuttonpin"`
 				CommentMessageOff string `xml:"commentmessageoff"`
 				CommentMessageOn  string `xml:"commentmessageon"`
 			} `xml:"comment"`
 			LCD struct {
-				Text                  string `xml:",chardata"`
 				Enabled               bool   `xml:"enabled,attr"`
 				InterfaceType         string `xml:"lcdinterfacetype"`
 				I2CAddress            uint8  `xml:"lcdi2caddress"`
@@ -637,7 +617,6 @@ type Document struct {
 				D7Pin                 int    `xml:"lcdd7pin"`
 			} `xml:"lcd"`
 			OLED struct {
-				Text                    string `xml:",chardata"`
 				Enabled                 bool   `xml:"enabled,attr"`
 				InterfaceType           string `xml:"oledinterfacetype"`
 				DisplayRows             int    `xml:"oleddisplayrows"`
@@ -652,7 +631,6 @@ type Document struct {
 				StartColumn             int    `xml:"oledstartcolumn"`
 			} `xml:"oled"`
 			GPS struct {
-				Text                string `xml:",chardata"`
 				Enabled             bool   `xml:"enabled,attr"`
 				Port                string `xml:"port"`
 				Baud                uint   `xml:"baud"`
@@ -669,7 +647,6 @@ type Document struct {
 				Rx                  bool   `xml:"rx"`
 			} `xml:"gps"`
 			PanicFunction struct {
-				Text                 string  `xml:",chardata"`
 				Enabled              bool    `xml:"enabled,attr"`
 				FilenameAndPath      string  `xml:"filenameandpath"`
 				Volume               float32 `xml:"volume"`
@@ -681,7 +658,6 @@ type Document struct {
 				TxLockTimeOutSecs    uint    `xml:"txlocktimeoutsecs"`
 			} `xml:"panicfunction"`
 			AudioRecordFunction struct {
-				Text              string `xml:",chardata"`
 				Enabled           bool   `xml:"enabled,attr"`
 				RecordOnStart     bool   `xml:"recordonstart"`
 				RecordSystem      string `xml:"recordsystem"` // New
@@ -815,6 +791,8 @@ func readxmlconfig(file string) error {
 	CancellableStream = document.Global.Software.Settings.CancellableStream
 	SimplexWithMute = document.Global.Software.Settings.SimplexWithMute
 	TxCounter = document.Global.Software.Settings.TxCounter
+	NextServerIndex = document.Global.Software.Settings.NextServerIndex
+	PrevServerIndex = document.Global.Software.Settings.PrevServerIndex
 
 	APEnabled = document.Global.Software.AutoProvisioning.Enabled
 	TkID = document.Global.Software.AutoProvisioning.TkID
@@ -1359,6 +1337,8 @@ func printxmlconfig() {
 		log.Println("info: CancellableStream " + fmt.Sprintf("%t", CancellableStream))
 		log.Println("info: SimplexWithMute   " + fmt.Sprintf("%t", SimplexWithMute))
 		log.Println("info: TxCounter         " + fmt.Sprintf("%t", TxCounter))
+		log.Println("info: NextServerIndex   " + fmt.Sprintf("%v", NextServerIndex))
+		log.Println("info: PrevServerIndex   " + fmt.Sprintf("%v", PrevServerIndex))
 	} else {
 		log.Println("info: --------   Logging & Daemonizing -------- SKIPPED ")
 	}
@@ -1651,3 +1631,60 @@ func printxmlconfig() {
 		log.Println("info: ------------ AUDIO RECORDING Function ------- SKIPPED ")
 	}
 }
+
+func modifyXMLTagServerHopping(inputXMLFile string, outputXMLFile string, nextserverindex float32, prevserverindex float32) {
+	xmlfilein, err := os.Open(inputXMLFile)
+	xmlfileout, err := os.Create(outputXMLFile)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer xmlfilein.Close()
+	defer xmlfileout.Close()
+	decoder := xml.NewDecoder(xmlfilein)
+	encoder := xml.NewEncoder(xmlfileout)
+	encoder.Indent("","	")
+
+	for {
+		token, err := decoder.Token()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			log.Printf("error: Getting token: %v\n", err)
+			break
+		}
+
+		switch v := token.(type) {
+		case xml.StartElement:
+			if v.Name.Local == "document" {
+				var document Document
+				err = decoder.DecodeElement(&document, &v)
+				if  err != nil {
+					log.Fatal("error: Cannot Find XML Tag Document",err)
+				}
+
+				// XML Item to Replace
+				document.Global.Software.Settings.NextServerIndex = nextserverindex
+				document.Global.Software.Settings.PrevServerIndex = prevserverindex
+
+				err = encoder.EncodeElement(document, v)
+				if  err != nil {
+					log.Fatal(err)
+				}
+				continue
+			}
+		}
+
+		if err := encoder.EncodeToken(xml.CopyToken(token)); err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	if err := encoder.Flush(); err != nil {
+		log.Fatal(err)
+	}
+
+}
+

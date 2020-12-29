@@ -41,16 +41,17 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
-	"os/exec"
+	"github.com/talkkonnect/gpio"
 )
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.54.01"
+	talkkonnectVersion  string = "1.54.02"
 	talkkonnectReleased string = "December 29 2020"
 )
 
@@ -70,8 +71,7 @@ var (
 	source                     = openal.NewSource()
 	StartTime                  = time.Now()
 	BufferToOpenALCounter      = 0
-        AccountIndex          int  = 0
-
+	AccountIndex          int  = 0
 )
 
 //account settings
@@ -251,6 +251,29 @@ var (
 	PrintGps          bool
 	PrintPanic        bool
 	PrintAudioRecord  bool
+	PrintMQTT	  bool
+)
+
+// mqtt settings
+var (
+        Iotuuid string
+        relay1          gpio.Pin
+        relay1State     bool = false
+        relayAllState   bool = false
+        RelayPulseMills time.Duration
+        TotalRelays     uint
+        RelayPins       = [9]uint{}
+        MQTTTopic	string
+        MQTTBroker	string
+        MQTTPassword	string
+        MQTTUser	string
+        MQTTId		string
+        MQTTCleansess	bool
+        MQTTQos		int
+        MQTTNum		int
+        MQTTPayload	string
+        MQTTAction	string
+        MQTTStore	string
 )
 
 // target board settings
@@ -572,7 +595,21 @@ type Document struct {
 				PrintGps          bool `xml:"printgps"`
 				PrintPanic        bool `xml:"printpanic"`
 				PrintAudioRecord  bool `xml:"printaudiorecord"`
+				PrintMQTT         bool `xml:"printmqtt"`
 			} `xml:"printvariables"`
+			MQTT struct {
+				MQTTTopic     string `xml:"mqtttopic"`
+				MQTTBroker    string `xml:"mqttbroker"`
+				MQTTPassword  string `xml:"mqttpassword"`
+				MQTTUser      string `xml:"mqttuser"`
+				MQTTId        string `xml:"mqttid"`
+				MQTTCleansess bool   `xml:"cleansess"`
+				MQTTQos       int    `xml:"qos"`
+				MQTTNum       int    `xml:"num"`
+				MQTTPayload   string `xml:"payload"`
+				MQTTAction    string `xml:"action"`
+				MQTTStore     string `xml:"store"`
+			} `xml:"mqtt"`
 		} `xml:"software"`
 		Hardware struct {
 			TargetBoard string `xml:"targetboard,attr"`
@@ -1156,6 +1193,18 @@ func readxmlconfig(file string) error {
 	PrintSounds = document.Global.Software.PrintVariables.PrintSounds
 	PrintTxTimeout = document.Global.Software.PrintVariables.PrintTxTimeout
 
+        MQTTTopic 	= document.Global.Software.MQTT.MQTTTopic
+        MQTTBroker 	= document.Global.Software.MQTT.MQTTBroker
+        MQTTPassword 	= document.Global.Software.MQTT.MQTTPassword
+        MQTTUser 	= document.Global.Software.MQTT.MQTTUser
+        MQTTId 	= document.Global.Software.MQTT.MQTTId
+        MQTTCleansess 	= document.Global.Software.MQTT.MQTTCleansess
+        MQTTQos 	= document.Global.Software.MQTT.MQTTQos
+        MQTTNum 	= document.Global.Software.MQTT.MQTTNum
+        MQTTPayload	= document.Global.Software.MQTT.MQTTPayload
+        MQTTAction	= document.Global.Software.MQTT.MQTTAction
+        MQTTStore	= document.Global.Software.MQTT.MQTTStore
+
 	PrintHTTPAPI = document.Global.Software.PrintVariables.PrintHTTPAPI
 
 	PrintTargetboard = document.Global.Software.PrintVariables.PrintTargetBoard
@@ -1168,6 +1217,7 @@ func readxmlconfig(file string) error {
 	PrintGps = document.Global.Software.PrintVariables.PrintGps
 	PrintPanic = document.Global.Software.PrintVariables.PrintPanic
 	PrintAudioRecord = document.Global.Software.PrintVariables.PrintAudioRecord
+	PrintMQTT = document.Global.Software.PrintVariables.PrintMQTT
 
 	TargetBoard = document.Global.Hardware.TargetBoard
 
@@ -1628,6 +1678,22 @@ func printxmlconfig() {
 	} else {
 		log.Println("info: ------------ AUDIO RECORDING Function ------- SKIPPED ")
 	}
+	if PrintMQTT {
+		log.Println("info: ------------ MQTT Function -------------- ")
+                log.Println("info: Topic     " + fmt.Sprintf("%v", MQTTTopic))
+                log.Println("info: Broker    " + fmt.Sprintf("%v", MQTTBroker))
+                log.Println("info: Password  " + fmt.Sprintf("%v", MQTTPassword))
+                log.Println("info: User      " + fmt.Sprintf("%v", MQTTUser))
+		log.Println("info: Id        " + fmt.Sprintf("%v", MQTTId))
+                log.Println("info: Cleansess " + fmt.Sprintf("%v", MQTTCleansess))
+                log.Println("info: Qos       " + fmt.Sprintf("%v", MQTTQos))
+                log.Println("info: Num       " + fmt.Sprintf("%v", MQTTNum))
+                log.Println("info: Payload   " + fmt.Sprintf("%v", MQTTPayload))
+                log.Println("info: Action    " + fmt.Sprintf("%v", MQTTAction))
+                log.Println("info: Store     " + fmt.Sprintf("%v", MQTTStore))
+	} else {
+		log.Println("info: ------------ MQTT Function ------- SKIPPED ")
+	}
 }
 
 func modifyXMLTagServerHopping(inputXMLFile string, outputXMLFile string, nextserverindex int) {
@@ -1687,10 +1753,10 @@ func modifyXMLTagServerHopping(inputXMLFile string, outputXMLFile string, nextse
 		CopyFile(inputXMLFile, inputXMLFile+".bak")
 		DeleteFile(inputXMLFile)
 		CopyFile(outputXMLFile, inputXMLFile)
-       		c := exec.Command("reset")
-        	c.Stdout = os.Stdout
-        	c.Run()
-        	os.Exit(0)
+		c := exec.Command("reset")
+		c.Stdout = os.Stdout
+		c.Run()
+		os.Exit(0)
 	}
 
 }
@@ -1704,6 +1770,6 @@ func CopyFile(source string, dest string) {
 func DeleteFile(source string) {
 	err := os.Remove(source)
 	if err != nil {
-		log.Fatal("Alert: Cannot Remove Config File ",err)
+		log.Fatal("Alert: Cannot Remove Config File ", err)
 	}
 }

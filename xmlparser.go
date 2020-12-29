@@ -37,6 +37,7 @@ import (
 	"github.com/talkkonnect/go-openal/openal"
 	"github.com/talkkonnect/gumble/gumbleffmpeg"
 	"golang.org/x/sys/unix"
+	"io"
 	"io/ioutil"
 	"log"
 	"os"
@@ -44,13 +45,13 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"io"
+	"os/exec"
 )
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.53.01"
-	talkkonnectReleased string = "December 24 2020"
+	talkkonnectVersion  string = "1.53.02"
+	talkkonnectReleased string = "December 29 2020"
 )
 
 var (
@@ -69,6 +70,8 @@ var (
 	source                     = openal.NewSource()
 	StartTime                  = time.Now()
 	BufferToOpenALCounter      = 0
+        AccountIndex          int  = 0
+
 )
 
 //account settings
@@ -93,8 +96,7 @@ var (
 	Daemonize          bool
 	SimplexWithMute    bool = true
 	TxCounter          bool
-	NextServerIndex    float32 = 0
-	PrevServerIndex    float32 = 0
+	NextServerIndex    int = 0
 )
 
 //autoprovision settings
@@ -407,17 +409,15 @@ type Document struct {
 	Global struct {
 		Software struct {
 			Settings struct {
-				OutputDevice       string  `xml:"outputdevice"`
-				LogFilenameAndPath string  `xml:"logfilenameandpath"`
-				Logging            string  `xml:"logging"`
-				Loglevel           string  `xml:"loglevel"`
-				Daemonize          bool    `xml:"daemonize"`
-				CancellableStream  bool    `xml:"cancellablestream"`
-				SimplexWithMute    bool    `xml:"simplexwithmute"`
-				TxCounter          bool    `xml:"txcounter"`
-				NextServerIndex    float32 `xml:"nextserverindex"`
-				PrevServerIndex    float32 `xml:"prevserverindex"`
-
+				OutputDevice       string `xml:"outputdevice"`
+				LogFilenameAndPath string `xml:"logfilenameandpath"`
+				Logging            string `xml:"logging"`
+				Loglevel           string `xml:"loglevel"`
+				Daemonize          bool   `xml:"daemonize"`
+				CancellableStream  bool   `xml:"cancellablestream"`
+				SimplexWithMute    bool   `xml:"simplexwithmute"`
+				TxCounter          bool   `xml:"txcounter"`
+				NextServerIndex    int    `xml:"nextserverindex"`
 			} `xml:"settings"`
 			AutoProvisioning struct {
 				Enabled      bool   `xml:"enabled,attr"`
@@ -522,8 +522,8 @@ type Document struct {
 				} `xml:"chimes"`
 			} `xml:"sounds"`
 			TxTimeOut struct {
-				Enabled       bool   `xml:"enabled,attr"`
-				TxTimeOutSecs int    `xml:"txtimeoutsecs"`
+				Enabled       bool `xml:"enabled,attr"`
+				TxTimeOutSecs int  `xml:"txtimeoutsecs"`
 			} `xml:"txtimeout"`
 			API struct {
 				Enabled            bool   `xml:"enabled,attr"`
@@ -553,25 +553,25 @@ type Document struct {
 				PingServers        bool   `xml:"pingservers"`
 			} `xml:"api"`
 			PrintVariables struct {
-				PrintAccount      bool   `xml:"printaccount"`
-				PrintLogging      bool   `xml:"printlogging"`
-				PrintProvisioning bool   `xml:"printprovisioning"`
-				PrintBeacon       bool   `xml:"printbeacon"`
-				PrintTTS          bool   `xml:"printtts"`
-				PrintSMTP         bool   `xml:"printsmtp"`
-				PrintSounds       bool   `xml:"printsounds"`
-				PrintTxTimeout    bool   `xml:"printtxtimeout"`
-				PrintHTTPAPI      bool   `xml:"printhttpapi"`
-				PrintTargetBoard  bool   `xml:"printtargetboard"`
-				PrintLeds         bool   `xml:"printleds"`
-				PrintHeartbeat    bool   `xml:"printheartbeat"`
-				PrintButtons      bool   `xml:"printbuttons"`
-				PrintComment      bool   `xml:"printcomment"`
-				PrintLcd          bool   `xml:"printlcd"`
-				PrintOled         bool   `xml:"printoled"`
-				PrintGps          bool   `xml:"printgps"`
-				PrintPanic        bool   `xml:"printpanic"`
-				PrintAudioRecord  bool   `xml:"printaudiorecord"`
+				PrintAccount      bool `xml:"printaccount"`
+				PrintLogging      bool `xml:"printlogging"`
+				PrintProvisioning bool `xml:"printprovisioning"`
+				PrintBeacon       bool `xml:"printbeacon"`
+				PrintTTS          bool `xml:"printtts"`
+				PrintSMTP         bool `xml:"printsmtp"`
+				PrintSounds       bool `xml:"printsounds"`
+				PrintTxTimeout    bool `xml:"printtxtimeout"`
+				PrintHTTPAPI      bool `xml:"printhttpapi"`
+				PrintTargetBoard  bool `xml:"printtargetboard"`
+				PrintLeds         bool `xml:"printleds"`
+				PrintHeartbeat    bool `xml:"printheartbeat"`
+				PrintButtons      bool `xml:"printbuttons"`
+				PrintComment      bool `xml:"printcomment"`
+				PrintLcd          bool `xml:"printlcd"`
+				PrintOled         bool `xml:"printoled"`
+				PrintGps          bool `xml:"printgps"`
+				PrintPanic        bool `xml:"printpanic"`
+				PrintAudioRecord  bool `xml:"printaudiorecord"`
 			} `xml:"printvariables"`
 		} `xml:"software"`
 		Hardware struct {
@@ -792,7 +792,6 @@ func readxmlconfig(file string) error {
 	SimplexWithMute = document.Global.Software.Settings.SimplexWithMute
 	TxCounter = document.Global.Software.Settings.TxCounter
 	NextServerIndex = document.Global.Software.Settings.NextServerIndex
-	PrevServerIndex = document.Global.Software.Settings.PrevServerIndex
 
 	APEnabled = document.Global.Software.AutoProvisioning.Enabled
 	TkID = document.Global.Software.AutoProvisioning.TkID
@@ -1338,7 +1337,6 @@ func printxmlconfig() {
 		log.Println("info: SimplexWithMute   " + fmt.Sprintf("%t", SimplexWithMute))
 		log.Println("info: TxCounter         " + fmt.Sprintf("%t", TxCounter))
 		log.Println("info: NextServerIndex   " + fmt.Sprintf("%v", NextServerIndex))
-		log.Println("info: PrevServerIndex   " + fmt.Sprintf("%v", PrevServerIndex))
 	} else {
 		log.Println("info: --------   Logging & Daemonizing -------- SKIPPED ")
 	}
@@ -1632,7 +1630,7 @@ func printxmlconfig() {
 	}
 }
 
-func modifyXMLTagServerHopping(inputXMLFile string, outputXMLFile string, nextserverindex float32, prevserverindex float32) {
+func modifyXMLTagServerHopping(inputXMLFile string, outputXMLFile string, nextserverindex int) {
 	xmlfilein, err := os.Open(inputXMLFile)
 	xmlfileout, err := os.Create(outputXMLFile)
 
@@ -1644,7 +1642,7 @@ func modifyXMLTagServerHopping(inputXMLFile string, outputXMLFile string, nextse
 	defer xmlfileout.Close()
 	decoder := xml.NewDecoder(xmlfilein)
 	encoder := xml.NewEncoder(xmlfileout)
-	encoder.Indent("","	")
+	encoder.Indent("", "	")
 
 	for {
 		token, err := decoder.Token()
@@ -1661,20 +1659,20 @@ func modifyXMLTagServerHopping(inputXMLFile string, outputXMLFile string, nextse
 			if v.Name.Local == "document" {
 				var document Document
 				err = decoder.DecodeElement(&document, &v)
-				if  err != nil {
-					log.Fatal("error: Cannot Find XML Tag Document",err)
+				if err != nil {
+					log.Fatal("error: Cannot Find XML Tag Document", err)
 				}
 
-				// XML Item to Replace
+				// XML Tag to Replace
 				document.Global.Software.Settings.NextServerIndex = nextserverindex
-				document.Global.Software.Settings.PrevServerIndex = prevserverindex
 
 				err = encoder.EncodeElement(document, v)
-				if  err != nil {
+				if err != nil {
 					log.Fatal(err)
 				}
 				continue
 			}
+
 		}
 
 		if err := encoder.EncodeToken(xml.CopyToken(token)); err != nil {
@@ -1684,7 +1682,28 @@ func modifyXMLTagServerHopping(inputXMLFile string, outputXMLFile string, nextse
 
 	if err := encoder.Flush(); err != nil {
 		log.Fatal(err)
+	} else {
+		time.Sleep(2 * time.Second)
+		CopyFile(inputXMLFile, inputXMLFile+".bak")
+		DeleteFile(inputXMLFile)
+		CopyFile(outputXMLFile, inputXMLFile)
+       		c := exec.Command("reset")
+        	c.Stdout = os.Stdout
+        	c.Run()
+        	os.Exit(0)
 	}
 
 }
 
+func CopyFile(source string, dest string) {
+	temp, _ := ioutil.ReadFile(source)
+	ioutil.WriteFile(dest, temp, 0777)
+
+}
+
+func DeleteFile(source string) {
+	err := os.Remove(source)
+	if err != nil {
+		log.Fatal("Alert: Cannot Remove Config File ",err)
+	}
+}

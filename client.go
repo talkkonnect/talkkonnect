@@ -76,7 +76,6 @@ var (
 	GPSLatitude          float64
 	GPSLongitude         float64
 	Streaming            bool
-	AccountIndex         int = 0
 	ServerHop            bool
 	httpServRunning      bool
 	message              string
@@ -204,7 +203,11 @@ func PreInit0(file string, ServerIndex string) {
 		}
 	}
 
-	AccountIndex, err = strconv.Atoi(ServerIndex)
+	if NextServerIndex > 0 {
+		AccountIndex = NextServerIndex
+	} else {
+		AccountIndex, err = strconv.Atoi(ServerIndex)
+	}
 
 	b := Talkkonnect{
 		Config:      gumble.NewConfig(),
@@ -2098,24 +2101,7 @@ func (b *Talkkonnect) commandKeyCtrlF() {
 			AccountIndex = AccountCount - 1
 		}
 
-		ConnectAttempts = 0
-
-		ServerHop = true
-		KillHeartBeat = true
-		b.Client.Disconnect()
-
-		b.Name = Name[AccountIndex]
-		b.Address = Server[AccountIndex]
-		b.Username = Username[AccountIndex]
-		b.Ident = Ident[AccountIndex]
-		b.ChannelName = Channel[AccountIndex]
-
-		log.Printf("info: Connecting to Account Name [%s], Account Server Address [%s], Account Index [%d] \n", b.Name, b.Address, AccountIndex)
-
-		b.PreInit1(true)
-
-	} else {
-		log.Printf("info: talkkonnect will remain connected to Account Name [%s], Account Server Address [%s], Account Index [%d] \n", b.Name, b.Address, AccountIndex)
+ 		modifyXMLTagServerHopping(ConfigXMLFile, "test.xml", AccountIndex)
 	}
 
 }
@@ -2171,23 +2157,7 @@ func (b *Talkkonnect) commandKeyCtrlN() {
 			AccountIndex = 0
 		}
 
-		ConnectAttempts = 0
-
-		ServerHop = true
-		KillHeartBeat = true
-		b.Client.Disconnect()
-
-		b.Name = Name[AccountIndex]
-		b.Address = Server[AccountIndex]
-		b.Username = Username[AccountIndex]
-		b.Ident = Ident[AccountIndex]
-		b.ChannelName = Channel[AccountIndex]
-
-		log.Printf("info: Connecting to Account Name [%s], Account Server Address [%s], Account Index [%d] \n", b.Name, b.Address, AccountIndex)
-
-		b.PreInit1(true)
-	} else {
-		log.Printf("info: talkkonnect will remain connected to Account Name [%s], Account Server Address [%s], Account Index [%d] \n", b.Name, b.Address, AccountIndex)
+ 		modifyXMLTagServerHopping(ConfigXMLFile, "test.xml", AccountIndex)
 	}
 
 }

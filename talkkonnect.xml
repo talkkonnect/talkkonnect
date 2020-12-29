@@ -55,9 +55,7 @@
         <daemonize>false</daemonize> <!-- this feature is not implemented yet -->
         <cancellablestream>true</cancellablestream> <!-- Set to true if you allow others to stop your streaming upon keying up -->
 	<simplexwithmute>false</simplexwithmute>
-	<nextserverindex>4</nextserverindex>
-	<prevserverindex>6</prevserverindex>
-
+	<nextserverindex>0</nextserverindex>
       </settings>
 
       <!-- http autoprovisioning server and client details -->

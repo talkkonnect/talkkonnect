@@ -131,7 +131,7 @@ Now you should be able to log in remotely via ssh using the root account and con
 To get the newer versions of golang used for this project I suggest installing a precompiled binary of golang. If you use apt-get to install golang at this moment you will get an older incompatable version of golang.
 
 To install GO as required for this project on the raspberry pi. First with your browser look on the website https://golang.org/dl/ on your browser and choose the latest version for the 
-arm archecture. At the time of this writing the version is go1.14.5.linux-armv6l.tar.gz.
+arm archecture. At the time of this writing the version is go1.15.6.linux-armv6l.tar.gz.
 
 Please Note that if you use apt-get to install golang instead of follow the recommended instructions in this blog you will get the following error when compiling 
 BackLightTime.Reset undefined (type * time.Ticker has no field or method Reset) 
@@ -140,9 +140,9 @@ As root user Get the link and use wget to download the binary to your talkkonnec
 
 ` cd /usr/local `
 
-` wget https://golang.org/dl/go1.15.linux-armv6l.tar.gz `
+` wget https://golang.org/dl/go1.15.6.linux-armv6l.tar.gz `
 
-` tar -zxvf go1.15.linux-armv6l.tar.gz `
+` tar -zxvf go1.15.6.linux-armv6l.tar.gz `
 
 ` nano ~/.bashrc `
 
@@ -407,7 +407,10 @@ For a speaker muting to work when pressing a PTT, you need to enter the exact na
 * The outputdevice tag should be set as the default audio output device that represents your audio output device when you run alsamixer. Examples are Speaker or Headphone etc. (Please note that the device name should be set exactly as shown in alsamixer. 
 * The logfilenameandpath tag should contain the full path to a writable file that is created prior to running talkkonenct for logging purposes  
 * Should you not require logging to screen set the logging tag to screen. Any other value will result logs to be shown on the screen and in the log file (note that if logging is not set to screen the logs will no longer be colorized)
-* The daemonize tag is not currently support. To run at startup and in the background you can configure in /etc/rc.local talkkonnect to run in a screen session.
+* The daemonize tag is not currently supported. To run at startup and in the background you can configure in /etc/rc.local talkkonnect to run in a screen session.
+* Cancellable Stream is used so that if you are streaming some audio via talKKonnect another user in the channel can stop your streaming by pressing PTT.
+* Simplexwithmute is used to set simplex mode (mute speaker when transmitting) or full duplex mode (not mute speaker with transmitting)
+* Nextserver index should be set to 0 as default, this is used to inform talKKonnect which server to connect to the next tim talKKonnect runs
 
 ##### Autoprovisioning Section
 * Autoprovisioning is provided so that you can remotely provision a talkkonnect machine via http protocol from a web server 
@@ -471,6 +474,7 @@ Ctrl-M Ping Servers, Ctrl-N Connect Next Server, Ctrl-P Panic Simulation, Ctrl-S
 ##### The Heartbeat Section (OUTPUT)
 * The heartbeat tag defines the GPIO pin that will toggle as per the defined values to show that talkkonnect is alive and operational 
 * Note that this heartbeat can uses the same GPIO PIN and voiceactivitypin so that one LED can have dual function
+* Note Disable heartbeat or do not use the same pin as voiceactivity LED if you connect talKKonnect to a transceiver
 
 ##### The Buttons Section (INPUT)
 * This section defines the raspberry GPIO pins that are connected to push buttons that are pulled to ground by keypress and float upon release

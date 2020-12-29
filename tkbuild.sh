@@ -28,15 +28,15 @@
 ## Please RUN this Script as root user
 
 ## If this script is run after a fresh install of raspbian you man want to update the 2 lines below
-#apt-get update
-#apt-get -y dist upgrade
+apt-get update
+apt-get -y dist upgrade
 
 ## Add talkkonnect user to the system
 adduser --disabled-password --disabled-login --gecos "" talkkonnect
 usermod -a -G cdrom,audio,video,plugdev,users,dialout,dip,input,gpio talkkonnect
 
 ## Install the dependencies required for talkkonnect
-apt-get install golang libopenal-dev libopus-dev libasound2-dev git ffmpeg omxplayer screen
+apt-get install libopenal-dev libopus-dev libasound2-dev git ffmpeg omxplayer screen
 
 ## Create the necessary directoy structure under /home/talkkonnect/
 cd /home/talkkonnect/
@@ -46,16 +46,27 @@ mkdir -p /home/talkkonnect/bin
 ## Create the log file
 touch /var/log/talkkonnect.log
 
+cd /usr/local
+wget https://golang.org/dl/go1.15.linux-armv6l.tar.gz
+tar -zxvf go1.15.linux-armv6l.tar.gz
+
+echo export PATH=$PATH:/usr/local/go/bin >>  ~/.bashrc
+echo export GOPATH=/home/talkkonnect/gocode >>  ~/.bashrc
+echo export GOBIN=/home/talkkonnect/bin >>  ~/.bashrc
+echo alias tk='cd /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/' >>  ~/.bashrc
+
+
 ## Set up GOENVIRONMENT
+export PATH=$PATH:/usr/local/go/bin
 export GOPATH=/home/talkkonnect/gocode
 export GOBIN=/home/talkkonnect/bin
 
 ## Get the latest source code of talkkonnect from githu.com
-go get github.com/talkkonnect/talkkonnect
+go get -v github.com/talkkonnect/talkkonnect
 
 ## Build talkkonnect as binary
 cd $GOPATH/src/github.com/talkkonnect/talkkonnect
-go build -o /home/talkkonnect/bin/talkkonnect cmd/talkkonnect/main.go
+/usr/local/go/bin/go build -o /home/talkkonnect/bin/talkkonnect cmd/talkkonnect/main.go
 
 ## Notify User
 echo "=> Finished building TalKKonnect"

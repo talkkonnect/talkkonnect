@@ -8,7 +8,8 @@
 [talKKonnect](http://www.talkkonnect.com) is a headless self contained mumble Push to Talk (PTT) client complete with LCD, Channel and Volume control. 
 
 This project is a fork of [talkiepi](http://projectable.me/) by Daniel Chote which was in turn a fork of [barnard](https://github.com/layeh/barnard) a text based mumble client. 
-All clients were developed using [golang](https://golang.org/) and based on [gumble](https://github.com/layeh/gumble) library by Tim Cooper.
+talKKonnect was developed using [golang](https://golang.org/) and based on [gumble](https://github.com/layeh/gumble) library by Tim Cooper.
+Libraries are however heavily vendored (modified from original). You will need to get most of the vendored libraries from this repo.
 
 [talKKonnect](http://www.talkkonnect.com) was developed initially to run on SBCs. The latest version can be scaled to run all the way from ARM SBCs to full fledged X86 servers.
 Raspberry Pi 3, Orange Pis, PCs and virtual environments (Oracle VirtualBox, KVM and Proxmox) targets have all been tested and work as expected.
@@ -16,11 +17,9 @@ Raspberry Pi 3, Orange Pis, PCs and virtual environments (Oracle VirtualBox, KVM
 ### Why Was talKKonnect created?
 
 I [Suvir Kumar](https://www.linkedin.com/in/suvir-kumar-51a1333b) created talKKonnect for fun. I missed the younger days making homebrew CB radios and talking to all
-those amazing people who taught me so much. Living in an apartment in the age of the internet with the itch to innovate drove me to create talKKonnect.
+those amazing people who taught me so much. Living in an apartment in the age of the internet with the itch to innovate drove me to create talKKonnect. I am in no way a professional programmer but have tried to make talKKonnect production quality. 
 
-
-[talKKonnect](http://www.talkkonnect.com) was originally created to have the form factor and functionality of a desktop transceiver. With community feedback we started to push the envelope
-to make it more versatile and scalable. 
+[talKKonnect](http://www.talkkonnect.com) was originally created to have the form factor and functionality of a desktop transceiver. With community feedback we started to push the envelope to make it more versatile and scalable. 
 
 #### Some of the interesting features are #### 
 * Communications bridge to interface external (otherwise not compatable) radio systems both over the air and over IP networks.
@@ -38,39 +37,41 @@ Pictures and more information of my builds can be found on my blog here [www.tal
 ### Hardware Features ###
 
 You can use an external microphone with push buttons (up/down) for Channel navigation for a mobile transceiver like experience. 
-Currently talKKonnect works with 4×20 Hitachi [HD44780](https://www.sparkfun.com/datasheets/LCD/HD44780.pdf) LCD screen in parallel mode.  Other screens like [OLED](https://learn.adafruit.com/adafruit-oled-displays-for-raspberry-pi)
-is also currently supported. 
+Currently talKKonnect works with 4×20 Hitachi [HD44780](https://www.sparkfun.com/datasheets/LCD/HD44780.pdf) LCD screen in parallel mode.  Other screens like 0.96" and 1.3" [OLED](https://learn.adafruit.com/adafruit-oled-displays-for-raspberry-pi)
+with I2C interface is also currently supported. 
 
 Low cost audio amplifiers like [PAM8403](https://www.instructables.com/id/PAM8403-6W-STEREO-AMPLIFIER-TUTORIAL/) or similar “D” class amplifiers, are recommended for talKKonnect builds.
 
+A good shileded cable for microphone is recommended to keep the noise picked up to a minimum.
 
 #### There are 4 LED indicators that can be build on the front panel to show the following statuses ####
 * Connected to a server and is currently online
 * There are other participants logged into the same channel
 * Currently in transmitting mode 
 * Currently receving an audio stream (someone is talking on the channel)
-
+* Heart Beat to indicate that talKKonnect is running
 
 
 ### Software Features ###
 
-* *Colorized LOGs* are shown on the debugging terminal for events as they happen in real time. 
+* *Colorized LOGs* are shown on the debugging terminal for events as they happen in real time. Loging with line number, logging to file or screen or both. 
 * Playing of configurable *alert sounds* as different events happen.
 * Configurable *TTS prompts* to announce different events for those use special use cases where it is required. 
 * *Roger Beep* playing can be enabled on release of the PTT button to indicate end of transmission. 
-* *Muting* of The speaker when pressing PTT to prevent audio feedback and give a radio communication like experience. 
-* LCD display can show *channel information, server information, who joined, who is speaking, etc.* 
+* *Muting* of The speaker when pressing PTT to prevent audio feedback and give a radio communication like experience. Both simplex and duplex settable in XML config. 
+* LCD/OLED display can show *channel information, server information, who joined, who is speaking, etc.* 
 * Configuration is kept in a single *highly granular XML file*, where options can be enabled or disabled.
 
 
 ### Installation Instructions For Raspberry Pi 3/4 ###
 
 
-Download the latest version of [Raspbian Stretch Lite](https://www.raspberrypi.org/downloads/raspbian). 
-At the time of making this document latest image release date was 2018-11-13 (Kernel Version 4.14). 
+Download the latest version of [Raspberry Pi OS Lite](https://www.raspberrypi.org/software/operating-systems/#raspberry-pi-os-32-bit). 
+At the time of making/updating this document latest image release date was 02/12/2020 (Kernel Version 5.4). 
 Download the ZIP file and extract IMG file to some temporary directory.
 
 Use any USB / SD card imaging software for Windows or your other OS. Some of the many options are:
+* [Raspberry Pi Imager](https://www.raspberrypi.org/software/)
 * [USB Image Tool](https://www.alexpage.de/usb-image-tool)
 * [Win32 Disk Imager](https://sourceforge.net/projects/win32diskimager)
 * [Rufus](https://rufus.ie) 
@@ -78,7 +79,7 @@ Use any USB / SD card imaging software for Windows or your other OS. Some of the
 * [Linux dd tool](https://elinux.org/RPi_Easy_SD_Card_Setup)
 
 
-After the imaging, insert the SD card into your Raspberry Pi 3, connect the screen, keyboard and power supply and boot into the OS. 
+After the imaging, insert the SD card into your Raspberry Pi, connect the screen, keyboard and power supply and boot into the OS. 
 
 Log in as user “pi” with password “raspberry” (this is the default username and password for a fresh install of Raspbian)
 
@@ -248,7 +249,7 @@ sleep 2
  │Additional Modifications Released under MPL 2.0 License         │
  │visit us at www.talkkonnect.com and github.com/talkkonnect      │
  └────────────────────────────────────────────────────────────────┘
- Talkkonnect Version 1.46.41 Released March 29 2020
+ Talkkonnect Version 1.53.01 Released December 24 2020
 ````
 
 
@@ -351,29 +352,35 @@ For a speaker muting to work when pressing a PTT, you need to enter the exact na
 #### talKKonnect can be controled from terminal screen with function keys. ####
 
 ```
-┌────────────────────────────────────────────────────────────────┐
-│                 _                                              │
-│ _ __ ___   __ _(_)_ __    _ __ ___   ___ _ __  _   _           │
-│| '_ ` _ \ / _` | | '_ \  | '_ ` _ \ / _ \ '_ \| | | |          │
-│| | | | | | (_| | | | | | | | | | | |  __/ | | | |_| |          │
-│|_| |_| |_|\__,_|_|_| |_| |_| |_| |_|\___|_| |_|\__,_|          │
-├─────────────────────────────┬──────────────────────────────────┤
-│ <Del> to Display this Menu  | Ctrl-C to Quit talkkonnect       │
-├─────────────────────────────┼──────────────────────────────────┤
-│ <F1>  Channel Up (+)        │ <F2>  Channel Down (-)           │
-│ <F3>  Mute/Unmute Speaker   │ <F4>  Current Volume Level       │
-│ <F5>  Digital Volume Up (+) │ <F6>  Digital Volume Down (-)    │
-│ <F7>  List Server Channels  │ <F8>  Start Transmitting         │
-│ <F9>  Stop Transmitting     │ <F10> List Online Users          │
-│ <F11> Playback/Stop Chimes  │ <F12> For GPS Position           │
-├─────────────────────────────┼──────────────────────────────────┤
-│<Ctrl-E> Send Email          │<Ctrl-L> Clear Screen             │
-│<Ctrl-M> Ping Servers        │<Ctrl-N> Connect Next Server      │
-│<Ctrl-P> Panic Simulation    │<Ctrl-S> Scan Channels            │
-│<Ctrl-X> Dump XML Config     │                                  │
-├─────────────────────────────┴──────────────────────────────────┤
-│   visit us at www.talkkonnect.com and github.com/talkkonnect   │
-└────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────┐
+│ _ __ ___   __ _(_)_ __    _ __ ___   ___ _ __  _   _         │
+│| '_ ` _ \ / _` | | '_ \  | '_ ` _ \ / _ \ '_ \| | | |        │
+│| | | | | | (_| | | | | | | | | | | |  __/ | | | |_| |        │
+│|_| |_| |_|\__,_|_|_| |_| |_| |_| |_|\___|_| |_|\__,_|        │
+├─────────────────────────────┬────────────────────────────────┤
+│ <Del> to Display this Menu  | Ctrl-C to Quit talkkonnect     │
+├─────────────────────────────┼────────────────────────────────┤
+│ <F1>  Channel Up (+)        │ <F2>  Channel Down (-)         │
+│ <F3>  Mute/Unmute Speaker   │ <F4>  Current Volume Level     │
+│ <F5>  Digital Volume Up (+) │ <F6>  Digital Volume Down (-)  │
+│ <F7>  List Server Channels  │ <F8>  Start Transmitting       │
+│ <F9>  Stop Transmitting     │ <F10> List Online Users        │
+│ <F11> Playback/Stop Chimes  │ <F12> For GPS Position         │
+├─────────────────────────────┼────────────────────────────────┤
+│<Ctrl-D> Debug Stacktrace    │                                │
+│<Ctrl-E> Send Email          │<Ctrl-N> Conn Next Server       │
+│<Ctrl-F> Conn Previous Server│<Ctrl-P> Panic Simulation       │
+│<Ctrl-Q> Reserved            │<Ctrl-S> Scan Channels          │
+│<Ctrl-V> Display Version     │<Ctrl-T> Thanks/Acknowledgements│
+├─────────────────────────────┼────────────────────────────────┤
+│<Ctrl-L> Clear Screen        │<Ctrl-O> Ping Servers           │
+│<Ctrl-R> Repeat TX Loop Test │<Ctrl-X> Dump XML Config        │
+├─────────────────────────────┼────────────────────────────────┤
+│<Ctrl-I> Traffic Record      │<Ctrl-J> Mic Record             │
+│<Ctrl-K> Traffic & Mic Record│<Ctrl-U> Show Uptime            │
+├─────────────────────────────┼────────────────────────────────┤
+│  visit us at www.talkkonnect.com and github.com/talkkonnect  │
+└──────────────────────────────────────────────────────────────┘
 ````
 
 
@@ -520,10 +527,9 @@ We invite interested individuals to provide feedback and improvements to the pro
 you can also check my blog  [www.talkkonnect.com](https://www.talkkonnect.com) for updates on the project
 
 Please visit our [blog](www.talkkonnect.com) for our blog or [github](github.com/talkkonnect) for the latest source code and our [facebook](https://www.facebook.com/talkkonnect) page for future updates and information. 
-You can also [download](https://talkkonnect.com/wp-content/uploads/2019/01/Readme-13-01-2019.pdf) an "VERY MUCH OLDER" PDF version with pictures of this document.
 
 ## License 
 [talKKonnect](http://www.talkkonnect.com) is open source and available under the MPL V2.00 license.
 
-<suvir@talkkonnect.com> Updated 06/06/2020 talkkonnect version 1.46.41 is the latest release as of this writing.
+<suvir@talkkonnect.com> Updated 29/12/2020 talkkonnect version 1.53.01 is the latest release as of this writing.
 

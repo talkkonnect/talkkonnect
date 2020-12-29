@@ -51,7 +51,7 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.54.02"
+	talkkonnectVersion  string = "1.54.03"
 	talkkonnectReleased string = "December 29 2020"
 )
 
@@ -256,7 +256,8 @@ var (
 
 // mqtt settings
 var (
-        Iotuuid string
+	MQTTEnabled	bool
+	Iotuuid 	string
         relay1          gpio.Pin
         relay1State     bool = false
         relayAllState   bool = false
@@ -598,6 +599,7 @@ type Document struct {
 				PrintMQTT         bool `xml:"printmqtt"`
 			} `xml:"printvariables"`
 			MQTT struct {
+				MQTTEnabled   bool   `xml:"enabled,attr"`
 				MQTTTopic     string `xml:"mqtttopic"`
 				MQTTBroker    string `xml:"mqttbroker"`
 				MQTTPassword  string `xml:"mqttpassword"`
@@ -1193,17 +1195,18 @@ func readxmlconfig(file string) error {
 	PrintSounds = document.Global.Software.PrintVariables.PrintSounds
 	PrintTxTimeout = document.Global.Software.PrintVariables.PrintTxTimeout
 
-        MQTTTopic 	= document.Global.Software.MQTT.MQTTTopic
-        MQTTBroker 	= document.Global.Software.MQTT.MQTTBroker
-        MQTTPassword 	= document.Global.Software.MQTT.MQTTPassword
-        MQTTUser 	= document.Global.Software.MQTT.MQTTUser
-        MQTTId 	= document.Global.Software.MQTT.MQTTId
-        MQTTCleansess 	= document.Global.Software.MQTT.MQTTCleansess
-        MQTTQos 	= document.Global.Software.MQTT.MQTTQos
-        MQTTNum 	= document.Global.Software.MQTT.MQTTNum
-        MQTTPayload	= document.Global.Software.MQTT.MQTTPayload
-        MQTTAction	= document.Global.Software.MQTT.MQTTAction
-        MQTTStore	= document.Global.Software.MQTT.MQTTStore
+        MQTTEnabled = document.Global.Software.MQTT.MQTTEnabled
+        MQTTTopic = document.Global.Software.MQTT.MQTTTopic
+        MQTTBroker = document.Global.Software.MQTT.MQTTBroker
+        MQTTPassword = document.Global.Software.MQTT.MQTTPassword
+        MQTTUser = document.Global.Software.MQTT.MQTTUser
+	MQTTId = document.Global.Software.MQTT.MQTTId
+	MQTTCleansess = document.Global.Software.MQTT.MQTTCleansess
+	MQTTQos = document.Global.Software.MQTT.MQTTQos
+	MQTTNum = document.Global.Software.MQTT.MQTTNum
+	MQTTPayload = document.Global.Software.MQTT.MQTTPayload
+	MQTTAction = document.Global.Software.MQTT.MQTTAction
+	MQTTStore = document.Global.Software.MQTT.MQTTStore
 
 	PrintHTTPAPI = document.Global.Software.PrintVariables.PrintHTTPAPI
 
@@ -1680,6 +1683,7 @@ func printxmlconfig() {
 	}
 	if PrintMQTT {
 		log.Println("info: ------------ MQTT Function -------------- ")
+                log.Println("info: Enabled   " + fmt.Sprintf("%v", MQTTEnabled))
                 log.Println("info: Topic     " + fmt.Sprintf("%v", MQTTTopic))
                 log.Println("info: Broker    " + fmt.Sprintf("%v", MQTTBroker))
                 log.Println("info: Password  " + fmt.Sprintf("%v", MQTTPassword))

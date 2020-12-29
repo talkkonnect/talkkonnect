@@ -167,7 +167,7 @@
 				<printaudiorecord>false</printaudiorecord>
 				<printmqtt>true</printmqtt>
 			</printvariables>
-			<mqtt>
+			<mqtt enabled="true">
 			        <iotuuid>002</iotuuid>
         			<relaypin0>0</relaypin0>
         			<relaypin1>5</relaypin1>

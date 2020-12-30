@@ -203,6 +203,15 @@ func PreInit0(file string, ServerIndex string) {
 		}
 	}
 
+	if MQTTEnabled == true {
+		log.Printf("info: Attempting to Contact MQTT Server")
+		log.Printf("info: MQTT Broker      : %s\n", MQTTBroker)
+        	log.Printf("info: Subscribed topic : %s\n", MQTTTopic)
+		go mqttsubscribe()
+	} else {
+		log.Printf("info: MQTT Server Subscription Diabled in Config")
+	}
+
 	if NextServerIndex > 0 {
 		AccountIndex = NextServerIndex
 	} else {

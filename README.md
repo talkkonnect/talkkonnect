@@ -30,6 +30,7 @@ those amazing people who taught me so much. Living in an apartment in the age of
 * Local/ssh control via a USB keyboard/terminal and remote control is done over http api.
 * Panic button, when pressed, talKKonnect will send an alert message with GPS coordinates, followed by an email indication current location in google maps. 
 * Future Plans of Connecting to an [arduino](https://www.arduino.cc/en/Guide/ArduinoDue) daughter board via USB for I/O control when running in the datacenter as a radio gateway 
+* MQTT support for remote control for commands, LED Control, Button Control, Relay Control
 * Other features as per suggested or requested by the community
 
 Pictures and more information of my builds can be found on my blog here [www.talkkonnect.com](https://www.talkkonnect.com)

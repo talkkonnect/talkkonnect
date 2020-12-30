@@ -344,6 +344,10 @@ func (b *Talkkonnect) initGPIO() {
 		b.HeartBeatLED = gpio.NewOutput(HeartBeatLEDPin, false)
 	}
 
+	if AttentionLEDPin > 0 {
+		b.AttentionLED = gpio.NewOutput(AttentionLEDPin, false)
+	}
+
 	if LCDBackLightLEDPin > 0 {
 		b.BackLightLED = gpio.NewOutput(uint(LCDBackLightLEDPin), false)
 		BackLightLED = gpio.NewOutput(uint(LCDBackLightLEDPin), false)
@@ -399,6 +403,9 @@ func (b *Talkkonnect) LEDOffAll() {
 	}
 	if HeartBeatLEDPin > 0 {
 		b.LEDOff(b.HeartBeatLED)
+	}
+	if AttentionLEDPin > 0 {
+		b.LEDOff(b.AttentionLED)
 	}
 	if LCDBackLightLEDPin > 0 {
 		LEDOffFunc(b.BackLightLED)

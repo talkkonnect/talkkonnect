@@ -110,6 +110,7 @@ type Talkkonnect struct {
 	HeartBeatLED       gpio.Pin
 	BackLightLED       gpio.Pin
 	VoiceActivityLED   gpio.Pin
+	AttentionLED       gpio.Pin
 	TxButton           gpio.Pin
 	TxButtonState      uint
 	TxToggle           gpio.Pin
@@ -203,15 +204,6 @@ func PreInit0(file string, ServerIndex string) {
 		}
 	}
 
-	if MQTTEnabled == true {
-		log.Printf("info: Attempting to Contact MQTT Server")
-		log.Printf("info: MQTT Broker      : %s\n", MQTTBroker)
-        	log.Printf("info: Subscribed topic : %s\n", MQTTTopic)
-		go mqttsubscribe()
-	} else {
-		log.Printf("info: MQTT Server Subscription Diabled in Config")
-	}
-
 	if NextServerIndex > 0 {
 		AccountIndex = NextServerIndex
 	} else {
@@ -227,6 +219,16 @@ func PreInit0(file string, ServerIndex string) {
 		ChannelName: Channel[AccountIndex],
 		Daemonize:   Daemonize,
 	}
+
+	if MQTTEnabled == true {
+		log.Printf("info: Attempting to Contact MQTT Server")
+		log.Printf("info: MQTT Broker      : %s\n", MQTTBroker)
+        	log.Printf("info: Subscribed topic : %s\n", MQTTTopic)
+		go b.mqttsubscribe()
+	} else {
+		log.Printf("info: MQTT Server Subscription Diabled in Config")
+	}
+
 
 	b.PreInit1(false)
 }

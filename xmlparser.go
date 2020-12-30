@@ -51,8 +51,8 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.54.04"
-	talkkonnectReleased string = "December 29 2020"
+	talkkonnectVersion  string = "1.54.05"
+	talkkonnectReleased string = "December 30 2020"
 )
 
 var (
@@ -288,6 +288,7 @@ var (
 	ParticipantsLEDPin  uint
 	TransmitLEDPin      uint
 	OnlineLEDPin        uint
+	AttentionLEDPin     uint
 )
 
 //heartbeat light settings
@@ -620,6 +621,7 @@ type Document struct {
 				ParticipantsLedPin  string `xml:"participantsledpin"`
 				TransmitLedPin      string `xml:"transmitledpin"`
 				OnlineLedPin        string `xml:"onlineledpin"`
+				AttentionLedPin     string `xml:"attentionledpin"`
 			} `xml:"lights"`
 			HeartBeat struct {
 				Enabled     bool   `xml:"enabled,attr"`
@@ -1235,8 +1237,10 @@ func readxmlconfig(file string) error {
 	TransmitLEDPin = uint(temp3)
 	temp4, _ := strconv.ParseUint(document.Global.Hardware.Lights.OnlineLedPin, 10, 64)
 	OnlineLEDPin = uint(temp4)
-	temp5, _ := strconv.ParseUint(document.Global.Hardware.HeartBeat.LEDPin, 10, 64)
+	temp14, _ := strconv.ParseUint(document.Global.Hardware.Lights.AttentionLedPin, 10, 64)
+	AttentionLEDPin = uint(temp14)
 
+	temp5, _ := strconv.ParseUint(document.Global.Hardware.HeartBeat.LEDPin, 10, 64)
 	HeartBeatLEDPin = uint(temp5)
 	HeartBeatEnabled = document.Global.Hardware.HeartBeat.Enabled
 	PeriodmSecs = document.Global.Hardware.HeartBeat.Periodmsecs
@@ -1557,6 +1561,7 @@ func printxmlconfig() {
 		log.Println("info: Participants Led Pin   " + fmt.Sprintf("%v", ParticipantsLEDPin))
 		log.Println("info: Transmit Led Pin       " + fmt.Sprintf("%v", TransmitLEDPin))
 		log.Println("info: Online Led Pin         " + fmt.Sprintf("%v", OnlineLEDPin))
+		log.Println("info: Attention Led Pin      " + fmt.Sprintf("%v", AttentionLEDPin))
 	} else {
 		log.Println("info: ------------ LEDS  ---------------------- SKIPPED ")
 	}

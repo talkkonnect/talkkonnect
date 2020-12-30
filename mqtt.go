@@ -219,13 +219,13 @@ func mqtttestpub() {
 	}
 }
 
-func mqttsubscribe() {
+func (b *Talkkonnect) mqttsubscribe() {
 
 	log.Printf("info: MQTT Subscription Information")
 	log.Printf("info: MQTT Broker      : %s\n", MQTTBroker)
-	log.Printf("info: MQTT clientid    : %s\n", MQTTId)
-	log.Printf("info: MQTT user        : %s\n", MQTTUser)
-	log.Printf("info: MQTT password    : %s\n", MQTTPassword)
+	log.Printf("debug: MQTT clientid    : %s\n", MQTTId)
+	log.Printf("debug: MQTT user        : %s\n", MQTTUser)
+	log.Printf("debug: MQTT password    : %s\n", MQTTPassword)
 	log.Printf("info: Subscribed topic : %s\n", MQTTTopic)
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
@@ -241,7 +241,7 @@ func mqttsubscribe() {
 	connOpts.SetTLSConfig(tlsConfig)
 
 	connOpts.OnConnect = func(c MQTT.Client) {
-		if token := c.Subscribe(MQTTTopic, byte(MQTTQos), onMessageReceived); token.Wait() && token.Error() != nil {
+		if token := c.Subscribe(MQTTTopic, byte(MQTTQos), b.onMessageReceived); token.Wait() && token.Error() != nil {
 			panic(token.Error())
 		}
 	}
@@ -256,25 +256,97 @@ func mqttsubscribe() {
 	<-c
 }
 
-func onMessageReceived(client MQTT.Client, message MQTT.Message) {
+func (b *Talkkonnect) onMessageReceived(client MQTT.Client, message MQTT.Message) {
 	log.Printf("info: Received MQTT message on topic: %s Payload: %s\n", message.Topic(), message.Payload())
 
-	if string(message.Payload()) == "relay1:on" {
-		relayCommand(1, "on")
-		return
+	switch string(message.Payload()) {
+	case "DEL":
+		log.Println("info: MQTT Display Menu Request Processed Succesfully")
+		b.commandKeyDel()
+	case "F1":
+		log.Println("API Channel Up Request Processed Succesfully\n")
+		b.commandKeyF1()
+	case "F2":
+		log.Println("API Channel Down Request Processed Succesfully\n")
+		b.commandKeyF2()
+	case "F3":
+		log.Println("API Mute/UnMute Speaker Request Processed Succesfully\n")
+		b.commandKeyF3("toggle")
+	case "F3-mute":
+		log.Println("API Mute/UnMute Speaker Request Processed Succesfully\n")
+		b.commandKeyF3("mute")
+	case "F3-unmute":
+		log.Println("API Mute/UnMute Speaker Request Processed Succesfully\n")
+		b.commandKeyF3("unmute")
+	case "F4":
+		log.Println("API Current Volume Level Request Processed Succesfully\n")
+		b.commandKeyF4()
+	case "F5":
+		log.Println("API Digital Volume Up Request Processed Succesfully\n")
+		b.commandKeyF5()
+	case "F6":
+		log.Println("API Digital Volume Down Request Processed Succesfully\n")
+		b.commandKeyF6()
+	case "F7":
+		log.Println("API List Server Channels Request Processed Succesfully\n")
+		b.commandKeyF7()
+	case "F8":
+		log.Println("API Start Transmitting Request Processed Succesfully\n")
+		b.commandKeyF8()
+	case "F9":
+		log.Println("API Stop Transmitting Request Processed Succesfully\n")
+		b.commandKeyF9()
+	case "F10":
+		log.Println("API List Online Users Request Processed Succesfully\n")
+		b.commandKeyF10()
+	case "F11":
+		log.Println("API Play/Stop Chimes Request Processed Succesfully\n")
+		b.commandKeyF11()
+	case "F12":
+		log.Println("API Request GPS Position Processed Succesfully\n")
+		b.commandKeyF12()
+	case "commandKeyCtrlE":
+		log.Println("API Send Email Processed Succesfully\n")
+		b.commandKeyCtrlE()
+	case "commandKeyCtrlF":
+		log.Println("API Previous Server Processed Successfully\n")
+		b.commandKeyCtrlF()
+	case "commandKeyCtrlN":
+		log.Println("API Next Server Processed Successfully\n")
+		b.commandKeyCtrlN()
+	case "commandKeyCtrlL":
+		log.Println("API Clear Screen Processed Successfully\n")
+		b.commandKeyCtrlL()
+	case "commandKeyCtrlO":
+		log.Println("API Ping Servers Processed Succesfully\n")
+		b.commandKeyCtrlO()
+	case "commandKeyCtrlP":
+		log.Println("API Request Panic Simulation Processed Succesfully\n")
+		b.commandKeyCtrlP()
+	case "commandKeyCtrlR":
+		log.Println("API Request Repeat Tx Loop Test Processed Succesfully\n")
+		b.commandKeyCtrlR()
+	case "commandKeyCtrlS":
+		log.Println("API Request Scan Processed Succesfully\n")
+		b.commandKeyCtrlS()
+	case "commandKeyCtrlT":
+		log.Println("API Request Show Acknowledgements Processed Succesfully\n")
+		b.commandKeyCtrlT()
+	case "commandKeyCtrlV":
+		log.Println("API Request Current Version Succesfully\n")
+		b.commandKeyCtrlV()
+	case "commandKeyCtrlX":
+		log.Println("API Print XML Config Processed Succesfully\n")
+		b.commandKeyCtrlX()
+	case "attentionledon":
+		log.Println("API Turn On Attention LED Succesfully\n")
+  		b.LEDOn(b.AttentionLED)
+	case "attentionledoff":
+		log.Println("API Turn Off Attention LED Succesfully\n")
+  		b.LEDOff(b.AttentionLED)
+	// todo add other automation control for buttons, relays and leds here as needed in the future
+	default:
+		log.Printf("error: Undefined Command Received MQTT message on topic: %s Payload: %s\n", message.Topic(), message.Payload())
 	}
-
-	if string(message.Payload()) == "relay1:off" {
-		relayCommand(1, "off")
-		return
-	}
-
-	if string(message.Payload()) == "relay1:pulse" {
-		relayCommand(1, "pulse")
-		return
-	}
-
-	log.Printf("error: Undefined Command Received in MQTT message : %s \n", message.Payload())
 	return
-
 }

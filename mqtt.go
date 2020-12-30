@@ -264,85 +264,85 @@ func (b *Talkkonnect) onMessageReceived(client MQTT.Client, message MQTT.Message
 		log.Println("info: MQTT Display Menu Request Processed Succesfully")
 		b.commandKeyDel()
 	case "F1":
-		log.Println("API Channel Up Request Processed Succesfully\n")
+		log.Println("info: MQTT Channel Up Request Processed Succesfully\n")
 		b.commandKeyF1()
 	case "F2":
-		log.Println("API Channel Down Request Processed Succesfully\n")
+		log.Println("info: MQTT Channel Down Request Processed Succesfully\n")
 		b.commandKeyF2()
 	case "F3":
-		log.Println("API Mute/UnMute Speaker Request Processed Succesfully\n")
+		log.Println("info: MQTT Mute/UnMute Speaker Request Processed Succesfully\n")
 		b.commandKeyF3("toggle")
 	case "F3-mute":
-		log.Println("API Mute/UnMute Speaker Request Processed Succesfully\n")
+		log.Println("info: MQTT Mute/UnMute Speaker Request Processed Succesfully\n")
 		b.commandKeyF3("mute")
 	case "F3-unmute":
-		log.Println("API Mute/UnMute Speaker Request Processed Succesfully\n")
+		log.Println("info: MQTT Mute/UnMute Speaker Request Processed Succesfully\n")
 		b.commandKeyF3("unmute")
 	case "F4":
-		log.Println("API Current Volume Level Request Processed Succesfully\n")
+		log.Println("info: MQTT Current Volume Level Request Processed Succesfully\n")
 		b.commandKeyF4()
 	case "F5":
-		log.Println("API Digital Volume Up Request Processed Succesfully\n")
+		log.Println("info: MQTT Digital Volume Up Request Processed Succesfully\n")
 		b.commandKeyF5()
 	case "F6":
-		log.Println("API Digital Volume Down Request Processed Succesfully\n")
+		log.Println("info: MQTT Digital Volume Down Request Processed Succesfully\n")
 		b.commandKeyF6()
 	case "F7":
-		log.Println("API List Server Channels Request Processed Succesfully\n")
+		log.Println("info: MQTT List Server Channels Request Processed Succesfully\n")
 		b.commandKeyF7()
 	case "F8":
-		log.Println("API Start Transmitting Request Processed Succesfully\n")
+		log.Println("info: MQTT Start Transmitting Request Processed Succesfully\n")
 		b.commandKeyF8()
 	case "F9":
-		log.Println("API Stop Transmitting Request Processed Succesfully\n")
+		log.Println("info: MQTT Stop Transmitting Request Processed Succesfully\n")
 		b.commandKeyF9()
 	case "F10":
-		log.Println("API List Online Users Request Processed Succesfully\n")
+		log.Println("info: MQTT List Online Users Request Processed Succesfully\n")
 		b.commandKeyF10()
 	case "F11":
-		log.Println("API Play/Stop Chimes Request Processed Succesfully\n")
+		log.Println("info: MQTT Play/Stop Chimes Request Processed Succesfully\n")
 		b.commandKeyF11()
 	case "F12":
-		log.Println("API Request GPS Position Processed Succesfully\n")
+		log.Println("info: MQTT Request GPS Position Processed Succesfully\n")
 		b.commandKeyF12()
 	case "commandKeyCtrlE":
-		log.Println("API Send Email Processed Succesfully\n")
+		log.Println("info: MQTT Send Email Processed Succesfully\n")
 		b.commandKeyCtrlE()
 	case "commandKeyCtrlF":
-		log.Println("API Previous Server Processed Successfully\n")
+		log.Println("info: MQTT Previous Server Processed Successfully\n")
 		b.commandKeyCtrlF()
 	case "commandKeyCtrlN":
-		log.Println("API Next Server Processed Successfully\n")
+		log.Println("info: MQTT Next Server Processed Successfully\n")
 		b.commandKeyCtrlN()
 	case "commandKeyCtrlL":
-		log.Println("API Clear Screen Processed Successfully\n")
+		log.Println("info: MQTT Clear Screen Processed Successfully\n")
 		b.commandKeyCtrlL()
 	case "commandKeyCtrlO":
-		log.Println("API Ping Servers Processed Succesfully\n")
+		log.Println("info: MQTT Ping Servers Processed Succesfully\n")
 		b.commandKeyCtrlO()
 	case "commandKeyCtrlP":
-		log.Println("API Request Panic Simulation Processed Succesfully\n")
+		log.Println("info: MQTT Request Panic Simulation Processed Succesfully\n")
 		b.commandKeyCtrlP()
 	case "commandKeyCtrlR":
-		log.Println("API Request Repeat Tx Loop Test Processed Succesfully\n")
+		log.Println("info: MQTT Request Repeat Tx Loop Test Processed Succesfully\n")
 		b.commandKeyCtrlR()
 	case "commandKeyCtrlS":
-		log.Println("API Request Scan Processed Succesfully\n")
+		log.Println("info: MQTT Request Scan Processed Succesfully\n")
 		b.commandKeyCtrlS()
 	case "commandKeyCtrlT":
-		log.Println("API Request Show Acknowledgements Processed Succesfully\n")
+		log.Println("info: MQTT Request Show Acknowledgements Processed Succesfully\n")
 		b.commandKeyCtrlT()
 	case "commandKeyCtrlV":
-		log.Println("API Request Current Version Succesfully\n")
+		log.Println("info: MQTT Request Current Version Succesfully\n")
 		b.commandKeyCtrlV()
 	case "commandKeyCtrlX":
-		log.Println("API Print XML Config Processed Succesfully\n")
+		log.Println("info: MQTT Print XML Config Processed Succesfully\n")
 		b.commandKeyCtrlX()
 	case "attentionledon":
-		log.Println("API Turn On Attention LED Succesfully\n")
+		log.Println("info: MQTT Turn On Attention LED Succesfully\n")
   		b.LEDOn(b.AttentionLED)
 	case "attentionledoff":
-		log.Println("API Turn Off Attention LED Succesfully\n")
+		log.Println("info: MQTT Turn Off Attention LED Succesfully\n")
   		b.LEDOff(b.AttentionLED)
 	// todo add other automation control for buttons, relays and leds here as needed in the future
 	default:

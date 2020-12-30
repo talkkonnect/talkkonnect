@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="talkkonnect/xml" type="talkkonnect/xml" type="talkkonnect/xml">
+<document type="talkkonnect/xml" type="talkkonnect/xml" type="talkkonnect/xml" type="talkkonnect/xml" type="talkkonnect/xml">
 	<accounts>
 		<account name="talkkonnect-community" default="true">
 			<serverandport>mumble.talkkonnect.com:64738</serverandport>
@@ -7,7 +7,7 @@
 			<password>talkkonnect</password>
 			<insecure>true</insecure>
 			<certificate></certificate>
-			<channel>Root</channel>
+			<channel></channel>
 			<ident>Name Surname</ident>
 		</account>
 	</accounts>
@@ -17,10 +17,10 @@
 				<outputdevice>Speaker</outputdevice>
 				<logfilenameandpath>/var/log/talkkonnect.log</logfilenameandpath>
 				<logging>screen</logging>
-				<loglevel>info</loglevel>
+				<loglevel>debug</loglevel>
 				<daemonize>false</daemonize>
 				<cancellablestream>true</cancellablestream>
-				<simplexwithmute>true</simplexwithmute>
+				<simplexwithmute>false</simplexwithmute>
 				<txcounter>false</txcounter>
 				<nextserverindex>0</nextserverindex>
 			</settings>
@@ -81,10 +81,10 @@
 				<pingservers>true</pingservers>
 				<pingserversfilenameandpath></pingserversfilenameandpath>
 			</tts>
-			<smtp enabled="true">
+			<smtp enabled="false">
 				<username>robot@email.com</username>
 				<password>user</password>
-				<receiver>suvir@talkkonnect.com</receiver>
+				<receiver>someone@somedomain.com</receiver>
 				<subject>Talkkonnect Email Message with GPS</subject>
 				<message>Hello From Talkkonnect</message>
 				<gpsdatetime>true</gpsdatetime>
@@ -104,15 +104,15 @@
 					<volume>1</volume>
 				</incommingbeep>
 				<rogerbeep enabled="true">
-					<filenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/rogerbeeps/Incoming.wav</filenameandpath>
-					<volume>0.5</volume>
+					<filenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/rogerbeeps/Image.wav</filenameandpath>
+					<volume>0.1</volume>
 				</rogerbeep>
 				<repeatertone enabled="false">
-					<filenameandpath></filenameandpath>
-					<volume>0</volume>
+					<filenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/repeatertones/sin_1750Hz_-3dBFS_0.3s.wav</filenameandpath>
+					<volume>0.5</volume>
 				</repeatertone>
 				<chimes enabled="true">
-					<filenameandpath>http://bbcwssc.ic.llnwd.net/stream/bbcwssc_mp1_ws-eieuk</filenameandpath>
+					<filenameandpath>http://212.83.172.11:8504/stream</filenameandpath>
 					<volume>1</volume>
 				</chimes>
 			</sounds>
@@ -152,49 +152,45 @@
 				<printbeacon>false</printbeacon>
 				<printtts>false</printtts>
 				<printsmtp>false</printsmtp>
-				<printsounds>false</printsounds>
+				<printsounds>true</printsounds>
 				<printtxtimeout>false</printtxtimeout>
-				<printhttpapi>true</printhttpapi>
+				<printhttpapi>false</printhttpapi>
 				<printtargetboard>false</printtargetboard>
 				<printleds>false</printleds>
 				<printheartbeat>false</printheartbeat>
 				<printbuttons>false</printbuttons>
 				<printcomment>false</printcomment>
-				<printlcd>false</printlcd>
-				<printoled>true</printoled>
+				<printlcd>true</printlcd>
+				<printoled>false</printoled>
 				<printgps>false</printgps>
 				<printpanic>false</printpanic>
 				<printaudiorecord>false</printaudiorecord>
-				<printmqtt>true</printmqtt>
+				<printmqtt>false</printmqtt>
 			</printvariables>
-			<mqtt enabled="true">
-			        <iotuuid>002</iotuuid>
-        			<relaypin0>0</relaypin0>
-        			<relaypin1>5</relaypin1>
-        			<relaypulsemills>500</relaypulsemills>
-        			<totalrelays>2</totalrelays>
-        			<mqtttopic>thailand/bangkok/company/talkkonnect</mqtttopic>
-        			<mqttbroker>tcp://mqtt.server.com:1883</mqttbroker>
-        			<mqttpassword>iot</mqttpassword>
-        			<mqttuser>iot</mqttuser>
-        			<mqttid>talkkonnect002</mqttid>
-        			<cleansess></cleansess>
-        			<qos>0</qos>
-        			<num>1</num>
-        			<payload></payload>
-        			<action>sub</action>
-        			<store></store>
+			<mqtt enabled="false">
+				<mqtttopic>thailand/bangkok/company/talkkonnect</mqtttopic>
+				<mqttbroker>tcp://test.mosquitto.org:1883</mqttbroker>
+				<mqttpassword></mqttpassword>
+				<mqttuser></mqttuser>
+				<mqttid>talkkonnect002</mqttid>
+				<cleansess>false</cleansess>
+				<qos>0</qos>
+				<num>1</num>
+				<payload></payload>
+				<action>sub</action>
+				<store></store>
 			</mqtt>
 		</software>
 		<hardware targetboard="rpi">
 			<lights>
-				<voiceactivityledpin>17</voiceactivityledpin>
-				<participantsledpin>27</participantsledpin>
+				<voiceactivityledpin>2</voiceactivityledpin>
+				<participantsledpin>3</participantsledpin>
 				<transmitledpin>4</transmitledpin>
 				<onlineledpin>5</onlineledpin>
+				<attentionledpin>2</attentionledpin>
 			</lights>
 			<heartbeat enabled="true">
-				<heartbeatledpin>17</heartbeatledpin>
+				<heartbeatledpin>2</heartbeatledpin>
 				<periodmsecs>2000</periodmsecs>
 				<ledonmsecs>1000</ledonmsecs>
 				<ledoffmsecs>1010</ledoffmsecs>
@@ -213,19 +209,19 @@
 				<commentmessageon>Unavailable</commentmessageon>
 			</comment>
 			<lcd enabled="false">
-				<lcdinterfacetype></lcdinterfacetype>
-				<lcdi2caddress>0</lcdi2caddress>
+				<lcdinterfacetype>parallel</lcdinterfacetype>
+				<lcdi2caddress>63</lcdi2caddress>
 				<lcdbacklighttimerenabled>false</lcdbacklighttimerenabled>
-				<lcdbacklighttimeoutsecs>0</lcdbacklighttimeoutsecs>
-				<lcdbacklightpin></lcdbacklightpin>
-				<lcdrspin>0</lcdrspin>
-				<lcdepin>0</lcdepin>
-				<lcdd4pin>0</lcdd4pin>
-				<lcdd5pin>0</lcdd5pin>
-				<lcdd6pin>0</lcdd6pin>
-				<lcdd7pin>0</lcdd7pin>
+				<lcdbacklighttimeoutsecs>30</lcdbacklighttimeoutsecs>
+				<lcdbacklightpin>6</lcdbacklightpin>
+				<lcdrspin>7</lcdrspin>
+				<lcdepin>8</lcdepin>
+				<lcdd4pin>25</lcdd4pin>
+				<lcdd5pin>24</lcdd5pin>
+				<lcdd6pin>23</lcdd6pin>
+				<lcdd7pin>18</lcdd7pin>
 			</lcd>
-			<oled enabled="true">
+			<oled enabled="false">
 				<oledinterfacetype>i2c</oledinterfacetype>
 				<oleddisplayrows>6</oleddisplayrows>
 				<oleddisplaycolumns>21</oleddisplaycolumns>
@@ -235,10 +231,10 @@
 				<oledscreenheight>64</oledscreenheight>
 				<oledcommandcolumnaddressing>33</oledcommandcolumnaddressing>
 				<oledaddressbasepagestart>176</oledaddressbasepagestart>
-				<oledcharlength>6</oledcharlength>
+				<oledcharlength>9</oledcharlength>
 				<oledstartcolumn>0</oledstartcolumn>
 			</oled>
-			<gps enabled="true">
+			<gps enabled="false">
 				<port>/dev/ttyACM0</port>
 				<baud>115200</baud>
 				<txdata></txdata>
@@ -253,7 +249,7 @@
 				<minread>0</minread>
 				<rx>true</rx>
 			</gps>
-			<panicfunction enabled="true">
+			<panicfunction enabled="false">
 				<filenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/alerts/alert.wav</filenameandpath>
 				<volume>0.5</volume>
 				<sendident>true</sendident>
@@ -265,18 +261,18 @@
 			</panicfunction>
 			<audiorecordfunction enabled="false">
 				<recordonstart>false</recordonstart>
-				<recordsystem>alsa</recordsystem>
-				<recordmode>traffic</recordmode>
+				<recordsystem></recordsystem>
+				<recordmode></recordmode>
 				<recordtimeout>0</recordtimeout>
-				<recordfromoutput>1</recordfromoutput>
-				<recordfrominput>1</recordfrominput>
+				<recordfromoutput></recordfromoutput>
+				<recordfrominput></recordfrominput>
 				<recordmictimeout>0</recordmictimeout>
-				<recordsoft>sox</recordsoft>
-				<recordsavepath>/avrec/audio</recordsavepath>
-				<recordarchivepath>/avrec/archive/audio</recordarchivepath>
-				<recordprofile>standard</recordprofile>
-				<recordfileformat>mp3</recordfileformat>
-				<recordchunksize>600</recordchunksize>
+				<recordsoft></recordsoft>
+				<recordsavepath></recordsavepath>
+				<recordarchivepath></recordarchivepath>
+				<recordprofile></recordprofile>
+				<recordfileformat></recordfileformat>
+				<recordchunksize></recordchunksize>
 			</audiorecordfunction>
 		</hardware>
 	</global>

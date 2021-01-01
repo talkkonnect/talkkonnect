@@ -51,8 +51,8 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.54.05"
-	talkkonnectReleased string = "December 30 2020"
+	talkkonnectVersion  string = "1.54.06"
+	talkkonnectReleased string = "January 01 2021"
 )
 
 var (
@@ -417,7 +417,6 @@ var (
 
 type Document struct {
 	XMLName  xml.Name `xml:"document"`
-	Type     string   `xml:"type,attr"`
 	Accounts struct {
 		Account []struct {
 			Name          string `xml:"name,attr"`
@@ -734,7 +733,7 @@ func readxmlconfig(file string) error {
 	if err != nil {
 		errors.New(fmt.Sprintf("error: File "+filepath.Base(file)+" formatting error Please fix! ", err))
 	}
-	log.Println("info: Document               : " + document.Type)
+	//log.Println("info: Document               : " + document.Type)
 
 	for i := 0; i < len(document.Accounts.Account); i++ {
 		if document.Accounts.Account[i].Default == true {
@@ -1733,11 +1732,12 @@ func modifyXMLTagServerHopping(inputXMLFile string, outputXMLFile string, nextse
 		case xml.StartElement:
 			if v.Name.Local == "document" {
 				var document Document
-				err = decoder.DecodeElement(&document, &v)
-				if err != nil {
-					log.Fatal("error: Cannot Find XML Tag Document", err)
+				if v.Name.Local != "talkkonnect/xml" {
+					err = decoder.DecodeElement(&document, &v)
+					if err != nil {
+						log.Fatal("error: Cannot Find XML Tag Document", err)
+					}
 				}
-
 				// XML Tag to Replace
 				document.Global.Software.Settings.NextServerIndex = nextserverindex
 

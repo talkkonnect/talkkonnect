@@ -338,12 +338,22 @@ func (b *Talkkonnect) onMessageReceived(client MQTT.Client, message MQTT.Message
 	case "commandKeyCtrlX":
 		log.Println("info: MQTT Print XML Config Processed Succesfully\n")
 		b.commandKeyCtrlX()
-	case "attentionledon":
+	case "attentionled:on":
 		log.Println("info: MQTT Turn On Attention LED Succesfully\n")
   		b.LEDOn(b.AttentionLED)
-	case "attentionledoff":
+	case "attentionled:off":
 		log.Println("info: MQTT Turn Off Attention LED Succesfully\n")
   		b.LEDOff(b.AttentionLED)
+	case "relay1:on":
+		log.Println("info: MQTT Turn On Relay 1 Succesfully\n")
+		relayCommand(1, "on")
+	case "relay1:off":
+		log.Println("info: MQTT Turn Off Relay 1 Succesfully\n")
+		relayCommand(1, "off")
+	case "relay1:pulse":
+		log.Println("info: MQTT Pulse Relay 1 Succesfully\n")
+ 		relayCommand(1, "pulse")
+
 	// todo add other automation control for buttons, relays and leds here as needed in the future
 	default:
 		log.Printf("error: Undefined Command Received MQTT message on topic: %s Payload: %s\n", message.Topic(), message.Payload())

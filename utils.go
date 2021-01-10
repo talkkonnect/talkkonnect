@@ -485,3 +485,61 @@ func after(value string, a string) string {
 	}
 	return value[adjustedPos:len(value)]
 }
+
+type dateTimeScheduleStruct struct {
+	startDateTime string
+	endDateTime   string
+	matched       bool
+	defaultLogic  bool
+	stopOnMatch   bool
+}
+
+type dayScheduleStruct struct {
+	dayint       int
+	startTime    int
+	endTime      int
+	matched      bool
+	defaultLogic bool
+	stopOnMatch  bool
+}
+
+func dateTimeWithinRange(dateTimeSchedule dateTimeScheduleStruct) (bool, bool, bool, error) {
+	var dateFormat string = "02/01/2006 15:04"
+	startDateTime, err := time.Parse(dateFormat, dateTimeSchedule.startDateTime)
+	if err != nil {
+		return false, false, false, err
+	}
+
+	endDateTime, err := time.Parse(dateFormat, dateTimeSchedule.endDateTime)
+	if err != nil {
+		return false, false, false, err
+	}
+
+	checkDateTime, err := time.Parse(dateFormat, time.Now().Format("02/01/2006 15:04"))
+	if err != nil {
+		return false, false, false, err
+	}
+	log.Println("------")
+	log.Println("debug: startdate is ", startDateTime, " enddate is ", endDateTime, " check date is ", checkDateTime)
+	if startDateTime.Before(checkDateTime) && endDateTime.After(checkDateTime) {
+		return true, dateTimeSchedule.defaultLogic, dateTimeSchedule.stopOnMatch, nil
+	}
+	return false, dateTimeSchedule.defaultLogic, dateTimeSchedule.stopOnMatch, nil
+}
+
+//func dayTimeWithinRange(startTime string, endTime string, dayCheck string, dateFormat string, defaultLogicDay string) (bool, error) {
+func dayTimeWithinRange(dayTimeWithinRange dayScheduleStruct) (bool, bool, bool, error) {
+
+	t1 := time.Now()
+	t1Day := int(t1.Weekday())
+	t1Minute := int((t1.Hour() * 60) + t1.Minute())
+
+	log.Println("------")
+	log.Println("debug: day is ", t1Day, " starttime is ", dayTimeWithinRange.startTime, " endtime is ", dayTimeWithinRange.endTime, " checkday is ", t1Day, " check time is ", t1Minute)
+
+	if t1Day == dayTimeWithinRange.dayint && (dayTimeWithinRange.startTime <= t1Minute && dayTimeWithinRange.endTime >= t1Minute) {
+		return true, dayTimeWithinRange.defaultLogic, dayTimeWithinRange.stopOnMatch, nil
+	}
+	return false, dayTimeWithinRange.defaultLogic, dayTimeWithinRange.stopOnMatch, nil
+}
+

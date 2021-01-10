@@ -43,10 +43,9 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"sync"
 	"syscall"
 	"time"
-
-	"sync"
 )
 
 var (
@@ -224,7 +223,7 @@ func audiorecordtraffic() {
 				for range ticker.C {
 					checked := time.Since(starttime)
 					checkedshort := fmt.Sprintf(before(fmt.Sprint(checked), ".")) // trim  milliseconds after.  Format 00h00m00s.
-					elapsed := fmtDuration(checked) // hh:mm format
+					elapsed := fmtDuration(checked)                               // hh:mm format
 					log.Println("debug: sox is Still Running After", checkedshort+"s", "|", elapsed)
 				}
 			}()
@@ -327,7 +326,7 @@ func audiorecordambient() {
 				for range ticker.C {
 					checked := time.Since(starttime)
 					checkedshort := fmt.Sprintf(before(fmt.Sprint(checked), ".")) // trim  milliseconds after .  Format 00h00m00s.
-					elapsed := fmtDuration(checked) // hh:mm format
+					elapsed := fmtDuration(checked)                               // hh:mm format
 					log.Println("info: sox is Still Running After", checkedshort+"s", "|", elapsed)
 				}
 			}()
@@ -435,7 +434,7 @@ func audiorecordcombo() {
 				for range ticker.C {
 					checked := time.Since(starttime)
 					checkedshort := fmt.Sprintf(before(fmt.Sprint(checked), ".")) // trim  milliseconds after .  Format 00h00m00s.
-					elapsed := fmtDuration(checked) // hh:mm format
+					elapsed := fmtDuration(checked)                               // hh:mm format
 					log.Println("info: sox is Still Running After", checkedshort+"s", "|", elapsed)
 				}
 			}()

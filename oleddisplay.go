@@ -55,7 +55,6 @@ func oledDisplay(OledClear bool, OledRow int, OledColumn int, OledText string) {
 		Oled.DisplayOn()
 	}
 
-	// clear oled screen command
 	if OledClear == true {
 		Oled.Clear()
 		log.Println("debug: OLED Clearing Screen")

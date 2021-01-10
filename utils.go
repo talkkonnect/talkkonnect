@@ -34,7 +34,21 @@ package talkkonnect
 import (
 	"math"
 	"strconv"
+ 	"github.com/kennygrant/sanitize"
+        term "github.com/talkkonnect/termbox-go"
 )
+
+func reset() {
+        term.Sync()
+}
+
+func esc(str string) string {
+        return sanitize.HTML(str)
+}
+
+func cleanstring(str string) string {
+        return sanitize.Name(str)
+}
 
 func plural(count int, singular string) (result string) {
 	if (count == 1) || (count == 0) {

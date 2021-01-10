@@ -40,7 +40,6 @@ import (
 )
 
 func autoProvision() error {
-
 	if len(TkID) < 8 {
 		return errors.New("TkID Configuration Provisioning XML File should be at least 8 characters!")
 	}
@@ -70,7 +69,6 @@ func autoProvision() error {
 }
 
 func DownloadFile(SaveFilePath string, SaveFilename string, URL string) error {
-
 	resp, err := http.Get(URL)
 	if err != nil {
 		return err

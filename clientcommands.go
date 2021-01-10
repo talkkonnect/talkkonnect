@@ -31,13 +31,11 @@ package talkkonnect
 
 import (
 	"fmt"
-	"github.com/kennygrant/sanitize"
 	hd44780 "github.com/talkkonnect/go-hd44780"
 	"github.com/talkkonnect/gumble/gumble"
 	"github.com/talkkonnect/gumble/gumbleffmpeg"
 	_ "github.com/talkkonnect/gumble/opus"
 	htgotts "github.com/talkkonnect/htgo-tts"
-	term "github.com/talkkonnect/termbox-go"
 	"github.com/talkkonnect/volume-go"
 	"log"
 	"net"
@@ -46,19 +44,6 @@ import (
 	"strconv"
 	"time"
 )
-
-func reset() {
-	term.Sync()
-}
-
-func esc(str string) string {
-	return sanitize.HTML(str)
-}
-
-func cleanstring(str string) string {
-	return sanitize.Name(str)
-}
-
 
 func (b *Talkkonnect) CleanUp() {
 	log.Println("warn: SIGHUP Termination of Program Requested...shutting down...bye!")
@@ -80,7 +65,6 @@ func (b *Talkkonnect) CleanUp() {
 		b.LEDOffAll()
 	}
 
-	//b.Client.Disconnect()
 	c := exec.Command("reset")
 	c.Stdout = os.Stdout
 	c.Run()
@@ -119,12 +103,10 @@ func (b *Talkkonnect) ReConnect() {
 	}
 
 	if ConnectAttempts < 3 {
-		//go func() {
 		if !ServerHop {
 			ConnectAttempts++
 			b.Connect()
 		}
-		//}()
 	} else {
 		log.Println("alert: Unable to connect, giving up")
 		if TargetBoard == "rpi" {
@@ -339,7 +321,6 @@ func (b *Talkkonnect) ParticipantLEDUpdate(verbose bool) {
 		}
 	}
 }
-
 
 func (b *Talkkonnect) ListUsers() {
 	if !(IsConnected) {

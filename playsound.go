@@ -38,8 +38,8 @@ import (
 
 func PlayWavLocal(filepath string, playbackvolume int) error {
 	origVolume, _ = volume.GetVolume(OutputDevice)
-
 	var player string
+
 	if path, err := exec.LookPath("aplay"); err == nil {
 		player = path
 	} else if path, err := exec.LookPath("paplay"); err == nil {
@@ -47,16 +47,20 @@ func PlayWavLocal(filepath string, playbackvolume int) error {
 	} else {
 		return errors.New("Failed to find either aplay or paplay in PATH")
 	}
+
 	cmd := exec.Command(player, filepath)
 	err := volume.SetVolume(playbackvolume, OutputDevice)
+
 	if err != nil {
 		return errors.New(fmt.Sprintf("error: set volume failed: %+v", err))
 	}
 	_, err = cmd.CombinedOutput()
+
 	if err != nil {
 		return errors.New(fmt.Sprintf("error: cmd.Run() for %s failed with %s\n", player, err))
 	}
 	err = volume.SetVolume(origVolume, OutputDevice)
+
 	if err != nil {
 		return errors.New(fmt.Sprintf("error: set volume failed: %+v", err))
 	}

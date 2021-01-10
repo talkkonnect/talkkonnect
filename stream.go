@@ -264,7 +264,6 @@ func (s *Stream) sourceRoutine() {
 
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
-
 	stop := s.sourceStop
 
 	outgoing := s.client.AudioOutgoing()
@@ -304,7 +303,6 @@ func (s *Stream) playIntoStream(filepath string, vol float32) {
 }
 
 func (b *Talkkonnect) playIntoStream(filepath string, vol float32) {
-
 	if IsPlayStream == false {
 		log.Println(fmt.Sprintf("info: File %s Stopped!", filepath))
 		pstream.Stop()
@@ -355,7 +353,6 @@ func (b *Talkkonnect) RepeaterTone(filepath string, vol float32) {
 }
 
 func (b *Talkkonnect) OpenStream() {
-
 	if ServerHop {
 		log.Println("debug: Server Hop Requested Will Now Destroy Old Server Stream")
 		b.Stream.Destroy()

@@ -51,6 +51,15 @@ func reset() {
 	term.Sync()
 }
 
+func esc(str string) string {
+	return sanitize.HTML(str)
+}
+
+func cleanstring(str string) string {
+	return sanitize.Name(str)
+}
+
+
 func (b *Talkkonnect) CleanUp() {
 	log.Println("warn: SIGHUP Termination of Program Requested...shutting down...bye!")
 
@@ -331,13 +340,6 @@ func (b *Talkkonnect) ParticipantLEDUpdate(verbose bool) {
 	}
 }
 
-func esc(str string) string {
-	return sanitize.HTML(str)
-}
-
-func cleanstring(str string) string {
-	return sanitize.Name(str)
-}
 
 func (b *Talkkonnect) ListUsers() {
 	if !(IsConnected) {
@@ -606,7 +608,6 @@ func (b *Talkkonnect) SetComment(comment string) {
 }
 
 func (b *Talkkonnect) BackLightTimer() {
-
 	BackLightTime = *BackLightTimePtr
 
 	if TargetBoard != "rpi" || (LCDBackLightTimerEnabled == false && OLEDEnabled == false && LCDEnabled == false) {
@@ -622,7 +623,6 @@ func (b *Talkkonnect) BackLightTimer() {
 	}
 
 	BackLightTime.Reset(time.Duration(LCDBackLightTimeoutSecs) * time.Second)
-
 }
 
 func (b *Talkkonnect) TxLockTimer() {
@@ -641,9 +641,7 @@ func (b *Talkkonnect) TxLockTimer() {
 }
 
 func (b *Talkkonnect) pingServers() {
-
 	currentconn := " Not Connected "
-
 	for i := 0; i < len(Server); i++ {
 		resp, err := gumble.Ping(Server[i], time.Second*1, time.Second*5)
 

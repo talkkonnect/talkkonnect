@@ -293,6 +293,7 @@ func (b *Talkkonnect) Init() {
 	b.Config.Attach(b)
 
 	log.Printf("info: [%d] Default Mumble Accounts Found in XML config\n", AccountCount)
+
 	if TargetBoard == "rpi" {
 		log.Println("info: Target Board Set as RPI (gpio enabled) ")
 		b.initGPIO()
@@ -335,6 +336,7 @@ func (b *Talkkonnect) Init() {
 	talkkonnectBanner("\u001b[44;1m") // add blue background to banner reference https://www.lihaoyi.com/post/BuildyourownCommandLinewithANSIescapecodes.html#background-colors
 
 	err = volume.Unmute(OutputDevice)
+
 	if err != nil {
 		log.Println("error: Unable to Unmute ", err)
 	} else {

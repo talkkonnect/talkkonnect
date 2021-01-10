@@ -33,7 +33,6 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	hd44780 "github.com/talkkonnect/go-hd44780"
 	_ "github.com/talkkonnect/gumble/opus"
 	"github.com/talkkonnect/volume-go"
 	"log"
@@ -105,7 +104,7 @@ func (b *Talkkonnect) commandKeyF3(subCommand string) {
 		if TargetBoard == "rpi" {
 			if LCDEnabled == true {
 				LcdText = [4]string{"nil", "nil", "nil", "UnMuted"}
-				go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+				LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 			}
 			if OLEDEnabled == true {
 				oledDisplay(false, 6, 1, "Unmuted")
@@ -129,7 +128,7 @@ func (b *Talkkonnect) commandKeyF3(subCommand string) {
 		if TargetBoard == "rpi" {
 			if LCDEnabled == true {
 				LcdText = [4]string{"nil", "nil", "nil", "Muted"}
-				go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+				LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 			}
 			if OLEDEnabled == true {
 				oledDisplay(false, 6, 1, "Muted")
@@ -159,7 +158,7 @@ func (b *Talkkonnect) commandKeyF4() {
 	if TargetBoard == "rpi" {
 		if LCDEnabled == true {
 			LcdText = [4]string{"nil", "nil", "nil", "Volume " + strconv.Itoa(origVolume)}
-			go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+			LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 		}
 		if OLEDEnabled == true {
 			oledDisplay(false, 6, 1, "Volume "+strconv.Itoa(origVolume))
@@ -185,7 +184,7 @@ func (b *Talkkonnect) commandKeyF5() {
 		if TargetBoard == "rpi" {
 			if LCDEnabled == true {
 				LcdText = [4]string{"nil", "nil", "nil", "Volume + " + strconv.Itoa(origVolume)}
-				go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+				LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 			}
 			if OLEDEnabled == true {
 				oledDisplay(false, 6, 1, "Volume "+strconv.Itoa(origVolume))
@@ -197,7 +196,7 @@ func (b *Talkkonnect) commandKeyF5() {
 		if TargetBoard == "rpi" {
 			if LCDEnabled == true {
 				LcdText = [4]string{"nil", "nil", "nil", "Max Vol"}
-				go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+				LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 			}
 			if OLEDEnabled == true {
 				oledDisplay(false, 6, 1, "Max Vol")
@@ -233,7 +232,7 @@ func (b *Talkkonnect) commandKeyF6() {
 		if TargetBoard == "rpi" {
 			if LCDEnabled == true {
 				LcdText = [4]string{"nil", "nil", "nil", "Volume - " + strconv.Itoa(origVolume)}
-				go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+				LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 			}
 			if OLEDEnabled == true {
 				oledDisplay(false, 6, 1, "Volume -")
@@ -246,7 +245,7 @@ func (b *Talkkonnect) commandKeyF6() {
 		if TargetBoard == "rpi" {
 			if LCDEnabled == true {
 				LcdText = [4]string{"nil", "nil", "nil", "Min Vol"}
-				go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+				LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 			}
 			if OLEDEnabled == true {
 				oledDisplay(false, 6, 1, "Min Vol")
@@ -539,7 +538,7 @@ func (b *Talkkonnect) commandKeyCtrlL() {
 	if TargetBoard == "rpi" {
 		if LCDEnabled == true {
 			LcdText = [4]string{"nil", "nil", "nil", "nil"}
-			go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+			LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 		}
 
 		if OLEDEnabled == true {
@@ -607,7 +606,7 @@ func (b *Talkkonnect) commandKeyCtrlI() {
 					if TargetBoard == "rpi" {
 						if LCDEnabled == true {
 							LcdText = [4]string{"nil", "nil", "Traffic Audio Rec ->", "nil"} // 4 or 3
-							go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+							LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 						}
 						if OLEDEnabled == true {
 							oledDisplay(false, 5, 1, "Traffic Audio Rec ->") // 6 or 5
@@ -639,7 +638,7 @@ func (b *Talkkonnect) commandKeyCtrlJ() {
 					if TargetBoard == "rpi" {
 						if LCDEnabled == true {
 							LcdText = [4]string{"nil", "nil", "Mic Audio Rec ->", "nil"} // 4 or 3
-							go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+							LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 						}
 						if OLEDEnabled == true {
 							oledDisplay(false, 5, 1, "Mic Audio Rec ->") // 6 or 5
@@ -671,7 +670,7 @@ func (b *Talkkonnect) commandKeyCtrlK() {
 					if TargetBoard == "rpi" {
 						if LCDEnabled == true {
 							LcdText = [4]string{"nil", "nil", "Combo Audio Rec ->", "nil"} // 4 or 3
-							go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+							LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 						}
 						if OLEDEnabled == true {
 							oledDisplay(false, 5, 1, "Combo Audio Rec ->") // 6 or 5
@@ -748,7 +747,7 @@ func (b *Talkkonnect) commandKeyCtrlP() {
 			if TargetBoard == "rpi" {
 				if LCDEnabled == true {
 					LcdText = [4]string{"nil", "nil", "nil", "Panic Message Sent!"}
-					go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+					LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 				}
 				if OLEDEnabled == true {
 					oledDisplay(false, 6, 1, "Panic Message Sent!")

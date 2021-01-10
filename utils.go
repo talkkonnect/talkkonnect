@@ -37,7 +37,6 @@ import (
 	"flag"
 	"fmt"
 	"github.com/kennygrant/sanitize"
-	hd44780 "github.com/talkkonnect/go-hd44780"
 	"github.com/talkkonnect/gumble/gumble"
 	term "github.com/talkkonnect/termbox-go"
 	"github.com/talkkonnect/volume-go"
@@ -203,7 +202,7 @@ func sendviagmail(username string, password string, receiver string, subject str
 		return errors.New("Sending Email Via GMAIL Error")
 	}
 
-	go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+	go LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 
 	return nil
 }

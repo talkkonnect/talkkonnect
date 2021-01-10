@@ -31,7 +31,6 @@ package talkkonnect
 
 import (
 	"fmt"
-	hd44780 "github.com/talkkonnect/go-hd44780"
 	"github.com/talkkonnect/gumble/gumble"
 	_ "github.com/talkkonnect/gumble/opus"
 	htgotts "github.com/talkkonnect/htgo-tts"
@@ -64,7 +63,7 @@ func (b *Talkkonnect) OnConnect(e *gumble.ConnectEvent) {
 
 		if LCDEnabled == true {
 			LcdText = [4]string{"nil", "nil", "nil", "nil"}
-			go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+			LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 		}
 		if OLEDEnabled == true {
 			Oled.DisplayOn()
@@ -135,7 +134,7 @@ func (b *Talkkonnect) OnTextMessage(e *gumble.TextMessageEvent) {
 		if LCDEnabled == true {
 			LcdText[0] = "Msg From " + sender
 			LcdText[1] = message
-			go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+			LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 		}
 		if OLEDEnabled == true {
 			oledDisplay(false, 2, 1, "Msg From "+sender)
@@ -273,7 +272,7 @@ func (b *Talkkonnect) OnPermissionDenied(e *gumble.PermissionDeniedEvent) {
 
 		if TargetBoard == "rpi" {
 			if LCDEnabled == true {
-				go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+				LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 			}
 			if OLEDEnabled == true {
 				oledDisplay(false, 1, 1, LcdText[1])

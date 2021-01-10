@@ -33,7 +33,6 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
-	hd44780 "github.com/talkkonnect/go-hd44780"
 	"github.com/talkkonnect/go-openal/openal"
 	"github.com/talkkonnect/gpio"
 	"github.com/talkkonnect/gumble/gumble"
@@ -171,7 +170,7 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 							if LCDEnabled == true {
 								LEDOnFunc(BackLightLED)
 								lcdtext = [4]string{"nil", "", "", *e.LastSpeaker + " " + t.Format("15:04:05")}
-								go hd44780.LcdDisplay(lcdtext, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+								LcdDisplay(lcdtext, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 								BackLightTime.Reset(time.Duration(LCDBackLightTimeoutSecs) * time.Second)
 							}
 
@@ -364,7 +363,7 @@ func (b *Talkkonnect) OpenStream() {
 			if LCDEnabled == true {
 				LcdText[0] = b.Address
 				LcdText[1] = b.Client.Self.Channel.Name + " (" + strconv.Itoa(participantCount) + " Users)"
-				go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+				LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 			}
 			if OLEDEnabled == true {
 				oledDisplay(false, 0, 1, b.Address)
@@ -382,7 +381,7 @@ func (b *Talkkonnect) OpenStream() {
 		if TargetBoard == "rpi" {
 			if LCDEnabled == true {
 				LcdText = [4]string{"Stream Error!", "nil", "nil", "nil"}
-				go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+				LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 			}
 			if OLEDEnabled == true {
 				oledDisplay(false, 2, 1, "Stream Error!!")

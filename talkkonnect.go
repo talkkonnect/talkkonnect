@@ -30,14 +30,9 @@
 package talkkonnect
 
 import (
-	"fmt"
-	"log"
-	"net"
-	"os"
-	"time"
-
-	"github.com/talkkonnect/gumble/gumble"
 	"github.com/talkkonnect/volume-go"
+	"log"
+	"os"
 )
 
 func talkkonnectBanner(backgroundcolor string) {
@@ -136,46 +131,4 @@ func (b *Talkkonnect) talkkonnectMenu(backgroundcolor string) {
 	}
 
 	log.Printf("info: Talkkonnect Version %v Released %v\n", talkkonnectVersion, talkkonnectReleased)
-}
-
-func localAddresses() {
-	ifaces, err := net.Interfaces()
-	if err != nil {
-		log.Print(fmt.Errorf("error: localAddresses %v", err.Error()))
-		return
-	}
-
-	for _, i := range ifaces {
-		addrs, err := i.Addrs()
-
-		if err != nil {
-			log.Print(fmt.Errorf("error: localAddresses %v", err.Error()))
-			continue
-		}
-
-		for _, a := range addrs {
-			if i.Name != "lo" {
-				log.Printf("info: %v %v\n", i.Name, a)
-			}
-		}
-	}
-}
-
-func (b *Talkkonnect) pingconnectedserver() {
-
-	resp, err := gumble.Ping(b.Address, time.Second*1, time.Second*5)
-
-	if err != nil {
-		log.Println(fmt.Sprintf("error: Ping Error %s", err))
-		return
-	}
-
-	major, minor, patch := resp.Version.SemanticVersion()
-
-	log.Println("info: Server Address:         ", resp.Address)
-	log.Println("info: Current Channel:        ", b.Client.Self.Channel.Name)
-	log.Println("info: Server Ping:            ", resp.Ping)
-	log.Println("info: Server Version:         ", major, ".", minor, ".", patch)
-	log.Println("info: Server Users:           ", resp.ConnectedUsers, "/", resp.MaximumUsers)
-	log.Println("info: Server Maximum Bitrate: ", resp.MaximumBitrate)
 }

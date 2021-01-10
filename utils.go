@@ -32,22 +32,40 @@
 package talkkonnect
 
 import (
+	"archive/zip"
+	"errors"
+	"flag"
+	"fmt"
+	"github.com/kennygrant/sanitize"
+	hd44780 "github.com/talkkonnect/go-hd44780"
+	"github.com/talkkonnect/gumble/gumble"
+	term "github.com/talkkonnect/termbox-go"
+	"github.com/talkkonnect/volume-go"
+	"github.com/xackery/gomail"
+	"io"
+	"io/ioutil"
+	"log"
 	"math"
+	"net"
+	"net/http"
+	"os"
+	"os/exec"
+	"path/filepath"
 	"strconv"
- 	"github.com/kennygrant/sanitize"
-        term "github.com/talkkonnect/termbox-go"
+	"strings"
+	"time"
 )
 
 func reset() {
-        term.Sync()
+	term.Sync()
 }
 
 func esc(str string) string {
-        return sanitize.HTML(str)
+	return sanitize.HTML(str)
 }
 
 func cleanstring(str string) string {
-        return sanitize.Name(str)
+	return sanitize.Name(str)
 }
 
 func plural(count int, singular string) (result string) {
@@ -90,4 +108,380 @@ func secondsToHuman(input int) (result string) {
 	}
 
 	return
+}
+
+func CopyFile(source string, dest string) {
+	temp, _ := ioutil.ReadFile(source)
+	ioutil.WriteFile(dest, temp, 0777)
+
+}
+
+func DeleteFile(source string) {
+	err := os.Remove(source)
+	if err != nil {
+		log.Fatal("Alert: Cannot Remove Config File ", err)
+	}
+}
+
+func localAddresses() {
+	ifaces, err := net.Interfaces()
+	if err != nil {
+		log.Print(fmt.Errorf("error: localAddresses %v", err.Error()))
+		return
+	}
+
+	for _, i := range ifaces {
+		addrs, err := i.Addrs()
+
+		if err != nil {
+			log.Print(fmt.Errorf("error: localAddresses %v", err.Error()))
+			continue
+		}
+
+		for _, a := range addrs {
+			if i.Name != "lo" {
+				log.Printf("info: %v %v\n", i.Name, a)
+			}
+		}
+	}
+}
+
+func (b *Talkkonnect) pingconnectedserver() {
+
+	resp, err := gumble.Ping(b.Address, time.Second*1, time.Second*5)
+
+	if err != nil {
+		log.Println(fmt.Sprintf("error: Ping Error %s", err))
+		return
+	}
+
+	major, minor, patch := resp.Version.SemanticVersion()
+
+	log.Println("info: Server Address:         ", resp.Address)
+	log.Println("info: Current Channel:        ", b.Client.Self.Channel.Name)
+	log.Println("info: Server Ping:            ", resp.Ping)
+	log.Println("info: Server Version:         ", major, ".", minor, ".", patch)
+	log.Println("info: Server Users:           ", resp.ConnectedUsers, "/", resp.MaximumUsers)
+	log.Println("info: Server Maximum Bitrate: ", resp.MaximumBitrate)
+}
+
+func PlayWavLocal(filepath string, playbackvolume int) error {
+	origVolume, _ = volume.GetVolume(OutputDevice)
+	var player string
+
+	if path, err := exec.LookPath("aplay"); err == nil {
+		player = path
+	} else if path, err := exec.LookPath("paplay"); err == nil {
+		player = path
+	} else {
+		return errors.New("Failed to find either aplay or paplay in PATH")
+	}
+
+	cmd := exec.Command(player, filepath)
+	err := volume.SetVolume(playbackvolume, OutputDevice)
+
+	if err != nil {
+		return errors.New(fmt.Sprintf("error: set volume failed: %+v", err))
+	}
+	_, err = cmd.CombinedOutput()
+
+	if err != nil {
+		return errors.New(fmt.Sprintf("error: cmd.Run() for %s failed with %s\n", player, err))
+	}
+	err = volume.SetVolume(origVolume, OutputDevice)
+
+	if err != nil {
+		return errors.New(fmt.Sprintf("error: set volume failed: %+v", err))
+	}
+	return nil
+}
+
+func sendviagmail(username string, password string, receiver string, subject string, message string) error {
+
+	err := gomail.Send(username, password, []string{receiver}, subject, message)
+	if err != nil {
+		return errors.New("Sending Email Via GMAIL Error")
+	}
+
+	go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+
+	return nil
+}
+
+func clearfiles() { // Testing os.Remove to delete files
+	err := os.RemoveAll(`/avrec`)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+}
+
+func fileserve3() {
+	port := flag.String("psox", "8085", "port to serve on")
+	directory := flag.String("dsox", AudioRecordSavePath, "the directory of static file to host")
+	//. "dot" or / or ./img or AudioRecordSavePath, AudioRecordArchivePath
+	flag.Parse()
+	mux := http.NewServeMux()
+	mux.Handle("/", http.FileServer(http.Dir(*directory)))
+	//http.Handle("/img/", http.StripPrefix("/img/", http.FileServer(http.Dir("./img/"))))
+	// in case of problem with img dir
+	time.Sleep(5 * time.Second)
+	log.Println("debug: Serving Audio Files", *directory, "over HTTP port:", *port)
+	log.Println("info: HTTP Server Waiting")
+	// log.Fatal(http.ListenAndServe(":" + *port, nil))
+	log.Fatal(http.ListenAndServe(":"+*port, mux))
+}
+
+func fileserve4() {
+	port := flag.String("pavrec", "8086", "port to serve on")
+	directory := flag.String("davrec", "/avrec", "the directory of static file to host")
+	flag.Parse()
+	mux := http.NewServeMux()
+	mux.Handle("/", http.FileServer(http.Dir(*directory)))
+	//http.Handle("/img/", http.StripPrefix("/img/", http.FileServer(http.Dir("./img/"))))
+	// in case of problem with img dir
+	time.Sleep(5 * time.Second)
+	log.Println("debug: Serving Directory", *directory, "over HTTP port:", *port)
+	log.Println("info: HTTP Server Waiting")
+	// log.Fatal(http.ListenAndServe(":" + *port, nil))
+	log.Fatal(http.ListenAndServe(":"+*port, mux))
+}
+
+func zipit(source, target string) error {
+	zipfile, err := os.Create(target)
+	if err != nil {
+		return err
+	}
+	defer zipfile.Close()
+
+	archive := zip.NewWriter(zipfile)
+	defer archive.Close()
+
+	info, err := os.Stat(source)
+	if err != nil {
+		return nil
+	}
+
+	var baseDir string
+	if info.IsDir() {
+		baseDir = filepath.Base(source)
+	}
+
+	filepath.Walk(source, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		header, err := zip.FileInfoHeader(info)
+		if err != nil {
+			return err
+		}
+
+		if baseDir != "" {
+			header.Name = filepath.Join(baseDir, strings.TrimPrefix(path, source))
+		}
+
+		if info.IsDir() {
+			header.Name += "/"
+		} else {
+			header.Method = zip.Deflate
+		}
+
+		writer, err := archive.CreateHeader(header)
+		if err != nil {
+			return err
+		}
+
+		if info.IsDir() {
+			return nil
+		}
+
+		file, err := os.Open(path)
+		if err != nil {
+			return err
+		}
+		defer file.Close()
+		_, err = io.Copy(writer, file)
+		return err
+	})
+
+	return err
+}
+
+func unzip(archive, target string) error {
+	reader, err := zip.OpenReader(archive)
+	if err != nil {
+		return err
+	}
+
+	if err := os.MkdirAll(target, 0755); err != nil {
+		return err
+	}
+
+	for _, file := range reader.File {
+		path := filepath.Join(target, file.Name)
+		if file.FileInfo().IsDir() {
+			os.MkdirAll(path, file.Mode())
+			continue
+		}
+
+		fileReader, err := file.Open()
+		if err != nil {
+			return err
+		}
+		defer fileReader.Close()
+
+		targetFile, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, file.Mode())
+		if err != nil {
+			return err
+		}
+		defer targetFile.Close()
+
+		if _, err := io.Copy(targetFile, fileReader); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func CreateDirIfNotExist(dir string) {
+	if _, err := os.Stat(dir); os.IsNotExist(err) {
+		err = os.MkdirAll(dir, 0777)
+		if err != nil {
+			panic(err)
+		}
+	}
+}
+
+func ClearDir(dir string) error {
+	files, err := filepath.Glob(filepath.Join(dir, "*"))
+	if err != nil {
+		return err
+	}
+	for _, file := range files {
+		err = os.RemoveAll(file)
+		if err != nil {
+			//os.RemoveAll(dir) //  can do dir's
+			return err
+		}
+	}
+	return nil
+}
+
+func cleardir(dir string) {
+	// The target directory.
+	//directory := CamImageSavePath	// path must end on "/"... fix for no "/"?
+	directory := dir + "/" // path with "/"
+	// Open the directory and read all its files.
+	dirRead, _ := os.Open(directory)
+	dirFiles, _ := dirRead.Readdir(0)
+	// Loop over the directory's files.
+	for index := range dirFiles {
+		fileHere := dirFiles[index]
+		// Get name of file and its full path.
+		nameHere := fileHere.Name()
+		fullPath := directory + nameHere
+		// Remove the files.
+		os.Remove(fullPath)
+		log.Println("info: Removed file", fullPath)
+
+	}
+}
+
+func DirIsEmpty(name string) (bool, error) {
+	f, err := os.Open(name)
+	if err != nil {
+		return false, err // Not Empty
+		log.Println("debug: Dir is Not Empty", "%t")
+	}
+	defer f.Close()
+
+	_, err = f.Readdirnames(1) // Or f.Readdir(1)  // empty
+	if err == io.EOF {
+		return true, nil
+		log.Println("debug: Dir is Empty", "%t")
+	}
+	return false, err // Either not empty or error, suits both cases
+}
+
+func FileExist(path string) bool {
+	if _, err := os.Stat(path); err == nil {
+		// exist
+		return true
+	}
+	// not exist
+	return false
+}
+
+func FileNotExist(path string) bool {
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		// not exist
+		return true
+	}
+	// exist
+	return false
+}
+
+func isCommandAvailable(name string) bool {
+	cmd := exec.Command("/bin/sh", "-c", "command -v "+name)
+	if err := cmd.Run(); err != nil {
+		return false
+	}
+	return true
+}
+
+func check(err error) {
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func fmtDuration(d time.Duration) string {
+	d = d.Round(time.Minute)
+	//d = d.Round(time.Second)
+	h := d / time.Hour
+	d -= h * time.Hour
+	m := d / time.Minute
+	//s := m / time.Second
+	return fmt.Sprintf("%02d:%02d", h, m) // show sec’s also?
+}
+
+func before(value string, a string) string { // used for sox time
+	// Get substring before a string.
+	pos := strings.Index(value, a)
+	if pos == -1 {
+		return ""
+	}
+	return value[0:pos]
+}
+
+func between(value string, a string, b string) string {
+	// Get substring between two strings.
+	posFirst := strings.Index(value, a)
+	if posFirst == -1 {
+		return ""
+	}
+	posLast := strings.Index(value, b)
+	if posLast == -1 {
+		return ""
+	}
+	posFirstAdjusted := posFirst + len(a)
+	if posFirstAdjusted >= posLast {
+		return ""
+	}
+	return value[posFirstAdjusted:posLast]
+}
+
+func after(value string, a string) string {
+	// Get substring after a string.
+	pos := strings.LastIndex(value, a)
+	if pos == -1 {
+		return ""
+	}
+	adjustedPos := pos + len(a)
+	if adjustedPos >= len(value) {
+		return ""
+	}
+	return value[adjustedPos:len(value)]
 }

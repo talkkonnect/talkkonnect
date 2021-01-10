@@ -51,7 +51,7 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.55.03"
+	talkkonnectVersion  string = "1.55.04"
 	talkkonnectReleased string = "January 10 2021"
 )
 
@@ -1768,17 +1768,4 @@ func modifyXMLTagServerHopping(inputXMLFile string, outputXMLFile string, nextse
 		os.Exit(0)
 	}
 
-}
-
-func CopyFile(source string, dest string) {
-	temp, _ := ioutil.ReadFile(source)
-	ioutil.WriteFile(dest, temp, 0777)
-
-}
-
-func DeleteFile(source string) {
-	err := os.Remove(source)
-	if err != nil {
-		log.Fatal("Alert: Cannot Remove Config File ", err)
-	}
 }

@@ -340,10 +340,10 @@ func (b *Talkkonnect) onMessageReceived(client MQTT.Client, message MQTT.Message
 		b.commandKeyCtrlX()
 	case "attentionled:on":
 		log.Println("info: MQTT Turn On Attention LED Succesfully\n")
-  		b.LEDOn(b.AttentionLED)
+		b.LEDOn(b.AttentionLED)
 	case "attentionled:off":
 		log.Println("info: MQTT Turn Off Attention LED Succesfully\n")
-  		b.LEDOff(b.AttentionLED)
+		b.LEDOff(b.AttentionLED)
 	case "relay1:on":
 		log.Println("info: MQTT Turn On Relay 1 Succesfully\n")
 		relayCommand(1, "on")
@@ -352,7 +352,7 @@ func (b *Talkkonnect) onMessageReceived(client MQTT.Client, message MQTT.Message
 		relayCommand(1, "off")
 	case "relay1:pulse":
 		log.Println("info: MQTT Pulse Relay 1 Succesfully\n")
- 		relayCommand(1, "pulse")
+		relayCommand(1, "pulse")
 
 	// todo add other automation control for buttons, relays and leds here as needed in the future
 	default:

@@ -414,7 +414,7 @@ func (b *Talkkonnect) Init() {
 					if TargetBoard == "rpi" {
 						if LCDEnabled == true {
 							LcdText = [4]string{"nil", "nil", "nil", "Traffic Recording ->"} // 4
-							go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+							LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 						}
 						if OLEDEnabled == true {
 							oledDisplay(false, 6, 1, "Traffic Recording") // 6
@@ -427,7 +427,7 @@ func (b *Talkkonnect) Init() {
 					if TargetBoard == "rpi" {
 						if LCDEnabled == true {
 							LcdText = [4]string{"nil", "nil", "nil", "Mic Recording ->"} // 4
-							go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+							LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 						}
 						if OLEDEnabled == true {
 							oledDisplay(false, 6, 1, "Mic Recording") // 6
@@ -440,7 +440,7 @@ func (b *Talkkonnect) Init() {
 					if TargetBoard == "rpi" {
 						if LCDEnabled == true {
 							LcdText = [4]string{"nil", "nil", "nil", "Combo Recording ->"} // 4
-							go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+							LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 						}
 						if OLEDEnabled == true {
 							oledDisplay(false, 6, 1, "Combo Recording") //6

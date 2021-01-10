@@ -39,6 +39,7 @@ import (
 	"github.com/talkkonnect/gumble/gumble"
 	"github.com/talkkonnect/gumble/gumbleffmpeg"
 	"log"
+	"strconv"
 	"time"
 )
 
@@ -351,4 +352,54 @@ func (b *Talkkonnect) RepeaterTone(filepath string, vol float32) {
 		b.LEDOff(b.TransmitLED)
 		return
 	}
+}
+
+func (b *Talkkonnect) OpenStream() {
+
+	if ServerHop {
+		log.Println("debug: Server Hop Requested Will Now Destroy Old Server Stream")
+		b.Stream.Destroy()
+		var participantCount = len(b.Client.Self.Channel.Users)
+
+		log.Println("info: Current Channel ", b.Client.Self.Channel.Name, " has (", participantCount, ") participants")
+		b.ListUsers()
+		if TargetBoard == "rpi" {
+			if LCDEnabled == true {
+				LcdText[0] = b.Address
+				LcdText[1] = b.Client.Self.Channel.Name + " (" + strconv.Itoa(participantCount) + " Users)"
+				go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+			}
+			if OLEDEnabled == true {
+				oledDisplay(false, 0, 1, b.Address)
+				oledDisplay(false, 1, 1, b.Client.Self.Channel.Name+" ("+strconv.Itoa(participantCount)+" Users)")
+				oledDisplay(false, 6, 1, "Please Visit")
+				oledDisplay(false, 7, 1, "www.talkkonnect.com")
+			}
+
+		}
+	}
+
+	if stream, err := New(b.Client); err != nil {
+
+		log.Println("error: Stream open error ", err)
+		if TargetBoard == "rpi" {
+			if LCDEnabled == true {
+				LcdText = [4]string{"Stream Error!", "nil", "nil", "nil"}
+				go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+			}
+			if OLEDEnabled == true {
+				oledDisplay(false, 2, 1, "Stream Error!!")
+			}
+
+		}
+		log.Fatal("Exiting talkkonnect! ...... bye!\n")
+	} else {
+		b.Stream = stream
+	}
+}
+
+func (b *Talkkonnect) ResetStream() {
+	b.Stream.Destroy()
+	time.Sleep(50 * time.Millisecond)
+	b.OpenStream()
 }

@@ -35,6 +35,7 @@ import (
 	"fmt"
 	goled "github.com/talkkonnect/go-oled-i2c"
 	"github.com/talkkonnect/go-openal/openal"
+	"github.com/talkkonnect/gpio"
 	"github.com/talkkonnect/gumble/gumbleffmpeg"
 	"golang.org/x/sys/unix"
 	"io"
@@ -46,13 +47,12 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"github.com/talkkonnect/gpio"
 )
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.54.07"
-	talkkonnectReleased string = "January 01 2021"
+	talkkonnectVersion  string = "1.55.01"
+	talkkonnectReleased string = "January 10 2021"
 )
 
 var (
@@ -251,30 +251,30 @@ var (
 	PrintGps          bool
 	PrintPanic        bool
 	PrintAudioRecord  bool
-	PrintMQTT	  bool
+	PrintMQTT         bool
 )
 
 // mqtt settings
 var (
-	MQTTEnabled	bool
-	Iotuuid 	string
-        relay1          gpio.Pin
-        relay1State     bool = false
-        relayAllState   bool = false
-        RelayPulseMills time.Duration
-        TotalRelays     uint
-        RelayPins       = [9]uint{}
-        MQTTTopic	string
-        MQTTBroker	string
-        MQTTPassword	string
-        MQTTUser	string
-        MQTTId		string
-        MQTTCleansess	bool
-        MQTTQos		int
-        MQTTNum		int
-        MQTTPayload	string
-        MQTTAction	string
-        MQTTStore	string
+	MQTTEnabled     bool
+	Iotuuid         string
+	relay1          gpio.Pin
+	relay1State     bool = false
+	relayAllState   bool = false
+	RelayPulseMills time.Duration
+	TotalRelays     uint
+	RelayPins       = [9]uint{}
+	MQTTTopic       string
+	MQTTBroker      string
+	MQTTPassword    string
+	MQTTUser        string
+	MQTTId          string
+	MQTTCleansess   bool
+	MQTTQos         int
+	MQTTNum         int
+	MQTTPayload     string
+	MQTTAction      string
+	MQTTStore       string
 )
 
 // target board settings
@@ -1196,11 +1196,11 @@ func readxmlconfig(file string) error {
 	PrintSounds = document.Global.Software.PrintVariables.PrintSounds
 	PrintTxTimeout = document.Global.Software.PrintVariables.PrintTxTimeout
 
-        MQTTEnabled = document.Global.Software.MQTT.MQTTEnabled
-        MQTTTopic = document.Global.Software.MQTT.MQTTTopic
-        MQTTBroker = document.Global.Software.MQTT.MQTTBroker
-        MQTTPassword = document.Global.Software.MQTT.MQTTPassword
-        MQTTUser = document.Global.Software.MQTT.MQTTUser
+	MQTTEnabled = document.Global.Software.MQTT.MQTTEnabled
+	MQTTTopic = document.Global.Software.MQTT.MQTTTopic
+	MQTTBroker = document.Global.Software.MQTT.MQTTBroker
+	MQTTPassword = document.Global.Software.MQTT.MQTTPassword
+	MQTTUser = document.Global.Software.MQTT.MQTTUser
 	MQTTId = document.Global.Software.MQTT.MQTTId
 	MQTTCleansess = document.Global.Software.MQTT.MQTTCleansess
 	MQTTQos = document.Global.Software.MQTT.MQTTQos
@@ -1687,18 +1687,18 @@ func printxmlconfig() {
 	}
 	if PrintMQTT {
 		log.Println("info: ------------ MQTT Function -------------- ")
-                log.Println("info: Enabled   " + fmt.Sprintf("%v", MQTTEnabled))
-                log.Println("info: Topic     " + fmt.Sprintf("%v", MQTTTopic))
-                log.Println("info: Broker    " + fmt.Sprintf("%v", MQTTBroker))
-                log.Println("info: Password  " + fmt.Sprintf("%v", MQTTPassword))
-                log.Println("info: User      " + fmt.Sprintf("%v", MQTTUser))
+		log.Println("info: Enabled   " + fmt.Sprintf("%v", MQTTEnabled))
+		log.Println("info: Topic     " + fmt.Sprintf("%v", MQTTTopic))
+		log.Println("info: Broker    " + fmt.Sprintf("%v", MQTTBroker))
+		log.Println("info: Password  " + fmt.Sprintf("%v", MQTTPassword))
+		log.Println("info: User      " + fmt.Sprintf("%v", MQTTUser))
 		log.Println("info: Id        " + fmt.Sprintf("%v", MQTTId))
-                log.Println("info: Cleansess " + fmt.Sprintf("%v", MQTTCleansess))
-                log.Println("info: Qos       " + fmt.Sprintf("%v", MQTTQos))
-                log.Println("info: Num       " + fmt.Sprintf("%v", MQTTNum))
-                log.Println("info: Payload   " + fmt.Sprintf("%v", MQTTPayload))
-                log.Println("info: Action    " + fmt.Sprintf("%v", MQTTAction))
-                log.Println("info: Store     " + fmt.Sprintf("%v", MQTTStore))
+		log.Println("info: Cleansess " + fmt.Sprintf("%v", MQTTCleansess))
+		log.Println("info: Qos       " + fmt.Sprintf("%v", MQTTQos))
+		log.Println("info: Num       " + fmt.Sprintf("%v", MQTTNum))
+		log.Println("info: Payload   " + fmt.Sprintf("%v", MQTTPayload))
+		log.Println("info: Action    " + fmt.Sprintf("%v", MQTTAction))
+		log.Println("info: Store     " + fmt.Sprintf("%v", MQTTStore))
 	} else {
 		log.Println("info: ------------ MQTT Function ------- SKIPPED ")
 	}

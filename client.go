@@ -483,46 +483,46 @@ keyPressListenerLoop:
 			case term.KeyF9:
 				b.commandKeyF9()
 			case term.KeyF10:
-				b.commandKeyF10()
+				b.cmdListOnlineUsers()
 			case term.KeyF11:
-				b.commandKeyF11()
+				b.cmdPlayback()
 			case term.KeyF12:
-				b.commandKeyF12()
+				b.cmdGPSPosition()
 			case term.KeyCtrlC:
 				talkkonnectAcknowledgements("\u001b[44;1m") // add blue background to banner reference https://www.lihaoyi.com/post/BuildyourownCommandLinewithANSIescapecodes.html#background-colors
-				b.commandKeyCtrlC()
+				b.cmdQuitTalkkonnect()
 			case term.KeyCtrlD:
-				b.commandKeyCtrlD()
+				b.cmdDebugStacktrace()
 			case term.KeyCtrlE:
-				b.commandKeyCtrlE()
+				b.cmdSendEmail()
 			case term.KeyCtrlF:
-				b.commandKeyCtrlF()
+				b.cmdConnPreviousServer()
 			case term.KeyCtrlI: // New. Audio Recording. Traffic
-				b.commandKeyCtrlI()
+				b.cmdAudioTrafficRecord()
 			case term.KeyCtrlJ: // New. Audio Recording. Mic
-				b.commandKeyCtrlJ()
+				b.cmdAudioMicRecord()
 			case term.KeyCtrlK: // New/ Audio Recording. Combo
-				b.commandKeyCtrlK()
+				b.cmdAudioMicTrafficRecord()
 			case term.KeyCtrlL:
-				b.commandKeyCtrlL()
+				b.cmdClearScreen()
 			case term.KeyCtrlO:
-				b.commandKeyCtrlO()
+				b.cmdPingServers()
 			case term.KeyCtrlN:
-				b.commandKeyCtrlN()
+				b.cmdConnNextServer()
 			case term.KeyCtrlP:
-				b.commandKeyCtrlP()
+				b.cmdPanicSimulation()
 			case term.KeyCtrlR:
-				b.commandKeyCtrlR()
+				b.cmdRepeatTxLoop()
 			case term.KeyCtrlS:
-				b.commandKeyCtrlS()
+				b.cmdScanChannels()
 			case term.KeyCtrlT:
-				b.commandKeyCtrlT()
+				b.cmdThanks()
 			case term.KeyCtrlV:
-				b.commandKeyCtrlV()
+				b.cmdShowUptime()
 			case term.KeyCtrlU:
-				b.commandKeyCtrlU()
+				b.cmdDisplayVersion()
 			case term.KeyCtrlX:
-				b.commandKeyCtrlX()
+				b.cmdDumpXMLConfig()
 			default:
 				if ev.Ch != 0 {
 					log.Println("error: Invalid Keypress ASCII", ev.Ch)

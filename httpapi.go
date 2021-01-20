@@ -134,100 +134,100 @@ func (b *Talkkonnect) httpAPI(w http.ResponseWriter, r *http.Request) {
 		}
 	case "F10":
 		if APIListOnlineUsers {
-			b.commandKeyF10()
+			b.cmdListOnlineUsers()
 			fmt.Fprintf(w, "API List Online Users Request Processed Succesfully\n")
 		} else {
 			fmt.Fprintf(w, "API List Online Users Request Denied\n")
 		}
 	case "F11":
 		if APIPlayChimes {
-			b.commandKeyF11()
+			b.cmdPlayback()
 			fmt.Fprintf(w, "API Play/Stop Chimes Request Processed Succesfully\n")
 		} else {
 			fmt.Fprintf(w, "API Play/Stop Chimes Request Denied\n")
 		}
 	case "F12":
 		if APIRequestGpsPosition {
-			b.commandKeyF12()
+			b.cmdGPSPosition()
 			fmt.Fprintf(w, "API Request GPS Position Processed Succesfully\n")
 		} else {
 			fmt.Fprintf(w, "API Request GPS Position Denied\n")
 		}
 
-	case "commandKeyCtrlE":
+	case "SendEmail":
 		if APIEmailEnabled {
-			b.commandKeyCtrlE()
+			b.cmdSendEmail()
 			fmt.Fprintf(w, "API Send Email Processed Succesfully\n")
 		} else {
 			fmt.Fprintf(w, "API Send Email Config Denied\n")
 		}
-	case "commandKeyCtrlF":
+	case "ConnPreviousServer":
 		if APINextServer {
-			b.commandKeyCtrlF()
+			b.cmdConnPreviousServer()
 			fmt.Fprintf(w, "API Previous Server Processed Successfully\n")
 		} else {
 			fmt.Fprintf(w, "API Previous Server Denied\n")
 		}
-	case "commandKeyCtrlN":
+	case "ConnNextServer":
 		if APINextServer {
-			b.commandKeyCtrlN()
+			b.cmdConnNextServer()
 			fmt.Fprintf(w, "API Next Server Processed Successfully\n")
 		} else {
 			fmt.Fprintf(w, "API Next Server Denied\n")
 		}
 
-	case "commandKeyCtrlL":
+	case "ClearScreen":
 		if APIClearScreen {
-			b.commandKeyCtrlL()
+			b.cmdClearScreen()
 			fmt.Fprintf(w, "API Clear Screen Processed Successfully\n")
 		} else {
 			fmt.Fprintf(w, "API Clear Screen Denied\n")
 		}
-	case "commandKeyCtrlO":
+	case "cmdPingServers":
 		if APIEmailEnabled {
-			b.commandKeyCtrlO()
+			b.cmdPingServers()
 			fmt.Fprintf(w, "API Ping Servers Processed Succesfully\n")
 		} else {
 			fmt.Fprintf(w, "API Ping Servers Denied\n")
 		}
-	case "commandKeyCtrlP":
+	case "PanicSimulation":
 		if APIPanicSimulation {
-			b.commandKeyCtrlP()
+			b.cmdPanicSimulation()
 			fmt.Fprintf(w, "API Request Panic Simulation Processed Succesfully\n")
 		} else {
 			fmt.Fprintf(w, "API Request Panic Simulation Denied\n")
 		}
-	case "commandKeyCtrlR":
+	case "RepeatTxLoop":
 		if APIRepeatTxLoopTest {
-			b.commandKeyCtrlR()
+			b.cmdRepeatTxLoop()
 			fmt.Fprintf(w, "API Request Repeat Tx Loop Test Processed Succesfully\n")
 		} else {
 			fmt.Fprintf(w, "API Request Repeat Tx Loop Test Denied\n")
 		}
-	case "commandKeyCtrlS":
+	case "ScanChannels":
 		if APIScanChannels {
-			b.commandKeyCtrlS()
+			b.cmdScanChannels()
 			fmt.Fprintf(w, "API Request Scan Processed Succesfully\n")
 		} else {
 			fmt.Fprintf(w, "API Request Scan Denied\n")
 		}
-	case "commandKeyCtrlT":
+	case "Thanks":
 		if true {
-			b.commandKeyCtrlT()
+			b.cmdThanks()
 			fmt.Fprintf(w, "API Request Show Acknowledgements Processed Succesfully\n")
 		} else {
 			fmt.Fprintf(w, "API Request Show Acknowledgements Denied\n")
 		}
-	case "commandKeyCtrlV":
+	case "ShowUptime":
 		if APIDisplayVersion {
-			b.commandKeyCtrlV()
+			b.cmdShowUptime()
 			fmt.Fprintf(w, "API Request Current Version Succesfully\n")
 		} else {
 			fmt.Fprintf(w, "API Request Current Version Denied\n")
 		}
-	case "commandKeyCtrlX":
+	case "DumpXMLConfig":
 		if APIPrintXmlConfig {
-			b.commandKeyCtrlX()
+			b.cmdDumpXMLConfig()
 			fmt.Fprintf(w, "API Print XML Config Processed Succesfully\n")
 		} else {
 			fmt.Fprintf(w, "API Print XML Congfig Denied\n")

@@ -332,7 +332,7 @@ func (b *Talkkonnect) commandKeyF9() {
 	}
 }
 
-func (b *Talkkonnect) commandKeyF10() {
+func (b *Talkkonnect) cmdListOnlineUsers() {
 	log.Println("debug: F10 pressed Online User(s) in Current Channel Requested")
 	log.Println("info: F10 Online User(s) in Current Channel")
 
@@ -349,7 +349,7 @@ func (b *Talkkonnect) commandKeyF10() {
 	b.ParticipantLEDUpdate(true)
 }
 
-func (b *Talkkonnect) commandKeyF11() {
+func (b *Talkkonnect) cmdPlayback() {
 	log.Println("debug: F11 pressed Start/Stop Chimes Stream into Current Channel Requested")
 	log.Println("info: Stream into Current Channel")
 
@@ -380,7 +380,7 @@ func (b *Talkkonnect) commandKeyF11() {
 
 }
 
-func (b *Talkkonnect) commandKeyF12() {
+func (b *Talkkonnect) cmdGPSPosition() {
 	log.Println("debug: F12 pressed")
 	log.Println("info: GPS details requested")
 
@@ -415,7 +415,7 @@ func (b *Talkkonnect) commandKeyF12() {
 
 }
 
-func (b *Talkkonnect) commandKeyCtrlC() {
+func (b *Talkkonnect) cmdQuitTalkkonnect() {
 	log.Println("debug: Ctrl-C Terminate Program Requested")
 	duration := time.Since(StartTime)
 	log.Printf("info: Talkkonnect Now Running For %v \n", secondsToHuman(int(duration.Seconds())))
@@ -431,7 +431,7 @@ func (b *Talkkonnect) commandKeyCtrlC() {
 	b.CleanUp()
 }
 
-func (b *Talkkonnect) commandKeyCtrlD() {
+func (b *Talkkonnect) cmdDebugStacktrace() {
 	buf := make([]byte, 1<<16)
 	stackSize := runtime.Stack(buf, true)
 	var debug bytes.Buffer
@@ -446,7 +446,7 @@ func (b *Talkkonnect) commandKeyCtrlD() {
 	}
 }
 
-func (b *Talkkonnect) commandKeyCtrlE() {
+func (b *Talkkonnect) cmdSendEmail() {
 	log.Println("debug: Ctrl-E Pressed")
 	log.Println("info: Send Email Requested")
 
@@ -507,7 +507,7 @@ func (b *Talkkonnect) commandKeyCtrlE() {
 	}
 }
 
-func (b *Talkkonnect) commandKeyCtrlF() {
+func (b *Talkkonnect) cmdConnPreviousServer() {
 	log.Println("debug: Ctrl-F Pressed")
 	log.Println("info: Previous Server Requested")
 
@@ -532,7 +532,7 @@ func (b *Talkkonnect) commandKeyCtrlF() {
 
 }
 
-func (b *Talkkonnect) commandKeyCtrlL() {
+func (b *Talkkonnect) cmdClearScreen() {
 	reset()
 	log.Println("debug: Ctrl-L Pressed Cleared Screen")
 	if TargetBoard == "rpi" {
@@ -549,7 +549,7 @@ func (b *Talkkonnect) commandKeyCtrlL() {
 	}
 }
 
-func (b *Talkkonnect) commandKeyCtrlO() {
+func (b *Talkkonnect) cmdPingServers() {
 	log.Println("debug: Ctrl-O Pressed")
 	log.Println("info: Ping Servers")
 
@@ -564,7 +564,7 @@ func (b *Talkkonnect) commandKeyCtrlO() {
 	b.pingServers()
 }
 
-func (b *Talkkonnect) commandKeyCtrlN() {
+func (b *Talkkonnect) cmdConnNextServer() {
 	log.Println("debug: Ctrl-N Pressed")
 	log.Println("info: Next Server Requested")
 
@@ -588,7 +588,7 @@ func (b *Talkkonnect) commandKeyCtrlN() {
 
 }
 
-func (b *Talkkonnect) commandKeyCtrlI() {
+func (b *Talkkonnect) cmdAudioTrafficRecord() {
 	log.Println("debug: Ctrl-I Pressed")
 	log.Println("info: Traffic Recording Requested")
 	if AudioRecordEnabled != true {
@@ -620,7 +620,7 @@ func (b *Talkkonnect) commandKeyCtrlI() {
 	}
 }
 
-func (b *Talkkonnect) commandKeyCtrlJ() {
+func (b *Talkkonnect) cmdAudioMicRecord() {
 	log.Println("debug: Ctrl-J Pressed")
 	log.Println("info: Ambient (Mic) Recording Requested")
 	if AudioRecordEnabled != true {
@@ -652,7 +652,7 @@ func (b *Talkkonnect) commandKeyCtrlJ() {
 	}
 }
 
-func (b *Talkkonnect) commandKeyCtrlK() {
+func (b *Talkkonnect) cmdAudioMicTrafficRecord() {
 	log.Println("debug: Ctrl-K Pressed")
 	log.Println("info: Recording (Traffic and Mic) Requested")
 	if AudioRecordEnabled != true {
@@ -684,7 +684,7 @@ func (b *Talkkonnect) commandKeyCtrlK() {
 	}
 }
 
-func (b *Talkkonnect) commandKeyCtrlP() {
+func (b *Talkkonnect) cmdPanicSimulation() {
 	if !(IsConnected) {
 		return
 	}
@@ -766,14 +766,14 @@ func (b *Talkkonnect) commandKeyCtrlP() {
 	}
 }
 
-func (b *Talkkonnect) commandKeyCtrlR() {
+func (b *Talkkonnect) cmdRepeatTxLoop() {
 	log.Println("debug: Ctrl-R Pressed")
 	log.Println("info: Repeat TX Test Requested")
 	isrepeattx = !isrepeattx
 	go b.repeatTx()
 }
 
-func (b *Talkkonnect) commandKeyCtrlS() {
+func (b *Talkkonnect) cmdScanChannels() {
 	log.Println("debug: Ctrl-S Pressed")
 	log.Println("info: Scanning Channels")
 
@@ -788,26 +788,26 @@ func (b *Talkkonnect) commandKeyCtrlS() {
 	b.Scan()
 }
 
-func (b *Talkkonnect) commandKeyCtrlT() {
+func (b *Talkkonnect) cmdThanks() {
 	log.Println("debug: Ctrl-T Pressed")
 	log.Println("info: Thanks and Acknowledgements Screen Request ")
 	talkkonnectAcknowledgements("\u001b[44;1m") // add blue background to banner reference https://www.lihaoyi.com/post/BuildyourownCommandLinewithANSIescapecodes.html#background-colors
 }
 
-func (b *Talkkonnect) commandKeyCtrlV() {
+func (b *Talkkonnect) cmdShowUptime() {
 	log.Println("debug: Ctrl-V Pressed")
 	log.Println("info: Ctrl-V Version Request")
 	log.Printf("info: Talkkonnect Version %v Released %v\n", talkkonnectVersion, talkkonnectReleased)
 }
 
-func (b *Talkkonnect) commandKeyCtrlU() {
+func (b *Talkkonnect) cmdDisplayVersion() {
 	log.Println("debug: Ctrl-U Pressed")
 	log.Println("info: Talkkonnect Uptime Request ")
 	duration := time.Since(StartTime)
 	log.Printf("info: Talkkonnect Now Running For %v \n", secondsToHuman(int(duration.Seconds())))
 }
 
-func (b *Talkkonnect) commandKeyCtrlX() {
+func (b *Talkkonnect) cmdDumpXMLConfig() {
 	log.Println("debug: Ctrl-X Pressed")
 	log.Println("info: Print XML Config " + ConfigXMLFile)
 

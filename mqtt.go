@@ -241,46 +241,46 @@ func (b *Talkkonnect) onMessageReceived(client MQTT.Client, message MQTT.Message
 		b.commandKeyF9()
 	case "F10":
 		log.Println("info: MQTT List Online Users Request Processed Succesfully\n")
-		b.commandKeyF10()
+		b.cmdListOnlineUsers()
 	case "F11":
 		log.Println("info: MQTT Play/Stop Chimes Request Processed Succesfully\n")
-		b.commandKeyF11()
+		b.cmdPlayback()
 	case "F12":
 		log.Println("info: MQTT Request GPS Position Processed Succesfully\n")
-		b.commandKeyF12()
-	case "commandKeyCtrlE":
+		b.cmdGPSPosition()
+	case "SendEmail":
 		log.Println("info: MQTT Send Email Processed Succesfully\n")
-		b.commandKeyCtrlE()
-	case "commandKeyCtrlF":
+		b.cmdSendEmail()
+	case "ConnPreviousServer":
 		log.Println("info: MQTT Previous Server Processed Successfully\n")
-		b.commandKeyCtrlF()
-	case "commandKeyCtrlN":
+		b.cmdConnPreviousServer()
+	case "ConnNextServer":
 		log.Println("info: MQTT Next Server Processed Successfully\n")
-		b.commandKeyCtrlN()
-	case "commandKeyCtrlL":
+		b.cmdConnNextServer()
+	case "ClearScreen":
 		log.Println("info: MQTT Clear Screen Processed Successfully\n")
-		b.commandKeyCtrlL()
-	case "commandKeyCtrlO":
+		b.cmdClearScreen()
+	case "PingServers":
 		log.Println("info: MQTT Ping Servers Processed Succesfully\n")
-		b.commandKeyCtrlO()
-	case "commandKeyCtrlP":
+		b.cmdPingServers()
+	case "PanicSimulation":
 		log.Println("info: MQTT Request Panic Simulation Processed Succesfully\n")
-		b.commandKeyCtrlP()
-	case "commandKeyCtrlR":
+		b.cmdPanicSimulation()
+	case "RepeatTxLoop":
 		log.Println("info: MQTT Request Repeat Tx Loop Test Processed Succesfully\n")
-		b.commandKeyCtrlR()
-	case "commandKeyCtrlS":
+		b.cmdRepeatTxLoop()
+	case "ScanChannels":
 		log.Println("info: MQTT Request Scan Processed Succesfully\n")
-		b.commandKeyCtrlS()
-	case "commandKeyCtrlT":
+		b.cmdScanChannels()
+	case "Thanks":
 		log.Println("info: MQTT Request Show Acknowledgements Processed Succesfully\n")
-		b.commandKeyCtrlT()
-	case "commandKeyCtrlV":
+		b.cmdThanks()
+	case "ShowUptime":
 		log.Println("info: MQTT Request Current Version Succesfully\n")
-		b.commandKeyCtrlV()
-	case "commandKeyCtrlX":
+		b.cmdShowUptime()
+	case "DumpXMLConfig":
 		log.Println("info: MQTT Print XML Config Processed Succesfully\n")
-		b.commandKeyCtrlX()
+		b.cmdDumpXMLConfig()
 	case "attentionled:on":
 		log.Println("info: MQTT Turn On Attention LED Succesfully\n")
 		b.LEDOn(b.AttentionLED)

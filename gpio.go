@@ -259,7 +259,7 @@ func (b *Talkkonnect) initGPIO() {
 							log.Println("debug: Panic Button is released")
 						} else {
 							log.Println("debug: Panic Button is pressed")
-							b.commandKeyCtrlP()
+							b.cmdPanicSimulation()
 							time.Sleep(200 * time.Millisecond)
 						}
 					}
@@ -317,7 +317,7 @@ func (b *Talkkonnect) initGPIO() {
 							log.Println("debug: Chimes Button is released")
 						} else {
 							log.Println("debug: Chimes Button is pressed")
-							b.commandKeyF11()
+							b.cmdPlayback()
 							time.Sleep(200 * time.Millisecond)
 						}
 					}

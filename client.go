@@ -465,23 +465,23 @@ keyPressListenerLoop:
 			case term.KeyDelete:
 				b.commandKeyDel()
 			case term.KeyF1:
-				b.commandKeyF1()
+				b.KeyChannelUp()
 			case term.KeyF2:
-				b.commandKeyF2()
+				b.KeyChannelDown()
 			case term.KeyF3:
-				b.commandKeyF3("toggle")
+				b.KeyMuteUnmute("toggle")
 			case term.KeyF4:
-				b.commandKeyF4()
+				b.KeyCurrentVolume()
 			case term.KeyF5:
-				b.commandKeyF5()
+				b.KeyVolumeUp()
 			case term.KeyF6:
-				b.commandKeyF6()
+				b.KeyVolumeDown()
 			case term.KeyF7:
-				b.commandKeyF7()
+				b.KeyListServerChannels()
 			case term.KeyF8:
-				b.commandKeyF8()
+				b.KeyStartTransmitting()
 			case term.KeyF9:
-				b.commandKeyF9()
+				b.KeyStopTransmitting()
 			case term.KeyF10:
 				b.cmdListOnlineUsers()
 			case term.KeyF11:

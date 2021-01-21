@@ -57,77 +57,77 @@ func (b *Talkkonnect) httpAPI(w http.ResponseWriter, r *http.Request) {
 		}
 	case "F1":
 		if APIChannelUp {
-			b.commandKeyF1()
+			b.KeyChannelUp()
 			fmt.Fprintf(w, "API Channel Up Request Processed Succesfully\n")
 		} else {
 			fmt.Fprintf(w, "API Channel Up Request Denied\n")
 		}
 	case "F2":
 		if APIChannelDown {
-			b.commandKeyF2()
+			b.KeyChannelDown()
 			fmt.Fprintf(w, "API Channel Down Request Processed Succesfully\n")
 		} else {
 			fmt.Fprintf(w, "API Channel Down Request Denied\n")
 		}
 	case "F3":
 		if APIMute {
-			b.commandKeyF3("toggle")
+			b.KeyMuteUnmute("toggle")
 			fmt.Fprintf(w, "API Mute/UnMute Speaker Request Processed Succesfully\n")
 		} else {
 			fmt.Fprintf(w, "API Mute/Unmute Speaker Request Denied\n")
 		}
 	case "F3-mute":
 		if APIMute {
-			b.commandKeyF3("mute")
+			b.KeyMuteUnmute("mute")
 			fmt.Fprintf(w, "API Mute/UnMute Speaker Request Processed Succesfully\n")
 		} else {
 			fmt.Fprintf(w, "API Mute/Unmute Speaker Request Denied\n")
 		}
 	case "F3-unmute":
 		if APIMute {
-			b.commandKeyF3("unmute")
+			b.KeyMuteUnmute("unmute")
 			fmt.Fprintf(w, "API Mute/UnMute Speaker Request Processed Succesfully\n")
 		} else {
 			fmt.Fprintf(w, "API Mute/Unmute Speaker Request Denied\n")
 		}
 	case "F4":
 		if APICurrentVolumeLevel {
-			b.commandKeyF4()
+			b.KeyCurrentVolume()
 			fmt.Fprintf(w, "API Current Volume Level Request Processed Succesfully\n")
 		} else {
 			fmt.Fprintf(w, "API Current Volume Level Request Denied\n")
 		}
 	case "F5":
 		if APIDigitalVolumeUp {
-			b.commandKeyF5()
+			b.KeyVolumeUp()
 			fmt.Fprintf(w, "API Digital Volume Up Request Processed Succesfully\n")
 		} else {
 			fmt.Fprintf(w, "API Digital Volume Up Request Denied\n")
 		}
 	case "F6":
 		if APIDigitalVolumeDown {
-			b.commandKeyF6()
+			b.KeyVolumeDown()
 			fmt.Fprintf(w, "API Digital Volume Down Request Processed Succesfully\n")
 		} else {
 			fmt.Fprintf(w, "API Digital Volume Down Request Denied\n")
 		}
 	case "F7":
 		if APIListServerChannels {
-			b.commandKeyF7()
+			b.KeyListServerChannels()
 			fmt.Fprintf(w, "API List Server Channels Request Processed Succesfully\n")
 		} else {
 			fmt.Fprintf(w, "API List Server Channels Request Denied\n")
 		}
 	case "F8":
 		if APIStartTransmitting {
-			b.commandKeyF8()
+			b.KeyStartTransmitting()
 			fmt.Fprintf(w, "API Start Transmitting Request Processed Succesfully\n")
 		} else {
 			fmt.Fprintf(w, "API Start Transmitting Request Denied\n")
 		}
 	case "F9":
 		if APIStopTransmitting {
-			b.commandKeyF9()
+			b.KeyStopTransmitting()
 			fmt.Fprintf(w, "API Stop Transmitting Request Processed Succesfully\n")
 		} else {
 			fmt.Fprintf(w, "API Stop Transmitting Request Denied\n")

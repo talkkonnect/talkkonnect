@@ -208,37 +208,37 @@ func (b *Talkkonnect) onMessageReceived(client MQTT.Client, message MQTT.Message
 		b.commandKeyDel()
 	case "F1":
 		log.Println("info: MQTT Channel Up Request Processed Succesfully\n")
-		b.commandKeyF1()
+		b.KeyChannelUp()
 	case "F2":
 		log.Println("info: MQTT Channel Down Request Processed Succesfully\n")
-		b.commandKeyF2()
+		b.KeyChannelDown()
 	case "F3":
 		log.Println("info: MQTT Mute/UnMute Speaker Request Processed Succesfully\n")
-		b.commandKeyF3("toggle")
+		b.KeyMuteUnmute("toggle")
 	case "F3-mute":
 		log.Println("info: MQTT Mute/UnMute Speaker Request Processed Succesfully\n")
-		b.commandKeyF3("mute")
+		b.KeyMuteUnmute("mute")
 	case "F3-unmute":
 		log.Println("info: MQTT Mute/UnMute Speaker Request Processed Succesfully\n")
-		b.commandKeyF3("unmute")
+		b.KeyMuteUnmute("unmute")
 	case "F4":
 		log.Println("info: MQTT Current Volume Level Request Processed Succesfully\n")
-		b.commandKeyF4()
+		b.KeyCurrentVolume()
 	case "F5":
 		log.Println("info: MQTT Digital Volume Up Request Processed Succesfully\n")
-		b.commandKeyF5()
+		b.KeyVolumeUp()
 	case "F6":
 		log.Println("info: MQTT Digital Volume Down Request Processed Succesfully\n")
-		b.commandKeyF6()
+		b.KeyVolumeDown()
 	case "F7":
 		log.Println("info: MQTT List Server Channels Request Processed Succesfully\n")
-		b.commandKeyF7()
+		b.KeyListServerChannels()
 	case "F8":
 		log.Println("info: MQTT Start Transmitting Request Processed Succesfully\n")
-		b.commandKeyF8()
+		b.KeyStartTransmitting()
 	case "F9":
 		log.Println("info: MQTT Stop Transmitting Request Processed Succesfully\n")
-		b.commandKeyF9()
+		b.KeyStopTransmitting()
 	case "F10":
 		log.Println("info: MQTT List Online Users Request Processed Succesfully\n")
 		b.cmdListOnlineUsers()

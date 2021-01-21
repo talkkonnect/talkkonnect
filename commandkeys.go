@@ -56,17 +56,17 @@ func (b *Talkkonnect) commandKeyDel() {
 	b.ParticipantLEDUpdate(true)
 }
 
-func (b *Talkkonnect) commandKeyF1() {
+func (b *Talkkonnect) KeyChannelUp() {
 	log.Println("debug: F1 pressed Channel Up (+) Requested")
 	b.ChannelUp()
 }
 
-func (b *Talkkonnect) commandKeyF2() {
+func (b *Talkkonnect) KeyChannelDown() {
 	log.Println("debug: F2 pressed Channel Down (-) Requested")
 	b.ChannelDown()
 }
 
-func (b *Talkkonnect) commandKeyF3(subCommand string) {
+func (b *Talkkonnect) KeyMuteUnmute(subCommand string) {
 	log.Println("debug: ", TTSMuteUnMuteSpeakerFilenameAndPath)
 
 	//any other subcommand besides mute and unmute will get the current status of mute from volume.go
@@ -139,7 +139,7 @@ func (b *Talkkonnect) commandKeyF3(subCommand string) {
 
 }
 
-func (b *Talkkonnect) commandKeyF4() {
+func (b *Talkkonnect) KeyCurrentVolume() {
 	origVolume, err := volume.GetVolume(OutputDevice)
 	if err != nil {
 		log.Println("error: Unable to get current volume: %+v", err)
@@ -167,7 +167,7 @@ func (b *Talkkonnect) commandKeyF4() {
 	}
 }
 
-func (b *Talkkonnect) commandKeyF5() {
+func (b *Talkkonnect) KeyVolumeUp() {
 	origVolume, err := volume.GetVolume(OutputDevice)
 	if err != nil {
 		log.Println("warn: unable to get original volume: %+v", err)
@@ -214,7 +214,7 @@ func (b *Talkkonnect) commandKeyF5() {
 
 }
 
-func (b *Talkkonnect) commandKeyF6() {
+func (b *Talkkonnect) KeyVolumeDown() {
 	origVolume, err := volume.GetVolume(OutputDevice)
 	if err != nil {
 		log.Println("error: unable to get original volume: %+v", err)
@@ -263,7 +263,7 @@ func (b *Talkkonnect) commandKeyF6() {
 
 }
 
-func (b *Talkkonnect) commandKeyF7() {
+func (b *Talkkonnect) KeyListServerChannels() {
 	log.Println("debug: F7 pressed Channel List Requested")
 
 	if TTSEnabled && TTSListServerChannels {
@@ -278,7 +278,7 @@ func (b *Talkkonnect) commandKeyF7() {
 	b.ParticipantLEDUpdate(true)
 }
 
-func (b *Talkkonnect) commandKeyF8() {
+func (b *Talkkonnect) KeyStartTransmitting() {
 	log.Println("debug: F8 pressed TX Mode Requested (Start Transmitting)")
 	log.Println("info: Start Transmitting")
 
@@ -305,7 +305,7 @@ func (b *Talkkonnect) commandKeyF8() {
 	}
 }
 
-func (b *Talkkonnect) commandKeyF9() {
+func (b *Talkkonnect) KeyStopTransmitting() {
 	log.Println("debug: F9 pressed RX Mode Request (Stop Transmitting)")
 	log.Println("info: Stop Transmitting")
 

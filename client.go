@@ -463,25 +463,25 @@ keyPressListenerLoop:
 				reset()
 				break keyPressListenerLoop
 			case term.KeyDelete:
-				b.commandKeyDel()
+				b.cmdKeyDel()
 			case term.KeyF1:
-				b.KeyChannelUp()
+				b.cmdChannelUp()
 			case term.KeyF2:
-				b.KeyChannelDown()
+				b.cmdChannelDown()
 			case term.KeyF3:
-				b.KeyMuteUnmute("toggle")
+				b.cmdMuteUnmute("toggle")
 			case term.KeyF4:
-				b.KeyCurrentVolume()
+				b.cmdCurrentVolume()
 			case term.KeyF5:
-				b.KeyVolumeUp()
+				b.cmdVolumeUp()
 			case term.KeyF6:
-				b.KeyVolumeDown()
+				b.cmdVolumeDown()
 			case term.KeyF7:
-				b.KeyListServerChannels()
+				b.cmdListServerChannels()
 			case term.KeyF8:
-				b.KeyStartTransmitting()
+				b.cmdStartTransmitting()
 			case term.KeyF9:
-				b.KeyStopTransmitting()
+				b.cmdStopTransmitting()
 			case term.KeyF10:
 				b.cmdListOnlineUsers()
 			case term.KeyF11:

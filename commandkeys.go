@@ -41,7 +41,7 @@ import (
 	"time"
 )
 
-func (b *Talkkonnect) commandKeyDel() {
+func (b *Talkkonnect) cmdKeyDel() {
 	log.Println("debug: Delete Key Pressed Menu and Session Information Requested")
 
 	if TTSEnabled && TTSDisplayMenu {
@@ -56,17 +56,17 @@ func (b *Talkkonnect) commandKeyDel() {
 	b.ParticipantLEDUpdate(true)
 }
 
-func (b *Talkkonnect) KeyChannelUp() {
+func (b *Talkkonnect) cmdChannelUp() {
 	log.Println("debug: F1 pressed Channel Up (+) Requested")
 	b.ChannelUp()
 }
 
-func (b *Talkkonnect) KeyChannelDown() {
+func (b *Talkkonnect) cmdChannelDown() {
 	log.Println("debug: F2 pressed Channel Down (-) Requested")
 	b.ChannelDown()
 }
 
-func (b *Talkkonnect) KeyMuteUnmute(subCommand string) {
+func (b *Talkkonnect) cmdMuteUnmute(subCommand string) {
 	log.Println("debug: ", TTSMuteUnMuteSpeakerFilenameAndPath)
 
 	//any other subcommand besides mute and unmute will get the current status of mute from volume.go
@@ -139,7 +139,7 @@ func (b *Talkkonnect) KeyMuteUnmute(subCommand string) {
 
 }
 
-func (b *Talkkonnect) KeyCurrentVolume() {
+func (b *Talkkonnect) cmdCurrentVolume() {
 	origVolume, err := volume.GetVolume(OutputDevice)
 	if err != nil {
 		log.Println("error: Unable to get current volume: %+v", err)
@@ -167,7 +167,7 @@ func (b *Talkkonnect) KeyCurrentVolume() {
 	}
 }
 
-func (b *Talkkonnect) KeyVolumeUp() {
+func (b *Talkkonnect) cmdVolumeUp() {
 	origVolume, err := volume.GetVolume(OutputDevice)
 	if err != nil {
 		log.Println("warn: unable to get original volume: %+v", err)
@@ -214,7 +214,7 @@ func (b *Talkkonnect) KeyVolumeUp() {
 
 }
 
-func (b *Talkkonnect) KeyVolumeDown() {
+func (b *Talkkonnect) cmdVolumeDown() {
 	origVolume, err := volume.GetVolume(OutputDevice)
 	if err != nil {
 		log.Println("error: unable to get original volume: %+v", err)
@@ -263,7 +263,7 @@ func (b *Talkkonnect) KeyVolumeDown() {
 
 }
 
-func (b *Talkkonnect) KeyListServerChannels() {
+func (b *Talkkonnect) cmdListServerChannels() {
 	log.Println("debug: F7 pressed Channel List Requested")
 
 	if TTSEnabled && TTSListServerChannels {
@@ -278,7 +278,7 @@ func (b *Talkkonnect) KeyListServerChannels() {
 	b.ParticipantLEDUpdate(true)
 }
 
-func (b *Talkkonnect) KeyStartTransmitting() {
+func (b *Talkkonnect) cmdStartTransmitting() {
 	log.Println("debug: F8 pressed TX Mode Requested (Start Transmitting)")
 	log.Println("info: Start Transmitting")
 
@@ -305,7 +305,7 @@ func (b *Talkkonnect) KeyStartTransmitting() {
 	}
 }
 
-func (b *Talkkonnect) KeyStopTransmitting() {
+func (b *Talkkonnect) cmdStopTransmitting() {
 	log.Println("debug: F9 pressed RX Mode Request (Stop Transmitting)")
 	log.Println("info: Stop Transmitting")
 

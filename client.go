@@ -507,7 +507,7 @@ keyPressListenerLoop:
 				b.cmdConnNextServer()
 			case term.KeyCtrlP:
 				b.cmdPanicSimulation()
-			case term.KeyCtrlQ:
+			case term.KeyCtrlG:
 				b.cmdPlayRepeaterTone()
 				time.Sleep(1 * time.Second)
 				b.cmdPlayRepeaterTone()

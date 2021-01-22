@@ -96,7 +96,7 @@ func (b *Talkkonnect) talkkonnectMenu(backgroundcolor string) {
 	log.Println("info: " + backgroundcolor + "│<Ctrl-D> Debug Stacktrace    │                                │" + backgroundreset)
 	log.Println("info: " + backgroundcolor + "│<Ctrl-E> Send Email          │<Ctrl-N> Conn Next Server       │" + backgroundreset)
 	log.Println("info: " + backgroundcolor + "│<Ctrl-F> Conn Previous Server│<Ctrl-P> Panic Simulation       │" + backgroundreset)
-	log.Println("info: " + backgroundcolor + "│<Ctrl-Q> Send Repeater Tone  │<Ctrl-S> Scan Channels          │" + backgroundreset)
+	log.Println("info: " + backgroundcolor + "│<Ctrl-G> Send Repeater Tone  │<Ctrl-S> Scan Channels          │" + backgroundreset)
 	log.Println("info: " + backgroundcolor + "│<Ctrl-V> Display Version     │<Ctrl-T> Thanks/Acknowledgements│" + backgroundreset)
 	log.Println("info: " + backgroundcolor + "├─────────────────────────────┼────────────────────────────────┤" + backgroundreset)
 	log.Println("info: " + backgroundcolor + "│<Ctrl-L> Clear Screen        │<Ctrl-O> Ping Servers           │" + backgroundreset)

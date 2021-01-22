@@ -36,6 +36,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"github.com/glendc/go-external-ip"
 	"github.com/kennygrant/sanitize"
 	"github.com/talkkonnect/gumble/gumble"
 	term "github.com/talkkonnect/termbox-go"
@@ -555,4 +556,13 @@ func getMacAddr() ([]string, error) {
 		}
 	}
 	return as, nil
+}
+
+func GetOutboundIP() string {
+	consensus := externalip.DefaultConsensus(nil, nil)
+	ip, err := consensus.ExternalIP()
+	if err == nil {
+		return ip.String()
+	}
+	return "Could Not Get Public WAN IP"
 }

@@ -75,7 +75,7 @@ func main() {
         f.Close()
     }
 
-	talkkonnect.PreInit0(*config, *serverindex)
+	talkkonnect.Init(*config, *serverindex)
 
 
 

@@ -68,7 +68,7 @@ var (
 	GPSLongitude         float64
 	Streaming            bool
 	ServerHop            bool
-	httpServRunning      bool
+	HTTPServRunning      bool
 	message              string
 	isrepeattx           bool = true
 	NowStreaming         bool
@@ -119,7 +119,7 @@ type ChannelsListStruct struct {
 	chanUsers  int
 }
 
-func PreInit0(file string, ServerIndex string) {
+func Init(file string, ServerIndex string) {
 	err := term.Init()
 	if err != nil {
 		log.Println("error: Cannot Initalize Terminal Error: ", err)
@@ -208,10 +208,6 @@ func PreInit0(file string, ServerIndex string) {
 		log.Printf("info: MQTT Server Subscription Diabled in Config")
 	}
 
-	b.PreInit1(false)
-}
-
-func (b *Talkkonnect) PreInit1(httpServRunning bool) {
 	if len(b.Username) == 0 {
 		buf := make([]byte, 6)
 		_, err := rand.Read(buf)
@@ -240,7 +236,7 @@ func (b *Talkkonnect) PreInit1(httpServRunning bool) {
 		b.TLSConfig.Certificates = append(b.TLSConfig.Certificates, cert)
 	}
 
-	if APIEnabled && !httpServRunning {
+	if APIEnabled && !HTTPServRunning {
 		go func() {
 			http.HandleFunc("/", b.httpAPI)
 
@@ -251,7 +247,7 @@ func (b *Talkkonnect) PreInit1(httpServRunning bool) {
 		}()
 	}
 
-	b.Init()
+	b.ClientStart()
 	IsConnected = false
 
 	sigs := make(chan os.Signal, 1)
@@ -263,12 +259,12 @@ func (b *Talkkonnect) PreInit1(httpServRunning bool) {
 	os.Exit(exitStatus)
 }
 
-func (b *Talkkonnect) Init() {
+func (b *Talkkonnect) ClientStart() {
 	f, err := os.OpenFile(LogFilenameAndPath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	log.Println("info: Trying to Open File ", LogFilenameAndPath)
 	if err != nil {
 		log.Println("error: Problem opening talkkonnect.log file Error: ", err)
-		log.Fatal("Exiting talkkonnect! ...... bye!\n")
+		log.Fatal("Exiting talkkonnect! ...... Happy Talkkonnecting, Bye!\n")
 	}
 
 	if TargetBoard == "rpi" {
@@ -511,6 +507,10 @@ keyPressListenerLoop:
 				b.cmdConnNextServer()
 			case term.KeyCtrlP:
 				b.cmdPanicSimulation()
+			case term.KeyCtrlQ:
+				b.cmdPlayRepeaterTone()
+				time.Sleep(1 * time.Second)
+				b.cmdPlayRepeaterTone()
 			case term.KeyCtrlR:
 				b.cmdRepeatTxLoop()
 			case term.KeyCtrlS:
@@ -525,14 +525,14 @@ keyPressListenerLoop:
 				b.cmdDumpXMLConfig()
 			default:
 				if ev.Ch != 0 {
-					log.Println("error: Invalid Keypress ASCII", ev.Ch)
+					log.Println("error: Invalid Keypress ASCII ", ev.Ch, "Press <DEL> for Menu")
 				} else {
-					log.Println("error: Key Not Mapped")
+					log.Println("error: Key Not Mapped, Press <DEL> for menu")
 				}
 			}
 		case term.EventError:
 			log.Println("error: Terminal Error: ", ev.Err)
-			log.Fatal("Exiting talkkonnect! ...... bye!\n")
+			log.Fatal("Exiting talkkonnect!\n")
 		}
 
 	}

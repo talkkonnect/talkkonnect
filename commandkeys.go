@@ -566,7 +566,7 @@ func (b *Talkkonnect) cmdPingServers() {
 
 func (b *Talkkonnect) cmdConnNextServer() {
 	log.Println("debug: Ctrl-N Pressed")
-	log.Println("info: Next Server Requested")
+	log.Println("info: Next Server Requested Killing This Session, talkkonnect should be restarted by systemd")
 
 	if TTSEnabled && TTSNextServer {
 		err := PlayWavLocal(TTSNextServerFilenameAndPath, TTSVolumeLevel)
@@ -820,4 +820,22 @@ func (b *Talkkonnect) cmdDumpXMLConfig() {
 	}
 
 	printxmlconfig()
+}
+
+func (b *Talkkonnect) cmdPlayRepeaterTone() {
+	log.Println("debug: Ctrl-Q Pressed")
+	log.Println("info: Play Repeater Tone File into Stream")
+
+	b.BackLightTimer()
+
+	if b.IsTransmitting {
+		log.Println("alert: talkkonnect was already transmitting will now stop transmitting and start to play the repeater tone")
+		b.TransmitStop(false)
+	}
+
+	go b.playIntoStream(RepeaterToneFilenameAndPath, RepeaterToneVolume)
+
+	IsPlayStream = !IsPlayStream
+//	NowStreaming = IsPlayStream
+
 }

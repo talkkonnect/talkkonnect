@@ -96,7 +96,7 @@ func (b *Talkkonnect) talkkonnectMenu(backgroundcolor string) {
 	log.Println("info: " + backgroundcolor + "│<Ctrl-D> Debug Stacktrace    │                                │" + backgroundreset)
 	log.Println("info: " + backgroundcolor + "│<Ctrl-E> Send Email          │<Ctrl-N> Conn Next Server       │" + backgroundreset)
 	log.Println("info: " + backgroundcolor + "│<Ctrl-F> Conn Previous Server│<Ctrl-P> Panic Simulation       │" + backgroundreset)
-	log.Println("info: " + backgroundcolor + "│<Ctrl-Q> Reserved            │<Ctrl-S> Scan Channels          │" + backgroundreset)
+	log.Println("info: " + backgroundcolor + "│<Ctrl-Q> Send Repeater Tone  │<Ctrl-S> Scan Channels          │" + backgroundreset)
 	log.Println("info: " + backgroundcolor + "│<Ctrl-V> Display Version     │<Ctrl-T> Thanks/Acknowledgements│" + backgroundreset)
 	log.Println("info: " + backgroundcolor + "├─────────────────────────────┼────────────────────────────────┤" + backgroundreset)
 	log.Println("info: " + backgroundcolor + "│<Ctrl-L> Clear Screen        │<Ctrl-O> Ping Servers           │" + backgroundreset)
@@ -111,7 +111,7 @@ func (b *Talkkonnect) talkkonnectMenu(backgroundcolor string) {
 	log.Println("info: IP Address & Session Information")
 	b.pingconnectedserver()
 	localAddresses()
-
+	log.Println("info: Internet WAN IP Is", GetOutboundIP())
 	origMuted, _ := volume.GetMuted(OutputDevice)
 	if origMuted {
 		log.Println("info: Speaker Currently Muted")

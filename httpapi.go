@@ -232,6 +232,9 @@ func (b *Talkkonnect) httpAPI(w http.ResponseWriter, r *http.Request) {
 		} else {
 			fmt.Fprintf(w, "API Print XML Congfig Denied\n")
 		}
+	case "PlayRepeaterTone":
+			b.cmdPlayRepeaterTone()
+			fmt.Fprintf(w, "API Play Repeater Tone Processed Succesfully\n")
 	default:
 		fmt.Fprintf(w, "API Command Not Defined\n")
 	}

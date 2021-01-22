@@ -296,6 +296,9 @@ func (b *Talkkonnect) onMessageReceived(client MQTT.Client, message MQTT.Message
 	case "relay1:pulse":
 		log.Println("info: MQTT Pulse Relay 1 Succesfully\n")
 		relayCommand(1, "pulse")
+	case "PlayRepeaterTone":
+		log.Println("info: MQTT Play Repeater Tone Processed Successfully\n")
+		b.cmdPlayRepeaterTone()
 
 	// todo add other automation control for buttons, relays and leds here as needed in the future
 	default:

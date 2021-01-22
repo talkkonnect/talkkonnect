@@ -1,15 +1,24 @@
 [Unit]
-Description = talKKonnect  
-Requires = systemd-user-sessions.service network.target sound.target
-After = multi-user.target
+Description=TalKKonnect Radio Screen
+Requires=systemd-user-sessions.service network.target sound.target dbus.socket
+After=multi-user.target
+AllowIsolate=true
 
 [Service]
-User = talkkonnect  
-Group = talkkonnect
-Type = simple  
-ExecStart = /home/talkkonnect/bin/talkkonnect
-Restart = always 
-RestartSec = 5
+RemainAfterExit=no
+User=
+Group=
+Type=forking
+WorkingDirectory=
+ExecStartPre=
+ExecStart=/usr/bin/screen -dmS tk /home/talkkonnect/bin/talkkonnect
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -s SIGTERM $MAINPID
+PrivateTmp=true
+
+Restart=always
+RestartSec=10
 
 [Install]
-WantedBy = multi-user.target
+WantedBy=multi-user.target
+Alias=talkkonnect.target

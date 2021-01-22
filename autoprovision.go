@@ -37,11 +37,24 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"regexp"
 )
 
 func autoProvision() error {
 	if len(TkID) < 8 {
-		return errors.New("TkID Configuration Provisioning XML File should be at least 8 characters!")
+		var err error
+		var macaddress []string
+		macaddress, err = getMacAddr()
+		if err != nil {
+			return errors.New("TkID Configuration Provisioning XML Filenaame Not Found And Cannot Get Mac Address ")
+		}
+		for _, a := range macaddress {
+			re, err := regexp.Compile(`(:)`)
+			if err != nil {
+				log.Fatal(err)
+			}
+			TkID = re.ReplaceAllString(a, "")
+		}
 	}
 
 	if string(TkID[len(TkID)-4]) != ".xml" {
@@ -57,9 +70,8 @@ func autoProvision() error {
 	}
 
 	fileURL := URL + TkID
-	log.Println("debug: Contacting Provisioning Server to Download XML Config File")
+	log.Println("info: Trying to Autoprovision with URL: ", fileURL)
 	err := DownloadFile(SaveFilePath, SaveFilename, fileURL)
-
 	if err != nil {
 		return errors.New(fmt.Sprintf("error: DownloadFile Module Returned an Error: ", err))
 	}

@@ -542,3 +542,17 @@ func dayTimeWithinRange(dayTimeWithinRange dayScheduleStruct) (bool, bool, bool,
 	return false, dayTimeWithinRange.defaultLogic, dayTimeWithinRange.stopOnMatch, nil
 }
 
+func getMacAddr() ([]string, error) {
+	ifas, err := net.Interfaces()
+	if err != nil {
+		return nil, err
+	}
+	var as []string
+	for _, ifa := range ifas {
+		a := ifa.HardwareAddr.String()
+		if a != "" {
+			as = append(as, a)
+		}
+	}
+	return as, nil
+}

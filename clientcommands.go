@@ -33,7 +33,6 @@ import (
 	"fmt"
 	"github.com/talkkonnect/gumble/gumble"
 	"github.com/talkkonnect/gumble/gumbleffmpeg"
-	_ "github.com/talkkonnect/gumble/opus"
 	htgotts "github.com/talkkonnect/htgo-tts"
 	"github.com/talkkonnect/volume-go"
 	"log"

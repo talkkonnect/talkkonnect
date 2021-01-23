@@ -32,7 +32,6 @@ package talkkonnect
 import (
 	"fmt"
 	"github.com/talkkonnect/gumble/gumble"
-	_ "github.com/talkkonnect/gumble/opus"
 	htgotts "github.com/talkkonnect/htgo-tts"
 	"log"
 	"strconv"
@@ -321,5 +320,5 @@ func (b *Talkkonnect) OnContextActionChange(e *gumble.ContextActionChangeEvent) 
 func (b *Talkkonnect) OnServerConfig(e *gumble.ServerConfigEvent) {
 }
 
-func (b *Talkkonnect) OnAudioStream(e *gumble.AudioStreamEvent) {
-}
+//func (b *Talkkonnect) OnAudioStream(e *gumble.AudioStreamEvent) {
+//}

@@ -49,9 +49,8 @@ func (b *Talkkonnect) initGPIO() {
 		log.Println("error: GPIO Error, ", err)
 		b.GPIOEnabled = false
 		return
-	} else {
-		b.GPIOEnabled = true
 	}
+	b.GPIOEnabled = true
 
 	if TxButtonPin > 0 {
 		TxButtonPinPullUp := rpio.Pin(TxButtonPin)

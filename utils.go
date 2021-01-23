@@ -58,6 +58,7 @@ import (
 	"github.com/glendc/go-external-ip"
 )
 
+
 func reset() {
 	term.Sync()
 }
@@ -183,7 +184,7 @@ func playWavLocal(filepath string, playbackvolume int) error {
 	err := volume.SetVolume(playbackvolume, OutputDevice)
 
 	if err != nil {
-		return errors.New(fmt.Sprintf("error: set volume failed: %+v", err))
+		return fmt.Errorf("error: set volume failed: %+v", err)
 	}
 	_, err = cmd.CombinedOutput()
 
@@ -560,7 +561,7 @@ func getMacAddr() ([]string, error) {
 	return as, nil
 }
 
-func GetOutboundIP() string {
+func getOutboundIP() string {
 	consensus := externalip.DefaultConsensus(nil, nil)
 	ip, err := consensus.ExternalIP()
 	if err == nil {

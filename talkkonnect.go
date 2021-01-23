@@ -114,7 +114,7 @@ func (b *Talkkonnect) talkkonnectMenu(backgroundcolor string) {
 	log.Println("info: IP Address & Session Information")
 	b.pingconnectedserver()
 	localAddresses()
-	log.Println("info: Internet WAN IP Is", GetOutboundIP())
+	log.Println("info: Internet WAN IP Is", getOutboundIP())
 	origMuted, _ := volume.GetMuted(OutputDevice)
 	if origMuted {
 		log.Println("info: Speaker Currently Muted")

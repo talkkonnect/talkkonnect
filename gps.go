@@ -34,11 +34,12 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"github.com/jacobsa/go-serial/serial"
-	"github.com/talkkonnect/go-nmea"
 	"io/ioutil"
 	"log"
 	"net/http"
+
+	"github.com/jacobsa/go-serial/serial"
+	"github.com/talkkonnect/go-nmea"
 )
 
 var (
@@ -84,12 +85,11 @@ func getGpsPosition(verbose bool) (bool, error) {
 		}
 
 		f, err := serial.Open(options)
+		defer f.Close()
 
 		if err != nil {
 			GpsEnabled = false
 			return false, errors.New("Cannot Open Serial Port")
-		} else {
-			defer f.Close()
 		}
 
 		if TxData != "" {
@@ -106,10 +106,8 @@ func getGpsPosition(verbose bool) (bool, error) {
 
 			if err != nil {
 				return false, errors.New("error: Error writing to serial port")
-			} else {
-				log.Println("debug: Wrote %v bytes\n", count)
 			}
-
+			log.Println("debug: Wrote %v bytes\n", count)
 		}
 
 		if Rx {
@@ -178,7 +176,6 @@ func httpSendTracCar() {
 	response, err := http.Get(tracCarFullURL)
 	if err != nil {
 		log.Println("error: Cannot Read traccar Webpage! Error ", err)
-		return
 	} else {
 		defer response.Body.Close()
 		contents, err := ioutil.ReadAll(response.Body)
@@ -188,5 +185,5 @@ func httpSendTracCar() {
 			log.Println("debug: traccar web response ", string(contents))
 		}
 	}
-
+	return
 }

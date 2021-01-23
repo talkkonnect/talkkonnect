@@ -71,7 +71,7 @@ func autoProvision() error {
 
 	fileURL := URL + TkID
 	log.Println("info: Trying to Autoprovision with URL: ", fileURL)
-	err := DownloadFile(SaveFilePath, SaveFilename, fileURL)
+	err := downloadFile(SaveFilePath, SaveFilename, fileURL)
 	if err != nil {
 		return errors.New(fmt.Sprintf("error: DownloadFile Module Returned an Error: ", err))
 	}
@@ -80,7 +80,7 @@ func autoProvision() error {
 
 }
 
-func DownloadFile(SaveFilePath string, SaveFilename string, URL string) error {
+func downloadFile(SaveFilePath string, SaveFilename string, URL string) error {
 	resp, err := http.Get(URL)
 	if err != nil {
 		return err

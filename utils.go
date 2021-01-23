@@ -36,12 +36,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"github.com/glendc/go-external-ip"
-	"github.com/kennygrant/sanitize"
-	"github.com/talkkonnect/gumble/gumble"
-	term "github.com/talkkonnect/termbox-go"
-	"github.com/talkkonnect/volume-go"
-	"github.com/xackery/gomail"
+
 	"io"
 	"io/ioutil"
 	"log"
@@ -54,6 +49,13 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/kennygrant/sanitize"
+	"github.com/talkkonnect/gumble/gumble"
+	term "github.com/talkkonnect/termbox-go"
+	"github.com/talkkonnect/volume-go"
+	"github.com/xackery/gomail"
+	"github.com/glendc/go-external-ip"
 )
 
 func reset() {
@@ -110,13 +112,13 @@ func secondsToHuman(input int) (result string) {
 	return
 }
 
-func CopyFile(source string, dest string) {
+func copyFile(source string, dest string) {
 	temp, _ := ioutil.ReadFile(source)
 	ioutil.WriteFile(dest, temp, 0777)
 
 }
 
-func DeleteFile(source string) {
+func deleteFile(source string) {
 	err := os.Remove(source)
 	if err != nil {
 		log.Fatal("Alert: Cannot Remove Config File ", err)
@@ -165,7 +167,7 @@ func (b *Talkkonnect) pingconnectedserver() {
 	log.Println("info: Server Maximum Bitrate: ", resp.MaximumBitrate)
 }
 
-func PlayWavLocal(filepath string, playbackvolume int) error {
+func playWavLocal(filepath string, playbackvolume int) error {
 	origVolume, _ = volume.GetVolume(OutputDevice)
 	var player string
 
@@ -345,7 +347,7 @@ func unzip(archive, target string) error {
 	return nil
 }
 
-func CreateDirIfNotExist(dir string) {
+func createDirIfNotExist(dir string) {
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
 		err = os.MkdirAll(dir, 0777)
 		if err != nil {
@@ -354,7 +356,7 @@ func CreateDirIfNotExist(dir string) {
 	}
 }
 
-func ClearDir(dir string) error {
+func clearDir(dir string) error {
 	files, err := filepath.Glob(filepath.Join(dir, "*"))
 	if err != nil {
 		return err
@@ -389,7 +391,7 @@ func cleardir(dir string) {
 	}
 }
 
-func DirIsEmpty(name string) (bool, error) {
+func dirIsEmpty(name string) (bool, error) {
 	f, err := os.Open(name)
 	if err != nil {
 		return false, err // Not Empty

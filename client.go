@@ -340,7 +340,7 @@ func (b *Talkkonnect) ClientStart() {
 	}
 
 	if TTSEnabled && TTSTalkkonnectLoaded {
-		err := PlayWavLocal(TTSTalkkonnectLoadedFilenameAndPath, TTSVolumeLevel)
+		err := playWavLocal(TTSTalkkonnectLoadedFilenameAndPath, TTSVolumeLevel)
 		if err != nil {
 			log.Println("error: PlayWavLocal(TTSTalkkonnectLoadedFilenameAndPath) Returned Error: ", err)
 		}

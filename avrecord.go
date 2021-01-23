@@ -60,9 +60,9 @@ func AudioRecordTraffic() {
 		log.Println("debug: Old sox instance was Killed Before Running New")
 	}
 
-	CreateDirIfNotExist(AudioRecordSavePath)
-	CreateDirIfNotExist(AudioRecordArchivePath)
-	emptydirchk, err := DirIsEmpty(AudioRecordSavePath)
+	createDirIfNotExist(AudioRecordSavePath)
+	createDirIfNotExist(AudioRecordArchivePath)
+	emptydirchk, err := dirIsEmpty(AudioRecordSavePath)
 	if err == nil && emptydirchk == false {
 
 		filezip := time.Now().Format("20060102150405") + ".zip"
@@ -84,9 +84,9 @@ func AudioRecordTraffic() {
 
 func AudioRecordAmbient() {
 
-	CreateDirIfNotExist(AudioRecordSavePath)
-	CreateDirIfNotExist(AudioRecordArchivePath)
-	emptydirchk, err := DirIsEmpty(AudioRecordSavePath)
+	createDirIfNotExist(AudioRecordSavePath)
+	createDirIfNotExist(AudioRecordArchivePath)
+	emptydirchk, err := dirIsEmpty(AudioRecordSavePath)
 	if err == nil && emptydirchk == false {
 		filezip := time.Now().Format("20060102150405") + ".zip"
 		go zipit(AudioRecordSavePath+"/", AudioRecordArchivePath+"/"+filezip) // path to end with "/" or not?
@@ -106,9 +106,9 @@ func AudioRecordAmbient() {
 
 func AudioRecordCombo() {
 
-	CreateDirIfNotExist(AudioRecordSavePath)
-	CreateDirIfNotExist(AudioRecordArchivePath)
-	emptydirchk, err := DirIsEmpty(AudioRecordSavePath)
+	createDirIfNotExist(AudioRecordSavePath)
+	createDirIfNotExist(AudioRecordArchivePath)
+	emptydirchk, err := dirIsEmpty(AudioRecordSavePath)
 	if err == nil && emptydirchk == false {
 		filezip := time.Now().Format("20060102150405") + ".zip"
 		go zipit(AudioRecordSavePath+"/", AudioRecordArchivePath+"/"+filezip)
@@ -204,7 +204,7 @@ func audiorecordtraffic() {
 		check(err)
 		time.Sleep(2 * time.Second)
 
-		emptydirchk, err := DirIsEmpty(AudioRecordSavePath) // If sox didn't start recording for wrong parameters or any reason...  No  file.
+		emptydirchk, err := dirIsEmpty(AudioRecordSavePath) // If sox didn't start recording for wrong parameters or any reason...  No  file.
 
 		if err == nil && emptydirchk == false {
 			log.Println("info: sox is Recording Traffic to", AudioRecordSavePath)
@@ -306,7 +306,7 @@ func audiorecordambient() {
 		err := cmd.Start()
 		check(err)
 
-		emptydirchk, err := DirIsEmpty(AudioRecordSavePath) // If sox didn't start recording for wrong parameters or any reason...  No file.
+		emptydirchk, err := dirIsEmpty(AudioRecordSavePath) // If sox didn't start recording for wrong parameters or any reason...  No file.
 
 		if err == nil && emptydirchk == false {
 			log.Println("info: sox is Recording Ambient Audio to", AudioRecordSavePath)
@@ -414,7 +414,7 @@ func audiorecordcombo() {
 		check(err)
 		time.Sleep(2 * time.Second)
 
-		emptydirchk, err := DirIsEmpty(AudioRecordSavePath) // If sox didn't start recording for wrong parameters or any reason...  No files.
+		emptydirchk, err := dirIsEmpty(AudioRecordSavePath) // If sox didn't start recording for wrong parameters or any reason...  No files.
 
 		if err == nil && emptydirchk == false {
 			log.Println("info: sox is Recording Mixed Audio to", AudioRecordSavePath)

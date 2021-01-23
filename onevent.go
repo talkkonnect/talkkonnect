@@ -31,11 +31,12 @@ package talkkonnect
 
 import (
 	"fmt"
-	"github.com/talkkonnect/gumble/gumble"
-	htgotts "github.com/talkkonnect/htgo-tts"
 	"log"
 	"strconv"
 	"strings"
+
+	"github.com/talkkonnect/gumble/gumble"
+	htgotts "github.com/talkkonnect/htgo-tts"
 )
 
 func (b *Talkkonnect) OnConnect(e *gumble.ConnectEvent) {
@@ -172,7 +173,7 @@ func (b *Talkkonnect) OnTextMessage(e *gumble.TextMessageEvent) {
 	}
 
 	if EventSoundEnabled {
-		err := PlayWavLocal(EventSoundFilenameAndPath, 100)
+		err := playWavLocal(EventSoundFilenameAndPath, 100)
 		if err != nil {
 			log.Println("error: PlayWavLocal(EventSoundFilenameAndPath) Returned Error: ", err)
 		}

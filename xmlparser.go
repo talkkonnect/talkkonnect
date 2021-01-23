@@ -51,8 +51,8 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.56.07"
-	talkkonnectReleased string = "January 22 2021"
+	talkkonnectVersion  string = "1.56.08"
+	talkkonnectReleased string = "January 23 2021"
 )
 
 var (
@@ -1759,9 +1759,9 @@ func modifyXMLTagServerHopping(inputXMLFile string, outputXMLFile string, nextse
 		log.Fatal(err)
 	} else {
 		time.Sleep(2 * time.Second)
-		CopyFile(inputXMLFile, inputXMLFile+".bak")
-		DeleteFile(inputXMLFile)
-		CopyFile(outputXMLFile, inputXMLFile)
+		copyFile(inputXMLFile, inputXMLFile+".bak")
+		deleteFile(inputXMLFile)
+		copyFile(outputXMLFile, inputXMLFile)
 		c := exec.Command("reset")
 		c.Stdout = os.Stdout
 		c.Run()

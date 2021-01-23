@@ -251,9 +251,9 @@ func (b *Talkkonnect) ParticipantLEDUpdate(verbose bool) {
 
 	if participantCount != prevParticipantCount {
 		if EventSoundEnabled {
-			err := PlayWavLocal(EventSoundFilenameAndPath, 100)
+			err := playWavLocal(EventSoundFilenameAndPath, 100)
 			if err != nil {
-				log.Println("error: PlayWavLocal(EventSoundFilenameAndPath) Returned Error: ", err)
+				log.Println("error: playWavLocal(EventSoundFilenameAndPath) Returned Error: ", err)
 			}
 		}
 	}
@@ -382,9 +382,9 @@ func (b *Talkkonnect) ChannelUp() {
 	}
 
 	if TTSEnabled && TTSChannelUp {
-		err := PlayWavLocal(TTSChannelUpFilenameAndPath, TTSVolumeLevel)
+		err := playWavLocal(TTSChannelUpFilenameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("error: PlayWavLocal(TTSChannelDownFilenameAndPath) Returned Error: ", err)
+			log.Println("error: playWavLocal(TTSChannelDownFilenameAndPath) Returned Error: ", err)
 		}
 
 	}
@@ -454,9 +454,9 @@ func (b *Talkkonnect) ChannelDown() {
 	}
 
 	if TTSEnabled && TTSChannelDown {
-		err := PlayWavLocal(TTSChannelDownFilenameAndPath, TTSVolumeLevel)
+		err := playWavLocal(TTSChannelDownFilenameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("error: PlayWavLocal(TTSChannelDownFilenameAndPath) Returned Error: ", err)
+			log.Println("error: playWavLocal(TTSChannelDownFilenameAndPath) Returned Error: ", err)
 		}
 
 	}

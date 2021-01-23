@@ -45,9 +45,9 @@ func (b *Talkkonnect) cmdKeyDel() {
 	log.Println("debug: Delete Key Pressed Menu and Session Information Requested")
 
 	if TTSEnabled && TTSDisplayMenu {
-		err := PlayWavLocal(TTSDisplayMenuFilenameAndPath, TTSVolumeLevel)
+		err := playWavLocal(TTSDisplayMenuFilenameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("error: PlayWavLocal(TTSDisplayMenuFilenameAndPath) Returned Error: ", err)
+			log.Println("error: playWavLocal(TTSDisplayMenuFilenameAndPath) Returned Error: ", err)
 		}
 
 	}
@@ -95,9 +95,9 @@ func (b *Talkkonnect) cmdMuteUnmute(subCommand string) {
 
 		log.Println("debug: F3 pressed Mute/Unmute Speaker Requested Now UnMuted")
 		if TTSEnabled && TTSMuteUnMuteSpeaker {
-			err := PlayWavLocal(TTSMuteUnMuteSpeakerFilenameAndPath, TTSVolumeLevel)
+			err := playWavLocal(TTSMuteUnMuteSpeakerFilenameAndPath, TTSVolumeLevel)
 			if err != nil {
-				log.Println("error: PlayWavLocal(TTSMuteUnMuteSpeakerFilenameAndPath) Returned Error: ", err)
+				log.Println("error: playWavLocal(TTSMuteUnMuteSpeakerFilenameAndPath) Returned Error: ", err)
 			}
 
 		}
@@ -113,9 +113,9 @@ func (b *Talkkonnect) cmdMuteUnmute(subCommand string) {
 		}
 	} else {
 		if TTSEnabled && TTSMuteUnMuteSpeaker {
-			err := PlayWavLocal(TTSMuteUnMuteSpeakerFilenameAndPath, TTSVolumeLevel)
+			err := playWavLocal(TTSMuteUnMuteSpeakerFilenameAndPath, TTSVolumeLevel)
 			if err != nil {
-				log.Println("error: PlayWavLocal(TTSMuteUnMuteSpeakerFilenameAndPath) Returned Error: ", err)
+				log.Println("error: playWavLocal(TTSMuteUnMuteSpeakerFilenameAndPath) Returned Error: ", err)
 			}
 
 		}
@@ -149,9 +149,9 @@ func (b *Talkkonnect) cmdCurrentVolume() {
 	log.Println("info: Volume Level is at", origVolume, "%")
 
 	if TTSEnabled && TTSCurrentVolumeLevel {
-		err := PlayWavLocal(TTSCurrentVolumeLevelFilenameAndPath, TTSVolumeLevel)
+		err := playWavLocal(TTSCurrentVolumeLevelFilenameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("error: PlayWavLocal(TTSCurrentVolumeLevelFilenameAndPath) Returned Error: ", err)
+			log.Println("error: playWavLocal(TTSCurrentVolumeLevelFilenameAndPath) Returned Error: ", err)
 		}
 
 	}
@@ -205,9 +205,9 @@ func (b *Talkkonnect) cmdVolumeUp() {
 	}
 
 	if TTSEnabled && TTSDigitalVolumeUp {
-		err := PlayWavLocal(TTSDigitalVolumeUpFilenameAndPath, TTSVolumeLevel)
+		err := playWavLocal(TTSDigitalVolumeUpFilenameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("error: PlayWavLocal(TTSDigitalVolumeUpFilenameAndPath) Returned Error: ", err)
+			log.Println("error: playWavLocal(TTSDigitalVolumeUpFilenameAndPath) Returned Error: ", err)
 		}
 
 	}
@@ -254,9 +254,9 @@ func (b *Talkkonnect) cmdVolumeDown() {
 	}
 
 	if TTSEnabled && TTSDigitalVolumeDown {
-		err := PlayWavLocal(TTSDigitalVolumeDownFilenameAndPath, TTSVolumeLevel)
+		err := playWavLocal(TTSDigitalVolumeDownFilenameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("error: PlayWavLocal(TTSDigitalVolumeDownFilenameAndPath) Returned Error: ", err)
+			log.Println("error: playWavLocal(TTSDigitalVolumeDownFilenameAndPath) Returned Error: ", err)
 		}
 
 	}
@@ -267,9 +267,9 @@ func (b *Talkkonnect) cmdListServerChannels() {
 	log.Println("debug: F7 pressed Channel List Requested")
 
 	if TTSEnabled && TTSListServerChannels {
-		err := PlayWavLocal(TTSListServerChannelsFilenameAndPath, TTSVolumeLevel)
+		err := playWavLocal(TTSListServerChannelsFilenameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("error: PlayWavLocal(TTSListServerChannelsFilenameAndPath) Returned Error: ", err)
+			log.Println("error: playWavLocal(TTSListServerChannelsFilenameAndPath) Returned Error: ", err)
 		}
 
 	}
@@ -283,9 +283,9 @@ func (b *Talkkonnect) cmdStartTransmitting() {
 	log.Println("info: Start Transmitting")
 
 	if TTSEnabled && TTSStartTransmitting {
-		err := PlayWavLocal(TTSStartTransmittingFilenameAndPath, TTSVolumeLevel)
+		err := playWavLocal(TTSStartTransmittingFilenameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("error: PlayWavLocal(TTSStartTransmittingFilenameAndPath) Returned Error: ", err)
+			log.Println("error: playWavLocal(TTSStartTransmittingFilenameAndPath) Returned Error: ", err)
 		}
 
 	}
@@ -310,7 +310,7 @@ func (b *Talkkonnect) cmdStopTransmitting() {
 	log.Println("info: Stop Transmitting")
 
 	if TTSEnabled && TTSStopTransmitting {
-		err := PlayWavLocal(TTSStopTransmittingFilenameAndPath, TTSVolumeLevel)
+		err := playWavLocal(TTSStopTransmittingFilenameAndPath, TTSVolumeLevel)
 		if err != nil {
 			log.Println("error: Play Wav Local Module Returned Error: ", err)
 		}
@@ -337,9 +337,9 @@ func (b *Talkkonnect) cmdListOnlineUsers() {
 	log.Println("info: F10 Online User(s) in Current Channel")
 
 	if TTSEnabled && TTSListOnlineUsers {
-		err := PlayWavLocal(TTSListOnlineUsersFilenameAndPath, TTSVolumeLevel)
+		err := playWavLocal(TTSListOnlineUsersFilenameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("error: PlayWavLocal(TTSListOnlineUsersFilenameAndPath) Returned Error: ", err)
+			log.Println("error: playWavLocal(TTSListOnlineUsersFilenameAndPath) Returned Error: ", err)
 		}
 
 	}
@@ -356,9 +356,9 @@ func (b *Talkkonnect) cmdPlayback() {
 	b.BackLightTimer()
 
 	if TTSEnabled && TTSPlayChimes {
-		err := PlayWavLocal(TTSPlayChimesFilenameAndPath, TTSVolumeLevel)
+		err := playWavLocal(TTSPlayChimesFilenameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("error: PlayWavLocal(TTSPlayChimesFilenameAndPath) Returned Error: ", err)
+			log.Println("error: playWavLocal(TTSPlayChimesFilenameAndPath) Returned Error: ", err)
 
 		}
 
@@ -385,9 +385,9 @@ func (b *Talkkonnect) cmdGPSPosition() {
 	log.Println("info: GPS details requested")
 
 	if TTSEnabled && TTSRequestGpsPosition {
-		err := PlayWavLocal(TTSRequestGpsPositionFilenameAndPath, TTSVolumeLevel)
+		err := playWavLocal(TTSRequestGpsPositionFilenameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("error: PlayWavLocal(TTSRequestGpsPositionFilenameAndPath) Returned Error: ", err)
+			log.Println("error: playWavLocal(TTSRequestGpsPositionFilenameAndPath) Returned Error: ", err)
 		}
 
 	}
@@ -421,9 +421,9 @@ func (b *Talkkonnect) cmdQuitTalkkonnect() {
 	log.Printf("info: Talkkonnect Now Running For %v \n", secondsToHuman(int(duration.Seconds())))
 
 	if TTSEnabled && TTSQuitTalkkonnect {
-		err := PlayWavLocal(TTSQuitTalkkonnectFilenameAndPath, TTSVolumeLevel)
+		err := playWavLocal(TTSQuitTalkkonnectFilenameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("error: PlayWavLocal(TTSQuitTalkkonnectFilenameAndPath) Returned Error: ", err)
+			log.Println("error: playWavLocal(TTSQuitTalkkonnectFilenameAndPath) Returned Error: ", err)
 		}
 
 	}
@@ -473,9 +473,9 @@ func (b *Talkkonnect) cmdSendEmail() {
 	}
 
 	if TTSEnabled && TTSSendEmail {
-		err := PlayWavLocal(TTSSendEmailFilenameAndPath, TTSVolumeLevel)
+		err := playWavLocal(TTSSendEmailFilenameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("warn: PlayWavLocal(TTSSendEmailFilenameAndPath) Returned Error: ", err)
+			log.Println("warn: playWavLocal(TTSSendEmailFilenameAndPath) Returned Error: ", err)
 		}
 
 	}
@@ -512,9 +512,9 @@ func (b *Talkkonnect) cmdConnPreviousServer() {
 	log.Println("info: Previous Server Requested")
 
 	if TTSEnabled && TTSPreviousServer {
-		err := PlayWavLocal(TTSPreviousServerFilenameAndPath, TTSVolumeLevel)
+		err := playWavLocal(TTSPreviousServerFilenameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("error: PlayWavLocal(TTSPreviousServerFilenameAndPath) Returned Error: ", err)
+			log.Println("error: playWavLocal(TTSPreviousServerFilenameAndPath) Returned Error: ", err)
 		}
 
 	}
@@ -554,9 +554,9 @@ func (b *Talkkonnect) cmdPingServers() {
 	log.Println("info: Ping Servers")
 
 	if TTSEnabled && TTSPingServers {
-		err := PlayWavLocal(TTSPingServersFilenameAndPath, TTSVolumeLevel)
+		err := playWavLocal(TTSPingServersFilenameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("alert: PlayWavLocal(TTSPingServersFilenameAndPath) Returned Error: ", err)
+			log.Println("alert: playWavLocal(TTSPingServersFilenameAndPath) Returned Error: ", err)
 		}
 
 	}
@@ -569,9 +569,9 @@ func (b *Talkkonnect) cmdConnNextServer() {
 	log.Println("info: Next Server Requested Killing This Session, talkkonnect should be restarted by systemd")
 
 	if TTSEnabled && TTSNextServer {
-		err := PlayWavLocal(TTSNextServerFilenameAndPath, TTSVolumeLevel)
+		err := playWavLocal(TTSNextServerFilenameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("alert: PlayWavLocal(TTSNextServerFilenameAndPath) Returned Error: ", err)
+			log.Println("alert: playWavLocal(TTSNextServerFilenameAndPath) Returned Error: ", err)
 		}
 
 	}
@@ -693,9 +693,9 @@ func (b *Talkkonnect) cmdPanicSimulation() {
 	log.Println("info: Panic Button Start/Stop Simulation Requested")
 
 	if TTSEnabled && TTSPanicSimulation {
-		err := PlayWavLocal(TTSPanicSimulationFilenameAndPath, TTSVolumeLevel)
+		err := playWavLocal(TTSPanicSimulationFilenameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("error: PlayWavLocal(TTSPanicSimulationFilenameAndPath) Returned Error: ", err)
+			log.Println("error: playWavLocal(TTSPanicSimulationFilenameAndPath) Returned Error: ", err)
 		}
 
 	}
@@ -778,9 +778,9 @@ func (b *Talkkonnect) cmdScanChannels() {
 	log.Println("info: Scanning Channels")
 
 	if TTSEnabled && TTSScan {
-		err := PlayWavLocal(TTSScanFilenameAndPath, TTSVolumeLevel)
+		err := playWavLocal(TTSScanFilenameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("error: PlayWavLocal(TTSScanFilenameAndPath) Returned Error: ", err)
+			log.Println("error: playWavLocal(TTSScanFilenameAndPath) Returned Error: ", err)
 		}
 
 	}
@@ -812,9 +812,9 @@ func (b *Talkkonnect) cmdDumpXMLConfig() {
 	log.Println("info: Print XML Config " + ConfigXMLFile)
 
 	if TTSEnabled && TTSPrintXmlConfig {
-		err := PlayWavLocal(TTSPrintXmlConfigFilenameAndPath, TTSVolumeLevel)
+		err := playWavLocal(TTSPrintXmlConfigFilenameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("error: PlayWavLocal(TTSPrintXmlConfigFilenameAndPath) Returned Error: ", err)
+			log.Println("error: playWavLocal(TTSPrintXmlConfigFilenameAndPath) Returned Error: ", err)
 		}
 
 	}

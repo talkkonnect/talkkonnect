@@ -342,13 +342,12 @@ func (b *Talkkonnect) RepeaterTone(filepath string, vol float32) {
 	if err := pstream.Play(); err != nil {
 		log.Println("error: Error Playing Repeater Tone ", err)
 		return
-	} else {
-		log.Println("info: Repeater Tone File " + filepath + " Playing!")
-		pstream.Wait()
-		pstream.Stop()
-		b.LEDOff(b.TransmitLED)
-		return
 	}
+	log.Println("info: Repeater Tone File " + filepath + " Playing!")
+	pstream.Wait()
+	pstream.Stop()
+	b.LEDOff(b.TransmitLED)
+	return
 }
 
 func (b *Talkkonnect) OpenStream() {

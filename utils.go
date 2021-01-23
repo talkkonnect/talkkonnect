@@ -129,7 +129,7 @@ func deleteFile(source string) {
 func localAddresses() {
 	ifaces, err := net.Interfaces()
 	if err != nil {
-		log.Print(fmt.Errorf("error: localAddresses %v", err.Error()))
+		log.Print(fmt.Sprintf("error: localAddresses %v", err.Error()))
 		return
 	}
 
@@ -137,7 +137,7 @@ func localAddresses() {
 		addrs, err := i.Addrs()
 
 		if err != nil {
-			log.Print(fmt.Errorf("error: localAddresses %v", err.Error()))
+			log.Print(fmt.Sprintf("error: localAddresses %v", err.Error()))
 			continue
 		}
 
@@ -189,12 +189,12 @@ func playWavLocal(filepath string, playbackvolume int) error {
 	_, err = cmd.CombinedOutput()
 
 	if err != nil {
-		return errors.New(fmt.Sprintf("error: cmd.Run() for %s failed with %s\n", player, err))
+		return fmt.Errorf("error: cmd.Run() for %s failed with %s\n", player, err)
 	}
 	err = volume.SetVolume(origVolume, OutputDevice)
 
 	if err != nil {
-		return errors.New(fmt.Sprintf("error: set volume failed: %+v", err))
+		return fmt.Errorf("error: set volume failed: %+v", err)
 	}
 	return nil
 }
@@ -214,7 +214,7 @@ func sendviagmail(username string, password string, receiver string, subject str
 func clearfiles() { // Testing os.Remove to delete files
 	err := os.RemoveAll(`/avrec`)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("error: cannot remove file error ",err)
 		return
 	}
 }
@@ -408,7 +408,7 @@ func dirIsEmpty(name string) (bool, error) {
 	return false, err // Either not empty or error, suits both cases
 }
 
-func FileExist(path string) bool {
+func fileExist(path string) bool {
 	if _, err := os.Stat(path); err == nil {
 		// exist
 		return true
@@ -417,7 +417,7 @@ func FileExist(path string) bool {
 	return false
 }
 
-func FileNotExist(path string) bool {
+func fileNotExist(path string) bool {
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		// not exist
 		return true

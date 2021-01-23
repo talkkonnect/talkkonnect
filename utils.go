@@ -203,7 +203,7 @@ func sendviagmail(username string, password string, receiver string, subject str
 
 	err := gomail.Send(username, password, []string{receiver}, subject, message)
 	if err != nil {
-		return errors.New("Sending Email Via GMAIL Error")
+		return fmt.Errorf("sending Email Via GMAIL Error")
 	}
 
 	go LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)

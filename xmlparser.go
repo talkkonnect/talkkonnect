@@ -31,7 +31,6 @@ package talkkonnect
 
 import (
 	"encoding/xml"
-	"errors"
 	"fmt"
 	goled "github.com/talkkonnect/go-oled-i2c"
 	"github.com/talkkonnect/go-openal/openal"
@@ -720,7 +719,7 @@ type Document struct {
 func readxmlconfig(file string) error {
 	xmlFile, err := os.Open(file)
 	if err != nil {
-		return errors.New(fmt.Sprintf("error: cannot open configuration file "+filepath.Base(file), err))
+		return fmt.Errorf("error: cannot open configuration file "+filepath.Base(file), err)
 	}
 	log.Println("info: Successfully Opened file " + filepath.Base(file))
 	defer xmlFile.Close()
@@ -731,7 +730,7 @@ func readxmlconfig(file string) error {
 
 	err = xml.Unmarshal(byteValue, &document)
 	if err != nil {
-		errors.New(fmt.Sprintf("error: File "+filepath.Base(file)+" formatting error Please fix! ", err))
+		return fmt.Errorf("error: File "+filepath.Base(file)+" formatting error Please fix! ", err)
 	}
 	//log.Println("info: Document               : " + document.Type)
 

@@ -354,7 +354,7 @@ func (b *Talkkonnect) ClientStart() {
 		HeartBeat := time.NewTicker(time.Duration(PeriodmSecs) * time.Millisecond)
 
 		go func() {
-			for _ = range HeartBeat.C {
+			for range HeartBeat.C {
 				timer1 := time.NewTimer(time.Duration(LEDOnmSecs) * time.Millisecond)
 				timer2 := time.NewTimer(time.Duration(LEDOffmSecs) * time.Millisecond)
 				<-timer1.C
@@ -377,7 +377,7 @@ func (b *Talkkonnect) ClientStart() {
 		BeaconTicker := time.NewTicker(time.Duration(BeaconTimerSecs) * time.Second)
 
 		go func() {
-			for _ = range BeaconTicker.C {
+			for range BeaconTicker.C {
 				IsPlayStream = true
 				b.playIntoStream(BeaconFilenameAndPath, BVolume)
 				IsPlayStream = false

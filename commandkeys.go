@@ -33,7 +33,6 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	_ "github.com/talkkonnect/gumble/opus"
 	"github.com/talkkonnect/volume-go"
 	"log"
 	"runtime"

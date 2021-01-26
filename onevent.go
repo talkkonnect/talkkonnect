@@ -321,5 +321,3 @@ func (b *Talkkonnect) OnContextActionChange(e *gumble.ContextActionChangeEvent) 
 func (b *Talkkonnect) OnServerConfig(e *gumble.ServerConfigEvent) {
 }
 
-//func (b *Talkkonnect) OnAudioStream(e *gumble.AudioStreamEvent) {
-//}

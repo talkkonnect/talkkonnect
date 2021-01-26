@@ -183,7 +183,7 @@ func (b *Talkkonnect) httpAPI(w http.ResponseWriter, r *http.Request) {
 		} else {
 			fmt.Fprintf(w, "API Clear Screen Denied\n")
 		}
-	case "cmdPingServers":
+	case "PingServers":
 		if APIEmailEnabled {
 			b.cmdPingServers()
 			fmt.Fprintf(w, "API Ping Servers Processed Succesfully\n")

@@ -38,7 +38,8 @@ import (
 func (b *Talkkonnect) httpAPI(w http.ResponseWriter, r *http.Request) {
 	commands, ok := r.URL.Query()["command"]
 	if !ok || len(commands[0]) < 1 {
-		log.Println("error: URL Param 'command' is missing")
+		log.Println("error: URL Param 'command' is missing example http api commands should be of the format http://a.b.c.d/?command=StartTransmitting")
+		fmt.Fprintf(w, "error: API should be of the format http://a.b.c.d:"+APIListenPort+"/?command=StartTransmitting\n")
 		return
 	}
 

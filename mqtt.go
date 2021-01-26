@@ -203,49 +203,49 @@ func (b *Talkkonnect) onMessageReceived(client MQTT.Client, message MQTT.Message
 	log.Printf("info: Received MQTT message on topic: %s Payload: %s\n", message.Topic(), message.Payload())
 
 	switch string(message.Payload()) {
-	case "DEL":
+	case "DisplayMenu":
 		log.Println("info: MQTT Display Menu Request Processed Succesfully")
-		b.cmdKeyDel()
-	case "F1":
+		b.cmdDisplayMenu()
+        case "ChannelUp":
 		log.Println("info: MQTT Channel Up Request Processed Succesfully\n")
 		b.cmdChannelUp()
-	case "F2":
+        case "ChannelDown":
 		log.Println("info: MQTT Channel Down Request Processed Succesfully\n")
 		b.cmdChannelDown()
-	case "F3":
+        case "Mute-Toggle":
 		log.Println("info: MQTT Mute/UnMute Speaker Request Processed Succesfully\n")
 		b.cmdMuteUnmute("toggle")
-	case "F3-mute":
+        case "Mute":
 		log.Println("info: MQTT Mute/UnMute Speaker Request Processed Succesfully\n")
 		b.cmdMuteUnmute("mute")
-	case "F3-unmute":
+	case "Unmute":
 		log.Println("info: MQTT Mute/UnMute Speaker Request Processed Succesfully\n")
 		b.cmdMuteUnmute("unmute")
-	case "F4":
+        case "CurrentVolume":
 		log.Println("info: MQTT Current Volume Level Request Processed Succesfully\n")
 		b.cmdCurrentVolume()
-	case "F5":
+        case "VolumeUp":
 		log.Println("info: MQTT Digital Volume Up Request Processed Succesfully\n")
 		b.cmdVolumeUp()
-	case "F6":
+	case "VolumeDown":
 		log.Println("info: MQTT Digital Volume Down Request Processed Succesfully\n")
 		b.cmdVolumeDown()
-	case "F7":
+        case "ListChannels":
 		log.Println("info: MQTT List Server Channels Request Processed Succesfully\n")
 		b.cmdListServerChannels()
-	case "F8":
+        case "StartTransmitting":
 		log.Println("info: MQTT Start Transmitting Request Processed Succesfully\n")
 		b.cmdStartTransmitting()
-	case "F9":
+        case "StopTransmitting":
 		log.Println("info: MQTT Stop Transmitting Request Processed Succesfully\n")
 		b.cmdStopTransmitting()
-	case "F10":
+        case "ListOnlineUsers":
 		log.Println("info: MQTT List Online Users Request Processed Succesfully\n")
 		b.cmdListOnlineUsers()
-	case "F11":
+        case "Stream-Toggle":
 		log.Println("info: MQTT Play/Stop Chimes Request Processed Succesfully\n")
 		b.cmdPlayback()
-	case "F12":
+        case "GPSPosition":
 		log.Println("info: MQTT Request GPS Position Processed Succesfully\n")
 		b.cmdGPSPosition()
 	case "SendEmail":
@@ -306,3 +306,4 @@ func (b *Talkkonnect) onMessageReceived(client MQTT.Client, message MQTT.Message
 	}
 	return
 }
+

@@ -47,105 +47,105 @@ func (b *Talkkonnect) httpAPI(w http.ResponseWriter, r *http.Request) {
 	b.BackLightTimer()
 
 	switch string(command) {
-	case "DEL":
+	case "DisplayMenu":
 		if APIDisplayMenu {
-			b.cmdKeyDel()
+			b.cmdDisplayMenu()
 			fmt.Fprintf(w, "API Display Menu Request Processed Succesfully\n")
 		} else {
 			fmt.Fprintf(w, "API Display Menu Request Denied\n")
 		}
-	case "F1":
+	case "ChannelUp":
 		if APIChannelUp {
 			b.cmdChannelUp()
 			fmt.Fprintf(w, "API Channel Up Request Processed Succesfully\n")
 		} else {
 			fmt.Fprintf(w, "API Channel Up Request Denied\n")
 		}
-	case "F2":
+	case "ChannelDown":
 		if APIChannelDown {
 			b.cmdChannelDown()
 			fmt.Fprintf(w, "API Channel Down Request Processed Succesfully\n")
 		} else {
 			fmt.Fprintf(w, "API Channel Down Request Denied\n")
 		}
-	case "F3":
+	case "Mute-Toggle":
 		if APIMute {
 			b.cmdMuteUnmute("toggle")
 			fmt.Fprintf(w, "API Mute/UnMute Speaker Request Processed Succesfully\n")
 		} else {
 			fmt.Fprintf(w, "API Mute/Unmute Speaker Request Denied\n")
 		}
-	case "F3-mute":
+	case "Mute":
 		if APIMute {
 			b.cmdMuteUnmute("mute")
 			fmt.Fprintf(w, "API Mute/UnMute Speaker Request Processed Succesfully\n")
 		} else {
 			fmt.Fprintf(w, "API Mute/Unmute Speaker Request Denied\n")
 		}
-	case "F3-unmute":
+	case "Unmute":
 		if APIMute {
 			b.cmdMuteUnmute("unmute")
 			fmt.Fprintf(w, "API Mute/UnMute Speaker Request Processed Succesfully\n")
 		} else {
 			fmt.Fprintf(w, "API Mute/Unmute Speaker Request Denied\n")
 		}
-	case "F4":
+	case "CurrentVolume":
 		if APICurrentVolumeLevel {
 			b.cmdCurrentVolume()
 			fmt.Fprintf(w, "API Current Volume Level Request Processed Succesfully\n")
 		} else {
 			fmt.Fprintf(w, "API Current Volume Level Request Denied\n")
 		}
-	case "F5":
+	case "VolumeUp":
 		if APIDigitalVolumeUp {
 			b.cmdVolumeUp()
 			fmt.Fprintf(w, "API Digital Volume Up Request Processed Succesfully\n")
 		} else {
 			fmt.Fprintf(w, "API Digital Volume Up Request Denied\n")
 		}
-	case "F6":
+	case "VolumeDown":
 		if APIDigitalVolumeDown {
 			b.cmdVolumeDown()
 			fmt.Fprintf(w, "API Digital Volume Down Request Processed Succesfully\n")
 		} else {
 			fmt.Fprintf(w, "API Digital Volume Down Request Denied\n")
 		}
-	case "F7":
+	case "ListChannels":
 		if APIListServerChannels {
 			b.cmdListServerChannels()
 			fmt.Fprintf(w, "API List Server Channels Request Processed Succesfully\n")
 		} else {
 			fmt.Fprintf(w, "API List Server Channels Request Denied\n")
 		}
-	case "F8":
+	case "StartTransmitting":
 		if APIStartTransmitting {
 			b.cmdStartTransmitting()
 			fmt.Fprintf(w, "API Start Transmitting Request Processed Succesfully\n")
 		} else {
 			fmt.Fprintf(w, "API Start Transmitting Request Denied\n")
 		}
-	case "F9":
+	case "StopTransmitting":
 		if APIStopTransmitting {
 			b.cmdStopTransmitting()
 			fmt.Fprintf(w, "API Stop Transmitting Request Processed Succesfully\n")
 		} else {
 			fmt.Fprintf(w, "API Stop Transmitting Request Denied\n")
 		}
-	case "F10":
+	case "ListOnlineUsers":
 		if APIListOnlineUsers {
 			b.cmdListOnlineUsers()
 			fmt.Fprintf(w, "API List Online Users Request Processed Succesfully\n")
 		} else {
 			fmt.Fprintf(w, "API List Online Users Request Denied\n")
 		}
-	case "F11":
+	case "Stream-Toggle":
 		if APIPlayChimes {
 			b.cmdPlayback()
 			fmt.Fprintf(w, "API Play/Stop Chimes Request Processed Succesfully\n")
 		} else {
 			fmt.Fprintf(w, "API Play/Stop Chimes Request Denied\n")
 		}
-	case "F12":
+	case "GPSPosition":
 		if APIRequestGpsPosition {
 			b.cmdGPSPosition()
 			fmt.Fprintf(w, "API Request GPS Position Processed Succesfully\n")

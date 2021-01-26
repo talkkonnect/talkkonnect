@@ -459,7 +459,7 @@ keyPressListenerLoop:
 				reset()
 				break keyPressListenerLoop
 			case term.KeyDelete:
-				b.cmdKeyDel()
+				b.cmdDisplayMenu()
 			case term.KeyF1:
 				b.cmdChannelUp()
 			case term.KeyF2:

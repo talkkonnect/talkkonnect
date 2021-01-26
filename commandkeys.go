@@ -40,7 +40,7 @@ import (
 	"time"
 )
 
-func (b *Talkkonnect) cmdKeyDel() {
+func (b *Talkkonnect) cmdDisplayMenu() {
 	log.Println("debug: Delete Key Pressed Menu and Session Information Requested")
 
 	if TTSEnabled && TTSDisplayMenu {

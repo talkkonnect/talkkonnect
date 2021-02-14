@@ -123,14 +123,19 @@ func Init(file string, ServerIndex string) {
 	err := term.Init()
 	if err != nil {
 		log.Println("error: Cannot Initalize Terminal Error: ", err)
-		log.Fatal("warn: Exiting talkkonnect! ...... bye!\n")
+		log.Println("warn: Exiting talkkonnect! ...... bye!\n")
+		FatalCleanUp()
 	}
+	defer term.Close()
+
+	term.Flush()
 
 	ConfigXMLFile = file
 	err = readxmlconfig(ConfigXMLFile)
 	if err != nil {
-		log.Println("error: XML Parser Module Returned Error: ", err)
-		log.Fatal("Please Make Sure the XML Configuration File is In the Correct Path with the Correct Format, Exiting talkkonnect! ...... bye\n")
+		log.Printf("%v \n", err.Error())
+		log.Println("Exiting talkkonnect! ...... bye\n")
+		FatalCleanUp()
 	}
 
 	colog.Register()
@@ -175,7 +180,8 @@ func Init(file string, ServerIndex string) {
 		if err != nil {
 			log.Println("error: Error from AutoProvisioning Module: ", err)
 			log.Println("alert: Please Fix Problem with Provisioning Configuration or use Static File By Disabling AutoProvisioning ")
-			log.Fatal("Exiting talkkonnect! ...... bye\n")
+			log.Println("warn: Exiting talkkonnect! ...... bye\n")
+			FatalCleanUp()
 		} else {
 			log.Println("info: Loading XML Config")
 			ConfigXMLFile = file
@@ -213,7 +219,8 @@ func Init(file string, ServerIndex string) {
 		_, err := rand.Read(buf)
 		if err != nil {
 			log.Println("error: Cannot Generate Random Name Error: ", err)
-			log.Fatal("Exiting talkkonnect! ...... bye!\n")
+			log.Println("warn: Exiting talkkonnect! ...... bye!\n")
+			FatalCleanUp()
 		}
 
 		buf[0] |= 2
@@ -231,7 +238,8 @@ func Init(file string, ServerIndex string) {
 		cert, err := tls.LoadX509KeyPair(Certificate[AccountIndex], Certificate[AccountIndex])
 		if err != nil {
 			log.Println("error: Certificate Error: ", err)
-			log.Fatal("Exiting talkkonnect! ...... bye!\n")
+			log.Println("warn: Exiting talkkonnect! ...... bye!\n")
+			FatalCleanUp()
 		}
 		b.TLSConfig.Certificates = append(b.TLSConfig.Certificates, cert)
 	}
@@ -242,7 +250,8 @@ func Init(file string, ServerIndex string) {
 
 			if err := http.ListenAndServe(":"+APIListenPort, nil); err != nil {
 				log.Println("error: Problem With Starting HTTP API Server Error: ", err)
-				log.Fatal("Please Fix Problem or Disable API in XML Config, Exiting talkkonnect! ...... bye!\n")
+				log.Println("warn: Please Fix Problem or Disable API in XML Config, Exiting talkkonnect! ...... bye!\n")
+				FatalCleanUp()
 			}
 		}()
 	}
@@ -264,7 +273,8 @@ func (b *Talkkonnect) ClientStart() {
 	log.Println("info: Trying to Open File ", LogFilenameAndPath)
 	if err != nil {
 		log.Println("error: Problem opening talkkonnect.log file Error: ", err)
-		log.Fatal("Exiting talkkonnect! ...... Happy Talkkonnecting, Bye!\n")
+		log.Println("warn: Exiting talkkonnect! ...... Happy Talkkonnecting, Bye!\n")
+		FatalCleanUp()
 	}
 
 	if TargetBoard == "rpi" {
@@ -530,7 +540,8 @@ keyPressListenerLoop:
 			}
 		case term.EventError:
 			log.Println("error: Terminal Error: ", ev.Err)
-			log.Fatal("Exiting talkkonnect!\n")
+			log.Println("Exiting talkkonnect!\n")
+			FatalCleanUp()
 		}
 
 	}

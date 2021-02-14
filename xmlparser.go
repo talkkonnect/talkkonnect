@@ -50,7 +50,7 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.58.01"
+	talkkonnectVersion  string = "1.58.02"
 	talkkonnectReleased string = "February 14 2021"
 )
 
@@ -719,9 +719,9 @@ type Document struct {
 func readxmlconfig(file string) error {
 	xmlFile, err := os.Open(file)
 	if err != nil {
-		return fmt.Errorf("error: cannot open configuration file "+filepath.Base(file), err)
+		return fmt.Errorf("error: "+err.Error())
 	}
-	log.Println("info: Successfully Opened file " + filepath.Base(file))
+	log.Println("info: Successfully Read file " + filepath.Base(file))
 	defer xmlFile.Close()
 
 	byteValue, _ := ioutil.ReadAll(xmlFile)
@@ -730,9 +730,8 @@ func readxmlconfig(file string) error {
 
 	err = xml.Unmarshal(byteValue, &document)
 	if err != nil {
-		return fmt.Errorf("error: File "+filepath.Base(file)+" formatting error Please fix! ", err)
+		return fmt.Errorf("error: "+filepath.Base(file)+" "+err.Error())
 	}
-	//log.Println("info: Document               : " + document.Type)
 
 	for i := 0; i < len(document.Accounts.Account); i++ {
 		if document.Accounts.Account[i].Default == true {
@@ -749,7 +748,8 @@ func readxmlconfig(file string) error {
 	}
 
 	if AccountCount == 0 {
-		log.Fatal("No Default Accounts Found! Please Add at least 1 Default Account in XML File")
+		log.Println("warn: No Default Accounts Found! Please Add at least 1 Default Account in XML File")
+		FatalCleanUp()
 	}
 
 	exec, err := os.Executable()
@@ -760,7 +760,8 @@ func readxmlconfig(file string) error {
 	// Set our default config file path (for autoprovision)
 	defaultConfPath, err := filepath.Abs(filepath.Dir(file))
 	if err != nil {
-		log.Fatal("error: Unable to get path for config file: " + err.Error())
+		log.Println("error: Unable to get path for config file: " + err.Error())
+		FatalCleanUp()
 	}
 
 	// Set our default logging path
@@ -1338,8 +1339,8 @@ func readxmlconfig(file string) error {
 
 	if LCDBackLightTimerEnabled == true && (OLEDEnabled == false && LCDEnabled == false) {
 		log.Println("Alert: Logical Error in LCDBacklight Timer Check XML config file")
-		log.Fatal("Backlight Timer Enabled but both LCD and OLED disabled!\n")
-
+		log.Println("Backlight Timer Enabled but both LCD and OLED disabled!\n")
+		FatalCleanUp()
 	}
 
 	if OLEDEnabled == true {
@@ -1700,7 +1701,8 @@ func modifyXMLTagServerHopping(inputXMLFile string, outputXMLFile string, nextse
 	xmlfileout, err := os.Create(outputXMLFile)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		FatalCleanUp()
 	}
 
 	defer xmlfilein.Close()
@@ -1726,7 +1728,8 @@ func modifyXMLTagServerHopping(inputXMLFile string, outputXMLFile string, nextse
 				if v.Name.Local != "talkkonnect/xml" {
 					err = decoder.DecodeElement(&document, &v)
 					if err != nil {
-						log.Fatal("error: Cannot Find XML Tag Document", err)
+						log.Println("error: Cannot Find XML Tag Document", err)
+						FatalCleanUp()
 					}
 				}
 				// XML Tag to Replace
@@ -1734,7 +1737,8 @@ func modifyXMLTagServerHopping(inputXMLFile string, outputXMLFile string, nextse
 
 				err = encoder.EncodeElement(document, v)
 				if err != nil {
-					log.Fatal(err)
+					log.Println(err)
+					FatalCleanUp()
 				}
 				continue
 			}
@@ -1742,12 +1746,14 @@ func modifyXMLTagServerHopping(inputXMLFile string, outputXMLFile string, nextse
 		}
 
 		if err := encoder.EncodeToken(xml.CopyToken(token)); err != nil {
-			log.Fatal(err)
+			log.Println(err)
+			FatalCleanUp()
 		}
 	}
 
 	if err := encoder.Flush(); err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		FatalCleanUp()
 	} else {
 		time.Sleep(2 * time.Second)
 		copyFile(inputXMLFile, inputXMLFile+".bak")

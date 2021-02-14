@@ -400,7 +400,8 @@ func (b *Talkkonnect) OpenStream() {
 			}
 
 		}
-		log.Fatal("Exiting talkkonnect! ...... bye!\n")
+		log.Println("warn: Exiting talkkonnect! ...... bye!\n")
+		FatalCleanUp()
 	} else {
 		b.Stream = stream
 	}

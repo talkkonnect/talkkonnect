@@ -122,7 +122,8 @@ func copyFile(source string, dest string) {
 func deleteFile(source string) {
 	err := os.Remove(source)
 	if err != nil {
-		log.Fatal("Alert: Cannot Remove Config File ", err)
+		log.Println("Alert: Cannot Remove Config File ", err)
+		FatalCleanUp()
 	}
 }
 
@@ -184,7 +185,7 @@ func playWavLocal(filepath string, playbackvolume int) error {
 	err := volume.SetVolume(playbackvolume, OutputDevice)
 
 	if err != nil {
-		return fmt.Errorf("error: set volume failed: %+v", err)
+		return fmt.Errorf("error: set volume failed: %+v", err.Error())
 	}
 	_, err = cmd.CombinedOutput()
 
@@ -194,7 +195,7 @@ func playWavLocal(filepath string, playbackvolume int) error {
 	err = volume.SetVolume(origVolume, OutputDevice)
 
 	if err != nil {
-		return fmt.Errorf("error: set volume failed: %+v", err)
+		return fmt.Errorf("error: set volume failed: %+v", err.Error())
 	}
 	return nil
 }
@@ -231,8 +232,8 @@ func fileserve3() {
 	time.Sleep(5 * time.Second)
 	log.Println("debug: Serving Audio Files", *directory, "over HTTP port:", *port)
 	log.Println("info: HTTP Server Waiting")
-	// log.Fatal(http.ListenAndServe(":" + *port, nil))
-	log.Fatal(http.ListenAndServe(":"+*port, mux))
+	log.Println(http.ListenAndServe(":"+*port, mux))
+	FatalCleanUp()
 }
 
 func fileserve4() {
@@ -246,8 +247,8 @@ func fileserve4() {
 	time.Sleep(5 * time.Second)
 	log.Println("debug: Serving Directory", *directory, "over HTTP port:", *port)
 	log.Println("info: HTTP Server Waiting")
-	// log.Fatal(http.ListenAndServe(":" + *port, nil))
-	log.Fatal(http.ListenAndServe(":"+*port, mux))
+	log.Println(http.ListenAndServe(":"+*port, mux))
+	FatalCleanUp()
 }
 
 func zipit(source, target string) error {
@@ -436,7 +437,8 @@ func isCommandAvailable(name string) bool {
 
 func check(err error) {
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		FatalCleanUp()
 	}
 }
 

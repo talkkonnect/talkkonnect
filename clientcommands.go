@@ -43,6 +43,13 @@ import (
 	"time"
 )
 
+func FatalCleanUp() {
+	c := exec.Command("reset")
+	c.Stdout = os.Stdout
+	c.Run()
+	os.Exit(0)
+}
+
 func (b *Talkkonnect) CleanUp() {
 	log.Println("warn: SIGHUP Termination of Program Requested...shutting down...bye!")
 
@@ -116,7 +123,8 @@ func (b *Talkkonnect) ReConnect() {
 				oledDisplay(false, 2, 1, "Failed to Connect!")
 			}
 		}
-		log.Fatal("Exiting talkkonnect! ...... bye!\n")
+		log.Println("warn: Exiting talkkonnect! ...... bye!\n")
+		FatalCleanUp()
 	}
 }
 

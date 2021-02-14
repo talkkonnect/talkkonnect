@@ -51,7 +51,8 @@ func autoProvision() error {
 		for _, a := range macaddress {
 			re, err := regexp.Compile(`(:)`)
 			if err != nil {
-				log.Fatal(err)
+				log.Println(err)
+				FatalCleanUp()
 			}
 			TkID = re.ReplaceAllString(a, "")
 		}
@@ -73,7 +74,7 @@ func autoProvision() error {
 	log.Println("info: Trying to Autoprovision with URL: ", fileURL)
 	err := downloadFile(SaveFilePath, SaveFilename, fileURL)
 	if err != nil {
-		return fmt.Errorf("error: DownloadFile Module Returned an Error: ",err)
+		return fmt.Errorf("error: DownloadFile Module Returned an Error: ",err.Error())
 	}
 
 	return nil
@@ -96,13 +97,13 @@ func downloadFile(SaveFilePath string, SaveFilename string, URL string) error {
 
 	out, err := os.Create(SaveFilePath + SaveFilename)
 	if err != nil {
-		return fmt.Errorf("error: Cannot Create File Error: ", err)
+		return fmt.Errorf("error: Cannot Create File Error: ", err.Error())
 	}
 	defer out.Close()
 
 	_, err = io.Copy(out, resp.Body)
 	if err != nil {
-		return fmt.Errorf("error: Cannot Copy File Error: ", err)
+		return fmt.Errorf("error: Cannot Copy File Error: ", err.Error())
 	}
 
 	return nil

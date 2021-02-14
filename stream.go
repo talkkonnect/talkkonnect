@@ -30,6 +30,7 @@
 package talkkonnect
 
 import (
+	"bytes"
 	"encoding/binary"
 	"errors"
 	"fmt"
@@ -38,6 +39,7 @@ import (
 	"github.com/talkkonnect/gumble/gumble"
 	"github.com/talkkonnect/gumble/gumbleffmpeg"
 	"log"
+	"os/exec"
 	"strconv"
 	"time"
 )
@@ -333,20 +335,31 @@ func (b *Talkkonnect) playIntoStream(filepath string, vol float32) {
 	return
 }
 
-func (b *Talkkonnect) RepeaterTone(filepath string, vol float32) {
-	if pstream != nil && pstream.State() == gumbleffmpeg.StatePlaying {
-		pstream.Stop()
-		return
+func (b *Talkkonnect) RepeaterTone() {
+
+	if RepeaterToneEnabled {
+
+		cmdArguments := []string{"-f", "lavfi", "-i", "sine=frequency=" + strconv.Itoa(RepeaterToneFrequencyHz) + ":duration=" + strconv.Itoa(RepeaterToneDurationSec), "-autoexit", "-nodisp"}
+
+		cmd := exec.Command("/usr/bin/ffplay", cmdArguments...)
+
+		var out bytes.Buffer
+
+		LEDOnFunc(VoiceActivityLED)
+		cmd.Stdout = &out
+		err := cmd.Run()
+		LEDOffFunc(VoiceActivityLED)
+
+		if err != nil {
+			log.Println("error: ffplay error ", err)
+		} else {
+			log.Println("info: Played Tone at Frequency " + strconv.Itoa(RepeaterToneFrequencyHz) + " Hz With Duration of " + strconv.Itoa(RepeaterToneDurationSec) + " Seconds For Opening Repeater")
+		}
+
+	} else {
+		log.Println(fmt.Sprintf("warn: Repeater Tone Disabled by Config"))
 	}
-	pstream = gumbleffmpeg.New(b.Client, gumbleffmpeg.SourceFile(filepath), vol)
-	if err := pstream.Play(); err != nil {
-		log.Println("error: Error Playing Repeater Tone ", err)
-		return
-	}
-	log.Println("info: Repeater Tone File " + filepath + " Playing!")
-	pstream.Wait()
-	pstream.Stop()
-	b.LEDOff(b.TransmitLED)
+
 	return
 }
 

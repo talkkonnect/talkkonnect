@@ -163,10 +163,6 @@ func (b *Talkkonnect) TransmitStart() {
 
 	b.IsTransmitting = true
 
-	if RepeaterToneEnabled {
-		b.RepeaterTone(RepeaterToneFilenameAndPath, RepeaterToneVolume)
-	}
-
 	if pstream.State() == gumbleffmpeg.StatePlaying {
 		pstream.Stop()
 	}

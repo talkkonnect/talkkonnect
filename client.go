@@ -509,8 +509,6 @@ keyPressListenerLoop:
 				b.cmdPanicSimulation()
 			case term.KeyCtrlG:
 				b.cmdPlayRepeaterTone()
-				time.Sleep(1 * time.Second)
-				b.cmdPlayRepeaterTone()
 			case term.KeyCtrlR:
 				b.cmdRepeatTxLoop()
 			case term.KeyCtrlS:

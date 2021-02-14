@@ -822,19 +822,9 @@ func (b *Talkkonnect) cmdDumpXMLConfig() {
 }
 
 func (b *Talkkonnect) cmdPlayRepeaterTone() {
-	log.Println("debug: Ctrl-Q Pressed")
-	log.Println("info: Play Repeater Tone File into Stream")
+	log.Println("debug: Ctrl-G Pressed")
+	log.Println("info: Play Repeater Tone on Speaker and Simulate RX Signal")
 
 	b.BackLightTimer()
-
-	if b.IsTransmitting {
-		log.Println("alert: talkkonnect was already transmitting will now stop transmitting and start to play the repeater tone")
-		b.TransmitStop(false)
-	}
-
-	go b.playIntoStream(RepeaterToneFilenameAndPath, RepeaterToneVolume)
-
-	IsPlayStream = !IsPlayStream
-//	NowStreaming = IsPlayStream
-
+	b.RepeaterTone()
 }

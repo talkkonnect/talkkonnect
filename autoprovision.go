@@ -51,8 +51,7 @@ func autoProvision() error {
 		for _, a := range macaddress {
 			re, err := regexp.Compile(`(:)`)
 			if err != nil {
-				log.Println(err)
-				FatalCleanUp()
+				FatalCleanUp(err.Error())
 			}
 			TkID = re.ReplaceAllString(a, "")
 		}

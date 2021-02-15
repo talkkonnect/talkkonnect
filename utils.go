@@ -122,8 +122,7 @@ func copyFile(source string, dest string) {
 func deleteFile(source string) {
 	err := os.Remove(source)
 	if err != nil {
-		log.Println("Alert: Cannot Remove Config File ", err)
-		FatalCleanUp()
+		FatalCleanUp("Cannot Remove Config File "+err.Error())
 	}
 }
 
@@ -233,7 +232,6 @@ func fileserve3() {
 	log.Println("debug: Serving Audio Files", *directory, "over HTTP port:", *port)
 	log.Println("info: HTTP Server Waiting")
 	log.Println(http.ListenAndServe(":"+*port, mux))
-	FatalCleanUp()
 }
 
 func fileserve4() {
@@ -248,7 +246,6 @@ func fileserve4() {
 	log.Println("debug: Serving Directory", *directory, "over HTTP port:", *port)
 	log.Println("info: HTTP Server Waiting")
 	log.Println(http.ListenAndServe(":"+*port, mux))
-	FatalCleanUp()
 }
 
 func zipit(source, target string) error {
@@ -437,8 +434,7 @@ func isCommandAvailable(name string) bool {
 
 func check(err error) {
 	if err != nil {
-		log.Println(err)
-		FatalCleanUp()
+		FatalCleanUp(err.Error())
 	}
 }
 

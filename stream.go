@@ -389,7 +389,6 @@ func (b *Talkkonnect) OpenStream() {
 
 	if stream, err := New(b.Client); err != nil {
 
-		log.Println("error: Stream open error ", err)
 		if TargetBoard == "rpi" {
 			if LCDEnabled == true {
 				LcdText = [4]string{"Stream Error!", "nil", "nil", "nil"}
@@ -400,8 +399,7 @@ func (b *Talkkonnect) OpenStream() {
 			}
 
 		}
-		log.Println("warn: Exiting talkkonnect! ...... bye!\n")
-		FatalCleanUp()
+		FatalCleanUp("Stream Open Error "+err.Error())
 	} else {
 		b.Stream = stream
 	}

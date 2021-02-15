@@ -122,20 +122,17 @@ type ChannelsListStruct struct {
 func Init(file string, ServerIndex string) {
 	err := term.Init()
 	if err != nil {
-		log.Println("error: Cannot Initalize Terminal Error: ", err)
-		log.Println("warn: Exiting talkkonnect! ...... bye!\n")
-		FatalCleanUp()
+		FatalCleanUp("Cannot Initalize Terminal Error: "+ err.Error())
 	}
 	defer term.Close()
 
-	term.Flush()
+	//term.Flush()
 
 	ConfigXMLFile = file
 	err = readxmlconfig(ConfigXMLFile)
 	if err != nil {
-		log.Printf("%v \n", err.Error())
-		log.Println("Exiting talkkonnect! ...... bye\n")
-		FatalCleanUp()
+		message := err.Error()
+		FatalCleanUp(message)
 	}
 
 	colog.Register()
@@ -178,10 +175,7 @@ func Init(file string, ServerIndex string) {
 		err := autoProvision()
 		time.Sleep(5 * time.Second)
 		if err != nil {
-			log.Println("error: Error from AutoProvisioning Module: ", err)
-			log.Println("alert: Please Fix Problem with Provisioning Configuration or use Static File By Disabling AutoProvisioning ")
-			log.Println("warn: Exiting talkkonnect! ...... bye\n")
-			FatalCleanUp()
+			FatalCleanUp("Error from AutoProvisioning Module "+err.Error())
 		} else {
 			log.Println("info: Loading XML Config")
 			ConfigXMLFile = file
@@ -218,9 +212,7 @@ func Init(file string, ServerIndex string) {
 		buf := make([]byte, 6)
 		_, err := rand.Read(buf)
 		if err != nil {
-			log.Println("error: Cannot Generate Random Name Error: ", err)
-			log.Println("warn: Exiting talkkonnect! ...... bye!\n")
-			FatalCleanUp()
+			FatalCleanUp("Cannot Generate Random Number Error "+err.Error())
 		}
 
 		buf[0] |= 2
@@ -237,9 +229,7 @@ func Init(file string, ServerIndex string) {
 	if Certificate[AccountIndex] != "" {
 		cert, err := tls.LoadX509KeyPair(Certificate[AccountIndex], Certificate[AccountIndex])
 		if err != nil {
-			log.Println("error: Certificate Error: ", err)
-			log.Println("warn: Exiting talkkonnect! ...... bye!\n")
-			FatalCleanUp()
+			FatalCleanUp("Certificate Error "+err.Error())
 		}
 		b.TLSConfig.Certificates = append(b.TLSConfig.Certificates, cert)
 	}
@@ -249,9 +239,7 @@ func Init(file string, ServerIndex string) {
 			http.HandleFunc("/", b.httpAPI)
 
 			if err := http.ListenAndServe(":"+APIListenPort, nil); err != nil {
-				log.Println("error: Problem With Starting HTTP API Server Error: ", err)
-				log.Println("warn: Please Fix Problem or Disable API in XML Config, Exiting talkkonnect! ...... bye!\n")
-				FatalCleanUp()
+				FatalCleanUp("Problem Starting HTTP API Server "+err.Error())
 			}
 		}()
 	}
@@ -272,9 +260,7 @@ func (b *Talkkonnect) ClientStart() {
 	f, err := os.OpenFile(LogFilenameAndPath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	log.Println("info: Trying to Open File ", LogFilenameAndPath)
 	if err != nil {
-		log.Println("error: Problem opening talkkonnect.log file Error: ", err)
-		log.Println("warn: Exiting talkkonnect! ...... Happy Talkkonnecting, Bye!\n")
-		FatalCleanUp()
+		FatalCleanUp("Problem Opening talkkonnect.log file "+err.Error())
 	}
 
 	if TargetBoard == "rpi" {
@@ -539,9 +525,7 @@ keyPressListenerLoop:
 				}
 			}
 		case term.EventError:
-			log.Println("error: Terminal Error: ", ev.Err)
-			log.Println("Exiting talkkonnect!\n")
-			FatalCleanUp()
+			FatalCleanUp("Terminal Error "+err.Error())
 		}
 
 	}

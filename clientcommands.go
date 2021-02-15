@@ -38,20 +38,19 @@ import (
 	"log"
 	"net"
 	"os"
-	"os/exec"
 	"strconv"
 	"time"
+	term "github.com/talkkonnect/termbox-go"
 )
 
-func FatalCleanUp() {
-	c := exec.Command("reset")
-	c.Stdout = os.Stdout
-	c.Run()
-	os.Exit(0)
+func FatalCleanUp(message string) {
+	term.Close()
+	fmt.Println(message)
+	fmt.Println("Talkkonnect Terminated Abnormally with the Error(s) As Described Above, Ignore any GPIO errors if you are not using Single Board Computer.")
+	os.Exit(1)
 }
 
 func (b *Talkkonnect) CleanUp() {
-	log.Println("warn: SIGHUP Termination of Program Requested...shutting down...bye!")
 
 	if TargetBoard == "rpi" {
 		t := time.Now()
@@ -70,9 +69,8 @@ func (b *Talkkonnect) CleanUp() {
 		b.LEDOffAll()
 	}
 
-	c := exec.Command("reset")
-	c.Stdout = os.Stdout
-	c.Run()
+	term.Close()
+	fmt.Println("SIGHUP Termination of Program Requested by User...shutting down talkkonnect")
 	os.Exit(0)
 }
 
@@ -113,7 +111,6 @@ func (b *Talkkonnect) ReConnect() {
 			b.Connect()
 		}
 	} else {
-		log.Println("alert: Unable to connect, giving up")
 		if TargetBoard == "rpi" {
 			if LCDEnabled == true {
 				LcdText = [4]string{"Failed to Connect!", "nil", "nil", "nil"}
@@ -123,8 +120,7 @@ func (b *Talkkonnect) ReConnect() {
 				oledDisplay(false, 2, 1, "Failed to Connect!")
 			}
 		}
-		log.Println("warn: Exiting talkkonnect! ...... bye!\n")
-		FatalCleanUp()
+		FatalCleanUp("Unable to Connect to mumble server, Giving Up!")
 	}
 }
 

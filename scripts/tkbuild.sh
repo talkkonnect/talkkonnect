@@ -36,7 +36,7 @@ adduser --disabled-password --disabled-login --gecos "" talkkonnect
 usermod -a -G cdrom,audio,video,plugdev,users,dialout,dip,input,gpio talkkonnect
 
 ## Install the dependencies required for talkkonnect
-apt-get install libopenal-dev libopus-dev libasound2-dev git ffmpeg omxplayer screen
+apt-get -y install libopenal-dev libopus-dev libasound2-dev git ffmpeg omxplayer screen
 
 ## Create the necessary directoy structure under /home/talkkonnect/
 cd /home/talkkonnect/

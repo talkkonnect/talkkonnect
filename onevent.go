@@ -253,7 +253,7 @@ func (b *Talkkonnect) OnPermissionDenied(e *gumble.PermissionDeniedEvent) {
 
 		// Set Lower Boundary
 		if prevButtonPress == "ChannelDown" && currentChannelID == 0 {
-			log.Println("error: Can't Increment Channel Minumum Channel Reached")
+			log.Println("error: Can't Increment Channel Minimum Channel Reached")
 		}
 
 		// Implement Seek Up Until Permissions are Sufficient for User to Join Channel whilst avoiding all null channels

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="talkkonnect/xml" type="talkkonnect/xml" type="talkkonnect/xml" type="talkkonnect/xml" type="talkkonnect/xml">
+<document type="talkkonnect/xml">
 	<accounts>
 		<account name="talkkonnect-community" default="true">
 			<serverandport>mumble.talkkonnect.com:64738</serverandport>
@@ -14,7 +14,7 @@
 	<global>
 		<software>
 			<settings>
-				<outputdevice>Speaker</outputdevice>
+				<outputdevice>PCM</outputdevice>
 				<logfilenameandpath>/var/log/talkkonnect.log</logfilenameandpath>
 				<logging>screen</logging>
 				<loglevel>debug</loglevel>
@@ -147,7 +147,7 @@
 			</api>
 			<printvariables>
 				<printaccount>false</printaccount>
-				<printlogging>false</printlogging>
+				<printlogging>true</printlogging>
 				<printprovisioning>false</printprovisioning>
 				<printbeacon>false</printbeacon>
 				<printtts>false</printtts>
@@ -181,7 +181,7 @@
 				<store></store>
 			</mqtt>
 		</software>
-		<hardware targetboard="rpi">
+		<hardware targetboard="pc">
 			<lights>
 				<voiceactivityledpin>2</voiceactivityledpin>
 				<participantsledpin>3</participantsledpin>

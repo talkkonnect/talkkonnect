@@ -122,7 +122,7 @@ type ChannelsListStruct struct {
 func Init(file string, ServerIndex string) {
 	err := term.Init()
 	if err != nil {
-		FatalCleanUp("Cannot Initalize Terminal Error: "+ err.Error())
+		FatalCleanUp("Cannot Initialize Terminal Error: "+ err.Error())
 	}
 	defer term.Close()
 
@@ -205,7 +205,7 @@ func Init(file string, ServerIndex string) {
 		log.Printf("info: Subscribed topic : %s\n", MQTTTopic)
 		go b.mqttsubscribe()
 	} else {
-		log.Printf("info: MQTT Server Subscription Diabled in Config")
+		log.Printf("info: MQTT Server Subscription Disabled in Config")
 	}
 
 	if len(b.Username) == 0 {

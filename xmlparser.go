@@ -50,8 +50,8 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.58.03"
-	talkkonnectReleased string = "February 15 2021"
+	talkkonnectVersion  string = "1.58.04"
+	talkkonnectReleased string = "February 26 2021"
 )
 
 var (
@@ -1215,7 +1215,7 @@ func readxmlconfig(file string) error {
 
 	TargetBoard = document.Global.Hardware.TargetBoard
 
-	// my stupid work arround for null uint xml unmarshelling problem with numbers so use strings and convert it 2 times
+	// my stupid work around for null uint xml unmarshelling problem with numbers so use strings and convert it 2 times
 	temp0, _ := strconv.ParseUint(document.Global.Hardware.Lights.VoiceActivityLedPin, 10, 64)
 	VoiceActivityLEDPin = uint(temp0)
 	temp1, _ := strconv.ParseUint(document.Global.Hardware.Lights.VoiceActivityLedPin, 10, 64)
@@ -1236,7 +1236,7 @@ func readxmlconfig(file string) error {
 	LEDOnmSecs = document.Global.Hardware.HeartBeat.LEDOnmsecs
 	LEDOffmSecs = document.Global.Hardware.HeartBeat.LEDOffmsecs
 
-	// my stupid work arround for null uint xml unmarshelling problem with numbers so use strings and convert it 2 times
+	// my stupid work around for null uint xml unmarshelling problem with numbers so use strings and convert it 2 times
 	temp6, _ := strconv.ParseUint(document.Global.Hardware.Buttons.TxButtonPin, 10, 64)
 	TxButtonPin = uint(temp6)
 	temp7, _ := strconv.ParseUint(document.Global.Hardware.Buttons.TxTogglePin, 10, 64)
@@ -1260,7 +1260,7 @@ func readxmlconfig(file string) error {
 	LCDBackLightTimerEnabled = document.Global.Hardware.LCD.Enabled
 	LCDBackLightTimeoutSecs = time.Duration(document.Global.Hardware.LCD.BackLightTimeoutSecs)
 
-	// my stupid work arround for null uint xml unmarshelling problem with numbers so use strings and convert it 2 times
+	// my stupid work around for null uint xml unmarshelling problem with numbers so use strings and convert it 2 times
 	temp13, _ := strconv.ParseUint(document.Global.Hardware.LCD.BackLightLEDPin, 10, 64)
 	LCDBackLightLEDPin = int(temp13)
 
@@ -1480,9 +1480,9 @@ func printxmlconfig() {
 		log.Println("info: Alert Sound Enabled        " + fmt.Sprintf("%t", AlertSoundEnabled))
 		log.Println("info: Alert Sound Filename       " + AlertSoundFilenameAndPath)
 		log.Println("info: Alert Sound Volume         " + fmt.Sprintf("%v", AlertSoundVolume))
-		log.Println("info: Incomming Beep Enabled     " + fmt.Sprintf("%t", IncommingBeepSoundEnabled))
-		log.Println("info: Incomming Beep File        " + IncommingBeepSoundFilenameAndPath)
-		log.Println("info: Incomming Beep Volume      " + fmt.Sprintf("%v", IncommingBeepSoundVolume))
+		log.Println("info: Incoming Beep Enabled     " + fmt.Sprintf("%t", IncommingBeepSoundEnabled))
+		log.Println("info: Incoming Beep File        " + IncommingBeepSoundFilenameAndPath)
+		log.Println("info: Incoming Beep Volume      " + fmt.Sprintf("%v", IncommingBeepSoundVolume))
 		log.Println("info: Roger Beep Enabled         " + fmt.Sprintf("%t", RogerBeepSoundEnabled))
 		log.Println("info: Roger Beep File            " + RogerBeepSoundFilenameAndPath)
 		log.Println("info: Roger Beep Volume          " + fmt.Sprintf("%v", RogerBeepSoundVolume))

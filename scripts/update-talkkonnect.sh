@@ -63,7 +63,7 @@ rm -rf  /home/talkkonnect/gocode/src/github.com
 rm -rf  /home/talkkonnect/bin
 
 
-## Create the necessary directoy structure under /home/talkkonnect/
+## Create the necessary directory structure under /home/talkkonnect/
 mkdir -p /home/talkkonnect/gocode
 mkdir -p /home/talkkonnect/bin
 

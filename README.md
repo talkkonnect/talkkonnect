@@ -22,11 +22,11 @@ those amazing people who taught me so much. Living in an apartment in the age of
 [talKKonnect](http://www.talkkonnect.com) was originally created to have the form factor and functionality of a desktop transceiver. With community feedback we started to push the envelope to make it more versatile and scalable. 
 
 #### Some of the interesting features are #### 
-* Communications bridge to interface external (otherwise not compatable) radio systems both over the air and over IP networks.
+* Communications bridge to interface external (otherwise not compatible) radio systems both over the air and over IP networks.
 * Interface to portable or base radios (Beefing portable radios or UART radio boards). 
 * Connecting to low cost USB GPS dongles (for instance “u-blox”) for GPS tracking. 
 * Mass scale customization with centralized Configuration using auto-provisioning of a XML config file.
-* LCD/OLED Screen showing relevent real time information such as *server info, current channel, who is currently talking, etc.*
+* LCD/OLED Screen showing relevant real time information such as *server info, current channel, who is currently talking, etc.*
 * Local/ssh control via a USB keyboard/terminal and remote control is done over http api.
 * Panic button, when pressed, talKKonnect will send an alert message with GPS coordinates, followed by an email indication current location in google maps. 
 * Future Plans of Connecting to an [arduino](https://www.arduino.cc/en/Guide/ArduinoDue) daughter board via USB for I/O control when running in the datacenter as a radio gateway 
@@ -50,13 +50,13 @@ A good shileded cable for microphone is recommended to keep the noise picked up 
 * Connected to a server and is currently online
 * There are other participants logged into the same channel
 * Currently in transmitting mode 
-* Currently receving an audio stream (someone is talking on the channel)
+* Currently receiving an audio stream (someone is talking on the channel)
 * Heart Beat to indicate that talKKonnect is running
 
 
 ### Software Features ###
 
-* *Colorized LOGs* are shown on the debugging terminal for events as they happen in real time. Loging with line number, logging to file or screen or both. 
+* *Colorized LOGs* are shown on the debugging terminal for events as they happen in real time. Logging with line number, logging to file or screen or both. 
 * Playing of configurable *alert sounds* as different events happen.
 * Configurable *TTS prompts* to announce different events for those use special use cases where it is required. 
 * *Roger Beep* playing can be enabled on release of the PTT button to indicate end of transmission. 
@@ -91,7 +91,7 @@ Log in as user “pi” with password “raspberry” (this is the default usern
 
 Log out of the account pi and log into the root account with your newly set password 
 
-Run raspi-config and expand the file system by chosing “Advanced Options”->”Expand File System”. Reboot.
+Run raspi-config and expand the file system by choosing “Advanced Options”->”Expand File System”. Reboot.
 
 Next go to “Interfacing Options” in raspi-config and “Enable SSH Server”.
 ##### Edit the file with your favourite editor. #####
@@ -130,7 +130,7 @@ Now you should be able to log in remotely via ssh using the root account and con
 
 ##### Install prerequisite programs ##### 
 
-To get the newer versions of golang used for this project I suggest installing a precompiled binary of golang. If you use apt-get to install golang at this moment you will get an older incompatable version of golang.
+To get the newer versions of golang used for this project I suggest installing a precompiled binary of golang. If you use apt-get to install golang at this moment you will get an older incompatible version of golang.
 
 To install GO as required for this project on the raspberry pi. First with your browser look on the website https://golang.org/dl/ on your browser and choose the latest version for the 
 arm archecture. At the time of this writing the version is go1.15.6.linux-armv6l.tar.gz.
@@ -260,7 +260,7 @@ sleep 2
 
 ##### USB Sound Cards #####
 
-For your audio input and output to work with talKKonnect, you needs to configure your sound settings. Configire and test your Linux sound system before building talKKonnect. talKKonnect works well with ALSA. There is no need to run it with PulseAudio. Any USB Sound cards supported in Linux, can be used with talKKonnect. Raspberry Pi’s have audio output with BCM2835 chip, but unfortunately no audio input, by the design. This is why we need a USB sound card. Many other types of single board computers come with both audio output and input (Orange Pi). USB Sound cards with CM sound chips like CM108, CM109, CM119, CM6206 chips are affordable and very common.
+For your audio input and output to work with talKKonnect, you needs to configure your sound settings. Configure and test your Linux sound system before building talKKonnect. talKKonnect works well with ALSA. There is no need to run it with PulseAudio. Any USB Sound cards supported in Linux, can be used with talKKonnect. Raspberry Pi’s have audio output with BCM2835 chip, but unfortunately no audio input, by the design. This is why we need a USB sound card. Many other types of single board computers come with both audio output and input (Orange Pi). USB Sound cards with CM sound chips like CM108, CM109, CM119, CM6206 chips are affordable and very common.
 
 When connected to a Raspberry Pi, USB sound card can be identified with “lsusb” command. Typical response is something like this:
 
@@ -351,7 +351,7 @@ Adjust your preferable microphone sensitivity and output gain through “alsamix
 For a speaker muting to work when pressing a PTT, you need to enter the exact name of your audio device output in talKKonnect.xml file. This name may be different for different audio devices (e.g. Speaker, Master, Headphone, etc). Check audio output name with “aplay”, “alsamixer” or “amixer” and use that exact device name in the configuration.xml .
 
 
-#### talKKonnect can be controled from terminal screen with function keys. ####
+#### talKKonnect can be controlled from terminal screen with function keys. ####
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
@@ -386,7 +386,7 @@ For a speaker muting to work when pressing a PTT, you need to enter the exact na
 ````
 
 
-### Explaination of talkkonnect.xml configuration files sections and tags 
+### Explanation of talkkonnect.xml configuration files sections and tags 
 
 
 #### The Accounts Section
@@ -464,7 +464,7 @@ Ctrl-M Ping Servers, Ctrl-N Connect Next Server, Ctrl-P Panic Simulation, Ctrl-S
 
 #### Hardware Section
 * The tag targetboard has 2 option (1) pc and (2)rpi. pc mode is used when talkkonnect is running on a pc or server that does not have GPIOs and is not interfaced to buttons and a LCD screen. 
-* To run on raspberry pi or other compatable single board computers set the targetboard to rpi this will enable the GPIO outputs/inputs.
+* To run on raspberry pi or other compatible single board computers set the targetboard to rpi this will enable the GPIO outputs/inputs.
 
 ##### The Lights Section (OUTPUT)
 * This section is used to define how the raspberry pi hardware (GPIO) is connected to the LED indicators 
@@ -482,8 +482,8 @@ Ctrl-M Ping Servers, Ctrl-N Connect Next Server, Ctrl-P Panic Simulation, Ctrl-S
 * This section defines the raspberry GPIO pins that are connected to push buttons that are pulled to ground by keypress and float upon release
 * The txbuttonpin tag is connected to the PTT push button 
 * The txtogglepin tag is connected to the PTT toggle button (Press and Release to Change State from RX to TX and vice versa) 
-* The upbuttonpin tag is conencted to the channel up button
-* The downbuttonpin tag is conencted to the channel down button 
+* The upbuttonpin tag is connected to the channel up button
+* The downbuttonpin tag is connected to the channel down button 
 * The panic button tag is connected to a button that will set the talkkonnect into panic mode (request for help)
 
 ##### The Comment Section
@@ -496,7 +496,7 @@ Ctrl-M Ping Servers, Ctrl-N Connect Next Server, Ctrl-P Panic Simulation, Ctrl-S
 * To disable this screen option you can set enabled = "false"
 * Parallel and i2c interfacing to the HD44780 LCD Module are both supported and can be configured in this section 
 * Valid interfacetype tag are either parallel or i2c 
-* The i2c address can be optained from running the i2cdetect -y 1 command. Convert the address displayed in HEX to Decimal and fill into the lcdi2caddress tag 
+* The i2c address can be obtained from running the i2cdetect -y 1 command. Convert the address displayed in HEX to Decimal and fill into the lcdi2caddress tag 
 * The backlight function and time is also available to turn off the LCD's backlight in case of inactivity on the channel for the defined timeout period in seconds 
 * The rs, e, d4, d5, d6, d7 pins are the GPIO pins that connect to the HD44780 display in parallel mode 
 * NOTE! You cannot use the pins 2,3 on raspberry pi for anything else other than I2C mode if you want to connect an I2C display
@@ -505,7 +505,7 @@ Ctrl-M Ping Servers, Ctrl-N Connect Next Server, Ctrl-P Panic Simulation, Ctrl-S
 * At this moment talkkonnect also supports the easily available 0.96 and 1.3 Inch I2C OLED Screen. 
 * To disable this screen option you can set enabled = "false"
 * i2c interfacing is the only option that should be specified now spi has not been developed
-* The i2c address can be optained from running the i2cdetect -y 1 command. Convert the address displayed in HEX to Decimal and fill into the lcdi2caddress tag and mostly the i2c bus is 1. 
+* The i2c address can be obtained from running the i2cdetect -y 1 command. Convert the address displayed in HEX to Decimal and fill into the lcdi2caddress tag and mostly the i2c bus is 1. 
 * There is no backlight function for oled screens yet 
 * Your will have to specify the rows and columns your screen supports (for my screen i used 8 rows and 21 columns)
 * The OLED display is display width and height for my screen was 130 by 64

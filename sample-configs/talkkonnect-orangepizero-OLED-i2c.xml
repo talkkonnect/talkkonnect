@@ -31,7 +31,7 @@
       <serverandport>mumble.talkkonnect.com:64738</serverandport> <!-- server:port of mumble server to connect to -->
       <username></username> <!-- Mumble Username that will be used to authenticate on the mumble server -->
       <password>talkkonnect</password> <!-- Mumble Password that will be used along with the username to authenticate on the mumble server -->
-      <insecure>true</insecure>   <!-- Set to true of your server doesnt require a certificate-->
+      <insecure>true</insecure>   <!-- Set to true of your server does not require a certificate-->
       <certificate></certificate> <!-- Full Path to Certificate if Certificate is needed by Server -->
       <channel></channel>   <!-- Initial Channel on The Server to Move to after successful connection -->
       <ident>Name Surname</ident>             <!-- The identity to be sent in a panic situation -->
@@ -54,7 +54,7 @@
 
       <!-- http autoprovisioning server and client details -->
       <autoprovisioning enabled="false">       <!-- enable autoprovisioning on talkkonnect startup -->
-        <tkid>00000001</tkid>                  <!-- unique identifier for xml filename to fetch upon autoprovisioning from provisioing server -->
+        <tkid>00000001</tkid>                  <!-- unique identifier for xml filename to fetch upon autoprovisioning from provisioning server -->
         <url>http://provision.example.com</url> <!-- URL of server storing XML configuration file -->
         <savefilepath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect</savefilepath> <!-- full path of config xml file in local host -->
         <savefilename>talkkonnect.xml</savefilename> <!-- filename of config xml in local host -->
@@ -193,7 +193,7 @@
         <printxmlconfig>true</printxmlconfig>
       </api>
 
-      <!-- Printout Read Varaibles from XML Config For Debugging When Pressing Ctrl-X (Very useful for XML debugging) -->
+      <!-- Printout Read Variables from XML Config For Debugging When Pressing Ctrl-X (Very useful for XML debugging) -->
       <printvariables>
         <printaccount>false</printaccount>
         <printlogging>false</printlogging>

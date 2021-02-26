@@ -38,7 +38,7 @@ usermod -a -G cdrom,audio,video,plugdev,users,dialout,dip,input,gpio talkkonnect
 ## Install the dependencies required for talkkonnect
 apt-get -y install libopenal-dev libopus-dev libasound2-dev git ffmpeg omxplayer screen
 
-## Create the necessary directoy structure under /home/talkkonnect/
+## Create the necessary directory structure under /home/talkkonnect/
 cd /home/talkkonnect/
 mkdir -p /home/talkkonnect/gocode
 mkdir -p /home/talkkonnect/bin

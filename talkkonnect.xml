@@ -8,15 +8,15 @@
 			<insecure>true</insecure>
 			<certificate></certificate>
 			<channel></channel>
-			<ident>Name Surname</ident>
+			<ident>Suvir Kumar</ident>
 		</account>
 	</accounts>
 	<global>
 		<software>
 			<settings>
-				<outputdevice>PCM</outputdevice>
+				<outputdevice>Speaker</outputdevice>
 				<logfilenameandpath>/var/log/talkkonnect.log</logfilenameandpath>
-				<logging>screen</logging>
+				<logging>screenwithlineno</logging>
 				<loglevel>debug</loglevel>
 				<daemonize>false</daemonize>
 				<cancellablestream>true</cancellablestream>
@@ -25,8 +25,8 @@
 				<nextserverindex>0</nextserverindex>
 			</settings>
 			<autoprovisioning enabled="false">
-				<tkid>00000001</tkid>
-				<url>http://provision.example.com</url>
+				<tkid></tkid>
+				<url>http://pbx.dits.co.th</url>
 				<savefilepath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect</savefilepath>
 				<savefilename>talkkonnect.xml</savefilename>
 			</autoprovisioning>
@@ -93,7 +93,9 @@
 			</smtp>
 			<sounds>
 				<event enabled="true">
-					<filenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/events/event.wav</filenameandpath>
+					<joinedfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/events/joined.wav</joinedfilenameandpath>
+					<leftfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/events/left.wav</leftfilenameandpath>
+					<messagefilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/events/message.wav</messagefilenameandpath>
 				</event>
 				<alert enabled="true">
 					<filenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/alerts/alert.wav</filenameandpath>
@@ -107,13 +109,13 @@
 					<filenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/rogerbeeps/Image.wav</filenameandpath>
 					<volume>0.1</volume>
 				</rogerbeep>
-				<repeatertone enabled="false">
-                                        <tonefrequencyhz>1500</tonefrequencyhz>
-                                        <tonedurationsec>3</tonedurationsec>
-                                </repeatertone>
+				<repeatertone enabled="true">
+		                	<tonefrequencyhz>1750</tonefrequencyhz>
+                			<tonedurationsec>1</tonedurationsec>
+				</repeatertone>
 				<chimes enabled="true">
-					<filenameandpath>http://212.83.172.11:8504/stream</filenameandpath>
-					<volume>1</volume>
+					<filenameandpath>http://prdonline.prd.go.th:8200</filenameandpath>
+					<volume>0.5</volume>
 				</chimes>
 			</sounds>
 			<txtimeout enabled="false">
@@ -147,7 +149,7 @@
 			</api>
 			<printvariables>
 				<printaccount>false</printaccount>
-				<printlogging>true</printlogging>
+				<printlogging>false</printlogging>
 				<printprovisioning>false</printprovisioning>
 				<printbeacon>false</printbeacon>
 				<printtts>false</printtts>
@@ -167,12 +169,12 @@
 				<printaudiorecord>false</printaudiorecord>
 				<printmqtt>false</printmqtt>
 			</printvariables>
-			<mqtt enabled="false">
+			<mqtt enabled="true">
 				<mqtttopic>thailand/bangkok/company/talkkonnect</mqtttopic>
-				<mqttbroker>tcp://test.mosquitto.org:1883</mqttbroker>
-				<mqttpassword></mqttpassword>
-				<mqttuser></mqttuser>
-				<mqttid>talkkonnect002</mqttid>
+				<mqttbroker>tcp://mqtt.test.com:1883</mqttbroker>
+				<mqttpassword>test</mqttpassword>
+				<mqttuser>test</mqttuser>
+				<mqttid>talkkonnect</mqttid>
 				<cleansess>false</cleansess>
 				<qos>0</qos>
 				<num>1</num>
@@ -181,15 +183,15 @@
 				<store></store>
 			</mqtt>
 		</software>
-		<hardware targetboard="pc">
+		<hardware targetboard="rpi">
 			<lights>
 				<voiceactivityledpin>2</voiceactivityledpin>
 				<participantsledpin>3</participantsledpin>
 				<transmitledpin>4</transmitledpin>
 				<onlineledpin>5</onlineledpin>
-				<attentionledpin>2</attentionledpin>
+				<attentionledpin></attentionledpin>
 			</lights>
-			<heartbeat enabled="true">
+			<heartbeat enabled="false">
 				<heartbeatledpin>2</heartbeatledpin>
 				<periodmsecs>2000</periodmsecs>
 				<ledonmsecs>1000</ledonmsecs>

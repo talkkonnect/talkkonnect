@@ -248,11 +248,17 @@ func (b *Talkkonnect) ParticipantLEDUpdate(verbose bool) {
 
 	var participantCount = len(b.Client.Self.Channel.Users)
 
-	if participantCount != prevParticipantCount {
-		if EventSoundEnabled {
-			err := playWavLocal(EventSoundFilenameAndPath, 100)
+	if EventSoundEnabled {
+		if participantCount > prevParticipantCount {
+			err := playWavLocal(EventJoinedSoundFilenameAndPath, 100)
 			if err != nil {
-				log.Println("error: playWavLocal(EventSoundFilenameAndPath) Returned Error: ", err)
+				log.Println("error: playWavLocal(EventJoinedSoundFilenameAndPath) Returned Error: ", err)
+			}
+		}
+		if participantCount < prevParticipantCount {
+			err := playWavLocal(EventLeftSoundFilenameAndPath, 100)
+			if err != nil {
+				log.Println("error: playWavLocal(EventLeftSoundFilenameAndPath) Returned Error: ", err)
 			}
 		}
 	}

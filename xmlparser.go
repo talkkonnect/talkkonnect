@@ -50,8 +50,8 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.58.04"
-	talkkonnectReleased string = "February 26 2021"
+	talkkonnectVersion  string = "1.59.01"
+	talkkonnectReleased string = "February 27 2021"
 )
 
 var (
@@ -182,7 +182,9 @@ var (
 //sound settings
 var (
 	EventSoundEnabled                 bool
-	EventSoundFilenameAndPath         string
+	EventJoinedSoundFilenameAndPath   string
+	EventLeftSoundFilenameAndPath     string
+	EventMessageSoundFilenameAndPath  string
 	AlertSoundEnabled                 bool
 	AlertSoundFilenameAndPath         string
 	AlertSoundVolume                  float32 = 1
@@ -516,7 +518,9 @@ type Document struct {
 			Sounds struct {
 				Event struct {
 					Enabled         bool   `xml:"enabled,attr"`
-					FilenameAndPath string `xml:"filenameandpath"`
+					JoinedFilenameAndPath string `xml:"joinedfilenameandpath"`
+					LeftFilenameAndPath   string `xml:"leftfilenameandpath"`
+					MessageFilenameAndPath   string `xml:"messagefilenameandpath"`
 				} `xml:"event"`
 				Alert struct {
 					Enabled         bool    `xml:"enabled,attr"`
@@ -1089,12 +1093,26 @@ func readxmlconfig(file string) error {
 	EmailGoogleMapsURL = document.Global.Software.SMTP.GoogleMapsURL
 
 	EventSoundEnabled = document.Global.Software.Sounds.Event.Enabled
-	EventSoundFilenameAndPath = document.Global.Software.Sounds.Event.FilenameAndPath
+	EventJoinedSoundFilenameAndPath = document.Global.Software.Sounds.Event.JoinedFilenameAndPath
+	EventLeftSoundFilenameAndPath = document.Global.Software.Sounds.Event.LeftFilenameAndPath
+	EventMessageSoundFilenameAndPath = document.Global.Software.Sounds.Event.MessageFilenameAndPath
 
-	if EventSoundEnabled && EventSoundFilenameAndPath == "" {
+	if EventSoundEnabled && EventJoinedSoundFilenameAndPath == "" {
 		path := defaultSharePath + "/soundfiles/events/event.wav"
 		if _, err := os.Stat(path); err == nil {
-			EventSoundFilenameAndPath = path
+			EventJoinedSoundFilenameAndPath = path
+		}
+	}
+	if EventSoundEnabled && EventLeftSoundFilenameAndPath == "" {
+		path := defaultSharePath + "/soundfiles/events/event.wav"
+		if _, err := os.Stat(path); err == nil {
+			EventLeftSoundFilenameAndPath = path
+		}
+	}
+	if EventSoundEnabled && EventMessageSoundFilenameAndPath == "" {
+		path := defaultSharePath + "/soundfiles/events/event.wav"
+		if _, err := os.Stat(path); err == nil {
+			EventMessageSoundFilenameAndPath = path
 		}
 	}
 	AlertSoundEnabled = document.Global.Software.Sounds.Alert.Enabled
@@ -1475,14 +1493,16 @@ func printxmlconfig() {
 
 	if PrintSounds {
 		log.Println("info: ------------- Sounds  ------------------ ")
-		log.Println("info: Event Sound Enabled        " + fmt.Sprintf("%t", EventSoundEnabled))
-		log.Println("info: Event Sound Filename       " + EventSoundFilenameAndPath)
-		log.Println("info: Alert Sound Enabled        " + fmt.Sprintf("%t", AlertSoundEnabled))
-		log.Println("info: Alert Sound Filename       " + AlertSoundFilenameAndPath)
-		log.Println("info: Alert Sound Volume         " + fmt.Sprintf("%v", AlertSoundVolume))
-		log.Println("info: Incoming Beep Enabled     " + fmt.Sprintf("%t", IncommingBeepSoundEnabled))
-		log.Println("info: Incoming Beep File        " + IncommingBeepSoundFilenameAndPath)
-		log.Println("info: Incoming Beep Volume      " + fmt.Sprintf("%v", IncommingBeepSoundVolume))
+		log.Println("info: Event Sound Enabled         " + fmt.Sprintf("%t", EventSoundEnabled))
+		log.Println("info: Event Joined Sound Filename " + EventJoinedSoundFilenameAndPath)
+		log.Println("info: Event Left Sound Filename   " + EventJoinedSoundFilenameAndPath)
+		log.Println("info: Event Msg Sound Filename    " + EventMessageSoundFilenameAndPath)
+		log.Println("info: Alert Sound Enabled         " + fmt.Sprintf("%t", AlertSoundEnabled))
+		log.Println("info: Alert Sound Filename        " + AlertSoundFilenameAndPath)
+		log.Println("info: Alert Sound Volume          " + fmt.Sprintf("%v", AlertSoundVolume))
+		log.Println("info: Incoming Beep Enabled       " + fmt.Sprintf("%t", IncommingBeepSoundEnabled))
+		log.Println("info: Incoming Beep File          " + IncommingBeepSoundFilenameAndPath)
+		log.Println("info: Incoming Beep Volume        " + fmt.Sprintf("%v", IncommingBeepSoundVolume))
 		log.Println("info: Roger Beep Enabled         " + fmt.Sprintf("%t", RogerBeepSoundEnabled))
 		log.Println("info: Roger Beep File            " + RogerBeepSoundFilenameAndPath)
 		log.Println("info: Roger Beep Volume          " + fmt.Sprintf("%v", RogerBeepSoundVolume))

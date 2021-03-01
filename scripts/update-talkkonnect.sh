@@ -70,6 +70,7 @@ mkdir -p /home/talkkonnect/bin
 ## Set up GOENVIRONMENT
 export GOPATH=/home/talkkonnect/gocode
 export GOBIN=/home/talkkonnect/bin
+export GO111MODULE="auto"
 
 ## Get the latest source code of talkkonnect from githu.com
 go get -v github.com/talkkonnect/talkkonnect

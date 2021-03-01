@@ -154,6 +154,8 @@ As root user Get the link and use wget to download the binary to your talkkonnec
 
 ` export GOBIN=/home/talkkonnect/bin `
 
+` export GO111MODULE="auto" `
+
 ` alias tk='cd /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/' `
 
 Then log out and log in as root again and check if go in installed properly

@@ -53,6 +53,7 @@ tar -zxvf go1.15.linux-armv6l.tar.gz
 echo export PATH=$PATH:/usr/local/go/bin >>  ~/.bashrc
 echo export GOPATH=/home/talkkonnect/gocode >>  ~/.bashrc
 echo export GOBIN=/home/talkkonnect/bin >>  ~/.bashrc
+echo export  export GO111MODULE="auto" >>  ~/.bashrc
 echo alias tk='cd /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/' >>  ~/.bashrc
 
 
@@ -60,6 +61,7 @@ echo alias tk='cd /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnec
 export PATH=$PATH:/usr/local/go/bin
 export GOPATH=/home/talkkonnect/gocode
 export GOBIN=/home/talkkonnect/bin
+export GO111MODULE="auto"
 
 ## Get the latest source code of talkkonnect from githu.com
 go get -v github.com/talkkonnect/talkkonnect

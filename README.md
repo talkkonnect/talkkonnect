@@ -64,6 +64,8 @@ A good shileded cable for microphone is recommended to keep the noise picked up 
 * LCD/OLED display can show *channel information, server information, who joined, who is speaking, etc.* 
 * Configuration is kept in a single *highly granular XML file*, where options can be enabled or disabled.
 
+### Quick Download Link for Image for Use with Pi 3/4 and USB Sound Card (For the impatient) ###
+* [talkkonnect img file](https://drive.google.com/file/d/1hbMFtKvlEYX-akqf976aVjHP4TcYFXgL/view?usp=sharing)
 
 ### Installation Instructions For Raspberry Pi 3/4 ###
 

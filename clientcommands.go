@@ -46,7 +46,8 @@ import (
 func FatalCleanUp(message string) {
 	term.Close()
 	fmt.Println(message)
-	fmt.Println("Talkkonnect Terminated Abnormally with the Error(s) As Described Above, Ignore any GPIO errors if you are not using Single Board Computer.")
+	time.Sleep(5 * time.Second)
+	fmt.Println("Talkkonnect Terminated Abnormally with the Error(s) As Described Perviously, Ignore any GPIO errors if you are not using Single Board Computer.")
 	os.Exit(1)
 }
 

@@ -122,7 +122,7 @@ type ChannelsListStruct struct {
 func Init(file string, ServerIndex string) {
 	err := term.Init()
 	if err != nil {
-		FatalCleanUp("Cannot Initialize Terminal Error: "+ err.Error())
+		FatalCleanUp("Cannot Initialize Terminal Error: " + err.Error())
 	}
 	defer term.Close()
 
@@ -168,14 +168,12 @@ func Init(file string, ServerIndex string) {
 		FatalCleanUp(message)
 	}
 
-
-
 	if APEnabled {
 		log.Println("info: Contacting http Provisioning Server Pls Wait")
 		err := autoProvision()
 		time.Sleep(5 * time.Second)
 		if err != nil {
-			FatalCleanUp("Error from AutoProvisioning Module "+err.Error())
+			FatalCleanUp("Error from AutoProvisioning Module " + err.Error())
 		} else {
 			log.Println("info: Loading XML Config")
 			ConfigXMLFile = file
@@ -212,7 +210,7 @@ func Init(file string, ServerIndex string) {
 		buf := make([]byte, 6)
 		_, err := rand.Read(buf)
 		if err != nil {
-			FatalCleanUp("Cannot Generate Random Number Error "+err.Error())
+			FatalCleanUp("Cannot Generate Random Number Error " + err.Error())
 		}
 
 		buf[0] |= 2
@@ -229,7 +227,7 @@ func Init(file string, ServerIndex string) {
 	if Certificate[AccountIndex] != "" {
 		cert, err := tls.LoadX509KeyPair(Certificate[AccountIndex], Certificate[AccountIndex])
 		if err != nil {
-			FatalCleanUp("Certificate Error "+err.Error())
+			FatalCleanUp("Certificate Error " + err.Error())
 		}
 		b.TLSConfig.Certificates = append(b.TLSConfig.Certificates, cert)
 	}
@@ -239,7 +237,7 @@ func Init(file string, ServerIndex string) {
 			http.HandleFunc("/", b.httpAPI)
 
 			if err := http.ListenAndServe(":"+APIListenPort, nil); err != nil {
-				FatalCleanUp("Problem Starting HTTP API Server "+err.Error())
+				FatalCleanUp("Problem Starting HTTP API Server " + err.Error())
 			}
 		}()
 	}
@@ -260,7 +258,7 @@ func (b *Talkkonnect) ClientStart() {
 	f, err := os.OpenFile(LogFilenameAndPath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	log.Println("info: Trying to Open File ", LogFilenameAndPath)
 	if err != nil {
-		FatalCleanUp("Problem Opening talkkonnect.log file "+err.Error())
+		FatalCleanUp("Problem Opening talkkonnect.log file " + err.Error())
 	}
 
 	if TargetBoard == "rpi" {
@@ -521,13 +519,11 @@ keyPressListenerLoop:
 				if ev.Ch != 0 {
 					log.Println("error: Invalid Keypress ASCII ", ev.Ch, "Press <DEL> for Menu")
 				} else {
-					log.Println("error: Key Not Mapped, Press <DEL> for menu")
+					log.Println("error: Key Not Mapped, Press <DEL> for menu", ev.Ch)
 				}
 			}
 		case term.EventError:
-			FatalCleanUp("Terminal Error "+err.Error())
+			FatalCleanUp("Terminal Error " + err.Error())
 		}
-
 	}
-
 }

@@ -50,19 +50,16 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.59.01"
-	talkkonnectReleased string = "February 27 2021"
+	talkkonnectVersion  string = "1.59.02"
+	talkkonnectReleased string = "March 07 2021"
 )
 
+// Generic Global Variables
 var (
 	pstream       *gumbleffmpeg.Stream
 	AccountCount  int  = 0
 	KillHeartBeat bool = false
 	IsPlayStream  bool = false
-)
-
-// Generic Global Variables
-var (
 	BackLightTime              = time.NewTicker(5 * time.Second)
 	BackLightTimePtr           = &BackLightTime
 	ConnectAttempts            = 0
@@ -89,7 +86,7 @@ var (
 //software settings
 var (
 	OutputDevice       string = "PCM"
-	LogFilenameAndPath string
+	LogFilenameAndPath string = "/var/log/talkkonnect.log"
 	Logging            string = "screen"
 	Loglevel           string = "info"
 	Daemonize          bool
@@ -111,7 +108,7 @@ var (
 var (
 	BeaconEnabled         bool
 	BeaconTimerSecs       int = 30
-	BeaconFilenameAndPath string
+	BeaconFilenameAndPath string 
 	BVolume               float32 = 1.0
 )
 
@@ -257,7 +254,7 @@ var (
 
 // mqtt settings
 var (
-	MQTTEnabled     bool
+	MQTTEnabled     bool = false
 	Iotuuid         string
 	relay1          gpio.Pin
 	relay1State     bool = false
@@ -280,7 +277,7 @@ var (
 
 // target board settings
 var (
-	TargetBoard string
+	TargetBoard string = "pc"
 )
 
 //indicator light settings
@@ -413,7 +410,7 @@ var (
 	togglecounter     int
 	isTx              bool
 	isPlayStream      bool
-	CancellableStream bool
+	CancellableStream bool = true
 )
 
 type Document struct {

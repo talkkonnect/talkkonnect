@@ -195,7 +195,6 @@ cd $GOPATH/src/github.com/talkkonnect/talkkonnect
 
 ` /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/talkkonnect.xml`
 
-
 ##### Build talKKonnect and test connection to your Mumble server. #####
 
 ` go build -o /home/talkkonnect/bin/talkkonnect cmd/talkkonnect/main.go `
@@ -389,7 +388,7 @@ For a speaker muting to work when pressing a PTT, you need to enter the exact na
 
 
 ### Explanation of talkkonnect.xml configuration files sections and tags 
-
+[youtube-video](https://www.youtube.com/watch?v=-Dy96FXw0gA&ab_channel=SuvirKumar) is a video made for explaining the xml tags.
 
 #### The Accounts Section
 * The account section can have multiple accounts, talkkonnect will look for the first account with the xml tag default = "true" and attempt to connect to that server 

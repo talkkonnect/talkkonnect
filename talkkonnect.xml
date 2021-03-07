@@ -169,7 +169,7 @@
 				<printaudiorecord>false</printaudiorecord>
 				<printmqtt>false</printmqtt>
 			</printvariables>
-			<mqtt enabled="true">
+			<mqtt enabled="false">
 				<mqtttopic>thailand/bangkok/company/talkkonnect</mqtttopic>
 				<mqttbroker>tcp://mqtt.test.com:1883</mqttbroker>
 				<mqttpassword>test</mqttpassword>

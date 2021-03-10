@@ -66,6 +66,11 @@ A good shileded cable for microphone is recommended to keep the noise picked up 
 
 ### Quick Download Link for Image for Use with Pi 3/4 and USB Sound Card (For the impatient) ###
 * [talkkonnect img file](https://drive.google.com/file/d/1hbMFtKvlEYX-akqf976aVjHP4TcYFXgL/view?usp=sharing)
+* For this pre-made image you can log in as root using the password talkkonnect
+* This image will not be current but will be convinient for you so that you don't have to install everything from scratch
+* After you intall the image you can copy the tk-update.sh in the scripts folder to your /root home and run it to update to the lastest version
+* This image has been configured to work with a external USB sound card out of the box and the on board sound card for RPI is disabled
+* The XML file is configured to run in PC mode so no GPIO will initalized, to run using GPIO you can change the mode to rpi mode.    
 
 ### Installation Instructions For Raspberry Pi 3/4 ###
 

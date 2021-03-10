@@ -65,7 +65,7 @@ A good shileded cable for microphone is recommended to keep the noise picked up 
 * Configuration is kept in a single *highly granular XML file*, where options can be enabled or disabled.
 
 ### Quick Download Link for SD Card Image for Use with Pi 3/4 and USB Sound Card (For the impatient) ###
-* [talkkonnect sd card img file](https://drive.google.com/file/d/1hbMFtKvlEYX-akqf976aVjHP4TcYFXgL/view?usp=sharing)
+* [Click Here to Download Pre-Configured SD Card Image](https://drive.google.com/file/d/1hbMFtKvlEYX-akqf976aVjHP4TcYFXgL/view?usp=sharing) 
 * For this pre-made image you can log in as root using the password talkkonnect
 * This image will not be current but will be convinient for you so that you don't have to install everything from scratch
 * After you intall the image you can copy the tk-update.sh in the scripts folder to your /root home and run it to update to the lastest version

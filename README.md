@@ -9,27 +9,34 @@
 
 This project is a fork of [talkiepi](http://projectable.me/) by Daniel Chote which was in turn a fork of [barnard](https://github.com/layeh/barnard) a text based mumble client. 
 talKKonnect was developed using [golang](https://golang.org/) and based on [gumble](https://github.com/layeh/gumble) library by Tim Cooper.
-Libraries are however heavily vendored (modified from original). You will need to get most of the vendored libraries from this repo.
+Most Libraries are however heavily vendored (modified from original). You will need to get the vendored libraries from this repo.
 
 [talKKonnect](http://www.talkkonnect.com) was developed initially to run on SBCs. The latest version can be scaled to run all the way from ARM SBCs to full fledged X86 servers.
-Raspberry Pi 3, Orange Pis, PCs and virtual environments (Oracle VirtualBox, KVM and Proxmox) targets have all been tested and work as expected.
+Raspberry Pi 2,3,3A+,3B+,4B Orange Pis, PCs and virtual environments (Oracle VirtualBox, KVM and Proxmox) targets have all been tested and work as expected.
 
 ### Why Was talKKonnect created?
 
-I [Suvir Kumar](https://www.linkedin.com/in/suvir-kumar-51a1333b) created talKKonnect for fun. I missed the younger days making homebrew CB radios and talking to all
-those amazing people who taught me so much. Living in an apartment in the age of the internet with the itch to innovate drove me to create talKKonnect. I am in no way a professional programmer but have tried to make talKKonnect production quality. 
+I [Suvir Kumar](https://www.linkedin.com/in/suvir-kumar-51a1333b) created talKKonnect for fun. I missed the younger days making homebrew CB, HAM radios and talking to all
+those amazing people who taught me so much. 
+Living in an apartment in the age of the internet with the itch to innovate drove me to create talKKonnect. I also wanted to learn programming.
+I am in no way a professional programmer but have tried to make the talKKonnect source code readable and stable to the best of my ability. Time
+permitting I will continue to work and learn from all those people who give feedback and show interest in using talkkonnect. 
 
 [talKKonnect](http://www.talkkonnect.com) was originally created to have the form factor and functionality of a desktop transceiver. With community feedback we started to push the envelope to make it more versatile and scalable. 
 
 #### Some of the interesting features are #### 
+* XML Granular configurability for many uses cases.
+* Multiple Server Configurations with channel and server hopping
+* Streaming Audio from local file or from internet stream
+* Autoprovisioning for configuring multiple talkkonnects from a centralized http server 
+* User has configurable choice of what GPIO pins to use for each function on different boards 
 * Communications bridge to interface external (otherwise not compatible) radio systems both over the air and over IP networks.
 * Interface to portable or base radios (Beefing portable radios or UART radio boards). 
 * Connecting to low cost USB GPS dongles (for instance “u-blox”) for GPS tracking. 
 * Mass scale customization with centralized Configuration using auto-provisioning of a XML config file.
 * LCD/OLED Screen showing relevant real time information such as *server info, current channel, who is currently talking, etc.*
-* Local/ssh control via a USB keyboard/terminal and remote control is done over http api.
+* Local/ssh control via a USB keyboard/terminal and remote control can be done over http api or now even MQTT.
 * Panic button, when pressed, talKKonnect will send an alert message with GPS coordinates, followed by an email indication current location in google maps. 
-* Future Plans of Connecting to an [arduino](https://www.arduino.cc/en/Guide/ArduinoDue) daughter board via USB for I/O control when running in the datacenter as a radio gateway 
 * MQTT support for remote control for commands, LED Control, Button Control, Relay Control
 * Repeater Opening Function with the ability to specify the tone frequency and duration.
 * Other features as per suggested or requested by the community
@@ -44,9 +51,9 @@ with I2C interface is also currently supported.
 
 Low cost audio amplifiers like [PAM8403](https://www.instructables.com/id/PAM8403-6W-STEREO-AMPLIFIER-TUTORIAL/) or similar “D” class amplifiers, are recommended for talKKonnect builds.
 
-A good shileded cable for microphone is recommended to keep the noise picked up to a minimum.
+A good shileded cable for microphone is recommended to keep the noise picked up to a minimum. I am currently experimenting with mems microphones for better audio.
 
-#### There are 4 LED indicators that can be build on the front panel to show the following statuses ####
+#### You can connect up to 4 LED indicators that can be build on the front panel to show the following statuses ####
 * Connected to a server and is currently online
 * There are other participants logged into the same channel
 * Currently in transmitting mode 
@@ -64,20 +71,20 @@ A good shileded cable for microphone is recommended to keep the noise picked up 
 * LCD/OLED display can show *channel information, server information, who joined, who is speaking, etc.* 
 * Configuration is kept in a single *highly granular XML file*, where options can be enabled or disabled.
 
-### Quick Download Link for SD Card Image for Use with Pi 3/4 and USB Sound Card (For the impatient) ###
+### Quick Download Link for Pre-Made SD Card Image for Use with Raspberry pi 2/3/4 and USB Sound Card ###
+* Many people currently shy away from talkkonnect thinking it is daunting due to the installation instructions hopefully this image will lower that barrier of entry.
 * [Click Here to Download Pre-Configured SD Card Image](https://drive.google.com/file/d/1hbMFtKvlEYX-akqf976aVjHP4TcYFXgL/view?usp=sharing) 
-* For this pre-made image you can log in as root using the password talkkonnect
-* This image will not be current but will be convinient for you so that you don't have to install everything from scratch
+* For this pre-made image you can log in as root over ssh on port 22 using the password talkkonnect
+* This image will not be the latest version but it will be convinient for you to get up and running quickly, so that you don't have to install everything from scratch
 * After you intall the image you can copy the tk-update.sh in the scripts folder to your /root home and run it to update to the lastest version
 * This image has been configured to work with a external USB sound card out of the box and the on board sound card for RPI is disabled
 * The XML file is configured to run in PC mode so no GPIO will initalized, to run using GPIO you can change the mode to rpi mode.    
 
-### Installation Instructions For Raspberry Pi 3/4 ###
+### Installation Instructions For Raspberry Pi Boards (from Source code) ###
 
-
-Download the latest version of [Raspberry Pi OS Lite](https://www.raspberrypi.org/software/operating-systems/#raspberry-pi-os-32-bit). 
-At the time of making/updating this document latest image release date was 02/12/2020 (Kernel Version 5.4). 
-Download the ZIP file and extract IMG file to some temporary directory.
+Download the latest version of [Raspberry Pi OS Lite](https://downloads.raspberrypi.org/raspios_lite_armhf/images/raspios_lite_armhf-2021-01-12/2021-01-11-raspios-buster-armhf-lite.zip). 
+At the time of making/updating this document latest image release date was 11/01/2021 (Kernel Version 5.4). 
+Download the 438MB ZIP file and extract IMG file to some temporary directory.
 
 Use any USB / SD card imaging software for Windows or your other OS. Some of the many options are:
 * [Raspberry Pi Imager](https://www.raspberrypi.org/software/)
@@ -244,23 +251,39 @@ sleep 2
 ##### talKKonnect welcome screen #####
 
 ````
- ┌────────────────────────────────────────────────────────────────┐
- │  _        _ _    _                               _             │
- │ | |_ __ _| | | _| | _____  _ __  _ __   ___  ___| |_           │
- │ | __/ _` | | |/ / |/ / _ \| '_ \| '_ \ / _ \/ __|  __|         │
- │ | || (_| | |   <|   < (_) | | | | | | |  __/ (__| |_           │
- │  \__\__,_|_|_|\_\_|\_\___/|_| |_|_| |_|\___|\_ _|\__|          │
- ├────────────────────────────────────────────────────────────────┤
- │A Flexible Headless Mumble Transceiver/Gateway for RPi/PC/VM    │
- ├────────────────────────────────────────────────────────────────┤
- │Created By : Suvir Kumar  <suvir@talkkonnect.com>               │
- ├────────────────────────────────────────────────────────────────┤
- │Press the <Del> key for Menu or <Ctrl-c> to Quit talkkonnect    │
- │Additional Modifications Released under MPL 2.0 License         │
- │visit us at www.talkkonnect.com and github.com/talkkonnect      │
- └────────────────────────────────────────────────────────────────┘
- Talkkonnect Version 1.53.01 Released December 24 2020
+┌────────────────────────────────────────────────────────────────┐
+│  _        _ _    _                               _             │
+│ | |_ __ _| | | _| | _____  _ __  _ __   ___  ___| |_           │
+│ | __/ _` | | |/ / |/ / _ \| '_ \| '_ \ / _ \/ __|  __|         │
+│ | || (_| | |   <|   < (_) | | | | | | |  __/ (__| |_           │
+│  \__\__,_|_|_|\_\_|\_\___/|_| |_|_| |_|\___|\_ _|\__|          │
+├────────────────────────────────────────────────────────────────┤
+│A Flexible Headless Mumble Transceiver/Gateway for RPi/PC/VM    │
+├────────────────────────────────────────────────────────────────┤
+│Created By : Suvir Kumar  <suvir@talkkonnect.com>               │
+├────────────────────────────────────────────────────────────────┤
+│Press the <Del> key for Menu or <Ctrl-c> to Quit talkkonnect    │
+│Additional Modifications Released under MPL 2.0 License         │
+│Blog at www.talkkonnect.com, source at github.com/talkkonnect   │
+└────────────────────────────────────────────────────────────────┘
+[Talkkonnect Version 1.59.01 Released February 27 2021
 ````
+
+##### I2C OLED Screen Installation #####
+For those of you who wish to use a 0.96 or 1.3 inch OLED screen follow the instructions below (logged in as root)
+
+[enabling i2c](https://www.raspberrypi-spy.co.uk/2014/11/enabling-the-i2c-interface-on-the-raspberry-pi/) read and Follow Step 1 - Enable I2C Interface.
+
+For detecting the address of your screen install the tool below
+
+` apt-get install -y i2c-tools `
+
+Then using i2cdetect to detect your screen following the instructions on the same page under the section Testing Hardware (Optional)
+
+Once you get the address note that it will be in HEX you will have to convert this address to decimal to put in the talkkonnect.xml file
+under the xml tag  <oleddefaulti2caddress>60</oleddefaulti2caddress>
+
+In the example above I got the address 3c from i2c tools and converted that to decimal value 60. 
 
 
 ### Audio configuration ###
@@ -311,7 +334,7 @@ defaults.pcm.card 1
 
 (This change is not necessary if BCM2835 was disabled. USB sound card will be assigned card index number “0” in that case)
 
-USB sound device can also be set in local profile 
+USB sound device can also be set in local profile (this step is not necessary if you have used the global configuration above)
 
 ` nano ~/.asoundrc `
 
@@ -363,12 +386,12 @@ For a speaker muting to work when pressing a PTT, you need to enter the exact na
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
-│ _ __ ___   __ _(_)_ __    _ __ ___   ___ _ __  _   _         │
-│| '_ ` _ \ / _` | | '_ \  | '_ ` _ \ / _ \ '_ \| | | |        │
-│| | | | | | (_| | | | | | | | | | | |  __/ | | | |_| |        │
-│|_| |_| |_|\__,_|_|_| |_| |_| |_| |_|\___|_| |_|\__,_|        │
+│     _ __ ___   __ _(_)_ __    _ __ ___   ___ _ __  _   _     │
+│    | '_ ` _ \ / _` | | '_ \  | '_ ` _ \ / _ \ '_ \| | | |    │
+│    | | | | | | (_| | | | | | | | | | | |  __/ | | | |_| |    │
+│    |_| |_| |_|\__,_|_|_| |_| |_| |_| |_|\___|_| |_|\__,_|    │
 ├─────────────────────────────┬────────────────────────────────┤
-│ <Del> to Display this Menu  | Ctrl-C to Quit talkkonnect     │
+│ <Del> to Display this Menu  | <Ctrl-C> to Quit talkkonnect   │
 ├─────────────────────────────┼────────────────────────────────┤
 │ <F1>  Channel Up (+)        │ <F2>  Channel Down (-)         │
 │ <F3>  Mute/Unmute Speaker   │ <F4>  Current Volume Level     │
@@ -378,9 +401,10 @@ For a speaker muting to work when pressing a PTT, you need to enter the exact na
 │ <F11> Playback/Stop Chimes  │ <F12> For GPS Position         │
 ├─────────────────────────────┼────────────────────────────────┤
 │<Ctrl-D> Debug Stacktrace    │                                │
+├─────────────────────────────┼────────────────────────────────┤
 │<Ctrl-E> Send Email          │<Ctrl-N> Conn Next Server       │
 │<Ctrl-F> Conn Previous Server│<Ctrl-P> Panic Simulation       │
-│<Ctrl-Q> Reserved            │<Ctrl-S> Scan Channels          │
+│<Ctrl-G> Send Repeater Tone  │<Ctrl-S> Scan Channels          │
 │<Ctrl-V> Display Version     │<Ctrl-T> Thanks/Acknowledgements│
 ├─────────────────────────────┼────────────────────────────────┤
 │<Ctrl-L> Clear Screen        │<Ctrl-O> Ping Servers           │
@@ -389,13 +413,14 @@ For a speaker muting to work when pressing a PTT, you need to enter the exact na
 │<Ctrl-I> Traffic Record      │<Ctrl-J> Mic Record             │
 │<Ctrl-K> Traffic & Mic Record│<Ctrl-U> Show Uptime            │
 ├─────────────────────────────┼────────────────────────────────┤
-│  visit us at www.talkkonnect.com and github.com/talkkonnect  │
+│  Visit us at www.talkkonnect.com and github.com/talkkonnect  │
+│  Thanks to Global Coders Co., Ltd. for their sponsorship     │
 └──────────────────────────────────────────────────────────────┘
 ````
 
 
 ### Explanation of talkkonnect.xml configuration files sections and tags 
-[youtube-video](https://www.youtube.com/watch?v=-Dy96FXw0gA&ab_channel=SuvirKumar) is a video made for explaining the xml tags.
+[youtube-video](https://www.youtube.com/watch?v=-Dy96FXw0gA&ab_channel=SuvirKumar) is a video made for explaining the xml tags
 
 #### The Accounts Section
 * The account section can have multiple accounts, talkkonnect will look for the first account with the xml tag default = "true" and attempt to connect to that server 
@@ -450,11 +475,12 @@ For a speaker muting to work when pressing a PTT, you need to enter the exact na
 
 ##### The Sounds Section
 * Each sound item can be enabled/disabled and the corresponding playback volume can be also be set individually
+* Each event such as when a person joins a channel, leaves a channel or sends a message into the channel can be configured seperately.
 * The filenameandpath tag should contain the the full path and filename of the WAV file you wish to play for each event 
 * The event tag is used to play an audible alert when there are changes of other users statuses 
 * The alert tag is used to play an WAV file into the stream to the receiving party upon a user generated panic request
 * The rogerbeep tag is used to define the WAV file to play at the end of every transmission 
-* The tag name chimes can be misleading. This function is very powerful and can be used to define a file or network stream that will be played into the mumble channel upon pressing the F11 key. Very useful for debugging.
+* The tag name chimes can be misleading. This function is very powerful and can be used to define a local file or network stream that will be played into the mumble channel upon pressing the F11 key. Very useful for debugging.
 
 ##### The TXTIMEOUT section
 * The txtimeout tag is used to limit the length of a single transmission in seconds. This tag is useful when used as a repeater between RF and mumble.
@@ -467,8 +493,15 @@ For a speaker muting to work when pressing a PTT, you need to enter the exact na
 F7  List Server Channels, F8  Start Transmitting, F9  Stop Transmitting, F10 List Online Users, F11 Playback/Stop Chimes, F12 For GPS Position, Ctrl-E Send Email, Ctrl-L Clear Screen, 
 Ctrl-M Ping Servers, Ctrl-N Connect Next Server, Ctrl-P Panic Simulation, Ctrl-S Scan Channels, Ctrl-X Dump XML Config
 
+
 ##### The PrintVariables Section
 * This function is useful for debugging the values read from each section of the config xml file. You can control which section is shown. This command is tied to the CTRL-X key
+
+##### The MQTT Section
+* Talkkonnect can be remotely controlled by an public or local MQTT Server
+* This eliminates the problem of controlling those talkkonnect devices that are in NATTED networks all over the internet
+* You can subscribe to the mqtt server topic of your choice
+* With MQTT you can remote control talkkonnect as well as Relays to control external devices 
 
 #### Hardware Section
 * The tag targetboard has 2 option (1) pc and (2)rpi. pc mode is used when talkkonnect is running on a pc or server that does not have GPIOs and is not interfaced to buttons and a LCD screen. 
@@ -542,8 +575,12 @@ you can also check my blog  [www.talkkonnect.com](https://www.talkkonnect.com) f
 
 Please visit our [blog](www.talkkonnect.com) for our blog or [github](github.com/talkkonnect) for the latest source code and our [facebook](https://www.facebook.com/talkkonnect) page for future updates and information. 
 
+Thank you all for your kind feedback sent along with some pictures and use cases for talkkonnect.
+
 ## License 
 [talKKonnect](http://www.talkkonnect.com) is open source and available under the MPL V2.00 license.
 
-<suvir@talkkonnect.com> Updated 29/12/2020 talkkonnect version 1.53.01 is the latest release as of this writing.
+<suvir@talkkonnect.com> Updated 11/03/2021 talkkonnect version 1.59.01 is the latest release as of this writing.
+
+
 

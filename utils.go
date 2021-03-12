@@ -53,7 +53,6 @@ import (
 	"github.com/kennygrant/sanitize"
 	"github.com/talkkonnect/gumble/gumble"
 	term "github.com/talkkonnect/termbox-go"
-	"github.com/talkkonnect/volume-go"
 	"github.com/xackery/gomail"
 	"github.com/glendc/go-external-ip"
 )
@@ -169,7 +168,6 @@ func (b *Talkkonnect) pingconnectedserver() {
 }
 
 func playWavLocal(filepath string, playbackvolume int) error {
-	origVolume, _ = volume.GetVolume(OutputDevice)
 	var player string
 
 	if path, err := exec.LookPath("aplay"); err == nil {
@@ -180,22 +178,16 @@ func playWavLocal(filepath string, playbackvolume int) error {
 		return errors.New("Failed to find either aplay or paplay in PATH")
 	}
 
+	log.Println("info: debug player ",player)
+	log.Println("info: debug filepath ",filepath)
 	cmd := exec.Command(player, filepath)
-	err := volume.SetVolume(playbackvolume, OutputDevice)
 
-	if err != nil {
-		return fmt.Errorf("error: set volume failed: %+v", err.Error())
-	}
-	_, err = cmd.CombinedOutput()
+	_, err := cmd.CombinedOutput()
 
 	if err != nil {
 		return fmt.Errorf("error: cmd.Run() for %s failed with %s\n", player, err)
 	}
-	err = volume.SetVolume(origVolume, OutputDevice)
 
-	if err != nil {
-		return fmt.Errorf("error: set volume failed: %+v", err.Error())
-	}
 	return nil
 }
 

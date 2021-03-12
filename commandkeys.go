@@ -66,64 +66,72 @@ func (b *Talkkonnect) cmdChannelDown() {
 }
 
 func (b *Talkkonnect) cmdMuteUnmute(subCommand string) {
-	log.Println("debug: ", TTSMuteUnMuteSpeakerFilenameAndPath)
 
-	//any other subcommand besides mute and unmute will get the current status of mute from volume.go
-	origMuted, err := volume.GetMuted(OutputDevice)
+	log.Println("debug: F3 pressed Mute/Unmute Speaker Requested")
+	if TTSEnabled && TTSMuteUnMuteSpeaker {
+		err := playWavLocal(TTSMuteUnMuteSpeakerFilenameAndPath, TTSVolumeLevel)
+		if err != nil {
+			log.Println("error: playWavLocal(TTSMuteUnMuteSpeakerFilenameAndPath) Returned Error: ", err)
+		}
+	}
+
+	OrigMuted, err := volume.GetMuted(OutputDevice)
 
 	if err != nil {
-		log.Println("error: get muted failed: %+v", err)
+		log.Println("error: Unable to get current Muted/Unmuted State ", err)
+	} else {
+		if OrigMuted == true {
+			log.Println("debug: Originally Device is Muted")
+		} else {
+			log.Println("debug: Originally Device is Unmuted")
+		}
+	}
+
+	if subCommand == "toggle" {
+		if OrigMuted == true {
+			err := volume.Unmute(OutputDevice)
+			if err != nil {
+				log.Println("error: Unmuting Failed", err)
+				return
+			}
+			log.Println("info: Output Device Unmuted")
+			if TargetBoard == "rpi" {
+				if LCDEnabled == true {
+					LcdText = [4]string{"nil", "nil", "nil", "UnMuted"}
+					LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+				}
+				if OLEDEnabled == true {
+					oledDisplay(false, 6, 1, "Unmuted")
+				}
+			}
+			return
+		} else {
+			err = volume.Mute(OutputDevice)
+			if err != nil {
+				log.Println("error: Muting Failed", err)
+			}
+			log.Println("info: Output Device Muted")
+			if TargetBoard == "rpi" {
+				if LCDEnabled == true {
+					LcdText = [4]string{"nil", "nil", "nil", "Muted"}
+					LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+				}
+				if OLEDEnabled == true {
+					oledDisplay(false, 6, 1, "Muted")
+				}
+			}
+			return
+		}
 	}
 
 	//force mute
 	if subCommand == "mute" {
-		origMuted = false
-	}
-
-	//force unmute
-	if subCommand == "unmute" {
-		origMuted = true
-	}
-
-	if origMuted {
-		err := volume.Unmute(OutputDevice)
-
-		if err != nil {
-			log.Println("error: unmute failed: %+v", err)
-		}
-
-		log.Println("debug: F3 pressed Mute/Unmute Speaker Requested Now UnMuted")
-		if TTSEnabled && TTSMuteUnMuteSpeaker {
-			err := playWavLocal(TTSMuteUnMuteSpeakerFilenameAndPath, TTSVolumeLevel)
-			if err != nil {
-				log.Println("error: playWavLocal(TTSMuteUnMuteSpeakerFilenameAndPath) Returned Error: ", err)
-			}
-
-		}
-		if TargetBoard == "rpi" {
-			if LCDEnabled == true {
-				LcdText = [4]string{"nil", "nil", "nil", "UnMuted"}
-				LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
-			}
-			if OLEDEnabled == true {
-				oledDisplay(false, 6, 1, "Unmuted")
-			}
-
-		}
-	} else {
-		if TTSEnabled && TTSMuteUnMuteSpeaker {
-			err := playWavLocal(TTSMuteUnMuteSpeakerFilenameAndPath, TTSVolumeLevel)
-			if err != nil {
-				log.Println("error: playWavLocal(TTSMuteUnMuteSpeakerFilenameAndPath) Returned Error: ", err)
-			}
-
-		}
 		err = volume.Mute(OutputDevice)
 		if err != nil {
-			log.Println("error: Mute failed: %+v", err)
+			log.Println("error: Muting Failed ", err)
+			return
 		}
-
-		log.Println("debug: F3 pressed Mute/Unmute Speaker Requested Now Muted")
+		log.Println("info: Output Device Muted")
 		if TargetBoard == "rpi" {
 			if LCDEnabled == true {
 				LcdText = [4]string{"nil", "nil", "nil", "Muted"}
@@ -132,20 +140,40 @@ func (b *Talkkonnect) cmdMuteUnmute(subCommand string) {
 			if OLEDEnabled == true {
 				oledDisplay(false, 6, 1, "Muted")
 			}
-
 		}
+		return
+	}
+
+	//force unmute
+	if subCommand == "unmute" {
+		err := volume.Unmute(OutputDevice)
+		if err != nil {
+			log.Println("error: Unmute Failed ", err)
+			return
+		}
+		log.Println("info: Output Device Unmuted")
+		if TargetBoard == "rpi" {
+			if LCDEnabled == true {
+				LcdText = [4]string{"nil", "nil", "nil", "UnMuted"}
+				LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+			}
+			if OLEDEnabled == true {
+				oledDisplay(false, 6, 1, "Unmuted")
+			}
+		}
+		return
 	}
 
 }
 
 func (b *Talkkonnect) cmdCurrentVolume() {
-	origVolume, err := volume.GetVolume(OutputDevice)
+	OrigVolume, err := volume.GetVolume(OutputDeviceShort)
 	if err != nil {
 		log.Println("error: Unable to get current volume: %+v", err)
 	}
 
 	log.Println("debug: F4 pressed Volume Level Requested")
-	log.Println("info: Volume Level is at", origVolume, "%")
+	log.Println("info: Volume Level is at", OrigVolume, "%")
 
 	if TTSEnabled && TTSCurrentVolumeLevel {
 		err := playWavLocal(TTSCurrentVolumeLevelFilenameAndPath, TTSVolumeLevel)
@@ -156,24 +184,24 @@ func (b *Talkkonnect) cmdCurrentVolume() {
 	}
 	if TargetBoard == "rpi" {
 		if LCDEnabled == true {
-			LcdText = [4]string{"nil", "nil", "nil", "Volume " + strconv.Itoa(origVolume)}
+			LcdText = [4]string{"nil", "nil", "nil", "Volume " + strconv.Itoa(OrigVolume)}
 			LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 		}
 		if OLEDEnabled == true {
-			oledDisplay(false, 6, 1, "Volume "+strconv.Itoa(origVolume))
+			oledDisplay(false, 6, 1, "Volume "+strconv.Itoa(OrigVolume))
 		}
 
 	}
 }
 
 func (b *Talkkonnect) cmdVolumeUp() {
-	origVolume, err := volume.GetVolume(OutputDevice)
+	origVolume, err := volume.GetVolume(OutputDeviceShort)
 	if err != nil {
 		log.Println("warn: unable to get original volume: %+v", err)
 	}
 
 	if origVolume < 100 {
-		err := volume.IncreaseVolume(+1, OutputDevice)
+		err := volume.IncreaseVolume(+1, OutputDeviceShort)
 		if err != nil {
 			log.Println("warn: F5 Increase Volume Failed! ", err)
 		}
@@ -214,20 +242,20 @@ func (b *Talkkonnect) cmdVolumeUp() {
 }
 
 func (b *Talkkonnect) cmdVolumeDown() {
-	origVolume, err := volume.GetVolume(OutputDevice)
+	origVolume, err := volume.GetVolume(OutputDeviceShort)
 	if err != nil {
 		log.Println("error: unable to get original volume: %+v", err)
 	}
 
 	if origVolume > 0 {
 		origVolume--
-		err := volume.IncreaseVolume(-1, OutputDevice)
+		err := volume.IncreaseVolume(-1, OutputDeviceShort)
 		if err != nil {
 			log.Println("error: F6 Decrease Volume Failed! ", err)
 		}
 
 		log.Println("info: F6 pressed Volume Down (-)")
-		log.Println("debug: Volume Down (-) Now At ", origVolume, "%")
+		log.Println("info: Volume Down (-) Now At ", origVolume, "%")
 		if TargetBoard == "rpi" {
 			if LCDEnabled == true {
 				LcdText = [4]string{"nil", "nil", "nil", "Volume - " + strconv.Itoa(origVolume)}

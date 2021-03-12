@@ -50,8 +50,8 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.59.02"
-	talkkonnectReleased string = "March 07 2021"
+	talkkonnectVersion  string = "1.60.01"
+	talkkonnectReleased string = "March 12 2021"
 )
 
 // Generic Global Variables
@@ -85,7 +85,8 @@ var (
 
 //software settings
 var (
-	OutputDevice       string = "PCM"
+	OutputDevice       string = "Speaker"
+	OutputDeviceShort  string 
 	LogFilenameAndPath string = "/var/log/talkkonnect.log"
 	Logging            string = "screen"
 	Loglevel           string = "info"
@@ -432,6 +433,7 @@ type Document struct {
 		Software struct {
 			Settings struct {
 				OutputDevice       string `xml:"outputdevice"`
+				OutputDeviceShort  string `xml:"outputdeviceshort"`
 				LogFilenameAndPath string `xml:"logfilenameandpath"`
 				Logging            string `xml:"logging"`
 				Loglevel           string `xml:"loglevel"`
@@ -815,6 +817,12 @@ func readxmlconfig(file string) error {
 	}
 
 	OutputDevice = document.Global.Software.Settings.OutputDevice
+	OutputDeviceShort = document.Global.Software.Settings.OutputDeviceShort
+
+	if len(OutputDeviceShort) == 0 {
+		OutputDeviceShort = document.Global.Software.Settings.OutputDevice
+	}
+
 	LogFilenameAndPath = document.Global.Software.Settings.LogFilenameAndPath
 	Logging = document.Global.Software.Settings.Logging
 
@@ -1387,15 +1395,16 @@ func printxmlconfig() {
 
 	if PrintLogging {
 		log.Println("info: -------- Logging & Daemonizing -------- ")
-		log.Println("info: Output Device     " + OutputDevice)
-		log.Println("info: Log File          " + LogFilenameAndPath)
-		log.Println("info: Logging           " + Logging)
-		log.Println("info: Loglevel          " + Loglevel)
-		log.Println("info: Daemonize         " + fmt.Sprintf("%t", Daemonize))
-		log.Println("info: CancellableStream " + fmt.Sprintf("%t", CancellableStream))
-		log.Println("info: SimplexWithMute   " + fmt.Sprintf("%t", SimplexWithMute))
-		log.Println("info: TxCounter         " + fmt.Sprintf("%t", TxCounter))
-		log.Println("info: NextServerIndex   " + fmt.Sprintf("%v", NextServerIndex))
+		log.Println("info: Output Device        " + OutputDevice)
+		log.Println("info: Output Device(Short) " + OutputDeviceShort)
+		log.Println("info: Log File             " + LogFilenameAndPath)
+		log.Println("info: Logging              " + Logging)
+		log.Println("info: Loglevel             " + Loglevel)
+		log.Println("info: Daemonize            " + fmt.Sprintf("%t", Daemonize))
+		log.Println("info: CancellableStream    " + fmt.Sprintf("%t", CancellableStream))
+		log.Println("info: SimplexWithMute      " + fmt.Sprintf("%t", SimplexWithMute))
+		log.Println("info: TxCounter            " + fmt.Sprintf("%t", TxCounter))
+		log.Println("info: NextServerIndex      " + fmt.Sprintf("%v", NextServerIndex))
 	} else {
 		log.Println("info: --------   Logging & Daemonizing -------- SKIPPED ")
 	}

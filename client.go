@@ -72,6 +72,7 @@ var (
 	message              string
 	isrepeattx           bool = true
 	NowStreaming         bool
+	MyLedStrip           *LedStrip
 )
 
 type Talkkonnect struct {
@@ -262,7 +263,9 @@ func (b *Talkkonnect) ClientStart() {
 	}
 
 	if TargetBoard == "rpi" {
-		b.LEDOffAll()
+		if !LedStripEnabled {
+			b.LEDOffAll()
+		}
 	}
 
 	if Logging == "screenandfile" {
@@ -287,6 +290,8 @@ func (b *Talkkonnect) ClientStart() {
 	if TargetBoard == "rpi" {
 		log.Println("info: Target Board Set as RPI (gpio enabled) ")
 		b.initGPIO()
+		MyLedStrip, _ = NewLedStrip()
+		log.Printf("info: Led Strip %v %s\n", MyLedStrip.buf, MyLedStrip.display)
 	} else {
 		log.Println("info: Target Board Set as PC (gpio disabled) ")
 	}

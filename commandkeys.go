@@ -789,7 +789,14 @@ func (b *Talkkonnect) cmdPanicSimulation() {
 		}
 		IsPlayStream = false
 		b.IsTransmitting = false
-		b.LEDOff(b.TransmitLED)
+
+		if TargetBoard == "rpi" {
+			if !LedStripEnabled {
+				b.LEDOff(b.TransmitLED)
+			} else {
+				MyLedStripTransmitLEDOff()
+			}
+		}
 	}
 }
 

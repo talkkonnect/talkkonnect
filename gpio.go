@@ -412,4 +412,35 @@ func (b *Talkkonnect) LEDOffAll() {
 	if VoiceActivityLEDPin > 0 {
 		LEDOffFunc(b.VoiceActivityLED)
 	}
+
+}
+
+func MyLedStripLEDOffAll() {
+	MyLedStrip.ledCtrl(OnlineLED, OffCol)
+	MyLedStrip.ledCtrl(ParticipantsLED, OffCol)
+	MyLedStrip.ledCtrl(TransmitLED, OffCol)
+}
+
+func MyLedStripOnlineLEDOn() {
+	MyLedStrip.ledCtrl(OnlineLED, OnlineCol)
+}
+
+func MyLedStripOnlineLEDOff() {
+	MyLedStrip.ledCtrl(OnlineLED, OffCol)
+}
+
+func MyLedStripParticipantsLEDOn() {
+	MyLedStrip.ledCtrl(ParticipantsLED, ParticipantsCol)
+}
+
+func MyLedStripParticipantsLEDOff() {
+	MyLedStrip.ledCtrl(ParticipantsLED, OffCol)
+}
+
+func MyLedStripTransmitLEDOn() {
+	MyLedStrip.ledCtrl(TransmitLED, TransmitCol)
+}
+
+func MyLedStripTransmitLEDOff() {
+	MyLedStrip.ledCtrl(TransmitLED, OffCol)
 }

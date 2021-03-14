@@ -50,8 +50,8 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.60.01"
-	talkkonnectReleased string = "March 12 2021"
+	talkkonnectVersion  string = "1.61.01"
+	talkkonnectReleased string = "March 13 2021"
 )
 
 // Generic Global Variables
@@ -283,6 +283,7 @@ var (
 
 //indicator light settings
 var (
+	LedStripEnabled     bool
 	VoiceActivityLEDPin uint
 	ParticipantsLEDPin  uint
 	TransmitLEDPin      uint
@@ -618,6 +619,7 @@ type Document struct {
 		Hardware struct {
 			TargetBoard string `xml:"targetboard,attr"`
 			Lights      struct {
+				LedStripEnabled     bool   `xml:"ledstripenabled"`
 				VoiceActivityLedPin string `xml:"voiceactivityledpin"`
 				ParticipantsLedPin  string `xml:"participantsledpin"`
 				TransmitLedPin      string `xml:"transmitledpin"`
@@ -718,6 +720,7 @@ type Document struct {
 		} `xml:"hardware"`
 	} `xml:"global"`
 }
+
 
 func readxmlconfig(file string) error {
 	xmlFile, err := os.Open(file)
@@ -1237,7 +1240,7 @@ func readxmlconfig(file string) error {
 	PrintMQTT = document.Global.Software.PrintVariables.PrintMQTT
 
 	TargetBoard = document.Global.Hardware.TargetBoard
-
+	LedStripEnabled = document.Global.Hardware.Lights.LedStripEnabled
 	// my stupid work around for null uint xml unmarshelling problem with numbers so use strings and convert it 2 times
 	temp0, _ := strconv.ParseUint(document.Global.Hardware.Lights.VoiceActivityLedPin, 10, 64)
 	VoiceActivityLEDPin = uint(temp0)
@@ -1570,6 +1573,7 @@ func printxmlconfig() {
 
 	if PrintLeds {
 		log.Println("info: ------------ LEDS  ---------------------- ")
+		log.Println("info: Led Strip Enabled      " + fmt.Sprintf("%v", LedStripEnabled))
 		log.Println("info: Voice Activity Led Pin " + fmt.Sprintf("%v", VoiceActivityLEDPin))
 		log.Println("info: Participants Led Pin   " + fmt.Sprintf("%v", ParticipantsLEDPin))
 		log.Println("info: Transmit Led Pin       " + fmt.Sprintf("%v", TransmitLEDPin))

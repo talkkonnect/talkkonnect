@@ -59,8 +59,11 @@ func (b *Talkkonnect) OnConnect(e *gumble.ConnectEvent) {
 	}
 
 	if TargetBoard == "rpi" {
-		b.LEDOn(b.OnlineLED)
-
+		if !LedStripEnabled {
+			b.LEDOn(b.OnlineLED)
+		} else {
+			MyLedStripOnlineLEDOn()
+		}
 		if LCDEnabled == true {
 			LcdText = [4]string{"nil", "nil", "nil", "nil"}
 			LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
@@ -95,9 +98,11 @@ func (b *Talkkonnect) OnDisconnect(e *gumble.DisconnectEvent) {
 	IsConnected = false
 
 	if TargetBoard == "rpi" {
-		b.LEDOff(b.OnlineLED)
-		b.LEDOff(b.ParticipantsLED)
-		b.LEDOff(b.TransmitLED)
+		if !LedStripEnabled {
+			b.LEDOffAll()
+		} else {
+			MyLedStripLEDOffAll()
+		}
 	}
 
 	if !ServerHop {

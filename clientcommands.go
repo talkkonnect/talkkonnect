@@ -67,7 +67,11 @@ func (b *Talkkonnect) CleanUp() {
 			oledDisplay(false, 6, 1, "Please Visit")
 			oledDisplay(false, 7, 1, "www.talkkonnect.com")
 		}
-		b.LEDOffAll()
+               	if !LedStripEnabled {
+			b.LEDOffAll()
+                } else {
+			MyLedStripLEDOffAll()
+                }
 	}
 
 	term.Close()
@@ -150,7 +154,11 @@ func (b *Talkkonnect) TransmitStart() {
 	}
 
 	if TargetBoard == "rpi" {
-		b.LEDOn(b.TransmitLED)
+		if !LedStripEnabled {
+			b.LEDOn(b.TransmitLED)
+		} else {
+			MyLedStripTransmitLEDOn()
+		}
 		if LCDEnabled == true {
 			LcdText[0] = "Online/TX"
 			LcdText[3] = "TX at " + t.Format("15:04:05")
@@ -184,8 +192,11 @@ func (b *Talkkonnect) TransmitStop(withBeep bool) {
 	b.BackLightTimer()
 
 	if TargetBoard == "rpi" {
-		b.LEDOff(b.TransmitLED)
-
+		if !LedStripEnabled {
+			b.LEDOff(b.TransmitLED)
+		} else {
+			MyLedStripTransmitLEDOff()
+		}
 		if LCDEnabled == true {
 			LcdText[0] = b.Address
 			LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
@@ -295,8 +306,13 @@ func (b *Talkkonnect) ParticipantLEDUpdate(verbose bool) {
 
 	if participantCount > 1 {
 		if TargetBoard == "rpi" {
-			b.LEDOn(b.ParticipantsLED)
-			b.LEDOn(b.OnlineLED)
+			if !LedStripEnabled {
+				b.LEDOn(b.ParticipantsLED)
+				b.LEDOn(b.OnlineLED)
+			} else {
+				MyLedStripParticipantsLEDOn()
+				MyLedStripOnlineLEDOn()
+			}
 		}
 
 	} else {
@@ -311,9 +327,11 @@ func (b *Talkkonnect) ParticipantLEDUpdate(verbose bool) {
 			prevParticipantCount = 0
 
 			if TargetBoard == "rpi" {
-
-				b.LEDOff(b.ParticipantsLED)
-
+				if !LedStripEnabled {
+					b.LEDOff(b.ParticipantsLED)
+				} else {
+					MyLedStripParticipantsLEDOff()
+				}
 				if LCDEnabled == true {
 					LcdText = [4]string{b.Address, "Alone in " + b.Client.Self.Channel.Name, "", "nil"}
 					LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)

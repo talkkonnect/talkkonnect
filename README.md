@@ -72,14 +72,22 @@ A good shileded cable for microphone is recommended to keep the noise picked up 
 * Configuration is kept in a single *highly granular XML file*, where options can be enabled or disabled.
 
 ### Quick Download Link for Pre-Made SD Card Image for Use with Raspberry pi 2/3/4 and USB Sound Card ###
-* Many people currently shy away from talkkonnect thinking it is daunting due to the installation instructions hopefully this image will lower that barrier of entry.
 * [Click Here to Download Pre-Configured SD Card Image for USB Sound Card](https://drive.google.com/file/d/1hbMFtKvlEYX-akqf976aVjHP4TcYFXgL/view?usp=sharing)
-* [Click Here to Download Pre-Configured SD Card Image for Respeaker Hat](https://drive.google.com/file/d/1nwdorhtPgFv2IfRaLubsn9aAtGJBSp3A/view?usp=sharing) 
+* Many people currently shy away from talkkonnect thinking it is daunting due to the installation instructions hopefully this image will lower that barrier of entry.
 * For this pre-made image you can log in as root over ssh on port 22 using the password talkkonnect
 * This image will not be the latest version but it will be convinient for you to get up and running quickly, so that you don't have to install everything from scratch
 * After you intall the image you can copy the tk-update.sh in the scripts folder to your /root home and run it to update to the lastest version
 * This image has been configured to work with a external USB sound card out of the box and the on board sound card for RPI is disabled
 * The XML file is configured to run in PC mode so no GPIO will initalized, to run using GPIO you can change the mode to rpi mode.    
+
+### Quick Download Link for Pre-Made SD Card Image for Use with Raspberry pi 2/3/4 and RESPEAKER Compatable HAT ###
+* [Click Here to Download Pre-Configured SD Card Image for Respeaker Hat](https://drive.google.com/file/d/1nwdorhtPgFv2IfRaLubsn9aAtGJBSp3A/view?usp=sharing) 
+* Many people currently shy away from talkkonnect thinking it is daunting due to the installation instructions hopefully this image will lower that barrier of entry.
+* For this pre-made image you can log in as root over ssh on port 22 using the password talkkonnect
+* This image will not be the latest version but it will be convinient for you to get up and running quickly, so that you don't have to install everything from scratch
+* After you intall the image you can copy the tk-update.sh in the scripts folder to your /root home and run it to update to the lastest version
+* This image has been configured to work with a Respeaker HAT out of the box so I2S, I2C and all required modules are installed and running. 
+* The XML file is configured to run in rpi mode so GPIO will initalized, this is so that the respeaker will work with output sound on the headphone jack, led strip working and push button microswitch on the hat can be used for transmitting.    
 
 ### Installation Instructions For Raspberry Pi Boards (from Source code) ###
 

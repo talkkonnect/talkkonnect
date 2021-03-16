@@ -87,7 +87,7 @@ func (ls *LedStrip) ledCtrl(num int, color string) error {
 	_, err = ls.display.Write(ls.buf)
 
 	log.Printf("debug: LedStrip %v\n", ls.buf)
-	
+
 	return err
 }
 

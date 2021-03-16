@@ -50,8 +50,8 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.61.01"
-	talkkonnectReleased string = "March 13 2021"
+	talkkonnectVersion  string = "1.61.02"
+	talkkonnectReleased string = "March 16 2021"
 )
 
 // Generic Global Variables

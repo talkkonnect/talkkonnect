@@ -56,10 +56,10 @@ const (
 
 // Generic Global Variables
 var (
-	pstream       *gumbleffmpeg.Stream
-	AccountCount  int  = 0
-	KillHeartBeat bool = false
-	IsPlayStream  bool = false
+	pstream               *gumbleffmpeg.Stream
+	AccountCount          int  = 0
+	KillHeartBeat         bool = false
+	IsPlayStream          bool = false
 	BackLightTime              = time.NewTicker(5 * time.Second)
 	BackLightTimePtr           = &BackLightTime
 	ConnectAttempts            = 0
@@ -86,7 +86,7 @@ var (
 //software settings
 var (
 	OutputDevice       string = "Speaker"
-	OutputDeviceShort  string 
+	OutputDeviceShort  string
 	LogFilenameAndPath string = "/var/log/talkkonnect.log"
 	Logging            string = "screen"
 	Loglevel           string = "info"
@@ -109,7 +109,7 @@ var (
 var (
 	BeaconEnabled         bool
 	BeaconTimerSecs       int = 30
-	BeaconFilenameAndPath string 
+	BeaconFilenameAndPath string
 	BVolume               float32 = 1.0
 )
 
@@ -193,8 +193,8 @@ var (
 	RogerBeepSoundFilenameAndPath     string
 	RogerBeepSoundVolume              float32
 	RepeaterToneEnabled               bool
-        RepeaterToneFrequencyHz 	  int
-        RepeaterToneDurationSec 	  int
+	RepeaterToneFrequencyHz           int
+	RepeaterToneDurationSec           int
 	StreamSoundEnabled                bool
 	StreamSoundFilenameAndPath        string
 	StreamSoundVolume                 float32
@@ -517,10 +517,10 @@ type Document struct {
 			} `xml:"smtp"`
 			Sounds struct {
 				Event struct {
-					Enabled         bool   `xml:"enabled,attr"`
-					JoinedFilenameAndPath string `xml:"joinedfilenameandpath"`
-					LeftFilenameAndPath   string `xml:"leftfilenameandpath"`
-					MessageFilenameAndPath   string `xml:"messagefilenameandpath"`
+					Enabled                bool   `xml:"enabled,attr"`
+					JoinedFilenameAndPath  string `xml:"joinedfilenameandpath"`
+					LeftFilenameAndPath    string `xml:"leftfilenameandpath"`
+					MessageFilenameAndPath string `xml:"messagefilenameandpath"`
 				} `xml:"event"`
 				Alert struct {
 					Enabled         bool    `xml:"enabled,attr"`
@@ -538,9 +538,9 @@ type Document struct {
 					Volume          float32 `xml:"volume"`
 				} `xml:"rogerbeep"`
 				RepeaterTone struct {
-					Enabled         bool    `xml:"enabled,attr"`
-                			ToneFrequencyHz int     `xml:"tonefrequencyhz"`
-					ToneDurationSec int     `xml:"tonedurationsec"`
+					Enabled         bool `xml:"enabled,attr"`
+					ToneFrequencyHz int  `xml:"tonefrequencyhz"`
+					ToneDurationSec int  `xml:"tonedurationsec"`
 				} `xml:"repeatertone"`
 				Stream struct {
 					Enabled         bool    `xml:"enabled,attr"`
@@ -721,7 +721,6 @@ type Document struct {
 	} `xml:"global"`
 }
 
-
 func readxmlconfig(file string) error {
 	xmlFile, err := os.Open(file)
 	if err != nil {
@@ -736,7 +735,7 @@ func readxmlconfig(file string) error {
 
 	err = xml.Unmarshal(byteValue, &document)
 	if err != nil {
-		return fmt.Errorf(filepath.Base(file)+" "+err.Error())
+		return fmt.Errorf(filepath.Base(file) + " " + err.Error())
 	}
 
 	for i := 0; i < len(document.Accounts.Account); i++ {
@@ -765,7 +764,7 @@ func readxmlconfig(file string) error {
 	// Set our default config file path (for autoprovision)
 	defaultConfPath, err := filepath.Abs(filepath.Dir(file))
 	if err != nil {
-		FatalCleanUp("Unable to get path for config file "+err.Error())
+		FatalCleanUp("Unable to get path for config file " + err.Error())
 	}
 
 	// Set our default logging path
@@ -1753,7 +1752,7 @@ func modifyXMLTagServerHopping(inputXMLFile string, outputXMLFile string, nextse
 				if v.Name.Local != "talkkonnect/xml" {
 					err = decoder.DecodeElement(&document, &v)
 					if err != nil {
-						FatalCleanUp("Cannot Find XML Tag Document"+ err.Error())
+						FatalCleanUp("Cannot Find XML Tag Document" + err.Error())
 					}
 				}
 				// XML Tag to Replace

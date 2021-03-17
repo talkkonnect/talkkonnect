@@ -50,13 +50,12 @@ import (
 	"strings"
 	"time"
 
+	"github.com/glendc/go-external-ip"
 	"github.com/kennygrant/sanitize"
 	"github.com/talkkonnect/gumble/gumble"
 	term "github.com/talkkonnect/termbox-go"
 	"github.com/xackery/gomail"
-	"github.com/glendc/go-external-ip"
 )
-
 
 func reset() {
 	term.Sync()
@@ -121,7 +120,7 @@ func copyFile(source string, dest string) {
 func deleteFile(source string) {
 	err := os.Remove(source)
 	if err != nil {
-		FatalCleanUp("Cannot Remove Config File "+err.Error())
+		FatalCleanUp("Cannot Remove Config File " + err.Error())
 	}
 }
 
@@ -178,8 +177,8 @@ func playWavLocal(filepath string, playbackvolume int) error {
 		return errors.New("Failed to find either aplay or paplay in PATH")
 	}
 
-	log.Println("info: debug player ",player)
-	log.Println("info: debug filepath ",filepath)
+	log.Println("info: debug player ", player)
+	log.Println("info: debug filepath ", filepath)
 	cmd := exec.Command(player, filepath)
 
 	_, err := cmd.CombinedOutput()
@@ -206,7 +205,7 @@ func sendviagmail(username string, password string, receiver string, subject str
 func clearfiles() { // Testing os.Remove to delete files
 	err := os.RemoveAll(`/avrec`)
 	if err != nil {
-		fmt.Println("error: cannot remove file error ",err)
+		fmt.Println("error: cannot remove file error ", err)
 		return
 	}
 }

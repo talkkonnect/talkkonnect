@@ -73,7 +73,7 @@ func autoProvision() error {
 	log.Println("info: Trying to Autoprovision with URL: ", fileURL)
 	err := downloadFile(SaveFilePath, SaveFilename, fileURL)
 	if err != nil {
-		return fmt.Errorf("error: DownloadFile Module Returned an Error: ",err.Error())
+		return fmt.Errorf("error: DownloadFile Module Returned an Error: ", err.Error())
 	}
 
 	return nil

@@ -1,37 +1,37 @@
 package talkkonnect
 
 import (
-	"strconv"
 	"log"
 	"periph.io/x/periph/conn/physic"
 	"periph.io/x/periph/conn/spi"
 	"periph.io/x/periph/conn/spi/spireg"
 	"periph.io/x/periph/devices/apa102"
 	"periph.io/x/periph/host"
+	"strconv"
 )
 
 const (
-	numLEDs            int = 3
-	OnlineLED          int = 0
-	ParticipantsLED    int = 1
-	TransmitLED        int = 2
-	OnlineCol          string = "FF0000"
-	ParticipantsCol    string = "00FF00"
-	TransmitCol        string = "0000FF"
-	OffCol             string = "000000"
+	numLEDs         int    = 3
+	OnlineLED       int    = 0
+	ParticipantsLED int    = 1
+	TransmitLED     int    = 2
+	OnlineCol       string = "FF0000"
+	ParticipantsCol string = "00FF00"
+	TransmitCol     string = "0000FF"
+	OffCol          string = "000000"
 )
 
 type LedStrip struct {
-	buf      []byte
-	display  *apa102.Dev
+	buf          []byte
+	display      *apa102.Dev
 	spiInterface spi.PortCloser
 }
 
 func NewLedStrip() (*LedStrip, error) {
-	var spiID string = "SPI0.0" //SPI port to use
-	var intensity uint8 = 16 //light intensity [1-255]
+	var spiID string = "SPI0.0"   //SPI port to use
+	var intensity uint8 = 16      //light intensity [1-255]
 	var temperature uint16 = 5000 //light temperature in °Kelvin [3500-7500]
-	var hz physic.Frequency //SPI port speed
+	var hz physic.Frequency       //SPI port speed
 	var globalPWM bool = false
 
 	if _, err := host.Init(); err != nil {
@@ -66,8 +66,8 @@ func NewLedStrip() (*LedStrip, error) {
 	buf := make([]byte, numLEDs*3)
 
 	return &LedStrip{
-		buf: buf,
-		display: display,
+		buf:          buf,
+		display:      display,
 		spiInterface: s,
 	}, nil
 }

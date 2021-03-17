@@ -117,12 +117,12 @@ func (b *Talkkonnect) talkkonnectMenu(backgroundcolor string) {
 	localAddresses()
 	log.Println("info: Internet WAN IP Is", getOutboundIP())
 
-        macaddress, err := getMacAddr()
+	macaddress, err := getMacAddr()
 	if err != nil {
 		log.Println("error: Could Not Get Network Interface MAC Address")
 	} else {
- 		for i, a := range macaddress {
-			log.Println("info: Network Interface MAC Address ("+strconv.Itoa(i)+"): "+a)
+		for i, a := range macaddress {
+			log.Println("info: Network Interface MAC Address (" + strconv.Itoa(i) + "): " + a)
 		}
 	}
 

@@ -34,13 +34,13 @@ import (
 	"github.com/talkkonnect/gumble/gumble"
 	"github.com/talkkonnect/gumble/gumbleffmpeg"
 	htgotts "github.com/talkkonnect/htgo-tts"
+	term "github.com/talkkonnect/termbox-go"
 	"github.com/talkkonnect/volume-go"
 	"log"
 	"net"
 	"os"
 	"strconv"
 	"time"
-	term "github.com/talkkonnect/termbox-go"
 )
 
 func FatalCleanUp(message string) {
@@ -67,11 +67,11 @@ func (b *Talkkonnect) CleanUp() {
 			oledDisplay(false, 6, 1, "Please Visit")
 			oledDisplay(false, 7, 1, "www.talkkonnect.com")
 		}
-               	if !LedStripEnabled {
+		if !LedStripEnabled {
 			b.LEDOffAll()
-                } else {
+		} else {
 			MyLedStripLEDOffAll()
-                }
+		}
 	}
 
 	term.Close()

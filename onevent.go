@@ -325,4 +325,3 @@ func (b *Talkkonnect) OnContextActionChange(e *gumble.ContextActionChangeEvent) 
 
 func (b *Talkkonnect) OnServerConfig(e *gumble.ServerConfigEvent) {
 }
-

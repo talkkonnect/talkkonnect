@@ -291,7 +291,7 @@ func (b *Talkkonnect) ClientStart() {
 		log.Println("info: Target Board Set as RPI (gpio enabled) ")
 		b.initGPIO()
 		if LedStripEnabled {
-		MyLedStrip, _ = NewLedStrip()
+			MyLedStrip, _ = NewLedStrip()
 			log.Printf("info: Led Strip %v %s\n", MyLedStrip.buf, MyLedStrip.display)
 		}
 	} else {

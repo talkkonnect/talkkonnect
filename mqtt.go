@@ -206,46 +206,46 @@ func (b *Talkkonnect) onMessageReceived(client MQTT.Client, message MQTT.Message
 	case "DisplayMenu":
 		log.Println("info: MQTT Display Menu Request Processed Successfully")
 		b.cmdDisplayMenu()
-        case "ChannelUp":
+	case "ChannelUp":
 		log.Println("info: MQTT Channel Up Request Processed Successfully\n")
 		b.cmdChannelUp()
-        case "ChannelDown":
+	case "ChannelDown":
 		log.Println("info: MQTT Channel Down Request Processed Successfully\n")
 		b.cmdChannelDown()
-        case "Mute-Toggle":
+	case "Mute-Toggle":
 		log.Println("info: MQTT Mute/UnMute Speaker Request Processed Successfully\n")
 		b.cmdMuteUnmute("toggle")
-        case "Mute":
+	case "Mute":
 		log.Println("info: MQTT Mute/UnMute Speaker Request Processed Successfully\n")
 		b.cmdMuteUnmute("mute")
 	case "Unmute":
 		log.Println("info: MQTT Mute/UnMute Speaker Request Processed Successfully\n")
 		b.cmdMuteUnmute("unmute")
-        case "CurrentVolume":
+	case "CurrentVolume":
 		log.Println("info: MQTT Current Volume Level Request Processed Successfully\n")
 		b.cmdCurrentVolume()
-        case "VolumeUp":
+	case "VolumeUp":
 		log.Println("info: MQTT Digital Volume Up Request Processed Successfully\n")
 		b.cmdVolumeUp()
 	case "VolumeDown":
 		log.Println("info: MQTT Digital Volume Down Request Processed Successfully\n")
 		b.cmdVolumeDown()
-        case "ListChannels":
+	case "ListChannels":
 		log.Println("info: MQTT List Server Channels Request Processed Successfully\n")
 		b.cmdListServerChannels()
-        case "StartTransmitting":
+	case "StartTransmitting":
 		log.Println("info: MQTT Start Transmitting Request Processed Successfully\n")
 		b.cmdStartTransmitting()
-        case "StopTransmitting":
+	case "StopTransmitting":
 		log.Println("info: MQTT Stop Transmitting Request Processed Successfully\n")
 		b.cmdStopTransmitting()
-        case "ListOnlineUsers":
+	case "ListOnlineUsers":
 		log.Println("info: MQTT List Online Users Request Processed Successfully\n")
 		b.cmdListOnlineUsers()
-        case "Stream-Toggle":
+	case "Stream-Toggle":
 		log.Println("info: MQTT Play/Stop Stream Request Processed Successfully\n")
 		b.cmdPlayback()
-        case "GPSPosition":
+	case "GPSPosition":
 		log.Println("info: MQTT Request GPS Position Processed Successfully\n")
 		b.cmdGPSPosition()
 	case "SendEmail":
@@ -306,4 +306,3 @@ func (b *Talkkonnect) onMessageReceived(client MQTT.Client, message MQTT.Message
 	}
 	return
 }
-

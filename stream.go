@@ -399,7 +399,7 @@ func (b *Talkkonnect) OpenStream() {
 			}
 
 		}
-		FatalCleanUp("Stream Open Error "+err.Error())
+		FatalCleanUp("Stream Open Error " + err.Error())
 	} else {
 		b.Stream = stream
 	}

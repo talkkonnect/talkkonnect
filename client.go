@@ -109,8 +109,8 @@ type Talkkonnect struct {
 	PanicButtonState   uint
 	CommentButton      gpio.Pin
 	CommentButtonState uint
-	ChimesButton       gpio.Pin
-	ChimesButtonState  uint
+	StreamButton       gpio.Pin
+	StreamButtonState  uint
 }
 
 type ChannelsListStruct struct {

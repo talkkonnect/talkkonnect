@@ -8,15 +8,16 @@
 			<insecure>true</insecure>
 			<certificate></certificate>
 			<channel></channel>
-			<ident>Suvir Kumar</ident>
+			<ident>Name Surname</ident>
 		</account>
 	</accounts>
 	<global>
 		<software>
 			<settings>
-				<outputdevice>Speaker</outputdevice>
+				<outputdevice>Headphone Playback ZC</outputdevice>
+				<outputdeviceshort>Headphone</outputdeviceshort>
 				<logfilenameandpath>/var/log/talkkonnect.log</logfilenameandpath>
-				<logging>screenwithlineno</logging>
+				<logging>screenandfilewithlineno</logging>
 				<loglevel>debug</loglevel>
 				<daemonize>false</daemonize>
 				<cancellablestream>true</cancellablestream>
@@ -26,7 +27,7 @@
 			</settings>
 			<autoprovisioning enabled="false">
 				<tkid></tkid>
-				<url>http://pbx.dits.co.th</url>
+				<url>http://www.replaceprovisioningserverhere.com</url>
 				<savefilepath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect</savefilepath>
 				<savefilename>talkkonnect.xml</savefilename>
 			</autoprovisioning>
@@ -58,8 +59,8 @@
 				<stoptransmittingfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/StopTransmitting.wav</stoptransmittingfilenameandpath>
 				<listonlineusers>true</listonlineusers>
 				<listonlineusersfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/ListOnlineUsers.wav</listonlineusersfilenameandpath>
-				<playchimes>true</playchimes>
-				<playchimesfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/PlayChimes.wav</playchimesfilenameandpath>
+				<playstream>true</playstream>
+				<playstreamfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/PlayStream.wav</playstreamfilenameandpath>
 				<requestgpsposition>true</requestgpsposition>
 				<requestgpspositionfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/RequestGpsPosition.wav</requestgpspositionfilenameandpath>
 				<nextserver>false</nextserver>
@@ -93,7 +94,7 @@
 			</smtp>
 			<sounds>
 				<event enabled="true">
-					<joinedfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/events/joined.wav</joinedfilenameandpath>
+					<joinedfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/events/event.wav</joinedfilenameandpath>
 					<leftfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/events/left.wav</leftfilenameandpath>
 					<messagefilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/events/message.wav</messagefilenameandpath>
 				</event>
@@ -107,16 +108,16 @@
 				</incommingbeep>
 				<rogerbeep enabled="true">
 					<filenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/rogerbeeps/Image.wav</filenameandpath>
-					<volume>0.1</volume>
+					<volume>1</volume>
 				</rogerbeep>
 				<repeatertone enabled="true">
 		                	<tonefrequencyhz>1750</tonefrequencyhz>
                 			<tonedurationsec>1</tonedurationsec>
 				</repeatertone>
-				<chimes enabled="true">
+				<stream enabled="true">
 					<filenameandpath>http://prdonline.prd.go.th:8200</filenameandpath>
 					<volume>0.5</volume>
-				</chimes>
+				</stream>
 			</sounds>
 			<txtimeout enabled="false">
 				<txtimeoutsecs>60</txtimeoutsecs>
@@ -134,7 +135,7 @@
 				<starttransmitting>true</starttransmitting>
 				<stoptransmitting>true</stoptransmitting>
 				<listonlineusers>true</listonlineusers>
-				<playchimes>true</playchimes>
+				<playstream>true</playstream>
 				<requestgpsposition>true</requestgpsposition>
 				<previousserver>false</previousserver>
 				<nextserver>true</nextserver>
@@ -158,7 +159,7 @@
 				<printtxtimeout>false</printtxtimeout>
 				<printhttpapi>false</printhttpapi>
 				<printtargetboard>false</printtargetboard>
-				<printleds>false</printleds>
+				<printleds>true</printleds>
 				<printheartbeat>false</printheartbeat>
 				<printbuttons>false</printbuttons>
 				<printcomment>false</printcomment>
@@ -185,28 +186,29 @@
 		</software>
 		<hardware targetboard="rpi">
 			<lights>
-				<voiceactivityledpin>2</voiceactivityledpin>
-				<participantsledpin>3</participantsledpin>
-				<transmitledpin>4</transmitledpin>
-				<onlineledpin>5</onlineledpin>
-				<attentionledpin></attentionledpin>
+				<ledstripenabled>false</ledstripenabled>
+				<voiceactivityledpin>5</voiceactivityledpin>
+				<participantsledpin>6</participantsledpin>
+				<transmitledpin>16</transmitledpin>
+				<onlineledpin>1</onlineledpin>
+				<attentionledpin>25</attentionledpin>
 			</lights>
 			<heartbeat enabled="false">
-				<heartbeatledpin>2</heartbeatledpin>
+				<heartbeatledpin>25</heartbeatledpin>
 				<periodmsecs>2000</periodmsecs>
 				<ledonmsecs>1000</ledonmsecs>
 				<ledoffmsecs>1010</ledoffmsecs>
 			</heartbeat>
 			<buttons>
-				<txbuttonpin>26</txbuttonpin>
-				<txtogglepin>11</txtogglepin>
-				<upbuttonpin>19</upbuttonpin>
-				<downbuttonpin>13</downbuttonpin>
-				<panicbuttonpin>14</panicbuttonpin>
-				<chimesbuttonpin></chimesbuttonpin>
+				<txbuttonpin>17</txbuttonpin>
+				<txtogglepin></txtogglepin>
+				<upbuttonpin></upbuttonpin>
+				<downbuttonpin></downbuttonpin>
+				<panicbuttonpin></panicbuttonpin>
+				<streambuttonpin></streambuttonpin>
 			</buttons>
 			<comment>
-				<commentbuttonpin>9</commentbuttonpin>
+				<commentbuttonpin>5</commentbuttonpin>
 				<commentmessageoff>Standby</commentmessageoff>
 				<commentmessageon>Unavailable</commentmessageon>
 			</comment>

@@ -82,9 +82,9 @@ func (b *Talkkonnect) initGPIO() {
 		CommentButtonPinPullUp.PullUp()
 	}
 
-	if ChimesButtonPin > 0 {
-		ChimesButtonPinPullUp := rpio.Pin(ChimesButtonPin)
-		ChimesButtonPinPullUp.PullUp()
+	if StreamButtonPin > 0 {
+		StreamButtonPinPullUp := rpio.Pin(StreamButtonPin)
+		StreamButtonPinPullUp.PullUp()
 	}
 
 	if TxButtonPin > 0 || TxTogglePin > 0 || UpButtonPin > 0 || DownButtonPin > 0 || PanicButtonPin > 0 || CommentButtonPin > 0 {
@@ -299,23 +299,23 @@ func (b *Talkkonnect) initGPIO() {
 
 	}
 
-	if ChimesButtonPin > 0 {
+	if StreamButtonPin > 0 {
 
-		b.ChimesButton = gpio.NewInput(ChimesButtonPin)
+		b.StreamButton = gpio.NewInput(StreamButtonPin)
 		go func() {
 			for {
 				if IsConnected {
 
-					currentState, err := b.ChimesButton.Read()
+					currentState, err := b.StreamButton.Read()
 					time.Sleep(200 * time.Millisecond)
 
-					if currentState != b.ChimesButtonState && err == nil {
-						b.ChimesButtonState = currentState
+					if currentState != b.StreamButtonState && err == nil {
+						b.StreamButtonState = currentState
 
-						if b.ChimesButtonState == 1 {
-							log.Println("debug: Chimes Button is released")
+						if b.StreamButtonState == 1 {
+							log.Println("debug: Stream Button is released")
 						} else {
-							log.Println("debug: Chimes Button is pressed")
+							log.Println("debug: Stream Button is pressed")
 							b.cmdPlayback()
 							time.Sleep(200 * time.Millisecond)
 						}

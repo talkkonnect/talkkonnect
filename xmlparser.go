@@ -50,8 +50,8 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.61.02"
-	talkkonnectReleased string = "March 16 2021"
+	talkkonnectVersion  string = "1.62.01"
+	talkkonnectReleased string = "March 17 2021"
 )
 
 // Generic Global Variables
@@ -138,8 +138,8 @@ var (
 	TTSStopTransmittingFilenameAndPath   string
 	TTSListOnlineUsers                   bool
 	TTSListOnlineUsersFilenameAndPath    string
-	TTSPlayChimes                        bool
-	TTSPlayChimesFilenameAndPath         string
+	TTSPlayStream                        bool
+	TTSPlayStreamFilenameAndPath         string
 	TTSRequestGpsPosition                bool
 	TTSRequestGpsPositionFilenameAndPath string
 	TTSNextServer                        bool
@@ -195,9 +195,9 @@ var (
 	RepeaterToneEnabled               bool
         RepeaterToneFrequencyHz 	  int
         RepeaterToneDurationSec 	  int
-	ChimesSoundEnabled                bool
-	ChimesSoundFilenameAndPath        string
-	ChimesSoundVolume                 float32
+	StreamSoundEnabled                bool
+	StreamSoundFilenameAndPath        string
+	StreamSoundVolume                 float32
 )
 
 //api settings
@@ -215,7 +215,7 @@ var (
 	APIStartTransmitting  bool
 	APIStopTransmitting   bool
 	APIListOnlineUsers    bool
-	APIPlayChimes         bool
+	APIPlayStream         bool
 	APIRequestGpsPosition bool
 	APIEmailEnabled       bool
 	APINextServer         bool
@@ -307,7 +307,7 @@ var (
 	UpButtonPin     uint
 	DownButtonPin   uint
 	PanicButtonPin  uint
-	ChimesButtonPin uint
+	StreamButtonPin uint
 )
 
 //comment settings
@@ -481,8 +481,8 @@ type Document struct {
 				StopTransmittingFilenameAndPath   string `xml:"stoptransmittingfilenameandpath"`
 				ListOnlineUsers                   bool   `xml:"listonlineusers"`
 				ListOnlineUsersFilenameAndPath    string `xml:"listonlineusersfilenameandpath"`
-				PlayChimes                        bool   `xml:"playchimes"`
-				PlayChimesFilenameAndPath         string `xml:"playchimesfilenameandpath"`
+				PlayStream                        bool   `xml:"playstream"`
+				PlayStreamFilenameAndPath         string `xml:"playstreamfilenameandpath"`
 				RequestGpsPosition                bool   `xml:"requestgpsposition"`
 				RequestGpsPositionFilenameAndPath string `xml:"requestgpspositionfilenameandpath"`
 				NextServer                        bool   `xml:"nextserver"`
@@ -542,11 +542,11 @@ type Document struct {
                 			ToneFrequencyHz int     `xml:"tonefrequencyhz"`
 					ToneDurationSec int     `xml:"tonedurationsec"`
 				} `xml:"repeatertone"`
-				Chimes struct {
+				Stream struct {
 					Enabled         bool    `xml:"enabled,attr"`
 					FilenameAndPath string  `xml:"filenameandpath"`
 					Volume          float32 `xml:"volume"`
-				} `xml:"chimes"`
+				} `xml:"stream"`
 			} `xml:"sounds"`
 			TxTimeOut struct {
 				Enabled       bool `xml:"enabled,attr"`
@@ -566,7 +566,7 @@ type Document struct {
 				StartTransmitting  bool   `xml:"starttransmitting"`
 				StopTransmitting   bool   `xml:"stoptransmitting"`
 				ListOnlineUsers    bool   `xml:"listonlineusers"`
-				PlayChimes         bool   `xml:"playchimes"`
+				PlayStream         bool   `xml:"playstream"`
 				RequestGpsPosition bool   `xml:"requestgpsposition"`
 				PreviousServer     bool   `xml:"previousserver"`
 				NextServer         bool   `xml:"nextserver"`
@@ -639,7 +639,7 @@ type Document struct {
 				UpButtonPin     string `xml:"upbuttonpin"`
 				DownButtonPin   string `xml:"downbuttonpin"`
 				PanicButtonPin  string `xml:"panicbuttonpin"`
-				ChimesButtonPin string `xml:"chimesbuttonpin"`
+				StreamButtonPin string `xml:"streambuttonpin"`
 			} `xml:"buttons"`
 			Comment struct {
 				CommentButtonPin  string `xml:"commentbuttonpin"`
@@ -973,13 +973,13 @@ func readxmlconfig(file string) error {
 		}
 	}
 
-	TTSPlayChimes = document.Global.Software.TTS.PlayChimes
-	TTSPlayChimesFilenameAndPath = document.Global.Software.TTS.PlayChimesFilenameAndPath
+	TTSPlayStream = document.Global.Software.TTS.PlayStream
+	TTSPlayStreamFilenameAndPath = document.Global.Software.TTS.PlayStreamFilenameAndPath
 
-	if TTSPlayChimes && TTSPlayChimesFilenameAndPath == "" {
-		path := defaultSharePath + "/soundfiles/voiceprompts/PlayChimes.wav"
+	if TTSPlayStream && TTSPlayStreamFilenameAndPath == "" {
+		path := defaultSharePath + "/soundfiles/voiceprompts/PlayStream.wav"
 		if _, err := os.Stat(path); err == nil {
-			TTSPlayChimesFilenameAndPath = path
+			TTSPlayStreamFilenameAndPath = path
 		}
 	}
 
@@ -1163,17 +1163,17 @@ func readxmlconfig(file string) error {
 	RepeaterToneFrequencyHz = document.Global.Software.Sounds.RepeaterTone.ToneFrequencyHz
 	RepeaterToneDurationSec = document.Global.Software.Sounds.RepeaterTone.ToneDurationSec
 
-	ChimesSoundEnabled = document.Global.Software.Sounds.Chimes.Enabled
-	ChimesSoundFilenameAndPath = document.Global.Software.Sounds.Chimes.FilenameAndPath
+	StreamSoundEnabled = document.Global.Software.Sounds.Stream.Enabled
+	StreamSoundFilenameAndPath = document.Global.Software.Sounds.Stream.FilenameAndPath
 
-	if ChimesSoundEnabled && ChimesSoundFilenameAndPath == "" {
-		path := defaultSharePath + "/soundfiles/alerts/chimes.wav"
+	if StreamSoundEnabled && StreamSoundFilenameAndPath == "" {
+		path := defaultSharePath + "/soundfiles/alerts/stream.wav"
 		if _, err := os.Stat(path); err == nil {
-			ChimesSoundFilenameAndPath = path
+			StreamSoundFilenameAndPath = path
 		}
 	}
 
-	ChimesSoundVolume = document.Global.Software.Sounds.Chimes.Volume
+	StreamSoundVolume = document.Global.Software.Sounds.Stream.Volume
 
 	TxTimeOutEnabled = document.Global.Software.TxTimeOut.Enabled
 	TxTimeOutSecs = document.Global.Software.TxTimeOut.TxTimeOutSecs
@@ -1191,7 +1191,7 @@ func readxmlconfig(file string) error {
 	APIStartTransmitting = document.Global.Software.API.StartTransmitting
 	APIStopTransmitting = document.Global.Software.API.StopTransmitting
 	APIListOnlineUsers = document.Global.Software.API.ListOnlineUsers
-	APIPlayChimes = document.Global.Software.API.PlayChimes
+	APIPlayStream = document.Global.Software.API.PlayStream
 	APIRequestGpsPosition = document.Global.Software.API.RequestGpsPosition
 	APIEmailEnabled = document.Global.Software.API.Enabled
 	APINextServer = document.Global.Software.API.NextServer
@@ -1277,8 +1277,8 @@ func readxmlconfig(file string) error {
 	CommentButtonPin = uint(temp11)
 	CommentMessageOff = document.Global.Hardware.Comment.CommentMessageOff
 	CommentMessageOn = document.Global.Hardware.Comment.CommentMessageOn
-	temp12, _ := strconv.ParseUint(document.Global.Hardware.Buttons.ChimesButtonPin, 10, 64)
-	ChimesButtonPin = uint(temp12)
+	temp12, _ := strconv.ParseUint(document.Global.Hardware.Buttons.StreamButtonPin, 10, 64)
+	StreamButtonPin = uint(temp12)
 
 	LCDEnabled = document.Global.Hardware.LCD.Enabled
 	LCDInterfaceType = document.Global.Hardware.LCD.InterfaceType
@@ -1458,8 +1458,8 @@ func printxmlconfig() {
 		log.Println("info: TTS StopTransmittingFilenameAndPath ", TTSStopTransmittingFilenameAndPath)
 		log.Println("info: TTS ListOnlineUsers    ", fmt.Sprintf("%t", TTSListOnlineUsers))
 		log.Println("info: TTS ListOnlineUsersFilenameAndPath ", TTSListOnlineUsersFilenameAndPath)
-		log.Println("info: TTS PlayChimes         ", fmt.Sprintf("%t", TTSPlayChimes))
-		log.Println("info: TTS PlayChimesFilenameAndPath ", TTSPlayChimesFilenameAndPath)
+		log.Println("info: TTS PlayStream         ", fmt.Sprintf("%t", TTSPlayStream))
+		log.Println("info: TTS PlayStreamFilenameAndPath ", TTSPlayStreamFilenameAndPath)
 		log.Println("info: TTS RequestGpsPosition ", fmt.Sprintf("%t", TTSRequestGpsPosition))
 		log.Println("info: TTS RequestGpsPositionFilenameAndPath ", TTSRequestGpsPositionFilenameAndPath)
 		log.Println("info: TTS NextServer         ", fmt.Sprintf("%t", TTSNextServer))
@@ -1518,9 +1518,9 @@ func printxmlconfig() {
 		log.Println("info: Repeater Tone Enabled      " + fmt.Sprintf("%t", RepeaterToneEnabled))
 		log.Println("info: Repeater Tone Freq (Hz)    " + fmt.Sprintf("%v", RepeaterToneFrequencyHz))
 		log.Println("info: Repeater Tone Length (Sec) " + fmt.Sprintf("%v", RepeaterToneDurationSec))
-		log.Println("info: Chimes Enabled             " + fmt.Sprintf("%t", ChimesSoundEnabled))
-		log.Println("info: Chimes File                " + ChimesSoundFilenameAndPath)
-		log.Println("info: Chimes Volume              " + fmt.Sprintf("%v", ChimesSoundVolume))
+		log.Println("info: Stream Enabled             " + fmt.Sprintf("%t", StreamSoundEnabled))
+		log.Println("info: Stream File                " + StreamSoundFilenameAndPath)
+		log.Println("info: Stream Volume              " + fmt.Sprintf("%v", StreamSoundVolume))
 	} else {
 		log.Println("info: ------------ Sounds  ------------------ SKIPPED ")
 	}
@@ -1548,7 +1548,7 @@ func printxmlconfig() {
 		log.Println("info: StartTransmitting  " + fmt.Sprintf("%t", APIStartTransmitting))
 		log.Println("info: StopTransmitting   " + fmt.Sprintf("%t", APIStopTransmitting))
 		log.Println("info: ListOnlineUsers    " + fmt.Sprintf("%t", APIListOnlineUsers))
-		log.Println("info: PlayChimes         " + fmt.Sprintf("%t", APIPlayChimes))
+		log.Println("info: PlayStream         " + fmt.Sprintf("%t", APIPlayStream))
 		log.Println("info: RequestGpsPosition " + fmt.Sprintf("%t", APIRequestGpsPosition))
 		log.Println("info: EmailEnabled       " + fmt.Sprintf("%t", APIEmailEnabled))
 		log.Println("info: NextServer         " + fmt.Sprintf("%t", APINextServer))
@@ -1599,7 +1599,7 @@ func printxmlconfig() {
 		log.Println("info: Channel Up Button Pin   " + fmt.Sprintf("%v", UpButtonPin))
 		log.Println("info: Channel Down Button Pin " + fmt.Sprintf("%v", DownButtonPin))
 		log.Println("info: Panic Button Pin        " + fmt.Sprintf("%v", PanicButtonPin))
-		log.Println("info: Chimes Button Pin       " + fmt.Sprintf("%v", ChimesButtonPin))
+		log.Println("info: Stream Button Pin       " + fmt.Sprintf("%v", StreamButtonPin))
 	} else {
 		log.Println("info: ------------ Buttons  ------------------- SKIPPED ")
 	}

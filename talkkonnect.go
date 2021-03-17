@@ -93,7 +93,7 @@ func (b *Talkkonnect) talkkonnectMenu(backgroundcolor string) {
 	log.Println("info: " + backgroundcolor + "│ <F5>  Digital Volume Up (+) │ <F6>  Digital Volume Down (-)  │" + backgroundreset)
 	log.Println("info: " + backgroundcolor + "│ <F7>  List Server Channels  │ <F8>  Start Transmitting       │" + backgroundreset)
 	log.Println("info: " + backgroundcolor + "│ <F9>  Stop Transmitting     │ <F10> List Online Users        │" + backgroundreset)
-	log.Println("info: " + backgroundcolor + "│ <F11> Playback/Stop Chimes  │ <F12> For GPS Position         │" + backgroundreset)
+	log.Println("info: " + backgroundcolor + "│ <F11> Playback/Stop Stream  │ <F12> For GPS Position         │" + backgroundreset)
 	log.Println("info: " + backgroundcolor + "├─────────────────────────────┼────────────────────────────────┤" + backgroundreset)
 	log.Println("info: " + backgroundcolor + "│<Ctrl-D> Debug Stacktrace    │                                │" + backgroundreset)
 	log.Println("info: " + backgroundcolor + "├─────────────────────────────┼────────────────────────────────┤" + backgroundreset)

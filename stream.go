@@ -311,7 +311,7 @@ func (b *Talkkonnect) playIntoStream(filepath string, vol float32) {
 		return
 	}
 
-	if ChimesSoundEnabled && IsPlayStream {
+	if StreamSoundEnabled && IsPlayStream {
 		if pstream != nil && pstream.State() == gumbleffmpeg.StatePlaying {
 			pstream.Stop()
 			return

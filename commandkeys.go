@@ -321,7 +321,7 @@ func (b *Talkkonnect) cmdStartTransmitting() {
 		IsPlayStream = false
 		NowStreaming = false
 
-		b.playIntoStream(ChimesSoundFilenameAndPath, ChimesSoundVolume)
+		b.playIntoStream(StreamSoundFilenameAndPath, StreamSoundVolume)
 	}
 
 	if !b.IsTransmitting {
@@ -348,7 +348,7 @@ func (b *Talkkonnect) cmdStopTransmitting() {
 		IsPlayStream = false
 		NowStreaming = false
 
-		b.playIntoStream(ChimesSoundFilenameAndPath, ChimesSoundVolume)
+		b.playIntoStream(StreamSoundFilenameAndPath, StreamSoundVolume)
 	}
 
 	if b.IsTransmitting {
@@ -377,15 +377,15 @@ func (b *Talkkonnect) cmdListOnlineUsers() {
 }
 
 func (b *Talkkonnect) cmdPlayback() {
-	log.Println("debug: F11 pressed Start/Stop Chimes Stream into Current Channel Requested")
+	log.Println("debug: F11 pressed Start/Stop Stream Stream into Current Channel Requested")
 	log.Println("info: Stream into Current Channel")
 
 	b.BackLightTimer()
 
-	if TTSEnabled && TTSPlayChimes {
-		err := playWavLocal(TTSPlayChimesFilenameAndPath, TTSVolumeLevel)
+	if TTSEnabled && TTSPlayStream {
+		err := playWavLocal(TTSPlayStreamFilenameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("error: playWavLocal(TTSPlayChimesFilenameAndPath) Returned Error: ", err)
+			log.Println("error: playWavLocal(TTSPlayStreamFilenameAndPath) Returned Error: ", err)
 
 		}
 
@@ -403,7 +403,7 @@ func (b *Talkkonnect) cmdPlayback() {
 		b.SendMessage(fmt.Sprintf("%s Streaming", b.Username), false)
 	}
 
-	go b.playIntoStream(ChimesSoundFilenameAndPath, ChimesSoundVolume)
+	go b.playIntoStream(StreamSoundFilenameAndPath, StreamSoundVolume)
 
 }
 

@@ -150,7 +150,7 @@ func (b *Talkkonnect) TransmitStart() {
 		IsPlayStream = false
 		NowStreaming = false
 		time.Sleep(100 * time.Millisecond)
-		b.playIntoStream(ChimesSoundFilenameAndPath, ChimesSoundVolume)
+		b.playIntoStream(StreamSoundFilenameAndPath, StreamSoundVolume)
 	}
 
 	if TargetBoard == "rpi" {

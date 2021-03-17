@@ -407,7 +407,7 @@ For a speaker muting to work when pressing a PTT, you need to enter the exact na
 │ <F5>  Digital Volume Up (+) │ <F6>  Digital Volume Down (-)  │
 │ <F7>  List Server Channels  │ <F8>  Start Transmitting       │
 │ <F9>  Stop Transmitting     │ <F10> List Online Users        │
-│ <F11> Playback/Stop Chimes  │ <F12> For GPS Position         │
+│ <F11> Playback/Stop Stream  │ <F12> For GPS Position         │
 ├─────────────────────────────┼────────────────────────────────┤
 │<Ctrl-D> Debug Stacktrace    │                                │
 ├─────────────────────────────┼────────────────────────────────┤
@@ -489,7 +489,7 @@ For a speaker muting to work when pressing a PTT, you need to enter the exact na
 * The event tag is used to play an audible alert when there are changes of other users statuses 
 * The alert tag is used to play an WAV file into the stream to the receiving party upon a user generated panic request
 * The rogerbeep tag is used to define the WAV file to play at the end of every transmission 
-* The tag name chimes can be misleading. This function is very powerful and can be used to define a local file or network stream that will be played into the mumble channel upon pressing the F11 key. Very useful for debugging.
+* The tag name stream, This function is very powerful and can be used to define a local file or network stream that will be played into the mumble channel upon pressing the F11 key. Very useful for debugging.
 
 ##### The TXTIMEOUT section
 * The txtimeout tag is used to limit the length of a single transmission in seconds. This tag is useful when used as a repeater between RF and mumble.
@@ -499,7 +499,7 @@ For a speaker muting to work when pressing a PTT, you need to enter the exact na
 * The tag apilisten port defines the port that talkkonnect should listen and respond to remote control http requests 
 * To use httpapi you can use your browser to go to the url http://{talkkonnectip}/?command=F1 (Replace {talkkonnectip} with the IP address of your talkkonnect)
 * HTTPAPI commands supported are F1  Channel Up (+), F2  Channel Down (-), F3  Mute/Unmute Speaker, F4  Current Volume Level, F5  Digital Volume Up (+), F6  Digital Volume Down (-), 
-F7  List Server Channels, F8  Start Transmitting, F9  Stop Transmitting, F10 List Online Users, F11 Playback/Stop Chimes, F12 For GPS Position, Ctrl-E Send Email, Ctrl-L Clear Screen, 
+F7  List Server Channels, F8  Start Transmitting, F9  Stop Transmitting, F10 List Online Users, F11 Playback/Stop Stream, F12 For GPS Position, Ctrl-E Send Email, Ctrl-L Clear Screen, 
 Ctrl-M Ping Servers, Ctrl-N Connect Next Server, Ctrl-P Panic Simulation, Ctrl-S Scan Channels, Ctrl-X Dump XML Config
 
 

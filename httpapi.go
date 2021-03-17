@@ -140,11 +140,11 @@ func (b *Talkkonnect) httpAPI(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprintf(w, "API List Online Users Request Denied\n")
 		}
 	case "Stream-Toggle":
-		if APIPlayChimes {
+		if APIPlayStream {
 			b.cmdPlayback()
-			fmt.Fprintf(w, "API Play/Stop Chimes Request Processed Successfully\n")
+			fmt.Fprintf(w, "API Play/Stop Stream Request Processed Successfully\n")
 		} else {
-			fmt.Fprintf(w, "API Play/Stop Chimes Request Denied\n")
+			fmt.Fprintf(w, "API Play/Stop Stream Request Denied\n")
 		}
 	case "GPSPosition":
 		if APIRequestGpsPosition {

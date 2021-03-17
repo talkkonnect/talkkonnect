@@ -243,7 +243,7 @@ func (b *Talkkonnect) onMessageReceived(client MQTT.Client, message MQTT.Message
 		log.Println("info: MQTT List Online Users Request Processed Successfully\n")
 		b.cmdListOnlineUsers()
         case "Stream-Toggle":
-		log.Println("info: MQTT Play/Stop Chimes Request Processed Successfully\n")
+		log.Println("info: MQTT Play/Stop Stream Request Processed Successfully\n")
 		b.cmdPlayback()
         case "GPSPosition":
 		log.Println("info: MQTT Request GPS Position Processed Successfully\n")

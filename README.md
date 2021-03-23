@@ -512,6 +512,51 @@ Ctrl-M Ping Servers, Ctrl-N Connect Next Server, Ctrl-P Panic Simulation, Ctrl-S
 * You can subscribe to the mqtt server topic of your choice
 * With MQTT you can remote control talkkonnect as well as Relays to control external devices 
 
+Below are Valid Commands for MQTT
+
+* DisplayMenu - To Display the Menu on the talkkonnect console
+* ChannelUp - To Command talkkonnect to move up 1 channel
+* ChannelDown - To Command talkkonnect to move down 1 channel
+* Mute-Toggle - Mute/Unmute talkkonnect depending on last state (Output of Sound Card)
+* Mute - Force Mute of Speaker (Output of Sound Card)
+* Unmute - Force Unmute of Speaker (Output of Sound Card)
+* CurrentVolume - Get Current Volume of speaker (Output of Sound Card)
+* VolumeUp - Increase the Volume of speaker (Output of Sound Card)
+* VolumeDown  - Decrease the Volume of speaker (Output of Sound Card)
+* ListChannels - List Channels in the Server you are currently connected to
+* StartTransmitting - Force talkkonnect to start transmitting
+* StopTransmitting - Force talkkonnect to stop transmitting
+* ListOnlineUsers - List online users to talkkonnect console
+* Stream-Toggle - Start/Stop HTTP Stream or the playing of local file over the mumble channel to all users
+* GPSPosition - Get Current GPS Position from UBLOX Serial GPS Receiver
+* SendEmail - Send Email with User Information and predefined message
+* ConnPreviousServer - Connect to the next server in talkkonnect.xml configuration file
+* ConnNextServer - Connect to the previous server in talkkonnect.xml configuration file
+* ClearScreen - Clear the talkkonnect console
+* PingServers - Ping mumble server and show results on console
+* PanicSimulation - Send distress signal over the channel
+* RepeatTxLoop - Repeat tx and rx 100 times for testing
+* ScanChannels - Scan the channels in the server and stop at channel with user online
+* Thanks - Show Acknowledge menssage on talkkonnect console
+* ShowUptime - Show uptime to user on the console of how long talkkonnect session has been running
+* DumpXMLConfig - Dump XML config file on talkkonnect console
+* attentionled:on - Turn on Attention LED connected on gpio pin as defined in talkkonnect.xml
+* attentionled:off - Turn off Attention LED connected on gpio pin as defined in talkkonnect.xml
+* relay1:on - Turn on Relay connected on gpio pin as defined in talkkonnect.xml
+* relay1:off - Turn off Relay connected on gpio pin as defined in talkkonnect.xml
+* relay1:pulse - Pulse Relay connected on gpio pin as defined in talkkonnect.xml
+* PlayRepeaterTone - Play Predefined frequency and duration of repeater tone as per talkkonnect.xml file
+
+For Example on the topic thailand/bangkok/company/talkkonnect/attentionled:on will turn on the LED to get the attentionled
+of a user. 
+
+Another Example on the topic thailand/bangkok/company/talkkonnect/relay1:pulse will simulate a push button for example to
+open the door for a an access control system
+
+For the above example to work you will have to specify the gpio pin in the <lights> section of the xml file
+<attentionledpin></attentionledpin>
+<relay1pin></relay1pin>
+
 #### Hardware Section
 * The tag targetboard has 2 option (1) pc and (2)rpi. pc mode is used when talkkonnect is running on a pc or server that does not have GPIOs and is not interfaced to buttons and a LCD screen. 
 * To run on raspberry pi or other compatible single board computers set the targetboard to rpi this will enable the GPIO outputs/inputs.

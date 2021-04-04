@@ -130,6 +130,13 @@ func Init(file string, ServerIndex string) {
 	colog.Register()
 	colog.SetOutput(os.Stdout)
 
+	ConfigXMLFile = file
+	err = readxmlconfig(ConfigXMLFile)
+	if err != nil {
+		message := err.Error()
+		FatalCleanUp(message)
+	}
+
 	if Logging == "screen" {
 		colog.SetFlags(log.Ldate | log.Ltime)
 	}
@@ -162,12 +169,6 @@ func Init(file string, ServerIndex string) {
 		log.Println("info: Default Loglevel unset in XML config automatically loglevel to Info")
 	}
 
-	ConfigXMLFile = file
-	err = readxmlconfig(ConfigXMLFile)
-	if err != nil {
-		message := err.Error()
-		FatalCleanUp(message)
-	}
 
 	if APEnabled {
 		log.Println("info: Contacting http Provisioning Server Pls Wait")

@@ -98,7 +98,7 @@ A good shileded cable for microphone is recommended to keep the noise picked up 
 * This image has been configured to work with a IM69D130 Mems Microphone and the onboard sound card out of the box.
 * The XML file is configured to run in rpi mode so GPIO will initalized, this is so that the Pin 11 XML tag value 17 when shorted to ground will act as the PTT button. This mems microphone will enable you to have a small build with excellent sound quality whilst using the internal provided sound card in the raspberry pi.
 	
-* For the wiring of the microphone to Raspberry Pi See This Link https://github.com/Infineon/GetStarted_IM69D130_With_RaspberryPi
+* For the wiring of the microphone to Raspberry Pi See This [inmp411 wiring diagram](https://makersportal.com/shop/i2s-mems-microphone-for-raspberry-pi-inmp441)
 * Instructions for compiling the kernel to support his mic was found at https://github.com/Infineon/GetStarted_IM69D130_With_RaspberryPi
 
 ### Installation Instructions For Raspberry Pi Boards (from Source code) ###

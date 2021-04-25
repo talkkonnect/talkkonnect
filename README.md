@@ -89,6 +89,18 @@ A good shileded cable for microphone is recommended to keep the noise picked up 
 * This image has been configured to work with a Respeaker HAT out of the box so I2S, I2C and all required modules are installed and running. 
 * The XML file is configured to run in rpi mode so GPIO will initalized, this is so that the respeaker will work with output sound on the headphone jack, led strip working and push button microswitch on the hat can be used for transmitting.    
 
+### Quick Download Link for Pre-Made SD Card Image for Use with Raspberry pi 2/3/4 and IM69D130 Mems Microphone ### 
+* [Click Here to Download Pre-Configured SD Card Image for talkkonnect with IM69D130 Mems Microphone](https://drive.google.com/file/d/1lutT3rNk5-zLz6M7FdLNJ47FIvDNCmNC/view?usp=sharing) 
+* Many people currently shy away from talkkonnect thinking it is daunting due to the installation instructions hopefully this image will lower that barrier of entry.
+* For this pre-made image you can log in as root over ssh on port 22 using the password talkkonnect
+* This image will not be the latest version but it will be convinient for you to get up and running quickly, so that you don't have to install everything from scratch
+* After you intall the image you can copy the tk-update.sh in the scripts folder to your /root home and run it to update to the lastest version
+* This image has been configured to work with a IM69D130 Mems Microphone and the onboard sound card out of the box.
+* The XML file is configured to run in rpi mode so GPIO will initalized, this is so that the Pin 11 XML tag value 17 when shorted to ground will act as the PTT button. This mems microphone will enable you to have a small build with excellent sound quality whilst using the internal provided sound card in the raspberry pi.
+	
+* For the wiring of the microphone to Raspberry Pi See This Link https://github.com/Infineon/GetStarted_IM69D130_With_RaspberryPi
+* Instructions for compiling the kernel to support his mic was found at https://github.com/Infineon/GetStarted_IM69D130_With_RaspberryPi
+
 ### Installation Instructions For Raspberry Pi Boards (from Source code) ###
 
 Download the latest version of [Raspberry Pi OS Lite](https://downloads.raspberrypi.org/raspios_lite_armhf/images/raspios_lite_armhf-2021-01-12/2021-01-11-raspios-buster-armhf-lite.zip). 

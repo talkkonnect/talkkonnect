@@ -50,8 +50,8 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.62.02"
-	talkkonnectReleased string = "April 04 2021"
+	talkkonnectVersion  string = "1.63.01"
+	talkkonnectReleased string = "May 09 2021"
 )
 
 // Generic Global Variables
@@ -248,6 +248,7 @@ var (
 	PrintLcd          bool
 	PrintOled         bool
 	PrintGps          bool
+	PrintTraccar      bool
 	PrintPanic        bool
 	PrintAudioRecord  bool
 	PrintMQTT         bool
@@ -373,6 +374,20 @@ var (
 	CharTimeOut         uint
 	MinRead             uint
 	Rx                  bool
+	GpsInfoVerbose      bool
+)
+
+var (
+	TrackEnabled           bool
+	TraccarSendTo          bool
+	TraccarServerURL       string
+	TraccarServerIP        string
+	TraccarClientId        string
+	TraccarReportFrequency int64
+	TraccarProto           string
+	TraccarServerFullURL   string
+	TrackGPSShowLCD        bool
+	TrackVerbose           bool
 )
 
 //panic function settings
@@ -380,15 +395,16 @@ var (
 	PEnabled           bool
 	PFilenameAndPath   string
 	PMessage           string
+	PMailEnabled       bool
 	PRecursive         bool
 	PVolume            float32
 	PSendIdent         bool
 	PSendGpsLocation   bool
 	PTxLockEnabled     bool
 	PTxlockTimeOutSecs uint
+	PLowProfile        bool
 )
 
-//audio recording settings // New
 var (
 	AudioRecordEnabled     bool
 	AudioRecordOnStart     bool
@@ -406,13 +422,14 @@ var (
 	AudioRecordChunkSize   string
 )
 
-//other global variables used for state tracking
 var (
 	txcounter         int
 	togglecounter     int
 	isTx              bool
 	isPlayStream      bool
 	CancellableStream bool = true
+	StreamOnStart     bool
+	StreamStartAfter  uint
 )
 
 type Document struct {
@@ -439,10 +456,12 @@ type Document struct {
 				Logging            string `xml:"logging"`
 				Loglevel           string `xml:"loglevel"`
 				Daemonize          bool   `xml:"daemonize"`
-				CancellableStream  bool   `xml:"cancellablestream"`
-				SimplexWithMute    bool   `xml:"simplexwithmute"`
-				TxCounter          bool   `xml:"txcounter"`
-				NextServerIndex    int    `xml:"nextserverindex"`
+
+				CancellableStream bool `xml:"cancellablestream"`
+				StreamOnStart     bool `xml:"streamonstart"`
+				SimplexWithMute   bool `xml:"simplexwithmute"`
+				TxCounter         bool `xml:"txcounter"`
+				NextServerIndex   int  `xml:"nextserverindex"`
 			} `xml:"settings"`
 			AutoProvisioning struct {
 				Enabled      bool   `xml:"enabled,attr"`
@@ -597,6 +616,7 @@ type Document struct {
 				PrintLcd          bool `xml:"printlcd"`
 				PrintOled         bool `xml:"printoled"`
 				PrintGps          bool `xml:"printgps"`
+				PrintTraccar      bool `xml:"printtraccar"`
 				PrintPanic        bool `xml:"printpanic"`
 				PrintAudioRecord  bool `xml:"printaudiorecord"`
 				PrintMQTT         bool `xml:"printmqtt"`
@@ -689,22 +709,38 @@ type Document struct {
 				CharTimeOut         uint   `xml:"chartimeout"`
 				MinRead             uint   `xml:"minread"`
 				Rx                  bool   `xml:"rx"`
+				GpsInfoVerbose      bool   `xml:"gpsinfoverbose"`
 			} `xml:"gps"`
+			GPSTrackingFunction struct {
+				TrackEnabled           bool   `xml:"enabled,attr"`
+				TraccarSendTo          bool   `xml:"traccarsendto"`
+				TraccarServerURL       string `xml:"traccarserverurl"`
+				TraccarServerIP        string `xml:"traccarserverip"`
+				TraccarClientId        string `xml:"traccarclientid"`
+				TraccarReportFrequency int64  `xml:"traccarreportfrequency"`
+				TraccarProto           string `xml:"traccarproto"`
+				TraccarServerFullURL   string `xml:"traccarserverfullurl"`
+				TrackGPSShowLCD        bool   `xml:"trackgpsshowlcd"`
+				TrackVerbose           bool   `xml:"trackverbose"`
+			} `xml:"gpstrackingfunction"`
 			PanicFunction struct {
 				Enabled              bool    `xml:"enabled,attr"`
 				FilenameAndPath      string  `xml:"filenameandpath"`
 				Volume               float32 `xml:"volume"`
 				SendIdent            bool    `xml:"sendident"`
 				Message              string  `xml:"panicmessage"`
+				PMailEnabled         bool    `xml:"panicemail"`
+				PEavesdropEnabled    bool    `xml:"eavesdrop"`
 				RecursiveSendMessage string  `xml:"recursivesendmessage"`
 				SendGpsLocation      bool    `xml:"sendgpslocation"`
 				TxLockEnabled        bool    `xml:"txlockenabled"`
 				TxLockTimeOutSecs    uint    `xml:"txlocktimeoutsecs"`
+				PLowProfile          bool    `xml:"lowprofile"`
 			} `xml:"panicfunction"`
 			AudioRecordFunction struct {
 				Enabled           bool   `xml:"enabled,attr"`
 				RecordOnStart     bool   `xml:"recordonstart"`
-				RecordSystem      string `xml:"recordsystem"` // New
+				RecordSystem      string `xml:"recordsystem"`
 				RecordMode        string `xml:"recordmode"`
 				RecordTimeout     int64  `xml:"recordtimeout"`
 				RecordFromOutput  string `xml:"recordfromoutput"`
@@ -837,7 +873,10 @@ func readxmlconfig(file string) error {
 	}
 
 	Daemonize = document.Global.Software.Settings.Daemonize
+
 	CancellableStream = document.Global.Software.Settings.CancellableStream
+	StreamOnStart = document.Global.Software.Settings.StreamOnStart
+
 	SimplexWithMute = document.Global.Software.Settings.SimplexWithMute
 	TxCounter = document.Global.Software.Settings.TxCounter
 	NextServerIndex = document.Global.Software.Settings.NextServerIndex
@@ -853,7 +892,7 @@ func readxmlconfig(file string) error {
 	}
 
 	if APEnabled && SaveFilename == "" {
-		SaveFilename = filepath.Base(exec) + ".xml" //Should default to talkkonnect.xml
+		SaveFilename = filepath.Base(exec) + "talkkonnect.xml"
 	}
 
 	BeaconEnabled = document.Global.Software.Beacon.Enabled
@@ -1225,7 +1264,6 @@ func readxmlconfig(file string) error {
 	MQTTStore = document.Global.Software.MQTT.MQTTStore
 
 	PrintHTTPAPI = document.Global.Software.PrintVariables.PrintHTTPAPI
-
 	PrintTargetboard = document.Global.Software.PrintVariables.PrintTargetBoard
 	PrintLeds = document.Global.Software.PrintVariables.PrintLeds
 	PrintHeartbeat = document.Global.Software.PrintVariables.PrintHeartbeat
@@ -1234,6 +1272,7 @@ func readxmlconfig(file string) error {
 	PrintLcd = document.Global.Software.PrintVariables.PrintLcd
 	PrintOled = document.Global.Software.PrintVariables.PrintOled
 	PrintGps = document.Global.Software.PrintVariables.PrintGps
+	PrintTraccar = document.Global.Software.PrintVariables.PrintTraccar
 	PrintPanic = document.Global.Software.PrintVariables.PrintPanic
 	PrintAudioRecord = document.Global.Software.PrintVariables.PrintAudioRecord
 	PrintMQTT = document.Global.Software.PrintVariables.PrintMQTT
@@ -1323,7 +1362,17 @@ func readxmlconfig(file string) error {
 	CharTimeOut = document.Global.Hardware.GPS.CharTimeOut
 	MinRead = document.Global.Hardware.GPS.MinRead
 	Rx = document.Global.Hardware.GPS.Rx
-
+	GpsInfoVerbose = document.Global.Hardware.GPS.GpsInfoVerbose
+	TrackEnabled = document.Global.Hardware.GPSTrackingFunction.TrackEnabled
+	TraccarSendTo = document.Global.Hardware.GPSTrackingFunction.TraccarSendTo
+	TraccarServerURL = document.Global.Hardware.GPSTrackingFunction.TraccarServerURL
+	TraccarServerIP = document.Global.Hardware.GPSTrackingFunction.TraccarServerIP
+	TraccarClientId = document.Global.Hardware.GPSTrackingFunction.TraccarClientId
+	TraccarReportFrequency = document.Global.Hardware.GPSTrackingFunction.TraccarReportFrequency
+	TraccarProto = document.Global.Hardware.GPSTrackingFunction.TraccarProto
+	TraccarServerFullURL = document.Global.Hardware.GPSTrackingFunction.TraccarServerFullURL
+	TrackGPSShowLCD = document.Global.Hardware.GPSTrackingFunction.TrackGPSShowLCD
+	TrackVerbose = document.Global.Hardware.GPSTrackingFunction.TrackVerbose
 	PEnabled = document.Global.Hardware.PanicFunction.Enabled
 	PFilenameAndPath = document.Global.Hardware.PanicFunction.FilenameAndPath
 
@@ -1335,12 +1384,13 @@ func readxmlconfig(file string) error {
 	}
 
 	PMessage = document.Global.Hardware.PanicFunction.Message
+	PMailEnabled = document.Global.Hardware.PanicFunction.PMailEnabled
 	PVolume = document.Global.Hardware.PanicFunction.Volume
 	PSendIdent = document.Global.Hardware.PanicFunction.SendIdent
 	PSendGpsLocation = document.Global.Hardware.PanicFunction.SendGpsLocation
 	PTxLockEnabled = document.Global.Hardware.PanicFunction.TxLockEnabled
 	PTxlockTimeOutSecs = document.Global.Hardware.PanicFunction.TxLockTimeOutSecs
-
+	PLowProfile = document.Global.Hardware.PanicFunction.PLowProfile
 	AudioRecordEnabled = document.Global.Hardware.AudioRecordFunction.Enabled
 	AudioRecordOnStart = document.Global.Hardware.AudioRecordFunction.RecordOnStart
 	AudioRecordSystem = document.Global.Hardware.AudioRecordFunction.RecordSystem
@@ -1404,6 +1454,7 @@ func printxmlconfig() {
 		log.Println("info: Loglevel             " + Loglevel)
 		log.Println("info: Daemonize            " + fmt.Sprintf("%t", Daemonize))
 		log.Println("info: CancellableStream    " + fmt.Sprintf("%t", CancellableStream))
+		log.Println("info: StreamOnStart            " + fmt.Sprintf("%t", StreamOnStart))
 		log.Println("info: SimplexWithMute      " + fmt.Sprintf("%t", SimplexWithMute))
 		log.Println("info: TxCounter            " + fmt.Sprintf("%t", TxCounter))
 		log.Println("info: NextServerIndex      " + fmt.Sprintf("%v", NextServerIndex))
@@ -1668,17 +1719,36 @@ func printxmlconfig() {
 		log.Println("info: ------------ GPS  ------------------------ SKIPPED ")
 	}
 
+	if PrintTraccar {
+		log.Println("info: ------------ TRACCAR Info  ----------------------- ")
+		log.Println("info: Track Enabled            " + fmt.Sprintf("%t", TrackEnabled))
+		log.Println("info: Traccar Send To          " + fmt.Sprintf("%t", TraccarSendTo))
+		log.Println("info: Traccar Server URL       " + fmt.Sprintf("%s", TraccarServerURL))
+		log.Println("info: Traccar Server IP        " + fmt.Sprintf("%s", TraccarServerIP))
+		log.Println("info: Traccar Client ID        " + fmt.Sprintf("%s", TraccarClientId))
+		log.Println("info: Traccar Report Frequency " + fmt.Sprintf("%v", TraccarReportFrequency))
+		log.Println("info: Traccar Proto            " + fmt.Sprintf("%s", TraccarProto))
+		log.Println("info: Traccar Server Full URL  " + fmt.Sprintf("%s", TraccarServerFullURL))
+		log.Println("info: Track GPS Show Lcd       " + fmt.Sprintf("%t", TrackGPSShowLCD))
+		log.Println("info: Track Verbose            " + fmt.Sprintf("%t", TrackVerbose))
+
+	} else {
+		log.Println("info: ------------ TRACCAR Info ------------------------ SKIPPED ")
+	}
+
 	if PrintPanic {
 		log.Println("info: ------------ PANIC Function -------------- ")
 		log.Println("info: Panic Function Enable          " + fmt.Sprintf("%t", PEnabled))
 		log.Println("info: Panic Sound Filename and Path  " + fmt.Sprintf("%s", PFilenameAndPath))
 		log.Println("info: Panic Message                  " + fmt.Sprintf("%s", PMessage))
+		log.Println("info: Panic Email Send               " + fmt.Sprintf("%t", PMailEnabled))
 		log.Println("info: Panic Message Send Recursively " + fmt.Sprintf("%t", PRecursive))
 		log.Println("info: Panic Volume                   " + fmt.Sprintf("%v", PVolume))
 		log.Println("info: Panic Send Ident               " + fmt.Sprintf("%t", PSendIdent))
 		log.Println("info: Panic Send GPS Location        " + fmt.Sprintf("%t", PSendGpsLocation))
 		log.Println("info: Panic TX Lock Enabled          " + fmt.Sprintf("%t", PTxLockEnabled))
 		log.Println("info: Panic TX Lock Timeout Secs     " + fmt.Sprintf("%v", PTxlockTimeOutSecs))
+		log.Println("info: Panic Low Profile Lights Enable" + fmt.Sprintf("%v", PLowProfile))
 	} else {
 		log.Println("info: ------------ PANIC Function -------------- SKIPPED ")
 	}

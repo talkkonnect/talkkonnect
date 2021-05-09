@@ -62,10 +62,6 @@ var (
 	origVolume           int
 	tempVolume           int
 	ConfigXMLFile        string
-	GPSTime              string
-	GPSDate              string
-	GPSLatitude          float64
-	GPSLongitude         float64
 	Streaming            bool
 	ServerHop            bool
 	HTTPServRunning      bool
@@ -73,6 +69,14 @@ var (
 	isrepeattx           bool = true
 	NowStreaming         bool
 	MyLedStrip           *LedStrip
+	GPSTime              string
+	GPSDate              string
+	GPSLatitude          float64
+	GPSLongitude         float64
+	GPSSpeed             float64
+	GPSCourse            float64
+	GPSVariation         float64
+	m                    string 
 )
 
 type Talkkonnect struct {

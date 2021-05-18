@@ -78,7 +78,11 @@ A good shileded cable for microphone is recommended to keep the noise picked up 
 * This image will not be the latest version but it will be convinient for you to get up and running quickly, so that you don't have to install everything from scratch
 * After you intall the image you can copy the tk-update.sh in the scripts folder to your /root home and run it to update to the lastest version
 * This image has been configured to work with a external USB sound card out of the box and the on board sound card for RPI is disabled
-* The XML file is configured to run in PC mode so no GPIO will initalized, to run using GPIO you can change the mode to rpi mode.    
+* The XML file is configured to run in PC mode so no GPIO will initalized, to run using GPIO you can change the mode to rpi mode.
+* NOTICE!! Talkkonnect will already by started by the system when you boot this image there is no reason to manually start talkkonnect otherwise the 2 instances
+  will clash and cause talkkonnect to connect and disconnect again and again in a loop. The way to access the running version of talkkonnect is to ssh into the         rapsberry pi device and type screen -r to see the console of the running talkkonnect.
+* NOTICE!! Talkkonnect will already by started by the system when you boot this image there is no reason to manually start talkkonnect otherwise the 2 instances
+  will clash and cause talkkonnect to connect and disconnect again and again in a loop. The way to access the running version of talkkonnect is to ssh into the         rapsberry pi device and type screen -r to see the console of the running talkkonnect.
 
 ### Quick Download Link for Pre-Made SD Card Image for Use with Raspberry pi 2/3/4 and RESPEAKER Compatable HAT ###
 * [Click Here to Download Pre-Configured SD Card Image for Respeaker Hat](https://drive.google.com/file/d/1nwdorhtPgFv2IfRaLubsn9aAtGJBSp3A/view?usp=sharing) 
@@ -97,6 +101,8 @@ A good shileded cable for microphone is recommended to keep the noise picked up 
 * After you intall the image you can copy the tk-update.sh in the scripts folder to your /root home and run it to update to the lastest version
 * This image has been configured to work with a IM69D130 Mems Microphone and the onboard sound card out of the box.
 * The XML file is configured to run in rpi mode so GPIO will initalized, this is so that the Pin 11 XML tag value 17 when shorted to ground will act as the PTT button. This mems microphone will enable you to have a small build with excellent sound quality whilst using the internal provided sound card in the raspberry pi.
+* NOTICE!! Talkkonnect will already by started by the system when you boot this image there is no reason to manually start talkkonnect otherwise the 2 instances
+  will clash and cause talkkonnect to connect and disconnect again and again in a loop. The way to access the running version of talkkonnect is to ssh into the         rapsberry pi device and type screen -r to see the console of the running talkkonnect.
 	
 * For the wiring of the microphone to Raspberry Pi See This [inmp411 wiring diagram](https://makersportal.com/shop/i2s-mems-microphone-for-raspberry-pi-inmp441)
 * Instructions for compiling the kernel to support his mic was found at https://github.com/Infineon/GetStarted_IM69D130_With_RaspberryPi

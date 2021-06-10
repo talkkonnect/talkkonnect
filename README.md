@@ -71,41 +71,73 @@ A good shileded cable for microphone is recommended to keep the noise picked up 
 * LCD/OLED display can show *channel information, server information, who joined, who is speaking, etc.* 
 * Configuration is kept in a single *highly granular XML file*, where options can be enabled or disabled.
 
-### Quick Download Link for Pre-Made SD Card Image for Use with Raspberry pi 2/3/4 and USB Sound Card ###
+### Common Information for the all the Pre-Made Images For Various Hardware Configurations###
+* We have for your convinience created 4 different images that you can download directly and burn to your SD card so that you can get up and running quickly with a generic 
+  instance of talkkonnect working out of the box for one of the 4 types of hardware and wiring configurations. You will not need to follow all the complicated steps of installing
+  and compiling everything from scratch if that seems daunting and overwhelming to you. 
+* This is an easy way to start experimenting with talkkonnect right away and this we feel will reduce the barrier of entry for those who want to see if talkkonnect suits their needs.
+* The network settings are set as DHCP Client so your device should get an IP Address when you connect it to your network.
+* After you find the IP Address of your talkkonnect device from the DHCP leases section of your router you can log in as the root user over ssh using a tool like putty or equavilent 
+  on the standard ssh port 22 using the password talkkonnect
+* NOTICE!! When using these images Talkkonnect will already by started by the system upon boot and run in a screen instance when you boot this image. There is no reason to manually start 
+  talkkonnect.  If you start up talkkonnect by hand there will be 2 instances of talkkonnect that will clash with each other and you will be connected and disconnected from the server in 
+  a endless loop.
+* Since talkkonnect is already running in the background (in a screen) upon boot, you can access the running console of talkkonnect by ssh (as root) into the raspberry pi device and at the 
+  command prompt type screen -r to see the console of the running talkkonnect. Press the <del> key to see a menu of the options available to you.
+* Also we request for you to please edit the configuration file of talkkonnect.xml this file can be found in the directory /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/
+  with an editor of your preference either nano or vi and change the XML tag <username>talkkonnect</username> to a name that describes you so that the members in the community channel can
+  see who you are by name or callsign.
+* By default the images of talkkonnect will connect to our community server at mumble.talkkonnect.com port 64738 using any unique username and the password talkkonnect
+* You can join our channel and start chatting with us with voice and asking us questions or make suggestions we have a warm and welcomming group of enthusiastic individuals to help you
+  with your questions. This is a good place to hang around and chat with like minded individuals.
+* For those Non-Respeaker Images (Usb Sound Card or MEMS Microphone Images) Out of the box the standard configutation XML file is set to run in PC mode so no GPIO will initalized. 
+* For those Respeaker Images (Rpi Zero or RPI 2/3/4 Images with Respeaker) Out of the box the standard configutation XML file is set to run in GPIO Mode and GPIO will initalized,
+  this means the PTT Button and the LEDS on the 2 Mic Respeaker Hat will work right away. You will need to connect an external speaker to the HAT for these images.
+* Feel Free to explore the various example talkkonnect.xml configurations that can be found in the directory /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/sample-configs
+  here you can find various configurations that work with LCD, OLED, LEDS and PUSH Button Switches. The files are named descriptively.
+  
+### Image for Use with Raspberry pi 2/3/4 and USB Sound Card ###
 * [Click Here to Download Pre-Configured SD Card Image for USB Sound Card](https://drive.google.com/file/d/1hbMFtKvlEYX-akqf976aVjHP4TcYFXgL/view?usp=sharing)
-* Many people currently shy away from talkkonnect thinking it is daunting due to the installation instructions hopefully this image will lower that barrier of entry.
-* For this pre-made image you can log in as root over ssh on port 22 using the password talkkonnect
-* This image will not be the latest version but it will be convinient for you to get up and running quickly, so that you don't have to install everything from scratch
-* After you intall the image you can copy the tk-update.sh in the scripts folder to your /root home and run it to update to the lastest version
-* This image has been configured to work with a external USB sound card out of the box and the on board sound card for RPI is disabled
-* The XML file is configured to run in PC mode so no GPIO will initalized, to run using GPIO you can change the mode to rpi mode.
-* NOTICE!! Talkkonnect will already by started by the system when you boot this image there is no reason to manually start talkkonnect otherwise the 2 instances
-  will clash and cause talkkonnect to connect and disconnect again and again in a loop. The way to access the running version of talkkonnect is to ssh into the         rapsberry pi device and type screen -r to see the console of the running talkkonnect.
-* NOTICE!! Talkkonnect will already by started by the system when you boot this image there is no reason to manually start talkkonnect otherwise the 2 instances
-  will clash and cause talkkonnect to connect and disconnect again and again in a loop. The way to access the running version of talkkonnect is to ssh into the         rapsberry pi device and type screen -r to see the console of the running talkkonnect.
+* This image uses the standard 32 Bit Sampling and will work properly with all mumble clients on windows, android and iphone with good quality sound.
+* Since 32 Bit Sampling is used this will only work reliably on Raspberry 2 Series, 3 Series and 4 Series an NOT on Raspberry PI Zero. 
+* This image has been configured to work with a external USB sound card (Works with CM-108 Chipsets) out of the box
+* The on board sound card for RPI is disabled so you will not get any output from the onboard sound card
+* The audio out on the USB Sound Card is low and needs to be amplified with and external Amplifier (for testing you can increase the volume and use a 3.5mm Jack Headphone)
+* This image is a good starting point if you already have all the components at home or if you want to use talkkonnect as a Transceiver interface. 
+* Should you want to connect a screen and a physical PTT Button using GPIO you can set the tag 
+* After you intall the image you can copy the bash script tk-update.sh in the scripts folder to your /root home and run it in the root user's folder to update to the lastest version.
 
 ### Quick Download Link for Pre-Made SD Card Image for Use with Raspberry pi 2/3/4 and RESPEAKER Compatable HAT ###
 * [Click Here to Download Pre-Configured SD Card Image for Respeaker Hat](https://drive.google.com/file/d/1nwdorhtPgFv2IfRaLubsn9aAtGJBSp3A/view?usp=sharing) 
-* Many people currently shy away from talkkonnect thinking it is daunting due to the installation instructions hopefully this image will lower that barrier of entry.
-* For this pre-made image you can log in as root over ssh on port 22 using the password talkkonnect
-* This image will not be the latest version but it will be convinient for you to get up and running quickly, so that you don't have to install everything from scratch
-* After you intall the image you can copy the tk-update.sh in the scripts folder to your /root home and run it to update to the lastest version
+* This image uses the standard 32 Bit Sampling and will work properly with all mumble clients on windows, android and iphone with good quality sound.
+* Since 32 Bit Sampling is used this will only work reliably on Raspberry 2 Series, 3 Series and 4 Series an NOT on Raspberry PI Zero. 
 * This image has been configured to work with a Respeaker HAT out of the box so I2S, I2C and all required modules are installed and running. 
-* The XML file is configured to run in rpi mode so GPIO will initalized, this is so that the respeaker will work with output sound on the headphone jack, led strip working and push button microswitch on the hat can be used for transmitting.    
+* The XML file is configured to run in rpi mode so GPIO will initalized, this is so that the respeaker will work with output sound on the headphone jack, led strip working and push button 
+  microswitch on the hat can be used for transmitting.    
+* This image is a good starting point if you already have all the components at home or if you want to use talkkonnect as a push to talk headless device to talk directly to other mumble clients.
+* After you intall the image you can copy the bash script tk-update.sh in the scripts folder to your /root home and run it in the root user's folder to update to the lastest version.
 
 ### Quick Download Link for Pre-Made SD Card Image for Use with Raspberry pi 2/3/4 and IM69D130 Mems Microphone ### 
 * [Click Here to Download Pre-Configured SD Card Image for talkkonnect with IM69D130 Mems Microphone](https://drive.google.com/file/d/1lutT3rNk5-zLz6M7FdLNJ47FIvDNCmNC/view?usp=sharing) 
-* Many people currently shy away from talkkonnect thinking it is daunting due to the installation instructions hopefully this image will lower that barrier of entry.
-* For this pre-made image you can log in as root over ssh on port 22 using the password talkkonnect
-* This image will not be the latest version but it will be convinient for you to get up and running quickly, so that you don't have to install everything from scratch
-* After you intall the image you can copy the tk-update.sh in the scripts folder to your /root home and run it to update to the lastest version
-* This image has been configured to work with a IM69D130 Mems Microphone and the onboard sound card out of the box.
-* The XML file is configured to run in rpi mode so GPIO will initalized, this is so that the Pin 11 XML tag value 17 when shorted to ground will act as the PTT button. This mems microphone will enable you to have a small build with excellent sound quality whilst using the internal provided sound card in the raspberry pi.
-* NOTICE!! Talkkonnect will already by started by the system when you boot this image there is no reason to manually start talkkonnect otherwise the 2 instances
-  will clash and cause talkkonnect to connect and disconnect again and again in a loop. The way to access the running version of talkkonnect is to ssh into the         rapsberry pi device and type screen -r to see the console of the running talkkonnect.
-	
+* This image uses the standard 32 Bit Sampling and will work properly with all mumble clients on windows, android and iphone with good quality sound.
+* Since 32 Bit Sampling is used this will only work reliably on Raspberry 2 Series, 3 Series and 4 Series an NOT on Raspberry PI Zero. 
+* This image has a custom kernel and used Instructions was found at https://github.com/Infineon/GetStarted_IM69D130_With_RaspberryP (for MEMS support)
+* This image has been configured to work with a IM69D130 Mems Microphone and the onboard raspberry pi sound card (3.5mm Jack) out of the box.
+* The XML file is configured to run in rpi mode so GPIO will initalized, this is so that the Pin 11 XML tag value 17 when shorted to ground will act as the PTT button. 
+  This mems microphone will enable you to have a small build with excellent sound quality whilst using the internal provided sound card in the raspberry pi.
 * For the wiring of the microphone to Raspberry Pi See This [inmp411 wiring diagram](https://makersportal.com/shop/i2s-mems-microphone-for-raspberry-pi-inmp441)
-* Instructions for compiling the kernel to support his mic was found at https://github.com/Infineon/GetStarted_IM69D130_With_RaspberryPi
+* After you intall the image you can copy the bash script tk-update.sh in the scripts folder to your /root home and run it in the root user's folder to update to the lastest version.
+
+### Quick Download Link for Pre-Made SD Card Image for Use with Raspberry pi ZERO With RESPEAKER Compatable HAT ### 
+* [Click Here to Download Pre-Configured SD Card Image for talkkonnect for Raspberry PI Zero with Respeaker](https://drive.google.com/file/d/15EJ84oFKAFWkdF4191Xi_kPz3E8MC1J0/view?usp=sharing)
+* This image uses NON-STANDARD 16 Bit Sampling and will NOT work properly with all standard mumble clients!!
+* This image is good for those who want to make a small protable device and are serious about form factor.
+* Since Raspberry Pi Zero has a low powered CPU and no Neon Support this image was created specially for Raspberry Pi Zero and will work properly with other Raspberry Pi Zero Clients Only!
+* Use this image if you want to create a group of users all using the Raspberry Pi ZERO it wont work reliably with other standard mumble clients. You have been Warned!
+* This image has serial console support so you can connect via serial port or plug the raspberry pi Zero into your windows laptop and access it over Putty. 
+  you can follow instructions [from afafruit here](https://learn.adafruit.com/raspberry-pi-zero-creation/give-it-life) to connect over serial from windows. 
+* Do not attempt to update the version of talkkonnect with this image otherwise it will break talkkonnect and your volume level and muting on transmit!
+* This image is provided for those who insist they want to use Raspberry Pi zero despite our recommendations to use minimum RPI 3. 
 
 ### Installation Instructions For Raspberry Pi Boards (from Source code) ###
 
@@ -645,6 +677,8 @@ For the above example to work you will have to specify the gpio pin in the <ligh
 We invite interested individuals to provide feedback and improvements to the project. Currently we do not have a WIKI so send feedback to <suvir@talkkonnect.com> or open and Issue in github
 you can also check my blog  [www.talkkonnect.com](https://www.talkkonnect.com) for updates on the project
 
+You can also connect with a standard mumble client to our community server to have a chat or ask questions at mumble.talkkonnect.com port 64738 you can use any username with the password talkkonnect
+	
 Please visit our [blog](www.talkkonnect.com) for our blog or [github](github.com/talkkonnect) for the latest source code and our [facebook](https://www.facebook.com/talkkonnect) page for future updates and information. 
 
 Thank you all for your kind feedback sent along with some pictures and use cases for talkkonnect.
@@ -652,7 +686,4 @@ Thank you all for your kind feedback sent along with some pictures and use cases
 ## License 
 [talKKonnect](http://www.talkkonnect.com) is open source and available under the MPL V2.00 license.
 
-<suvir@talkkonnect.com> Updated 11/03/2021 talkkonnect version 1.59.01 is the latest release as of this writing.
-
-
-
+<suvir@talkkonnect.com> Updated 10/06/2021 talkkonnect version 1.63.01 is the latest release as of this writing.

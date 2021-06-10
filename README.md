@@ -131,11 +131,11 @@ A good shileded cable for microphone is recommended to keep the noise picked up 
 ### Quick Download Link for Pre-Made SD Card Image for Use with Raspberry pi ZERO With RESPEAKER Compatable HAT ### 
 * [Click Here to Download Pre-Configured SD Card Image for talkkonnect for Raspberry PI Zero with Respeaker](https://drive.google.com/file/d/15EJ84oFKAFWkdF4191Xi_kPz3E8MC1J0/view?usp=sharing)
 * This image uses NON-STANDARD 16 Bit Sampling and will NOT work properly with all standard mumble clients!!
-* This image is good for those who want to make a small protable device and are serious about form factor.
-* Since Raspberry Pi Zero has a low powered CPU and no Neon Support this image was created specially for Raspberry Pi Zero and will work properly with other Raspberry Pi Zero Clients Only!
-* Use this image if you want to create a group of users all using the Raspberry Pi ZERO it wont work reliably with other standard mumble clients. You have been Warned!
+* This image is good for those who want to make a small portable device and are serious about form factor.
+* Since Raspberry Pi Zero has a low powered single core CPU and no Neon Support this image was created specially for Raspberry Pi Zero. It is recommended only for       communication with other talKKonnect clients or Gumble forks,  regardless of their "flavor". There could be audio issues when communicating to Plumble/ Mumla and     official Mumble client.  Issues are not caused by talKKonnect or Gumble design. If users would still prefer to use this type of a build for communication to Plumble/Mumla and offical Mumble, we can not provide support for solving audio quality issues as they do not have root cause in talKKonnect / Gumble.
+* Use this image if you want to create a group of users all using the Raspberry Pi ZERO it wont work reliably with other standard mumble clients. You have been         Warned!
 * This image has serial console support so you can connect via serial port or plug the raspberry pi Zero into your windows laptop and access it over Putty. 
-  you can follow instructions [from afafruit here](https://learn.adafruit.com/raspberry-pi-zero-creation/give-it-life) to connect over serial from windows. 
+  You can follow instructions [from Adafruit here](https://learn.adafruit.com/raspberry-pi-zero-creation/give-it-life) to connect over serial from windows. 
 * Do not attempt to update the version of talkkonnect with this image otherwise it will break talkkonnect and your volume level and muting on transmit!
 * This image is provided for those who insist they want to use Raspberry Pi zero despite our recommendations to use minimum RPI 3. 
 

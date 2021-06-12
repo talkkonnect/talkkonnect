@@ -12,7 +12,7 @@ talKKonnect was developed using [golang](https://golang.org/) and based on [gumb
 Most Libraries are however heavily vendored (modified from original). You will need to get the vendored libraries from this repo.
 
 [talKKonnect](http://www.talkkonnect.com) was developed initially to run on SBCs. The latest version can be scaled to run all the way from ARM SBCs to full fledged X86 servers.
-Raspberry Pi 2,3,3A+,3B+,4B Orange Pis, PCs and virtual environments (Oracle VirtualBox, KVM and Proxmox) targets have all been tested and work as expected.
+Raspberry Pi 2,3,3A+,3B+,4B Orange Pis, PCs and virtual environments (Oracle VirtualBox, KVM and Proxmox) targets have all been tested and work as expected. Rasperry Pi Zero W will work with a "watered down" version of talkkonnect that uses a lower sampling rate so as not to use up all of the little CPU power provided by the Zero.
 
 ### Why Was talKKonnect created?
 
@@ -26,20 +26,19 @@ permitting I will continue to work and learn from all those people who give feed
 
 #### Some of the interesting features are #### 
 * XML Granular configurability for many uses cases.
-* Multiple Server Configurations with channel and server hopping
-* Streaming Audio from local file or from internet stream
-* Autoprovisioning for configuring multiple talkkonnects from a centralized http server 
-* User has configurable choice of what GPIO pins to use for each function on different boards 
+* Multiple Server Configurations with channel control, channel scanning and server hopping
+* Streaming Audio into the channel from locally stored media file or from internet stream
+* Autoprovisioning for configuring multiple talkkonnects from a centralized http provisioning server 
+* The User has a configurable choice of GPIO pins to use for each function on different boards 
 * Communications bridge to interface external (otherwise not compatible) radio systems both over the air and over IP networks.
-* Interface to portable or base radios (Beefing portable radios or UART radio boards). 
-* Connecting to low cost USB GPS dongles (for instance “u-blox”) for GPS tracking. 
-* Mass scale customization with centralized Configuration using auto-provisioning of a XML config file.
-* LCD/OLED Screen showing relevant real time information such as *server info, current channel, who is currently talking, etc.*
-* Local/ssh control via a USB keyboard/terminal and remote control can be done over http api or now even MQTT.
+* Interface to portable or base station radios (Beefing portable radios or UART radio boards). 
+* Connecting to low cost USB GPS dongles (for instance “u-blox”) for GPS tracking, Panic Alerts integration with traccar GPS tracking software. 
+* LCD/OLED Screen (Parallel and I2c Interface) showing relevant real time information such as *server info, current channel, who is currently talking, etc.*
+* Local or Remote Control via a USB keyboard/terminal or SSH terminal,  remote control can also be achieved over http api and/or MQTT.
 * Panic button, when pressed, talKKonnect will send an alert message with GPS coordinates, followed by an email indication current location in google maps. 
-* MQTT support for remote control for commands, LED Control, Button Control, Relay Control
-* Repeater Opening Function with the ability to specify the tone frequency and duration.
-* Other features as per suggested or requested by the community
+* API/MQTT support for remote control for commands, LED Control, Button Control, Relay Control
+* Tone Based Repeater Opening Function with the ability to specify the tone frequency and duration in configuration.
+* Many Other features as per suggested or requested by the community
 
 Pictures and more information of my builds can be found on my blog here [www.talkkonnect.com](https://www.talkkonnect.com)
 
@@ -47,13 +46,15 @@ Pictures and more information of my builds can be found on my blog here [www.tal
 
 You can use an external microphone with push buttons (up/down) for Channel navigation for a mobile transceiver like experience. 
 Currently talKKonnect works with 4×20 Hitachi [HD44780](https://www.sparkfun.com/datasheets/LCD/HD44780.pdf) LCD screen in parallel mode.  Other screens like 0.96" and 1.3" [OLED](https://learn.adafruit.com/adafruit-oled-displays-for-raspberry-pi)
-with I2C interface is also currently supported. 
+with I2C interface is also currently supported. Currently SPI interfaced screens are not yet supported.
 
-Low cost audio amplifiers like [PAM8403](https://www.instructables.com/id/PAM8403-6W-STEREO-AMPLIFIER-TUTORIAL/) or similar “D” class amplifiers, are recommended for talKKonnect builds.
+Low cost Class-D audio amplifiers like [PAM8403](https://www.instructables.com/id/PAM8403-6W-STEREO-AMPLIFIER-TUTORIAL/) or similar “D” class amplifiers, are recommended for talKKonnect builds.
 
 A good shileded cable for microphone is recommended to keep the noise picked up to a minimum. I am currently experimenting with mems microphones for better audio.
 
-#### You can connect up to 4 LED indicators that can be build on the front panel to show the following statuses ####
+Instead of the onboard sound card or USB Sound Card, you can also use a ReSpeaker compatiable HAT and achieve great audio quality results in a compact form factor.
+	
+#### You can connect up to 4 LED indicators that can be build on the front panel of your build to show the following statuses ####
 * Connected to a server and is currently online
 * There are other participants logged into the same channel
 * Currently in transmitting mode 
@@ -64,37 +65,30 @@ A good shileded cable for microphone is recommended to keep the noise picked up 
 ### Software Features ###
 
 * *Colorized LOGs* are shown on the debugging terminal for events as they happen in real time. Logging with line number, logging to file or screen or both. 
-* Playing of configurable *alert sounds* as different events happen.
-* Configurable *TTS prompts* to announce different events for those use special use cases where it is required. 
-* *Roger Beep* playing can be enabled on release of the PTT button to indicate end of transmission. 
-* *Muting* of The speaker when pressing PTT to prevent audio feedback and give a radio communication like experience. Both simplex and duplex settable in XML config. 
-* LCD/OLED display can show *channel information, server information, who joined, who is speaking, etc.* 
-* Configuration is kept in a single *highly granular XML file*, where options can be enabled or disabled.
+* Playing of configurable *alert sounds* as different events happen, such as a different sound when someone "joins" the channel and another sound for someone "leaving" the channel.
+* Configurable *TTS prompts* to announce different events for those use special use cases where it is required.  
+* Cusomizable *Roger Beep* sounds that are played at the end of each transmission. 
+* *Muting* of The speaker when pressing PTT to prevent audio feedback and give a radio communication like experience to simulate simplex mode. Both simplex and duplex   settable in XML config. Duplex mode allows you to keep the speaker open for people to interrupt you while speaking. 
+* LCD/OLED display can show *channel information, server information, who joined, who is speaking, last transmision received date and time, etc.* 
+* Configuration is kept in a single *highly granular XML file*, where options can be enabled, disabled and customized.
 
-### Common Information for the all the Pre-Made Images For Various Hardware Configurations###
-* We have for your convinience created 4 different images that you can download directly and burn to your SD card so that you can get up and running quickly with a generic 
-  instance of talkkonnect working out of the box for one of the 4 types of hardware and wiring configurations. You will not need to follow all the complicated steps of installing
-  and compiling everything from scratch if that seems daunting and overwhelming to you. 
-* This is an easy way to start experimenting with talkkonnect right away and this we feel will reduce the barrier of entry for those who want to see if talkkonnect suits their needs.
-* The network settings are set as DHCP Client so your device should get an IP Address when you connect it to your network.
-* After you find the IP Address of your talkkonnect device from the DHCP leases section of your router you can log in as the root user over ssh using a tool like putty or equavilent 
-  on the standard ssh port 22 using the password talkkonnect
-* NOTICE!! When using these images Talkkonnect will already by started by the system upon boot and run in a screen instance when you boot this image. There is no reason to manually start 
-  talkkonnect.  If you start up talkkonnect by hand there will be 2 instances of talkkonnect that will clash with each other and you will be connected and disconnected from the server in 
-  a endless loop.
-* Since talkkonnect is already running in the background (in a screen) upon boot, you can access the running console of talkkonnect by ssh (as root) into the raspberry pi device and at the 
-  command prompt type screen -r to see the console of the running talkkonnect. Press the <del> key to see a menu of the options available to you.
-* Also we request for you to please edit the configuration file of talkkonnect.xml this file can be found in the directory /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/
-  with an editor of your preference either nano or vi and change the XML tag <username>talkkonnect</username> to a name that describes you so that the members in the community channel can
-  see who you are by name or callsign.
+### Common Information for the all the Pre-Made Images For Various Hardware Configurations ###
+* We have for your convinience created 4 different images that you can download and burn to your SD card so that you can get up and running quickly with a generic 
+  instance of talkkonnect working out of the box. Choose the image based on your hardware and use case. Using one of these images you will not need to follow all the complicated steps of installing and compiling everything from scratch if that seems daunting and overwhelming to you at first. 
+* This is an easy way to start experimenting with talkkonnect in a matter of minutes. The ability to shorten the time and lessen the barrier of entry will allow you to see if talkkonnect suits your needs.
+* The network settings are set as DHCP Client so your device should get an IP Address when you connect it to your DHCP enabled network.
+* After you find the IP Address of your talkkonnect device from the DHCP leases section of your router you can log in over ssh using a tool like putty or equavilent on the standard ssh port 22 using the root user with password talkkonnect. The pi user is also accessable using the password raspberry.
+* NOTICE!! When using these images Talkkonnect will already by started by systemd upon boot and run in a screen instance when you boot this image. There is no reason to manually start talkkonnect. By default with no changes in settings talkkonnect will connect to our community server. If you try start up talkkonnect by hand there will be 2 instances of talkkonnect that will clash with each other and you will be connected and disconnected from the server in a endless loop.
+* Since talkkonnect is already running in the background (in a screen) upon boot, you can access the running console of talkkonnect by ssh (as root) into the raspberry pi device and at the command prompt type the command screen -r to see the console of the running talkkonnect. Press the <del> key to see a menu of the options available to you.
+* We request that you to please edit the configuration file of talkkonnect.xml.  This file can be found in the directory /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/ Please change the XML tag <username>talkkonnect</username> to a name that describes you so that the members in the community channel can
+  see who you are by name or callsign. If you do not change this setting your name in the channel will be shown as talkkonnect with some random numbers and letters so   as the keep the username unique by default. You cannot have more than 1 device per username connected to the server at the same time.
 * By default the images of talkkonnect will connect to our community server at mumble.talkkonnect.com port 64738 using any unique username and the password talkkonnect
-* You can join our channel and start chatting with us with voice and asking us questions or make suggestions we have a warm and welcomming group of enthusiastic individuals to help you
-  with your questions. This is a good place to hang around and chat with like minded individuals.
+* You can join our channel and start chatting with us with voice and asking us questions or make suggestions we have a warm and welcomming group of enthusiastic individuals to help you with your questions. This is a good place to hang around and chat with like minded individuals.
+* The images are divided into 2 broad categories (the ones that use the respeaker hat and the ones that do not)
 * For those Non-Respeaker Images (Usb Sound Card or MEMS Microphone Images) Out of the box the standard configutation XML file is set to run in PC mode so no GPIO will initalized. 
 * For those Respeaker Images (Rpi Zero or RPI 2/3/4 Images with Respeaker) Out of the box the standard configutation XML file is set to run in GPIO Mode and GPIO will initalized,
   this means the PTT Button and the LEDS on the 2 Mic Respeaker Hat will work right away. You will need to connect an external speaker to the HAT for these images.
-* Feel Free to explore the various example talkkonnect.xml configurations that can be found in the directory /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/sample-configs
-  here you can find various configurations that work with LCD, OLED, LEDS and PUSH Button Switches. The files are named descriptively.
+* Feel Free to explore the various example talkkonnect.xml configurations that can be found in the directory /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/sample-configs here you can find various configurations that work with LCD, OLED, LEDS and PUSH Button Switches. The files are named descriptively.
   
 ### Image for Use with Raspberry pi 2/3/4 and USB Sound Card ###
 * [Click Here to Download Pre-Configured SD Card Image for USB Sound Card](https://drive.google.com/file/d/1hbMFtKvlEYX-akqf976aVjHP4TcYFXgL/view?usp=sharing)
@@ -145,7 +139,8 @@ Download the latest version of [Raspberry Pi OS Lite](https://downloads.raspberr
 At the time of making/updating this document latest image release date was 11/01/2021 (Kernel Version 5.4). 
 Download the 438MB ZIP file and extract IMG file to some temporary directory.
 
-Use any USB / SD card imaging software for Windows or your other OS. Some of the many options are:
+It is recommended that you use the raspberry Pi Imager for Windows or any USB / SD card imaging software for Windows or your other OS. 
+Some of the many options are:
 * [Raspberry Pi Imager](https://www.raspberrypi.org/software/)
 * [USB Image Tool](https://www.alexpage.de/usb-image-tool)
 * [Win32 Disk Imager](https://sourceforge.net/projects/win32diskimager)
@@ -154,7 +149,7 @@ Use any USB / SD card imaging software for Windows or your other OS. Some of the
 * [Linux dd tool](https://elinux.org/RPi_Easy_SD_Card_Setup)
 
 
-After the imaging, insert the SD card into your Raspberry Pi, connect the screen, keyboard and power supply and boot into the OS. 
+After downloading a standard image and using the imaging tool, insert the SD card into your Raspberry Pi, connect the screen, keyboard and power supply and boot into the OS. 
 
 Log in as user “pi” with password “raspberry” (this is the default username and password for a fresh install of Raspbian)
 

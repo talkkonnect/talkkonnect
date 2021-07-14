@@ -587,6 +587,7 @@ Below are Valid Commands for MQTT
 * DumpXMLConfig - Dump XML config file on talkkonnect console
 * attentionled:on - Turn on Attention LED connected on gpio pin as defined in talkkonnect.xml
 * attentionled:off - Turn off Attention LED connected on gpio pin as defined in talkkonnect.xml
+* attentionled:blink - Blink Attention LED connected on gpio pin as defined in talkkonnect.xml
 * relay1:on - Turn on Relay connected on gpio pin as defined in talkkonnect.xml
 * relay1:off - Turn off Relay connected on gpio pin as defined in talkkonnect.xml
 * relay1:pulse - Pulse Relay connected on gpio pin as defined in talkkonnect.xml

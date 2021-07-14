@@ -287,6 +287,14 @@ func (b *Talkkonnect) onMessageReceived(client MQTT.Client, message MQTT.Message
 	case "attentionled:off":
 		log.Println("info: MQTT Turn Off Attention LED Successfully\n")
 		b.LEDOff(b.AttentionLED)
+	case "attentionled:blink":
+            log.Println("info: MQTT Blink Attention LED 20 times Successfully\n")
+            for i := 0; i < 20; i++ {
+                    b.LEDOn(b.AttentionLED)
+                    time.Sleep(300 * time.Millisecond)
+                    b.LEDOff(b.AttentionLED)
+                    time.Sleep(300 * time.Millisecond)
+            }
 	case "relay1:on":
 		log.Println("info: MQTT Turn On Relay 1 Successfully\n")
 		relayCommand(1, "on")

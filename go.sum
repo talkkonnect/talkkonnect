@@ -8,6 +8,8 @@ github.com/glendc/go-external-ip v0.0.0-20200601212049-c872357d968e h1:gLpAlmoGq
 github.com/glendc/go-external-ip v0.0.0-20200601212049-c872357d968e/go.mod h1:o9OoDQyE1WHvYVUH1FdFapy1/rCZHHq3O5wS4VA83ig=
 github.com/go-ole/go-ole v1.2.4 h1:nNBDSCOigTSiarFpYE9J/KtEA1IOW4CNeqT9TQDqCxI=
 github.com/go-ole/go-ole v1.2.4/go.mod h1:XCwSNxSkXRo4vlyPy93sltvi/qJq0jqQhjqQNIwKuxM=
+github.com/go-ole/go-ole v1.2.5 h1:t4MGB5xEDZvXI+0rMjjsfBsD7yAgp/s9ZDkL1JndXwY=
+github.com/go-ole/go-ole v1.2.5/go.mod h1:pprOEPIfldk/42T2oK7lQ4v4JSDwmV0As9GaiUsvbm0=
 github.com/golang/glog v0.0.0-20210429001901-424d2337a529 h1:2voWjNECnrZRbfwXxHB1/j8wa6xdKn85B5NzgVL/pTU=
 github.com/golang/glog v0.0.0-20210429001901-424d2337a529/go.mod h1:SBH7ygxi8pfUlaOkMMuAQtPIUF8ecWP5IEl/CR7VP2Q=
 github.com/golang/protobuf v1.5.0/go.mod h1:FsONVRAS9T7sI+LIUmWTfcYkHO4aIWwzhcaSAoJOfIk=
@@ -58,12 +60,15 @@ github.com/talkkonnect/htgo-tts v0.0.0-20200613102004-335b75a33bca h1:fsFruHFqhg
 github.com/talkkonnect/htgo-tts v0.0.0-20200613102004-335b75a33bca/go.mod h1:hX/yeAzX1N+TsrkPtR7wYGQFzYQF0ypZkyIgG9JIGI0=
 github.com/talkkonnect/termbox-go v0.0.0-20181013101158-0ee46dd7ddac h1:bD5cKn2ng8K7RFKrKSrI5g5gaLgKxdK6xhRSH5309hc=
 github.com/talkkonnect/termbox-go v0.0.0-20181013101158-0ee46dd7ddac/go.mod h1:5AtlTmjScae7BcatAlDngj6A2YvKEArvjNy4DcZWdvA=
+github.com/talkkonnect/volume-go v0.0.0-20210720063739-bb23887b7601 h1:mB8XFaHrc9FzRt+DWPPs7HKxsliTTFQW7kF45qh6bxY=
+github.com/talkkonnect/volume-go v0.0.0-20210720063739-bb23887b7601/go.mod h1:srnLLKqFdceSltw3dMPlQecCCgQzun4IpmePdH2CIhk=
 github.com/xackery/gomail v0.0.0-20150929200936-cc84600edc17 h1:hAhlexx4qaxFYjxfiUeDCWdV5IwR3b/9c7abMeLNPR4=
 github.com/xackery/gomail v0.0.0-20150929200936-cc84600edc17/go.mod h1:DjEq7Wd7xuVPq2Hq2NaMLAZ/qDd0RAsKUByqPPN3RU8=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/net v0.0.0-20200425230154-ff2c4b7c35a0 h1:Jcxah/M+oLZ/R4/z5RzfPzGbPXnVDPkEDtf2JnuxN+U=
 golang.org/x/net v0.0.0-20200425230154-ff2c4b7c35a0/go.mod h1:qpuaurCH72eLCgpAm/N6yyVIVM9cpaDIP3A8BGJEC5A=
 golang.org/x/sys v0.0.0-20190215142949-d0b11bdaac8a/go.mod h1:STP8DvDyc/dI5b8T5hshtkjS+E42TnysNCUPdjciGhY=
+golang.org/x/sys v0.0.0-20190916202348-b4ddaad3f8a3/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/sys v0.0.0-20200323222414-85ca7c5b95cd/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/sys v0.0.0-20210630005230-0f9fa26af87c h1:F1jZWGFhYfh0Ci55sIpILtKKK8p3i2/krTr0H1rg74I=
 golang.org/x/sys v0.0.0-20210630005230-0f9fa26af87c/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=

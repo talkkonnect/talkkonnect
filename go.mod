@@ -2,12 +2,11 @@ module github.com/talkkonnect/talkkonnect
 
 go 1.16
 
-replace github.com/talkkonnect/volume-go => ../volume-go
-
 require (
 	github.com/comail/colog v0.0.0-20160416085026-fba8e7b1f46c
 	github.com/eclipse/paho.mqtt.golang v1.3.5
 	github.com/glendc/go-external-ip v0.0.0-20200601212049-c872357d968e
+	github.com/go-ole/go-ole v1.2.5 // indirect
 	github.com/golang/glog v0.0.0-20210429001901-424d2337a529 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/jacobsa/go-serial v0.0.0-20180131005756-15cf729a72d4
@@ -26,7 +25,7 @@ require (
 	github.com/talkkonnect/gumble v0.0.0-20210525051103-0ece99f819cc
 	github.com/talkkonnect/htgo-tts v0.0.0-20200613102004-335b75a33bca
 	github.com/talkkonnect/termbox-go v0.0.0-20181013101158-0ee46dd7ddac
-	github.com/talkkonnect/volume-go v0.0.0-00010101000000-000000000000
+	github.com/talkkonnect/volume-go v0.0.0-20210720063739-bb23887b7601 // indirect
 	github.com/xackery/gomail v0.0.0-20150929200936-cc84600edc17
 	golang.org/x/sys v0.0.0-20210630005230-0f9fa26af87c
 	periph.io/x/periph v3.6.8+incompatible

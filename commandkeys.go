@@ -33,11 +33,12 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"github.com/talkkonnect/volume-go"
 	"log"
 	"runtime"
 	"strconv"
 	"time"
+
+	"github.com/talkkonnect/volume-go"
 )
 
 func (b *Talkkonnect) cmdDisplayMenu() {
@@ -80,7 +81,7 @@ func (b *Talkkonnect) cmdMuteUnmute(subCommand string) {
 	if err != nil {
 		log.Println("error: Unable to get current Muted/Unmuted State ", err)
 	} else {
-		if OrigMuted == true {
+		if OrigMuted {
 			log.Println("debug: Originally Device is Muted")
 		} else {
 			log.Println("debug: Originally Device is Unmuted")
@@ -88,7 +89,7 @@ func (b *Talkkonnect) cmdMuteUnmute(subCommand string) {
 	}
 
 	if subCommand == "toggle" {
-		if OrigMuted == true {
+		if OrigMuted {
 			err := volume.Unmute(OutputDevice)
 			if err != nil {
 				log.Println("error: Unmuting Failed", err)
@@ -96,11 +97,11 @@ func (b *Talkkonnect) cmdMuteUnmute(subCommand string) {
 			}
 			log.Println("info: Output Device Unmuted")
 			if TargetBoard == "rpi" {
-				if LCDEnabled == true {
+				if LCDEnabled {
 					LcdText = [4]string{"nil", "nil", "nil", "UnMuted"}
 					LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 				}
-				if OLEDEnabled == true {
+				if OLEDEnabled {
 					oledDisplay(false, 6, 1, "Unmuted")
 				}
 			}
@@ -112,11 +113,11 @@ func (b *Talkkonnect) cmdMuteUnmute(subCommand string) {
 			}
 			log.Println("info: Output Device Muted")
 			if TargetBoard == "rpi" {
-				if LCDEnabled == true {
+				if LCDEnabled {
 					LcdText = [4]string{"nil", "nil", "nil", "Muted"}
 					LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 				}
-				if OLEDEnabled == true {
+				if OLEDEnabled {
 					oledDisplay(false, 6, 1, "Muted")
 				}
 			}
@@ -133,39 +134,39 @@ func (b *Talkkonnect) cmdMuteUnmute(subCommand string) {
 		}
 		log.Println("info: Output Device Muted")
 		if TargetBoard == "rpi" {
-			if LCDEnabled == true {
+			if LCDEnabled {
 				LcdText = [4]string{"nil", "nil", "nil", "Muted"}
 				LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
-			}
-			if OLEDEnabled == true {
-				oledDisplay(false, 6, 1, "Muted")
-			}
-		}
-		return
-	}
 
-	//force unmute
-	if subCommand == "unmute" {
-		err := volume.Unmute(OutputDevice)
-		if err != nil {
-			log.Println("error: Unmute Failed ", err)
+				if OLEDEnabled {
+					oledDisplay(false, 6, 1, "Muted")
+				}
+			}
 			return
 		}
-		log.Println("info: Output Device Unmuted")
-		if TargetBoard == "rpi" {
-			if LCDEnabled == true {
-				LcdText = [4]string{"nil", "nil", "nil", "UnMuted"}
-				LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+
+		//force unmute
+		if subCommand == "unmute" {
+			err := volume.Unmute(OutputDevice)
+			if err != nil {
+				log.Println("error: Unmute Failed ", err)
+				return
 			}
-			if OLEDEnabled == true {
-				oledDisplay(false, 6, 1, "Unmuted")
+			log.Println("info: Output Device Unmuted")
+			if TargetBoard == "rpi" {
+				if LCDEnabled {
+					LcdText = [4]string{"nil", "nil", "nil", "UnMuted"}
+					LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+				}
+				if OLEDEnabled {
+					oledDisplay(false, 6, 1, "Unmuted")
+				}
 			}
+			return
 		}
-		return
+
 	}
-
 }
-
 func (b *Talkkonnect) cmdCurrentVolume() {
 	OrigVolume, err := volume.GetVolume(OutputDeviceShort)
 	if err != nil {
@@ -183,11 +184,11 @@ func (b *Talkkonnect) cmdCurrentVolume() {
 
 	}
 	if TargetBoard == "rpi" {
-		if LCDEnabled == true {
+		if LCDEnabled {
 			LcdText = [4]string{"nil", "nil", "nil", "Volume " + strconv.Itoa(OrigVolume)}
 			LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 		}
-		if OLEDEnabled == true {
+		if OLEDEnabled {
 			oledDisplay(false, 6, 1, "Volume "+strconv.Itoa(OrigVolume))
 		}
 
@@ -209,11 +210,11 @@ func (b *Talkkonnect) cmdVolumeUp() {
 		log.Println("debug: F5 pressed Volume UP (+)")
 		log.Println("info: Volume UP (+) Now At ", origVolume, "%")
 		if TargetBoard == "rpi" {
-			if LCDEnabled == true {
+			if LCDEnabled {
 				LcdText = [4]string{"nil", "nil", "nil", "Volume + " + strconv.Itoa(origVolume)}
 				LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 			}
-			if OLEDEnabled == true {
+			if OLEDEnabled {
 				oledDisplay(false, 6, 1, "Volume "+strconv.Itoa(origVolume))
 			}
 		}
@@ -221,11 +222,11 @@ func (b *Talkkonnect) cmdVolumeUp() {
 		log.Println("debug: F5 Increase Volume")
 		log.Println("info: Already at Maximum Possible Volume")
 		if TargetBoard == "rpi" {
-			if LCDEnabled == true {
+			if LCDEnabled {
 				LcdText = [4]string{"nil", "nil", "nil", "Max Vol"}
 				LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 			}
-			if OLEDEnabled == true {
+			if OLEDEnabled {
 				oledDisplay(false, 6, 1, "Max Vol")
 			}
 		}
@@ -257,11 +258,11 @@ func (b *Talkkonnect) cmdVolumeDown() {
 		log.Println("info: F6 pressed Volume Down (-)")
 		log.Println("info: Volume Down (-) Now At ", origVolume, "%")
 		if TargetBoard == "rpi" {
-			if LCDEnabled == true {
+			if LCDEnabled {
 				LcdText = [4]string{"nil", "nil", "nil", "Volume - " + strconv.Itoa(origVolume)}
 				LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 			}
-			if OLEDEnabled == true {
+			if OLEDEnabled {
 				oledDisplay(false, 6, 1, "Volume -")
 			}
 
@@ -270,11 +271,11 @@ func (b *Talkkonnect) cmdVolumeDown() {
 		log.Println("debug: F6 Increase Volume Already")
 		log.Println("info: Already at Minimum Possible Volume")
 		if TargetBoard == "rpi" {
-			if LCDEnabled == true {
+			if LCDEnabled {
 				LcdText = [4]string{"nil", "nil", "nil", "Min Vol"}
 				LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 			}
-			if OLEDEnabled == true {
+			if OLEDEnabled {
 				oledDisplay(false, 6, 1, "Min Vol")
 			}
 		}
@@ -430,7 +431,7 @@ func (b *Talkkonnect) cmdGPSPosition() {
 			break
 		}
 
-		if goodGPSRead == true {
+		if goodGPSRead {
 			break
 		}
 
@@ -488,7 +489,7 @@ func (b *Talkkonnect) cmdSendEmail() {
 			break
 		}
 
-		if goodGPSRead == true {
+		if goodGPSRead {
 			break
 		}
 
@@ -563,12 +564,12 @@ func (b *Talkkonnect) cmdClearScreen() {
 	reset()
 	log.Println("debug: Ctrl-L Pressed Cleared Screen")
 	if TargetBoard == "rpi" {
-		if LCDEnabled == true {
+		if LCDEnabled {
 			LcdText = [4]string{"nil", "nil", "nil", "nil"}
 			LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 		}
 
-		if OLEDEnabled == true {
+		if OLEDEnabled {
 			Oled.DisplayOn()
 			LCDIsDark = false
 			oledDisplay(true, 0, 0, "") // clear the screen
@@ -618,24 +619,24 @@ func (b *Talkkonnect) cmdConnNextServer() {
 func (b *Talkkonnect) cmdAudioTrafficRecord() {
 	log.Println("debug: Ctrl-I Pressed")
 	log.Println("info: Traffic Recording Requested")
-	if AudioRecordEnabled != true {
+	if !AudioRecordEnabled {
 		log.Println("warn: Audio Recording Function Not Enabled")
 	}
 	if AudioRecordMode != "traffic" {
 		log.Println("warn: Traffic Recording Not Enabled")
 	}
 
-	if AudioRecordEnabled == true {
+	if AudioRecordEnabled {
 		if AudioRecordMode == "traffic" {
 			if AudioRecordFromOutput != "" {
 				if AudioRecordSoft == "sox" {
 					go AudioRecordTraffic()
 					if TargetBoard == "rpi" {
-						if LCDEnabled == true {
+						if LCDEnabled {
 							LcdText = [4]string{"nil", "nil", "Traffic Audio Rec ->", "nil"} // 4 or 3
 							LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 						}
-						if OLEDEnabled == true {
+						if OLEDEnabled {
 							oledDisplay(false, 5, 1, "Traffic Audio Rec ->") // 6 or 5
 						}
 					}
@@ -650,24 +651,24 @@ func (b *Talkkonnect) cmdAudioTrafficRecord() {
 func (b *Talkkonnect) cmdAudioMicRecord() {
 	log.Println("debug: Ctrl-J Pressed")
 	log.Println("info: Ambient (Mic) Recording Requested")
-	if AudioRecordEnabled != true {
+	if !AudioRecordEnabled {
 		log.Println("warn: Audio Recording Function Not Enabled")
 	}
 	if AudioRecordMode != "ambient" {
 		log.Println("warn: Ambient (Mic) Recording Not Enabled")
 	}
 
-	if AudioRecordEnabled == true {
+	if AudioRecordEnabled {
 		if AudioRecordMode == "ambient" {
 			if AudioRecordFromInput != "" {
 				if AudioRecordSoft == "sox" {
 					go AudioRecordAmbient()
 					if TargetBoard == "rpi" {
-						if LCDEnabled == true {
+						if LCDEnabled {
 							LcdText = [4]string{"nil", "nil", "Mic Audio Rec ->", "nil"} // 4 or 3
 							LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 						}
-						if OLEDEnabled == true {
+						if OLEDEnabled {
 							oledDisplay(false, 5, 1, "Mic Audio Rec ->") // 6 or 5
 						}
 					}
@@ -682,24 +683,24 @@ func (b *Talkkonnect) cmdAudioMicRecord() {
 func (b *Talkkonnect) cmdAudioMicTrafficRecord() {
 	log.Println("debug: Ctrl-K Pressed")
 	log.Println("info: Recording (Traffic and Mic) Requested")
-	if AudioRecordEnabled != true {
+	if !AudioRecordEnabled {
 		log.Println("warn: Audio Recording Function Not Enabled")
 	}
 	if AudioRecordMode != "combo" {
 		log.Println("warn: Combo Recording (Traffic and Mic) Not Enabled")
 	}
 
-	if AudioRecordEnabled == true {
+	if AudioRecordEnabled {
 		if AudioRecordMode == "combo" {
 			if AudioRecordFromInput != "" {
 				if AudioRecordSoft == "sox" {
 					go AudioRecordCombo()
 					if TargetBoard == "rpi" {
-						if LCDEnabled == true {
+						if LCDEnabled {
 							LcdText = [4]string{"nil", "nil", "Combo Audio Rec ->", "nil"} // 4 or 3
 							LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 						}
-						if OLEDEnabled == true {
+						if OLEDEnabled {
 							oledDisplay(false, 5, 1, "Combo Audio Rec ->") // 6 or 5
 						}
 					}
@@ -760,7 +761,7 @@ func (b *Talkkonnect) cmdPanicSimulation() {
 					break
 				}
 
-				if goodGPSRead == true {
+				if goodGPSRead {
 					break
 				}
 			}
@@ -769,7 +770,7 @@ func (b *Talkkonnect) cmdPanicSimulation() {
 				log.Println("warn: Could Not Get a Good GPS Read")
 			}
 
-			if goodGPSRead == true && i != tries {
+			if goodGPSRead && i != tries {
 				log.Println("info: Sending GPS Info My Message")
 				gpsMessage := "My GPS Coordinates are " + fmt.Sprintf(" Latitude "+strconv.FormatFloat(GPSLatitude, 'f', 6, 64)) + fmt.Sprintf(" Longitude "+strconv.FormatFloat(GPSLongitude, 'f', 6, 64))
 				b.SendMessage(gpsMessage, PRecursive)
@@ -778,11 +779,11 @@ func (b *Talkkonnect) cmdPanicSimulation() {
 			IsPlayStream = true
 			b.playIntoStream(PFilenameAndPath, PVolume)
 			if TargetBoard == "rpi" {
-				if LCDEnabled == true {
+				if LCDEnabled {
 					LcdText = [4]string{"nil", "nil", "nil", "Panic Message Sent!"}
 					LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 				}
-				if OLEDEnabled == true {
+				if OLEDEnabled {
 					oledDisplay(false, 6, 1, "Panic Message Sent!")
 				}
 			}
@@ -791,14 +792,14 @@ func (b *Talkkonnect) cmdPanicSimulation() {
 			}
 
 			// New. Send email after Panic Event //
-			if PMailEnabled == true {
+			if PMailEnabled {
 				b.cmdSendEmail()
 				log.Println("info: Sending Panic Alert Email To Predefined Email Address")
 			}
 			//
 
 			// New. Record ambient audio on Panic Event if recording is enabled
-			if AudioRecordEnabled == true {
+			if AudioRecordEnabled {
 				log.Println("info: Running sox for Audio Recording...")
 				AudioRecordAmbient()
 			}
@@ -815,46 +816,45 @@ func (b *Talkkonnect) cmdPanicSimulation() {
 		// We shall use another low profile lights/LCD function to turn all the lights and display off during panic event
 		// They should be dim. Not attracting attention
 		//if TargetBoard == "rpi" {
-			//if !LedStripEnabled {
-				//b.LEDOff(b.TransmitLED)
-			//} else {
-				//
-				//MyLedStripTransmitLEDOff()
-			//}
-			//log.Println("--")
+		//if !LedStripEnabled {
+		//b.LEDOff(b.TransmitLED)
+		//} else {
+		//
+		//MyLedStripTransmitLEDOff()
+		//}
+		//log.Println("--")
 
 		//New. Low Profile Leds and LCD during Panic Event. Turn All Lights Off.
 		//Heartbeat will be running - disable in xml config?
 		//Backlight LCD led is dim with a transistor control, but it should work...
 		//Add another feature to enable all lights back on a PTT press after the panic event is over. To do?
 
-		if PLowProfile == true {
-		b.LEDOffAll()
-		log.Println("info: Low Profile Lights Option is Enabled. Turning All Leds Off During Panic Event")
+		if PLowProfile {
+			b.LEDOffAll()
+			log.Println("info: Low Profile Lights Option is Enabled. Turning All Leds Off During Panic Event")
 
-		//b.LEDOff(b.TransmitLED)
-		//b.LEDOff(b.BackLightLED)
-		//b.LEDOff(b.OnlineLED)
-		//b.LEDOff(b.ParticipantsLED)
-		//b.LEDOff(b.VoiceActivityLED)
-		//
-		//b.LEDOff(b.HeartBeatLED)
-		//
+			//b.LEDOff(b.TransmitLED)
+			//b.LEDOff(b.BackLightLED)
+			//b.LEDOff(b.OnlineLED)
+			//b.LEDOff(b.ParticipantsLED)
+			//b.LEDOff(b.VoiceActivityLED)
+			//
+			//b.LEDOff(b.HeartBeatLED)
+			//
 
-                if LCDEnabled == true {
-                        log.Println("info: Low Profile Lights is Enabled. Turning Off Display During Panic Event")
-                        LcdText = [4]string{"", "", "", ""}
+			if LCDEnabled {
+				log.Println("info: Low Profile Lights is Enabled. Turning Off Display During Panic Event")
+				LcdText = [4]string{"", "", "", ""}
 				LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
-				}
-			if OLEDEnabled == true {
+			}
+			if OLEDEnabled {
 				oledDisplay(true, 0, 0, "") // clear OLED screen. How about HD44780 and heartbit?
-				}
-		// End of Low Profile Lights
+			}
+			// End of Low Profile Lights
 
-                        }
-                }
-        }
-
+		}
+	}
+}
 
 func (b *Talkkonnect) cmdRepeatTxLoop() {
 	log.Println("debug: Ctrl-R Pressed")

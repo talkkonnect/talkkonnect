@@ -25,7 +25,7 @@ require (
 	github.com/talkkonnect/gumble v0.0.0-20210525051103-0ece99f819cc
 	github.com/talkkonnect/htgo-tts v0.0.0-20200613102004-335b75a33bca
 	github.com/talkkonnect/termbox-go v0.0.0-20181013101158-0ee46dd7ddac
-	github.com/talkkonnect/volume-go v0.0.0-20210720063739-bb23887b7601 // indirect
+	github.com/talkkonnect/volume-go v0.0.0-20210720063739-bb23887b7601
 	github.com/xackery/gomail v0.0.0-20150929200936-cc84600edc17
 	golang.org/x/sys v0.0.0-20210630005230-0f9fa26af87c
 	periph.io/x/periph v3.6.8+incompatible

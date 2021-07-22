@@ -28,17 +28,17 @@
  * ledstrip.go -> function in talkkonnect to control the led strip on respeaker hat
  */
 
-
 package talkkonnect
 
 import (
 	"log"
+	"strconv"
+
 	"periph.io/x/periph/conn/physic"
 	"periph.io/x/periph/conn/spi"
 	"periph.io/x/periph/conn/spi/spireg"
 	"periph.io/x/periph/devices/apa102"
 	"periph.io/x/periph/host"
-	"strconv"
 )
 
 const (
@@ -120,8 +120,4 @@ func (ls *LedStrip) ledCtrl(num int, color string) error {
 	log.Printf("debug: LedStrip %v\n", ls.buf)
 
 	return err
-}
-
-func (ls *LedStrip) closePort() {
-	ls.spiInterface.Close()
 }

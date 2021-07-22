@@ -34,14 +34,15 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
-	"github.com/talkkonnect/go-openal/openal"
-	"github.com/talkkonnect/gpio"
-	"github.com/talkkonnect/gumble/gumble"
-	"github.com/talkkonnect/gumble/gumbleffmpeg"
 	"log"
 	"os/exec"
 	"strconv"
 	"time"
+
+	"github.com/talkkonnect/go-openal/openal"
+	"github.com/talkkonnect/gpio"
+	"github.com/talkkonnect/gumble/gumble"
+	"github.com/talkkonnect/gumble/gumbleffmpeg"
 )
 
 var (
@@ -148,7 +149,7 @@ func (s *Stream) StopSource() error {
 
 func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 
-	if TargetBoard == "rpi" && LCDEnabled == true {
+	if TargetBoard == "rpi" && LCDEnabled {
 		LEDOffFunc(BackLightLED)
 	}
 
@@ -163,20 +164,20 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 				select {
 				case <-Talking:
 					TalkedTicker.Reset(200 * time.Millisecond)
-					if RXLEDStatus == false {
+					if !RXLEDStatus {
 						RXLEDStatus = true
 						LEDOnFunc(VoiceActivityLED)
 						log.Println("info: Speaking->", *e.LastSpeaker)
 						t := time.Now()
 						if TargetBoard == "rpi" {
-							if LCDEnabled == true {
+							if LCDEnabled {
 								LEDOnFunc(BackLightLED)
 								lcdtext = [4]string{"nil", "", "", *e.LastSpeaker + " " + t.Format("15:04:05")}
 								LcdDisplay(lcdtext, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 								BackLightTime.Reset(time.Duration(LCDBackLightTimeoutSecs) * time.Second)
 							}
 
-							if OLEDEnabled == true {
+							if OLEDEnabled {
 								Oled.DisplayOn()
 								go oledDisplay(false, 3, 1, *e.LastSpeaker+" "+t.Format("15:04:05"))
 								BackLightTime.Reset(time.Duration(LCDBackLightTimeoutSecs) * time.Second)
@@ -215,7 +216,7 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 		for packet := range e.C {
 			Talking <- true
 
-			if TargetBoard == "rpi" && LCDEnabled == true {
+			if TargetBoard == "rpi" && LCDEnabled {
 				LEDOnFunc(BackLightLED)
 			}
 
@@ -304,7 +305,7 @@ func (s *Stream) playIntoStream(filepath string, vol float32) {
 }
 
 func (b *Talkkonnect) playIntoStream(filepath string, vol float32) {
-	if IsPlayStream == false {
+	if !IsPlayStream {
 		log.Println(fmt.Sprintf("info: File %s Stopped!", filepath))
 		pstream.Stop()
 		b.LEDOff(b.TransmitLED)
@@ -330,7 +331,7 @@ func (b *Talkkonnect) playIntoStream(filepath string, vol float32) {
 			b.LEDOff(b.TransmitLED)
 		}
 	} else {
-		log.Println(fmt.Sprintf("warn: Sound Disabled by Config"))
+		log.Println("warn: Sound Disabled by Config")
 	}
 	return
 }
@@ -357,10 +358,9 @@ func (b *Talkkonnect) RepeaterTone() {
 		}
 
 	} else {
-		log.Println(fmt.Sprintf("warn: Repeater Tone Disabled by Config"))
+		log.Println("warn: Repeater Tone Disabled by Config")
 	}
 
-	return
 }
 
 func (b *Talkkonnect) OpenStream() {
@@ -372,12 +372,12 @@ func (b *Talkkonnect) OpenStream() {
 		log.Println("info: Current Channel ", b.Client.Self.Channel.Name, " has (", participantCount, ") participants")
 		b.ListUsers()
 		if TargetBoard == "rpi" {
-			if LCDEnabled == true {
+			if LCDEnabled {
 				LcdText[0] = b.Address
 				LcdText[1] = b.Client.Self.Channel.Name + " (" + strconv.Itoa(participantCount) + " Users)"
 				LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 			}
-			if OLEDEnabled == true {
+			if OLEDEnabled {
 				oledDisplay(false, 0, 1, b.Address)
 				oledDisplay(false, 1, 1, b.Client.Self.Channel.Name+" ("+strconv.Itoa(participantCount)+" Users)")
 				oledDisplay(false, 6, 1, "Please Visit")
@@ -390,11 +390,11 @@ func (b *Talkkonnect) OpenStream() {
 	if stream, err := New(b.Client); err != nil {
 
 		if TargetBoard == "rpi" {
-			if LCDEnabled == true {
+			if LCDEnabled {
 				LcdText = [4]string{"Stream Error!", "nil", "nil", "nil"}
 				LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 			}
-			if OLEDEnabled == true {
+			if OLEDEnabled {
 				oledDisplay(false, 2, 1, "Stream Error!!")
 			}
 

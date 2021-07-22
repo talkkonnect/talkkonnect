@@ -63,7 +63,7 @@ func AudioRecordTraffic() {
 	createDirIfNotExist(AudioRecordSavePath)
 	createDirIfNotExist(AudioRecordArchivePath)
 	emptydirchk, err := dirIsEmpty(AudioRecordSavePath)
-	if err == nil && emptydirchk == false {
+	if err == nil && !emptydirchk {
 
 		filezip := time.Now().Format("20060102150405") + ".zip"
 		go zipit(AudioRecordSavePath+"/", AudioRecordArchivePath+"/"+filezip)
@@ -77,7 +77,6 @@ func AudioRecordTraffic() {
 	go audiorecordtraffic()
 	log.Println("debug: sox is Recording Traffic to", AudioRecordSavePath)
 
-	return
 }
 
 // Record ambient audio from microphone with sox
@@ -87,7 +86,7 @@ func AudioRecordAmbient() {
 	createDirIfNotExist(AudioRecordSavePath)
 	createDirIfNotExist(AudioRecordArchivePath)
 	emptydirchk, err := dirIsEmpty(AudioRecordSavePath)
-	if err == nil && emptydirchk == false {
+	if err == nil && !emptydirchk {
 		filezip := time.Now().Format("20060102150405") + ".zip"
 		go zipit(AudioRecordSavePath+"/", AudioRecordArchivePath+"/"+filezip) // path to end with "/" or not?
 		log.Println("info: Archiving Old Audio Files to", AudioRecordArchivePath+"/"+filezip)
@@ -99,7 +98,6 @@ func AudioRecordAmbient() {
 	time.Sleep(1 * time.Second)
 	go audiorecordambientmux()
 
-	return
 }
 
 // Record both incoming Mumble traffic and ambient audio with sox
@@ -109,7 +107,7 @@ func AudioRecordCombo() {
 	createDirIfNotExist(AudioRecordSavePath)
 	createDirIfNotExist(AudioRecordArchivePath)
 	emptydirchk, err := dirIsEmpty(AudioRecordSavePath)
-	if err == nil && emptydirchk == false {
+	if err == nil && !emptydirchk {
 		filezip := time.Now().Format("20060102150405") + ".zip"
 		go zipit(AudioRecordSavePath+"/", AudioRecordArchivePath+"/"+filezip)
 		log.Println("info: Archiving Old Audio Files to", AudioRecordArchivePath+"/"+filezip)
@@ -121,28 +119,6 @@ func AudioRecordCombo() {
 	time.Sleep(1 * time.Second)
 	go audiorecordcombomux()
 
-	return
-}
-
-//Record traffic with mux exclusion. Allow new start only if currently not running.
-
-func audiorecordtrafficmux() { // check if mux for this is working?
-
-	JobIsrunningMu.Lock()
-	start := !jobIsRunning
-	jobIsRunning = true
-	JobIsrunningMu.Unlock()
-
-	if start {
-		go func() {
-			audiorecordtraffic()
-			JobIsrunningMu.Lock()
-			jobIsRunning = false
-			JobIsrunningMu.Unlock()
-		}()
-	} else {
-		log.Println("info: Traffic Audio Recording is Already Running. Please Wait.")
-	}
 }
 
 //  sox function for traffic recording
@@ -151,7 +127,7 @@ func audiorecordtraffic() {
 
 	// check if external program is installed?
 	checkfile := isCommandAvailable("/usr/bin/sox")
-	if checkfile == false {
+	if !checkfile {
 		log.Println("error: sox is Missing. Is the Package Installed?")
 	}
 
@@ -206,7 +182,7 @@ func audiorecordtraffic() {
 
 		emptydirchk, err := dirIsEmpty(AudioRecordSavePath) // If sox didn't start recording for wrong parameters or any reason...  No  file.
 
-		if err == nil && emptydirchk == false {
+		if err == nil && !emptydirchk {
 			log.Println("info: sox is Recording Traffic to", AudioRecordSavePath)
 			log.Println("info: sox will Go On Recording, Until it Runs out of Space or is Interrupted")
 
@@ -256,7 +232,7 @@ func audiorecordambientmux() {
 func audiorecordambient() {
 
 	checkfile := isCommandAvailable("/usr/bin/sox")
-	if checkfile == false {
+	if !checkfile {
 		log.Println("error: sox is Missing. Is the Package Installed?")
 	}
 
@@ -308,7 +284,7 @@ func audiorecordambient() {
 
 		emptydirchk, err := dirIsEmpty(AudioRecordSavePath) // If sox didn't start recording for wrong parameters or any reason...  No file.
 
-		if err == nil && emptydirchk == false {
+		if err == nil && !emptydirchk {
 			log.Println("info: sox is Recording Ambient Audio to", AudioRecordSavePath)
 			log.Println("warn: sox will Go On Recording, Until it Runs out of Space or is Interrupted")
 
@@ -358,7 +334,7 @@ func audiorecordcombomux() {
 func audiorecordcombo() {
 
 	checkfile := isCommandAvailable("/usr/bin/sox")
-	if checkfile == false {
+	if !checkfile {
 		log.Println("error: sox is Missing. Is the Package Installed?")
 	}
 
@@ -416,7 +392,7 @@ func audiorecordcombo() {
 
 		emptydirchk, err := dirIsEmpty(AudioRecordSavePath) // If sox didn't start recording for wrong parameters or any reason...  No files.
 
-		if err == nil && emptydirchk == false {
+		if err == nil && !emptydirchk {
 			log.Println("info: sox is Recording Mixed Audio to", AudioRecordSavePath)
 			log.Println("warn: sox will Go On Recording, Until it Runs out of Space or is Interrupted")
 
@@ -437,24 +413,5 @@ func audiorecordcombo() {
 			log.Println("error: Something Went Wrong... sox Traffic Recording was Launched but Encountered Some Problems")
 			log.Println("warn: Check ALSA Sound Settings and sox Arguments")
 		}
-	}
-}
-
-func fileserve3mux() {
-
-	JobIsrunningMu.Lock()
-	start := !jobIsRunning
-	jobIsRunning = true
-	JobIsrunningMu.Unlock()
-
-	if start {
-		go func() {
-			fileserve3()
-			JobIsrunningMu.Lock()
-			jobIsRunning = false
-			JobIsrunningMu.Unlock()
-		}()
-	} else {
-		log.Println("info: Ambient Audio Recording is Already Running. Please Wait.")
 	}
 }

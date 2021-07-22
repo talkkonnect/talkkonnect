@@ -40,7 +40,7 @@ import (
 )
 
 func (b *Talkkonnect) OnConnect(e *gumble.ConnectEvent) {
-	if IsConnected == true {
+	if IsConnected {
 		return
 	}
 
@@ -64,11 +64,11 @@ func (b *Talkkonnect) OnConnect(e *gumble.ConnectEvent) {
 		} else {
 			MyLedStripOnlineLEDOn()
 		}
-		if LCDEnabled == true {
+		if LCDEnabled {
 			LcdText = [4]string{"nil", "nil", "nil", "nil"}
 			LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 		}
-		if OLEDEnabled == true {
+		if OLEDEnabled {
 			Oled.DisplayOn()
 			LCDIsDark = false
 			oledDisplay(true, 0, 0, "") // clear the screen
@@ -118,7 +118,7 @@ func (b *Talkkonnect) OnTextMessage(e *gumble.TextMessageEvent) {
 	b.BackLightTimer()
 
 	if len(cleanstring(e.Message)) > 105 {
-		log.Println(fmt.Sprintf("warn: Message Too Long to Be Displayed on Screen\n"))
+		log.Println("warn: Message Too Long to Be Displayed on Screen")
 		message = strings.TrimSpace(cleanstring(e.Message)[:105])
 	} else {
 		message = strings.TrimSpace(cleanstring(e.Message))
@@ -136,12 +136,12 @@ func (b *Talkkonnect) OnTextMessage(e *gumble.TextMessageEvent) {
 	log.Println(fmt.Sprintf("info: Message ("+strconv.Itoa(len(message))+") from %v %v\n", sender, message))
 
 	if TargetBoard == "rpi" {
-		if LCDEnabled == true {
+		if LCDEnabled {
 			LcdText[0] = "Msg From " + sender
 			LcdText[1] = message
 			LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 		}
-		if OLEDEnabled == true {
+		if OLEDEnabled {
 			oledDisplay(false, 2, 1, "Msg From "+sender)
 			if len(message) <= 21 {
 				oledDisplay(false, 3, 1, message)
@@ -151,21 +151,21 @@ func (b *Talkkonnect) OnTextMessage(e *gumble.TextMessageEvent) {
 				oledDisplay(false, 7, 1, "")
 			} else if len(message) <= 42 {
 				oledDisplay(false, 3, 1, message[0:21])
-				oledDisplay(false, 4, 1, message[21:len(message)])
+				oledDisplay(false, 4, 1, message[21:41])
 				oledDisplay(false, 5, 1, "")
 				oledDisplay(false, 6, 1, "")
 				oledDisplay(false, 7, 1, "")
 			} else if len(message) <= 63 {
 				oledDisplay(false, 3, 1, message[0:21])
 				oledDisplay(false, 4, 1, message[21:42])
-				oledDisplay(false, 5, 1, message[42:len(message)])
+				oledDisplay(false, 5, 1, message[42:])
 				oledDisplay(false, 6, 1, "")
 				oledDisplay(false, 7, 1, "")
 			} else if len(message) <= 84 {
 				oledDisplay(false, 3, 1, message[0:21])
 				oledDisplay(false, 4, 1, message[21:42])
 				oledDisplay(false, 5, 1, message[42:63])
-				oledDisplay(false, 6, 1, message[63:len(message)])
+				oledDisplay(false, 6, 1, message[63:])
 				oledDisplay(false, 7, 1, "")
 			} else if len(message) <= 105 {
 				oledDisplay(false, 3, 1, message[0:20])
@@ -276,10 +276,10 @@ func (b *Talkkonnect) OnPermissionDenied(e *gumble.PermissionDeniedEvent) {
 		}
 
 		if TargetBoard == "rpi" {
-			if LCDEnabled == true {
+			if LCDEnabled {
 				LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 			}
-			if OLEDEnabled == true {
+			if OLEDEnabled {
 				oledDisplay(false, 1, 1, LcdText[1])
 				oledDisplay(false, 2, 1, LcdText[2])
 			}

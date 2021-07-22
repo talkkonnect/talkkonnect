@@ -30,10 +30,11 @@
 package talkkonnect
 
 import (
-	hd44780 "github.com/talkkonnect/go-hd44780"
 	"log"
 	"strings"
 	"sync"
+
+	hd44780 "github.com/talkkonnect/go-hd44780"
 )
 
 var mutex = &sync.Mutex{}
@@ -42,7 +43,7 @@ func oledDisplay(OledClear bool, OledRow int, OledColumn int, OledText string) {
 	mutex.Lock()
 	defer mutex.Unlock()
 
-	if OLEDEnabled == false {
+	if !OLEDEnabled {
 		log.Println("error: OLED Function Called in Error!")
 		return
 	}
@@ -52,11 +53,11 @@ func oledDisplay(OledClear bool, OledRow int, OledColumn int, OledText string) {
 		return
 	}
 
-	if OledClear == false && len(OledText) > 0 && LCDIsDark == true {
+	if !OledClear && len(OledText) > 0 && LCDIsDark {
 		Oled.DisplayOn()
 	}
 
-	if OledClear == true {
+	if OledClear {
 		Oled.Clear()
 		log.Println("debug: OLED Clearing Screen")
 		if len(OledText) == 0 {

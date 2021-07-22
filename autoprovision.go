@@ -73,7 +73,7 @@ func autoProvision() error {
 	log.Println("info: Trying to Autoprovision with URL: ", fileURL)
 	err := downloadFile(SaveFilePath, SaveFilename, fileURL)
 	if err != nil {
-		return fmt.Errorf("error: DownloadFile Module Returned an Error: ", err.Error())
+		return fmt.Errorf("error: DownloadFile Module Returned an Error: %q", err.Error())
 	}
 
 	return nil
@@ -90,19 +90,19 @@ func downloadFile(SaveFilePath string, SaveFilename string, URL string) error {
 	if resp.StatusCode == 200 {
 		log.Println("debug: HTTP Provisioning Server Responded With Status 200 OK ")
 	} else {
-		return fmt.Errorf("error: HTTP Provisioning Server Returned Status ", resp.StatusCode, " ", http.StatusText(resp.StatusCode))
+		return fmt.Errorf("error: HTTP Provisioning Server Returned Status %q %q", resp.StatusCode, http.StatusText(resp.StatusCode))
 
 	}
 
 	out, err := os.Create(SaveFilePath + SaveFilename)
 	if err != nil {
-		return fmt.Errorf("error: Cannot Create File Error: ", err.Error())
+		return fmt.Errorf("error: Cannot Create File Error: %q", err.Error())
 	}
 	defer out.Close()
 
 	_, err = io.Copy(out, resp.Body)
 	if err != nil {
-		return fmt.Errorf("error: Cannot Copy File Error: ", err.Error())
+		return fmt.Errorf("error: Cannot Copy File Error: %q", err.Error())
 	}
 
 	return nil

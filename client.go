@@ -33,6 +33,15 @@ import (
 	"crypto/rand"
 	"crypto/tls"
 	"fmt"
+	"io"
+	"log"
+	"net/http"
+	"os"
+	"os/signal"
+	"strconv"
+	"syscall"
+	"time"
+
 	"github.com/comail/colog"
 	hd44780 "github.com/talkkonnect/go-hd44780"
 	"github.com/talkkonnect/gpio"
@@ -42,14 +51,6 @@ import (
 	_ "github.com/talkkonnect/gumble/opus"
 	term "github.com/talkkonnect/termbox-go"
 	"github.com/talkkonnect/volume-go"
-	"io"
-	"log"
-	"net/http"
-	"os"
-	"os/signal"
-	"strconv"
-	"syscall"
-	"time"
 )
 
 var (
@@ -59,8 +60,6 @@ var (
 	prevParticipantCount int    = 0
 	prevButtonPress      string = "none"
 	maxchannelid         uint32
-	origVolume           int
-	tempVolume           int
 	ConfigXMLFile        string
 	Streaming            bool
 	ServerHop            bool
@@ -76,7 +75,7 @@ var (
 	GPSSpeed             float64
 	GPSCourse            float64
 	GPSVariation         float64
-	m                    string 
+	m                    string
 )
 
 type Talkkonnect struct {
@@ -173,7 +172,6 @@ func Init(file string, ServerIndex string) {
 		log.Println("info: Default Loglevel unset in XML config automatically loglevel to Info")
 	}
 
-
 	if APEnabled {
 		log.Println("info: Contacting http Provisioning Server Pls Wait")
 		err := autoProvision()
@@ -190,7 +188,7 @@ func Init(file string, ServerIndex string) {
 	if NextServerIndex > 0 {
 		AccountIndex = NextServerIndex
 	} else {
-		AccountIndex, err = strconv.Atoi(ServerIndex)
+		AccountIndex, _ = strconv.Atoi(ServerIndex)
 	}
 
 	b := Talkkonnect{
@@ -203,7 +201,7 @@ func Init(file string, ServerIndex string) {
 		Daemonize:   Daemonize,
 	}
 
-	if MQTTEnabled == true {
+	if MQTTEnabled {
 		log.Printf("info: Attempting to Contact MQTT Server")
 		log.Printf("info: MQTT Broker      : %s\n", MQTTBroker)
 		log.Printf("info: Subscribed topic : %s\n", MQTTTopic)
@@ -303,7 +301,7 @@ func (b *Talkkonnect) ClientStart() {
 		log.Println("info: Target Board Set as PC (gpio disabled) ")
 	}
 
-	if (TargetBoard == "rpi" && LCDBackLightTimerEnabled == true) && (OLEDEnabled == true || LCDEnabled == true) {
+	if (TargetBoard == "rpi" && LCDBackLightTimerEnabled) && (OLEDEnabled || LCDEnabled) {
 
 		log.Println("info: Backlight Timer Enabled by Config")
 		BackLightTime = *BackLightTimePtr
@@ -325,7 +323,7 @@ func (b *Talkkonnect) ClientStart() {
 					}
 					lcd.ToggleBacklight()
 				}
-				if OLEDEnabled == true && OLEDInterfacetype == "i2c" {
+				if OLEDEnabled && OLEDInterfacetype == "i2c" {
 					Oled.DisplayOff()
 					LCDIsDark = true
 				}
@@ -371,7 +369,7 @@ func (b *Talkkonnect) ClientStart() {
 				if HeartBeatEnabled {
 					b.LEDOff(b.HeartBeatLED)
 				}
-				if KillHeartBeat == true {
+				if KillHeartBeat {
 					HeartBeat.Stop()
 				}
 
@@ -394,19 +392,19 @@ func (b *Talkkonnect) ClientStart() {
 
 	b.BackLightTimer()
 
-	if LCDEnabled == true {
+	if LCDEnabled {
 		b.LEDOn(b.BackLightLED)
 		LCDIsDark = false
 	}
 
-	if OLEDEnabled == true {
+	if OLEDEnabled {
 		Oled.DisplayOn()
 		LCDIsDark = false
 	}
 
-	if AudioRecordEnabled == true {
+	if AudioRecordEnabled {
 
-		if AudioRecordOnStart == true {
+		if AudioRecordOnStart {
 
 			if AudioRecordMode != "" {
 
@@ -414,11 +412,11 @@ func (b *Talkkonnect) ClientStart() {
 					log.Println("info: Incoming Traffic will be Recorded with sox")
 					AudioRecordTraffic()
 					if TargetBoard == "rpi" {
-						if LCDEnabled == true {
+						if LCDEnabled {
 							LcdText = [4]string{"nil", "nil", "nil", "Traffic Recording ->"} // 4
 							LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 						}
-						if OLEDEnabled == true {
+						if OLEDEnabled {
 							oledDisplay(false, 6, 1, "Traffic Recording") // 6
 						}
 					}
@@ -427,11 +425,11 @@ func (b *Talkkonnect) ClientStart() {
 					log.Println("info: Ambient Audio from Mic will be Recorded with sox")
 					AudioRecordAmbient()
 					if TargetBoard == "rpi" {
-						if LCDEnabled == true {
+						if LCDEnabled {
 							LcdText = [4]string{"nil", "nil", "nil", "Mic Recording ->"} // 4
 							LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 						}
-						if OLEDEnabled == true {
+						if OLEDEnabled {
 							oledDisplay(false, 6, 1, "Mic Recording") // 6
 						}
 					}
@@ -440,11 +438,11 @@ func (b *Talkkonnect) ClientStart() {
 					log.Println("info: Both Incoming Traffic and Ambient Audio from Mic will be Recorded with sox")
 					AudioRecordCombo()
 					if TargetBoard == "rpi" {
-						if LCDEnabled == true {
+						if LCDEnabled {
 							LcdText = [4]string{"nil", "nil", "nil", "Combo Recording ->"} // 4
 							LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 						}
-						if OLEDEnabled == true {
+						if OLEDEnabled {
 							oledDisplay(false, 6, 1, "Combo Recording") //6
 						}
 					}

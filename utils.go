@@ -34,7 +34,6 @@ package talkkonnect
 import (
 	"archive/zip"
 	"errors"
-	"flag"
 	"fmt"
 
 	"io"
@@ -42,7 +41,6 @@ import (
 	"log"
 	"math"
 	"net"
-	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -50,7 +48,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/glendc/go-external-ip"
+	externalip "github.com/glendc/go-external-ip"
 	"github.com/kennygrant/sanitize"
 	"github.com/talkkonnect/gumble/gumble"
 	term "github.com/talkkonnect/termbox-go"
@@ -174,7 +172,7 @@ func playWavLocal(filepath string, playbackvolume int) error {
 	} else if path, err := exec.LookPath("paplay"); err == nil {
 		player = path
 	} else {
-		return errors.New("Failed to find either aplay or paplay in PATH")
+		return errors.New("failed to find either aplay or paplay in path")
 	}
 
 	log.Println("info: debug player ", player)
@@ -184,7 +182,7 @@ func playWavLocal(filepath string, playbackvolume int) error {
 	_, err := cmd.CombinedOutput()
 
 	if err != nil {
-		return fmt.Errorf("error: cmd.Run() for %s failed with %s\n", player, err)
+		return fmt.Errorf("error: cmd.Run() for %s failed with %s", player, err)
 	}
 
 	return nil
@@ -200,43 +198,6 @@ func sendviagmail(username string, password string, receiver string, subject str
 	go LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 
 	return nil
-}
-
-func clearfiles() { // Testing os.Remove to delete files
-	err := os.RemoveAll(`/avrec`)
-	if err != nil {
-		fmt.Println("error: cannot remove file error ", err)
-		return
-	}
-}
-
-func fileserve3() {
-	port := flag.String("psox", "8085", "port to serve on")
-	directory := flag.String("dsox", AudioRecordSavePath, "the directory of static file to host")
-	//. "dot" or / or ./img or AudioRecordSavePath, AudioRecordArchivePath
-	flag.Parse()
-	mux := http.NewServeMux()
-	mux.Handle("/", http.FileServer(http.Dir(*directory)))
-	//http.Handle("/img/", http.StripPrefix("/img/", http.FileServer(http.Dir("./img/"))))
-	// in case of problem with img dir
-	time.Sleep(5 * time.Second)
-	log.Println("debug: Serving Audio Files", *directory, "over HTTP port:", *port)
-	log.Println("info: HTTP Server Waiting")
-	log.Println(http.ListenAndServe(":"+*port, mux))
-}
-
-func fileserve4() {
-	port := flag.String("pavrec", "8086", "port to serve on")
-	directory := flag.String("davrec", "/avrec", "the directory of static file to host")
-	flag.Parse()
-	mux := http.NewServeMux()
-	mux.Handle("/", http.FileServer(http.Dir(*directory)))
-	//http.Handle("/img/", http.StripPrefix("/img/", http.FileServer(http.Dir("./img/"))))
-	// in case of problem with img dir
-	time.Sleep(5 * time.Second)
-	log.Println("debug: Serving Directory", *directory, "over HTTP port:", *port)
-	log.Println("info: HTTP Server Waiting")
-	log.Println(http.ListenAndServe(":"+*port, mux))
 }
 
 func zipit(source, target string) error {
@@ -300,43 +261,6 @@ func zipit(source, target string) error {
 	return err
 }
 
-func unzip(archive, target string) error {
-	reader, err := zip.OpenReader(archive)
-	if err != nil {
-		return err
-	}
-
-	if err := os.MkdirAll(target, 0755); err != nil {
-		return err
-	}
-
-	for _, file := range reader.File {
-		path := filepath.Join(target, file.Name)
-		if file.FileInfo().IsDir() {
-			os.MkdirAll(path, file.Mode())
-			continue
-		}
-
-		fileReader, err := file.Open()
-		if err != nil {
-			return err
-		}
-		defer fileReader.Close()
-
-		targetFile, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, file.Mode())
-		if err != nil {
-			return err
-		}
-		defer targetFile.Close()
-
-		if _, err := io.Copy(targetFile, fileReader); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
 func createDirIfNotExist(dir string) {
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
 		err = os.MkdirAll(dir, 0777)
@@ -344,21 +268,6 @@ func createDirIfNotExist(dir string) {
 			panic(err)
 		}
 	}
-}
-
-func clearDir(dir string) error {
-	files, err := filepath.Glob(filepath.Join(dir, "*"))
-	if err != nil {
-		return err
-	}
-	for _, file := range files {
-		err = os.RemoveAll(file)
-		if err != nil {
-			//os.RemoveAll(dir) //  can do dir's
-			return err
-		}
-	}
-	return nil
 }
 
 func cleardir(dir string) {
@@ -384,35 +293,17 @@ func cleardir(dir string) {
 func dirIsEmpty(name string) (bool, error) {
 	f, err := os.Open(name)
 	if err != nil {
+		log.Println("debug: Dir is Not Empty")
 		return false, err // Not Empty
-		log.Println("debug: Dir is Not Empty", "%t")
 	}
 	defer f.Close()
 
 	_, err = f.Readdirnames(1) // Or f.Readdir(1)  // empty
 	if err == io.EOF {
+		log.Println("debug: Dir is Empty")
 		return true, nil
-		log.Println("debug: Dir is Empty", "%t")
 	}
 	return false, err // Either not empty or error, suits both cases
-}
-
-func fileExist(path string) bool {
-	if _, err := os.Stat(path); err == nil {
-		// exist
-		return true
-	}
-	// not exist
-	return false
-}
-
-func fileNotExist(path string) bool {
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		// not exist
-		return true
-	}
-	// exist
-	return false
 }
 
 func isCommandAvailable(name string) bool {
@@ -446,93 +337,6 @@ func before(value string, a string) string { // used for sox time
 		return ""
 	}
 	return value[0:pos]
-}
-
-func between(value string, a string, b string) string {
-	// Get substring between two strings.
-	posFirst := strings.Index(value, a)
-	if posFirst == -1 {
-		return ""
-	}
-	posLast := strings.Index(value, b)
-	if posLast == -1 {
-		return ""
-	}
-	posFirstAdjusted := posFirst + len(a)
-	if posFirstAdjusted >= posLast {
-		return ""
-	}
-	return value[posFirstAdjusted:posLast]
-}
-
-func after(value string, a string) string {
-	// Get substring after a string.
-	pos := strings.LastIndex(value, a)
-	if pos == -1 {
-		return ""
-	}
-	adjustedPos := pos + len(a)
-	if adjustedPos >= len(value) {
-		return ""
-	}
-	return value[adjustedPos:len(value)]
-}
-
-type dateTimeScheduleStruct struct {
-	startDateTime string
-	endDateTime   string
-	matched       bool
-	defaultLogic  bool
-	stopOnMatch   bool
-}
-
-type dayScheduleStruct struct {
-	dayint       int
-	startTime    int
-	endTime      int
-	matched      bool
-	defaultLogic bool
-	stopOnMatch  bool
-}
-
-func dateTimeWithinRange(dateTimeSchedule dateTimeScheduleStruct) (bool, bool, bool, error) {
-	var dateFormat string = "02/01/2006 15:04"
-	startDateTime, err := time.Parse(dateFormat, dateTimeSchedule.startDateTime)
-	if err != nil {
-		return false, false, false, err
-	}
-
-	endDateTime, err := time.Parse(dateFormat, dateTimeSchedule.endDateTime)
-	if err != nil {
-		return false, false, false, err
-	}
-
-	checkDateTime, err := time.Parse(dateFormat, time.Now().Format("02/01/2006 15:04"))
-	if err != nil {
-		return false, false, false, err
-	}
-	log.Println("------")
-	log.Println("debug: startdate is ", startDateTime, " enddate is ", endDateTime, " check date is ", checkDateTime)
-	if startDateTime.Before(checkDateTime) && endDateTime.After(checkDateTime) {
-		return true, dateTimeSchedule.defaultLogic, dateTimeSchedule.stopOnMatch, nil
-	}
-	return false, dateTimeSchedule.defaultLogic, dateTimeSchedule.stopOnMatch, nil
-}
-
-//func dayTimeWithinRange(startTime string, endTime string, dayCheck string, dateFormat string, defaultLogicDay string) (bool, error) {
-func dayTimeWithinRange(dayTimeWithinRange dayScheduleStruct) (bool, bool, bool, error) {
-
-	t1 := time.Now()
-	t1Day := int(t1.Weekday())
-	t1Minute := int((t1.Hour() * 60) + t1.Minute())
-
-	log.Println("------")
-	log.Println("debug: day is ", t1Day, " starttime is ", dayTimeWithinRange.startTime, " endtime is ", dayTimeWithinRange.endTime, " checkday is ", t1Day, " check time is ", t1Minute)
-
-	if t1Day == dayTimeWithinRange.dayint && (dayTimeWithinRange.startTime <= t1Minute && dayTimeWithinRange.endTime >= t1Minute) {
-		return true, dayTimeWithinRange.defaultLogic, dayTimeWithinRange.stopOnMatch, nil
-	}
-	return false, dayTimeWithinRange.defaultLogic, dayTimeWithinRange.stopOnMatch, nil
 }
 
 func getMacAddr() ([]string, error) {

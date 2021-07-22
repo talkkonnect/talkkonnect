@@ -30,14 +30,12 @@
 package talkkonnect
 
 import (
-	"github.com/stianeikeland/go-rpio"
-	"github.com/talkkonnect/gpio"
 	"log"
 	"time"
-)
 
-var ledpin = 0
-var connectFailCounter int = 0
+	"github.com/stianeikeland/go-rpio"
+	"github.com/talkkonnect/gpio"
+)
 
 func (b *Talkkonnect) initGPIO() {
 
@@ -165,7 +163,7 @@ func (b *Talkkonnect) initGPIO() {
 							time.Sleep(200 * time.Millisecond)
 						}
 
-						if isTx == false {
+						if !isTx {
 							b.TransmitStart()
 							for {
 								currentState, err := b.TxToggle.Read()

@@ -39,9 +39,6 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"github.com/jacobsa/go-serial/serial"
-	hd44780 "github.com/talkkonnect/go-hd44780"
-	"github.com/talkkonnect/go-nmea"
 	"io"
 	"io/ioutil"
 	"log"
@@ -49,6 +46,10 @@ import (
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/jacobsa/go-serial/serial"
+	hd44780 "github.com/talkkonnect/go-hd44780"
+	"github.com/talkkonnect/go-nmea"
 	//"encoding/json" // used for testing http api for flespi
 )
 
@@ -77,11 +78,11 @@ func getGpsPosition(verbose bool) (bool, error) {
 	if GpsEnabled {
 
 		if Port == "" {
-			return false, errors.New("You Must Specify Port")
+			return false, errors.New("you must specify port")
 		}
 
 		if Even && Odd {
-			return false, errors.New("Can't Specify both Even and Odd Parity")
+			return false, errors.New("cant specify both even and odd parity")
 		}
 
 		parity := serial.PARITY_NONE
@@ -109,7 +110,7 @@ func getGpsPosition(verbose bool) (bool, error) {
 
 		if err != nil {
 			GpsEnabled = false
-			return false, errors.New("Cannot Open Serial Port")
+			return false, errors.New("cannot open serial port")
 		} else {
 			defer f.Close()
 		}
@@ -119,7 +120,7 @@ func getGpsPosition(verbose bool) (bool, error) {
 
 			if err != nil {
 				GpsEnabled = false
-				return false, errors.New("Cannot Decode Hex Data")
+				return false, errors.New("cannot decode hex data")
 			}
 
 			log.Println("info: Sending: ", hex.EncodeToString(txData))
@@ -127,7 +128,7 @@ func getGpsPosition(verbose bool) (bool, error) {
 			count, err := f.Write(txData)
 
 			if err != nil {
-				return false, errors.New("Error writing to serial port")
+				return false, errors.New("error writing to serial port")
 			} else {
 				log.Println("info: Wrote %v bytes\n", count)
 			}
@@ -151,14 +152,14 @@ func getGpsPosition(verbose bool) (bool, error) {
 
 				if err == nil {
 
-		                        /*if s.DataType() == nmea.TypeGGA {
-						g := s.(nmea.RMC)
-                                                if g.Latitude != 0 && g.Longitude != 0 {
-							goodGPSRead = true
-							fmt.Println(...)
+					/*if s.DataType() == nmea.TypeGGA {
+											g := s.(nmea.RMC)
+					                                                if g.Latitude != 0 && g.Longitude != 0 {
+												goodGPSRead = true
+												fmt.Println(...)
 					*/
-                                         // Try to read other sentences containing useful info like $GPGGA, ...
-                                         // and  print useful info, altitude, number of satellites, fix quality, etc. To Do.
+					// Try to read other sentences containing useful info like $GPGGA, ...
+					// and  print useful info, altitude, number of satellites, fix quality, etc. To Do.
 
 					if s.DataType() == nmea.TypeRMC {
 						m := s.(nmea.RMC)
@@ -207,7 +208,7 @@ func getGpsPosition(verbose bool) (bool, error) {
 							// Position Reporter
 
 							// send GPS position once immediately on start
-							if TrackEnabled == true && TraccarSendTo == true {
+							if TrackEnabled && TraccarSendTo {
 								if TraccarProto == "t55" {
 									go tcpSendT55Traccar2() // Initial Send GPS position to Traccar with old T55 client protocol. No keep-alive.
 									//tcpSendT55Traccar1()  // Initial Send GPS position to Traccar with old T55 client protocol. Keep-alive.
@@ -224,7 +225,7 @@ func getGpsPosition(verbose bool) (bool, error) {
 							var TraccarCounter = 1
 							go func() {
 								for _ = range PositionReporter.C {
-									if TrackEnabled == true && TraccarSendTo == true {
+									if TrackEnabled && TraccarSendTo {
 										if TraccarProto == "t55" {
 											tcpSendT55Traccar2() // Send GPS position to Traccar with old T55 client protocol. No keep-alive.
 											//tcpSendT55Traccar1()  // Send GPS position to Traccar with old T55 client protocol. Keep-alive.
@@ -236,7 +237,7 @@ func getGpsPosition(verbose bool) (bool, error) {
 									TraccarCounter++
 
 									if verbose {
-										if TrackEnabled == true && TraccarSendTo == true {
+										if TrackEnabled && TraccarSendTo {
 											if TraccarProto == "osmand" {
 												log.Println("info: OsmAnd: ", TraccarServerURL+":"+fmt.Sprint(TraccarPortOsmAnd)+"?"+"id="+TraccarClientId+"&"+"timestamp="+date2()+"%20"+time2()+"&"+"lat="+fmt.Sprint(m.Latitude)+"&"+"lon="+fmt.Sprint(m.Longitude)+"&"+"speed="+fmt.Sprint(m.Speed)+"&"+"course="+fmt.Sprint(m.Course)+"&"+"variation="+fmt.Sprint(m.Variation))
 											} else if TraccarProto == "t55" {
@@ -251,17 +252,17 @@ func getGpsPosition(verbose bool) (bool, error) {
 									//Display Show GPS Position.
 
 									if TargetBoard == "rpi" {
-										if TrackEnabled == true {
-											if TrackGPSShowLCD == true {
+										if TrackEnabled {
+											if TrackGPSShowLCD {
 												log.Println("info: Showing GPS Info in LCD: " + "Lat: " + fmt.Sprint(m.Latitude) + " Long: " + fmt.Sprint(m.Longitude))
 												time.Sleep(5 * time.Second)
 												t := time.Now()
-												if LCDEnabled == true {
+												if LCDEnabled {
 													LcdText = [4]string{"nil", "GPS OK " + t.Format("15:04:05"), "lat:" + fmt.Sprintf("%f", m.Latitude), "lon:" + fmt.Sprintf("%f", m.Longitude) + " s:" + fmt.Sprintf("%.2f", m.Speed*1.852)} // 1 knot = 1.852 km.  Take LCD rows 1-3
 													// Option: narrow down GPS LCD writing to rows 2-3. Row 2, status, row 3, grid.
 													go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress) // Take LCD rows 2-3.
 												}
-												if OLEDEnabled == true {
+												if OLEDEnabled {
 													oledDisplay(false, 4, 1, "GPS OK "+t.Format("15:04:05"))
 													oledDisplay(false, 5, 1, "lat: "+fmt.Sprintf("%f", m.Latitude))
 													oledDisplay(false, 6, 1, "lon: "+fmt.Sprintf("%f", m.Longitude))
@@ -324,9 +325,9 @@ func getGpsPosition(verbose bool) (bool, error) {
 								log.Println("info: Traccar Cmd Osmand: " + fmt.Sprint(TraccarServerFullURL))
 								log.Println("info: Traccar $GPRMC Sentence for T55/OpenGTS: " + fmt.Sprint(m))
 
-								if TrackEnabled == true {
+								if TrackEnabled {
 									//log.Println("info: GPS Tracking Enabled: " + fmt.Sprint(TrackEnabled))
-									if TraccarSendTo == true {
+									if TraccarSendTo {
 										log.Println("info: Sending GPS Position to Traccar Server Enabled")
 										log.Println("info: Traccar Protocol: " + strings.Title(strings.ToLower(TraccarProto)) + "; " + "Reporting Frequency: " + fmt.Sprintf("%.2f", FreqReport/60) + " minutes;")
 										//Print GPS message format for sending to Traccar depending on tracking protocol.
@@ -343,20 +344,20 @@ func getGpsPosition(verbose bool) (bool, error) {
 										}
 									}
 								}
-							} //
-
-								break
-
-							} else {
-								log.Println("warn: Got Latitude 0 and Longtitude 0 from GPS")
 							}
+
+							break
+
 						} else {
-							log.Println("warn: GPS Sentence Format Was not nmea.RMC")
+							log.Println("warn: Got Latitude 0 and Longtitude 0 from GPS")
 						}
 					} else {
-						log.Println("warn: Scanner Function Error ", err)
+						log.Println("warn: GPS Sentence Format Was not nmea.RMC")
 					}
+				} else {
+					log.Println("warn: Scanner Function Error ", err)
 				}
+			}
 
 			// } //
 
@@ -431,77 +432,6 @@ A - Navigation receiver warning A = OK, V = warning
 0.00 - Altitude in meters
 50 - Battery level
 */
-
-//T55 (1)
-//A Simple TCP connection. No keep-alive.
-//Parse full NMEA sentence from gpspipe to Traccar message, follow with \r\n.
-
-func tcpSendT55Traccar1() {
-
-	//Hard coded message for testing
-	//pgid := "$PGID,12345*0F\r\n"  // Unique Client ID (e.g. 12345). Follow with carriage return and line feed characters (\r\n).
-	//gprmc := "$GPRMC,114614.00,A,4446.82735,N,02030.94387,E,0.030,,151019,,,A*70\r\n" //  Test sentence. Send after pgid. Follow  with \r\n.
-
-	pgid := "$PGID" + "," + TraccarClientId + "*0F" + "\r" + "\n" // Unique Client ID (e.g. 12345). Follow with carriage return and line feed characters (\r\n).
-	//Seems to be working
-	gprmc := fmt.Sprint(m) + "\r" + "\n"
-	log.Println("info: $GPRMC to send is: " + fmt.Sprint(m))
-
-	//Here is a simple tcp connecton. No keep-alive.
-	//conn, err := net.Dial("tcp", TraccarServerIP + ":" + TraccarPortT55) // Use port 5005 for T55. No keep-alive.
-	//if err != nil {
-	//fmt.Println(err)
-	//return
-	//}
-
-	// Connect to Traccar Server tcp socket
-	conn, _ := net.Dial("tcp", fmt.Sprint(TraccarServerIP)+":"+fmt.Sprint(TraccarPortT55)) // Use port 5005 for T55. No keep-alive.
-
-	// Here is a keep-alive enable option.
-	err := conn.(*net.TCPConn).SetKeepAlive(true)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	err = conn.(*net.TCPConn).SetKeepAlivePeriod(60 * time.Second)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	err = conn.(*net.TCPConn).SetNoDelay(false)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	err = conn.(*net.TCPConn).SetLinger(0)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	// keep-alive
-
-	//log.Println("info: Sending T55 Position Report to Traccar ")
-	//log.Println("info: Connection Established with Traccar Server :", TraccarServerIP)
-	//log.Println("info: Remote Traccar Server Address :", conn.RemoteAddr().String())
-	//log.Println("info: Local Traccar Client Address :", conn.LocalAddr().String())
-
-	log.Println("info: Traccar Client:", conn.LocalAddr().String(), "Connected to Server:", conn.RemoteAddr().String())
-
-	// Connection seems to be working OK.
-
-	// Send a T55 position report...
-
-	fmt.Fprintf(conn, pgid) // Send ID
-	time.Sleep(1 * time.Second)
-	fmt.Fprintf(conn, gprmc) // Send $GPRMC
-	log.Println("info: Sending position message to Traccar over Protocol: " + strings.Title(strings.ToLower(TraccarProto)))
-
-	// Decode HEX messages in Traccar server log to verify sending working?
-	// TCP dialer disconnects after sending a message and client reports as "offline" in Traccar GUI between sending.
-	// Client will be seen briefly "online" in Traccar GUI only for a few seconds during connection.
-	// Note: Use port 5005 for T55.
-	// Do some error logging if tcp connection drops or sending message fails?
-}
 
 //T55(1)
 
@@ -590,15 +520,14 @@ func tcpSendT55Traccar2() {
 				//fmt.Println("Connection to Traccar Server was closed")
 				return
 			}
-			break
 		case <-time.After(time.Second * 60):
 			log.Println("Traccar Server Connection Timeout 60. Still Alive")
 			//fmt.Println("Traccar Server Connection Timeout 60. Still Alive")
 		}
 	}
 }
-// T55(2) End
 
+// T55(2) End
 
 // Sending over OsmAnd and OpenGTS.
 // OsmAnd is primary Traccar protocol for sending position over http api.
@@ -614,11 +543,11 @@ func tcpSendT55Traccar2() {
 
 func httpSendTraccar() {
 
-//Date1 := fmt.Sprint(gpsdatereorder())                 // Reformatted date for Tracar
-//Time1 := fmt.Sprint("%s", truncateString(GPSTime, 8)) // Truncate time for Traccar
+	//Date1 := fmt.Sprint(gpsdatereorder())                 // Reformatted date for Tracar
+	//Time1 := fmt.Sprint("%s", truncateString(GPSTime, 8)) // Truncate time for Traccar
 
-	if TrackEnabled == true {
-		if TraccarSendTo == true {
+	if TrackEnabled {
+		if TraccarSendTo {
 			if TraccarProto == "osmand" {
 				TraccarServerFullURL = (fmt.Sprint(TraccarServerURL) + ":" + fmt.Sprint(TraccarPortOsmAnd) + "?" + "id=" + TraccarClientId + "&" + "timestamp=" + date2() + "%20" + time2() + "&" + "lat=" + fmt.Sprintf("%f", GPSLatitude) + "&" + "lon=" + fmt.Sprintf("%f", GPSLongitude) + "&" + "speed=" + fmt.Sprintf("%f", GPSSpeed) + "&" + "course=" + fmt.Sprintf("%f", GPSCourse) + "&" + "variation=" + fmt.Sprintf("%f", GPSVariation))
 			} else if TraccarProto == "opengts" {
@@ -641,13 +570,13 @@ func httpSendTraccar() {
 		// Print to LCD "TRACK ERR 1". Error 1 for network connectivity problems with Traccar server. Check why the connectivity failed?
 		currentTime := time.Now()
 		if TargetBoard == "rpi" {
-			if TrackEnabled == true {
-				if TrackGPSShowLCD == true {
-					if LCDEnabled == true {
+			if TrackEnabled {
+				if TrackGPSShowLCD {
+					if LCDEnabled {
 						LcdText = [4]string{"nil", "TRACK ERR1 " + currentTime.Format("15:04:05"), "nil", "nil"}
 						go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 					}
-					if OLEDEnabled == true {
+					if OLEDEnabled {
 						oledDisplay(false, 4, 1, "TRACK ERR1 "+currentTime.Format("15:04:05"))
 					}
 				}
@@ -683,13 +612,13 @@ func httpSendTraccar() {
 			// time.Sleep(1 * time.Second)
 			currentTime := time.Now()
 			if TargetBoard == "rpi" {
-				if TrackEnabled == true {
-					if TrackGPSShowLCD == true {
-						if LCDEnabled == true {
+				if TrackEnabled {
+					if TrackGPSShowLCD {
+						if LCDEnabled {
 							LcdText = [4]string{"nil", "TRACK OK " + currentTime.Format("15:04:05"), "nil", "nil"}
 							go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 						}
-						if OLEDEnabled == true {
+						if OLEDEnabled {
 							oledDisplay(false, 4, 1, "TRACK OK "+currentTime.Format("15:04:05"))
 						}
 					}
@@ -700,13 +629,13 @@ func httpSendTraccar() {
 			// "TRACK ERR 2" Message to LCD. Error 2 means connectivity is working, but something else went wrong (Response Status 400), like data is corrupted. HEX decode Traccar Server log message. Keep trying.
 			currentTime := time.Now()
 			if TargetBoard == "rpi" {
-				if TrackEnabled == true {
-					if TrackGPSShowLCD == true {
-						if LCDEnabled == true {
+				if TrackEnabled {
+					if TrackGPSShowLCD {
+						if LCDEnabled {
 							LcdText = [4]string{"nil", "TRACK ERR2 " + currentTime.Format("15:04:05"), "nil", "nil"}
 							go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 						}
-						if OLEDEnabled == true {
+						if OLEDEnabled {
 							oledDisplay(false, 4, 1, "TRACK ERR2 "+currentTime.Format("15:04:05"))
 						}
 					}
@@ -718,8 +647,8 @@ func httpSendTraccar() {
 	// Note: When sending over Traccar client ports 5055, 5159 response code should be 200 OK. No "body text" is visible.
 	// If using Trccar web port 8082 to test, code 200 OK and "body text" from Traccar server will show.
 }
-// OsmAnd End
 
+// OsmAnd End
 
 // Some helper functons to use with GPS
 
@@ -741,7 +670,7 @@ func truncateString(str string, num int) string {
 
 func gpsdatereorder() string {
 	GPSDate := "01/12/19" // Works with hard coded date for test. How to make date from GPS visible to helper?
-        //GPSDate := fmt.Sprintf("%s", m.Date)
+	//GPSDate := fmt.Sprintf("%s", m.Date)
 	dd := GPSDate[0:2]
 	//fmt.Println(yy) //test
 	//runtime error: slice bounds out of range! But works in Go Playground. Need to fix this error.
@@ -776,48 +705,4 @@ func date2() string {
 	currentTime := time.Now()
 	Date2 := fmt.Sprintf("%s", currentTime.Format("2006-01-02"))
 	return Date2
-}
-
-//gps date formatted for Traccar
-func date1() string {
-	Date1 := fmt.Sprintf("%s", gpsdatereorder())	// Reformatted date for Tracar
-	return Date1
-}
-
-
-// Test working with Wialon/ Gurtam flespi
-// Wialon is very popular in Europe for GPS tracking.
-// Just have a quick check of Wialon and flespi?
-// https://flespi.com
-// https://flespi.com/kb
-// https://flespi.com/mqtt-broker
-// https://gurtam.com/en/wialon
-// Not needed for Traccar, doesnt need to be in this version of gps.go
-// Can play with Wialon integration later if any use cases show up.
-
-func flespi() {
-
-flespiURL := "http://gw.flespi.io:26050"
-
-//test flespi channel. json array.
-//how to use GPS variable in json array?
-
-flespipayload := strings.NewReader(`[{"ident": "tk-demo-04", "position.latitude":44.780457,"position.longitude":20.515696,"message.type": "position"}]`)
-//flespipayload1 := ("ident:" + TraccarClientId + "," + "position.latitude:" + fmt.Sprint(GPSLatitude) + "," + "position.longitude:" + "," + fmt.Sprint(GPSLongitude))
-
-// add err handling
-// if err != nil { }
-
-req, _ := http.NewRequest("POST", flespiURL, flespipayload)
-
-log.Println("flespi:", "| ident:", fmt.Sprint(TraccarClientId), "| position.latitude:", fmt.Sprint(GPSLatitude), "| position.longitude:", fmt.Sprint(GPSLongitude), "| message.type:", "position", "->" , flespiURL)
-req.Header.Add("content-type", "application/x-www-form-URLencoded")
-req.Header.Add("cache-control", "no-cache")
-
-res, _ := http.DefaultClient.Do(req)
-defer res.Body.Close()
-
-body, _ := ioutil.ReadAll(res.Body)
-fmt.Println(string(body))
-
 }

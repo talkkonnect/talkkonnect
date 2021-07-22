@@ -32,11 +32,6 @@ package talkkonnect
 import (
 	"encoding/xml"
 	"fmt"
-	goled "github.com/talkkonnect/go-oled-i2c"
-	"github.com/talkkonnect/go-openal/openal"
-	"github.com/talkkonnect/gpio"
-	"github.com/talkkonnect/gumble/gumbleffmpeg"
-	"golang.org/x/sys/unix"
 	"io"
 	"io/ioutil"
 	"log"
@@ -46,12 +41,17 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	goled "github.com/talkkonnect/go-oled-i2c"
+	"github.com/talkkonnect/go-openal/openal"
+	"github.com/talkkonnect/gumble/gumbleffmpeg"
+	"golang.org/x/sys/unix"
 )
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.63.02"
-	talkkonnectReleased string = "Jul 14 2021"
+	talkkonnectVersion  string = "1.64.01"
+	talkkonnectReleased string = "Jul 22 2021"
 )
 
 // Generic Global Variables
@@ -258,9 +258,7 @@ var (
 var (
 	MQTTEnabled     bool = false
 	Iotuuid         string
-	relay1          gpio.Pin
-	relay1State     bool = false
-	relayAllState   bool = false
+	RelayAllState   bool = false
 	RelayPulseMills time.Duration
 	TotalRelays     uint
 	RelayPins       = [9]uint{}
@@ -424,7 +422,6 @@ var (
 
 var (
 	txcounter         int
-	togglecounter     int
 	isTx              bool
 	isPlayStream      bool
 	CancellableStream bool = true
@@ -1410,18 +1407,18 @@ func readxmlconfig(file string) error {
 		LCDBackLightTimerEnabled = false
 	}
 
-	if LCDBackLightTimerEnabled == true && (OLEDEnabled == false && LCDEnabled == false) {
+	if LCDBackLightTimerEnabled && (!OLEDEnabled && !LCDEnabled) {
 		FatalCleanUp("Alert: Logical Error in LCDBacklight Timer Check XML config file. Backlight Timer Enabled but both LCD and OLED disabled!")
 	}
 
-	if OLEDEnabled == true {
+	if OLEDEnabled {
 		Oled, err = goled.BeginOled(OLEDDefaultI2cAddress, OLEDDefaultI2cBus, OLEDScreenWidth, OLEDScreenHeight, OLEDDisplayRows, OLEDDisplayColumns, OLEDStartColumn, OLEDCharLength, OLEDCommandColumnAddressing, OLEDAddressBasePageStart)
 	}
 
 	log.Println("Successfully loaded XML configuration file into memory")
 
 	for i := 0; i < len(document.Accounts.Account); i++ {
-		if document.Accounts.Account[i].Default == true {
+		if document.Accounts.Account[i].Default {
 			log.Printf("info: Successfully Added Account %s to Index [%d]\n", document.Accounts.Account[i].Name, i)
 		}
 	}

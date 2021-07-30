@@ -81,6 +81,7 @@ var (
 type Talkkonnect struct {
 	Config             *gumble.Config
 	Client             *gumble.Client
+	VoiceTarget        *gumble.VoiceTarget
 	Name               string
 	Address            string
 	Username           string
@@ -526,10 +527,30 @@ keyPressListenerLoop:
 			case term.KeyCtrlX:
 				b.cmdDumpXMLConfig()
 			default:
-				if ev.Ch != 0 {
+				switch ev.Ch {
+				case 48:
+					log.Println("Reserved Key 0")
+				case 49:
+					log.Println("Reserved Key 1")
+				case 50:
+					log.Println("Reserved Key 2")
+				case 51:
+					log.Println("Reserved Key 3")
+				case 52:
+					log.Println("Reserved Key 4")
+				case 53:
+					log.Println("Reserved Key 5")
+				case 54:
+					log.Println("Reserved Key 6")
+				case 55:
+					log.Println("Reserved Key 7")
+				case 56:
+					log.Println("Reserved Key 8")
+				case 57:
+					log.Println("Reserved Key 9")
+				}
+				if ev.Ch < 48 || ev.Ch > 57 {
 					log.Println("error: Invalid Keypress ASCII ", ev.Ch, "Press <DEL> for Menu")
-				} else {
-					log.Println("error: Key Not Mapped, Press <DEL> for menu", ev.Ch)
 				}
 			}
 		case term.EventError:

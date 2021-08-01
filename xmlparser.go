@@ -50,8 +50,8 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.64.02"
-	talkkonnectReleased string = "Jul 30 2021"
+	talkkonnectVersion  string = "1.64.03"
+	talkkonnectReleased string = "Aug 01 2021"
 )
 
 // Generic Global Variables
@@ -442,6 +442,35 @@ type Document struct {
 			Certificate   string `xml:"certificate"`
 			Channel       string `xml:"channel"`
 			Ident         string `xml:"ident"`
+			Tokens        struct {
+				Enabled bool   `xml:"enabled,attr"`
+				Token   []string `xml:"token"`
+			} `xml:"tokens"`
+			Voicetargets struct {
+				Target []struct {
+					ID    string `xml:"id,attr"`
+					Users struct {
+						User []string `xml:"user"`
+					} `xml:"users"`
+					Channels struct {
+						Channel struct {
+							Channelname string `xml:"channelname"`
+							Recursive   string `xml:"recursive"`
+							Aclgroup    string `xml:"aclgroup"`
+							Channel     struct {
+								Channel struct {
+									Channelname string `xml:"channelname"`
+									Recursive   string `xml:"recursive"`
+									Aclgroup    string `xml:"aclgroup"`
+									Channel     struct {
+										Channels string `xml:"channels"`
+									} `xml:"channel"`
+								} `xml:"channel"`
+							} `xml:"channel"`
+						} `xml:"channel"`
+					} `xml:"channels"`
+				} `xml:"target"`
+			} `xml:"voicetargets"`
 		} `xml:"account"`
 	} `xml:"accounts"`
 	Global struct {
@@ -453,7 +482,6 @@ type Document struct {
 				Logging            string `xml:"logging"`
 				Loglevel           string `xml:"loglevel"`
 				Daemonize          bool   `xml:"daemonize"`
-
 				CancellableStream bool `xml:"cancellablestream"`
 				StreamOnStart     bool `xml:"streamonstart"`
 				SimplexWithMute   bool `xml:"simplexwithmute"`
@@ -750,6 +778,49 @@ type Document struct {
 				RecordFileFormat  string `xml:"recordfileformat"`
 				RecordChunkSize   string `xml:"recordchunksize"`
 			} `xml:"audiorecordfunction"`
+						Numerickeypad struct {
+				Enabled string `xml:"enabled,attr"`
+				Key0    struct {
+					Enabled  string `xml:"enabled,attr"`
+					Targetid string `xml:"targetid"`
+				} `xml:"key0"`
+				Key1 struct {
+					Enabled  string `xml:"enabled,attr"`
+					Targetid string `xml:"targetid"`
+				} `xml:"key1"`
+				Key2 struct {
+					Enabled  string `xml:"enabled,attr"`
+					Targetid string `xml:"targetid"`
+				} `xml:"key2"`
+				Key3 struct {
+					Enabled  string `xml:"enabled,attr"`
+					Targetid string `xml:"targetid"`
+				} `xml:"key3"`
+				Key4 struct {
+					Enabled  string `xml:"enabled,attr"`
+					Targetid string `xml:"targetid"`
+				} `xml:"key4"`
+				Key5 struct {
+					Enabled  string `xml:"enabled,attr"`
+					Targetid string `xml:"targetid"`
+				} `xml:"key5"`
+				Key6 struct {
+					Enabled  string `xml:"enabled,attr"`
+					Targetid string `xml:"targetid"`
+				} `xml:"key6"`
+				Key7 struct {
+					Enabled  string `xml:"enabled,attr"`
+					Targetid string `xml:"targetid"`
+				} `xml:"key7"`
+				Key8 struct {
+					Enabled  string `xml:"enabled,attr"`
+					Targetid string `xml:"targetid"`
+				} `xml:"key8"`
+				Key9 struct {
+					Enabled  string `xml:"enabled,attr"`
+					Targetid string `xml:"targetid"`
+				} `xml:"key9"`
+			} `xml:"numerickeypad"`
 		} `xml:"hardware"`
 	} `xml:"global"`
 }

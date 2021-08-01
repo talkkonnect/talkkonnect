@@ -170,7 +170,7 @@ func (b *Talkkonnect) cmdMuteUnmute(subCommand string) {
 func (b *Talkkonnect) cmdCurrentVolume() {
 	OrigVolume, err := volume.GetVolume(OutputDeviceShort)
 	if err != nil {
-		log.Println("error: Unable to get current volume: %+v", err)
+		log.Printf("error: Unable to get current volume: %+v\n", err)
 	}
 
 	log.Println("debug: F4 pressed Volume Level Requested")
@@ -198,7 +198,7 @@ func (b *Talkkonnect) cmdCurrentVolume() {
 func (b *Talkkonnect) cmdVolumeUp() {
 	origVolume, err := volume.GetVolume(OutputDeviceShort)
 	if err != nil {
-		log.Println("warn: unable to get original volume: %+v", err)
+		log.Printf("warn: unable to get original volume: %+v\n", err)
 	}
 
 	if origVolume < 100 {
@@ -245,7 +245,7 @@ func (b *Talkkonnect) cmdVolumeUp() {
 func (b *Talkkonnect) cmdVolumeDown() {
 	origVolume, err := volume.GetVolume(OutputDeviceShort)
 	if err != nil {
-		log.Println("error: unable to get original volume: %+v", err)
+		log.Printf("error: unable to get original volume: %+v\n", err)
 	}
 
 	if origVolume > 0 {
@@ -469,7 +469,7 @@ func (b *Talkkonnect) cmdDebugStacktrace() {
 	log.Println("debug: Pressed Ctrl-D")
 	log.Println("info: Stack Dump Requested")
 	for scanner.Scan() {
-		log.Printf("debug: line: %d %s", line, scanner.Text())
+		log.Printf("debug: line: %d %s\n", line, scanner.Text())
 		line++
 	}
 }

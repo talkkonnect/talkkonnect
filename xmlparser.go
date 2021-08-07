@@ -50,8 +50,8 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.64.03"
-	talkkonnectReleased string = "Aug 01 2021"
+	talkkonnectVersion  string = "1.65.01"
+	talkkonnectReleased string = "Aug 07 2021"
 )
 
 // Generic Global Variables
@@ -68,19 +68,27 @@ var (
 	StartTime                  = time.Now()
 	BufferToOpenALCounter      = 0
 	AccountIndex          int  = 0
+	AccountDefault        int  = 0
 )
 
 //account settings
 var (
-	Default     []bool
-	Name        []string
-	Server      []string
-	Username    []string
-	Password    []string
-	Insecure    []bool
-	Certificate []string
-	Channel     []string
-	Ident       []string
+	Default                       []bool
+	Name                          []string
+	Server                        []string
+	Username                      []string
+	Password                      []string
+	Insecure                      []bool
+	Certificate                   []string
+	Channel                       []string
+	Ident                         []string
+	Tokens                        [][]string
+	VoiceTargetsID                [][]string
+	VoiceTargetsUsers             [][]string
+	VoiceTargetsChannelsName      [][]string
+	VoiceTargetsChannelsRecursive [][]string
+	VoiceTargetsChannelsLinks     [][]string
+	VoiceTargetsChannelsGroup     [][]string
 )
 
 //software settings
@@ -231,27 +239,28 @@ var (
 
 //print xml config sections for easy debugging, set any section to false to prevent printing to screen
 var (
-	PrintAccount      bool
-	PrintLogging      bool
-	PrintProvisioning bool
-	PrintBeacon       bool
-	PrintTTS          bool
-	PrintSMTP         bool
-	PrintSounds       bool
-	PrintTxTimeout    bool
-	PrintHTTPAPI      bool
-	PrintTargetboard  bool
-	PrintLeds         bool
-	PrintHeartbeat    bool
-	PrintButtons      bool
-	PrintComment      bool
-	PrintLcd          bool
-	PrintOled         bool
-	PrintGps          bool
-	PrintTraccar      bool
-	PrintPanic        bool
-	PrintAudioRecord  bool
-	PrintMQTT         bool
+	PrintAccount       bool
+	PrintLogging       bool
+	PrintProvisioning  bool
+	PrintBeacon        bool
+	PrintTTS           bool
+	PrintSMTP          bool
+	PrintSounds        bool
+	PrintTxTimeout     bool
+	PrintHTTPAPI       bool
+	PrintTargetboard   bool
+	PrintLeds          bool
+	PrintHeartbeat     bool
+	PrintButtons       bool
+	PrintComment       bool
+	PrintLcd           bool
+	PrintOled          bool
+	PrintGps           bool
+	PrintTraccar       bool
+	PrintPanic         bool
+	PrintAudioRecord   bool
+	PrintMQTT          bool
+	PrintNumerickeypad bool
 )
 
 // mqtt settings
@@ -273,6 +282,29 @@ var (
 	MQTTPayload     string
 	MQTTAction      string
 	MQTTStore       string
+)
+
+var (
+	Key0Enabled  bool
+	Key0Targetid string
+	Key1Enabled  bool
+	Key1Targetid string
+	Key2Enabled  bool
+	Key2Targetid string
+	Key3Enabled  bool
+	Key3Targetid string
+	Key4Enabled  bool
+	Key4Targetid string
+	Key5Enabled  bool
+	Key5Targetid string
+	Key6Enabled  bool
+	Key6Targetid string
+	Key7Enabled  bool
+	Key7Targetid string
+	Key8Enabled  bool
+	Key8Targetid string
+	Key9Enabled  bool
+	Key9Targetid string
 )
 
 // target board settings
@@ -421,15 +453,19 @@ var (
 )
 
 var (
-	txcounter         int
-	isTx              bool
-	isPlayStream      bool
-	CancellableStream bool = true
-	StreamOnStart     bool
-	StreamStartAfter  uint
+	txcounter           int
+	isTx                bool
+	isPlayStream        bool
+	CancellableStream   bool = true
+	StreamOnStart       bool
+	StreamStartAfter    uint
+	Accounts            int
+	MaxTokensInAccounts int
 )
 
-type Document struct {
+var Document DocumentStruct
+
+type DocumentStruct struct {
 	XMLName  xml.Name `xml:"document"`
 	Accounts struct {
 		Account []struct {
@@ -442,34 +478,25 @@ type Document struct {
 			Certificate   string `xml:"certificate"`
 			Channel       string `xml:"channel"`
 			Ident         string `xml:"ident"`
+			TokensEnabled bool   `xml:"enabled,attr"`
 			Tokens        struct {
-				Enabled bool   `xml:"enabled,attr"`
-				Token   []string `xml:"token"`
+				Token []string `xml:"token"`
 			} `xml:"tokens"`
 			Voicetargets struct {
-				Target []struct {
-					ID    string `xml:"id,attr"`
+				ID []struct {
+					Value string `xml:"value,attr"`
 					Users struct {
 						User []string `xml:"user"`
 					} `xml:"users"`
 					Channels struct {
 						Channel struct {
-							Channelname string `xml:"channelname"`
-							Recursive   string `xml:"recursive"`
-							Aclgroup    string `xml:"aclgroup"`
-							Channel     struct {
-								Channel struct {
-									Channelname string `xml:"channelname"`
-									Recursive   string `xml:"recursive"`
-									Aclgroup    string `xml:"aclgroup"`
-									Channel     struct {
-										Channels string `xml:"channels"`
-									} `xml:"channel"`
-								} `xml:"channel"`
-							} `xml:"channel"`
+							Name      string `xml:"name"`
+							Recursive string `xml:"recursive"`
+							Links     string `xml:"links"`
+							Group     string `xml:"group"`
 						} `xml:"channel"`
 					} `xml:"channels"`
-				} `xml:"target"`
+				} `xml:"id"`
 			} `xml:"voicetargets"`
 		} `xml:"account"`
 	} `xml:"accounts"`
@@ -482,11 +509,11 @@ type Document struct {
 				Logging            string `xml:"logging"`
 				Loglevel           string `xml:"loglevel"`
 				Daemonize          bool   `xml:"daemonize"`
-				CancellableStream bool `xml:"cancellablestream"`
-				StreamOnStart     bool `xml:"streamonstart"`
-				SimplexWithMute   bool `xml:"simplexwithmute"`
-				TxCounter         bool `xml:"txcounter"`
-				NextServerIndex   int  `xml:"nextserverindex"`
+				CancellableStream  bool   `xml:"cancellablestream"`
+				StreamOnStart      bool   `xml:"streamonstart"`
+				SimplexWithMute    bool   `xml:"simplexwithmute"`
+				TxCounter          bool   `xml:"txcounter"`
+				NextServerIndex    int    `xml:"nextserverindex"`
 			} `xml:"settings"`
 			AutoProvisioning struct {
 				Enabled      bool   `xml:"enabled,attr"`
@@ -624,27 +651,28 @@ type Document struct {
 				PingServers        bool   `xml:"pingservers"`
 			} `xml:"api"`
 			PrintVariables struct {
-				PrintAccount      bool `xml:"printaccount"`
-				PrintLogging      bool `xml:"printlogging"`
-				PrintProvisioning bool `xml:"printprovisioning"`
-				PrintBeacon       bool `xml:"printbeacon"`
-				PrintTTS          bool `xml:"printtts"`
-				PrintSMTP         bool `xml:"printsmtp"`
-				PrintSounds       bool `xml:"printsounds"`
-				PrintTxTimeout    bool `xml:"printtxtimeout"`
-				PrintHTTPAPI      bool `xml:"printhttpapi"`
-				PrintTargetBoard  bool `xml:"printtargetboard"`
-				PrintLeds         bool `xml:"printleds"`
-				PrintHeartbeat    bool `xml:"printheartbeat"`
-				PrintButtons      bool `xml:"printbuttons"`
-				PrintComment      bool `xml:"printcomment"`
-				PrintLcd          bool `xml:"printlcd"`
-				PrintOled         bool `xml:"printoled"`
-				PrintGps          bool `xml:"printgps"`
-				PrintTraccar      bool `xml:"printtraccar"`
-				PrintPanic        bool `xml:"printpanic"`
-				PrintAudioRecord  bool `xml:"printaudiorecord"`
-				PrintMQTT         bool `xml:"printmqtt"`
+				PrintAccount       bool `xml:"printaccount"`
+				PrintLogging       bool `xml:"printlogging"`
+				PrintProvisioning  bool `xml:"printprovisioning"`
+				PrintBeacon        bool `xml:"printbeacon"`
+				PrintTTS           bool `xml:"printtts"`
+				PrintSMTP          bool `xml:"printsmtp"`
+				PrintSounds        bool `xml:"printsounds"`
+				PrintTxTimeout     bool `xml:"printtxtimeout"`
+				PrintHTTPAPI       bool `xml:"printhttpapi"`
+				PrintTargetBoard   bool `xml:"printtargetboard"`
+				PrintLeds          bool `xml:"printleds"`
+				PrintHeartbeat     bool `xml:"printheartbeat"`
+				PrintButtons       bool `xml:"printbuttons"`
+				PrintComment       bool `xml:"printcomment"`
+				PrintLcd           bool `xml:"printlcd"`
+				PrintOled          bool `xml:"printoled"`
+				PrintGps           bool `xml:"printgps"`
+				PrintTraccar       bool `xml:"printtraccar"`
+				PrintPanic         bool `xml:"printpanic"`
+				PrintAudioRecord   bool `xml:"printaudiorecord"`
+				PrintMQTT          bool `xml:"printmqtt"`
+				PrintNumerickeypad bool `xml:"printnumerickeypad"`
 			} `xml:"printvariables"`
 			MQTT struct {
 				MQTTEnabled   bool   `xml:"enabled,attr"`
@@ -778,46 +806,45 @@ type Document struct {
 				RecordFileFormat  string `xml:"recordfileformat"`
 				RecordChunkSize   string `xml:"recordchunksize"`
 			} `xml:"audiorecordfunction"`
-						Numerickeypad struct {
-				Enabled string `xml:"enabled,attr"`
-				Key0    struct {
-					Enabled  string `xml:"enabled,attr"`
+			Numerickeypad struct {
+				Key0 struct {
+					Enabled  bool   `xml:"enabled,attr"`
 					Targetid string `xml:"targetid"`
 				} `xml:"key0"`
 				Key1 struct {
-					Enabled  string `xml:"enabled,attr"`
+					Enabled  bool   `xml:"enabled,attr"`
 					Targetid string `xml:"targetid"`
 				} `xml:"key1"`
 				Key2 struct {
-					Enabled  string `xml:"enabled,attr"`
+					Enabled  bool   `xml:"enabled,attr"`
 					Targetid string `xml:"targetid"`
 				} `xml:"key2"`
 				Key3 struct {
-					Enabled  string `xml:"enabled,attr"`
+					Enabled  bool   `xml:"enabled,attr"`
 					Targetid string `xml:"targetid"`
 				} `xml:"key3"`
 				Key4 struct {
-					Enabled  string `xml:"enabled,attr"`
+					Enabled  bool   `xml:"enabled,attr"`
 					Targetid string `xml:"targetid"`
 				} `xml:"key4"`
 				Key5 struct {
-					Enabled  string `xml:"enabled,attr"`
+					Enabled  bool   `xml:"enabled,attr"`
 					Targetid string `xml:"targetid"`
 				} `xml:"key5"`
 				Key6 struct {
-					Enabled  string `xml:"enabled,attr"`
+					Enabled  bool   `xml:"enabled,attr"`
 					Targetid string `xml:"targetid"`
 				} `xml:"key6"`
 				Key7 struct {
-					Enabled  string `xml:"enabled,attr"`
+					Enabled  bool   `xml:"enabled,attr"`
 					Targetid string `xml:"targetid"`
 				} `xml:"key7"`
 				Key8 struct {
-					Enabled  string `xml:"enabled,attr"`
+					Enabled  bool   `xml:"enabled,attr"`
 					Targetid string `xml:"targetid"`
 				} `xml:"key8"`
 				Key9 struct {
-					Enabled  string `xml:"enabled,attr"`
+					Enabled  bool   `xml:"enabled,attr"`
 					Targetid string `xml:"targetid"`
 				} `xml:"key9"`
 			} `xml:"numerickeypad"`
@@ -835,34 +862,61 @@ func readxmlconfig(file string) error {
 
 	byteValue, _ := ioutil.ReadAll(xmlFile)
 
-	var document Document
-
-	err = xml.Unmarshal(byteValue, &document)
+	err = xml.Unmarshal(byteValue, &Document)
 	if err != nil {
 		return fmt.Errorf(filepath.Base(file) + " " + err.Error())
 	}
 
-	for i := 0; i < len(document.Accounts.Account); i++ {
-		if document.Accounts.Account[i].Default == true {
-			Name = append(Name, document.Accounts.Account[i].Name)
-			Server = append(Server, document.Accounts.Account[i].ServerAndPort)
-			Username = append(Username, document.Accounts.Account[i].UserName)
-			Password = append(Password, document.Accounts.Account[i].Password)
-			Insecure = append(Insecure, document.Accounts.Account[i].Insecure)
-			Certificate = append(Certificate, document.Accounts.Account[i].Certificate)
-			Channel = append(Channel, document.Accounts.Account[i].Channel)
-			Ident = append(Ident, document.Accounts.Account[i].Ident)
-			AccountCount++
+	for _, account := range Document.Accounts.Account {
+		if account.Default {
+			Name = append(Name, account.Name)
+			Server = append(Server, account.ServerAndPort)
+			Username = append(Username, account.UserName)
+			Password = append(Password, account.Password)
+			Insecure = append(Insecure, account.Insecure)
+			Certificate = append(Certificate, account.Certificate)
+			Channel = append(Channel, account.Channel)
+			Ident = append(Ident, account.Ident)
+			AccountDefault++
+		}
+		AccountCount++
+	}
+
+	if AccountCount == 0 || AccountDefault == 0 {
+		FatalCleanUp("No Accounts/Default Accounts Found in talkkonnect.xml File! Please Add At Least 1 Account in XML")
+	}
+
+	Tokens = make([][]string, AccountCount)
+	VoiceTargetsID = make([][]string, AccountCount)
+	VoiceTargetsUsers = make([][]string, AccountCount)
+	VoiceTargetsChannelsName = make([][]string, AccountCount)
+	VoiceTargetsChannelsRecursive = make([][]string, AccountCount)
+	VoiceTargetsChannelsLinks = make([][]string, AccountCount)
+	VoiceTargetsChannelsGroup = make([][]string, AccountCount)
+
+	for i, account := range Document.Accounts.Account {
+		for _, value := range account.Tokens.Token {
+			Tokens[i] = append(Tokens[i], value)
 		}
 	}
 
-	if AccountCount == 0 {
-		FatalCleanUp("No Default Accounts Found in talkkonnect.xml File! Please Add At Least 1 Default Account in XML")
+	for i, account := range Document.Accounts.Account {
+		for _, value := range account.Voicetargets.ID {
+			VoiceTargetsID[i] = append(VoiceTargetsID[i], value.Value)
+			VoiceTargetsUsers[i] = append(VoiceTargetsUsers[i], value.Users.User...)
+			VoiceTargetsChannelsName[i] = append(VoiceTargetsChannelsName[i], value.Channels.Channel.Name)
+			VoiceTargetsChannelsRecursive[i] = append(VoiceTargetsChannelsRecursive[i], value.Channels.Channel.Recursive)
+			VoiceTargetsChannelsLinks[i] = append(VoiceTargetsChannelsLinks[i], value.Channels.Channel.Links)
+			VoiceTargetsChannelsGroup[i] = append(VoiceTargetsChannelsGroup[i], value.Channels.Channel.Group)
+		}
 	}
 
 	exec, err := os.Executable()
+
 	if err != nil {
+
 		exec = "./talkkonnect" //Hardcode our default name
+
 	}
 
 	// Set our default config file path (for autoprovision)
@@ -922,38 +976,38 @@ func readxmlconfig(file string) error {
 		}
 	}
 
-	OutputDevice = document.Global.Software.Settings.OutputDevice
-	OutputDeviceShort = document.Global.Software.Settings.OutputDeviceShort
+	OutputDevice = Document.Global.Software.Settings.OutputDevice
+	OutputDeviceShort = Document.Global.Software.Settings.OutputDeviceShort
 
 	if len(OutputDeviceShort) == 0 {
-		OutputDeviceShort = document.Global.Software.Settings.OutputDevice
+		OutputDeviceShort = Document.Global.Software.Settings.OutputDevice
 	}
 
-	LogFilenameAndPath = document.Global.Software.Settings.LogFilenameAndPath
-	Logging = document.Global.Software.Settings.Logging
+	LogFilenameAndPath = Document.Global.Software.Settings.LogFilenameAndPath
+	Logging = Document.Global.Software.Settings.Logging
 
-	if document.Global.Software.Settings.Loglevel == "trace" || document.Global.Software.Settings.Loglevel == "debug" || document.Global.Software.Settings.Loglevel == "info" || document.Global.Software.Settings.Loglevel == "warning" || document.Global.Software.Settings.Loglevel == "error" || document.Global.Software.Settings.Loglevel == "alert" {
-		Loglevel = document.Global.Software.Settings.Loglevel
+	if Document.Global.Software.Settings.Loglevel == "trace" || Document.Global.Software.Settings.Loglevel == "debug" || Document.Global.Software.Settings.Loglevel == "info" || Document.Global.Software.Settings.Loglevel == "warning" || Document.Global.Software.Settings.Loglevel == "error" || Document.Global.Software.Settings.Loglevel == "alert" {
+		Loglevel = Document.Global.Software.Settings.Loglevel
 	}
 
 	if strings.ToLower(Logging) != "screen" && LogFilenameAndPath == "" {
 		LogFilenameAndPath = defaultLogPath
 	}
 
-	Daemonize = document.Global.Software.Settings.Daemonize
+	Daemonize = Document.Global.Software.Settings.Daemonize
 
-	CancellableStream = document.Global.Software.Settings.CancellableStream
-	StreamOnStart = document.Global.Software.Settings.StreamOnStart
+	CancellableStream = Document.Global.Software.Settings.CancellableStream
+	StreamOnStart = Document.Global.Software.Settings.StreamOnStart
 
-	SimplexWithMute = document.Global.Software.Settings.SimplexWithMute
-	TxCounter = document.Global.Software.Settings.TxCounter
-	NextServerIndex = document.Global.Software.Settings.NextServerIndex
+	SimplexWithMute = Document.Global.Software.Settings.SimplexWithMute
+	TxCounter = Document.Global.Software.Settings.TxCounter
+	NextServerIndex = Document.Global.Software.Settings.NextServerIndex
 
-	APEnabled = document.Global.Software.AutoProvisioning.Enabled
-	TkID = document.Global.Software.AutoProvisioning.TkID
-	URL = document.Global.Software.AutoProvisioning.URL
-	SaveFilePath = document.Global.Software.AutoProvisioning.SaveFilePath
-	SaveFilename = document.Global.Software.AutoProvisioning.SaveFilename
+	APEnabled = Document.Global.Software.AutoProvisioning.Enabled
+	TkID = Document.Global.Software.AutoProvisioning.TkID
+	URL = Document.Global.Software.AutoProvisioning.URL
+	SaveFilePath = Document.Global.Software.AutoProvisioning.SaveFilePath
+	SaveFilename = Document.Global.Software.AutoProvisioning.SaveFilename
 
 	if APEnabled && SaveFilePath == "" {
 		SaveFilePath = defaultConfPath
@@ -963,9 +1017,9 @@ func readxmlconfig(file string) error {
 		SaveFilename = filepath.Base(exec) + "talkkonnect.xml"
 	}
 
-	BeaconEnabled = document.Global.Software.Beacon.Enabled
-	BeaconTimerSecs = document.Global.Software.Beacon.BeaconTimerSecs
-	BeaconFilenameAndPath = document.Global.Software.Beacon.BeaconFileAndPath
+	BeaconEnabled = Document.Global.Software.Beacon.Enabled
+	BeaconTimerSecs = Document.Global.Software.Beacon.BeaconTimerSecs
+	BeaconFilenameAndPath = Document.Global.Software.Beacon.BeaconFileAndPath
 	if BeaconEnabled && BeaconFilenameAndPath == "" {
 		path := defaultSharePath + "/soundfiles/voiceprompts/Beacon.wav"
 		if _, err := os.Stat(path); err == nil {
@@ -973,13 +1027,13 @@ func readxmlconfig(file string) error {
 		}
 	}
 
-	BVolume = document.Global.Software.Beacon.Volume
+	BVolume = Document.Global.Software.Beacon.Volume
 
-	TTSEnabled = document.Global.Software.TTS.Enabled
-	TTSVolumeLevel = document.Global.Software.TTS.VolumeLevel
-	TTSParticipants = document.Global.Software.TTS.Participants
-	TTSChannelUp = document.Global.Software.TTS.ChannelUp
-	TTSChannelUpFilenameAndPath = document.Global.Software.TTS.ChannelUpFilenameAndPath
+	TTSEnabled = Document.Global.Software.TTS.Enabled
+	TTSVolumeLevel = Document.Global.Software.TTS.VolumeLevel
+	TTSParticipants = Document.Global.Software.TTS.Participants
+	TTSChannelUp = Document.Global.Software.TTS.ChannelUp
+	TTSChannelUpFilenameAndPath = Document.Global.Software.TTS.ChannelUpFilenameAndPath
 
 	if TTSChannelUp && TTSChannelUpFilenameAndPath == "" {
 		path := defaultSharePath + "/soundfiles/voiceprompts/ChannelUp.wav"
@@ -988,9 +1042,9 @@ func readxmlconfig(file string) error {
 		}
 	}
 
-	TTSChannelUpFilenameAndPath = document.Global.Software.TTS.ChannelUpFilenameAndPath
-	TTSChannelDown = document.Global.Software.TTS.ChannelDown
-	TTSChannelDownFilenameAndPath = document.Global.Software.TTS.ChannelDownFilenameAndPath
+	TTSChannelUpFilenameAndPath = Document.Global.Software.TTS.ChannelUpFilenameAndPath
+	TTSChannelDown = Document.Global.Software.TTS.ChannelDown
+	TTSChannelDownFilenameAndPath = Document.Global.Software.TTS.ChannelDownFilenameAndPath
 
 	if TTSChannelDown && TTSChannelDownFilenameAndPath == "" {
 		path := defaultSharePath + "/soundfiles/voiceprompts/ChannelDown.wav"
@@ -999,8 +1053,8 @@ func readxmlconfig(file string) error {
 		}
 	}
 
-	TTSMuteUnMuteSpeaker = document.Global.Software.TTS.MuteUnmuteSpeaker
-	TTSMuteUnMuteSpeakerFilenameAndPath = document.Global.Software.TTS.MuteUnmuteSpeakerFilenameAndPath
+	TTSMuteUnMuteSpeaker = Document.Global.Software.TTS.MuteUnmuteSpeaker
+	TTSMuteUnMuteSpeakerFilenameAndPath = Document.Global.Software.TTS.MuteUnmuteSpeakerFilenameAndPath
 
 	if TTSMuteUnMuteSpeaker && TTSMuteUnMuteSpeakerFilenameAndPath == "" {
 		path := defaultSharePath + "/soundfiles/voiceprompts/MuteUnMuteSpeaker.wav"
@@ -1009,8 +1063,8 @@ func readxmlconfig(file string) error {
 		}
 	}
 
-	TTSCurrentVolumeLevel = document.Global.Software.TTS.CurrentVolumeLevel
-	TTSCurrentVolumeLevelFilenameAndPath = document.Global.Software.TTS.CurrentVolumeLevelFilenameAndPath
+	TTSCurrentVolumeLevel = Document.Global.Software.TTS.CurrentVolumeLevel
+	TTSCurrentVolumeLevelFilenameAndPath = Document.Global.Software.TTS.CurrentVolumeLevelFilenameAndPath
 
 	if TTSCurrentVolumeLevel && TTSCurrentVolumeLevelFilenameAndPath == "" {
 		path := defaultSharePath + "/soundfiles/voiceprompts/CurrentVolumeLevel.wav"
@@ -1019,8 +1073,8 @@ func readxmlconfig(file string) error {
 		}
 	}
 
-	TTSDigitalVolumeUp = document.Global.Software.TTS.DigitalVolumeUp
-	TTSDigitalVolumeUpFilenameAndPath = document.Global.Software.TTS.DigitalVolumeUpFilenameAndPath
+	TTSDigitalVolumeUp = Document.Global.Software.TTS.DigitalVolumeUp
+	TTSDigitalVolumeUpFilenameAndPath = Document.Global.Software.TTS.DigitalVolumeUpFilenameAndPath
 
 	if TTSDigitalVolumeUp && TTSDigitalVolumeUpFilenameAndPath == "" {
 		path := defaultSharePath + "/soundfiles/voiceprompts/DigitalVolumeUp.wav"
@@ -1029,8 +1083,8 @@ func readxmlconfig(file string) error {
 		}
 	}
 
-	TTSDigitalVolumeDown = document.Global.Software.TTS.DigitalVolumeDown
-	TTSDigitalVolumeDownFilenameAndPath = document.Global.Software.TTS.DigitalVolumeDownFilenameAndPath
+	TTSDigitalVolumeDown = Document.Global.Software.TTS.DigitalVolumeDown
+	TTSDigitalVolumeDownFilenameAndPath = Document.Global.Software.TTS.DigitalVolumeDownFilenameAndPath
 
 	if TTSDigitalVolumeDown && TTSDigitalVolumeDownFilenameAndPath == "" {
 		path := defaultSharePath + "/soundfiles/voiceprompts/DigitalVolumeDown.wav"
@@ -1039,8 +1093,8 @@ func readxmlconfig(file string) error {
 		}
 	}
 
-	TTSListServerChannels = document.Global.Software.TTS.ListServerChannels
-	TTSListServerChannelsFilenameAndPath = document.Global.Software.TTS.ListServerChannelsFilenameAndPath
+	TTSListServerChannels = Document.Global.Software.TTS.ListServerChannels
+	TTSListServerChannelsFilenameAndPath = Document.Global.Software.TTS.ListServerChannelsFilenameAndPath
 
 	if TTSListServerChannels && TTSListServerChannelsFilenameAndPath == "" {
 		path := defaultSharePath + "/soundfiles/voiceprompts/ListServerChannels.wav"
@@ -1049,8 +1103,8 @@ func readxmlconfig(file string) error {
 		}
 	}
 
-	TTSStartTransmitting = document.Global.Software.TTS.StartTransmitting
-	TTSStartTransmittingFilenameAndPath = document.Global.Software.TTS.StartTransmittingFilenameAndPath
+	TTSStartTransmitting = Document.Global.Software.TTS.StartTransmitting
+	TTSStartTransmittingFilenameAndPath = Document.Global.Software.TTS.StartTransmittingFilenameAndPath
 
 	if TTSStartTransmitting && TTSStartTransmittingFilenameAndPath == "" {
 		path := defaultSharePath + "/soundfiles/voiceprompts/StartTransmitting.wav"
@@ -1059,8 +1113,8 @@ func readxmlconfig(file string) error {
 		}
 	}
 
-	TTSStopTransmitting = document.Global.Software.TTS.StopTransmitting
-	TTSStopTransmittingFilenameAndPath = document.Global.Software.TTS.StopTransmittingFilenameAndPath
+	TTSStopTransmitting = Document.Global.Software.TTS.StopTransmitting
+	TTSStopTransmittingFilenameAndPath = Document.Global.Software.TTS.StopTransmittingFilenameAndPath
 
 	if TTSStopTransmitting && TTSStopTransmittingFilenameAndPath == "" {
 		path := defaultSharePath + "/soundfiles/voiceprompts/StopTransmitting.wav"
@@ -1069,8 +1123,8 @@ func readxmlconfig(file string) error {
 		}
 	}
 
-	TTSListOnlineUsers = document.Global.Software.TTS.ListOnlineUsers
-	TTSListOnlineUsersFilenameAndPath = document.Global.Software.TTS.ListOnlineUsersFilenameAndPath
+	TTSListOnlineUsers = Document.Global.Software.TTS.ListOnlineUsers
+	TTSListOnlineUsersFilenameAndPath = Document.Global.Software.TTS.ListOnlineUsersFilenameAndPath
 
 	if TTSListOnlineUsers && TTSListOnlineUsersFilenameAndPath == "" {
 		path := defaultSharePath + "/soundfiles/voiceprompts/ListOnlineUsers.wav"
@@ -1079,8 +1133,8 @@ func readxmlconfig(file string) error {
 		}
 	}
 
-	TTSPlayStream = document.Global.Software.TTS.PlayStream
-	TTSPlayStreamFilenameAndPath = document.Global.Software.TTS.PlayStreamFilenameAndPath
+	TTSPlayStream = Document.Global.Software.TTS.PlayStream
+	TTSPlayStreamFilenameAndPath = Document.Global.Software.TTS.PlayStreamFilenameAndPath
 
 	if TTSPlayStream && TTSPlayStreamFilenameAndPath == "" {
 		path := defaultSharePath + "/soundfiles/voiceprompts/PlayStream.wav"
@@ -1089,8 +1143,8 @@ func readxmlconfig(file string) error {
 		}
 	}
 
-	TTSRequestGpsPosition = document.Global.Software.TTS.RequestGpsPosition
-	TTSRequestGpsPositionFilenameAndPath = document.Global.Software.TTS.RequestGpsPositionFilenameAndPath
+	TTSRequestGpsPosition = Document.Global.Software.TTS.RequestGpsPosition
+	TTSRequestGpsPositionFilenameAndPath = Document.Global.Software.TTS.RequestGpsPositionFilenameAndPath
 
 	if TTSRequestGpsPosition && TTSRequestGpsPositionFilenameAndPath == "" {
 		path := defaultSharePath + "/soundfiles/voiceprompts/RequestGpsPosition.wav"
@@ -1099,8 +1153,8 @@ func readxmlconfig(file string) error {
 		}
 	}
 
-	TTSNextServer = document.Global.Software.TTS.NextServer
-	TTSNextServerFilenameAndPath = document.Global.Software.TTS.NextServerFilenameAndPath
+	TTSNextServer = Document.Global.Software.TTS.NextServer
+	TTSNextServerFilenameAndPath = Document.Global.Software.TTS.NextServerFilenameAndPath
 	/*
 		//TODO: No default sound available. Placeholder for now
 		if TTSNextServer && TTSNextServerFilenameAndPath == "" {
@@ -1111,8 +1165,8 @@ func readxmlconfig(file string) error {
 		}
 	*/
 
-	TTSPreviousServer = document.Global.Software.TTS.PreviousServer
-	TTSPreviousServerFilenameAndPath = document.Global.Software.TTS.PreviousServerFilenameAndPath
+	TTSPreviousServer = Document.Global.Software.TTS.PreviousServer
+	TTSPreviousServerFilenameAndPath = Document.Global.Software.TTS.PreviousServerFilenameAndPath
 
 	/*
 		//TODO: No default sound available. Placeholder for now
@@ -1124,8 +1178,8 @@ func readxmlconfig(file string) error {
 		}
 	*/
 
-	TTSPanicSimulation = document.Global.Software.TTS.PanicSimulation
-	TTSPanicSimulationFilenameAndPath = document.Global.Software.TTS.PanicSimulationFilenameAndPath
+	TTSPanicSimulation = Document.Global.Software.TTS.PanicSimulation
+	TTSPanicSimulationFilenameAndPath = Document.Global.Software.TTS.PanicSimulationFilenameAndPath
 	if TTSPanicSimulation && TTSPanicSimulationFilenameAndPath == "" {
 		path := defaultSharePath + "/soundfiles/voiceprompts/PanicSimulation.wav"
 		if _, err := os.Stat(path); err == nil {
@@ -1133,8 +1187,8 @@ func readxmlconfig(file string) error {
 		}
 	}
 
-	TTSPrintXmlConfig = document.Global.Software.TTS.PrintXmlConfig
-	TTSPrintXmlConfigFilenameAndPath = document.Global.Software.TTS.PrintXmlConfigFilenameAndPath
+	TTSPrintXmlConfig = Document.Global.Software.TTS.PrintXmlConfig
+	TTSPrintXmlConfigFilenameAndPath = Document.Global.Software.TTS.PrintXmlConfigFilenameAndPath
 
 	if TTSPrintXmlConfig && TTSPrintXmlConfigFilenameAndPath == "" {
 		path := defaultSharePath + "/soundfiles/voiceprompts/PrintXmlConfig.wav"
@@ -1143,8 +1197,8 @@ func readxmlconfig(file string) error {
 		}
 	}
 
-	TTSSendEmail = document.Global.Software.TTS.SendEmail
-	TTSSendEmailFilenameAndPath = document.Global.Software.TTS.SendEmailFilenameAndPath
+	TTSSendEmail = Document.Global.Software.TTS.SendEmail
+	TTSSendEmailFilenameAndPath = Document.Global.Software.TTS.SendEmailFilenameAndPath
 
 	if TTSSendEmail && TTSSendEmailFilenameAndPath == "" {
 		path := defaultSharePath + "/soundfiles/voiceprompts/SendEmail.wav"
@@ -1153,8 +1207,8 @@ func readxmlconfig(file string) error {
 		}
 	}
 
-	TTSDisplayMenu = document.Global.Software.TTS.DisplayMenu
-	TTSDisplayMenuFilenameAndPath = document.Global.Software.TTS.DisplayMenuFilenameAndPath
+	TTSDisplayMenu = Document.Global.Software.TTS.DisplayMenu
+	TTSDisplayMenuFilenameAndPath = Document.Global.Software.TTS.DisplayMenuFilenameAndPath
 
 	if TTSDisplayMenu && TTSDisplayMenuFilenameAndPath == "" {
 		path := defaultSharePath + "/soundfiles/voiceprompts/DisplayMenu.wav"
@@ -1163,8 +1217,8 @@ func readxmlconfig(file string) error {
 		}
 	}
 
-	TTSQuitTalkkonnect = document.Global.Software.TTS.QuitTalkkonnect
-	TTSQuitTalkkonnectFilenameAndPath = document.Global.Software.TTS.QuitTalkkonnectFilenameAndPath
+	TTSQuitTalkkonnect = Document.Global.Software.TTS.QuitTalkkonnect
+	TTSQuitTalkkonnectFilenameAndPath = Document.Global.Software.TTS.QuitTalkkonnectFilenameAndPath
 
 	if TTSQuitTalkkonnect && TTSQuitTalkkonnectFilenameAndPath == "" {
 		path := defaultSharePath + "/soundfiles/voiceprompts/QuitTalkkonnect.wav"
@@ -1173,8 +1227,8 @@ func readxmlconfig(file string) error {
 		}
 	}
 
-	TTSTalkkonnectLoaded = document.Global.Software.TTS.TalkkonnectLoaded
-	TTSTalkkonnectLoadedFilenameAndPath = document.Global.Software.TTS.TalkkonnectLoadedFilenameAndPath
+	TTSTalkkonnectLoaded = Document.Global.Software.TTS.TalkkonnectLoaded
+	TTSTalkkonnectLoadedFilenameAndPath = Document.Global.Software.TTS.TalkkonnectLoadedFilenameAndPath
 
 	if TTSTalkkonnectLoaded && TTSTalkkonnectLoadedFilenameAndPath == "" {
 		path := defaultSharePath + "/soundfiles/voiceprompts/Loaded.wav"
@@ -1183,8 +1237,8 @@ func readxmlconfig(file string) error {
 		}
 	}
 
-	TTSPingServers = document.Global.Software.TTS.PingServers
-	TTSPingServersFilenameAndPath = document.Global.Software.TTS.PingServersFilenameAndPath
+	TTSPingServers = Document.Global.Software.TTS.PingServers
+	TTSPingServersFilenameAndPath = Document.Global.Software.TTS.PingServersFilenameAndPath
 
 	/*
 		//TODO: No default sound available. Placeholder for now
@@ -1196,20 +1250,20 @@ func readxmlconfig(file string) error {
 		}
 	*/
 
-	EmailEnabled = document.Global.Software.SMTP.Enabled
-	EmailUsername = document.Global.Software.SMTP.Username
-	EmailPassword = document.Global.Software.SMTP.Password
-	EmailReceiver = document.Global.Software.SMTP.Receiver
-	EmailSubject = document.Global.Software.SMTP.Subject
-	EmailMessage = document.Global.Software.SMTP.Message
-	EmailGpsDateTime = document.Global.Software.SMTP.GpsDateTime
-	EmailGpsLatLong = document.Global.Software.SMTP.GpsLatLong
-	EmailGoogleMapsURL = document.Global.Software.SMTP.GoogleMapsURL
+	EmailEnabled = Document.Global.Software.SMTP.Enabled
+	EmailUsername = Document.Global.Software.SMTP.Username
+	EmailPassword = Document.Global.Software.SMTP.Password
+	EmailReceiver = Document.Global.Software.SMTP.Receiver
+	EmailSubject = Document.Global.Software.SMTP.Subject
+	EmailMessage = Document.Global.Software.SMTP.Message
+	EmailGpsDateTime = Document.Global.Software.SMTP.GpsDateTime
+	EmailGpsLatLong = Document.Global.Software.SMTP.GpsLatLong
+	EmailGoogleMapsURL = Document.Global.Software.SMTP.GoogleMapsURL
 
-	EventSoundEnabled = document.Global.Software.Sounds.Event.Enabled
-	EventJoinedSoundFilenameAndPath = document.Global.Software.Sounds.Event.JoinedFilenameAndPath
-	EventLeftSoundFilenameAndPath = document.Global.Software.Sounds.Event.LeftFilenameAndPath
-	EventMessageSoundFilenameAndPath = document.Global.Software.Sounds.Event.MessageFilenameAndPath
+	EventSoundEnabled = Document.Global.Software.Sounds.Event.Enabled
+	EventJoinedSoundFilenameAndPath = Document.Global.Software.Sounds.Event.JoinedFilenameAndPath
+	EventLeftSoundFilenameAndPath = Document.Global.Software.Sounds.Event.LeftFilenameAndPath
+	EventMessageSoundFilenameAndPath = Document.Global.Software.Sounds.Event.MessageFilenameAndPath
 
 	if EventSoundEnabled && EventJoinedSoundFilenameAndPath == "" {
 		path := defaultSharePath + "/soundfiles/events/event.wav"
@@ -1229,8 +1283,8 @@ func readxmlconfig(file string) error {
 			EventMessageSoundFilenameAndPath = path
 		}
 	}
-	AlertSoundEnabled = document.Global.Software.Sounds.Alert.Enabled
-	AlertSoundFilenameAndPath = document.Global.Software.Sounds.Alert.FilenameAndPath
+	AlertSoundEnabled = Document.Global.Software.Sounds.Alert.Enabled
+	AlertSoundFilenameAndPath = Document.Global.Software.Sounds.Alert.FilenameAndPath
 
 	if AlertSoundEnabled && AlertSoundFilenameAndPath == "" {
 		path := defaultSharePath + "/soundfiles/alerts/alert.wav"
@@ -1239,10 +1293,10 @@ func readxmlconfig(file string) error {
 		}
 	}
 
-	AlertSoundVolume = document.Global.Software.Sounds.Alert.Volume
+	AlertSoundVolume = Document.Global.Software.Sounds.Alert.Volume
 
-	IncommingBeepSoundEnabled = document.Global.Software.Sounds.IncommingBeep.Enabled
-	IncommingBeepSoundFilenameAndPath = document.Global.Software.Sounds.IncommingBeep.FilenameAndPath
+	IncommingBeepSoundEnabled = Document.Global.Software.Sounds.IncommingBeep.Enabled
+	IncommingBeepSoundFilenameAndPath = Document.Global.Software.Sounds.IncommingBeep.FilenameAndPath
 
 	if IncommingBeepSoundEnabled && IncommingBeepSoundFilenameAndPath == "" {
 		path := defaultSharePath + "/soundfiles/rogerbeeps/Chirsp.wav"
@@ -1251,10 +1305,10 @@ func readxmlconfig(file string) error {
 		}
 	}
 
-	IncommingBeepSoundVolume = document.Global.Software.Sounds.IncommingBeep.Volume
+	IncommingBeepSoundVolume = Document.Global.Software.Sounds.IncommingBeep.Volume
 
-	RogerBeepSoundEnabled = document.Global.Software.Sounds.RogerBeep.Enabled
-	RogerBeepSoundFilenameAndPath = document.Global.Software.Sounds.RogerBeep.FilenameAndPath
+	RogerBeepSoundEnabled = Document.Global.Software.Sounds.RogerBeep.Enabled
+	RogerBeepSoundFilenameAndPath = Document.Global.Software.Sounds.RogerBeep.FilenameAndPath
 
 	if RogerBeepSoundEnabled && RogerBeepSoundFilenameAndPath == "" {
 		path := defaultSharePath + "/soundfiles/rogerbeeps/Chirsp.wav"
@@ -1263,14 +1317,14 @@ func readxmlconfig(file string) error {
 		}
 	}
 
-	RogerBeepSoundVolume = document.Global.Software.Sounds.RogerBeep.Volume
+	RogerBeepSoundVolume = Document.Global.Software.Sounds.RogerBeep.Volume
 
-	RepeaterToneEnabled = document.Global.Software.Sounds.RepeaterTone.Enabled
-	RepeaterToneFrequencyHz = document.Global.Software.Sounds.RepeaterTone.ToneFrequencyHz
-	RepeaterToneDurationSec = document.Global.Software.Sounds.RepeaterTone.ToneDurationSec
+	RepeaterToneEnabled = Document.Global.Software.Sounds.RepeaterTone.Enabled
+	RepeaterToneFrequencyHz = Document.Global.Software.Sounds.RepeaterTone.ToneFrequencyHz
+	RepeaterToneDurationSec = Document.Global.Software.Sounds.RepeaterTone.ToneDurationSec
 
-	StreamSoundEnabled = document.Global.Software.Sounds.Stream.Enabled
-	StreamSoundFilenameAndPath = document.Global.Software.Sounds.Stream.FilenameAndPath
+	StreamSoundEnabled = Document.Global.Software.Sounds.Stream.Enabled
+	StreamSoundFilenameAndPath = Document.Global.Software.Sounds.Stream.FilenameAndPath
 
 	if StreamSoundEnabled && StreamSoundFilenameAndPath == "" {
 		path := defaultSharePath + "/soundfiles/alerts/stream.wav"
@@ -1279,170 +1333,170 @@ func readxmlconfig(file string) error {
 		}
 	}
 
-	StreamSoundVolume = document.Global.Software.Sounds.Stream.Volume
+	StreamSoundVolume = Document.Global.Software.Sounds.Stream.Volume
 
-	TxTimeOutEnabled = document.Global.Software.TxTimeOut.Enabled
-	TxTimeOutSecs = document.Global.Software.TxTimeOut.TxTimeOutSecs
+	TxTimeOutEnabled = Document.Global.Software.TxTimeOut.Enabled
+	TxTimeOutSecs = Document.Global.Software.TxTimeOut.TxTimeOutSecs
 
-	APIEnabled = document.Global.Software.API.Enabled
-	APIListenPort = document.Global.Software.API.ListenPort
-	APIDisplayMenu = document.Global.Software.API.DisplayMenu
-	APIChannelUp = document.Global.Software.API.ChannelUp
-	APIChannelDown = document.Global.Software.API.ChannelDown
-	APIMute = document.Global.Software.API.Mute
-	APICurrentVolumeLevel = document.Global.Software.API.CurrentVolumeLevel
-	APIDigitalVolumeUp = document.Global.Software.API.DigitalVolumeUp
-	APIDigitalVolumeDown = document.Global.Software.API.DigitalVolumeDown
-	APIListServerChannels = document.Global.Software.API.ListServerChannels
-	APIStartTransmitting = document.Global.Software.API.StartTransmitting
-	APIStopTransmitting = document.Global.Software.API.StopTransmitting
-	APIListOnlineUsers = document.Global.Software.API.ListOnlineUsers
-	APIPlayStream = document.Global.Software.API.PlayStream
-	APIRequestGpsPosition = document.Global.Software.API.RequestGpsPosition
-	APIEmailEnabled = document.Global.Software.API.Enabled
-	APINextServer = document.Global.Software.API.NextServer
-	APIPreviousServer = document.Global.Software.API.PreviousServer
-	APIPanicSimulation = document.Global.Software.API.PanicSimulation
-	APIDisplayVersion = document.Global.Software.API.DisplayVersion
-	APIClearScreen = document.Global.Software.API.ClearScreen
-	APIPingServersEnabled = document.Global.Software.API.Enabled
-	APIRepeatTxLoopTest = document.Global.Software.API.RepeatTxLoopTest
-	APIPrintXmlConfig = document.Global.Software.API.PrintXmlConfig
+	APIEnabled = Document.Global.Software.API.Enabled
+	APIListenPort = Document.Global.Software.API.ListenPort
+	APIDisplayMenu = Document.Global.Software.API.DisplayMenu
+	APIChannelUp = Document.Global.Software.API.ChannelUp
+	APIChannelDown = Document.Global.Software.API.ChannelDown
+	APIMute = Document.Global.Software.API.Mute
+	APICurrentVolumeLevel = Document.Global.Software.API.CurrentVolumeLevel
+	APIDigitalVolumeUp = Document.Global.Software.API.DigitalVolumeUp
+	APIDigitalVolumeDown = Document.Global.Software.API.DigitalVolumeDown
+	APIListServerChannels = Document.Global.Software.API.ListServerChannels
+	APIStartTransmitting = Document.Global.Software.API.StartTransmitting
+	APIStopTransmitting = Document.Global.Software.API.StopTransmitting
+	APIListOnlineUsers = Document.Global.Software.API.ListOnlineUsers
+	APIPlayStream = Document.Global.Software.API.PlayStream
+	APIRequestGpsPosition = Document.Global.Software.API.RequestGpsPosition
+	APIEmailEnabled = Document.Global.Software.API.Enabled
+	APINextServer = Document.Global.Software.API.NextServer
+	APIPreviousServer = Document.Global.Software.API.PreviousServer
+	APIPanicSimulation = Document.Global.Software.API.PanicSimulation
+	APIDisplayVersion = Document.Global.Software.API.DisplayVersion
+	APIClearScreen = Document.Global.Software.API.ClearScreen
+	APIPingServersEnabled = Document.Global.Software.API.Enabled
+	APIRepeatTxLoopTest = Document.Global.Software.API.RepeatTxLoopTest
+	APIPrintXmlConfig = Document.Global.Software.API.PrintXmlConfig
 
-	PrintAccount = document.Global.Software.PrintVariables.PrintAccount
-	PrintLogging = document.Global.Software.PrintVariables.PrintLogging
-	PrintProvisioning = document.Global.Software.PrintVariables.PrintProvisioning
-	PrintBeacon = document.Global.Software.PrintVariables.PrintBeacon
-	PrintTTS = document.Global.Software.PrintVariables.PrintTTS
-	PrintSMTP = document.Global.Software.PrintVariables.PrintSMTP
-	PrintSounds = document.Global.Software.PrintVariables.PrintSounds
-	PrintTxTimeout = document.Global.Software.PrintVariables.PrintTxTimeout
+	PrintAccount = Document.Global.Software.PrintVariables.PrintAccount
+	PrintLogging = Document.Global.Software.PrintVariables.PrintLogging
+	PrintProvisioning = Document.Global.Software.PrintVariables.PrintProvisioning
+	PrintBeacon = Document.Global.Software.PrintVariables.PrintBeacon
+	PrintTTS = Document.Global.Software.PrintVariables.PrintTTS
+	PrintSMTP = Document.Global.Software.PrintVariables.PrintSMTP
+	PrintSounds = Document.Global.Software.PrintVariables.PrintSounds
+	PrintTxTimeout = Document.Global.Software.PrintVariables.PrintTxTimeout
 
-	MQTTEnabled = document.Global.Software.MQTT.MQTTEnabled
-	MQTTTopic = document.Global.Software.MQTT.MQTTTopic
-	MQTTBroker = document.Global.Software.MQTT.MQTTBroker
-	MQTTPassword = document.Global.Software.MQTT.MQTTPassword
-	MQTTUser = document.Global.Software.MQTT.MQTTUser
-	MQTTId = document.Global.Software.MQTT.MQTTId
-	MQTTCleansess = document.Global.Software.MQTT.MQTTCleansess
-	MQTTQos = document.Global.Software.MQTT.MQTTQos
-	MQTTNum = document.Global.Software.MQTT.MQTTNum
-	MQTTPayload = document.Global.Software.MQTT.MQTTPayload
-	MQTTAction = document.Global.Software.MQTT.MQTTAction
-	MQTTStore = document.Global.Software.MQTT.MQTTStore
+	MQTTEnabled = Document.Global.Software.MQTT.MQTTEnabled
+	MQTTTopic = Document.Global.Software.MQTT.MQTTTopic
+	MQTTBroker = Document.Global.Software.MQTT.MQTTBroker
+	MQTTPassword = Document.Global.Software.MQTT.MQTTPassword
+	MQTTUser = Document.Global.Software.MQTT.MQTTUser
+	MQTTId = Document.Global.Software.MQTT.MQTTId
+	MQTTCleansess = Document.Global.Software.MQTT.MQTTCleansess
+	MQTTQos = Document.Global.Software.MQTT.MQTTQos
+	MQTTNum = Document.Global.Software.MQTT.MQTTNum
+	MQTTPayload = Document.Global.Software.MQTT.MQTTPayload
+	MQTTAction = Document.Global.Software.MQTT.MQTTAction
+	MQTTStore = Document.Global.Software.MQTT.MQTTStore
 
-	PrintHTTPAPI = document.Global.Software.PrintVariables.PrintHTTPAPI
-	PrintTargetboard = document.Global.Software.PrintVariables.PrintTargetBoard
-	PrintLeds = document.Global.Software.PrintVariables.PrintLeds
-	PrintHeartbeat = document.Global.Software.PrintVariables.PrintHeartbeat
-	PrintButtons = document.Global.Software.PrintVariables.PrintButtons
-	PrintComment = document.Global.Software.PrintVariables.PrintComment
-	PrintLcd = document.Global.Software.PrintVariables.PrintLcd
-	PrintOled = document.Global.Software.PrintVariables.PrintOled
-	PrintGps = document.Global.Software.PrintVariables.PrintGps
-	PrintTraccar = document.Global.Software.PrintVariables.PrintTraccar
-	PrintPanic = document.Global.Software.PrintVariables.PrintPanic
-	PrintAudioRecord = document.Global.Software.PrintVariables.PrintAudioRecord
-	PrintMQTT = document.Global.Software.PrintVariables.PrintMQTT
-
-	TargetBoard = document.Global.Hardware.TargetBoard
-	LedStripEnabled = document.Global.Hardware.Lights.LedStripEnabled
+	PrintHTTPAPI = Document.Global.Software.PrintVariables.PrintHTTPAPI
+	PrintTargetboard = Document.Global.Software.PrintVariables.PrintTargetBoard
+	PrintLeds = Document.Global.Software.PrintVariables.PrintLeds
+	PrintHeartbeat = Document.Global.Software.PrintVariables.PrintHeartbeat
+	PrintButtons = Document.Global.Software.PrintVariables.PrintButtons
+	PrintComment = Document.Global.Software.PrintVariables.PrintComment
+	PrintLcd = Document.Global.Software.PrintVariables.PrintLcd
+	PrintOled = Document.Global.Software.PrintVariables.PrintOled
+	PrintGps = Document.Global.Software.PrintVariables.PrintGps
+	PrintTraccar = Document.Global.Software.PrintVariables.PrintTraccar
+	PrintPanic = Document.Global.Software.PrintVariables.PrintPanic
+	PrintAudioRecord = Document.Global.Software.PrintVariables.PrintAudioRecord
+	PrintMQTT = Document.Global.Software.PrintVariables.PrintMQTT
+	PrintNumerickeypad = Document.Global.Software.PrintVariables.PrintNumerickeypad
+	TargetBoard = Document.Global.Hardware.TargetBoard
+	LedStripEnabled = Document.Global.Hardware.Lights.LedStripEnabled
 	// my stupid work around for null uint xml unmarshelling problem with numbers so use strings and convert it 2 times
-	temp0, _ := strconv.ParseUint(document.Global.Hardware.Lights.VoiceActivityLedPin, 10, 64)
+	temp0, _ := strconv.ParseUint(Document.Global.Hardware.Lights.VoiceActivityLedPin, 10, 64)
 	VoiceActivityLEDPin = uint(temp0)
-	temp1, _ := strconv.ParseUint(document.Global.Hardware.Lights.VoiceActivityLedPin, 10, 64)
+	temp1, _ := strconv.ParseUint(Document.Global.Hardware.Lights.VoiceActivityLedPin, 10, 64)
 	VoiceActivityLEDPin = uint(temp1)
-	temp2, _ := strconv.ParseUint(document.Global.Hardware.Lights.ParticipantsLedPin, 10, 64)
+	temp2, _ := strconv.ParseUint(Document.Global.Hardware.Lights.ParticipantsLedPin, 10, 64)
 	ParticipantsLEDPin = uint(temp2)
-	temp3, _ := strconv.ParseUint(document.Global.Hardware.Lights.TransmitLedPin, 10, 64)
+	temp3, _ := strconv.ParseUint(Document.Global.Hardware.Lights.TransmitLedPin, 10, 64)
 	TransmitLEDPin = uint(temp3)
-	temp4, _ := strconv.ParseUint(document.Global.Hardware.Lights.OnlineLedPin, 10, 64)
+	temp4, _ := strconv.ParseUint(Document.Global.Hardware.Lights.OnlineLedPin, 10, 64)
 	OnlineLEDPin = uint(temp4)
-	temp14, _ := strconv.ParseUint(document.Global.Hardware.Lights.AttentionLedPin, 10, 64)
+	temp14, _ := strconv.ParseUint(Document.Global.Hardware.Lights.AttentionLedPin, 10, 64)
 	AttentionLEDPin = uint(temp14)
 
-	temp5, _ := strconv.ParseUint(document.Global.Hardware.HeartBeat.LEDPin, 10, 64)
+	temp5, _ := strconv.ParseUint(Document.Global.Hardware.HeartBeat.LEDPin, 10, 64)
 	HeartBeatLEDPin = uint(temp5)
-	HeartBeatEnabled = document.Global.Hardware.HeartBeat.Enabled
-	PeriodmSecs = document.Global.Hardware.HeartBeat.Periodmsecs
-	LEDOnmSecs = document.Global.Hardware.HeartBeat.LEDOnmsecs
-	LEDOffmSecs = document.Global.Hardware.HeartBeat.LEDOffmsecs
+	HeartBeatEnabled = Document.Global.Hardware.HeartBeat.Enabled
+	PeriodmSecs = Document.Global.Hardware.HeartBeat.Periodmsecs
+	LEDOnmSecs = Document.Global.Hardware.HeartBeat.LEDOnmsecs
+	LEDOffmSecs = Document.Global.Hardware.HeartBeat.LEDOffmsecs
 
 	// my stupid work around for null uint xml unmarshelling problem with numbers so use strings and convert it 2 times
-	temp6, _ := strconv.ParseUint(document.Global.Hardware.Buttons.TxButtonPin, 10, 64)
+	temp6, _ := strconv.ParseUint(Document.Global.Hardware.Buttons.TxButtonPin, 10, 64)
 	TxButtonPin = uint(temp6)
-	temp7, _ := strconv.ParseUint(document.Global.Hardware.Buttons.TxTogglePin, 10, 64)
+	temp7, _ := strconv.ParseUint(Document.Global.Hardware.Buttons.TxTogglePin, 10, 64)
 	TxTogglePin = uint(temp7)
-	temp8, _ := strconv.ParseUint(document.Global.Hardware.Buttons.UpButtonPin, 10, 64)
+	temp8, _ := strconv.ParseUint(Document.Global.Hardware.Buttons.UpButtonPin, 10, 64)
 	UpButtonPin = uint(temp8)
-	temp9, _ := strconv.ParseUint(document.Global.Hardware.Buttons.DownButtonPin, 10, 64)
+	temp9, _ := strconv.ParseUint(Document.Global.Hardware.Buttons.DownButtonPin, 10, 64)
 	DownButtonPin = uint(temp9)
-	temp10, _ := strconv.ParseUint(document.Global.Hardware.Buttons.PanicButtonPin, 10, 64)
+	temp10, _ := strconv.ParseUint(Document.Global.Hardware.Buttons.PanicButtonPin, 10, 64)
 	PanicButtonPin = uint(temp10)
-	temp11, _ := strconv.ParseUint(document.Global.Hardware.Comment.CommentButtonPin, 10, 64)
+	temp11, _ := strconv.ParseUint(Document.Global.Hardware.Comment.CommentButtonPin, 10, 64)
 	CommentButtonPin = uint(temp11)
-	CommentMessageOff = document.Global.Hardware.Comment.CommentMessageOff
-	CommentMessageOn = document.Global.Hardware.Comment.CommentMessageOn
-	temp12, _ := strconv.ParseUint(document.Global.Hardware.Buttons.StreamButtonPin, 10, 64)
+	CommentMessageOff = Document.Global.Hardware.Comment.CommentMessageOff
+	CommentMessageOn = Document.Global.Hardware.Comment.CommentMessageOn
+	temp12, _ := strconv.ParseUint(Document.Global.Hardware.Buttons.StreamButtonPin, 10, 64)
 	StreamButtonPin = uint(temp12)
 
-	LCDEnabled = document.Global.Hardware.LCD.Enabled
-	LCDInterfaceType = document.Global.Hardware.LCD.InterfaceType
-	LCDI2CAddress = document.Global.Hardware.LCD.I2CAddress
-	LCDBackLightTimerEnabled = document.Global.Hardware.LCD.Enabled
-	LCDBackLightTimeoutSecs = time.Duration(document.Global.Hardware.LCD.BackLightTimeoutSecs)
+	LCDEnabled = Document.Global.Hardware.LCD.Enabled
+	LCDInterfaceType = Document.Global.Hardware.LCD.InterfaceType
+	LCDI2CAddress = Document.Global.Hardware.LCD.I2CAddress
+	LCDBackLightTimerEnabled = Document.Global.Hardware.LCD.Enabled
+	LCDBackLightTimeoutSecs = time.Duration(Document.Global.Hardware.LCD.BackLightTimeoutSecs)
 
 	// my stupid work around for null uint xml unmarshelling problem with numbers so use strings and convert it 2 times
-	temp13, _ := strconv.ParseUint(document.Global.Hardware.LCD.BackLightLEDPin, 10, 64)
+	temp13, _ := strconv.ParseUint(Document.Global.Hardware.LCD.BackLightLEDPin, 10, 64)
 	LCDBackLightLEDPin = int(temp13)
 
-	LCDRSPin = document.Global.Hardware.LCD.RsPin
-	LCDEPin = document.Global.Hardware.LCD.EPin
-	LCDD4Pin = document.Global.Hardware.LCD.D4Pin
-	LCDD5Pin = document.Global.Hardware.LCD.D5Pin
-	LCDD6Pin = document.Global.Hardware.LCD.D6Pin
-	LCDD7Pin = document.Global.Hardware.LCD.D7Pin
+	LCDRSPin = Document.Global.Hardware.LCD.RsPin
+	LCDEPin = Document.Global.Hardware.LCD.EPin
+	LCDD4Pin = Document.Global.Hardware.LCD.D4Pin
+	LCDD5Pin = Document.Global.Hardware.LCD.D5Pin
+	LCDD6Pin = Document.Global.Hardware.LCD.D6Pin
+	LCDD7Pin = Document.Global.Hardware.LCD.D7Pin
 
-	OLEDEnabled = document.Global.Hardware.OLED.Enabled
-	OLEDInterfacetype = document.Global.Hardware.OLED.InterfaceType
-	OLEDDisplayRows = document.Global.Hardware.OLED.DisplayRows
-	OLEDDisplayColumns = document.Global.Hardware.OLED.DisplayColumns
-	OLEDDefaultI2cBus = document.Global.Hardware.OLED.DefaultI2CBus
-	OLEDDefaultI2cAddress = document.Global.Hardware.OLED.DefaultI2CAddress
-	OLEDScreenWidth = document.Global.Hardware.OLED.ScreenWidth
-	OLEDScreenHeight = document.Global.Hardware.OLED.ScreenHeight
-	OLEDCommandColumnAddressing = document.Global.Hardware.OLED.CommandColumnAddressing
-	OLEDAddressBasePageStart = document.Global.Hardware.OLED.AddressBasePageStart
-	OLEDCharLength = document.Global.Hardware.OLED.CharLength
-	OLEDStartColumn = document.Global.Hardware.OLED.StartColumn
+	OLEDEnabled = Document.Global.Hardware.OLED.Enabled
+	OLEDInterfacetype = Document.Global.Hardware.OLED.InterfaceType
+	OLEDDisplayRows = Document.Global.Hardware.OLED.DisplayRows
+	OLEDDisplayColumns = Document.Global.Hardware.OLED.DisplayColumns
+	OLEDDefaultI2cBus = Document.Global.Hardware.OLED.DefaultI2CBus
+	OLEDDefaultI2cAddress = Document.Global.Hardware.OLED.DefaultI2CAddress
+	OLEDScreenWidth = Document.Global.Hardware.OLED.ScreenWidth
+	OLEDScreenHeight = Document.Global.Hardware.OLED.ScreenHeight
+	OLEDCommandColumnAddressing = Document.Global.Hardware.OLED.CommandColumnAddressing
+	OLEDAddressBasePageStart = Document.Global.Hardware.OLED.AddressBasePageStart
+	OLEDCharLength = Document.Global.Hardware.OLED.CharLength
+	OLEDStartColumn = Document.Global.Hardware.OLED.StartColumn
 
-	GpsEnabled = document.Global.Hardware.GPS.Enabled
-	Port = document.Global.Hardware.GPS.Port
-	Baud = document.Global.Hardware.GPS.Baud
-	TxData = document.Global.Hardware.GPS.TxData
-	Even = document.Global.Hardware.GPS.Even
-	Odd = document.Global.Hardware.GPS.Odd
-	Rs485 = document.Global.Hardware.GPS.Rs485
-	Rs485HighDuringSend = document.Global.Hardware.GPS.Rs485HighDuringSend
-	Rs485HighAfterSend = document.Global.Hardware.GPS.Rs485HighAfterSend
-	StopBits = document.Global.Hardware.GPS.StopBits
-	DataBits = document.Global.Hardware.GPS.DataBits
-	CharTimeOut = document.Global.Hardware.GPS.CharTimeOut
-	MinRead = document.Global.Hardware.GPS.MinRead
-	Rx = document.Global.Hardware.GPS.Rx
-	GpsInfoVerbose = document.Global.Hardware.GPS.GpsInfoVerbose
-	TrackEnabled = document.Global.Hardware.GPSTrackingFunction.TrackEnabled
-	TraccarSendTo = document.Global.Hardware.GPSTrackingFunction.TraccarSendTo
-	TraccarServerURL = document.Global.Hardware.GPSTrackingFunction.TraccarServerURL
-	TraccarServerIP = document.Global.Hardware.GPSTrackingFunction.TraccarServerIP
-	TraccarClientId = document.Global.Hardware.GPSTrackingFunction.TraccarClientId
-	TraccarReportFrequency = document.Global.Hardware.GPSTrackingFunction.TraccarReportFrequency
-	TraccarProto = document.Global.Hardware.GPSTrackingFunction.TraccarProto
-	TraccarServerFullURL = document.Global.Hardware.GPSTrackingFunction.TraccarServerFullURL
-	TrackGPSShowLCD = document.Global.Hardware.GPSTrackingFunction.TrackGPSShowLCD
-	TrackVerbose = document.Global.Hardware.GPSTrackingFunction.TrackVerbose
-	PEnabled = document.Global.Hardware.PanicFunction.Enabled
-	PFilenameAndPath = document.Global.Hardware.PanicFunction.FilenameAndPath
+	GpsEnabled = Document.Global.Hardware.GPS.Enabled
+	Port = Document.Global.Hardware.GPS.Port
+	Baud = Document.Global.Hardware.GPS.Baud
+	TxData = Document.Global.Hardware.GPS.TxData
+	Even = Document.Global.Hardware.GPS.Even
+	Odd = Document.Global.Hardware.GPS.Odd
+	Rs485 = Document.Global.Hardware.GPS.Rs485
+	Rs485HighDuringSend = Document.Global.Hardware.GPS.Rs485HighDuringSend
+	Rs485HighAfterSend = Document.Global.Hardware.GPS.Rs485HighAfterSend
+	StopBits = Document.Global.Hardware.GPS.StopBits
+	DataBits = Document.Global.Hardware.GPS.DataBits
+	CharTimeOut = Document.Global.Hardware.GPS.CharTimeOut
+	MinRead = Document.Global.Hardware.GPS.MinRead
+	Rx = Document.Global.Hardware.GPS.Rx
+	GpsInfoVerbose = Document.Global.Hardware.GPS.GpsInfoVerbose
+	TrackEnabled = Document.Global.Hardware.GPSTrackingFunction.TrackEnabled
+	TraccarSendTo = Document.Global.Hardware.GPSTrackingFunction.TraccarSendTo
+	TraccarServerURL = Document.Global.Hardware.GPSTrackingFunction.TraccarServerURL
+	TraccarServerIP = Document.Global.Hardware.GPSTrackingFunction.TraccarServerIP
+	TraccarClientId = Document.Global.Hardware.GPSTrackingFunction.TraccarClientId
+	TraccarReportFrequency = Document.Global.Hardware.GPSTrackingFunction.TraccarReportFrequency
+	TraccarProto = Document.Global.Hardware.GPSTrackingFunction.TraccarProto
+	TraccarServerFullURL = Document.Global.Hardware.GPSTrackingFunction.TraccarServerFullURL
+	TrackGPSShowLCD = Document.Global.Hardware.GPSTrackingFunction.TrackGPSShowLCD
+	TrackVerbose = Document.Global.Hardware.GPSTrackingFunction.TrackVerbose
+	PEnabled = Document.Global.Hardware.PanicFunction.Enabled
+	PFilenameAndPath = Document.Global.Hardware.PanicFunction.FilenameAndPath
 
 	if PEnabled && PFilenameAndPath == "" {
 		path := defaultSharePath + "/soundfiles/alerts/alert.wav"
@@ -1451,28 +1505,49 @@ func readxmlconfig(file string) error {
 		}
 	}
 
-	PMessage = document.Global.Hardware.PanicFunction.Message
-	PMailEnabled = document.Global.Hardware.PanicFunction.PMailEnabled
-	PVolume = document.Global.Hardware.PanicFunction.Volume
-	PSendIdent = document.Global.Hardware.PanicFunction.SendIdent
-	PSendGpsLocation = document.Global.Hardware.PanicFunction.SendGpsLocation
-	PTxLockEnabled = document.Global.Hardware.PanicFunction.TxLockEnabled
-	PTxlockTimeOutSecs = document.Global.Hardware.PanicFunction.TxLockTimeOutSecs
-	PLowProfile = document.Global.Hardware.PanicFunction.PLowProfile
-	AudioRecordEnabled = document.Global.Hardware.AudioRecordFunction.Enabled
-	AudioRecordOnStart = document.Global.Hardware.AudioRecordFunction.RecordOnStart
-	AudioRecordSystem = document.Global.Hardware.AudioRecordFunction.RecordSystem
-	AudioRecordMode = document.Global.Hardware.AudioRecordFunction.RecordMode
-	AudioRecordTimeout = document.Global.Hardware.AudioRecordFunction.RecordTimeout
-	AudioRecordFromOutput = document.Global.Hardware.AudioRecordFunction.RecordFromOutput
-	AudioRecordFromInput = document.Global.Hardware.AudioRecordFunction.RecordFromInput
-	AudioRecordMicTimeout = document.Global.Hardware.AudioRecordFunction.RecordMicTimeout
-	AudioRecordSavePath = document.Global.Hardware.AudioRecordFunction.RecordSavePath
-	AudioRecordArchivePath = document.Global.Hardware.AudioRecordFunction.RecordArchivePath
-	AudioRecordSoft = document.Global.Hardware.AudioRecordFunction.RecordSoft
-	AudioRecordProfile = document.Global.Hardware.AudioRecordFunction.RecordProfile
-	AudioRecordFileFormat = document.Global.Hardware.AudioRecordFunction.RecordFileFormat
-	AudioRecordChunkSize = document.Global.Hardware.AudioRecordFunction.RecordChunkSize
+	PMessage = Document.Global.Hardware.PanicFunction.Message
+	PMailEnabled = Document.Global.Hardware.PanicFunction.PMailEnabled
+	PVolume = Document.Global.Hardware.PanicFunction.Volume
+	PSendIdent = Document.Global.Hardware.PanicFunction.SendIdent
+	PSendGpsLocation = Document.Global.Hardware.PanicFunction.SendGpsLocation
+	PTxLockEnabled = Document.Global.Hardware.PanicFunction.TxLockEnabled
+	PTxlockTimeOutSecs = Document.Global.Hardware.PanicFunction.TxLockTimeOutSecs
+	PLowProfile = Document.Global.Hardware.PanicFunction.PLowProfile
+	AudioRecordEnabled = Document.Global.Hardware.AudioRecordFunction.Enabled
+	AudioRecordOnStart = Document.Global.Hardware.AudioRecordFunction.RecordOnStart
+	AudioRecordSystem = Document.Global.Hardware.AudioRecordFunction.RecordSystem
+	AudioRecordMode = Document.Global.Hardware.AudioRecordFunction.RecordMode
+	AudioRecordTimeout = Document.Global.Hardware.AudioRecordFunction.RecordTimeout
+	AudioRecordFromOutput = Document.Global.Hardware.AudioRecordFunction.RecordFromOutput
+	AudioRecordFromInput = Document.Global.Hardware.AudioRecordFunction.RecordFromInput
+	AudioRecordMicTimeout = Document.Global.Hardware.AudioRecordFunction.RecordMicTimeout
+	AudioRecordSavePath = Document.Global.Hardware.AudioRecordFunction.RecordSavePath
+	AudioRecordArchivePath = Document.Global.Hardware.AudioRecordFunction.RecordArchivePath
+	AudioRecordSoft = Document.Global.Hardware.AudioRecordFunction.RecordSoft
+	AudioRecordProfile = Document.Global.Hardware.AudioRecordFunction.RecordProfile
+	AudioRecordFileFormat = Document.Global.Hardware.AudioRecordFunction.RecordFileFormat
+	AudioRecordChunkSize = Document.Global.Hardware.AudioRecordFunction.RecordChunkSize
+
+	Key0Enabled = Document.Global.Hardware.Numerickeypad.Key0.Enabled
+	Key0Targetid = Document.Global.Hardware.Numerickeypad.Key0.Targetid
+	Key1Enabled = Document.Global.Hardware.Numerickeypad.Key1.Enabled
+	Key1Targetid = Document.Global.Hardware.Numerickeypad.Key1.Targetid
+	Key2Enabled = Document.Global.Hardware.Numerickeypad.Key2.Enabled
+	Key2Targetid = Document.Global.Hardware.Numerickeypad.Key2.Targetid
+	Key3Enabled = Document.Global.Hardware.Numerickeypad.Key3.Enabled
+	Key3Targetid = Document.Global.Hardware.Numerickeypad.Key3.Targetid
+	Key4Enabled = Document.Global.Hardware.Numerickeypad.Key4.Enabled
+	Key4Targetid = Document.Global.Hardware.Numerickeypad.Key4.Targetid
+	Key5Enabled = Document.Global.Hardware.Numerickeypad.Key5.Enabled
+	Key5Targetid = Document.Global.Hardware.Numerickeypad.Key5.Targetid
+	Key6Enabled = Document.Global.Hardware.Numerickeypad.Key6.Enabled
+	Key6Targetid = Document.Global.Hardware.Numerickeypad.Key6.Targetid
+	Key7Enabled = Document.Global.Hardware.Numerickeypad.Key7.Enabled
+	Key7Targetid = Document.Global.Hardware.Numerickeypad.Key7.Targetid
+	Key8Enabled = Document.Global.Hardware.Numerickeypad.Key8.Enabled
+	Key8Targetid = Document.Global.Hardware.Numerickeypad.Key8.Targetid
+	Key9Enabled = Document.Global.Hardware.Numerickeypad.Key9.Enabled
+	Key9Targetid = Document.Global.Hardware.Numerickeypad.Key9.Targetid
 
 	if TargetBoard != "rpi" {
 		LCDBackLightTimerEnabled = false
@@ -1488,9 +1563,9 @@ func readxmlconfig(file string) error {
 
 	log.Println("Successfully loaded XML configuration file into memory")
 
-	for i := 0; i < len(document.Accounts.Account); i++ {
-		if document.Accounts.Account[i].Default {
-			log.Printf("info: Successfully Added Account %s to Index [%d]\n", document.Accounts.Account[i].Name, i)
+	for i := 0; i < len(Document.Accounts.Account); i++ {
+		if Document.Accounts.Account[i].Default {
+			log.Printf("info: Successfully Added Account %s to Index [%d]\n", Document.Accounts.Account[i].Name, i)
 		}
 	}
 
@@ -1501,31 +1576,39 @@ func printxmlconfig() {
 
 	if PrintAccount {
 		log.Println("info: ---------- Account Information -------- ")
-		log.Println("info: Default     " + fmt.Sprintf("%t", Default))
-		log.Println("info: Server      " + Server[0])
-		log.Println("info: Username    " + Username[0])
-		log.Println("info: Password    " + Password[0])
-		log.Println("info: Insecure    " + fmt.Sprintf("%t", Insecure[0]))
-		log.Println("info: Certificate " + Certificate[0])
-		log.Println("info: Channel     " + Channel[0])
-		log.Println("info: Ident       " + Ident[0])
+		log.Println("info: Default              ", fmt.Sprintf("%t", Default))
+		log.Println("info: Server               ", Server[AccountIndex])
+		log.Println("info: Username             ", Username[AccountIndex])
+		log.Println("info: Password             ", Password[AccountIndex])
+		log.Println("info: Insecure             ", fmt.Sprintf("%t", Insecure[AccountIndex]))
+		log.Println("info: Certificate          ", Certificate[AccountIndex])
+		log.Println("info: Channel              ", Channel[AccountIndex])
+		log.Println("info: Ident                ", Ident[AccountIndex])
+		log.Println("info: Tokens               ", Tokens)
+		log.Println("info: VT-ID                ", VoiceTargetsID)
+		log.Println("info: VT-Users             ", VoiceTargetsUsers)
+		log.Println("info: VT-ChannelsName      ", VoiceTargetsChannelsName)
+		log.Println("info: VT-ChannelsRecursive ", VoiceTargetsChannelsRecursive)
+		log.Println("info: VT-ChannelsLinks     ", VoiceTargetsChannelsLinks)
+		log.Println("info: VT-ChannelsGroups    ", VoiceTargetsChannelsGroup)
+
 	} else {
 		log.Println("info: ---------- Account Information -------- SKIPPED ")
 	}
 
 	if PrintLogging {
 		log.Println("info: -------- Logging & Daemonizing -------- ")
-		log.Println("info: Output Device        " + OutputDevice)
-		log.Println("info: Output Device(Short) " + OutputDeviceShort)
-		log.Println("info: Log File             " + LogFilenameAndPath)
-		log.Println("info: Logging              " + Logging)
-		log.Println("info: Loglevel             " + Loglevel)
-		log.Println("info: Daemonize            " + fmt.Sprintf("%t", Daemonize))
-		log.Println("info: CancellableStream    " + fmt.Sprintf("%t", CancellableStream))
-		log.Println("info: StreamOnStart            " + fmt.Sprintf("%t", StreamOnStart))
-		log.Println("info: SimplexWithMute      " + fmt.Sprintf("%t", SimplexWithMute))
-		log.Println("info: TxCounter            " + fmt.Sprintf("%t", TxCounter))
-		log.Println("info: NextServerIndex      " + fmt.Sprintf("%v", NextServerIndex))
+		log.Println("info: Output Device        ", OutputDevice)
+		log.Println("info: Output Device(Short) ", OutputDeviceShort)
+		log.Println("info: Log File             ", LogFilenameAndPath)
+		log.Println("info: Logging              ", Logging)
+		log.Println("info: Loglevel             ", Loglevel)
+		log.Println("info: Daemonize            ", fmt.Sprintf("%t", Daemonize))
+		log.Println("info: CancellableStream    ", fmt.Sprintf("%t", CancellableStream))
+		log.Println("info: StreamOnStart        ", fmt.Sprintf("%t", StreamOnStart))
+		log.Println("info: SimplexWithMute      ", fmt.Sprintf("%t", SimplexWithMute))
+		log.Println("info: TxCounter            ", fmt.Sprintf("%t", TxCounter))
+		log.Println("info: NextServerIndex      ", fmt.Sprintf("%v", NextServerIndex))
 	} else {
 		log.Println("info: --------   Logging & Daemonizing -------- SKIPPED ")
 	}
@@ -1806,17 +1889,17 @@ func printxmlconfig() {
 
 	if PrintPanic {
 		log.Println("info: ------------ PANIC Function -------------- ")
-		log.Println("info: Panic Function Enable          " + fmt.Sprintf("%t", PEnabled))
-		log.Println("info: Panic Sound Filename and Path  " + fmt.Sprintf("%s", PFilenameAndPath))
-		log.Println("info: Panic Message                  " + fmt.Sprintf("%s", PMessage))
-		log.Println("info: Panic Email Send               " + fmt.Sprintf("%t", PMailEnabled))
-		log.Println("info: Panic Message Send Recursively " + fmt.Sprintf("%t", PRecursive))
-		log.Println("info: Panic Volume                   " + fmt.Sprintf("%v", PVolume))
-		log.Println("info: Panic Send Ident               " + fmt.Sprintf("%t", PSendIdent))
-		log.Println("info: Panic Send GPS Location        " + fmt.Sprintf("%t", PSendGpsLocation))
-		log.Println("info: Panic TX Lock Enabled          " + fmt.Sprintf("%t", PTxLockEnabled))
-		log.Println("info: Panic TX Lock Timeout Secs     " + fmt.Sprintf("%v", PTxlockTimeOutSecs))
-		log.Println("info: Panic Low Profile Lights Enable" + fmt.Sprintf("%v", PLowProfile))
+		log.Println("info: Panic Function Enable          ", fmt.Sprintf("%t", PEnabled))
+		log.Println("info: Panic Sound Filename and Path  ", fmt.Sprintf("%s", PFilenameAndPath))
+		log.Println("info: Panic Message                  ", fmt.Sprintf("%s", PMessage))
+		log.Println("info: Panic Email Send               ", fmt.Sprintf("%t", PMailEnabled))
+		log.Println("info: Panic Message Send Recursively ", fmt.Sprintf("%t", PRecursive))
+		log.Println("info: Panic Volume                   ", fmt.Sprintf("%v", PVolume))
+		log.Println("info: Panic Send Ident               ", fmt.Sprintf("%t", PSendIdent))
+		log.Println("info: Panic Send GPS Location        ", fmt.Sprintf("%t", PSendGpsLocation))
+		log.Println("info: Panic TX Lock Enabled          ", fmt.Sprintf("%t", PTxLockEnabled))
+		log.Println("info: Panic TX Lock Timeout Secs     ", fmt.Sprintf("%v", PTxlockTimeOutSecs))
+		log.Println("info: Panic Low Profile Lights Enable", fmt.Sprintf("%v", PLowProfile))
 	} else {
 		log.Println("info: ------------ PANIC Function -------------- SKIPPED ")
 	}
@@ -1857,6 +1940,33 @@ func printxmlconfig() {
 	} else {
 		log.Println("info: ------------ MQTT Function ------- SKIPPED ")
 	}
+	if PrintNumerickeypad {
+		log.Println("info: ------------ NumericKeypad Function -------------- ")
+		log.Println("info: Key0Enabled  " + fmt.Sprintf("%v", Key0Enabled))
+		log.Println("info: Key0Targetid " + fmt.Sprintf("%v", Key0Targetid))
+		log.Println("info: Key1Enabled  " + fmt.Sprintf("%v", Key1Enabled))
+		log.Println("info: Key1Targetid " + fmt.Sprintf("%v", Key1Targetid))
+		log.Println("info: Key2Enabled  " + fmt.Sprintf("%v", Key2Enabled))
+		log.Println("info: Key2Targetid " + fmt.Sprintf("%v", Key2Targetid))
+		log.Println("info: Key3Enabled  " + fmt.Sprintf("%v", Key3Enabled))
+		log.Println("info: Key3Targetid " + fmt.Sprintf("%v", Key3Targetid))
+		log.Println("info: Key4Enabled  " + fmt.Sprintf("%v", Key4Enabled))
+		log.Println("info: Key4Targetid " + fmt.Sprintf("%v", Key4Targetid))
+		log.Println("info: Key5Enabled  " + fmt.Sprintf("%v", Key5Enabled))
+		log.Println("info: Key5Targetid " + fmt.Sprintf("%v", Key5Targetid))
+		log.Println("info: Key6Enabled  " + fmt.Sprintf("%v", Key6Enabled))
+		log.Println("info: Key6Targetid " + fmt.Sprintf("%v", Key6Targetid))
+		log.Println("info: Key7Enabled  " + fmt.Sprintf("%v", Key7Enabled))
+		log.Println("info: Key7Targetid " + fmt.Sprintf("%v", Key7Targetid))
+		log.Println("info: Key8Enabled  " + fmt.Sprintf("%v", Key8Enabled))
+		log.Println("info: Key8Targetid " + fmt.Sprintf("%v", Key8Targetid))
+		log.Println("info: Key9Enabled  " + fmt.Sprintf("%v", Key9Enabled))
+		log.Println("info: Key9Targetid " + fmt.Sprintf("%v", Key9Targetid))
+
+	} else {
+		log.Println("info: ------------ NumericKeypad Function ------ SKIPPED ")
+	}
+
 }
 
 func modifyXMLTagServerHopping(inputXMLFile string, outputXMLFile string, nextserverindex int) {
@@ -1885,8 +1995,8 @@ func modifyXMLTagServerHopping(inputXMLFile string, outputXMLFile string, nextse
 
 		switch v := token.(type) {
 		case xml.StartElement:
-			if v.Name.Local == "document" {
-				var document Document
+			if v.Name.Local == "Document" {
+				var document DocumentStruct
 				if v.Name.Local != "talkkonnect/xml" {
 					err = decoder.DecodeElement(&document, &v)
 					if err != nil {
@@ -1914,9 +2024,9 @@ func modifyXMLTagServerHopping(inputXMLFile string, outputXMLFile string, nextse
 		FatalCleanUp(err.Error())
 	} else {
 		time.Sleep(2 * time.Second)
-		copyFile(inputXMLFile, inputXMLFile+".bak")
-		deleteFile(inputXMLFile)
-		copyFile(outputXMLFile, inputXMLFile)
+				copyFile(inputXMLFile, inputXMLFile+".bak")
+				deleteFile(inputXMLFile)
+				copyFile(outputXMLFile, inputXMLFile)
 		c := exec.Command("reset")
 		c.Stdout = os.Stdout
 		c.Run()
@@ -1924,3 +2034,4 @@ func modifyXMLTagServerHopping(inputXMLFile string, outputXMLFile string, nextse
 	}
 
 }
+

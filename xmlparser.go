@@ -50,7 +50,7 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.65.01"
+	talkkonnectVersion  string = "1.65.02"
 	talkkonnectReleased string = "Aug 07 2021"
 )
 
@@ -68,7 +68,7 @@ var (
 	StartTime                  = time.Now()
 	BufferToOpenALCounter      = 0
 	AccountIndex          int  = 0
-	AccountDefault        int  = 0
+	GenericCounter        int  = 0
 )
 
 //account settings
@@ -866,7 +866,6 @@ func readxmlconfig(file string) error {
 	if err != nil {
 		return fmt.Errorf(filepath.Base(file) + " " + err.Error())
 	}
-
 	for _, account := range Document.Accounts.Account {
 		if account.Default {
 			Name = append(Name, account.Name)
@@ -877,15 +876,15 @@ func readxmlconfig(file string) error {
 			Certificate = append(Certificate, account.Certificate)
 			Channel = append(Channel, account.Channel)
 			Ident = append(Ident, account.Ident)
-			AccountDefault++
+			AccountCount++
 		}
-		AccountCount++
 	}
 
-	if AccountCount == 0 || AccountDefault == 0 {
-		FatalCleanUp("No Accounts/Default Accounts Found in talkkonnect.xml File! Please Add At Least 1 Account in XML")
+	if AccountCount == 0 {
+		FatalCleanUp("No Default Accounts Found in talkkonnect.xml File! Please Add At Least 1 Account in XML")
 	}
 
+	log.Print("Interest AccountCount ", AccountCount)
 	Tokens = make([][]string, AccountCount)
 	VoiceTargetsID = make([][]string, AccountCount)
 	VoiceTargetsUsers = make([][]string, AccountCount)
@@ -894,29 +893,35 @@ func readxmlconfig(file string) error {
 	VoiceTargetsChannelsLinks = make([][]string, AccountCount)
 	VoiceTargetsChannelsGroup = make([][]string, AccountCount)
 
-	for i, account := range Document.Accounts.Account {
-		for _, value := range account.Tokens.Token {
-			Tokens[i] = append(Tokens[i], value)
+	GenericCounter = 0
+	for _, account := range Document.Accounts.Account {
+		if account.Default {
+			for _, value := range account.Tokens.Token {
+				Tokens[GenericCounter] = append(Tokens[GenericCounter], value)
+			}
+			GenericCounter++
 		}
 	}
 
-	for i, account := range Document.Accounts.Account {
-		for _, value := range account.Voicetargets.ID {
-			VoiceTargetsID[i] = append(VoiceTargetsID[i], value.Value)
-			VoiceTargetsUsers[i] = append(VoiceTargetsUsers[i], value.Users.User...)
-			VoiceTargetsChannelsName[i] = append(VoiceTargetsChannelsName[i], value.Channels.Channel.Name)
-			VoiceTargetsChannelsRecursive[i] = append(VoiceTargetsChannelsRecursive[i], value.Channels.Channel.Recursive)
-			VoiceTargetsChannelsLinks[i] = append(VoiceTargetsChannelsLinks[i], value.Channels.Channel.Links)
-			VoiceTargetsChannelsGroup[i] = append(VoiceTargetsChannelsGroup[i], value.Channels.Channel.Group)
+	GenericCounter = 0
+	for _, account := range Document.Accounts.Account {
+		if account.Default {
+			for _, value := range account.Voicetargets.ID {
+				VoiceTargetsID[GenericCounter] = append(VoiceTargetsID[GenericCounter], value.Value)
+				VoiceTargetsUsers[GenericCounter] = append(VoiceTargetsUsers[GenericCounter], value.Users.User...)
+				VoiceTargetsChannelsName[GenericCounter] = append(VoiceTargetsChannelsName[GenericCounter], value.Channels.Channel.Name)
+				VoiceTargetsChannelsRecursive[GenericCounter] = append(VoiceTargetsChannelsRecursive[GenericCounter], value.Channels.Channel.Recursive)
+				VoiceTargetsChannelsLinks[GenericCounter] = append(VoiceTargetsChannelsLinks[GenericCounter], value.Channels.Channel.Links)
+				VoiceTargetsChannelsGroup[GenericCounter] = append(VoiceTargetsChannelsGroup[GenericCounter], value.Channels.Channel.Group)
+			}
+			GenericCounter++
 		}
 	}
 
 	exec, err := os.Executable()
 
 	if err != nil {
-
 		exec = "./talkkonnect" //Hardcode our default name
-
 	}
 
 	// Set our default config file path (for autoprovision)
@@ -1584,7 +1589,7 @@ func printxmlconfig() {
 		log.Println("info: Certificate          ", Certificate[AccountIndex])
 		log.Println("info: Channel              ", Channel[AccountIndex])
 		log.Println("info: Ident                ", Ident[AccountIndex])
-		log.Println("info: Tokens               ", Tokens)
+		log.Println("info: Tokens               ", Tokens[AccountIndex])
 		log.Println("info: VT-ID                ", VoiceTargetsID)
 		log.Println("info: VT-Users             ", VoiceTargetsUsers)
 		log.Println("info: VT-ChannelsName      ", VoiceTargetsChannelsName)
@@ -2024,9 +2029,9 @@ func modifyXMLTagServerHopping(inputXMLFile string, outputXMLFile string, nextse
 		FatalCleanUp(err.Error())
 	} else {
 		time.Sleep(2 * time.Second)
-				copyFile(inputXMLFile, inputXMLFile+".bak")
-				deleteFile(inputXMLFile)
-				copyFile(outputXMLFile, inputXMLFile)
+		copyFile(inputXMLFile, inputXMLFile+".bak")
+		deleteFile(inputXMLFile)
+		copyFile(outputXMLFile, inputXMLFile)
 		c := exec.Command("reset")
 		c.Stdout = os.Stdout
 		c.Run()
@@ -2034,4 +2039,3 @@ func modifyXMLTagServerHopping(inputXMLFile string, outputXMLFile string, nextse
 	}
 
 }
-

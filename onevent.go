@@ -49,6 +49,15 @@ func (b *Talkkonnect) OnConnect(e *gumble.ConnectEvent) {
 	b.Client = e.Client
 	ConnectAttempts = 1
 
+	if len(Tokens[AccountIndex]) > 0 {
+		ATokens := make(gumble.AccessTokens, len(Tokens[AccountIndex]))
+		for i, value := range Tokens[AccountIndex] {
+			ATokens[i] = value
+		}
+
+		b.Client.Send(ATokens)
+	}
+
 	log.Printf("debug: Connected to %s Address %s on attempt %d index [%d]\n ", b.Name, b.Client.Conn.RemoteAddr(), b.ConnectAttempts, AccountIndex)
 	if e.WelcomeMessage != nil {
 		var message string = fmt.Sprintf(esc(*e.WelcomeMessage))

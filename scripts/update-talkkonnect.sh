@@ -68,6 +68,7 @@ mkdir -p /home/talkkonnect/gocode
 mkdir -p /home/talkkonnect/bin
 
 ## Set up GOENVIRONMENT
+export PATH=$PATH:/usr/local/go/bin
 export GOPATH=/home/talkkonnect/gocode
 export GOBIN=/home/talkkonnect/bin
 export GO111MODULE="auto"

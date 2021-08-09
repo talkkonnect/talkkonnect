@@ -44,14 +44,15 @@ import (
 
 	goled "github.com/talkkonnect/go-oled-i2c"
 	"github.com/talkkonnect/go-openal/openal"
+	"github.com/talkkonnect/gumble/gumble"
 	"github.com/talkkonnect/gumble/gumbleffmpeg"
 	"golang.org/x/sys/unix"
 )
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.65.02"
-	talkkonnectReleased string = "Aug 07 2021"
+	talkkonnectVersion  string = "1.65.03"
+	talkkonnectReleased string = "Aug 09 2021"
 )
 
 // Generic Global Variables
@@ -82,7 +83,7 @@ var (
 	Certificate                   []string
 	Channel                       []string
 	Ident                         []string
-	Tokens                        [][]string
+	Tokens                        []gumble.AccessTokens
 	VoiceTargetsID                [][]string
 	VoiceTargetsUsers             [][]string
 	VoiceTargetsChannelsName      [][]string
@@ -876,6 +877,7 @@ func readxmlconfig(file string) error {
 			Certificate = append(Certificate, account.Certificate)
 			Channel = append(Channel, account.Channel)
 			Ident = append(Ident, account.Ident)
+			Tokens = append(Tokens, account.Tokens.Token)
 			AccountCount++
 		}
 	}
@@ -885,23 +887,12 @@ func readxmlconfig(file string) error {
 	}
 
 	log.Print("Interest AccountCount ", AccountCount)
-	Tokens = make([][]string, AccountCount)
 	VoiceTargetsID = make([][]string, AccountCount)
 	VoiceTargetsUsers = make([][]string, AccountCount)
 	VoiceTargetsChannelsName = make([][]string, AccountCount)
 	VoiceTargetsChannelsRecursive = make([][]string, AccountCount)
 	VoiceTargetsChannelsLinks = make([][]string, AccountCount)
 	VoiceTargetsChannelsGroup = make([][]string, AccountCount)
-
-	GenericCounter = 0
-	for _, account := range Document.Accounts.Account {
-		if account.Default {
-			for _, value := range account.Tokens.Token {
-				Tokens[GenericCounter] = append(Tokens[GenericCounter], value)
-			}
-			GenericCounter++
-		}
-	}
 
 	GenericCounter = 0
 	for _, account := range Document.Accounts.Account {

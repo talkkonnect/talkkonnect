@@ -49,6 +49,7 @@ func (b *Talkkonnect) OnConnect(e *gumble.ConnectEvent) {
 	b.Client = e.Client
 	ConnectAttempts = 1
 
+	//serialize tokens send one by one from slice to server
 	if len(Tokens[AccountIndex]) > 0 {
 		ATokens := make(gumble.AccessTokens, len(Tokens[AccountIndex]))
 		for i, value := range Tokens[AccountIndex] {

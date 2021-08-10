@@ -51,8 +51,8 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.65.03"
-	talkkonnectReleased string = "Aug 09 2021"
+	talkkonnectVersion  string = "1.65.04"
+	talkkonnectReleased string = "Aug 10 2021"
 )
 
 // Generic Global Variables
@@ -74,22 +74,17 @@ var (
 
 //account settings
 var (
-	Default                       []bool
-	Name                          []string
-	Server                        []string
-	Username                      []string
-	Password                      []string
-	Insecure                      []bool
-	Certificate                   []string
-	Channel                       []string
-	Ident                         []string
-	Tokens                        []gumble.AccessTokens
-	VoiceTargetsID                [][]string
-	VoiceTargetsUsers             [][]string
-	VoiceTargetsChannelsName      [][]string
-	VoiceTargetsChannelsRecursive [][]string
-	VoiceTargetsChannelsLinks     [][]string
-	VoiceTargetsChannelsGroup     [][]string
+	Default     []bool
+	Name        []string
+	Server      []string
+	Username    []string
+	Password    []string
+	Insecure    []bool
+	Certificate []string
+	Channel     []string
+	Ident       []string
+	Tokens      []gumble.AccessTokens
+	VT          []VTStruct
 )
 
 //software settings
@@ -287,25 +282,25 @@ var (
 
 var (
 	Key0Enabled  bool
-	Key0Targetid string
+	Key0Targetid uint32
 	Key1Enabled  bool
-	Key1Targetid string
+	Key1Targetid uint32
 	Key2Enabled  bool
-	Key2Targetid string
+	Key2Targetid uint32
 	Key3Enabled  bool
-	Key3Targetid string
+	Key3Targetid uint32
 	Key4Enabled  bool
-	Key4Targetid string
+	Key4Targetid uint32
 	Key5Enabled  bool
-	Key5Targetid string
+	Key5Targetid uint32
 	Key6Enabled  bool
-	Key6Targetid string
+	Key6Targetid uint32
 	Key7Enabled  bool
-	Key7Targetid string
+	Key7Targetid uint32
 	Key8Enabled  bool
-	Key8Targetid string
+	Key8Targetid uint32
 	Key9Enabled  bool
-	Key9Targetid string
+	Key9Targetid uint32
 )
 
 // target board settings
@@ -485,15 +480,15 @@ type DocumentStruct struct {
 			} `xml:"tokens"`
 			Voicetargets struct {
 				ID []struct {
-					Value string `xml:"value,attr"`
+					Value uint32 `xml:"value,attr"`
 					Users struct {
 						User []string `xml:"user"`
 					} `xml:"users"`
 					Channels struct {
-						Channel struct {
+						Channel []struct {
 							Name      string `xml:"name"`
-							Recursive string `xml:"recursive"`
-							Links     string `xml:"links"`
+							Recursive bool   `xml:"recursive"`
+							Links     bool   `xml:"links"`
 							Group     string `xml:"group"`
 						} `xml:"channel"`
 					} `xml:"channels"`
@@ -810,47 +805,64 @@ type DocumentStruct struct {
 			Numerickeypad struct {
 				Key0 struct {
 					Enabled  bool   `xml:"enabled,attr"`
-					Targetid string `xml:"targetid"`
+					Targetid uint32 `xml:"targetid"`
 				} `xml:"key0"`
 				Key1 struct {
 					Enabled  bool   `xml:"enabled,attr"`
-					Targetid string `xml:"targetid"`
+					Targetid uint32 `xml:"targetid"`
 				} `xml:"key1"`
 				Key2 struct {
 					Enabled  bool   `xml:"enabled,attr"`
-					Targetid string `xml:"targetid"`
+					Targetid uint32 `xml:"targetid"`
 				} `xml:"key2"`
 				Key3 struct {
 					Enabled  bool   `xml:"enabled,attr"`
-					Targetid string `xml:"targetid"`
+					Targetid uint32 `xml:"targetid"`
 				} `xml:"key3"`
 				Key4 struct {
 					Enabled  bool   `xml:"enabled,attr"`
-					Targetid string `xml:"targetid"`
+					Targetid uint32 `xml:"targetid"`
 				} `xml:"key4"`
 				Key5 struct {
 					Enabled  bool   `xml:"enabled,attr"`
-					Targetid string `xml:"targetid"`
+					Targetid uint32 `xml:"targetid"`
 				} `xml:"key5"`
 				Key6 struct {
 					Enabled  bool   `xml:"enabled,attr"`
-					Targetid string `xml:"targetid"`
+					Targetid uint32 `xml:"targetid"`
 				} `xml:"key6"`
 				Key7 struct {
 					Enabled  bool   `xml:"enabled,attr"`
-					Targetid string `xml:"targetid"`
+					Targetid uint32 `xml:"targetid"`
 				} `xml:"key7"`
 				Key8 struct {
 					Enabled  bool   `xml:"enabled,attr"`
-					Targetid string `xml:"targetid"`
+					Targetid uint32 `xml:"targetid"`
 				} `xml:"key8"`
 				Key9 struct {
 					Enabled  bool   `xml:"enabled,attr"`
-					Targetid string `xml:"targetid"`
+					Targetid uint32 `xml:"targetid"`
 				} `xml:"key9"`
 			} `xml:"numerickeypad"`
 		} `xml:"hardware"`
 	} `xml:"global"`
+}
+
+type VTStruct struct {
+	ID []struct {
+		Value uint32
+		Users struct {
+			User []string
+		}
+		Channels struct {
+			Channel []struct {
+				Name      string
+				Recursive bool
+				Links     bool
+				Group     string
+			}
+		}
+	}
 }
 
 func readxmlconfig(file string) error {
@@ -878,6 +890,7 @@ func readxmlconfig(file string) error {
 			Channel = append(Channel, account.Channel)
 			Ident = append(Ident, account.Ident)
 			Tokens = append(Tokens, account.Tokens.Token)
+			VT = append(VT, VTStruct(account.Voicetargets))
 			AccountCount++
 		}
 	}
@@ -886,28 +899,7 @@ func readxmlconfig(file string) error {
 		FatalCleanUp("No Default Accounts Found in talkkonnect.xml File! Please Add At Least 1 Account in XML")
 	}
 
-	log.Print("Interest AccountCount ", AccountCount)
-	VoiceTargetsID = make([][]string, AccountCount)
-	VoiceTargetsUsers = make([][]string, AccountCount)
-	VoiceTargetsChannelsName = make([][]string, AccountCount)
-	VoiceTargetsChannelsRecursive = make([][]string, AccountCount)
-	VoiceTargetsChannelsLinks = make([][]string, AccountCount)
-	VoiceTargetsChannelsGroup = make([][]string, AccountCount)
-
-	GenericCounter = 0
-	for _, account := range Document.Accounts.Account {
-		if account.Default {
-			for _, value := range account.Voicetargets.ID {
-				VoiceTargetsID[GenericCounter] = append(VoiceTargetsID[GenericCounter], value.Value)
-				VoiceTargetsUsers[GenericCounter] = append(VoiceTargetsUsers[GenericCounter], value.Users.User...)
-				VoiceTargetsChannelsName[GenericCounter] = append(VoiceTargetsChannelsName[GenericCounter], value.Channels.Channel.Name)
-				VoiceTargetsChannelsRecursive[GenericCounter] = append(VoiceTargetsChannelsRecursive[GenericCounter], value.Channels.Channel.Recursive)
-				VoiceTargetsChannelsLinks[GenericCounter] = append(VoiceTargetsChannelsLinks[GenericCounter], value.Channels.Channel.Links)
-				VoiceTargetsChannelsGroup[GenericCounter] = append(VoiceTargetsChannelsGroup[GenericCounter], value.Channels.Channel.Group)
-			}
-			GenericCounter++
-		}
-	}
+	// insert the voice target back here
 
 	exec, err := os.Executable()
 
@@ -1581,12 +1573,7 @@ func printxmlconfig() {
 		log.Println("info: Channel              ", Channel[AccountIndex])
 		log.Println("info: Ident                ", Ident[AccountIndex])
 		log.Println("info: Tokens               ", Tokens[AccountIndex])
-		log.Println("info: VT-ID                ", VoiceTargetsID)
-		log.Println("info: VT-Users             ", VoiceTargetsUsers)
-		log.Println("info: VT-ChannelsName      ", VoiceTargetsChannelsName)
-		log.Println("info: VT-ChannelsRecursive ", VoiceTargetsChannelsRecursive)
-		log.Println("info: VT-ChannelsLinks     ", VoiceTargetsChannelsLinks)
-		log.Println("info: VT-ChannelsGroups    ", VoiceTargetsChannelsGroup)
+		log.Println("info: VoiceTargets         ", VT[AccountIndex])
 
 	} else {
 		log.Println("info: ---------- Account Information -------- SKIPPED ")

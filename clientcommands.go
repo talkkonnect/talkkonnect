@@ -690,3 +690,57 @@ func (b *Talkkonnect) repeatTx() {
 		}
 	}
 }
+
+func (b *Talkkonnect) cmdSendVoiceTargets(targetID uint32) {
+
+	GenericCounter = 0
+	for _, account := range Document.Accounts.Account {
+		if account.Default {
+			for _, vtvalue := range account.Voicetargets.ID {
+
+				if GenericCounter == AccountIndex {
+
+					if vtvalue.Value == targetID {
+						log.Println("debug: Account Index ", GenericCounter, vtvalue)
+						log.Printf("debug: User Requested VT-ID %v\n", vtvalue.Value)
+
+						for _, vtuser := range vtvalue.Users.User {
+							b.VoiceTargetUserSet(vtvalue.Value, vtuser)
+						}
+
+						for _, vtchannel := range vtvalue.Channels.Channel {
+							b.VoiceTargetChannelSet(vtvalue.Value, vtchannel.Name, vtchannel.Recursive, vtchannel.Links, vtchannel.Group)
+						}
+					}
+				}
+			}
+			GenericCounter++
+		}
+	}
+}
+
+func (b *Talkkonnect) VoiceTargetUserSet(targetID uint32, targetUser string) {
+	vtUser := b.Client.Users.Find(targetUser)
+	if (vtUser != nil) && (targetID <= 31) {
+		vtarget := &gumble.VoiceTarget{}
+		vtarget.ID = targetID
+		vtarget.AddUser(vtUser)
+		b.Client.VoiceTarget = vtarget
+		b.Client.Send(vtarget)
+		log.Printf("debug: Added User %v to VT ID %v\n", targetUser, targetID)
+	}
+}
+
+func (b *Talkkonnect) VoiceTargetChannelSet(targetID uint32, targetChannel string, recursive bool, links bool, group string) {
+	vtChannel := b.Client.Self.Channel
+	if vtChannel != nil {
+		vtarget := &gumble.VoiceTarget{}
+		vtarget.ID = targetID
+		vtarget.AddChannel(vtChannel, recursive, links, group)
+		b.Client.VoiceTarget = vtarget
+		b.Client.Send(vtarget)
+		log.Printf("debug: Shouting to Channel %v to VT ID %v with recursive %v links %v group %v\n", vtChannel.Name, targetID, recursive, links, group)
+	} else {
+		log.Printf("error: Target Channel %v Not Found\n", targetChannel)
+	}
+}

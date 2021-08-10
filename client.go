@@ -529,25 +529,45 @@ keyPressListenerLoop:
 			default:
 				switch ev.Ch {
 				case 48:
-					log.Println("Reserved Key 0")
+					if Document.Global.Hardware.Numerickeypad.Key0.Enabled {
+						b.cmdSendVoiceTargets(Document.Global.Hardware.Numerickeypad.Key0.Targetid)
+					}
 				case 49:
-					log.Println("Reserved Key 1")
+					if Document.Global.Hardware.Numerickeypad.Key0.Enabled {
+						b.cmdSendVoiceTargets(Document.Global.Hardware.Numerickeypad.Key1.Targetid)
+					}
 				case 50:
-					log.Println("Reserved Key 2")
+					if Document.Global.Hardware.Numerickeypad.Key0.Enabled {
+						b.cmdSendVoiceTargets(Document.Global.Hardware.Numerickeypad.Key2.Targetid)
+					}
 				case 51:
-					log.Println("Reserved Key 3")
+					if Document.Global.Hardware.Numerickeypad.Key0.Enabled {
+						b.cmdSendVoiceTargets(Document.Global.Hardware.Numerickeypad.Key3.Targetid)
+					}
 				case 52:
-					log.Println("Reserved Key 4")
+					if Document.Global.Hardware.Numerickeypad.Key0.Enabled {
+						b.cmdSendVoiceTargets(Document.Global.Hardware.Numerickeypad.Key4.Targetid)
+					}
 				case 53:
-					log.Println("Reserved Key 5")
+					if Document.Global.Hardware.Numerickeypad.Key0.Enabled {
+						b.cmdSendVoiceTargets(Document.Global.Hardware.Numerickeypad.Key5.Targetid)
+					}
 				case 54:
-					log.Println("Reserved Key 6")
+					if Document.Global.Hardware.Numerickeypad.Key0.Enabled {
+						b.cmdSendVoiceTargets(Document.Global.Hardware.Numerickeypad.Key6.Targetid)
+					}
 				case 55:
-					log.Println("Reserved Key 7")
+					if Document.Global.Hardware.Numerickeypad.Key0.Enabled {
+						b.cmdSendVoiceTargets(Document.Global.Hardware.Numerickeypad.Key7.Targetid)
+					}
 				case 56:
-					log.Println("Reserved Key 8")
+					if Document.Global.Hardware.Numerickeypad.Key0.Enabled {
+						b.cmdSendVoiceTargets(Document.Global.Hardware.Numerickeypad.Key8.Targetid)
+					}
 				case 57:
-					log.Println("Reserved Key 9")
+					if Document.Global.Hardware.Numerickeypad.Key0.Enabled {
+						b.cmdSendVoiceTargets(Document.Global.Hardware.Numerickeypad.Key9.Targetid)
+					}
 				}
 				if ev.Ch < 48 || ev.Ch > 57 {
 					log.Println("error: Invalid Keypress ASCII ", ev.Ch, "Press <DEL> for Menu")

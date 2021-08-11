@@ -728,7 +728,10 @@ func (b *Talkkonnect) VoiceTargetUserSet(targetID uint32, targetUser string) {
 		b.Client.VoiceTarget = vtarget
 		b.Client.Send(vtarget)
 		log.Printf("debug: Added User %v to VT ID %v\n", targetUser, targetID)
+	} else {
+		log.Printf("error: Cannot Add User %v to VT ID %v\n", targetUser, targetID)
 	}
+
 }
 
 func (b *Talkkonnect) VoiceTargetChannelSet(targetID uint32, targetChannel string, recursive bool, links bool, group string) {

@@ -735,15 +735,18 @@ func (b *Talkkonnect) VoiceTargetUserSet(targetID uint32, targetUser string) {
 }
 
 func (b *Talkkonnect) VoiceTargetChannelSet(targetID uint32, targetChannel string, recursive bool, links bool, group string) {
-	vtChannel := b.Client.Self.Channel
-	if vtChannel != nil {
-		vtarget := &gumble.VoiceTarget{}
-		vtarget.ID = targetID
-		vtarget.AddChannel(vtChannel, recursive, links, group)
+	vtarget := &gumble.VoiceTarget{}
+	vtarget.ID = targetID
+	vChannel := b.Client.Channels.Find(targetChannel)
+	if vChannel == nil {
+		vtarget.AddChannel(vChannel, recursive, links, group)
 		b.Client.VoiceTarget = vtarget
 		b.Client.Send(vtarget)
-		log.Printf("debug: Shouting to Channel %v to VT ID %v with recursive %v links %v group %v\n", vtChannel.Name, targetID, recursive, links, group)
+		log.Printf("debug: Shouting to Channel %v to VT ID %v with recursive %v links %v group %v\n", vChannel.Name, targetID, recursive, links, group)
 	} else {
-		log.Printf("error: Target Channel %v Not Found\n", targetChannel)
+		vtarget.AddChannel(b.Client.Self.Channel, recursive, links, group)
+		b.Client.VoiceTarget = vtarget
+		b.Client.Send(vtarget)
+		log.Printf("debug: Shouting to Channel %v to VT ID %v with recursive %v links %v group %v\n", b.Client.Self.Channel.Name, targetID, recursive, links, group)
 	}
 }

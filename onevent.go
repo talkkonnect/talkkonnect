@@ -315,7 +315,7 @@ func (b *Talkkonnect) OnPermissionDenied(e *gumble.PermissionDeniedEvent) {
 
 	LcdText[2] = info
 
-	log.Printf("error: Permission denied %v for Channel ", info,e.Channel.Name)
+	log.Printf("error: Permission denied %v to Join Channel %v\n", info,e.Channel.Name)
 }
 
 func (b *Talkkonnect) OnChannelChange(e *gumble.ChannelChangeEvent) {

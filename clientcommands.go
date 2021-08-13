@@ -39,7 +39,6 @@ import (
 
 	"github.com/talkkonnect/gumble/gumble"
 	"github.com/talkkonnect/gumble/gumbleffmpeg"
-	htgotts "github.com/talkkonnect/htgo-tts"
 	term "github.com/talkkonnect/termbox-go"
 	"github.com/talkkonnect/volume-go"
 )
@@ -279,8 +278,7 @@ func (b *Talkkonnect) ParticipantLEDUpdate(verbose bool) {
 	if participantCount > 1 && participantCount != prevParticipantCount {
 
 		if TTSEnabled && TTSParticipants {
-			speech := htgotts.Speech{Folder: "audio", Language: "en"}
-			speech.Speak("There Are Currently " + strconv.Itoa(participantCount) + " Users in The Channel " + b.Client.Self.Channel.Name)
+			Speak("There Are Currently " + strconv.Itoa(participantCount) + " Users in The Channel " + b.Client.Self.Channel.Name,"local")
 		}
 
 		prevParticipantCount = participantCount
@@ -320,8 +318,7 @@ func (b *Talkkonnect) ParticipantLEDUpdate(verbose bool) {
 
 		if verbose {
 			if TTSEnabled && TTSParticipants {
-				speech := htgotts.Speech{Folder: "audio", Language: "en"}
-				speech.Speak("You are Currently Alone in The Channel " + b.Client.Self.Channel.Name)
+				Speak("You are Currently Alone in The Channel " + b.Client.Self.Channel.Name,"local")
 			}
 			log.Println("info: Channel ", b.Client.Self.Channel.Name, " has no other participants")
 

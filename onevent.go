@@ -36,7 +36,6 @@ import (
 	"strings"
 
 	"github.com/talkkonnect/gumble/gumble"
-	htgotts "github.com/talkkonnect/htgo-tts"
 )
 
 func (b *Talkkonnect) OnConnect(e *gumble.ConnectEvent) {
@@ -235,8 +234,7 @@ func (b *Talkkonnect) OnUserChange(e *gumble.UserChangeEvent) {
 			if info != "" {
 				log.Println("info: User ", cleanstring(e.User.Name), " ", info, "Event type=", e.Type, " channel=", e.User.Channel.Name)
 				if TTSEnabled && TTSParticipants {
-					speech := htgotts.Speech{Folder: "audio", Language: "en"}
-					speech.Speak("User ")
+					Speak("User ","local")
 				}
 			}
 

@@ -739,11 +739,11 @@ func (b *Talkkonnect) VoiceTargetChannelSet(targetID uint32, targetChannel strin
 		vtarget.AddChannel(vChannel, recursive, links, group)
 		b.Client.VoiceTarget = vtarget
 		b.Client.Send(vtarget)
-		log.Printf("debug: Shouting to Channel %v to VT ID %v with recursive %v links %v group %v\n", vChannel.Name, targetID, recursive, links, group)
+		log.Printf("debug: Shouting to Root Channel %v to VT ID %v with recursive %v links %v group %v\n", vChannel.Name, targetID, recursive, links, group)
 	} else {
-		vtarget.AddChannel(b.Client.Self.Channel, recursive, links, group)
+		vtarget.AddChannel(vChannel, recursive, links, group)
 		b.Client.VoiceTarget = vtarget
 		b.Client.Send(vtarget)
-		log.Printf("debug: Shouting to Channel %v to VT ID %v with recursive %v links %v group %v\n", b.Client.Self.Channel.Name, targetID, recursive, links, group)
+		log.Printf("debug: Shouting to Child Channel %v to VT ID %v with recursive %v links %v group %v\n", vChannel.Name, targetID, recursive, links, group)
 	}
 }

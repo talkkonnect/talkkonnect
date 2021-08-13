@@ -234,7 +234,7 @@ func (b *Talkkonnect) OnUserChange(e *gumble.UserChangeEvent) {
 			if info != "" {
 				log.Println("info: User ", cleanstring(e.User.Name), " ", info, "Event type=", e.Type, " channel=", e.User.Channel.Name)
 				if TTSEnabled && TTSParticipants {
-					Speak("User ","local")
+					Speak("User "+cleanstring(e.User.Name)+info+"Has Changed to "+e.User.Channel.Name,"local")
 				}
 			}
 

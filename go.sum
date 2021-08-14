@@ -6,7 +6,6 @@ github.com/eclipse/paho.mqtt.golang v1.3.5 h1:sWtmgNxYM9P2sP+xEItMozsR3w0cqZFlqn
 github.com/eclipse/paho.mqtt.golang v1.3.5/go.mod h1:eTzb4gxwwyWpqBUHGQZ4ABAV7+Jgm1PklsYT/eo8Hcc=
 github.com/glendc/go-external-ip v0.0.0-20200601212049-c872357d968e h1:gLpAlmoGqnW3a3GCkOe+Ic8hZoSCfi0PdA0B8j7d6uw=
 github.com/glendc/go-external-ip v0.0.0-20200601212049-c872357d968e/go.mod h1:o9OoDQyE1WHvYVUH1FdFapy1/rCZHHq3O5wS4VA83ig=
-github.com/go-ole/go-ole v1.2.4 h1:nNBDSCOigTSiarFpYE9J/KtEA1IOW4CNeqT9TQDqCxI=
 github.com/go-ole/go-ole v1.2.4/go.mod h1:XCwSNxSkXRo4vlyPy93sltvi/qJq0jqQhjqQNIwKuxM=
 github.com/go-ole/go-ole v1.2.5 h1:t4MGB5xEDZvXI+0rMjjsfBsD7yAgp/s9ZDkL1JndXwY=
 github.com/go-ole/go-ole v1.2.5/go.mod h1:pprOEPIfldk/42T2oK7lQ4v4JSDwmV0As9GaiUsvbm0=
@@ -56,8 +55,6 @@ github.com/talkkonnect/gpio v0.0.0-20181225144829-9b8a2de8e6fe h1:ac77K8YD3YD8Mn
 github.com/talkkonnect/gpio v0.0.0-20181225144829-9b8a2de8e6fe/go.mod h1:SpblZEdL1bFf8DR4xGDPN7G1XvXCQj/eDYtYuG+Xmd0=
 github.com/talkkonnect/gumble v0.0.0-20210525051103-0ece99f819cc h1:owE0vkre6CUFE31HBp2j14SNjIb5BU91RX9XKOEb6JQ=
 github.com/talkkonnect/gumble v0.0.0-20210525051103-0ece99f819cc/go.mod h1:noOPjJie+0MkL38lno8zFRbzL/zVN8oRETIRXzo19NI=
-github.com/talkkonnect/htgo-tts v0.0.0-20200613102004-335b75a33bca h1:fsFruHFqhgAAl1fqSZ5V+rI9bn4GCUX39dsbuplD5SI=
-github.com/talkkonnect/htgo-tts v0.0.0-20200613102004-335b75a33bca/go.mod h1:hX/yeAzX1N+TsrkPtR7wYGQFzYQF0ypZkyIgG9JIGI0=
 github.com/talkkonnect/termbox-go v0.0.0-20181013101158-0ee46dd7ddac h1:bD5cKn2ng8K7RFKrKSrI5g5gaLgKxdK6xhRSH5309hc=
 github.com/talkkonnect/termbox-go v0.0.0-20181013101158-0ee46dd7ddac/go.mod h1:5AtlTmjScae7BcatAlDngj6A2YvKEArvjNy4DcZWdvA=
 github.com/talkkonnect/volume-go v0.0.0-20210720063739-bb23887b7601 h1:mB8XFaHrc9FzRt+DWPPs7HKxsliTTFQW7kF45qh6bxY=

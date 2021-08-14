@@ -23,7 +23,6 @@ require (
 	github.com/talkkonnect/gopus v0.0.0-20200617161709-292e80cbfafd // indirect
 	github.com/talkkonnect/gpio v0.0.0-20181225144829-9b8a2de8e6fe
 	github.com/talkkonnect/gumble v0.0.0-20210525051103-0ece99f819cc
-	github.com/talkkonnect/htgo-tts v0.0.0-20200613102004-335b75a33bca
 	github.com/talkkonnect/termbox-go v0.0.0-20181013101158-0ee46dd7ddac
 	github.com/talkkonnect/volume-go v0.0.0-20210720063739-bb23887b7601
 	github.com/xackery/gomail v0.0.0-20150929200936-cc84600edc17

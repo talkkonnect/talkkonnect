@@ -278,7 +278,7 @@ func (b *Talkkonnect) ParticipantLEDUpdate(verbose bool) {
 	if participantCount > 1 && participantCount != prevParticipantCount {
 
 		if TTSEnabled && TTSParticipants {
-			Speak("There Are Currently " + strconv.Itoa(participantCount) + " Users in The Channel " + b.Client.Self.Channel.Name,"local")
+			Speak("There Are Currently "+strconv.Itoa(participantCount)+" Users in The Channel "+b.Client.Self.Channel.Name, "local")
 		}
 
 		prevParticipantCount = participantCount
@@ -318,7 +318,7 @@ func (b *Talkkonnect) ParticipantLEDUpdate(verbose bool) {
 
 		if verbose {
 			if TTSEnabled && TTSParticipants {
-				Speak("You are Currently Alone in The Channel " + b.Client.Self.Channel.Name,"local")
+				Speak("You are Currently Alone in The Channel "+b.Client.Self.Channel.Name, "local")
 			}
 			log.Println("info: Channel ", b.Client.Self.Channel.Name, " has no other participants")
 
@@ -717,6 +717,10 @@ func (b *Talkkonnect) cmdSendVoiceTargets(targetID uint32) {
 }
 
 func (b *Talkkonnect) VoiceTargetUserSet(targetID uint32, targetUser string) {
+	if len(targetUser) == 0 {
+		return
+	}
+
 	vtUser := b.Client.Users.Find(targetUser)
 	if (vtUser != nil) && (targetID <= 31) {
 		vtarget := &gumble.VoiceTarget{}
@@ -731,19 +735,41 @@ func (b *Talkkonnect) VoiceTargetUserSet(targetID uint32, targetUser string) {
 
 }
 
-func (b *Talkkonnect) VoiceTargetChannelSet(targetID uint32, targetChannel string, recursive bool, links bool, group string) {
+func (b *Talkkonnect) VoiceTargetChannelSet(targetID uint32, targetChannelName string, recursive bool, links bool, group string) {
+	if len(targetChannelName) == 0 {
+		return
+	}
+
 	vtarget := &gumble.VoiceTarget{}
 	vtarget.ID = targetID
-	vChannel := b.Client.Channels.Find(targetChannel)
-	if vChannel == nil {
+	vChannel := b.Client.Channels.Find(targetChannelName)
+
+	//find root channel name workarround
+	var RootChannelName string
+	var RootChannel *gumble.Channel
+	for _, v := range b.Client.Channels {
+		if v.ID == 0 {
+			RootChannelName = v.Name
+			RootChannel = v
+		}
+	}
+
+	if targetChannelName == RootChannelName {
+		vChannel = RootChannel
 		vtarget.AddChannel(vChannel, recursive, links, group)
 		b.Client.VoiceTarget = vtarget
 		b.Client.Send(vtarget)
 		log.Printf("debug: Shouting to Root Channel %v to VT ID %v with recursive %v links %v group %v\n", vChannel.Name, targetID, recursive, links, group)
-	} else {
-		vtarget.AddChannel(vChannel, recursive, links, group)
-		b.Client.VoiceTarget = vtarget
-		b.Client.Send(vtarget)
-		log.Printf("debug: Shouting to Child Channel %v to VT ID %v with recursive %v links %v group %v\n", vChannel.Name, targetID, recursive, links, group)
+		return
 	}
+
+	if vChannel == nil {
+		log.Printf("error: Child Channel %v Not Found!\n", targetChannelName)
+		return
+	}
+
+	vtarget.AddChannel(vChannel, recursive, links, group)
+	b.Client.VoiceTarget = vtarget
+	b.Client.Send(vtarget)
+	log.Printf("debug: Shouting to Child Channel %v to VT ID %v with recursive %v links %v group %v\n", vChannel.Name, targetID, recursive, links, group)
 }

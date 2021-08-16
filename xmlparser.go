@@ -51,8 +51,8 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.65.09"
-	talkkonnectReleased string = "Aug 14 2021"
+	talkkonnectVersion  string = "1.66.01"
+	talkkonnectReleased string = "Aug 16 2021"
 )
 
 // Generic Global Variables
@@ -684,6 +684,29 @@ type DocumentStruct struct {
 				MQTTAction    string `xml:"action"`
 				MQTTStore     string `xml:"store"`
 			} `xml:"mqtt"`
+			KeyboardCommands struct {
+				Command []struct {
+					Value   string `xml:"value,attr"`
+					Enabled string `xml:"enabled,attr"`
+					Params  struct {
+						Param []struct {
+							Text  string `xml:",chardata"`
+							Name  string `xml:"name,attr"`
+							Value string `xml:"value,attr"`
+						} `xml:"param"`
+					} `xml:"params"`
+					Ttykeyboard struct {
+						Scanid   string `xml:"scanid,attr"`
+						Enabled  string `xml:"enabled,attr"`
+						Keylabel string `xml:"keylabel"`
+					} `xml:"ttykeyboard"`
+					Usbkeyboard struct {
+						Scanid   string `xml:"scanid,attr"`
+						Enabled  string `xml:"enabled,attr"`
+						Keylabel string `xml:"keylabel"`
+					} `xml:"usbkeyboard"`
+				} `xml:"command"`
+			}
 		} `xml:"software"`
 		Hardware struct {
 			TargetBoard string `xml:"targetboard,attr"`

@@ -39,6 +39,7 @@ import (
 	"os"
 	"os/signal"
 	"strconv"
+	"strings"
 	"syscall"
 	"time"
 
@@ -527,50 +528,43 @@ keyPressListenerLoop:
 			case term.KeyCtrlX:
 				b.cmdDumpXMLConfig()
 			default:
-				switch ev.Ch {
-				case 48:
-					if Document.Global.Hardware.Numerickeypad.Key0.Enabled {
-						b.cmdSendVoiceTargets(Document.Global.Hardware.Numerickeypad.Key0.Targetid)
+				if _, ok := TTYKeyMap[ev.Ch]; ok {
+					switch strings.ToLower(TTYKeyMap[ev.Ch].Command) {
+					case "channelup":
+						b.cmdChannelUp()
+					case "channeldown":
+						b.cmdChannelDown()
+					case "serverup":
+						b.cmdConnNextServer()
+					case "serverdown":
+						b.cmdConnPreviousServer()
+					case "mute":
+						b.cmdMuteUnmute("mute")
+					case "unmute":
+						b.cmdMuteUnmute("unmute")
+					case "mute-toggle":
+						b.cmdMuteUnmute("toggle")
+					case "stream-toggle":
+						b.cmdPlayback()
+					case "volumeup":
+						b.cmdVolumeUp()
+					case "volumedown":
+						b.cmdVolumeDown()
+					case "setcomment":
+						CommentMessageOff = TTYKeyMap[ev.Ch].ParamName
+						CommentMessageOn = TTYKeyMap[ev.Ch].ParamName
+					case "transmitstart":
+						b.cmdStartTransmitting()
+					case "transmitstop":
+						b.cmdStopTransmitting()
+					case "record":
+						b.cmdAudioTrafficRecord()
+						b.cmdAudioMicRecord()
+					case "voicetargetset":
+						b.cmdSendVoiceTargets(TTYKeyMap[ev.Ch].ParamValue)
+					default:
+						log.Println("Key Not Defined")
 					}
-				case 49:
-					if Document.Global.Hardware.Numerickeypad.Key0.Enabled {
-						b.cmdSendVoiceTargets(Document.Global.Hardware.Numerickeypad.Key1.Targetid)
-					}
-				case 50:
-					if Document.Global.Hardware.Numerickeypad.Key0.Enabled {
-						b.cmdSendVoiceTargets(Document.Global.Hardware.Numerickeypad.Key2.Targetid)
-					}
-				case 51:
-					if Document.Global.Hardware.Numerickeypad.Key0.Enabled {
-						b.cmdSendVoiceTargets(Document.Global.Hardware.Numerickeypad.Key3.Targetid)
-					}
-				case 52:
-					if Document.Global.Hardware.Numerickeypad.Key0.Enabled {
-						b.cmdSendVoiceTargets(Document.Global.Hardware.Numerickeypad.Key4.Targetid)
-					}
-				case 53:
-					if Document.Global.Hardware.Numerickeypad.Key0.Enabled {
-						b.cmdSendVoiceTargets(Document.Global.Hardware.Numerickeypad.Key5.Targetid)
-					}
-				case 54:
-					if Document.Global.Hardware.Numerickeypad.Key0.Enabled {
-						b.cmdSendVoiceTargets(Document.Global.Hardware.Numerickeypad.Key6.Targetid)
-					}
-				case 55:
-					if Document.Global.Hardware.Numerickeypad.Key0.Enabled {
-						b.cmdSendVoiceTargets(Document.Global.Hardware.Numerickeypad.Key7.Targetid)
-					}
-				case 56:
-					if Document.Global.Hardware.Numerickeypad.Key0.Enabled {
-						b.cmdSendVoiceTargets(Document.Global.Hardware.Numerickeypad.Key8.Targetid)
-					}
-				case 57:
-					if Document.Global.Hardware.Numerickeypad.Key0.Enabled {
-						b.cmdSendVoiceTargets(Document.Global.Hardware.Numerickeypad.Key9.Targetid)
-					}
-				}
-				if ev.Ch < 48 || ev.Ch > 57 {
-					log.Println("error: Invalid Keypress ASCII ", ev.Ch, "Press <DEL> for Menu")
 				}
 			}
 		case term.EventError:

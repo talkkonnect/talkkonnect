@@ -41,6 +41,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode"
 
 	goled "github.com/talkkonnect/go-oled-i2c"
 	"github.com/talkkonnect/go-openal/openal"
@@ -51,8 +52,8 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.66.01"
-	talkkonnectReleased string = "Aug 16 2021"
+	talkkonnectVersion  string = "1.67.01"
+	talkkonnectReleased string = "Aug 17 2021"
 )
 
 // Generic Global Variables
@@ -460,6 +461,7 @@ var (
 )
 
 var Document DocumentStruct
+var TTYKeyMap = make(map[rune]TTYKBStruct)
 
 type DocumentStruct struct {
 	XMLName  xml.Name `xml:"document"`
@@ -684,29 +686,6 @@ type DocumentStruct struct {
 				MQTTAction    string `xml:"action"`
 				MQTTStore     string `xml:"store"`
 			} `xml:"mqtt"`
-			KeyboardCommands struct {
-				Command []struct {
-					Value   string `xml:"value,attr"`
-					Enabled string `xml:"enabled,attr"`
-					Params  struct {
-						Param []struct {
-							Text  string `xml:",chardata"`
-							Name  string `xml:"name,attr"`
-							Value string `xml:"value,attr"`
-						} `xml:"param"`
-					} `xml:"params"`
-					Ttykeyboard struct {
-						Scanid   string `xml:"scanid,attr"`
-						Enabled  string `xml:"enabled,attr"`
-						Keylabel string `xml:"keylabel"`
-					} `xml:"ttykeyboard"`
-					Usbkeyboard struct {
-						Scanid   string `xml:"scanid,attr"`
-						Enabled  string `xml:"enabled,attr"`
-						Keylabel string `xml:"keylabel"`
-					} `xml:"usbkeyboard"`
-				} `xml:"command"`
-			}
 		} `xml:"software"`
 		Hardware struct {
 			TargetBoard string `xml:"targetboard,attr"`
@@ -825,48 +804,28 @@ type DocumentStruct struct {
 				RecordFileFormat  string `xml:"recordfileformat"`
 				RecordChunkSize   string `xml:"recordchunksize"`
 			} `xml:"audiorecordfunction"`
-			Numerickeypad struct {
-				Key0 struct {
-					Enabled  bool   `xml:"enabled,attr"`
-					Targetid uint32 `xml:"targetid"`
-				} `xml:"key0"`
-				Key1 struct {
-					Enabled  bool   `xml:"enabled,attr"`
-					Targetid uint32 `xml:"targetid"`
-				} `xml:"key1"`
-				Key2 struct {
-					Enabled  bool   `xml:"enabled,attr"`
-					Targetid uint32 `xml:"targetid"`
-				} `xml:"key2"`
-				Key3 struct {
-					Enabled  bool   `xml:"enabled,attr"`
-					Targetid uint32 `xml:"targetid"`
-				} `xml:"key3"`
-				Key4 struct {
-					Enabled  bool   `xml:"enabled,attr"`
-					Targetid uint32 `xml:"targetid"`
-				} `xml:"key4"`
-				Key5 struct {
-					Enabled  bool   `xml:"enabled,attr"`
-					Targetid uint32 `xml:"targetid"`
-				} `xml:"key5"`
-				Key6 struct {
-					Enabled  bool   `xml:"enabled,attr"`
-					Targetid uint32 `xml:"targetid"`
-				} `xml:"key6"`
-				Key7 struct {
-					Enabled  bool   `xml:"enabled,attr"`
-					Targetid uint32 `xml:"targetid"`
-				} `xml:"key7"`
-				Key8 struct {
-					Enabled  bool   `xml:"enabled,attr"`
-					Targetid uint32 `xml:"targetid"`
-				} `xml:"key8"`
-				Key9 struct {
-					Enabled  bool   `xml:"enabled,attr"`
-					Targetid uint32 `xml:"targetid"`
-				} `xml:"key9"`
-			} `xml:"numerickeypad"`
+			KeyboardCommands struct {
+				Command []struct {
+					Name    string `xml:"name,attr"`
+					Enabled bool   `xml:"enabled,attr"`
+					Params  struct {
+						Param []struct {
+							Name  string `xml:"name,attr"`
+							Value uint32 `xml:"value,attr"`
+						} `xml:"param"`
+					} `xml:"params"`
+					Ttykeyboard struct {
+						Scanid   rune   `xml:"scanid,attr"`
+						Enabled  bool   `xml:"enabled,attr"`
+						Keylabel uint32 `xml:"keylabel"`
+					} `xml:"ttykeyboard"`
+					Usbkeyboard struct {
+						Scanid   rune `xml:"scanid,attr"`
+						Enabled  bool `xml:"enabled,attr"`
+						Keylabel int  `xml:"keylabel"`
+					} `xml:"usbkeyboard"`
+				} `xml:"command"`
+			} `xml:"keyboardcommands"`
 		} `xml:"hardware"`
 	} `xml:"global"`
 }
@@ -886,6 +845,14 @@ type VTStruct struct {
 			}
 		}
 	}
+}
+
+type TTYKBStruct struct {
+	Enabled    bool
+	KeyLabel   uint32
+	Command    string
+	ParamName  string
+	ParamValue uint32
 }
 
 func readxmlconfig(file string) error {
@@ -920,6 +887,17 @@ func readxmlconfig(file string) error {
 
 	if AccountCount == 0 {
 		FatalCleanUp("No Default Accounts Found in talkkonnect.xml File! Please Add At Least 1 Account in XML")
+	}
+
+	for _, KMainCommands := range Document.Global.Hardware.KeyboardCommands.Command {
+		if KMainCommands.Enabled {
+			for _, KSubCommands := range KMainCommands.Params.Param {
+				if KMainCommands.Ttykeyboard.Enabled && unicode.IsDigit(KMainCommands.Ttykeyboard.Scanid) {
+					log.Printf("Enabled %v KeyLabel %v ScanID %v Command %v ParamName %v, ParamValue %v", KMainCommands.Ttykeyboard.Enabled, KMainCommands.Ttykeyboard.Keylabel, KMainCommands.Ttykeyboard.Scanid, KMainCommands.Name, KSubCommands.Name, KSubCommands.Value)
+					TTYKeyMap[KMainCommands.Ttykeyboard.Scanid] = TTYKBStruct{KMainCommands.Ttykeyboard.Enabled, KMainCommands.Ttykeyboard.Keylabel, KMainCommands.Name, KSubCommands.Name, KSubCommands.Value}
+				}
+			}
+		}
 	}
 
 	// insert the voice target back here
@@ -1539,27 +1517,6 @@ func readxmlconfig(file string) error {
 	AudioRecordFileFormat = Document.Global.Hardware.AudioRecordFunction.RecordFileFormat
 	AudioRecordChunkSize = Document.Global.Hardware.AudioRecordFunction.RecordChunkSize
 
-	Key0Enabled = Document.Global.Hardware.Numerickeypad.Key0.Enabled
-	Key0Targetid = Document.Global.Hardware.Numerickeypad.Key0.Targetid
-	Key1Enabled = Document.Global.Hardware.Numerickeypad.Key1.Enabled
-	Key1Targetid = Document.Global.Hardware.Numerickeypad.Key1.Targetid
-	Key2Enabled = Document.Global.Hardware.Numerickeypad.Key2.Enabled
-	Key2Targetid = Document.Global.Hardware.Numerickeypad.Key2.Targetid
-	Key3Enabled = Document.Global.Hardware.Numerickeypad.Key3.Enabled
-	Key3Targetid = Document.Global.Hardware.Numerickeypad.Key3.Targetid
-	Key4Enabled = Document.Global.Hardware.Numerickeypad.Key4.Enabled
-	Key4Targetid = Document.Global.Hardware.Numerickeypad.Key4.Targetid
-	Key5Enabled = Document.Global.Hardware.Numerickeypad.Key5.Enabled
-	Key5Targetid = Document.Global.Hardware.Numerickeypad.Key5.Targetid
-	Key6Enabled = Document.Global.Hardware.Numerickeypad.Key6.Enabled
-	Key6Targetid = Document.Global.Hardware.Numerickeypad.Key6.Targetid
-	Key7Enabled = Document.Global.Hardware.Numerickeypad.Key7.Enabled
-	Key7Targetid = Document.Global.Hardware.Numerickeypad.Key7.Targetid
-	Key8Enabled = Document.Global.Hardware.Numerickeypad.Key8.Enabled
-	Key8Targetid = Document.Global.Hardware.Numerickeypad.Key8.Targetid
-	Key9Enabled = Document.Global.Hardware.Numerickeypad.Key9.Enabled
-	Key9Targetid = Document.Global.Hardware.Numerickeypad.Key9.Targetid
-
 	if TargetBoard != "rpi" {
 		LCDBackLightTimerEnabled = false
 	}
@@ -1946,28 +1903,17 @@ func printxmlconfig() {
 	} else {
 		log.Println("info: ------------ MQTT Function ------- SKIPPED ")
 	}
+
 	if PrintNumerickeypad {
 		log.Println("info: ------------ NumericKeypad Function -------------- ")
-		log.Println("info: Key0Enabled  " + fmt.Sprintf("%v", Key0Enabled))
-		log.Println("info: Key0Targetid " + fmt.Sprintf("%v", Key0Targetid))
-		log.Println("info: Key1Enabled  " + fmt.Sprintf("%v", Key1Enabled))
-		log.Println("info: Key1Targetid " + fmt.Sprintf("%v", Key1Targetid))
-		log.Println("info: Key2Enabled  " + fmt.Sprintf("%v", Key2Enabled))
-		log.Println("info: Key2Targetid " + fmt.Sprintf("%v", Key2Targetid))
-		log.Println("info: Key3Enabled  " + fmt.Sprintf("%v", Key3Enabled))
-		log.Println("info: Key3Targetid " + fmt.Sprintf("%v", Key3Targetid))
-		log.Println("info: Key4Enabled  " + fmt.Sprintf("%v", Key4Enabled))
-		log.Println("info: Key4Targetid " + fmt.Sprintf("%v", Key4Targetid))
-		log.Println("info: Key5Enabled  " + fmt.Sprintf("%v", Key5Enabled))
-		log.Println("info: Key5Targetid " + fmt.Sprintf("%v", Key5Targetid))
-		log.Println("info: Key6Enabled  " + fmt.Sprintf("%v", Key6Enabled))
-		log.Println("info: Key6Targetid " + fmt.Sprintf("%v", Key6Targetid))
-		log.Println("info: Key7Enabled  " + fmt.Sprintf("%v", Key7Enabled))
-		log.Println("info: Key7Targetid " + fmt.Sprintf("%v", Key7Targetid))
-		log.Println("info: Key8Enabled  " + fmt.Sprintf("%v", Key8Enabled))
-		log.Println("info: Key8Targetid " + fmt.Sprintf("%v", Key8Targetid))
-		log.Println("info: Key9Enabled  " + fmt.Sprintf("%v", Key9Enabled))
-		log.Println("info: Key9Targetid " + fmt.Sprintf("%v", Key9Targetid))
+		log.Println("TTYKeymap", TTYKeyMap)
+		//for _, KMainCommands := range Document.Global.Hardware.KeyboardCommands.Command {
+		//	if KMainCommands.Enabled {
+		//		for _, KSubCommands := range KMainCommands.Params.Param {
+		//			log.Printf("Enabled %v KeyLabel %v ScanID %v Command %v ParamName %v, ParamValue %v", KMainCommands.Ttykeyboard.Enabled, KMainCommands.Ttykeyboard.Keylabel, KMainCommands.Ttykeyboard.Scanid, KMainCommands.Name, KSubCommands.Name, KSubCommands.Value)
+		//		}
+		//	}
+		//}
 
 	} else {
 		log.Println("info: ------------ NumericKeypad Function ------ SKIPPED ")

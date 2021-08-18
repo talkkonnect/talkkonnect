@@ -455,6 +455,11 @@ func (b *Talkkonnect) ClientStart() {
 		}
 	}
 
+	// check for usbkeyboard enabled in xml config
+	if true {
+		go b.USBKeyboard()
+	}
+
 keyPressListenerLoop:
 	for {
 		switch ev := term.PollEvent(); ev.Type {

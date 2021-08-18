@@ -9,6 +9,7 @@ require (
 	github.com/go-ole/go-ole v1.2.5 // indirect
 	github.com/golang/glog v0.0.0-20210429001901-424d2337a529 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
+	github.com/gvalkov/golang-evdev v0.0.0-20191114124502-287e62b94bcb // indirect
 	github.com/jacobsa/go-serial v0.0.0-20180131005756-15cf729a72d4
 	github.com/kennygrant/sanitize v1.2.4
 	github.com/kidoman/embd v0.0.0-20170508013040-d3d8c0c5c68d // indirect

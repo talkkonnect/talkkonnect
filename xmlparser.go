@@ -51,7 +51,7 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.67.02"
+	talkkonnectVersion  string = "1.67.03"
 	talkkonnectReleased string = "Aug 18 2021"
 )
 
@@ -70,6 +70,9 @@ var (
 	BufferToOpenALCounter      = 0
 	AccountIndex          int  = 0
 	GenericCounter        int  = 0
+	USBKeyboardPath            = "/dev/input/event0"
+	IsNumlock             bool
+	USBKeyboardEnabled    = true
 )
 
 //account settings

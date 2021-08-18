@@ -41,7 +41,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"unicode"
 
 	goled "github.com/talkkonnect/go-oled-i2c"
 	"github.com/talkkonnect/go-openal/openal"
@@ -52,8 +51,8 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.67.01"
-	talkkonnectReleased string = "Aug 17 2021"
+	talkkonnectVersion  string = "1.67.02"
+	talkkonnectReleased string = "Aug 18 2021"
 )
 
 // Generic Global Variables
@@ -462,6 +461,7 @@ var (
 
 var Document DocumentStruct
 var TTYKeyMap = make(map[rune]TTYKBStruct)
+var USBKeyMap = make(map[rune]USBKBStruct)
 
 type DocumentStruct struct {
 	XMLName  xml.Name `xml:"document"`
@@ -820,9 +820,9 @@ type DocumentStruct struct {
 						Keylabel uint32 `xml:"keylabel"`
 					} `xml:"ttykeyboard"`
 					Usbkeyboard struct {
-						Scanid   rune `xml:"scanid,attr"`
-						Enabled  bool `xml:"enabled,attr"`
-						Keylabel int  `xml:"keylabel"`
+						Scanid   rune   `xml:"scanid,attr"`
+						Enabled  bool   `xml:"enabled,attr"`
+						Keylabel uint32 `xml:"keylabel"`
 					} `xml:"usbkeyboard"`
 				} `xml:"command"`
 			} `xml:"keyboardcommands"`
@@ -848,6 +848,14 @@ type VTStruct struct {
 }
 
 type TTYKBStruct struct {
+	Enabled    bool
+	KeyLabel   uint32
+	Command    string
+	ParamName  string
+	ParamValue uint32
+}
+
+type USBKBStruct struct {
 	Enabled    bool
 	KeyLabel   uint32
 	Command    string
@@ -892,9 +900,11 @@ func readxmlconfig(file string) error {
 	for _, KMainCommands := range Document.Global.Hardware.KeyboardCommands.Command {
 		if KMainCommands.Enabled {
 			for _, KSubCommands := range KMainCommands.Params.Param {
-				if KMainCommands.Ttykeyboard.Enabled && unicode.IsDigit(KMainCommands.Ttykeyboard.Scanid) {
-					log.Printf("Enabled %v KeyLabel %v ScanID %v Command %v ParamName %v, ParamValue %v", KMainCommands.Ttykeyboard.Enabled, KMainCommands.Ttykeyboard.Keylabel, KMainCommands.Ttykeyboard.Scanid, KMainCommands.Name, KSubCommands.Name, KSubCommands.Value)
+				if KMainCommands.Ttykeyboard.Enabled {
 					TTYKeyMap[KMainCommands.Ttykeyboard.Scanid] = TTYKBStruct{KMainCommands.Ttykeyboard.Enabled, KMainCommands.Ttykeyboard.Keylabel, KMainCommands.Name, KSubCommands.Name, KSubCommands.Value}
+				}
+				if KMainCommands.Usbkeyboard.Enabled {
+					USBKeyMap[KMainCommands.Usbkeyboard.Scanid] = USBKBStruct{KMainCommands.Usbkeyboard.Enabled, KMainCommands.Usbkeyboard.Keylabel, KMainCommands.Name, KSubCommands.Name, KSubCommands.Value}
 				}
 			}
 		}
@@ -1892,7 +1902,6 @@ func printxmlconfig() {
 		log.Println("info: Topic     " + fmt.Sprintf("%v", MQTTTopic))
 		log.Println("info: Broker    " + fmt.Sprintf("%v", MQTTBroker))
 		log.Println("info: Password  " + fmt.Sprintf("%v", MQTTPassword))
-		log.Println("info: User      " + fmt.Sprintf("%v", MQTTUser))
 		log.Println("info: Id        " + fmt.Sprintf("%v", MQTTId))
 		log.Println("info: Cleansess " + fmt.Sprintf("%v", MQTTCleansess))
 		log.Println("info: Qos       " + fmt.Sprintf("%v", MQTTQos))
@@ -1907,14 +1916,7 @@ func printxmlconfig() {
 	if PrintNumerickeypad {
 		log.Println("info: ------------ NumericKeypad Function -------------- ")
 		log.Println("TTYKeymap", TTYKeyMap)
-		//for _, KMainCommands := range Document.Global.Hardware.KeyboardCommands.Command {
-		//	if KMainCommands.Enabled {
-		//		for _, KSubCommands := range KMainCommands.Params.Param {
-		//			log.Printf("Enabled %v KeyLabel %v ScanID %v Command %v ParamName %v, ParamValue %v", KMainCommands.Ttykeyboard.Enabled, KMainCommands.Ttykeyboard.Keylabel, KMainCommands.Ttykeyboard.Scanid, KMainCommands.Name, KSubCommands.Name, KSubCommands.Value)
-		//		}
-		//	}
-		//}
-
+		log.Println("USBKeymap", USBKeyMap)
 	} else {
 		log.Println("info: ------------ NumericKeypad Function ------ SKIPPED ")
 	}

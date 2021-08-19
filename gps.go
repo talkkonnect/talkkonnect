@@ -130,7 +130,7 @@ func getGpsPosition(verbose bool) (bool, error) {
 			if err != nil {
 				return false, errors.New("error writing to serial port")
 			} else {
-				log.Println("info: Wrote %v bytes\n", count)
+				log.Printf("info: Wrote %v bytes\n", count)
 			}
 
 		}
@@ -224,7 +224,7 @@ func getGpsPosition(verbose bool) (bool, error) {
 							PositionReporter := time.NewTicker(FreqReports)
 							var TraccarCounter = 1
 							go func() {
-								for _ = range PositionReporter.C {
+								for range PositionReporter.C {
 									if TrackEnabled && TraccarSendTo {
 										if TraccarProto == "t55" {
 											tcpSendT55Traccar2() // Send GPS position to Traccar with old T55 client protocol. No keep-alive.
@@ -503,7 +503,7 @@ func tcpSendT55Traccar2() {
 			}
 
 			if n > 0 {
-				log.Println("Unexpected Data: %s", buf[:n])
+				log.Printf("Unexpected Data: %s", buf[:n])
 				//fmt.Println("Unexpected Data: %s", buf[:n])
 			}
 		}

@@ -51,7 +51,7 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.67.05"
+	talkkonnectVersion  string = "1.67.06"
 	talkkonnectReleased string = "Aug 19 2021"
 )
 
@@ -88,6 +88,7 @@ var (
 	Username    []string
 	Password    []string
 	Insecure    []bool
+	Register    []bool
 	Certificate []string
 	Channel     []string
 	Ident       []string
@@ -481,6 +482,7 @@ type DocumentStruct struct {
 			UserName      string `xml:"username"`
 			Password      string `xml:"password"`
 			Insecure      bool   `xml:"insecure"`
+			Register      bool   `xml:"register"`
 			Certificate   string `xml:"certificate"`
 			Channel       string `xml:"channel"`
 			Ident         string `xml:"ident"`
@@ -898,6 +900,7 @@ func readxmlconfig(file string) error {
 			Username = append(Username, account.UserName)
 			Password = append(Password, account.Password)
 			Insecure = append(Insecure, account.Insecure)
+			Register = append(Register, account.Register)
 			Certificate = append(Certificate, account.Certificate)
 			Channel = append(Channel, account.Channel)
 			Ident = append(Ident, account.Ident)
@@ -1580,6 +1583,7 @@ func printxmlconfig() {
 		log.Println("info: Username             ", Username[AccountIndex])
 		log.Println("info: Password             ", Password[AccountIndex])
 		log.Println("info: Insecure             ", fmt.Sprintf("%t", Insecure[AccountIndex]))
+		log.Println("info: Register             ", fmt.Sprintf("%t", Register[AccountIndex]))
 		log.Println("info: Certificate          ", Certificate[AccountIndex])
 		log.Println("info: Channel              ", Channel[AccountIndex])
 		log.Println("info: Ident                ", Ident[AccountIndex])

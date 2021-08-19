@@ -459,6 +459,14 @@ func (b *Talkkonnect) ClientStart() {
 		go b.USBKeyboard()
 	}
 
+	if Register[AccountIndex] && !b.Client.Self.IsRegistered() {
+		b.Client.Self.Register()
+		log.Println("alert: Client Is Now Registered")
+	} else {
+		log.Println("alert: Client Is Already Registered")
+
+	}
+
 keyPressListenerLoop:
 	for {
 		switch ev := term.PollEvent(); ev.Type {

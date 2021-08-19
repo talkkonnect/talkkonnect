@@ -716,26 +716,26 @@ func (b *Talkkonnect) cmdSendVoiceTargets(targetID uint32) {
 	}
 }
 
-func (b *Talkkonnect) VoiceTargetUserSet(targetID uint32, targetUser string) {
-	if len(targetUser) == 0 && targetID == 0 {
-		targetUser = b.Client.Self.Name
+func (b *Talkkonnect) VoiceTargetUserSet(TargetID uint32, TargetUser string) {
+	if len(TargetUser) == 0 && TargetID == 0 {
+		TargetUser = b.Client.Self.Name
 	}
 
-	vtUser := b.Client.Users.Find(targetUser)
-	if (vtUser != nil) && (targetID <= 31) {
+	vtUser := b.Client.Users.Find(TargetUser)
+	if (vtUser != nil) && (TargetID <= 31) {
 		vtarget := &gumble.VoiceTarget{}
-		vtarget.ID = targetID
+		vtarget.ID = TargetID
 		vtarget.AddUser(vtUser)
 		b.Client.VoiceTarget = vtarget
-		if targetID > 0 {
-			log.Printf("debug: Added User %v to VT ID %v\n", targetUser, targetID)
+		if TargetID > 0 {
+			log.Printf("debug: Added User %v to VT ID %v\n", TargetUser, TargetID)
 		} else {
-			b.VoiceTarget.Clear()
+			//b.VoiceTarget.Clear()
 			log.Println("debug: Cleared Voice Targets")
 		}
 		b.Client.Send(vtarget)
 	} else {
-		log.Printf("error: Cannot Add User %v to VT ID %v\n", targetUser, targetID)
+		log.Printf("error: Cannot Add User %v to VT ID %v\n", TargetUser, TargetID)
 	}
 
 }

@@ -51,7 +51,7 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.67.04"
+	talkkonnectVersion  string = "1.67.05"
 	talkkonnectReleased string = "Aug 19 2021"
 )
 
@@ -70,9 +70,14 @@ var (
 	BufferToOpenALCounter      = 0
 	AccountIndex          int  = 0
 	GenericCounter        int  = 0
-	USBKeyboardPath            = "/dev/input/event0"
 	IsNumlock             bool
-	USBKeyboardEnabled    = true
+)
+
+//keyboard settings
+var (
+	USBKeyboardPath    string = "/dev/input/event0"
+	USBKeyboardEnabled bool
+	NumlockScanID      rune
 )
 
 //account settings
@@ -238,28 +243,29 @@ var (
 
 //print xml config sections for easy debugging, set any section to false to prevent printing to screen
 var (
-	PrintAccount       bool
-	PrintLogging       bool
-	PrintProvisioning  bool
-	PrintBeacon        bool
-	PrintTTS           bool
-	PrintSMTP          bool
-	PrintSounds        bool
-	PrintTxTimeout     bool
-	PrintHTTPAPI       bool
-	PrintTargetboard   bool
-	PrintLeds          bool
-	PrintHeartbeat     bool
-	PrintButtons       bool
-	PrintComment       bool
-	PrintLcd           bool
-	PrintOled          bool
-	PrintGps           bool
-	PrintTraccar       bool
-	PrintPanic         bool
-	PrintAudioRecord   bool
-	PrintMQTT          bool
-	PrintNumerickeypad bool
+	PrintAccount      bool
+	PrintLogging      bool
+	PrintProvisioning bool
+	PrintBeacon       bool
+	PrintTTS          bool
+	PrintSMTP         bool
+	PrintSounds       bool
+	PrintTxTimeout    bool
+	PrintHTTPAPI      bool
+	PrintTargetboard  bool
+	PrintLeds         bool
+	PrintHeartbeat    bool
+	PrintButtons      bool
+	PrintComment      bool
+	PrintLcd          bool
+	PrintOled         bool
+	PrintGps          bool
+	PrintTraccar      bool
+	PrintPanic        bool
+	PrintAudioRecord  bool
+	PrintMQTT         bool
+	PrintKeyboardMap  bool
+	PrintUSBKeyboard  bool
 )
 
 // mqtt settings
@@ -651,28 +657,29 @@ type DocumentStruct struct {
 				PingServers        bool   `xml:"pingservers"`
 			} `xml:"api"`
 			PrintVariables struct {
-				PrintAccount       bool `xml:"printaccount"`
-				PrintLogging       bool `xml:"printlogging"`
-				PrintProvisioning  bool `xml:"printprovisioning"`
-				PrintBeacon        bool `xml:"printbeacon"`
-				PrintTTS           bool `xml:"printtts"`
-				PrintSMTP          bool `xml:"printsmtp"`
-				PrintSounds        bool `xml:"printsounds"`
-				PrintTxTimeout     bool `xml:"printtxtimeout"`
-				PrintHTTPAPI       bool `xml:"printhttpapi"`
-				PrintTargetBoard   bool `xml:"printtargetboard"`
-				PrintLeds          bool `xml:"printleds"`
-				PrintHeartbeat     bool `xml:"printheartbeat"`
-				PrintButtons       bool `xml:"printbuttons"`
-				PrintComment       bool `xml:"printcomment"`
-				PrintLcd           bool `xml:"printlcd"`
-				PrintOled          bool `xml:"printoled"`
-				PrintGps           bool `xml:"printgps"`
-				PrintTraccar       bool `xml:"printtraccar"`
-				PrintPanic         bool `xml:"printpanic"`
-				PrintAudioRecord   bool `xml:"printaudiorecord"`
-				PrintMQTT          bool `xml:"printmqtt"`
-				PrintNumerickeypad bool `xml:"printnumerickeypad"`
+				PrintAccount      bool `xml:"printaccount"`
+				PrintLogging      bool `xml:"printlogging"`
+				PrintProvisioning bool `xml:"printprovisioning"`
+				PrintBeacon       bool `xml:"printbeacon"`
+				PrintTTS          bool `xml:"printtts"`
+				PrintSMTP         bool `xml:"printsmtp"`
+				PrintSounds       bool `xml:"printsounds"`
+				PrintTxTimeout    bool `xml:"printtxtimeout"`
+				PrintHTTPAPI      bool `xml:"printhttpapi"`
+				PrintTargetBoard  bool `xml:"printtargetboard"`
+				PrintLeds         bool `xml:"printleds"`
+				PrintHeartbeat    bool `xml:"printheartbeat"`
+				PrintButtons      bool `xml:"printbuttons"`
+				PrintComment      bool `xml:"printcomment"`
+				PrintLcd          bool `xml:"printlcd"`
+				PrintOled         bool `xml:"printoled"`
+				PrintGps          bool `xml:"printgps"`
+				PrintTraccar      bool `xml:"printtraccar"`
+				PrintPanic        bool `xml:"printpanic"`
+				PrintAudioRecord  bool `xml:"printaudiorecord"`
+				PrintMQTT         bool `xml:"printmqtt"`
+				PrintKeyboardMap  bool `xml:"printkeyboardmap"`
+				PrintUSBKeyboard  bool `xml:"printusbkeyboard"`
 			} `xml:"printvariables"`
 			MQTT struct {
 				MQTTEnabled   bool   `xml:"enabled,attr"`
@@ -790,6 +797,11 @@ type DocumentStruct struct {
 				TxLockTimeOutSecs    uint    `xml:"txlocktimeoutsecs"`
 				PLowProfile          bool    `xml:"lowprofile"`
 			} `xml:"panicfunction"`
+			USBKeyboard struct {
+				Enabled         bool   `xml:"enabled,attr"`
+				USBKeyboardPath string `xml:"usbkeyboarddevpath"`
+				NumlockScanID   rune   `xml:"numlockscanid"`
+			} `xml:"usbkeyboard"`
 			AudioRecordFunction struct {
 				Enabled           bool   `xml:"enabled,attr"`
 				RecordOnStart     bool   `xml:"recordonstart"`
@@ -1399,7 +1411,8 @@ func readxmlconfig(file string) error {
 	PrintPanic = Document.Global.Software.PrintVariables.PrintPanic
 	PrintAudioRecord = Document.Global.Software.PrintVariables.PrintAudioRecord
 	PrintMQTT = Document.Global.Software.PrintVariables.PrintMQTT
-	PrintNumerickeypad = Document.Global.Software.PrintVariables.PrintNumerickeypad
+	PrintKeyboardMap = Document.Global.Software.PrintVariables.PrintKeyboardMap
+	PrintUSBKeyboard = Document.Global.Software.PrintVariables.PrintUSBKeyboard
 	TargetBoard = Document.Global.Hardware.TargetBoard
 	LedStripEnabled = Document.Global.Hardware.Lights.LedStripEnabled
 	// my stupid work around for null uint xml unmarshelling problem with numbers so use strings and convert it 2 times
@@ -1514,6 +1527,9 @@ func readxmlconfig(file string) error {
 	PTxLockEnabled = Document.Global.Hardware.PanicFunction.TxLockEnabled
 	PTxlockTimeOutSecs = Document.Global.Hardware.PanicFunction.TxLockTimeOutSecs
 	PLowProfile = Document.Global.Hardware.PanicFunction.PLowProfile
+	USBKeyboardEnabled = Document.Global.Hardware.USBKeyboard.Enabled
+	USBKeyboardPath = Document.Global.Hardware.USBKeyboard.USBKeyboardPath
+	NumlockScanID = Document.Global.Hardware.USBKeyboard.NumlockScanID
 	AudioRecordEnabled = Document.Global.Hardware.AudioRecordFunction.Enabled
 	AudioRecordOnStart = Document.Global.Hardware.AudioRecordFunction.RecordOnStart
 	AudioRecordSystem = Document.Global.Hardware.AudioRecordFunction.RecordSystem
@@ -1918,12 +1934,21 @@ func printxmlconfig() {
 		log.Println("info: ------------ MQTT Function ------- SKIPPED ")
 	}
 
-	if PrintNumerickeypad {
-		log.Println("info: ------------ NumericKeypad Function -------------- ")
-		log.Println("TTYKeymap", TTYKeyMap)
-		log.Println("USBKeymap", USBKeyMap)
+	if PrintKeyboardMap {
+		log.Println("info: ------------ KeyboardMap Function -------------- ")
+		log.Printf("TTYKeymap %+v\n", TTYKeyMap)
+		log.Printf("USBKeymap %+v\n", USBKeyMap)
 	} else {
-		log.Println("info: ------------ NumericKeypad Function ------ SKIPPED ")
+		log.Println("info: ------------ KeyboardMap Function ------ SKIPPED ")
+	}
+
+	if PrintUSBKeyboard {
+		log.Println("info: ------------ USBKeyboard Function -------------- ")
+		log.Println("USBKeyboardEnabled", USBKeyboardEnabled)
+		log.Println("USBKeyboardPath", USBKeyboardPath)
+		log.Println("NumLockScanID", NumlockScanID)
+	} else {
+		log.Println("info: ------------ USBKeyboard Function ------ SKIPPED ")
 	}
 
 }

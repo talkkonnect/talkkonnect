@@ -66,7 +66,11 @@ func (b *Talkkonnect) USBKeyboard() {
 					case "voicetargetset":
 						b.cmdSendVoiceTargets(USBKeyMap[rune(ke.Scancode)].ParamValue)
 					default:
-						log.Println("Key Not Defined")
+						log.Println("Command Not Defined ", strings.ToLower(USBKeyMap[rune(ke.Scancode)].Command))
+					}
+				} else {
+					if ke.Scancode != uint16(NumlockScanID) {
+						log.Println("error: Key Not Mapped ASC ", ke.Scancode)
 					}
 				}
 			}

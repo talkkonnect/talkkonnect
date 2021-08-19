@@ -717,8 +717,8 @@ func (b *Talkkonnect) cmdSendVoiceTargets(targetID uint32) {
 }
 
 func (b *Talkkonnect) VoiceTargetUserSet(targetID uint32, targetUser string) {
-	if len(targetUser) == 0 {
-		return
+	if len(targetUser) == 0 && targetID == 0 {
+		targetUser = b.Client.Self.Name
 	}
 
 	vtUser := b.Client.Users.Find(targetUser)
@@ -727,8 +727,13 @@ func (b *Talkkonnect) VoiceTargetUserSet(targetID uint32, targetUser string) {
 		vtarget.ID = targetID
 		vtarget.AddUser(vtUser)
 		b.Client.VoiceTarget = vtarget
+		if targetID > 0 {
+			log.Printf("debug: Added User %v to VT ID %v\n", targetUser, targetID)
+		} else {
+			b.VoiceTarget.Clear()
+			log.Println("debug: Cleared Voice Targets")
+		}
 		b.Client.Send(vtarget)
-		log.Printf("debug: Added User %v to VT ID %v\n", targetUser, targetID)
 	} else {
 		log.Printf("error: Cannot Add User %v to VT ID %v\n", targetUser, targetID)
 	}

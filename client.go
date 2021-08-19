@@ -455,8 +455,7 @@ func (b *Talkkonnect) ClientStart() {
 		}
 	}
 
-	// check for usbkeyboard enabled in xml config
-	if true {
+	if USBKeyboardEnabled && len(USBKeyboardPath) > 0 {
 		go b.USBKeyboard()
 	}
 
@@ -568,8 +567,10 @@ keyPressListenerLoop:
 					case "voicetargetset":
 						b.cmdSendVoiceTargets(TTYKeyMap[ev.Ch].ParamValue)
 					default:
-						log.Println("Key Not Defined")
+						log.Println("Command Not Defined ", strings.ToLower(TTYKeyMap[ev.Ch].Command))
 					}
+				} else {
+					log.Println("error: Key Not Mapped ASC ", ev.Ch)
 				}
 			}
 		case term.EventError:

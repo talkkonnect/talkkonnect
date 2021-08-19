@@ -90,10 +90,10 @@ Instead of the onboard sound card or USB Sound Card, you can also use a ReSpeake
   this means the PTT Button and the LEDS on the 2 Mic Respeaker Hat will work right away. You will need to connect an external speaker to the HAT for these images.
 * Feel Free to explore the various example talkkonnect.xml configurations that can be found in the directory /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/sample-configs here you can find various configurations that work with LCD, OLED, LEDS and PUSH Button Switches. The files are named descriptively.
   
-### Image for Use with Raspberry pi 2/3/4 and USB Sound Card ###
+### Image for Use with Raspberry pi 2/3 and USB Sound Card ###
 * [Click Here to Download Pre-Configured SD Card Image for USB Sound Card](https://drive.google.com/file/d/1hbMFtKvlEYX-akqf976aVjHP4TcYFXgL/view?usp=sharing)
 * This image uses the standard 32 Bit Sampling and will work properly with all mumble clients on windows, android and iphone with good quality sound.
-* Since 32 Bit Sampling is used this will only work reliably on Raspberry 2 Series, 3 Series and 4 Series an NOT on Raspberry PI Zero. 
+* Since 32 Bit Sampling is used this will only work reliably on Raspberry 2 Series, 3 Series and NOT on Raspberry PI Zero. 
 * This image has been configured to work with a external USB sound card (Works with CM-108 Chipsets) out of the box
 * The on board sound card for RPI is disabled so you will not get any output from the onboard sound card
 * The audio out on the USB Sound Card is low and needs to be amplified with and external Amplifier (for testing you can increase the volume and use a 3.5mm Jack Headphone)
@@ -101,20 +101,20 @@ Instead of the onboard sound card or USB Sound Card, you can also use a ReSpeake
 * Should you want to connect a screen and a physical PTT Button using GPIO you can set the tag 
 * After you intall the image you can copy the bash script tk-update.sh in the scripts folder to your /root home and run it in the root user's folder to update to the lastest version.
 
-### Quick Download Link for Pre-Made SD Card Image for Use with Raspberry pi 2/3/4 and RESPEAKER Compatable HAT ###
+### Quick Download Link for Pre-Made SD Card Image for Use with Raspberry pi 2/3  and RESPEAKER Compatable HAT ###
 * [Click Here to Download Pre-Configured SD Card Image for Respeaker Hat](https://drive.google.com/file/d/1nwdorhtPgFv2IfRaLubsn9aAtGJBSp3A/view?usp=sharing) 
 * This image uses the standard 32 Bit Sampling and will work properly with all mumble clients on windows, android and iphone with good quality sound.
-* Since 32 Bit Sampling is used this will only work reliably on Raspberry 2 Series, 3 Series and 4 Series an NOT on Raspberry PI Zero. 
+* Since 32 Bit Sampling is used this will only work reliably on Raspberry 2 Series, 3 Series and NOT on Raspberry PI Zero. 
 * This image has been configured to work with a Respeaker HAT out of the box so I2S, I2C and all required modules are installed and running. 
 * The XML file is configured to run in rpi mode so GPIO will initalized, this is so that the respeaker will work with output sound on the headphone jack, led strip working and push button 
   microswitch on the hat can be used for transmitting.    
 * This image is a good starting point if you already have all the components at home or if you want to use talkkonnect as a push to talk headless device to talk directly to other mumble clients.
 * After you intall the image you can copy the bash script tk-update.sh in the scripts folder to your /root home and run it in the root user's folder to update to the lastest version.
 
-### Quick Download Link for Pre-Made SD Card Image for Use with Raspberry pi 2/3/4 and IM69D130 Mems Microphone ### 
+### Quick Download Link for Pre-Made SD Card Image for Use with Raspberry pi 2/3  and IM69D130 Mems Microphone ### 
 * [Click Here to Download Pre-Configured SD Card Image for talkkonnect with IM69D130 Mems Microphone](https://drive.google.com/file/d/1lutT3rNk5-zLz6M7FdLNJ47FIvDNCmNC/view?usp=sharing) 
 * This image uses the standard 32 Bit Sampling and will work properly with all mumble clients on windows, android and iphone with good quality sound.
-* Since 32 Bit Sampling is used this will only work reliably on Raspberry 2 Series, 3 Series and 4 Series an NOT on Raspberry PI Zero. 
+* Since 32 Bit Sampling is used this will only work reliably on Raspberry 2 Series, 3 Series and NOT on Raspberry PI Zero. 
 * This image has a custom kernel and used Instructions was found at https://github.com/Infineon/GetStarted_IM69D130_With_RaspberryP (for MEMS support)
 * This image has been configured to work with a IM69D130 Mems Microphone and the onboard raspberry pi sound card (3.5mm Jack) out of the box.
 * The XML file is configured to run in rpi mode so GPIO will initalized, this is so that the Pin 11 XML tag value 17 when shorted to ground will act as the PTT button. 

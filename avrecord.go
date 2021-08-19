@@ -192,8 +192,8 @@ func audiorecordtraffic() {
 			go func() {
 				for range ticker.C {
 					checked := time.Since(starttime)
-					checkedshort := fmt.Sprintf(before(fmt.Sprint(checked), ".")) // trim  milliseconds after.  Format 00h00m00s.
-					elapsed := fmtDuration(checked)                               // hh:mm format
+					checkedshort := fmt.Sprintf("%v", before(fmt.Sprint(checked), ".")) // trim  milliseconds after.  Format 00h00m00s.
+					elapsed := fmtDuration(checked)                                     // hh:mm format
 					log.Println("debug: sox is Still Running After", checkedshort+"s", "|", elapsed)
 				}
 			}()
@@ -295,8 +295,8 @@ func audiorecordambient() {
 			go func() {
 				for range ticker.C {
 					checked := time.Since(starttime)
-					checkedshort := fmt.Sprintf(before(fmt.Sprint(checked), ".")) // trim  milliseconds after .  Format 00h00m00s.
-					elapsed := fmtDuration(checked)                               // hh:mm format
+					checkedshort := fmt.Sprintf("%v", before(fmt.Sprint(checked), ".")) // trim  milliseconds after .  Format 00h00m00s.
+					elapsed := fmtDuration(checked)                                     // hh:mm format
 					log.Println("info: sox is Still Running After", checkedshort+"s", "|", elapsed)
 				}
 			}()
@@ -403,8 +403,8 @@ func audiorecordcombo() {
 			go func() {
 				for range ticker.C {
 					checked := time.Since(starttime)
-					checkedshort := fmt.Sprintf(before(fmt.Sprint(checked), ".")) // trim  milliseconds after .  Format 00h00m00s.
-					elapsed := fmtDuration(checked)                               // hh:mm format
+					checkedshort := fmt.Sprintf("%v", before(fmt.Sprint(checked), ".")) // trim  milliseconds after .  Format 00h00m00s.
+					elapsed := fmtDuration(checked)                                     // hh:mm format
 					log.Println("info: sox is Still Running After", checkedshort+"s", "|", elapsed)
 				}
 			}()

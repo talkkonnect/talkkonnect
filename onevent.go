@@ -60,7 +60,7 @@ func (b *Talkkonnect) OnConnect(e *gumble.ConnectEvent) {
 
 	log.Printf("debug: Connected to %s Address %s on attempt %d index [%d]\n ", b.Name, b.Client.Conn.RemoteAddr(), b.ConnectAttempts, AccountIndex)
 	if e.WelcomeMessage != nil {
-		var message string = fmt.Sprintf(esc(*e.WelcomeMessage))
+		var message string = fmt.Sprintf("%v", esc(*e.WelcomeMessage))
 		log.Println("info: Welcome message: ")
 		for _, line := range strings.Split(strings.TrimSuffix(message, "\n"), "\n") {
 			log.Println("info: ", line)
@@ -234,7 +234,7 @@ func (b *Talkkonnect) OnUserChange(e *gumble.UserChangeEvent) {
 			if info != "" {
 				log.Println("info: User ", cleanstring(e.User.Name), " ", info, "Event type=", e.Type, " channel=", e.User.Channel.Name)
 				if TTSEnabled && TTSParticipants {
-					Speak("User "+cleanstring(e.User.Name)+info+"Has Changed to "+e.User.Channel.Name,"local")
+					Speak("User "+cleanstring(e.User.Name)+info+"Has Changed to "+e.User.Channel.Name, "local")
 				}
 			}
 
@@ -313,7 +313,7 @@ func (b *Talkkonnect) OnPermissionDenied(e *gumble.PermissionDeniedEvent) {
 
 	LcdText[2] = info
 
-	log.Printf("error: Permission denied %v to Join Channel %v\n", info,e.Channel.Name)
+	log.Printf("error: Permission denied %v to Join Channel %v\n", info, e.Channel.Name)
 }
 
 func (b *Talkkonnect) OnChannelChange(e *gumble.ChannelChangeEvent) {

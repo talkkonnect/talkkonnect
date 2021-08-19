@@ -307,12 +307,12 @@ func (b *Talkkonnect) ClientStart() {
 
 		log.Println("info: Backlight Timer Enabled by Config")
 		BackLightTime = *BackLightTimePtr
-		BackLightTime = time.NewTicker(LCDBackLightTimeoutSecs * time.Second)
+		BackLightTime = time.NewTicker(LCDBackLightTimeout * time.Second)
 
 		go func() {
 			for {
 				<-BackLightTime.C
-				log.Printf("debug: LCD Backlight Ticker Timed Out After %d Seconds", LCDBackLightTimeoutSecs)
+				log.Printf("debug: LCD Backlight Ticker Timed Out After %d Seconds", LCDBackLightTimeout)
 				LCDIsDark = true
 				if LCDInterfaceType == "parallel" {
 					b.LEDOff(b.BackLightLED)

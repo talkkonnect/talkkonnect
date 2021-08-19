@@ -362,7 +362,7 @@ func getGpsPosition(verbose bool) (bool, error) {
 			// } //
 
 		} else {
-			return false, errors.New("Rx Not Set")
+			return false, errors.New("rx not set")
 		}
 		return goodGPSRead, nil
 	}
@@ -683,14 +683,6 @@ func gpsdatereorder() string {
 	Date1reorder := yyyy + "-" + mm + "-" + dd
 	//fmt.Println(Date1reorder)
 	return Date1reorder
-}
-
-// "errchk" checks if an error is nil and if it isn't calls log.Fatalln(err)
-
-func errchk(err error) {
-	if err != nil {
-		log.Fatalln(err)
-	}
 }
 
 // current time system stamp

@@ -1,9 +1,8 @@
 package talkkonnect
 
-
 import (
-        "crypto/md5"
-        "encoding/hex"
+	"crypto/md5"
+	"encoding/hex"
 	"fmt"
 	"io"
 	"net/http"
@@ -12,10 +11,10 @@ import (
 	"os/exec"
 )
 
-func Speak(text string,destination string){
+func Speak(text string, destination string) {
 	Folder := "audio"
-        generatedHashName := generateHashName(text)
-        fileName := Folder + "/" + generatedHashName + ".mp3"
+	generatedHashName := generateHashName(text)
+	fileName := Folder + "/" + generatedHashName + ".mp3"
 
 	createFolderIfNotExists(Folder)
 	downloadIfNotExists(fileName, text)
@@ -34,7 +33,6 @@ func createFolderIfNotExists(folder string) {
 	}
 
 	dir.Close()
-	return
 }
 
 func downloadIfNotExists(fileName string, text string) {
@@ -52,17 +50,15 @@ func downloadIfNotExists(fileName string, text string) {
 			return
 		}
 
-		_, err = io.Copy(output, response.Body)
-		return
+		_, _ = io.Copy(output, response.Body)
 	}
 
 	f.Close()
-	return
 }
 
 func generateHashName(name string) string {
-        hash := md5.Sum([]byte(name))
-        return hex.EncodeToString(hash[:])
+	hash := md5.Sum([]byte(name))
+	return hex.EncodeToString(hash[:])
 }
 
 func localmediaplayer(fileName string) {

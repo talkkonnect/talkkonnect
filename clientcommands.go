@@ -621,7 +621,7 @@ func (b *Talkkonnect) BackLightTimer() {
 		Oled.DisplayOn()
 	}
 
-	BackLightTime.Reset(time.Duration(LCDBackLightTimeoutSecs) * time.Second)
+	BackLightTime.Reset(time.Duration(LCDBackLightTimeout) * time.Second)
 }
 
 func (b *Talkkonnect) TxLockTimer() {

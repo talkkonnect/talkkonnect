@@ -51,8 +51,8 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.67.03"
-	talkkonnectReleased string = "Aug 18 2021"
+	talkkonnectVersion  string = "1.67.04"
+	talkkonnectReleased string = "Aug 19 2021"
 )
 
 // Generic Global Variables
@@ -353,7 +353,7 @@ var (
 	LCDInterfaceType         string
 	LCDI2CAddress            uint8
 	LCDBackLightTimerEnabled bool
-	LCDBackLightTimeoutSecs  time.Duration
+	LCDBackLightTimeout      time.Duration
 	LCDBackLightLEDPin       int
 	LCDRSPin                 int
 	LCDEPin                  int
@@ -454,7 +454,6 @@ var (
 var (
 	txcounter           int
 	isTx                bool
-	isPlayStream        bool
 	CancellableStream   bool = true
 	StreamOnStart       bool
 	StreamStartAfter    uint
@@ -725,7 +724,7 @@ type DocumentStruct struct {
 				InterfaceType         string `xml:"lcdinterfacetype"`
 				I2CAddress            uint8  `xml:"lcdi2caddress"`
 				BacklightTimerEnabled bool   `xml:"lcdbacklighttimerenabled"`
-				BackLightTimeoutSecs  int    `xml:"lcdbacklighttimeoutsecs"`
+				BackLightTimeoutSecs  int    `xml:"LCDBackLightTimeout"`
 				BackLightLEDPin       string `xml:"lcdbacklightpin"`
 				RsPin                 int    `xml:"lcdrspin"`
 				EPin                  int    `xml:"lcdepin"`
@@ -1446,7 +1445,7 @@ func readxmlconfig(file string) error {
 	LCDInterfaceType = Document.Global.Hardware.LCD.InterfaceType
 	LCDI2CAddress = Document.Global.Hardware.LCD.I2CAddress
 	LCDBackLightTimerEnabled = Document.Global.Hardware.LCD.Enabled
-	LCDBackLightTimeoutSecs = time.Duration(Document.Global.Hardware.LCD.BackLightTimeoutSecs)
+	LCDBackLightTimeout = time.Duration(Document.Global.Hardware.LCD.BackLightTimeoutSecs)
 
 	// my stupid work around for null uint xml unmarshelling problem with numbers so use strings and convert it 2 times
 	temp13, _ := strconv.ParseUint(Document.Global.Hardware.LCD.BackLightLEDPin, 10, 64)
@@ -1540,6 +1539,9 @@ func readxmlconfig(file string) error {
 
 	if OLEDEnabled {
 		Oled, err = goled.BeginOled(OLEDDefaultI2cAddress, OLEDDefaultI2cBus, OLEDScreenWidth, OLEDScreenHeight, OLEDDisplayRows, OLEDDisplayColumns, OLEDStartColumn, OLEDCharLength, OLEDCommandColumnAddressing, OLEDAddressBasePageStart)
+		if err != nil {
+			log.Println("error: Cannot Communicate with OLED")
+		}
 	}
 
 	log.Println("Successfully loaded XML configuration file into memory")
@@ -1796,7 +1798,7 @@ func printxmlconfig() {
 		log.Println("info: LCDInterfaceType         " + fmt.Sprintf("%v", LCDInterfaceType))
 		log.Println("info: Lcd I2C Address          " + fmt.Sprintf("%x", LCDI2CAddress))
 		log.Println("info: Back Light Timer Enabled " + fmt.Sprintf("%t", LCDBackLightTimerEnabled))
-		log.Println("info: Back Light Timer Timeout " + fmt.Sprintf("%v", LCDBackLightTimeoutSecs))
+		log.Println("info: Back Light Timer Timeout " + fmt.Sprintf("%v", LCDBackLightTimeout))
 		log.Println("info: Back Light Pin " + fmt.Sprintf("%v", LCDBackLightLEDPin))
 		log.Println("info: RS Pin " + fmt.Sprintf("%v", LCDRSPin))
 		log.Println("info: E  Pin " + fmt.Sprintf("%v", LCDEPin))
@@ -1829,9 +1831,9 @@ func printxmlconfig() {
 	if PrintGps {
 		log.Println("info: ------------ GPS  ------------------------ ")
 		log.Println("info: GPS Enabled            " + fmt.Sprintf("%t", GpsEnabled))
-		log.Println("info: Port                   " + fmt.Sprintf("%s", Port))
+		log.Println("info: Port                   ", Port)
 		log.Println("info: Baud                   " + fmt.Sprintf("%v", Baud))
-		log.Println("info: TxData                 " + fmt.Sprintf("%s", TxData))
+		log.Println("info: TxData                 ", TxData)
 		log.Println("info: Even                   " + fmt.Sprintf("%v", Even))
 		log.Println("info: Odd                    " + fmt.Sprintf("%v", Odd))
 		log.Println("info: RS485                  " + fmt.Sprintf("%v", Rs485))
@@ -1850,12 +1852,12 @@ func printxmlconfig() {
 		log.Println("info: ------------ TRACCAR Info  ----------------------- ")
 		log.Println("info: Track Enabled            " + fmt.Sprintf("%t", TrackEnabled))
 		log.Println("info: Traccar Send To          " + fmt.Sprintf("%t", TraccarSendTo))
-		log.Println("info: Traccar Server URL       " + fmt.Sprintf("%s", TraccarServerURL))
-		log.Println("info: Traccar Server IP        " + fmt.Sprintf("%s", TraccarServerIP))
-		log.Println("info: Traccar Client ID        " + fmt.Sprintf("%s", TraccarClientId))
+		log.Println("info: Traccar Server URL       ", TraccarServerURL)
+		log.Println("info: Traccar Server IP        ", TraccarServerIP)
+		log.Println("info: Traccar Client ID        ", TraccarClientId)
 		log.Println("info: Traccar Report Frequency " + fmt.Sprintf("%v", TraccarReportFrequency))
-		log.Println("info: Traccar Proto            " + fmt.Sprintf("%s", TraccarProto))
-		log.Println("info: Traccar Server Full URL  " + fmt.Sprintf("%s", TraccarServerFullURL))
+		log.Println("info: Traccar Proto            ", TraccarProto)
+		log.Println("info: Traccar Server Full URL  ", TraccarServerFullURL)
 		log.Println("info: Track GPS Show Lcd       " + fmt.Sprintf("%t", TrackGPSShowLCD))
 		log.Println("info: Track Verbose            " + fmt.Sprintf("%t", TrackVerbose))
 
@@ -1866,8 +1868,8 @@ func printxmlconfig() {
 	if PrintPanic {
 		log.Println("info: ------------ PANIC Function -------------- ")
 		log.Println("info: Panic Function Enable          ", fmt.Sprintf("%t", PEnabled))
-		log.Println("info: Panic Sound Filename and Path  ", fmt.Sprintf("%s", PFilenameAndPath))
-		log.Println("info: Panic Message                  ", fmt.Sprintf("%s", PMessage))
+		log.Println("info: Panic Sound Filename and Path  ", PFilenameAndPath)
+		log.Println("info: Panic Message                  ", PMessage)
 		log.Println("info: Panic Email Send               ", fmt.Sprintf("%t", PMailEnabled))
 		log.Println("info: Panic Message Send Recursively ", fmt.Sprintf("%t", PRecursive))
 		log.Println("info: Panic Volume                   ", fmt.Sprintf("%v", PVolume))
@@ -1928,6 +1930,11 @@ func printxmlconfig() {
 
 func modifyXMLTagServerHopping(inputXMLFile string, outputXMLFile string, nextserverindex int) {
 	xmlfilein, err := os.Open(inputXMLFile)
+
+	if err != nil {
+		FatalCleanUp(err.Error())
+	}
+
 	xmlfileout, err := os.Create(outputXMLFile)
 
 	if err != nil {

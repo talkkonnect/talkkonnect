@@ -174,13 +174,13 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 								LEDOnFunc(BackLightLED)
 								lcdtext = [4]string{"nil", "", "", *e.LastSpeaker + " " + t.Format("15:04:05")}
 								LcdDisplay(lcdtext, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
-								BackLightTime.Reset(time.Duration(LCDBackLightTimeoutSecs) * time.Second)
+								BackLightTime.Reset(time.Duration(LCDBackLightTimeout) * time.Second)
 							}
 
 							if OLEDEnabled {
 								Oled.DisplayOn()
 								go oledDisplay(false, 3, 1, *e.LastSpeaker+" "+t.Format("15:04:05"))
-								BackLightTime.Reset(time.Duration(LCDBackLightTimeoutSecs) * time.Second)
+								BackLightTime.Reset(time.Duration(LCDBackLightTimeout) * time.Second)
 							}
 						}
 					}
@@ -333,7 +333,6 @@ func (b *Talkkonnect) playIntoStream(filepath string, vol float32) {
 	} else {
 		log.Println("warn: Sound Disabled by Config")
 	}
-	return
 }
 
 func (b *Talkkonnect) RepeaterTone() {

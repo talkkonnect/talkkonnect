@@ -47,9 +47,12 @@ package talkkonnect
 
 import (
 	"crypto/tls"
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
+	"strconv"
+	"strings"
 	"syscall"
 	"time"
 
@@ -139,83 +142,107 @@ func (b *Talkkonnect) mqttsubscribe() {
 func (b *Talkkonnect) onMessageReceived(client MQTT.Client, message MQTT.Message) {
 	log.Printf("info: Received MQTT message on topic: %s Payload: %s\n", message.Topic(), message.Payload())
 
-	switch string(message.Payload()) {
-	case "DisplayMenu":
+	PayLoad := strings.ToLower(string(message.Payload()))
+
+	var ID int
+	var err error
+
+	if strings.Contains(PayLoad, "voicetargetset") {
+		if strings.Contains(PayLoad, ":") {
+			IDString := fmt.Sprintf("%v", PayLoad[15:])
+			ID, err = strconv.Atoi(IDString)
+			if err != nil {
+				log.Println("error: Target is ID not a number")
+				return
+			}
+			if ID >= 0 && ID <= 31 {
+				b.cmdSendVoiceTargets(uint32(ID))
+				log.Printf("info: MQTT SetTargetID %v Request Processed Successfully\n", IDString)
+				return
+			} else {
+				log.Println("error: Target ID NOT in Valid Range")
+				return
+			}
+		}
+	}
+
+	switch PayLoad {
+	case "displaymenu":
 		log.Println("info: MQTT Display Menu Request Processed Successfully")
 		b.cmdDisplayMenu()
-	case "ChannelUp":
+	case "channelup":
 		log.Println("info: MQTT Channel Up Request Processed Successfully")
 		b.cmdChannelUp()
-	case "ChannelDown":
+	case "channeldown":
 		log.Println("info: MQTT Channel Down Request Processed Successfully")
 		b.cmdChannelDown()
-	case "Mute-Toggle":
+	case "mute-toggle":
 		log.Println("info: MQTT Mute/UnMute Speaker Request Processed Successfully")
 		b.cmdMuteUnmute("toggle")
-	case "Mute":
+	case "mute":
 		log.Println("info: MQTT Mute/UnMute Speaker Request Processed Successfully")
 		b.cmdMuteUnmute("mute")
-	case "Unmute":
+	case "unmute":
 		log.Println("info: MQTT Mute/UnMute Speaker Request Processed Successfully")
 		b.cmdMuteUnmute("unmute")
-	case "CurrentVolume":
+	case "currentvolume":
 		log.Println("info: MQTT Current Volume Level Request Processed Successfully")
 		b.cmdCurrentVolume()
-	case "VolumeUp":
+	case "volumeup":
 		log.Println("info: MQTT Digital Volume Up Request Processed Successfully")
 		b.cmdVolumeUp()
-	case "VolumeDown":
+	case "volumedown":
 		log.Println("info: MQTT Digital Volume Down Request Processed Successfully")
 		b.cmdVolumeDown()
-	case "ListChannels":
+	case "listchannels":
 		log.Println("info: MQTT List Server Channels Request Processed Successfully")
 		b.cmdListServerChannels()
-	case "StartTransmitting":
+	case "starttransmitting":
 		log.Println("info: MQTT Start Transmitting Request Processed Successfully")
 		b.cmdStartTransmitting()
-	case "StopTransmitting":
+	case "stoptransmitting":
 		log.Println("info: MQTT Stop Transmitting Request Processed Successfully")
 		b.cmdStopTransmitting()
-	case "ListOnlineUsers":
+	case "listonlineusers":
 		log.Println("info: MQTT List Online Users Request Processed Successfully")
 		b.cmdListOnlineUsers()
-	case "Stream-Toggle":
+	case "stream-toggle":
 		log.Println("info: MQTT Play/Stop Stream Request Processed Successfully")
 		b.cmdPlayback()
-	case "GPSPosition":
+	case "gpsposition":
 		log.Println("info: MQTT Request GPS Position Processed Successfully")
 		b.cmdGPSPosition()
-	case "SendEmail":
+	case "sendemail":
 		log.Println("info: MQTT Send Email Processed Successfully")
 		b.cmdSendEmail()
-	case "ConnPreviousServer":
+	case "connpreviousserver":
 		log.Println("info: MQTT Previous Server Processed Successfully")
 		b.cmdConnPreviousServer()
-	case "ConnNextServer":
+	case "connnextserver":
 		log.Println("info: MQTT Next Server Processed Successfully")
 		b.cmdConnNextServer()
-	case "ClearScreen":
+	case "clearscreen":
 		log.Println("info: MQTT Clear Screen Processed Successfully")
 		b.cmdClearScreen()
-	case "PingServers":
+	case "pingservers":
 		log.Println("info: MQTT Ping Servers Processed Successfully")
 		b.cmdPingServers()
-	case "PanicSimulation":
+	case "panicsimulation":
 		log.Println("info: MQTT Request Panic Simulation Processed Successfully")
 		b.cmdPanicSimulation()
-	case "RepeatTxLoop":
+	case "repeattxLoop":
 		log.Println("info: MQTT Request Repeat Tx Loop Test Processed Successfully")
 		b.cmdRepeatTxLoop()
-	case "ScanChannels":
+	case "scanchannels":
 		log.Println("info: MQTT Request Scan Processed Successfully")
 		b.cmdScanChannels()
-	case "Thanks":
+	case "thanks":
 		log.Println("info: MQTT Request Show Acknowledgements Processed Successfully")
 		b.cmdThanks()
-	case "ShowUptime":
+	case "showuptime":
 		log.Println("info: MQTT Request Current Version Successfully")
 		b.cmdShowUptime()
-	case "DumpXMLConfig":
+	case "dumpxmlconfig":
 		log.Println("info: MQTT Print XML Config Processed Successfully")
 		b.cmdDumpXMLConfig()
 	case "attentionled:on":
@@ -241,7 +268,7 @@ func (b *Talkkonnect) onMessageReceived(client MQTT.Client, message MQTT.Message
 	case "relay1:pulse":
 		log.Println("info: MQTT Pulse Relay 1 Successfully")
 		relayCommand(1, "pulse")
-	case "PlayRepeaterTone":
+	case "playeepeatertone":
 		log.Println("info: MQTT Play Repeater Tone Processed Successfully")
 		b.cmdPlayRepeaterTone()
 

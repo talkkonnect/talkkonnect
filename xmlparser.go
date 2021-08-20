@@ -32,7 +32,6 @@ package talkkonnect
 import (
 	"encoding/xml"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"log"
 	"os"
@@ -51,7 +50,7 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.67.08"
+	talkkonnectVersion  string = "1.67.09"
 	talkkonnectReleased string = "Aug 20 2021"
 )
 
@@ -1957,73 +1956,29 @@ func printxmlconfig() {
 
 }
 
-func modifyXMLTagServerHopping(inputXMLFile string, outputXMLFile string, nextserverindex int) {
-	xmlfilein, err := os.Open(inputXMLFile)
+func modifyXMLTagServerHopping(inputXMLFile string, newserverindex int) {
 
+	if !FileExists(inputXMLFile) {
+		log.Println("error: Cannot Server Hop Cannot Find XML Config File at ", inputXMLFile)
+		return
+	}
+
+	if NextServerIndex == newserverindex {
+		log.Println("error: Server Index is Not Changed")
+		return
+	}
+
+	PreparedSEDCommand := fmt.Sprintf("s#<nextserverindex>%d</nextserverindex>#<nextserverindex>%d</nextserverindex>#", NextServerIndex, newserverindex)
+	cmd := exec.Command("sed", "-i", PreparedSEDCommand, "talkkonnect.xml")
+
+	err := cmd.Run()
 	if err != nil {
-		FatalCleanUp(err.Error())
+		log.Println("error: Failed to Set Next Server Tage with Error ", err)
 	}
 
-	xmlfileout, err := os.Create(outputXMLFile)
-
-	if err != nil {
-		FatalCleanUp(err.Error())
-	}
-
-	defer xmlfilein.Close()
-	defer xmlfileout.Close()
-	decoder := xml.NewDecoder(xmlfilein)
-	encoder := xml.NewEncoder(xmlfileout)
-	encoder.Indent("", "	")
-
-	for {
-		token, err := decoder.Token()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			log.Printf("error: Getting token: %v\n", err)
-			break
-		}
-
-		switch v := token.(type) {
-		case xml.StartElement:
-			if v.Name.Local == "Document" {
-				var document DocumentStruct
-				if v.Name.Local != "talkkonnect/xml" {
-					err = decoder.DecodeElement(&document, &v)
-					if err != nil {
-						FatalCleanUp("Cannot Find XML Tag Document" + err.Error())
-					}
-				}
-				// XML Tag to Replace
-				document.Global.Software.Settings.NextServerIndex = nextserverindex
-
-				err = encoder.EncodeElement(document, v)
-				if err != nil {
-					FatalCleanUp(err.Error())
-				}
-				continue
-			}
-
-		}
-
-		if err := encoder.EncodeToken(xml.CopyToken(token)); err != nil {
-			FatalCleanUp(err.Error())
-		}
-	}
-
-	if err := encoder.Flush(); err != nil {
-		FatalCleanUp(err.Error())
-	} else {
-		time.Sleep(2 * time.Second)
-		copyFile(inputXMLFile, inputXMLFile+".bak")
-		deleteFile(inputXMLFile)
-		copyFile(outputXMLFile, inputXMLFile)
-		c := exec.Command("reset")
-		c.Stdout = os.Stdout
-		c.Run()
-		os.Exit(0)
-	}
-
+	time.Sleep(2 * time.Second)
+	c := exec.Command("reset")
+	c.Stdout = os.Stdout
+	c.Run()
+	os.Exit(0)
 }

@@ -555,7 +555,7 @@ func (b *Talkkonnect) cmdConnPreviousServer() {
 			AccountIndex = AccountCount - 1
 		}
 
-		modifyXMLTagServerHopping(ConfigXMLFile, "test.xml", AccountIndex)
+		modifyXMLTagServerHopping(ConfigXMLFile, AccountIndex)
 	}
 
 }
@@ -611,7 +611,7 @@ func (b *Talkkonnect) cmdConnNextServer() {
 			AccountIndex = 0
 		}
 
-		modifyXMLTagServerHopping(ConfigXMLFile, "test.xml", AccountIndex)
+		modifyXMLTagServerHopping(ConfigXMLFile, AccountIndex)
 	}
 
 }

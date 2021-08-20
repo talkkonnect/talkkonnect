@@ -37,7 +37,6 @@ import (
 	"fmt"
 
 	"io"
-	"io/ioutil"
 	"log"
 	"math"
 	"net"
@@ -107,19 +106,6 @@ func secondsToHuman(input int) (result string) {
 	}
 
 	return
-}
-
-func copyFile(source string, dest string) {
-	temp, _ := ioutil.ReadFile(source)
-	ioutil.WriteFile(dest, temp, 0777)
-
-}
-
-func deleteFile(source string) {
-	err := os.Remove(source)
-	if err != nil {
-		FatalCleanUp("Cannot Remove Config File " + err.Error())
-	}
 }
 
 func localAddresses() {
@@ -361,4 +347,15 @@ func getOutboundIP() string {
 		return ip.String()
 	}
 	return "Could Not Get Public WAN IP"
+}
+
+func FileExists(filepath string) bool {
+
+	fileinfo, err := os.Stat(filepath)
+
+	if os.IsNotExist(err) {
+		return false
+	}
+
+	return !fileinfo.IsDir()
 }

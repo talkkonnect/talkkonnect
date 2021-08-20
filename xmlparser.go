@@ -732,7 +732,7 @@ type DocumentStruct struct {
 				InterfaceType         string `xml:"lcdinterfacetype"`
 				I2CAddress            uint8  `xml:"lcdi2caddress"`
 				BacklightTimerEnabled bool   `xml:"lcdbacklighttimerenabled"`
-				BackLightTimeoutSecs  int    `xml:"LCDBackLightTimeout"`
+				BackLightTimeoutSecs  int    `xml:"lcdbacklighttimeoutsecs"`
 				BackLightLEDPin       string `xml:"lcdbacklightpin"`
 				RsPin                 int    `xml:"lcdrspin"`
 				EPin                  int    `xml:"lcdepin"`

@@ -144,6 +144,10 @@ func (b *Talkkonnect) OnTextMessage(e *gumble.TextMessageEvent) {
 
 	log.Println(fmt.Sprintf("info: Message ("+strconv.Itoa(len(message))+") from %v %v\n", sender, message))
 
+	voiceMessage := fmt.Sprintf("Message from %v %v\n", sender, cleanstring(e.Message))
+
+	b.TTSPlayer(voiceMessage, TTSMessageEnabled, TTSLocalPlay, TTSLocalPlayWithRXLED, TTSPlayIntoStream)
+
 	if TargetBoard == "rpi" {
 		if LCDEnabled {
 			LcdText[0] = "Msg From " + sender
@@ -234,7 +238,7 @@ func (b *Talkkonnect) OnUserChange(e *gumble.UserChangeEvent) {
 			if info != "" {
 				log.Println("info: User ", cleanstring(e.User.Name), " ", info, "Event type=", e.Type, " channel=", e.User.Channel.Name)
 				if TTSEnabled && TTSParticipants {
-					Speak("User "+cleanstring(e.User.Name)+info+"Has Changed to "+e.User.Channel.Name, "local")
+					b.Speak("User "+cleanstring(e.User.Name)+info+"Has Changed to "+e.User.Channel.Name, "local")
 				}
 			}
 

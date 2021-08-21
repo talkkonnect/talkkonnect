@@ -50,7 +50,7 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.67.10"
+	talkkonnectVersion  string = "1.67.11"
 	talkkonnectReleased string = "Aug 21 2021"
 )
 
@@ -264,6 +264,7 @@ var (
 	PrintPanic        bool
 	PrintAudioRecord  bool
 	PrintMQTT         bool
+	PrintTTSMessages  bool
 	PrintKeyboardMap  bool
 	PrintUSBKeyboard  bool
 )
@@ -287,6 +288,14 @@ var (
 	MQTTPayload     string
 	MQTTAction      string
 	MQTTStore       string
+)
+
+// ttsmessages settings
+var (
+	TTSMessageEnabled     bool
+	TTSLocalPlay          bool
+	TTSLocalPlayWithRXLED bool
+	TTSPlayIntoStream     bool
 )
 
 var (
@@ -679,6 +688,7 @@ type DocumentStruct struct {
 				PrintPanic        bool `xml:"printpanic"`
 				PrintAudioRecord  bool `xml:"printaudiorecord"`
 				PrintMQTT         bool `xml:"printmqtt"`
+				PrintTTSMessages  bool `xml:"printttsmessages"`
 				PrintKeyboardMap  bool `xml:"printkeyboardmap"`
 				PrintUSBKeyboard  bool `xml:"printusbkeyboard"`
 			} `xml:"printvariables"`
@@ -696,6 +706,12 @@ type DocumentStruct struct {
 				MQTTAction    string `xml:"action"`
 				MQTTStore     string `xml:"store"`
 			} `xml:"mqtt"`
+			TTSMessages struct {
+				TTSMessageEnabled     bool `xml:"enabled,attr"`
+				TTSLocalPlay          bool `xml:"localplay"`
+				TTSLocalPlayWithRXLED bool `xml:"localplaywithrxled"`
+				TTSPlayIntoStream     bool `xml:"playintostream"`
+			} `xml:"ttsmessages"`
 		} `xml:"software"`
 		Hardware struct {
 			TargetBoard string `xml:"targetboard,attr"`
@@ -1400,6 +1416,11 @@ func readxmlconfig(file string) error {
 	MQTTAction = Document.Global.Software.MQTT.MQTTAction
 	MQTTStore = Document.Global.Software.MQTT.MQTTStore
 
+	TTSMessageEnabled = Document.Global.Software.TTSMessages.TTSMessageEnabled
+	TTSLocalPlay = Document.Global.Software.TTSMessages.TTSLocalPlay
+	TTSLocalPlayWithRXLED = Document.Global.Software.TTSMessages.TTSLocalPlayWithRXLED
+	TTSPlayIntoStream = Document.Global.Software.TTSMessages.TTSPlayIntoStream
+
 	PrintHTTPAPI = Document.Global.Software.PrintVariables.PrintHTTPAPI
 	PrintTargetboard = Document.Global.Software.PrintVariables.PrintTargetBoard
 	PrintLeds = Document.Global.Software.PrintVariables.PrintLeds
@@ -1413,6 +1434,7 @@ func readxmlconfig(file string) error {
 	PrintPanic = Document.Global.Software.PrintVariables.PrintPanic
 	PrintAudioRecord = Document.Global.Software.PrintVariables.PrintAudioRecord
 	PrintMQTT = Document.Global.Software.PrintVariables.PrintMQTT
+	PrintTTSMessages = Document.Global.Software.PrintVariables.PrintTTSMessages
 	PrintKeyboardMap = Document.Global.Software.PrintVariables.PrintKeyboardMap
 	PrintUSBKeyboard = Document.Global.Software.PrintVariables.PrintUSBKeyboard
 	TargetBoard = Document.Global.Hardware.TargetBoard
@@ -1937,6 +1959,16 @@ func printxmlconfig() {
 		log.Println("info: ------------ MQTT Function ------- SKIPPED ")
 	}
 
+	if PrintTTSMessages {
+		log.Println("info: ------------ TTSMessages Function -------------- ")
+		log.Println("info: Enabled            " + fmt.Sprintf("%v", TTSMessageEnabled))
+		log.Println("info: LocalPlay          " + fmt.Sprintf("%v", TTSLocalPlay))
+		log.Println("info: LocalPlayWithRXLED " + fmt.Sprintf("%v", TTSLocalPlayWithRXLED))
+		log.Println("info: Play Into Stream   " + fmt.Sprintf("%v", TTSPlayIntoStream))
+	} else {
+		log.Println("info: ------------ TTSMessages Function ------- SKIPPED ")
+	}
+
 	if PrintKeyboardMap {
 		log.Println("info: ------------ KeyboardMap Function -------------- ")
 		log.Printf("TTYKeymap %+v\n", TTYKeyMap)
@@ -1973,7 +2005,7 @@ func modifyXMLTagServerHopping(inputXMLFile string, newserverindex int) {
 
 	err := cmd.Run()
 	if err != nil {
-		log.Println("error: Failed to Set Next Server Tage with Error ", err)
+		log.Println("error: Failed to Set Next Server XML Tag with Error ", err)
 	}
 
 	time.Sleep(2 * time.Second)

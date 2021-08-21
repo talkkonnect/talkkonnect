@@ -1,3 +1,29 @@
+/*
+MIT License
+
+Copyright (c) 2017 Tibor Hegedüs
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+Modified for talkkonnect by Suvir Kumar <suvir@talkkonnect.com>
+*/
+
 package talkkonnect
 
 import (
@@ -5,13 +31,14 @@ import (
 	"encoding/hex"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
 	"os/exec"
 )
 
-func Speak(text string, destination string) {
+func (b *Talkkonnect) Speak(text string, destination string) {
 	Folder := "audio"
 	generatedHashName := generateHashName(text)
 	fileName := Folder + "/" + generatedHashName + ".mp3"
@@ -21,6 +48,24 @@ func Speak(text string, destination string) {
 
 	if destination == "local" {
 		localmediaplayer(fileName)
+	}
+
+	if destination == "intostream" {
+		b.BackLightTimer()
+
+		if b.IsTransmitting {
+			log.Println("alert: talkkonnect was already transmitting will now stop transmitting and start the stream")
+			b.TransmitStop(false)
+		}
+
+		IsPlayStream = true
+		NowStreaming = IsPlayStream
+
+		log.Println("info: Playing Recieved Text Message Into Stream as ", fileName)
+		b.playIntoStream(fileName, StreamSoundVolume)
+		IsPlayStream = false
+		NowStreaming = IsPlayStream
+
 	}
 
 }
@@ -64,4 +109,28 @@ func generateHashName(name string) string {
 func localmediaplayer(fileName string) {
 	localplayer := exec.Command("ffplay", "-autoexit", fileName)
 	localplayer.Run()
+}
+
+func (b *Talkkonnect) TTSPlayer(ttsMessage string, ttsMessageReadEnabled bool, ttsLocalPlay bool, ttsLocalPlayRXLed bool, ttlPlayIntoStream bool) {
+
+	// check if tts message read is enabled
+	if ttsMessageReadEnabled {
+		//check if the user wants local play
+		if ttsLocalPlay {
+			//check if the user wants local play with rxled on
+			if ttsLocalPlayRXLed {
+				LEDOnFunc(VoiceActivityLED)
+			}
+			b.Speak(ttsMessage, "local")
+			//check if the user wants local play with rxled on
+			if ttsLocalPlayRXLed {
+				LEDOffFunc(VoiceActivityLED)
+			}
+		}
+
+		//check if the user wants this message played into mumble stream
+		if ttlPlayIntoStream {
+			b.Speak(ttsMessage, "intostream")
+		}
+	}
 }

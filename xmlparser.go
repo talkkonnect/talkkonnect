@@ -50,8 +50,8 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.67.09"
-	talkkonnectReleased string = "Aug 20 2021"
+	talkkonnectVersion  string = "1.67.10"
+	talkkonnectReleased string = "Aug 21 2021"
 )
 
 // Generic Global Variables
@@ -1969,7 +1969,7 @@ func modifyXMLTagServerHopping(inputXMLFile string, newserverindex int) {
 	}
 
 	PreparedSEDCommand := fmt.Sprintf("s#<nextserverindex>%d</nextserverindex>#<nextserverindex>%d</nextserverindex>#", NextServerIndex, newserverindex)
-	cmd := exec.Command("sed", "-i", PreparedSEDCommand, "talkkonnect.xml")
+	cmd := exec.Command("sed", "-i", PreparedSEDCommand, inputXMLFile)
 
 	err := cmd.Run()
 	if err != nil {

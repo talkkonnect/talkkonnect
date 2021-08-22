@@ -84,9 +84,8 @@ func (b *Talkkonnect) USBKeyboard() {
 					case "volumedown":
 						b.cmdVolumeDown()
 					case "setcomment":
-						CommentMessageOff = USBKeyMap[rune(ke.Scancode)].ParamName
-						CommentMessageOn = USBKeyMap[rune(ke.Scancode)].ParamName
-						log.Println("info: User Status Set to Message ", USBKeyMap[rune(ke.Scancode)].ParamName)
+                                                log.Println("info: Set Commment ",USBKeyMap[rune(ke.Scancode)].ParamName)
+                                                b.Client.Self.SetComment(USBKeyMap[rune(ke.Scancode)].ParamName)
 					case "transmitstart":
 						b.cmdStartTransmitting()
 					case "transmitstop":

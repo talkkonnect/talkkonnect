@@ -563,8 +563,8 @@ keyPressListenerLoop:
 					case "volumedown":
 						b.cmdVolumeDown()
 					case "setcomment":
-						CommentMessageOff = TTYKeyMap[ev.Ch].ParamName
-						CommentMessageOn = TTYKeyMap[ev.Ch].ParamName
+						log.Println("info: Set Commment ",TTYKeyMap[ev.Ch].ParamName)
+ 						b.Client.Self.SetComment(TTYKeyMap[ev.Ch].ParamName)
 					case "transmitstart":
 						b.cmdStartTransmitting()
 					case "transmitstop":

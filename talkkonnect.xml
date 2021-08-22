@@ -6,28 +6,62 @@
 			<username></username>
 			<password>talkkonnect</password>
 			<insecure>true</insecure>
+			<register>false</register>
 			<certificate></certificate>
 			<channel></channel>
 			<ident>Name Surname</ident>
+			<tokens enabled="false">
+				<token>token1</token>
+				<token>token2</token>
+			</tokens>	
+			<voicetargets>
+				<id value="0">
+					<users>
+						<user>user1</user>
+					</users>
+				</id>
+				<id value="1">
+					<users>
+						<user>user2</user>
+					</users>
+				</id>
+				<id value="2">
+					<users>
+						<user>user1</user>
+						<user>user2</user>
+					</users>
+				</id>
+				<id value="3">
+					<channels>
+						<channel>
+							<name>channelname1</name>
+							<recursive>true</recursive>
+							<links>true</links>
+							<group>"all"</group>
+						</channel>
+					</channels>
+				</id>
+			</voicetargets>
 		</account>
 	</accounts>
 	<global>
 		<software>
 			<settings>
-				<outputdevice>Headphone Playback ZC</outputdevice>
-				<outputdeviceshort>Headphone</outputdeviceshort>
+				<outputdevice>Speaker</outputdevice>
+				<outputdeviceshort>Speaker</outputdeviceshort>
 				<logfilenameandpath>/var/log/talkkonnect.log</logfilenameandpath>
-				<logging>screenandfilewithlineno</logging>
+				<logging>screenwithlineno</logging>
 				<loglevel>debug</loglevel>
 				<daemonize>false</daemonize>
 				<cancellablestream>true</cancellablestream>
+				<streamautostart>false</streamautostart>
 				<simplexwithmute>false</simplexwithmute>
 				<txcounter>false</txcounter>
 				<nextserverindex>0</nextserverindex>
 			</settings>
 			<autoprovisioning enabled="false">
 				<tkid></tkid>
-				<url>http://www.replaceprovisioningserverhere.com</url>
+				<url>http://provisioning.mydomain.com</url>
 				<savefilepath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect</savefilepath>
 				<savefilename>talkkonnect.xml</savefilename>
 			</autoprovisioning>
@@ -60,7 +94,7 @@
 				<listonlineusers>true</listonlineusers>
 				<listonlineusersfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/ListOnlineUsers.wav</listonlineusersfilenameandpath>
 				<playstream>true</playstream>
-				<playstreamfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/PlayStream.wav</playstreamfilenameandpath>
+				<playstreamfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/PlayChimes.wav</playstreamfilenameandpath>
 				<requestgpsposition>true</requestgpsposition>
 				<requestgpspositionfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/RequestGpsPosition.wav</requestgpspositionfilenameandpath>
 				<nextserver>false</nextserver>
@@ -93,7 +127,7 @@
 				<googlemapsurl>true</googlemapsurl>
 			</smtp>
 			<sounds>
-				<event enabled="true">
+				<event enabled="false">
 					<joinedfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/events/event.wav</joinedfilenameandpath>
 					<leftfilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/events/left.wav</leftfilenameandpath>
 					<messagefilenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/events/message.wav</messagefilenameandpath>
@@ -108,11 +142,11 @@
 				</incommingbeep>
 				<rogerbeep enabled="true">
 					<filenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/rogerbeeps/Image.wav</filenameandpath>
-					<volume>1</volume>
+					<volume>0.1</volume>
 				</rogerbeep>
-				<repeatertone enabled="true">
-		                	<tonefrequencyhz>1750</tonefrequencyhz>
-                			<tonedurationsec>1</tonedurationsec>
+				<repeatertone enabled="false">
+					<tonefrequencyhz>1750</tonefrequencyhz>
+					<tonedurationsec>1</tonedurationsec>
 				</repeatertone>
 				<stream enabled="true">
 					<filenameandpath>http://prdonline.prd.go.th:8200</filenameandpath>
@@ -155,60 +189,69 @@
 				<printbeacon>false</printbeacon>
 				<printtts>false</printtts>
 				<printsmtp>false</printsmtp>
-				<printsounds>true</printsounds>
+				<printsounds>false</printsounds>
 				<printtxtimeout>false</printtxtimeout>
 				<printhttpapi>false</printhttpapi>
 				<printtargetboard>false</printtargetboard>
-				<printleds>true</printleds>
+				<printleds>false</printleds>
 				<printheartbeat>false</printheartbeat>
 				<printbuttons>false</printbuttons>
 				<printcomment>false</printcomment>
-				<printlcd>true</printlcd>
+				<printlcd>false</printlcd>
 				<printoled>false</printoled>
 				<printgps>false</printgps>
 				<printpanic>false</printpanic>
 				<printaudiorecord>false</printaudiorecord>
 				<printmqtt>false</printmqtt>
+				<printkeyboardmap>false</printkeyboardmap>
+				<printusbkeyboard>false</printusbkeyboard>
 			</printvariables>
 			<mqtt enabled="false">
-				<mqtttopic>thailand/bangkok/company/talkkonnect</mqtttopic>
-				<mqttbroker>tcp://mqtt.test.com:1883</mqttbroker>
-				<mqttpassword>test</mqttpassword>
-				<mqttuser>test</mqttuser>
-				<mqttid>talkkonnect</mqttid>
+				<mqtttopic>country/city/division/talkkonnect</mqtttopic>
+				<mqttbroker>tcp://mqtt.yourdomain.com:1883</mqttbroker>
+				<mqttpassword>username</mqttpassword>
+				<mqttuser>password</mqttuser>
+				<mqttid>talkkonnect002</mqttid>
 				<cleansess>false</cleansess>
 				<qos>0</qos>
 				<num>1</num>
 				<payload></payload>
 				<action>sub</action>
 				<store></store>
+				<attentionblinktimes>20</attentionblinktimes>
+				<attentionblinkmsecs>300</attentionblinkmsecs>
 			</mqtt>
+			<ttsmessages enabled = "false">
+				<localplay>true</localplay>
+				<localplaywithrxled>true</localplaywithrxled>
+				<playintostream>true</playintostream>
+			</ttsmessages>
 		</software>
-		<hardware targetboard="rpi">
+		<hardware targetboard="pc">
 			<lights>
 				<ledstripenabled>false</ledstripenabled>
-				<voiceactivityledpin>5</voiceactivityledpin>
-				<participantsledpin>6</participantsledpin>
-				<transmitledpin>16</transmitledpin>
-				<onlineledpin>1</onlineledpin>
-				<attentionledpin>25</attentionledpin>
+				<voiceactivityledpin>2</voiceactivityledpin>
+				<participantsledpin>3</participantsledpin>
+				<transmitledpin>4</transmitledpin>
+				<onlineledpin>5</onlineledpin>
+				<attentionledpin></attentionledpin>
 			</lights>
 			<heartbeat enabled="false">
-				<heartbeatledpin>25</heartbeatledpin>
+				<heartbeatledpin>2</heartbeatledpin>
 				<periodmsecs>2000</periodmsecs>
 				<ledonmsecs>1000</ledonmsecs>
 				<ledoffmsecs>1010</ledoffmsecs>
 			</heartbeat>
 			<buttons>
-				<txbuttonpin>17</txbuttonpin>
-				<txtogglepin></txtogglepin>
-				<upbuttonpin></upbuttonpin>
-				<downbuttonpin></downbuttonpin>
-				<panicbuttonpin></panicbuttonpin>
+				<txbuttonpin>26</txbuttonpin>
+				<txtogglepin>11</txtogglepin>
+				<upbuttonpin>19</upbuttonpin>
+				<downbuttonpin>13</downbuttonpin>
+				<panicbuttonpin>14</panicbuttonpin>
 				<streambuttonpin></streambuttonpin>
 			</buttons>
 			<comment>
-				<commentbuttonpin>5</commentbuttonpin>
+				<commentbuttonpin>9</commentbuttonpin>
 				<commentmessageoff>Standby</commentmessageoff>
 				<commentmessageon>Unavailable</commentmessageon>
 			</comment>
@@ -278,7 +321,157 @@
 				<recordfileformat></recordfileformat>
 				<recordchunksize></recordchunksize>
 			</audiorecordfunction>
+			<usbkeyboard enabled = "false">
+				<usbkeyboarddevpath>/dev/input/event0</usbkeyboarddevpath>
+				<numlockscanid>69</numlockscanid>
+			</usbkeyboard>
+			<keyboardcommands>
+				<command name = "channelup" enabled = "false">
+				</command>
+				<command name = "channeldown" enabled = "false">
+				</command>
+				<command name = "serverup" enabled = "false">
+				</command>
+				<command name = "serverdown" enabled = "false">
+				</command>
+				<command name = "mute" enabled = "false">
+				</command>
+				<command name = "unmute" enabled = "false">
+				</command>
+				<command name = "mute-toggle" enabled = "false">
+				</command>
+				<command name = "stream-toggle" enabled = "false">
+				</command>
+				<command name = "volumeup" enabled = "false">
+				</command>
+				<command name = "volumedown" enabled = "false">
+				</command>
+				<command name = "setcomment" enabled = "false">
+					<params>
+						<param name ="Away From Terminal" value = "0"/>
+					</params>
+				</command>
+				<command name = "transmitstart" enabled = "false">
+				</command>
+				<command name = "transmitstop" enabled = "false">
+				</command>
+				<command name = "record" enabled = "false">
+					<params>
+						<param name ="trafficrecord" value = "0"/>
+					</params>
+				</command>
+				<command name = "voicetargetset" enabled = "true">
+					<params>
+						<param name ="voicetarget" value = "0"/>
+					</params>
+					<ttykeyboard scanid = "48" enabled = "true">
+						<keylabel>0</keylabel>
+					</ttykeyboard>
+					<usbkeyboard  scanid = "82" enabled = "true">
+						<keylabel>0</keylabel>
+						<specialkeyscanid>69</specialkeyscanid>
+					</usbkeyboard>
+				</command>
+				<command name = "voicetargetset" enabled = "true">
+					<params>
+						<param name ="voicetarget" value = "1"/>
+					</params>
+					<ttykeyboard scanid = "49" enabled = "true">
+						<keylabel>1</keylabel>
+					</ttykeyboard>
+					<usbkeyboard  scanid = "79" enabled = "true">
+						<keylabel>1</keylabel>
+					</usbkeyboard>
+				</command>
+				<command name = "voicetargetset" enabled = "true">
+					<params>
+						<param name ="voicetarget" value = "2"/>
+					</params>
+					<ttykeyboard scanid = "50" enabled = "true">
+						<keylabel>2</keylabel>
+					</ttykeyboard>
+					<usbkeyboard  scanid = "80" enabled = "true">
+						<keylabel>2</keylabel>
+					</usbkeyboard>
+				</command>
+				<command name = "voicetargetset" enabled = "true">
+					<params>
+						<param name ="voicetarget" value = "3"/>
+					</params>
+					<ttykeyboard scanid = "51" enabled = "true">
+						<keylabel>3</keylabel>
+					</ttykeyboard>
+					<usbkeyboard  scanid = "81" enabled = "true">
+						<keylabel>3</keylabel>
+					</usbkeyboard>
+				</command>
+				<command name = "voicetargetset" enabled = "true">
+					<params>
+						<param name ="voicetarget" value = "4"/>
+					</params>
+					<ttykeyboard scanid = "52" enabled = "true">
+						<keylabel>4</keylabel>
+					</ttykeyboard>
+					<usbkeyboard  scanid = "75" enabled = "true">
+						<keylabel>4</keylabel>
+					</usbkeyboard>
+				</command>
+				<command name = "voicetargetset" enabled = "true">
+					<params>
+						<param name ="voicetarget" value = "5"/>
+					</params>
+					<ttykeyboard scanid = "53" enabled = "true">
+						<keylabel>5</keylabel>
+					</ttykeyboard>
+					<usbkeyboard  scanid = "76" enabled = "true">
+						<keylabel>5</keylabel>
+					</usbkeyboard>
+				</command>
+				<command name = "voicetargetset" enabled = "true">
+					<params>
+						<param name ="voicetarget" value = "6"/>
+					</params>
+					<ttykeyboard scanid = "54" enabled = "true">
+						<keylabel>6</keylabel>
+					</ttykeyboard>
+					<usbkeyboard  scanid = "77" enabled = "true">
+						<keylabel>6</keylabel>
+					</usbkeyboard>
+				</command>
+				<command name = "voicetargetset" enabled = "true">
+					<params>
+						<param name ="voicetarget" value = "7"/>
+					</params>
+					<ttykeyboard scanid = "55" enabled = "true">
+						<keylabel>7</keylabel>
+					</ttykeyboard>
+					<usbkeyboard  scanid = "71" enabled = "true">
+						<keylabel>7</keylabel>
+					</usbkeyboard>
+				</command>
+				<command name = "voicetargetset" enabled = "true">
+					<params>
+						<param name ="voicetarget" value = "8"/>
+					</params>
+					<ttykeyboard scanid = "56" enabled = "true">
+						<keylabel>8</keylabel>
+					</ttykeyboard>
+					<usbkeyboard  scanid = "72" enabled = "true">
+						<keylabel>8</keylabel>
+					</usbkeyboard>
+				</command>
+				<command name = "voicetargetset" enabled = "true">
+					<params>
+						<param name ="voicetarget" value = "9"/>
+					</params>
+					<ttykeyboard scanid = "57" enabled = "true">
+						<keylabel>9</keylabel>
+					</ttykeyboard>
+					<usbkeyboard  scanid = "73" enabled = "true">
+						<keylabel>9</keylabel>
+					</usbkeyboard>
+				</command>
+			</keyboardcommands>
 		</hardware>
 	</global>
 </document>
-

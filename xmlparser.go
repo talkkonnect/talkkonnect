@@ -50,8 +50,8 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.67.11"
-	talkkonnectReleased string = "Aug 21 2021"
+	talkkonnectVersion  string = "1.67.12"
+	talkkonnectReleased string = "Aug 22 2021"
 )
 
 // Generic Global Variables
@@ -271,23 +271,25 @@ var (
 
 // mqtt settings
 var (
-	MQTTEnabled     bool = false
-	Iotuuid         string
-	RelayAllState   bool = false
-	RelayPulseMills time.Duration
-	TotalRelays     uint
-	RelayPins       = [9]uint{}
-	MQTTTopic       string
-	MQTTBroker      string
-	MQTTPassword    string
-	MQTTUser        string
-	MQTTId          string
-	MQTTCleansess   bool
-	MQTTQos         int
-	MQTTNum         int
-	MQTTPayload     string
-	MQTTAction      string
-	MQTTStore       string
+	MQTTEnabled             bool = false
+	Iotuuid                 string
+	RelayAllState           bool = false
+	RelayPulseMills         time.Duration
+	TotalRelays             uint
+	RelayPins               = [9]uint{}
+	MQTTTopic               string
+	MQTTBroker              string
+	MQTTPassword            string
+	MQTTUser                string
+	MQTTId                  string
+	MQTTCleansess           bool
+	MQTTQos                 int
+	MQTTNum                 int
+	MQTTPayload             string
+	MQTTAction              string
+	MQTTStore               string
+	MQTTAttentionBlinkTimes int
+	MQTTAttentionBlinkmsecs int
 )
 
 // ttsmessages settings
@@ -693,18 +695,20 @@ type DocumentStruct struct {
 				PrintUSBKeyboard  bool `xml:"printusbkeyboard"`
 			} `xml:"printvariables"`
 			MQTT struct {
-				MQTTEnabled   bool   `xml:"enabled,attr"`
-				MQTTTopic     string `xml:"mqtttopic"`
-				MQTTBroker    string `xml:"mqttbroker"`
-				MQTTPassword  string `xml:"mqttpassword"`
-				MQTTUser      string `xml:"mqttuser"`
-				MQTTId        string `xml:"mqttid"`
-				MQTTCleansess bool   `xml:"cleansess"`
-				MQTTQos       int    `xml:"qos"`
-				MQTTNum       int    `xml:"num"`
-				MQTTPayload   string `xml:"payload"`
-				MQTTAction    string `xml:"action"`
-				MQTTStore     string `xml:"store"`
+				MQTTEnabled             bool   `xml:"enabled,attr"`
+				MQTTTopic               string `xml:"mqtttopic"`
+				MQTTBroker              string `xml:"mqttbroker"`
+				MQTTPassword            string `xml:"mqttpassword"`
+				MQTTUser                string `xml:"mqttuser"`
+				MQTTId                  string `xml:"mqttid"`
+				MQTTCleansess           bool   `xml:"cleansess"`
+				MQTTQos                 int    `xml:"qos"`
+				MQTTNum                 int    `xml:"num"`
+				MQTTPayload             string `xml:"payload"`
+				MQTTAction              string `xml:"action"`
+				MQTTStore               string `xml:"store"`
+				MQTTAttentionBlinkTimes int    `xml:"attentionblinktimes"`
+				MQTTAttentionBlinkmsecs int    `xml:"attentionblinkmsecs"`
 			} `xml:"mqtt"`
 			TTSMessages struct {
 				TTSMessageEnabled     bool `xml:"enabled,attr"`
@@ -941,8 +945,6 @@ func readxmlconfig(file string) error {
 			}
 		}
 	}
-
-	// insert the voice target back here
 
 	exec, err := os.Executable()
 
@@ -1415,6 +1417,8 @@ func readxmlconfig(file string) error {
 	MQTTPayload = Document.Global.Software.MQTT.MQTTPayload
 	MQTTAction = Document.Global.Software.MQTT.MQTTAction
 	MQTTStore = Document.Global.Software.MQTT.MQTTStore
+	MQTTAttentionBlinkTimes = Document.Global.Software.MQTT.MQTTAttentionBlinkTimes
+	MQTTAttentionBlinkmsecs = Document.Global.Software.MQTT.MQTTAttentionBlinkmsecs
 
 	TTSMessageEnabled = Document.Global.Software.TTSMessages.TTSMessageEnabled
 	TTSLocalPlay = Document.Global.Software.TTSMessages.TTSLocalPlay
@@ -1944,17 +1948,19 @@ func printxmlconfig() {
 	}
 	if PrintMQTT {
 		log.Println("info: ------------ MQTT Function -------------- ")
-		log.Println("info: Enabled   " + fmt.Sprintf("%v", MQTTEnabled))
-		log.Println("info: Topic     " + fmt.Sprintf("%v", MQTTTopic))
-		log.Println("info: Broker    " + fmt.Sprintf("%v", MQTTBroker))
-		log.Println("info: Password  " + fmt.Sprintf("%v", MQTTPassword))
-		log.Println("info: Id        " + fmt.Sprintf("%v", MQTTId))
-		log.Println("info: Cleansess " + fmt.Sprintf("%v", MQTTCleansess))
-		log.Println("info: Qos       " + fmt.Sprintf("%v", MQTTQos))
-		log.Println("info: Num       " + fmt.Sprintf("%v", MQTTNum))
-		log.Println("info: Payload   " + fmt.Sprintf("%v", MQTTPayload))
-		log.Println("info: Action    " + fmt.Sprintf("%v", MQTTAction))
-		log.Println("info: Store     " + fmt.Sprintf("%v", MQTTStore))
+		log.Println("info: Enabled             " + fmt.Sprintf("%v", MQTTEnabled))
+		log.Println("info: Topic               " + fmt.Sprintf("%v", MQTTTopic))
+		log.Println("info: Broker              " + fmt.Sprintf("%v", MQTTBroker))
+		log.Println("info: Password            " + fmt.Sprintf("%v", MQTTPassword))
+		log.Println("info: Id                  " + fmt.Sprintf("%v", MQTTId))
+		log.Println("info: Cleansess           " + fmt.Sprintf("%v", MQTTCleansess))
+		log.Println("info: Qos                 " + fmt.Sprintf("%v", MQTTQos))
+		log.Println("info: Num                 " + fmt.Sprintf("%v", MQTTNum))
+		log.Println("info: Payload             " + fmt.Sprintf("%v", MQTTPayload))
+		log.Println("info: Action              " + fmt.Sprintf("%v", MQTTAction))
+		log.Println("info: Store               " + fmt.Sprintf("%v", MQTTStore))
+		log.Println("info: AttentionBlinkTimes " + fmt.Sprintf("%v", MQTTAttentionBlinkTimes))
+		log.Println("info: AttentionBlinkmsecs " + fmt.Sprintf("%v", MQTTAttentionBlinkmsecs))
 	} else {
 		log.Println("info: ------------ MQTT Function ------- SKIPPED ")
 	}
@@ -2006,11 +2012,8 @@ func modifyXMLTagServerHopping(inputXMLFile string, newserverindex int) {
 	err := cmd.Run()
 	if err != nil {
 		log.Println("error: Failed to Set Next Server XML Tag with Error ", err)
+		return
 	}
 
-	time.Sleep(2 * time.Second)
-	c := exec.Command("reset")
-	c.Stdout = os.Stdout
-	c.Run()
-	os.Exit(0)
+	restart()
 }

@@ -54,6 +54,11 @@ then
 	echo "copying talkkonnect.xml for safe keeping to /root/talkkonnect.xml"
 	cp /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/talkkonnect.xml /root/
 fi
+if [[ -f "/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/mumble.pem" ]]
+then
+	echo "copying talkkonnect.xml for safe keeping to /root/mumble.pem"
+	cp /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/mumble.pem /root/
+fi
 
 rm -rf /home/talkkonnect/gocode/src/github.old
 rm -rf /home/talkkonnect/gocode/src/google.golang.org
@@ -85,6 +90,7 @@ then
 	echo "copying original talkkonnect.xml back to /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/talkkonnect.xml"
 	rm /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/talkkonnect.xml
 	cp /home/talkkonnect/gocode/src/github.old/talkkonnect/talkkonnect/talkkonnect.xml  /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/talkkonnect.xml
+	cp /home/talkkonnect/gocode/src/github.old/talkkonnect/talkkonnect/mumble.pem  /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/mumble.pem
 fi
 
 

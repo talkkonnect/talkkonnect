@@ -359,3 +359,11 @@ func FileExists(filepath string) bool {
 
 	return !fileinfo.IsDir()
 }
+
+func restart() {
+	time.Sleep(2 * time.Second)
+	c := exec.Command("reset")
+	c.Stdout = os.Stdout
+	c.Run()
+	os.Exit(0)
+}

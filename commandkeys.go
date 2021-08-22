@@ -572,7 +572,7 @@ func (b *Talkkonnect) cmdClearScreen() {
 		if OLEDEnabled {
 			Oled.DisplayOn()
 			LCDIsDark = false
-			oledDisplay(true, 0, 0, "") // clear the screen
+			oledDisplay(true, 0, 0, "")
 		}
 	}
 }
@@ -742,12 +742,6 @@ func (b *Talkkonnect) cmdPanicSimulation() {
 			b.SendMessage(fmt.Sprintf("My Username is %s and Ident is %s", b.Username, b.Ident), PRecursive)
 		}
 
-		// New. Need to allow sending email / text alert on Panic Event even is the GPS is not enabled or working.
-		// If no GPS is included in email / Mumble text message, it means GPS in not enabled or not working.
-
-		//if PSendGpsLocation && GpsEnabled  {
-		//if GpsEnabled  {
-
 		if PSendGpsLocation {
 
 			var i int = 0
@@ -811,47 +805,17 @@ func (b *Talkkonnect) cmdPanicSimulation() {
 		IsPlayStream = false
 		b.IsTransmitting = false
 
-		// New. Decide should TX Led be On or Off during a panic event? I think don't turn off here,
-		// Want to see  PTT key working when testing panic function.
-		// We shall use another low profile lights/LCD function to turn all the lights and display off during panic event
-		// They should be dim. Not attracting attention
-		//if TargetBoard == "rpi" {
-		//if !LedStripEnabled {
-		//b.LEDOff(b.TransmitLED)
-		//} else {
-		//
-		//MyLedStripTransmitLEDOff()
-		//}
-		//log.Println("--")
-
-		//New. Low Profile Leds and LCD during Panic Event. Turn All Lights Off.
-		//Heartbeat will be running - disable in xml config?
-		//Backlight LCD led is dim with a transistor control, but it should work...
-		//Add another feature to enable all lights back on a PTT press after the panic event is over. To do?
-
 		if PLowProfile {
 			b.LEDOffAll()
 			log.Println("info: Low Profile Lights Option is Enabled. Turning All Leds Off During Panic Event")
-
-			//b.LEDOff(b.TransmitLED)
-			//b.LEDOff(b.BackLightLED)
-			//b.LEDOff(b.OnlineLED)
-			//b.LEDOff(b.ParticipantsLED)
-			//b.LEDOff(b.VoiceActivityLED)
-			//
-			//b.LEDOff(b.HeartBeatLED)
-			//
-
 			if LCDEnabled {
 				log.Println("info: Low Profile Lights is Enabled. Turning Off Display During Panic Event")
 				LcdText = [4]string{"", "", "", ""}
 				LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 			}
 			if OLEDEnabled {
-				oledDisplay(true, 0, 0, "") // clear OLED screen. How about HD44780 and heartbit?
+				oledDisplay(true, 0, 0, "")
 			}
-			// End of Low Profile Lights
-
 		}
 	}
 }

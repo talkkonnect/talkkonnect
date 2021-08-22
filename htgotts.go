@@ -111,26 +111,19 @@ func localmediaplayer(fileName string) {
 	localplayer.Run()
 }
 
-func (b *Talkkonnect) TTSPlayer(ttsMessage string, ttsMessageReadEnabled bool, ttsLocalPlay bool, ttsLocalPlayRXLed bool, ttlPlayIntoStream bool) {
+func (b *Talkkonnect) TTSPlayer(ttsMessage string, ttsLocalPlay bool, ttsLocalPlayRXLed bool, ttlPlayIntoStream bool) {
 
-	// check if tts message read is enabled
-	if ttsMessageReadEnabled {
-		//check if the user wants local play
-		if ttsLocalPlay {
-			//check if the user wants local play with rxled on
-			if ttsLocalPlayRXLed {
-				LEDOnFunc(VoiceActivityLED)
-			}
-			b.Speak(ttsMessage, "local")
-			//check if the user wants local play with rxled on
-			if ttsLocalPlayRXLed {
-				LEDOffFunc(VoiceActivityLED)
-			}
+	if ttsLocalPlay {
+		if ttsLocalPlayRXLed {
+			LEDOnFunc(VoiceActivityLED)
 		}
+		b.Speak(ttsMessage, "local")
+		if ttsLocalPlayRXLed {
+			LEDOffFunc(VoiceActivityLED)
+		}
+	}
 
-		//check if the user wants this message played into mumble stream
-		if ttlPlayIntoStream {
-			b.Speak(ttsMessage, "intostream")
-		}
+	if ttlPlayIntoStream {
+		b.Speak(ttsMessage, "intostream")
 	}
 }

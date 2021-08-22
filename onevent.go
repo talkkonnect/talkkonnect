@@ -144,9 +144,10 @@ func (b *Talkkonnect) OnTextMessage(e *gumble.TextMessageEvent) {
 
 	log.Println(fmt.Sprintf("info: Message ("+strconv.Itoa(len(message))+") from %v %v\n", sender, message))
 
-	voiceMessage := fmt.Sprintf("Message from %v %v\n", sender, cleanstring(e.Message))
-
-	b.TTSPlayer(voiceMessage, TTSMessageEnabled, TTSLocalPlay, TTSLocalPlayWithRXLED, TTSPlayIntoStream)
+	if TTSMessageEnabled {
+		voiceMessage := fmt.Sprintf("Message from %v %v\n", sender, cleanstring(e.Message))
+		b.TTSPlayer(voiceMessage, TTSLocalPlay, TTSLocalPlayWithRXLED, TTSPlayIntoStream)
+	}
 
 	if TargetBoard == "rpi" {
 		if LCDEnabled {

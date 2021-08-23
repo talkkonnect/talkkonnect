@@ -563,8 +563,10 @@ keyPressListenerLoop:
 					case "volumedown":
 						b.cmdVolumeDown()
 					case "setcomment":
-						log.Println("info: Set Commment ",TTYKeyMap[ev.Ch].ParamName)
- 						b.Client.Self.SetComment(TTYKeyMap[ev.Ch].ParamName)
+						if TTYKeyMap[ev.Ch].ParamName == "setcomment" {
+							log.Println("info: Set Commment ", TTYKeyMap[ev.Ch].ParamValue)
+							b.Client.Self.SetComment(TTYKeyMap[ev.Ch].ParamValue)
+						}
 					case "transmitstart":
 						b.cmdStartTransmitting()
 					case "transmitstop":
@@ -573,7 +575,12 @@ keyPressListenerLoop:
 						b.cmdAudioTrafficRecord()
 						b.cmdAudioMicRecord()
 					case "voicetargetset":
-						b.cmdSendVoiceTargets(TTYKeyMap[ev.Ch].ParamValue)
+						voicetarget, err := strconv.Atoi(TTYKeyMap[ev.Ch].ParamValue)
+						if err != nil {
+							log.Println("error: Target is Non-Numeric Value")
+						} else {
+							b.cmdSendVoiceTargets(uint32(voicetarget))
+						}
 					default:
 						log.Println("Command Not Defined ", strings.ToLower(TTYKeyMap[ev.Ch].Command))
 					}

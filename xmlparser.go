@@ -50,8 +50,8 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.67.13"
-	talkkonnectReleased string = "Aug 22 2021"
+	talkkonnectVersion  string = "1.67.14"
+	talkkonnectReleased string = "Aug 23 2021"
 )
 
 // Generic Global Variables
@@ -846,7 +846,7 @@ type DocumentStruct struct {
 					Params  struct {
 						Param []struct {
 							Name  string `xml:"name,attr"`
-							Value uint32 `xml:"value,attr"`
+							Value string `xml:"value,attr"`
 						} `xml:"param"`
 					} `xml:"params"`
 					Ttykeyboard struct {
@@ -887,7 +887,7 @@ type TTYKBStruct struct {
 	KeyLabel   uint32
 	Command    string
 	ParamName  string
-	ParamValue uint32
+	ParamValue string
 }
 
 type USBKBStruct struct {
@@ -895,7 +895,7 @@ type USBKBStruct struct {
 	KeyLabel   uint32
 	Command    string
 	ParamName  string
-	ParamValue uint32
+	ParamValue string
 }
 
 func readxmlconfig(file string) error {

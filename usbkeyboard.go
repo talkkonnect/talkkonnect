@@ -32,6 +32,7 @@ package talkkonnect
 
 import (
 	"log"
+	"strconv"
 	"strings"
 
 	evdev "github.com/gvalkov/golang-evdev"
@@ -84,8 +85,10 @@ func (b *Talkkonnect) USBKeyboard() {
 					case "volumedown":
 						b.cmdVolumeDown()
 					case "setcomment":
-                                                log.Println("info: Set Commment ",USBKeyMap[rune(ke.Scancode)].ParamName)
-                                                b.Client.Self.SetComment(USBKeyMap[rune(ke.Scancode)].ParamName)
+						if USBKeyMap[rune(ke.Scancode)].ParamName == "setcomment" {
+							log.Println("info: Set Commment ", USBKeyMap[rune(ke.Scancode)].ParamValue)
+							b.Client.Self.SetComment(USBKeyMap[rune(ke.Scancode)].ParamValue)
+						}
 					case "transmitstart":
 						b.cmdStartTransmitting()
 					case "transmitstop":
@@ -94,7 +97,12 @@ func (b *Talkkonnect) USBKeyboard() {
 						b.cmdAudioTrafficRecord()
 						b.cmdAudioMicRecord()
 					case "voicetargetset":
-						b.cmdSendVoiceTargets(USBKeyMap[rune(ke.Scancode)].ParamValue)
+						voicetarget, err := strconv.Atoi(USBKeyMap[rune(ke.Scancode)].ParamValue)
+						if err != nil {
+							log.Println("error: Target is Non-Numeric Value")
+						} else {
+							b.cmdSendVoiceTargets(uint32(voicetarget))
+						}
 					default:
 						log.Println("Command Not Defined ", strings.ToLower(USBKeyMap[rune(ke.Scancode)].Command))
 					}

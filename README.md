@@ -100,6 +100,7 @@ Instead of the onboard sound card or USB Sound Card, you can also use a ReSpeake
 * This image is a good starting point if you already have all the components at home or if you want to use talkkonnect as a Transceiver interface. 
 * Should you want to connect a screen and a physical PTT Button using GPIO you can set the tag 
 * After you intall the image you can copy the bash script tk-update.sh in the scripts folder to your /root home and run it in the root user's folder to update to the lastest version.
+* Notice!!! On this particular build wireless is disabled you will need to run the command rfkill list to see and you will see it hard blocked you will then need to run rfkill unblock 0 for wireless to work again.	
 
 ### Quick Download Link for Pre-Made SD Card Image for Use with Raspberry pi 2/3  and RESPEAKER Compatable HAT ###
 * [Click Here to Download Pre-Configured SD Card Image for Respeaker Hat](https://drive.google.com/file/d/1nwdorhtPgFv2IfRaLubsn9aAtGJBSp3A/view?usp=sharing) 

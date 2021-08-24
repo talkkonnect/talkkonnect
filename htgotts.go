@@ -35,19 +35,18 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"os/exec"
 )
 
-func (b *Talkkonnect) Speak(text string, destination string) {
+func (b *Talkkonnect) Speak(text string, destination string, playBackVolume float32, duration float32, loop int) {
 	Folder := "audio"
 	generatedHashName := generateHashName(text)
-	fileName := Folder + "/" + generatedHashName + ".mp3"
+	fileNameWithPath := Folder + "/" + generatedHashName + ".mp3"
 
 	createFolderIfNotExists(Folder)
-	downloadIfNotExists(fileName, text)
+	downloadIfNotExists(fileNameWithPath, text)
 
 	if destination == "local" {
-		localmediaplayer(fileName)
+		localMediaPlayer(fileNameWithPath, playBackVolume, duration, loop)
 	}
 
 	if destination == "intostream" {
@@ -61,8 +60,8 @@ func (b *Talkkonnect) Speak(text string, destination string) {
 		IsPlayStream = true
 		NowStreaming = IsPlayStream
 
-		log.Println("info: Playing Recieved Text Message Into Stream as ", fileName)
-		b.playIntoStream(fileName, StreamSoundVolume)
+		log.Println("info: Playing Recieved Text Message Into Stream as ", fileNameWithPath)
+		b.playIntoStream(fileNameWithPath, StreamSoundVolume)
 		IsPlayStream = false
 		NowStreaming = IsPlayStream
 
@@ -106,24 +105,19 @@ func generateHashName(name string) string {
 	return hex.EncodeToString(hash[:])
 }
 
-func localmediaplayer(fileName string) {
-	localplayer := exec.Command("ffplay", "-autoexit", fileName)
-	localplayer.Run()
-}
-
 func (b *Talkkonnect) TTSPlayer(ttsMessage string, ttsLocalPlay bool, ttsLocalPlayRXLed bool, ttlPlayIntoStream bool) {
 
 	if ttsLocalPlay {
 		if ttsLocalPlayRXLed {
 			LEDOnFunc(VoiceActivityLED)
 		}
-		b.Speak(ttsMessage, "local")
+		b.Speak(ttsMessage, "local", 1, 0, 1)
 		if ttsLocalPlayRXLed {
 			LEDOffFunc(VoiceActivityLED)
 		}
 	}
 
 	if ttlPlayIntoStream {
-		b.Speak(ttsMessage, "intostream")
+		b.Speak(ttsMessage, "intostream", 1, 0, 1)
 	}
 }

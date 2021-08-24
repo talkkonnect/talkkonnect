@@ -33,7 +33,6 @@ package talkkonnect
 
 import (
 	"archive/zip"
-	"errors"
 	"fmt"
 
 	"io"
@@ -148,30 +147,6 @@ func (b *Talkkonnect) pingconnectedserver() {
 	log.Println("info: Server Version:         ", major, ".", minor, ".", patch)
 	log.Println("info: Server Users:           ", resp.ConnectedUsers, "/", resp.MaximumUsers)
 	log.Println("info: Server Maximum Bitrate: ", resp.MaximumBitrate)
-}
-
-func playWavLocal(filepath string, playbackvolume int) error {
-	var player string
-
-	if path, err := exec.LookPath("aplay"); err == nil {
-		player = path
-	} else if path, err := exec.LookPath("paplay"); err == nil {
-		player = path
-	} else {
-		return errors.New("failed to find either aplay or paplay in path")
-	}
-
-	log.Println("info: debug player ", player)
-	log.Println("info: debug filepath ", filepath)
-	cmd := exec.Command(player, filepath)
-
-	_, err := cmd.CombinedOutput()
-
-	if err != nil {
-		return fmt.Errorf("error: cmd.Run() for %s failed with %s", player, err)
-	}
-
-	return nil
 }
 
 func sendviagmail(username string, password string, receiver string, subject string, message string) error {

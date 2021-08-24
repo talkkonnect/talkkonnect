@@ -262,15 +262,15 @@ func (b *Talkkonnect) ParticipantLEDUpdate(verbose bool) {
 
 	if EventSoundEnabled {
 		if participantCount > prevParticipantCount {
-			err := playWavLocal(EventJoinedSoundFilenameAndPath, 100)
+			err := aplayLocal(EventJoinedSoundFilenameAndPath, 100)
 			if err != nil {
-				log.Println("error: playWavLocal(EventJoinedSoundFilenameAndPath) Returned Error: ", err)
+				log.Println("error: aplayLocal(EventJoinedSoundFilenameAndPath) Returned Error: ", err)
 			}
 		}
 		if participantCount < prevParticipantCount {
-			err := playWavLocal(EventLeftSoundFilenameAndPath, 100)
+			err := aplayLocal(EventLeftSoundFilenameAndPath, 100)
 			if err != nil {
-				log.Println("error: playWavLocal(EventLeftSoundFilenameAndPath) Returned Error: ", err)
+				log.Println("error: aplayLocal(EventLeftSoundFilenameAndPath) Returned Error: ", err)
 			}
 		}
 	}
@@ -278,7 +278,7 @@ func (b *Talkkonnect) ParticipantLEDUpdate(verbose bool) {
 	if participantCount > 1 && participantCount != prevParticipantCount {
 
 		if TTSEnabled && TTSParticipants {
-			b.Speak("There Are Currently "+strconv.Itoa(participantCount)+" Users in The Channel "+b.Client.Self.Channel.Name, "local")
+			b.Speak("There Are Currently "+strconv.Itoa(participantCount)+" Users in The Channel "+b.Client.Self.Channel.Name, "local", 1, 0, 1)
 		}
 
 		prevParticipantCount = participantCount
@@ -318,7 +318,7 @@ func (b *Talkkonnect) ParticipantLEDUpdate(verbose bool) {
 
 		if verbose {
 			if TTSEnabled && TTSParticipants {
-				b.Speak("You are Currently Alone in The Channel "+b.Client.Self.Channel.Name, "local")
+				b.Speak("You are Currently Alone in The Channel "+b.Client.Self.Channel.Name, "local", 1, 0, 1)
 			}
 			log.Println("info: Channel ", b.Client.Self.Channel.Name, " has no other participants")
 
@@ -404,9 +404,9 @@ func (b *Talkkonnect) ChannelUp() {
 	}
 
 	if TTSEnabled && TTSChannelUp {
-		err := playWavLocal(TTSChannelUpFilenameAndPath, TTSVolumeLevel)
+		err := aplayLocal(TTSChannelUpFilenameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("error: playWavLocal(TTSChannelDownFilenameAndPath) Returned Error: ", err)
+			log.Println("error: aplayLocal(TTSChannelDownFilenameAndPath) Returned Error: ", err)
 		}
 
 	}
@@ -475,9 +475,9 @@ func (b *Talkkonnect) ChannelDown() {
 	}
 
 	if TTSEnabled && TTSChannelDown {
-		err := playWavLocal(TTSChannelDownFilenameAndPath, TTSVolumeLevel)
+		err := aplayLocal(TTSChannelDownFilenameAndPath, TTSVolumeLevel)
 		if err != nil {
-			log.Println("error: playWavLocal(TTSChannelDownFilenameAndPath) Returned Error: ", err)
+			log.Println("error: aplayLocal(TTSChannelDownFilenameAndPath) Returned Error: ", err)
 		}
 
 	}

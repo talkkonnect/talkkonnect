@@ -30,12 +30,10 @@
 package talkkonnect
 
 import (
-	"bytes"
 	"encoding/binary"
 	"errors"
 	"fmt"
 	"log"
-	"os/exec"
 	"strconv"
 	"time"
 
@@ -302,64 +300,6 @@ func (s *Stream) playIntoStream(filepath string, vol float32) {
 		pstream.Wait()
 		pstream.Stop()
 	}
-}
-
-func (b *Talkkonnect) playIntoStream(filepath string, vol float32) {
-	if !IsPlayStream {
-		log.Println(fmt.Sprintf("info: File %s Stopped!", filepath))
-		pstream.Stop()
-		b.LEDOff(b.TransmitLED)
-		return
-	}
-
-	if StreamSoundEnabled && IsPlayStream {
-		if pstream != nil && pstream.State() == gumbleffmpeg.StatePlaying {
-			pstream.Stop()
-			return
-		}
-
-		b.LEDOn(b.TransmitLED)
-
-		IsPlayStream = true
-		pstream = gumbleffmpeg.New(b.Client, gumbleffmpeg.SourceFile(filepath), vol)
-		if err := pstream.Play(); err != nil {
-			log.Println(fmt.Sprintf("error: Can't play %s error %s", filepath, err))
-		} else {
-			log.Println(fmt.Sprintf("info: File %s Playing!", filepath))
-			pstream.Wait()
-			pstream.Stop()
-			b.LEDOff(b.TransmitLED)
-		}
-	} else {
-		log.Println("warn: Sound Disabled by Config")
-	}
-}
-
-func (b *Talkkonnect) RepeaterTone() {
-
-	if RepeaterToneEnabled {
-
-		cmdArguments := []string{"-f", "lavfi", "-i", "sine=frequency=" + strconv.Itoa(RepeaterToneFrequencyHz) + ":duration=" + strconv.Itoa(RepeaterToneDurationSec), "-autoexit", "-nodisp"}
-
-		cmd := exec.Command("/usr/bin/ffplay", cmdArguments...)
-
-		var out bytes.Buffer
-
-		LEDOnFunc(VoiceActivityLED)
-		cmd.Stdout = &out
-		err := cmd.Run()
-		LEDOffFunc(VoiceActivityLED)
-
-		if err != nil {
-			log.Println("error: ffplay error ", err)
-		} else {
-			log.Println("info: Played Tone at Frequency " + strconv.Itoa(RepeaterToneFrequencyHz) + " Hz With Duration of " + strconv.Itoa(RepeaterToneDurationSec) + " Seconds For Opening Repeater")
-		}
-
-	} else {
-		log.Println("warn: Repeater Tone Disabled by Config")
-	}
-
 }
 
 func (b *Talkkonnect) OpenStream() {

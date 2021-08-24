@@ -192,9 +192,9 @@ func (b *Talkkonnect) OnTextMessage(e *gumble.TextMessageEvent) {
 	}
 
 	if EventSoundEnabled {
-		err := playWavLocal(EventMessageSoundFilenameAndPath, 100)
+		err := aplayLocal(EventMessageSoundFilenameAndPath, 100)
 		if err != nil {
-			log.Println("error: PlayWavLocal(EventMessageSoundFilenameAndPath) Returned Error: ", err)
+			log.Println("error: aplayLocal(EventMessageSoundFilenameAndPath) Returned Error: ", err)
 		}
 	}
 }
@@ -239,7 +239,7 @@ func (b *Talkkonnect) OnUserChange(e *gumble.UserChangeEvent) {
 			if info != "" {
 				log.Println("info: User ", cleanstring(e.User.Name), " ", info, "Event type=", e.Type, " channel=", e.User.Channel.Name)
 				if TTSEnabled && TTSParticipants {
-					b.Speak("User "+cleanstring(e.User.Name)+info+"Has Changed to "+e.User.Channel.Name, "local")
+					b.Speak("User "+cleanstring(e.User.Name)+info+"Has Changed to "+e.User.Channel.Name, "local", 1, 0, 1)
 				}
 			}
 

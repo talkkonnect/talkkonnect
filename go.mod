@@ -12,7 +12,6 @@ require (
 	github.com/gvalkov/golang-evdev v0.0.0-20191114124502-287e62b94bcb
 	github.com/jacobsa/go-serial v0.0.0-20180131005756-15cf729a72d4
 	github.com/kennygrant/sanitize v1.2.4
-	github.com/kidoman/embd v0.0.0-20170508013040-d3d8c0c5c68d // indirect
 	github.com/mattn/go-runewidth v0.0.13 // indirect
 	github.com/stianeikeland/go-rpio v4.2.0+incompatible
 	github.com/talkkonnect/go-hd44780 v0.0.0-20190204103905-60500cf76000

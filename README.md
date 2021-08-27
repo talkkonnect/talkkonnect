@@ -5,22 +5,40 @@
 ---
 ### What is talKKonnect?
 
-[talKKonnect](http://www.talkkonnect.com) is a headless self contained mumble Push to Talk (PTT) client complete with LCD, Channel and Volume control. 
+[talKKonnect](http://www.talkkonnect.com) is a headless self contained mumble Push to Talk (PTT) client complete with LCD, Channel and Volume control.
+
+The Potential Uses of talKKonnect
+* Mobile Radio Transceiver Desktop unit for communication between workgroups stationary or mobile without distance limiting the quality of communications
+* Device to Bridge Between the World of PTT Communications over IP/Internet with the world of RF/Radio
+* Open Source Replacement for Camera Crew Communication for Live Production Events
+* Dispatch Communicatins between Dispatcher and Mobile Responders
+* Ad-Hoc Group Communications where talkkonnect is used as the base station and Android Phones/IPhones or other rugged Android Devices used in the field.
+* Use for IP Based Public Announcements (Recorded and Live) with targeting to specific devices or groups
+* A Text to Speech Alert Announcement by API/MQTT to either play locally or to remote clients
+* IP Intercom/Door Intercom or Intercom between remote places
+* A Toy for our big adults like amateur radio enthusiasts (like me and many of you). 
+* A toy for your kids (so that they can feel how it was like to be a kid in the 80s with a CB radio)
+* A customized version of your particular PTT Communication unique usecase as this project is an open souce platform whereby people can build on quickly
+
 
 This project is a fork of [talkiepi](http://projectable.me/) by Daniel Chote which was in turn a fork of [barnard](https://github.com/layeh/barnard) a text based mumble client. 
 talKKonnect was developed using [golang](https://golang.org/) and based on [gumble](https://github.com/layeh/gumble) library by Tim Cooper.
 Most Libraries are however heavily vendored (modified from original). You will need to get the vendored libraries from this repo.
 
 [talKKonnect](http://www.talkkonnect.com) was developed initially to run on SBCs. The latest version can be scaled to run all the way from ARM SBCs to full fledged X86 servers.
-Raspberry Pi 2,3,3A+,3B+,4B Orange Pis, PCs and virtual environments (Oracle VirtualBox, KVM and Proxmox) targets have all been tested and work as expected. Rasperry Pi Zero W will work with a "watered down" version of talkkonnect that uses a lower sampling rate so as not to use up all of the little CPU power provided by the Zero.
+To compile on X86 archectures you would need to revert back to Tim Cooper's version of GOOPUS (Opus).
+Raspberry Pi 2,3,3A+,3B+,4B Orange Pis, PCs and virtual environments (Oracle VirtualBox, KVM and Proxmox) targets have all been tested and work as expected. 
+Rasperry Pi Zero W will work with a "watered down" version of talkkonnect that uses a lower sampling rate so as not to use up all of the little CPU power provided by the Zero.
 
 ### Why Was talKKonnect created?
 
 I [Suvir Kumar](https://www.linkedin.com/in/suvir-kumar-51a1333b) created talKKonnect for fun. I missed the younger days making homebrew CB, HAM radios and talking to all
 those amazing people who taught me so much. 
-Living in an apartment in the age of the internet with the itch to innovate drove me to create talKKonnect. I also wanted to learn programming.
-I am in no way a professional programmer but have tried to make the talKKonnect source code readable and stable to the best of my ability. Time
-permitting I will continue to work and learn from all those people who give feedback and show interest in using talkkonnect. 
+
+Living in an apartment in the age of the internet with the itch to innovate drove me to create talKKonnect. I did it to learn programming so in no way am I a professional programmer.
+
+I have tried to make the talKKonnect source code readable and stable to the best of my ability. Time permitting I will continue to work and learn from all those people who give feedback 
+and show interest in using talkkonnect. 
 
 [talKKonnect](http://www.talkkonnect.com) was originally created to have the form factor and functionality of a desktop transceiver. With community feedback we started to push the envelope to make it more versatile and scalable. 
 
@@ -38,6 +56,7 @@ permitting I will continue to work and learn from all those people who give feed
 * Panic button, when pressed, talKKonnect will send an alert message with GPS coordinates, followed by an email indication current location in google maps. 
 * API/MQTT support for remote control for commands, LED Control, Button Control, Relay Control
 * Tone Based Repeater Opening Function with the ability to specify the tone frequency and duration in configuration.
+* Configurable Voice targeting via USB Numpad keyboard, TTT Keyboard, API, MQTT (Shouting and Whispering)
 * Many Other features as per suggested or requested by the community
 
 Pictures and more information of my builds can be found on my blog here [www.talkkonnect.com](https://www.talkkonnect.com)
@@ -52,7 +71,7 @@ Low cost Class-D audio amplifiers like [PAM8403](https://www.instructables.com/i
 
 A good shileded cable for microphone is recommended to keep the noise picked up to a minimum. I am currently experimenting with mems microphones for better audio.
 
-Instead of the onboard sound card or USB Sound Card, you can also use a ReSpeaker compatiable HAT and achieve great audio quality results in a compact form factor.
+Instead of the onboard sound card or USB Sound Card, you can also use a ReSpeaker compatiable HAT, or a ReSpeaker USB Sound Card with built in Amplifier and achieve great audio quality results in a compact form factor.
 	
 #### You can connect up to 4 LED indicators that can be build on the front panel of your build to show the following statuses ####
 * Connected to a server and is currently online
@@ -60,6 +79,7 @@ Instead of the onboard sound card or USB Sound Card, you can also use a ReSpeake
 * Currently in transmitting mode 
 * Currently receiving an audio stream (someone is talking on the channel)
 * Heart Beat to indicate that talKKonnect is running
+* Currently in Voicetarget mode or Speaking in Normal mode for all clients on the channel to hear
 
 
 ### Software Features ###
@@ -136,19 +156,13 @@ Instead of the onboard sound card or USB Sound Card, you can also use a ReSpeake
 
 ### Installation Instructions For Raspberry Pi Boards (from Source code) ###
 
-Download the latest version of [Raspberry Pi OS Lite](https://downloads.raspberrypi.org/raspios_lite_armhf/images/raspios_lite_armhf-2021-01-12/2021-01-11-raspios-buster-armhf-lite.zip). 
-At the time of making/updating this document latest image release date was 11/01/2021 (Kernel Version 5.4). 
-Download the 438MB ZIP file and extract IMG file to some temporary directory.
+Download the latest version of [Raspberry Pi OS Lite](https://downloads.raspberrypi.org/raspios_lite_armhf/images/raspios_lite_armhf-2021-05-28/2021-05-07-raspios-buster-armhf-lite.zip). 
+At the time of making/updating this document latest image release date was 07/05/2021 (Kernel Version 5.10). 
+Download the 444MB ZIP file and extract IMG file to some temporary directory.
 
 It is recommended that you use the raspberry Pi Imager for Windows or any USB / SD card imaging software for Windows or your other OS. 
-Some of the many options are:
+The best current option for windows is :
 * [Raspberry Pi Imager](https://www.raspberrypi.org/software/)
-* [USB Image Tool](https://www.alexpage.de/usb-image-tool)
-* [Win32 Disk Imager](https://sourceforge.net/projects/win32diskimager)
-* [Rufus](https://rufus.ie) 
-* [balenaEtcher](https://www.balena.io/etcher/)
-* [Linux dd tool](https://elinux.org/RPi_Easy_SD_Card_Setup)
-
 
 After downloading a standard image and using the imaging tool, insert the SD card into your Raspberry Pi, connect the screen, keyboard and power supply and boot into the OS. 
 
@@ -306,22 +320,22 @@ sleep 2
 ##### talKKonnect welcome screen #####
 
 ````
-┌────────────────────────────────────────────────────────────────┐
-│  _        _ _    _                               _             │
-│ | |_ __ _| | | _| | _____  _ __  _ __   ___  ___| |_           │
-│ | __/ _` | | |/ / |/ / _ \| '_ \| '_ \ / _ \/ __|  __|         │
-│ | || (_| | |   <|   < (_) | | | | | | |  __/ (__| |_           │
-│  \__\__,_|_|_|\_\_|\_\___/|_| |_|_| |_|\___|\_ _|\__|          │
-├────────────────────────────────────────────────────────────────┤
-│A Flexible Headless Mumble Transceiver/Gateway for RPi/PC/VM    │
-├────────────────────────────────────────────────────────────────┤
-│Created By : Suvir Kumar  <suvir@talkkonnect.com>               │
-├────────────────────────────────────────────────────────────────┤
-│Press the <Del> key for Menu or <Ctrl-c> to Quit talkkonnect    │
-│Additional Modifications Released under MPL 2.0 License         │
-│Blog at www.talkkonnect.com, source at github.com/talkkonnect   │
-└────────────────────────────────────────────────────────────────┘
-[Talkkonnect Version 1.59.01 Released February 27 2021
+ ┌────────────────────────────────────────────────────────────────┐
+ │  _        _ _    _                               _             │
+ │ | |_ __ _| | | _| | _____  _ __  _ __   ___  ___| |_           │
+ │ | __/ _` | | |/ / |/ / _ \| '_ \| '_ \ / _ \/ __|  __|         │
+ │ | || (_| | |   <|   < (_) | | | | | | |  __/ (__| |_           │
+ │  \__\__,_|_|_|\_\_|\_\___/|_| |_|_| |_|\___|\_ _|\__|          │
+ ├────────────────────────────────────────────────────────────────┤
+ │A Flexible Headless Mumble Transceiver/Gateway for RPi/PC/VM    │
+ ├────────────────────────────────────────────────────────────────┤
+ │Created By : Suvir Kumar  <suvir@talkkonnect.com>               │
+ ├────────────────────────────────────────────────────────────────┤
+ │Press the <Del> key for Menu or <Ctrl-c> to Quit talkkonnect    │
+ │Additional Modifications Released under MPL 2.0 License         │
+ │Blog at www.talkkonnect.com, source at github.com/talkkonnect   │
+ └────────────────────────────────────────────────────────────────┘
+ Talkkonnect Version 1.67.15 Released Aug 24 2021
 ````
 
 ##### I2C OLED Screen Installation #####
@@ -474,7 +488,7 @@ For a speaker muting to work when pressing a PTT, you need to enter the exact na
 ````
 
 
-### Explanation of talkkonnect.xml configuration files sections and tags 
+### Explanation of older talkkonnect.xml configuration files sections and tags (missing voicetargeting features in this video) 
 [youtube-video](https://www.youtube.com/watch?v=-Dy96FXw0gA&ab_channel=SuvirKumar) is a video made for explaining the xml tags
 
 #### The Accounts Section
@@ -488,7 +502,8 @@ For a speaker muting to work when pressing a PTT, you need to enter the exact na
 * The insecure tag should be set as true if the server you are connecting to does not require a certificate 
 * The certificate tag should contain the full path to your previously generated certificate which is usually a file with the extension of pem  
 * The channel tag should only be populated want to connect to a specific channel other than the root channel on startup
-
+* The tokens list for each account for autorization to token protected channels
+* The voicetargets IDs and their corresponding users and channels
 ### The Global Section of talkkonnect.xml (Software & Hardware)
 
 #### Software Section
@@ -669,12 +684,19 @@ For the above example to work you will have to specify the gpio pin in the <ligh
 * The sendgpslocation tag enables the sending of the gps coordinates of the talkkonnect requesting help as a text message 
 * The txlock enabled tag will lock up talkkonnect in transmit mode for the defined txlocktimeoutsecs after the button is pressed so the requester can talk without having to press ptt button
 
+##### The USB Keyboard Section
+* You can enable a wired/wireless USB numpad here for voice targeting and other direct commands to a headless talkkonnect
 
-## Contributing 
-We invite interested individuals to provide feedback and improvements to the project. Currently we do not have a WIKI so send feedback to <suvir@talkkonnect.com> or open and Issue in github
+##### The KeyboardCommands Section
+* You can define the command associated with each tty key or each key on your USB Numpad here
+
+## Questions & Contributing 
+We invite interested individuals to provide feedback and improvements to the project. 
+To speak to us you can connect with a standard mumble client (android/iphone/wnidows/linux) to our community server to have a chat or ask questions 
+at mumble.talkkonnect.com port 64738 you can use any username with the password talkkonnect
+
+Currently we do not have a WIKI so send feedback to <suvir@talkkonnect.com> or open and Issue in github
 you can also check my blog  [www.talkkonnect.com](https://www.talkkonnect.com) for updates on the project
-
-You can also connect with a standard mumble client to our community server to have a chat or ask questions at mumble.talkkonnect.com port 64738 you can use any username with the password talkkonnect
 	
 Please visit our [blog](www.talkkonnect.com) for our blog or [github](github.com/talkkonnect) for the latest source code and our [facebook](https://www.facebook.com/talkkonnect) page for future updates and information. 
 
@@ -683,4 +705,4 @@ Thank you all for your kind feedback sent along with some pictures and use cases
 ## License 
 [talKKonnect](http://www.talkkonnect.com) is open source and available under the MPL V2.00 license.
 
-<suvir@talkkonnect.com> Updated 10/06/2021 talkkonnect version 1.63.01 is the latest release as of this writing.
+<suvir@talkkonnect.com> Updated 27/08/2021 talkkonnect version 2.67.15 is the latest release as of this writing.

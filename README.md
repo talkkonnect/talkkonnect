@@ -27,8 +27,8 @@ Most Libraries are however heavily vendored (modified from original). You will n
 
 [talKKonnect](http://www.talkkonnect.com) was developed initially to run on SBCs. The latest version can be scaled to run all the way from ARM SBCs to full fledged X86 servers.
 To compile on X86 archectures you would need to revert back to Tim Cooper's version of GOOPUS (Opus).
-Raspberry Pi 2,3,3A+,3B+,4B Orange Pis, PCs and virtual environments (Oracle VirtualBox, KVM and Proxmox) targets have all been tested and work as expected. 
-Rasperry Pi Zero W will work with a "watered down" version of talkkonnect that uses a lower sampling rate so as not to use up all of the little CPU power provided by the Zero.
+Raspberry Pi 2B,3B,3A+,3B+,4B Orange Pis, PCs and virtual environments (Oracle VirtualBox, KVM and Proxmox) targets have all been tested and work as expected. 
+Rasperry Pi Zero W and Pi Zero WH  will work with a "watered down" version of talkkonnect that uses a lower sampling rate so as not to use up all of the little CPU power provided by the Zero.
 
 ### Why Was talKKonnect created?
 

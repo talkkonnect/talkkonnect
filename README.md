@@ -709,7 +709,7 @@ For the above example to work you will have to specify the gpio pin in the <ligh
 * transmitstart
 * transmitstop
 * record
-* voicetargetset
+* setvoicetarget
      
 
 ## Questions & Contributing 

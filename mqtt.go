@@ -268,7 +268,7 @@ func (b *Talkkonnect) onMessageReceived(client MQTT.Client, message MQTT.Message
 	case "relay1:pulse":
 		log.Println("info: MQTT Pulse Relay 1 Successfully")
 		relayCommand(1, "pulse")
-	case "playeepeatertone":
+	case "playrepeatertone":
 		log.Println("info: MQTT Play Repeater Tone Processed Successfully")
 		b.cmdPlayRepeaterTone()
 

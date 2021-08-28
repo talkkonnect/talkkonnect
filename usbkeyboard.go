@@ -96,7 +96,7 @@ func (b *Talkkonnect) USBKeyboard() {
 					case "record":
 						b.cmdAudioTrafficRecord()
 						b.cmdAudioMicRecord()
-					case "voicetargetset":
+					case "setvoicetarget":
 						voicetarget, err := strconv.Atoi(USBKeyMap[rune(ke.Scancode)].ParamValue)
 						if err != nil {
 							log.Println("error: Target is Non-Numeric Value")

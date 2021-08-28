@@ -496,7 +496,7 @@ For a speaker muting to work when pressing a PTT, you need to enter the exact na
 * When talkkonnected is connected to a server you can cycle through accounts in which enabled = "true" by pressing CTRL-N, talkkonnect will connect to the next enabled server in the list
 * Talkkonnect will not attempt to connect to a server that has the account tag set default = "false" 
 * The tag account name is just used to identify the server for logging purposes 
-* The serverandport tag is for the server FQDN or IP address followed by  ":" (colon) and the port of mumble is running on for that particlar server.
+* The serverandport tag is for the server FQDN or IP address followed by  " (colon) and the port of mumble is running on for that particlar server.
 * The username tag is used for identifying yourself on the mumble server and for authentication 
 * The password tag is used if the mumble server requires password authentication 
 * The insecure tag should be set as true if the server you are connecting to does not require a certificate 
@@ -556,13 +556,26 @@ For a speaker muting to work when pressing a PTT, you need to enter the exact na
 * The txtimeout tag is used to limit the length of a single transmission in seconds. This tag is useful when used as a repeater between RF and mumble.
 
 ##### The API Section
-* API section enables the user to granually control which remote control functions are available over http within the network 
-* The tag apilisten port defines the port that talkkonnect should listen and respond to remote control http requests 
-* To use httpapi you can use your browser to go to the url http://{talkkonnectip}/?command=F1 (Replace {talkkonnectip} with the IP address of your talkkonnect)
-* HTTPAPI commands supported are F1  Channel Up (+), F2  Channel Down (-), F3  Mute/Unmute Speaker, F4  Current Volume Level, F5  Digital Volume Up (+), F6  Digital Volume Down (-), 
-F7  List Server Channels, F8  Start Transmitting, F9  Stop Transmitting, F10 List Online Users, F11 Playback/Stop Stream, F12 For GPS Position, Ctrl-E Send Email, Ctrl-L Clear Screen, 
-Ctrl-M Ping Servers, Ctrl-N Connect Next Server, Ctrl-P Panic Simulation, Ctrl-S Scan Channels, Ctrl-X Dump XML Config
-
+* API section enables the user to granually control which remote control functions are available over http within the local network 
+* The tag apilisten port defines the port that talkkonnect should listen and respond to remote control http requests
+* HTTP API for Channel Up           http://{your-talkkonnect-ipaddress}:8080/?command=channelup
+* HTTP API for Channel Down         http://{your-talkkonnect-ipaddress}:8080/?command=channeldown
+* HTTP API to  Mute/UnMute Toggle   http://{your-talkkonnect-ipaddress}:8080/?command=mute-toggle
+* HTTP API to  Mute Speaker         http://{your-talkkonnect-ipaddress}:8080/?command=mute
+* HTTP API to  Unmute Speaker       http://{your-talkkonnect-ipaddress}:8080/?command=unmute 
+* HTTP API for Volume UP            http://{your-talkkonnect-ipaddress}:8080/?command=volumeup
+* HTTP API for Volume Down          http://{your-talkkonnect-ipaddress}:8080/?command=volumedown
+* HTTP API to  Start Transmitting   http://{your-talkkonnect-ipaddress}:8080/?command=starttransmitting
+* HTTP API to  Stop Transmitting    http://{your-talkkonnect-ipaddress}:8080/?command=stoptransmitting
+* HTTP API to  Play/Stop Stream     http://{your-talkkonnect-ipaddress}:8080/?command=stream-toggle
+* HTTP API to  Request GPS Position http://{your-talkkonnect-ipaddress}:8080/?command=gpsposition
+* HTTP API to  Send Email           http://{your-talkkonnect-ipaddress}:8080/?command=sendemail
+* HTTP API for Previous Server      http://{your-talkkonnect-ipaddress}:8080/?command=connpreviousserver
+* HTTP API for Next Server          http://{your-talkkonnect-ipaddress}:8080/?command=connnextserver
+* HTTP API for Request Panic Sim    http://{your-talkkonnect-ipaddress}:8080/?command=panicsimulation
+* HTTP API to  Play Repeater Tone   http://{your-talkkonnect-ipaddress}:8080/?command=playrepeatertone
+* HTTP API to  Set Voice Target 0   http://{your-talkkonnect-ipaddress}:8080/?command=setvoicetarget&id=0
+* HTTP API to  Set Voice Target 1   http://{your-talkkonnect-ipaddress}:8080/?command=setvoicetarget&id=1
 
 ##### The PrintVariables Section
 * This function is useful for debugging the values read from each section of the config xml file. You can control which section is shown. This command is tied to the CTRL-X key
@@ -574,40 +587,30 @@ Ctrl-M Ping Servers, Ctrl-N Connect Next Server, Ctrl-P Panic Simulation, Ctrl-S
 * With MQTT you can remote control talkkonnect as well as Relays to control external devices 
 
 Below are Valid Commands for MQTT
-
-* DisplayMenu - To Display the Menu on the talkkonnect console
-* ChannelUp - To Command talkkonnect to move up 1 channel
-* ChannelDown - To Command talkkonnect to move down 1 channel
-* Mute-Toggle - Mute/Unmute talkkonnect depending on last state (Output of Sound Card)
-* Mute - Force Mute of Speaker (Output of Sound Card)
-* Unmute - Force Unmute of Speaker (Output of Sound Card)
-* CurrentVolume - Get Current Volume of speaker (Output of Sound Card)
-* VolumeUp - Increase the Volume of speaker (Output of Sound Card)
-* VolumeDown  - Decrease the Volume of speaker (Output of Sound Card)
-* ListChannels - List Channels in the Server you are currently connected to
-* StartTransmitting - Force talkkonnect to start transmitting
-* StopTransmitting - Force talkkonnect to stop transmitting
-* ListOnlineUsers - List online users to talkkonnect console
-* Stream-Toggle - Start/Stop HTTP Stream or the playing of local file over the mumble channel to all users
-* GPSPosition - Get Current GPS Position from UBLOX Serial GPS Receiver
-* SendEmail - Send Email with User Information and predefined message
-* ConnPreviousServer - Connect to the next server in talkkonnect.xml configuration file
-* ConnNextServer - Connect to the previous server in talkkonnect.xml configuration file
-* ClearScreen - Clear the talkkonnect console
-* PingServers - Ping mumble server and show results on console
-* PanicSimulation - Send distress signal over the channel
-* RepeatTxLoop - Repeat tx and rx 100 times for testing
-* ScanChannels - Scan the channels in the server and stop at channel with user online
-* Thanks - Show Acknowledge menssage on talkkonnect console
-* ShowUptime - Show uptime to user on the console of how long talkkonnect session has been running
-* DumpXMLConfig - Dump XML config file on talkkonnect console
-* attentionled:on - Turn on Attention LED connected on gpio pin as defined in talkkonnect.xml
-* attentionled:off - Turn off Attention LED connected on gpio pin as defined in talkkonnect.xml
-* attentionled:blink - Blink Attention LED connected on gpio pin as defined in talkkonnect.xml
-* relay1:on - Turn on Relay connected on gpio pin as defined in talkkonnect.xml
-* relay1:off - Turn off Relay connected on gpio pin as defined in talkkonnect.xml
-* relay1:pulse - Pulse Relay connected on gpio pin as defined in talkkonnect.xml
-* PlayRepeaterTone - Play Predefined frequency and duration of repeater tone as per talkkonnect.xml file
+* channelup
+* channeldown
+* mute-toggle
+* mute
+* unmute
+* volumeup
+* volumedown
+* starttransmitting
+* stoptransmitting
+* stream-toggle
+* gpsposition
+* sendemail
+* connpreviousserver
+* connnextserver
+* panicsimulation
+* repeattxLoop
+* scanchannels
+* attentionled:on
+* attentionled:off
+* attentionled:blink
+* relay1:on
+* relay1:off
+* relay1:pulse
+* playerepeatertone
 
 For Example on the topic thailand/bangkok/company/talkkonnect/attentionled:on will turn on the LED to get the attentionled
 of a user. 
@@ -688,7 +691,26 @@ For the above example to work you will have to specify the gpio pin in the <ligh
 * You can enable a wired/wireless USB numpad here for voice targeting and other direct commands to a headless talkkonnect
 
 ##### The KeyboardCommands Section
-* You can define the command associated with each tty key or each key on your USB Numpad here
+* You can define the command associated with each tty key or each key on your USB Numpad here Example 
+* TTY Means the keyboard that you use when you ssh into the box or use talkkonnect in a terminal
+* USB means using an external Wired or Wireless USB Numeric Key Pad directly on the Raspberry Pi USB port to control talkkonnect in headless mode
+* Below are the commands you can map to your TTY Keyboard or the USB Keyboard 
+* channelup
+* channeldown
+* serverup
+* serverdown
+* mute
+* unmute
+* mute-toggle
+* stream-toggle
+* volumeup
+* volumedown
+* setcomment
+* transmitstart
+* transmitstop
+* record
+* voicetargetset
+     
 
 ## Questions & Contributing 
 We invite interested individuals to provide feedback and improvements to the project. 

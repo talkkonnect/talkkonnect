@@ -38,7 +38,6 @@ import (
 	"time"
 
 	"github.com/talkkonnect/go-openal/openal"
-	"github.com/talkkonnect/gpio"
 	"github.com/talkkonnect/gumble/gumble"
 	"github.com/talkkonnect/gumble/gumbleffmpeg"
 )
@@ -46,8 +45,6 @@ import (
 var (
 	errState         = errors.New("gumbleopenal: invalid state")
 	lcdtext          = [4]string{"nil", "nil", "nil", ""}
-	BackLightLED     = gpio.NewOutput(uint(LCDBackLightLEDPin), false)
-	VoiceActivityLED = gpio.NewOutput(VoiceActivityLEDPin, false)
 	now              = time.Now()
 	LastTime         = now.Unix()
 	debuglevel       = 2

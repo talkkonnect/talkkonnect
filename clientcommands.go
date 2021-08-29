@@ -155,7 +155,7 @@ func (b *Talkkonnect) TransmitStart() {
 
 	if TargetBoard == "rpi" {
 		if !LedStripEnabled {
-			LEDOnFunc(b.TransmitLED)
+			LEDOnFunc(TransmitLED)
 		} else {
 			MyLedStripTransmitLEDOn()
 		}
@@ -193,7 +193,7 @@ func (b *Talkkonnect) TransmitStop(withBeep bool) {
 
 	if TargetBoard == "rpi" {
 		if !LedStripEnabled {
-			LEDOffFunc(b.TransmitLED)
+			LEDOffFunc(TransmitLED)
 		} else {
 			MyLedStripTransmitLEDOff()
 		}
@@ -306,8 +306,8 @@ func (b *Talkkonnect) ParticipantLEDUpdate(verbose bool) {
 	if participantCount > 1 {
 		if TargetBoard == "rpi" {
 			if !LedStripEnabled {
-				LEDOnFunc(b.ParticipantsLED)
-				LEDOnFunc(b.OnlineLED)
+				LEDOnFunc(ParticipantsLED)
+				LEDOnFunc(OnlineLED)
 			} else {
 				MyLedStripParticipantsLEDOn()
 				MyLedStripOnlineLEDOn()
@@ -326,7 +326,7 @@ func (b *Talkkonnect) ParticipantLEDUpdate(verbose bool) {
 
 			if TargetBoard == "rpi" {
 				if !LedStripEnabled {
-					LEDOffFunc(b.ParticipantsLED)
+					LEDOffFunc(ParticipantsLED)
 				} else {
 					MyLedStripParticipantsLEDOff()
 				}
@@ -614,7 +614,7 @@ func (b *Talkkonnect) BackLightTimer() {
 	}
 
 	if LCDEnabled {
-		LEDOnFunc(b.BackLightLED)
+		LEDOnFunc(BackLightLED)
 	}
 
 	if OLEDEnabled {

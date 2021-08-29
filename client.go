@@ -95,13 +95,6 @@ type Talkkonnect struct {
 	IsTransmitting     bool
 	IsPlayStream       bool
 	GPIOEnabled        bool
-	OnlineLED          gpio.Pin
-	ParticipantsLED    gpio.Pin
-	TransmitLED        gpio.Pin
-	HeartBeatLED       gpio.Pin
-	BackLightLED       gpio.Pin
-	VoiceActivityLED   gpio.Pin
-	AttentionLED       gpio.Pin
 	TxButton           gpio.Pin
 	TxButtonState      uint
 	TxToggle           gpio.Pin
@@ -315,7 +308,7 @@ func (b *Talkkonnect) ClientStart() {
 				log.Printf("debug: LCD Backlight Ticker Timed Out After %d Seconds", LCDBackLightTimeout)
 				LCDIsDark = true
 				if LCDInterfaceType == "parallel" {
-					LEDOffFunc(b.BackLightLED)
+					LEDOffFunc(BackLightLED)
 				}
 				if LCDInterfaceType == "i2c" {
 					lcd := hd44780.NewI2C4bit(LCDI2CAddress)
@@ -365,11 +358,11 @@ func (b *Talkkonnect) ClientStart() {
 				timer2 := time.NewTimer(time.Duration(LEDOffmSecs) * time.Millisecond)
 				<-timer1.C
 				if HeartBeatEnabled {
-					LEDOnFunc(b.HeartBeatLED)
+					LEDOnFunc(HeartBeatLED)
 				}
 				<-timer2.C
 				if HeartBeatEnabled {
-					LEDOffFunc(b.HeartBeatLED)
+					LEDOffFunc(HeartBeatLED)
 				}
 				if KillHeartBeat {
 					HeartBeat.Stop()
@@ -395,7 +388,7 @@ func (b *Talkkonnect) ClientStart() {
 	b.BackLightTimer()
 
 	if LCDEnabled {
-		LEDOnFunc(b.BackLightLED)
+		LEDOnFunc(BackLightLED)
 		LCDIsDark = false
 	}
 

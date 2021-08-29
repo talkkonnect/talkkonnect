@@ -326,27 +326,27 @@ func (b *Talkkonnect) initGPIO() {
 	}
 
 	if OnlineLEDPin > 0 {
-		b.OnlineLED = gpio.NewOutput(OnlineLEDPin, false)
+		OnlineLED = gpio.NewOutput(OnlineLEDPin, false)
 	}
 
 	if ParticipantsLEDPin > 0 {
-		b.ParticipantsLED = gpio.NewOutput(ParticipantsLEDPin, false)
+		ParticipantsLED = gpio.NewOutput(ParticipantsLEDPin, false)
 	}
 
 	if TransmitLEDPin > 0 {
-		b.TransmitLED = gpio.NewOutput(TransmitLEDPin, false)
+		TransmitLED = gpio.NewOutput(TransmitLEDPin, false)
 	}
 
 	if HeartBeatLEDPin > 0 {
-		b.HeartBeatLED = gpio.NewOutput(HeartBeatLEDPin, false)
+		HeartBeatLED = gpio.NewOutput(HeartBeatLEDPin, false)
 	}
 
 	if AttentionLEDPin > 0 {
-		b.AttentionLED = gpio.NewOutput(AttentionLEDPin, false)
+		AttentionLED = gpio.NewOutput(AttentionLEDPin, false)
 	}
 
 	if LCDBackLightLEDPin > 0 {
-		b.BackLightLED = gpio.NewOutput(uint(LCDBackLightLEDPin), false)
+		BackLightLED = gpio.NewOutput(uint(LCDBackLightLEDPin), false)
 		BackLightLED = gpio.NewOutput(uint(LCDBackLightLEDPin), false)
 	}
 
@@ -376,55 +376,55 @@ func (b *Talkkonnect) LEDOffAll() {
 	log.Println("debug: Turning Off All LEDS!")
 
 	if OnlineLEDPin > 0 {
-		LEDOffFunc(b.OnlineLED)
+		LEDOffFunc(OnlineLED)
 	}
 	if ParticipantsLEDPin > 0 {
-		LEDOffFunc(b.ParticipantsLED)
+		LEDOffFunc(ParticipantsLED)
 	}
 	if TransmitLEDPin > 0 {
-		LEDOffFunc(b.TransmitLED)
+		LEDOffFunc(TransmitLED)
 	}
 	if HeartBeatLEDPin > 0 {
-		LEDOffFunc(b.HeartBeatLED)
+		LEDOffFunc(HeartBeatLED)
 	}
 	if AttentionLEDPin > 0 {
-		LEDOffFunc(b.AttentionLED)
+		LEDOffFunc(AttentionLED)
 	}
 	if LCDBackLightLEDPin > 0 {
-		LEDOffFunc(b.BackLightLED)
+		LEDOffFunc(BackLightLED)
 	}
 	if VoiceActivityLEDPin > 0 {
-		LEDOffFunc(b.VoiceActivityLED)
+		LEDOffFunc(VoiceActivityLED)
 	}
 
 }
 
 func MyLedStripLEDOffAll() {
-	MyLedStrip.ledCtrl(OnlineLED, OffCol)
-	MyLedStrip.ledCtrl(ParticipantsLED, OffCol)
-	MyLedStrip.ledCtrl(TransmitLED, OffCol)
+	MyLedStrip.ledCtrl(SOnlineLED, OffCol)
+	MyLedStrip.ledCtrl(SParticipantsLED, OffCol)
+	MyLedStrip.ledCtrl(STransmitLED, OffCol)
 }
 
 func MyLedStripOnlineLEDOn() {
-	MyLedStrip.ledCtrl(OnlineLED, OnlineCol)
+	MyLedStrip.ledCtrl(SOnlineLED, OnlineCol)
 }
 
 func MyLedStripOnlineLEDOff() {
-	MyLedStrip.ledCtrl(OnlineLED, OffCol)
+	MyLedStrip.ledCtrl(SOnlineLED, OffCol)
 }
 
 func MyLedStripParticipantsLEDOn() {
-	MyLedStrip.ledCtrl(ParticipantsLED, ParticipantsCol)
+	MyLedStrip.ledCtrl(SParticipantsLED, ParticipantsCol)
 }
 
 func MyLedStripParticipantsLEDOff() {
-	MyLedStrip.ledCtrl(ParticipantsLED, OffCol)
+	MyLedStrip.ledCtrl(SParticipantsLED, OffCol)
 }
 
 func MyLedStripTransmitLEDOn() {
-	MyLedStrip.ledCtrl(TransmitLED, TransmitCol)
+	MyLedStrip.ledCtrl(STransmitLED, TransmitCol)
 }
 
 func MyLedStripTransmitLEDOff() {
-	MyLedStrip.ledCtrl(TransmitLED, OffCol)
+	MyLedStrip.ledCtrl(STransmitLED, OffCol)
 }

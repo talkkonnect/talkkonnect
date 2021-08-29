@@ -247,16 +247,16 @@ func (b *Talkkonnect) onMessageReceived(client MQTT.Client, message MQTT.Message
 		b.cmdDumpXMLConfig()
 	case "attentionled:on":
 		log.Println("info: MQTT Turn On Attention LED Successfully")
-		LEDOnFunc(b.AttentionLED)
+		LEDOnFunc(AttentionLED)
 	case "attentionled:off":
 		log.Println("info: MQTT Turn Off Attention LED Successfully")
-		LEDOffFunc(b.AttentionLED)
+		LEDOffFunc(AttentionLED)
 	case "attentionled:blink":
 		log.Println("info: MQTT Blink Attention LED 20 times Successfully")
 		for i := 0; i < MQTTAttentionBlinkTimes; i++ {
-			LEDOnFunc(b.AttentionLED)
+			LEDOnFunc(AttentionLED)
 			time.Sleep(time.Duration(MQTTAttentionBlinkmsecs) * time.Millisecond)
-			LEDOffFunc(b.AttentionLED)
+			LEDOffFunc(AttentionLED)
 			time.Sleep(time.Duration(MQTTAttentionBlinkmsecs) * time.Millisecond)
 		}
 	case "relay1:on":

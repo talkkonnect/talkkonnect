@@ -40,17 +40,17 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
 	goled "github.com/talkkonnect/go-oled-i2c"
 	"github.com/talkkonnect/go-openal/openal"
 	"github.com/talkkonnect/gumble/gumble"
 	"github.com/talkkonnect/gumble/gumbleffmpeg"
 	"golang.org/x/sys/unix"
+	"github.com/talkkonnect/gpio"
 )
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.67.18"
+	talkkonnectVersion  string = "1.67.19"
 	talkkonnectReleased string = "Aug 29 2021"
 )
 
@@ -336,6 +336,14 @@ var (
 	TransmitLEDPin      uint
 	OnlineLEDPin        uint
 	AttentionLEDPin     uint
+        OnlineLED           gpio.Pin
+        ParticipantsLED     gpio.Pin
+        TransmitLED         gpio.Pin
+        HeartBeatLED        gpio.Pin
+        BackLightLED        gpio.Pin
+        VoiceActivityLED    gpio.Pin
+        AttentionLED        gpio.Pin
+        TxButton            gpio.Pin
 )
 
 //heartbeat light settings

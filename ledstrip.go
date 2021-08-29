@@ -43,9 +43,9 @@ import (
 
 const (
 	numLEDs         int    = 3
-	OnlineLED       int    = 0
-	ParticipantsLED int    = 1
-	TransmitLED     int    = 2
+	SOnlineLED       int    = 0
+	SParticipantsLED int    = 1
+	STransmitLED     int    = 2
 	OnlineCol       string = "FF0000"
 	ParticipantsCol string = "00FF00"
 	TransmitCol     string = "0000FF"

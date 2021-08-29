@@ -355,20 +355,6 @@ func (b *Talkkonnect) initGPIO() {
 	}
 }
 
-func (b *Talkkonnect) LEDOn(LED gpio.Pin) {
-	if TargetBoard != "rpi" {
-		return
-	}
-	LED.High()
-}
-
-func (b *Talkkonnect) LEDOff(LED gpio.Pin) {
-	if TargetBoard != "rpi" {
-		return
-	}
-	LED.Low()
-}
-
 func LEDOnFunc(LED gpio.Pin) {
 	if TargetBoard != "rpi" {
 		return
@@ -390,19 +376,19 @@ func (b *Talkkonnect) LEDOffAll() {
 	log.Println("debug: Turning Off All LEDS!")
 
 	if OnlineLEDPin > 0 {
-		b.LEDOff(b.OnlineLED)
+		LEDOffFunc(b.OnlineLED)
 	}
 	if ParticipantsLEDPin > 0 {
-		b.LEDOff(b.ParticipantsLED)
+		LEDOffFunc(b.ParticipantsLED)
 	}
 	if TransmitLEDPin > 0 {
-		b.LEDOff(b.TransmitLED)
+		LEDOffFunc(b.TransmitLED)
 	}
 	if HeartBeatLEDPin > 0 {
-		b.LEDOff(b.HeartBeatLED)
+		LEDOffFunc(b.HeartBeatLED)
 	}
 	if AttentionLEDPin > 0 {
-		b.LEDOff(b.AttentionLED)
+		LEDOffFunc(b.AttentionLED)
 	}
 	if LCDBackLightLEDPin > 0 {
 		LEDOffFunc(b.BackLightLED)

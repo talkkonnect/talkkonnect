@@ -315,7 +315,7 @@ func (b *Talkkonnect) ClientStart() {
 				log.Printf("debug: LCD Backlight Ticker Timed Out After %d Seconds", LCDBackLightTimeout)
 				LCDIsDark = true
 				if LCDInterfaceType == "parallel" {
-					b.LEDOff(b.BackLightLED)
+					LEDOffFunc(b.BackLightLED)
 				}
 				if LCDInterfaceType == "i2c" {
 					lcd := hd44780.NewI2C4bit(LCDI2CAddress)
@@ -365,11 +365,11 @@ func (b *Talkkonnect) ClientStart() {
 				timer2 := time.NewTimer(time.Duration(LEDOffmSecs) * time.Millisecond)
 				<-timer1.C
 				if HeartBeatEnabled {
-					b.LEDOn(b.HeartBeatLED)
+					LEDOnFunc(b.HeartBeatLED)
 				}
 				<-timer2.C
 				if HeartBeatEnabled {
-					b.LEDOff(b.HeartBeatLED)
+					LEDOffFunc(b.HeartBeatLED)
 				}
 				if KillHeartBeat {
 					HeartBeat.Stop()
@@ -395,7 +395,7 @@ func (b *Talkkonnect) ClientStart() {
 	b.BackLightTimer()
 
 	if LCDEnabled {
-		b.LEDOn(b.BackLightLED)
+		LEDOnFunc(b.BackLightLED)
 		LCDIsDark = false
 	}
 

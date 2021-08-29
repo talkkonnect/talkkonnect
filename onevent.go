@@ -69,7 +69,7 @@ func (b *Talkkonnect) OnConnect(e *gumble.ConnectEvent) {
 
 	if TargetBoard == "rpi" {
 		if !LedStripEnabled {
-			b.LEDOn(b.OnlineLED)
+			LEDOnFunc(b.OnlineLED)
 		} else {
 			MyLedStripOnlineLEDOn()
 		}

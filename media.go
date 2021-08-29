@@ -88,7 +88,7 @@ func (b *Talkkonnect) playIntoStream(filepath string, vol float32) {
 	if !IsPlayStream {
 		log.Println(fmt.Sprintf("info: File %s Stopped!", filepath))
 		pstream.Stop()
-		b.LEDOff(b.TransmitLED)
+		LEDOffFunc(b.TransmitLED)
 		return
 	}
 
@@ -98,7 +98,7 @@ func (b *Talkkonnect) playIntoStream(filepath string, vol float32) {
 			return
 		}
 
-		b.LEDOn(b.TransmitLED)
+		LEDOnFunc(b.TransmitLED)
 
 		IsPlayStream = true
 		pstream = gumbleffmpeg.New(b.Client, gumbleffmpeg.SourceFile(filepath), vol)
@@ -108,7 +108,7 @@ func (b *Talkkonnect) playIntoStream(filepath string, vol float32) {
 			log.Println(fmt.Sprintf("info: File %s Playing!", filepath))
 			pstream.Wait()
 			pstream.Stop()
-			b.LEDOff(b.TransmitLED)
+			LEDOffFunc(b.TransmitLED)
 		}
 	} else {
 		log.Println("warn: Sound Disabled by Config")

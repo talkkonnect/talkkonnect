@@ -300,29 +300,6 @@ var (
 	TTSPlayIntoStream     bool
 )
 
-var (
-	Key0Enabled  bool
-	Key0Targetid uint32
-	Key1Enabled  bool
-	Key1Targetid uint32
-	Key2Enabled  bool
-	Key2Targetid uint32
-	Key3Enabled  bool
-	Key3Targetid uint32
-	Key4Enabled  bool
-	Key4Targetid uint32
-	Key5Enabled  bool
-	Key5Targetid uint32
-	Key6Enabled  bool
-	Key6Targetid uint32
-	Key7Enabled  bool
-	Key7Targetid uint32
-	Key8Enabled  bool
-	Key8Targetid uint32
-	Key9Enabled  bool
-	Key9Targetid uint32
-)
-
 // target board settings
 var (
 	TargetBoard string = "pc"

@@ -45,7 +45,6 @@ import (
 
 	"github.com/comail/colog"
 	hd44780 "github.com/talkkonnect/go-hd44780"
-	"github.com/talkkonnect/gpio"
 	"github.com/talkkonnect/gumble/gumble"
 	"github.com/talkkonnect/gumble/gumbleffmpeg"
 	"github.com/talkkonnect/gumble/gumbleutil"
@@ -95,20 +94,6 @@ type Talkkonnect struct {
 	IsTransmitting     bool
 	IsPlayStream       bool
 	GPIOEnabled        bool
-	TxButton           gpio.Pin
-	TxButtonState      uint
-	TxToggle           gpio.Pin
-	TxToggleState      uint
-	UpButton           gpio.Pin
-	UpButtonState      uint
-	DownButton         gpio.Pin
-	DownButtonState    uint
-	PanicButton        gpio.Pin
-	PanicButtonState   uint
-	CommentButton      gpio.Pin
-	CommentButtonState uint
-	StreamButton       gpio.Pin
-	StreamButtonState  uint
 }
 
 type ChannelsListStruct struct {

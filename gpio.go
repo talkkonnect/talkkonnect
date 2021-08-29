@@ -90,20 +90,20 @@ func (b *Talkkonnect) initGPIO() {
 	}
 
 	if TxButtonPin > 0 {
-		b.TxButton = gpio.NewInput(TxButtonPin)
+		TxButton = gpio.NewInput(TxButtonPin)
 
 		go func() {
 			for {
 				if IsConnected {
 
 					time.Sleep(200 * time.Millisecond)
-					currentState, err := b.TxButton.Read()
+					currentState, err := TxButton.Read()
 
-					if currentState != b.TxButtonState && err == nil {
-						b.TxButtonState = currentState
+					if currentState != TxButtonState && err == nil {
+						TxButtonState = currentState
 
 						if b.Stream != nil {
-							if b.TxButtonState == 1 {
+							if TxButtonState == 1 {
 								if isTx {
 									isTx = false
 									b.TransmitStop(true)
@@ -133,13 +133,13 @@ func (b *Talkkonnect) initGPIO() {
 	}
 
 	if TxTogglePin > 0 {
-		b.TxToggle = gpio.NewInput(TxTogglePin)
+		TxToggle = gpio.NewInput(TxTogglePin)
 		go func() {
 			var prevState uint = 1
 			for {
 				if IsConnected {
 
-					currentState, err := b.TxToggle.Read()
+					currentState, err := TxToggle.Read()
 					time.Sleep(150 * time.Millisecond)
 
 					if err != nil {
@@ -153,7 +153,7 @@ func (b *Talkkonnect) initGPIO() {
 							b.TransmitStop(true)
 							log.Println("debug: Toggle Stopped Transmitting")
 							for {
-								currentState, err := b.TxToggle.Read()
+								currentState, err := TxToggle.Read()
 								time.Sleep(150 * time.Millisecond)
 								if currentState == 1 && err == nil {
 									break
@@ -166,7 +166,7 @@ func (b *Talkkonnect) initGPIO() {
 						if !isTx {
 							b.TransmitStart()
 							for {
-								currentState, err := b.TxToggle.Read()
+								currentState, err := TxToggle.Read()
 								time.Sleep(150 * time.Millisecond)
 								if currentState == 1 && err == nil {
 									break
@@ -185,18 +185,18 @@ func (b *Talkkonnect) initGPIO() {
 	}
 
 	if UpButtonPin > 0 {
-		b.UpButton = gpio.NewInput(UpButtonPin)
+		UpButton = gpio.NewInput(UpButtonPin)
 		go func() {
 			for {
 				if IsConnected {
 
-					currentState, err := b.UpButton.Read()
+					currentState, err := UpButton.Read()
 					time.Sleep(200 * time.Millisecond)
 
-					if currentState != b.UpButtonState && err == nil {
-						b.UpButtonState = currentState
+					if currentState != UpButtonState && err == nil {
+						UpButtonState = currentState
 
-						if b.UpButtonState == 1 {
+						if UpButtonState == 1 {
 							log.Println("debug: UP Button is released")
 						} else {
 							log.Println("debug: UP Button is pressed")
@@ -213,18 +213,18 @@ func (b *Talkkonnect) initGPIO() {
 	}
 
 	if DownButtonPin > 0 {
-		b.DownButton = gpio.NewInput(DownButtonPin)
+		DownButton = gpio.NewInput(DownButtonPin)
 		go func() {
 			for {
 				if IsConnected {
 
-					currentState, err := b.DownButton.Read()
+					currentState, err := DownButton.Read()
 					time.Sleep(200 * time.Millisecond)
 
-					if currentState != b.DownButtonState && err == nil {
-						b.DownButtonState = currentState
+					if currentState != DownButtonState && err == nil {
+						DownButtonState = currentState
 
-						if b.DownButtonState == 1 {
+						if DownButtonState == 1 {
 							log.Println("debug: Ch Down Button is released")
 						} else {
 							log.Println("debug: Ch Down Button is pressed")
@@ -241,18 +241,18 @@ func (b *Talkkonnect) initGPIO() {
 
 	if PanicButtonPin > 0 {
 
-		b.PanicButton = gpio.NewInput(PanicButtonPin)
+		PanicButton = gpio.NewInput(PanicButtonPin)
 		go func() {
 			for {
 				if IsConnected {
 
-					currentState, err := b.PanicButton.Read()
+					currentState, err := PanicButton.Read()
 					time.Sleep(200 * time.Millisecond)
 
-					if currentState != b.PanicButtonState && err == nil {
-						b.PanicButtonState = currentState
+					if currentState != PanicButtonState && err == nil {
+						PanicButtonState = currentState
 
-						if b.PanicButtonState == 1 {
+						if PanicButtonState == 1 {
 							log.Println("debug: Panic Button is released")
 						} else {
 							log.Println("debug: Panic Button is pressed")
@@ -269,18 +269,18 @@ func (b *Talkkonnect) initGPIO() {
 
 	if CommentButtonPin > 0 {
 
-		b.CommentButton = gpio.NewInput(CommentButtonPin)
+		CommentButton = gpio.NewInput(CommentButtonPin)
 		go func() {
 			for {
 				if IsConnected {
 
-					currentState, err := b.CommentButton.Read()
+					currentState, err := CommentButton.Read()
 					time.Sleep(200 * time.Millisecond)
 
-					if currentState != b.CommentButtonState && err == nil {
-						b.CommentButtonState = currentState
+					if currentState != CommentButtonState && err == nil {
+						CommentButtonState = currentState
 
-						if b.CommentButtonState == 1 {
+						if CommentButtonState == 1 {
 							log.Println("debug: Comment Button State 1 setting comment to State 1 Message")
 							b.SetComment(CommentMessageOff)
 						} else {
@@ -299,18 +299,18 @@ func (b *Talkkonnect) initGPIO() {
 
 	if StreamButtonPin > 0 {
 
-		b.StreamButton = gpio.NewInput(StreamButtonPin)
+		StreamButton = gpio.NewInput(StreamButtonPin)
 		go func() {
 			for {
 				if IsConnected {
 
-					currentState, err := b.StreamButton.Read()
+					currentState, err := StreamButton.Read()
 					time.Sleep(200 * time.Millisecond)
 
-					if currentState != b.StreamButtonState && err == nil {
-						b.StreamButtonState = currentState
+					if currentState != StreamButtonState && err == nil {
+						StreamButtonState = currentState
 
-						if b.StreamButtonState == 1 {
+						if StreamButtonState == 1 {
 							log.Println("debug: Stream Button is released")
 						} else {
 							log.Println("debug: Stream Button is pressed")

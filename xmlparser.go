@@ -50,7 +50,7 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.67.19"
+	talkkonnectVersion  string = "1.67.20"
 	talkkonnectReleased string = "Aug 29 2021"
 )
 
@@ -343,7 +343,6 @@ var (
         BackLightLED        gpio.Pin
         VoiceActivityLED    gpio.Pin
         AttentionLED        gpio.Pin
-        TxButton            gpio.Pin
 )
 
 //heartbeat light settings
@@ -363,6 +362,21 @@ var (
 	DownButtonPin   uint
 	PanicButtonPin  uint
 	StreamButtonPin uint
+        TxButton           gpio.Pin
+        TxButtonState      uint
+        TxToggle           gpio.Pin
+        TxToggleState      uint
+        UpButton           gpio.Pin
+        UpButtonState      uint
+        DownButton         gpio.Pin
+        DownButtonState    uint
+        PanicButton        gpio.Pin
+        PanicButtonState   uint
+        CommentButton      gpio.Pin
+        CommentButtonState uint
+        StreamButton       gpio.Pin
+        StreamButtonState  uint
+
 )
 
 //comment settings

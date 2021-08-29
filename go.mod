@@ -12,7 +12,8 @@ require (
 	github.com/jacobsa/go-serial v0.0.0-20180131005756-15cf729a72d4
 	github.com/kennygrant/sanitize v1.2.4
 	github.com/mattn/go-runewidth v0.0.13 // indirect
-	github.com/stianeikeland/go-rpio v4.2.0+incompatible
+	github.com/stianeikeland/go-rpio v4.2.0+incompatible // indirect
+	github.com/stianeikeland/go-rpio/v4 v4.5.0
 	github.com/talkkonnect/embd v0.0.0-20210824124053-e127c37e1577 // indirect
 	github.com/talkkonnect/go-hd44780 v0.0.0-20210824123606-f3398c777f39
 	github.com/talkkonnect/go-i2c v0.0.0-20190316095740-e326afb7fdb1 // indirect

@@ -353,6 +353,11 @@ func (b *Talkkonnect) initGPIO() {
 	if VoiceActivityLEDPin > 0 {
 		VoiceActivityLED = gpio.NewOutput(VoiceActivityLEDPin, false)
 	}
+
+	if VoiceTargetLEDPin > 0 {
+		VoiceTargetLED = gpio.NewOutput(VoiceTargetLEDPin, false)
+	}
+
 }
 
 func LEDOnFunc(LED gpio.Pin) {
@@ -395,6 +400,10 @@ func (b *Talkkonnect) LEDOffAll() {
 	}
 	if VoiceActivityLEDPin > 0 {
 		LEDOffFunc(VoiceActivityLED)
+	}
+
+	if VoiceTargetLEDPin > 0 {
+		LEDOffFunc(VoiceTargetLED)
 	}
 
 }

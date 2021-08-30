@@ -729,8 +729,10 @@ func (b *Talkkonnect) VoiceTargetUserSet(TargetID uint32, TargetUser string) {
 		b.Client.VoiceTarget = vtarget
 		if TargetID > 0 {
 			log.Printf("debug: Added User %v to VT ID %v\n", TargetUser, TargetID)
+			LEDOnFunc(VoiceTargetLED)
 		} else {
 			//b.VoiceTarget.Clear()
+			LEDOffFunc(VoiceTargetLED)
 			log.Println("debug: Cleared Voice Targets")
 		}
 		b.Client.Send(vtarget)
@@ -765,6 +767,7 @@ func (b *Talkkonnect) VoiceTargetChannelSet(targetID uint32, targetChannelName s
 		b.Client.VoiceTarget = vtarget
 		b.Client.Send(vtarget)
 		log.Printf("debug: Shouting to Root Channel %v to VT ID %v with recursive %v links %v group %v\n", vChannel.Name, targetID, recursive, links, group)
+		LEDOffFunc(VoiceTargetLED)
 		return
 	}
 
@@ -777,4 +780,7 @@ func (b *Talkkonnect) VoiceTargetChannelSet(targetID uint32, targetChannelName s
 	b.Client.VoiceTarget = vtarget
 	b.Client.Send(vtarget)
 	log.Printf("debug: Shouting to Child Channel %v to VT ID %v with recursive %v links %v group %v\n", vChannel.Name, targetID, recursive, links, group)
+	if targetID > 0 {
+		LEDOnFunc(VoiceTargetLED)
+	}
 }

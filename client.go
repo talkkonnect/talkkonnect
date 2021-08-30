@@ -538,7 +538,7 @@ keyPressListenerLoop:
 					case "record":
 						b.cmdAudioTrafficRecord()
 						b.cmdAudioMicRecord()
-					case "voicetargetset":
+					case "setvoicetarget":
 						voicetarget, err := strconv.Atoi(TTYKeyMap[ev.Ch].ParamValue)
 						if err != nil {
 							log.Println("error: Target is Non-Numeric Value")

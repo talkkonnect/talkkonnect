@@ -51,7 +51,7 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.67.21"
+	talkkonnectVersion  string = "1.67.22"
 	talkkonnectReleased string = "Aug 30 2021"
 )
 
@@ -326,13 +326,16 @@ var (
 	OnlineLEDPin        uint
 	AttentionLEDPin     uint
 	HeartBeatLEDPin     uint
-	VoiceActivityLED    gpio.Pin
-	ParticipantsLED     gpio.Pin
-	TransmitLED         gpio.Pin
-	OnlineLED           gpio.Pin
-	AttentionLED        gpio.Pin
-	HeartBeatLED        gpio.Pin
-	BackLightLED        gpio.Pin
+	VoiceTargetLEDPin   uint
+
+	VoiceActivityLED gpio.Pin
+	ParticipantsLED  gpio.Pin
+	TransmitLED      gpio.Pin
+	OnlineLED        gpio.Pin
+	AttentionLED     gpio.Pin
+	HeartBeatLED     gpio.Pin
+	BackLightLED     gpio.Pin
+	VoiceTargetLED   gpio.Pin
 )
 
 //heartbeat light settings
@@ -746,6 +749,7 @@ type DocumentStruct struct {
 				TransmitLedPin      string `xml:"transmitledpin"`
 				OnlineLedPin        string `xml:"onlineledpin"`
 				AttentionLedPin     string `xml:"attentionledpin"`
+				VoiceTargetLedPin   string `xml:"voicetargetledpin"`
 			} `xml:"lights"`
 			HeartBeat struct {
 				Enabled     bool   `xml:"enabled,attr"`
@@ -1476,6 +1480,8 @@ func readxmlconfig(file string) error {
 	OnlineLEDPin = uint(temp4)
 	temp14, _ := strconv.ParseUint(Document.Global.Hardware.Lights.AttentionLedPin, 10, 64)
 	AttentionLEDPin = uint(temp14)
+	temp15, _ := strconv.ParseUint(Document.Global.Hardware.Lights.VoiceTargetLedPin, 10, 64)
+	VoiceTargetLEDPin = uint(temp15)
 
 	temp5, _ := strconv.ParseUint(Document.Global.Hardware.HeartBeat.LEDPin, 10, 64)
 	HeartBeatLEDPin = uint(temp5)
@@ -1823,6 +1829,7 @@ func printxmlconfig() {
 		log.Println("info: Transmit Led Pin       " + fmt.Sprintf("%v", TransmitLEDPin))
 		log.Println("info: Online Led Pin         " + fmt.Sprintf("%v", OnlineLEDPin))
 		log.Println("info: Attention Led Pin      " + fmt.Sprintf("%v", AttentionLEDPin))
+		log.Println("info: VoiceTarget Led Pin    " + fmt.Sprintf("%v", VoiceTargetLEDPin))
 	} else {
 		log.Println("info: ------------ LEDS  ---------------------- SKIPPED ")
 	}

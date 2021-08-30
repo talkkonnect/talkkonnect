@@ -40,59 +40,76 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
 	goled "github.com/talkkonnect/go-oled-i2c"
 	"github.com/talkkonnect/go-openal/openal"
+	"github.com/talkkonnect/gpio"
 	"github.com/talkkonnect/gumble/gumble"
 	"github.com/talkkonnect/gumble/gumbleffmpeg"
 	"golang.org/x/sys/unix"
-	"github.com/talkkonnect/gpio"
 )
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.67.20"
-	talkkonnectReleased string = "Aug 29 2021"
+	talkkonnectVersion  string = "1.67.21"
+	talkkonnectReleased string = "Aug 30 2021"
 )
 
 // Generic Global Variables
 var (
-	pstream               *gumbleffmpeg.Stream
-	AccountCount          int  = 0
-	KillHeartBeat         bool = false
-	IsPlayStream          bool = false
-	BackLightTime              = time.NewTicker(5 * time.Second)
-	BackLightTimePtr           = &BackLightTime
-	ConnectAttempts            = 0
-	IsConnected           bool = false
-	source                     = openal.NewSource()
-	StartTime                  = time.Now()
-	BufferToOpenALCounter      = 0
-	AccountIndex          int  = 0
-	GenericCounter        int  = 0
+	AccountCount          int
+	KillHeartBeat         bool
+	IsPlayStream          bool
+	ConnectAttempts       int
+	IsConnected           bool
+	BufferToOpenALCounter int
+	AccountIndex          int
+	GenericCounter        int
 	IsNumlock             bool
+	RXLEDStatus           bool
+	BackLightTime         = time.NewTicker(5 * time.Second)
+	BackLightTimePtr      = &BackLightTime
+	source                = openal.NewSource()
+	StartTime             = time.Now()
+	LastTime              = now.Unix()
+	StreamCounter         = 0
+	TimerTalked           = time.NewTicker(time.Millisecond * 200)
+	LcdText               = [4]string{"nil", "nil", "nil", "nil"}
+	ConfigXMLFile         string
+	Streaming             bool
+	ServerHop             bool
+	HTTPServRunning       bool
+	NowStreaming          bool
+	MyLedStrip            *LedStrip
+	TargetBoard           string = "pc"
+	CancellableStream     bool   = true
+	StreamOnStart         bool
+	StreamStartAfter      uint
 )
 
-//keyboard settings
+// Generic Local Variables for xmlparser
 var (
-	USBKeyboardPath    string = "/dev/input/event0"
-	USBKeyboardEnabled bool
-	NumlockScanID      rune
+	txcounter int
+	isTx      bool
+	pstream   *gumbleffmpeg.Stream
 )
 
 //account settings
 var (
-	Default     []bool
-	Name        []string
-	Server      []string
-	Username    []string
-	Password    []string
-	Insecure    []bool
-	Register    []bool
-	Certificate []string
-	Channel     []string
-	Ident       []string
-	Tokens      []gumble.AccessTokens
-	VT          []VTStruct
+	Default             []bool
+	Name                []string
+	Server              []string
+	Username            []string
+	Password            []string
+	Insecure            []bool
+	Register            []bool
+	Certificate         []string
+	Channel             []string
+	Ident               []string
+	Tokens              []gumble.AccessTokens
+	VT                  []VTStruct
+	Accounts            int
+	MaxTokensInAccounts int
 )
 
 //software settings
@@ -300,11 +317,6 @@ var (
 	TTSPlayIntoStream     bool
 )
 
-// target board settings
-var (
-	TargetBoard string = "pc"
-)
-
 //indicator light settings
 var (
 	LedStripEnabled     bool
@@ -313,19 +325,19 @@ var (
 	TransmitLEDPin      uint
 	OnlineLEDPin        uint
 	AttentionLEDPin     uint
-        OnlineLED           gpio.Pin
-        ParticipantsLED     gpio.Pin
-        TransmitLED         gpio.Pin
-        HeartBeatLED        gpio.Pin
-        BackLightLED        gpio.Pin
-        VoiceActivityLED    gpio.Pin
-        AttentionLED        gpio.Pin
+	HeartBeatLEDPin     uint
+	VoiceActivityLED    gpio.Pin
+	ParticipantsLED     gpio.Pin
+	TransmitLED         gpio.Pin
+	OnlineLED           gpio.Pin
+	AttentionLED        gpio.Pin
+	HeartBeatLED        gpio.Pin
+	BackLightLED        gpio.Pin
 )
 
 //heartbeat light settings
 var (
 	HeartBeatEnabled bool
-	HeartBeatLEDPin  uint
 	PeriodmSecs      int
 	LEDOnmSecs       int
 	LEDOffmSecs      int
@@ -333,32 +345,31 @@ var (
 
 //button settings
 var (
-	TxButtonPin     uint
-	TxTogglePin     uint
-	UpButtonPin     uint
-	DownButtonPin   uint
-	PanicButtonPin  uint
-	StreamButtonPin uint
-        TxButton           gpio.Pin
-        TxButtonState      uint
-        TxToggle           gpio.Pin
-        TxToggleState      uint
-        UpButton           gpio.Pin
-        UpButtonState      uint
-        DownButton         gpio.Pin
-        DownButtonState    uint
-        PanicButton        gpio.Pin
-        PanicButtonState   uint
-        CommentButton      gpio.Pin
-        CommentButtonState uint
-        StreamButton       gpio.Pin
-        StreamButtonState  uint
-
+	TxButton           gpio.Pin
+	TxToggle           gpio.Pin
+	UpButton           gpio.Pin
+	DownButton         gpio.Pin
+	PanicButton        gpio.Pin
+	CommentButton      gpio.Pin
+	StreamButton       gpio.Pin
+	TxButtonPin        uint
+	TxTogglePin        uint
+	TxButtonState      uint
+	TxToggleState      uint
+	UpButtonPin        uint
+	UpButtonState      uint
+	DownButtonPin      uint
+	DownButtonState    uint
+	PanicButtonPin     uint
+	PanicButtonState   uint
+	StreamButtonPin    uint
+	StreamButtonState  uint
+	CommentButtonState uint
+	CommentButtonPin   uint
 )
 
 //comment settings
 var (
-	CommentButtonPin  uint
 	CommentMessageOff string
 	CommentMessageOn  string
 )
@@ -422,6 +433,7 @@ var (
 	GpsInfoVerbose      bool
 )
 
+//traccar
 var (
 	TrackEnabled           bool
 	TraccarSendTo          bool
@@ -433,6 +445,16 @@ var (
 	TraccarServerFullURL   string
 	TrackGPSShowLCD        bool
 	TrackVerbose           bool
+	TraccarPortT55         string = "5005" // Old Traccar Client port 5005 for working with T55 Protocol
+	TraccarPortOpenGTS     string = "5159" // Traccar Client port 5159 for for working OpenGTS Protocol
+	TraccarPortOsmAnd      string = "5055" // Traccar Client port 5055 for working with OsmAnd Protocol
+	GPSTime                string
+	GPSDate                string
+	GPSLatitude            float64
+	GPSLongitude           float64
+	GPSSpeed               float64
+	GPSCourse              float64
+	GPSVariation           float64
 )
 
 //panic function settings
@@ -450,6 +472,7 @@ var (
 	PLowProfile        bool
 )
 
+// audio recording
 var (
 	AudioRecordEnabled     bool
 	AudioRecordOnStart     bool
@@ -467,19 +490,17 @@ var (
 	AudioRecordChunkSize   string
 )
 
+//keyboard settings
 var (
-	txcounter           int
-	isTx                bool
-	CancellableStream   bool = true
-	StreamOnStart       bool
-	StreamStartAfter    uint
-	Accounts            int
-	MaxTokensInAccounts int
+	USBKeyboardPath    string = "/dev/input/event0"
+	USBKeyboardEnabled bool
+	NumlockScanID      rune
+	TTYKeyMap          = make(map[rune]TTYKBStruct)
+	USBKeyMap          = make(map[rune]USBKBStruct)
 )
 
+//read xml config into struct
 var Document DocumentStruct
-var TTYKeyMap = make(map[rune]TTYKBStruct)
-var USBKeyMap = make(map[rune]USBKBStruct)
 
 type DocumentStruct struct {
 	XMLName  xml.Name `xml:"document"`

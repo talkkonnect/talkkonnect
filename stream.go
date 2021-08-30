@@ -43,15 +43,11 @@ import (
 )
 
 var (
-	errState         = errors.New("gumbleopenal: invalid state")
-	lcdtext          = [4]string{"nil", "nil", "nil", ""}
-	now              = time.Now()
-	LastTime         = now.Unix()
-	debuglevel       = 2
-	emptyBufs        = openal.NewBuffers(16)
-	StreamCounter    = 0
-	TimerTalked      = time.NewTicker(time.Millisecond * 200)
-	RXLEDStatus      = false
+	errState   = errors.New("gumbleopenal: invalid state")
+	lcdtext    = [4]string{"nil", "nil", "nil", ""}
+	now        = time.Now()
+	debuglevel = 2
+	emptyBufs  = openal.NewBuffers(16)
 )
 
 type Stream struct {

@@ -54,46 +54,32 @@ import (
 )
 
 var (
-	LcdText              = [4]string{"nil", "nil", "nil", "nil"}
 	currentChannelID     uint32
 	prevChannelID        uint32
 	prevParticipantCount int    = 0
 	prevButtonPress      string = "none"
 	maxchannelid         uint32
-	ConfigXMLFile        string
-	Streaming            bool
-	ServerHop            bool
-	HTTPServRunning      bool
 	message              string
 	isrepeattx           bool = true
-	NowStreaming         bool
-	MyLedStrip           *LedStrip
-	GPSTime              string
-	GPSDate              string
-	GPSLatitude          float64
-	GPSLongitude         float64
-	GPSSpeed             float64
-	GPSCourse            float64
-	GPSVariation         float64
 	m                    string
 )
 
 type Talkkonnect struct {
-	Config             *gumble.Config
-	Client             *gumble.Client
-	VoiceTarget        *gumble.VoiceTarget
-	Name               string
-	Address            string
-	Username           string
-	Ident              string
-	TLSConfig          tls.Config
-	ConnectAttempts    uint
-	Stream             *Stream
-	ChannelName        string
-	Daemonize          bool
-	IsTransmitting     bool
-	IsPlayStream       bool
-	GPIOEnabled        bool
+	Config          *gumble.Config
+	Client          *gumble.Client
+	VoiceTarget     *gumble.VoiceTarget
+	Name            string
+	Address         string
+	Username        string
+	Ident           string
+	TLSConfig       tls.Config
+	ConnectAttempts uint
+	Stream          *Stream
+	ChannelName     string
+	Daemonize       bool
+	IsTransmitting  bool
+	IsPlayStream    bool
+	GPIOEnabled     bool
 }
 
 type ChannelsListStruct struct {

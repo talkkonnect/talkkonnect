@@ -50,28 +50,9 @@ import (
 	"github.com/jacobsa/go-serial/serial"
 	hd44780 "github.com/talkkonnect/go-hd44780"
 	"github.com/talkkonnect/go-nmea"
-	//"encoding/json" // used for testing http api for flespi
 )
-
-var (
-	TraccarPortOsmAnd  string = "5055" // Traccar Client port 5055 for working with OsmAnd Protocol
-	TraccarPortT55     string = "5005" // Old Traccar Client port 5005 for working with T55 Protocol
-	TraccarPortOpenGTS string = "5159" // Traccar Client port 5159 for for working OpenGTS Protocol
-)
-
-//A test http request for OsmAnd protocol and passing basic $GPRMC information to Traccar.
-//http://10.8.0.1:5055?id=12345&timestamp=2019-10-05%20&lat=44.000000&lon=20.000000&speed=0.000&course=0.000000&variation=0.000000
-//More info about OsmAnd for Traccar: https://www.traccar.org/osmand
-
-//A request example for OpenGTS protocol in Traccar...
-//http://10.8.0.1:5159/?id=12345&gprmc=$GPRMC,094852,A,4446.8347,N,02030.9393,E,0.0147,69.114,041019,,*10
-
-// Supported protocols for communicating with Traccar: OsmAnd, T55 and OpenGTS.
-// OsmAnd and OpenGTS use http. T55 use tcp socket connection (udp is also possible).
 
 var goodGPSRead bool = false
-
-// GPS Serial reading.
 
 func getGpsPosition(verbose bool) (bool, error) {
 
@@ -152,74 +133,22 @@ func getGpsPosition(verbose bool) (bool, error) {
 
 				if err == nil {
 
-					/*if s.DataType() == nmea.TypeGGA {
-											g := s.(nmea.RMC)
-					                                                if g.Latitude != 0 && g.Longitude != 0 {
-												goodGPSRead = true
-												fmt.Println(...)
-					*/
-					// Try to read other sentences containing useful info like $GPGGA, ...
-					// and  print useful info, altitude, number of satellites, fix quality, etc. To Do.
-
 					if s.DataType() == nmea.TypeRMC {
 						m := s.(nmea.RMC)
 						if m.Latitude != 0 && m.Longitude != 0 {
 							goodGPSRead = true
 
-							//if m.Speed != 0 && m.Course != 0 {
-							//isVehicleMoving = true  // Report if vehicle moves or overspeeds?
-							//if m.Speed >> some km/h
-							// Send a text alert to Mumble or email?
-
-							// Read GGA Info for FixQuality, NumSatellites, Altitude ... To Do..
-							// https://github.com/adrianmo/go-nmea/blob/master/gga.go
-							//...
-
-							/*if TrackEnabled == true {
-							  if TraccarSendTo == true {
-							  if TraccarProto == "osmand" {
-							  TraccarServerFullURL = (fmt.Sprint(TraccarServerURL) + ":" + fmt.Sprint(TraccarPortOsmAnd) + "?" + "id=" + TraccarClientId + "&" + "timestamp=" + date2() + "%20" + time2() + "&" + "lat=" + fmt.Sprintf("%f", m.Latitude)+ "&" + "lon=" + fmt.Sprintf("%f", m.Longitude) + "&" + "speed=" + fmt.Sprintf("%f", m.Speed) + "&" + "course=" + fmt.Sprintf("%f", m.Course) + "&" + "variation=" + fmt.Sprintf("%f", m.Variation))
-							  } else if TraccarProto == "opengts" {
-							  TraccarServerFullURL = fmt.Sprint(TraccarServerURL) + ":" + fmt.Sprint(TraccarPortOpenGTS) + "/?" + "id=" + TraccarClientId + "&" + "gprmc=" + fmt.Sprint(m)
-							  //TraccarServerFullURL = fmt.Sprint(TraccarServerURL) + ":" + fmt.Sprint(TraccarPortOpenGTS) + "?" + "id=" + TraccarClientId + "&" + "timestamp=" + Date2 + "%20" + Time2 + "&" + "lat=" + fmt.Sprintf("%f", m.Latitude) + "&" + "lon=" + fmt.Sprintf("%f", m.Longitude) + "&" + "speed=" + fmt.Sprint(m.Speed) + "&" + "course=" + fmt.Sprintf("%f", m.Course) + "&" + "variation=" + fmt.Sprintf("%f", m.Variation)
-							  } else if TraccarProto == "t55" {
-							  TraccarServerFullURL = ""
-							  }
-							  }
-							  }
-							  }
-							*/
-
-							// This is a request example for OpenGTS protocol in Traccar. Use port 5159.
-							// http://10.8.0.1:5159/?id=12345&gprmc=$GPRMC,094852,A,4446.8347,N,02030.9393,E,0.0147,69.114,041019,,*10
-							// http://10.8.0.1:5159/?id=12345&gprmc=$GPRMC,114614.00,A,4446.82735,N,02030.94387,E,0.030,,151019,,,A*70
-
 							FreqReport := float64(TraccarReportFrequency)                        // Reporting Frequency
 							FreqReports := (time.Duration(TraccarReportFrequency) * time.Second) // Frequency of GPS Reporting. Minutes, Seconds or hours?
 
-							//FreqReportm := (FreqReports / 60)  // in minutes
-							//FreqReport := 60 // Reporting Frequency
-							//FreqReports := (time.Duration(FreqReport) * time.Second) // Frequency of GPS Reporting. Minutes, Seconds or hours?
-							//FreqReportm := (FreqReport / 60)  // minutes
-							//FreqReportH := (FreqReports/(60*60)) // hours
-							//FreqReportD := (FreqReports/(60*60*24)) // days
-							//Improve calc with time/ string to print reporting freq in minutes or seconds, as needed.
-
-							// Position Reporter
-
-							// send GPS position once immediately on start
 							if TrackEnabled && TraccarSendTo {
 								if TraccarProto == "t55" {
 									go tcpSendT55Traccar2() // Initial Send GPS position to Traccar with old T55 client protocol. No keep-alive.
-									//tcpSendT55Traccar1()  // Initial Send GPS position to Traccar with old T55 client protocol. Keep-alive.
 								} else {
 									go httpSendTraccar() // Initial Send GPS position to Traccar over http function for both OsmAnd or OpenGTS protocol.
-									//flespi() // Test flespi
 								}
 								log.Println("info: GPS Position Report Nr (1) Sent to Traccar Server")
 							}
-
-							// Now, keep sending GPS position and counting how many reports were sent?
 
 							PositionReporter := time.NewTicker(FreqReports)
 							var TraccarCounter = 1
@@ -228,10 +157,8 @@ func getGpsPosition(verbose bool) (bool, error) {
 									if TrackEnabled && TraccarSendTo {
 										if TraccarProto == "t55" {
 											tcpSendT55Traccar2() // Send GPS position to Traccar with old T55 client protocol. No keep-alive.
-											//tcpSendT55Traccar1()  // Send GPS position to Traccar with old T55 client protocol. Keep-alive.
 										} else {
 											httpSendTraccar() // Send GPS position to Traccar over http function for both OsmAnd or OpenGTS protocol.
-											//flespi() // Test flespi
 										}
 									}
 									TraccarCounter++
@@ -248,8 +175,6 @@ func getGpsPosition(verbose bool) (bool, error) {
 											log.Println("info: GPS Position Report Nr " + "(" + fmt.Sprint(TraccarCounter) + ")" + " Sent to Traccar Server. Next Position Report in " + fmt.Sprintf("%.2f", FreqReport/60) + " minute(s)")
 										}
 									}
-
-									//Display Show GPS Position.
 
 									if TargetBoard == "rpi" {
 										if TrackEnabled {
@@ -369,81 +294,7 @@ func getGpsPosition(verbose bool) (bool, error) {
 	return false, errors.New("GPS Not Enabled. Or Not Connected")
 }
 
-/*
-GPS Reporter function. Need more work.
-func gpsReporter() {
-//ticker := time.NewTicker(60 * time.Second) // send every 60 seconds.
-ticker := time.NewTicker(time.Duration(int64(TraccarReportFrequency)) * time.Second) // send every ... seconds.
-done := make(chan bool)
-go func() {
-for {
-select {
-case <-done:
-return
-case t := <-ticker.C:
-//httpSendTraccar()
-//tcpSendT55Traccar1()
-//tcpSendT55Traccar2()
-log.Println("info: GPS Position Sent to Traccar Server over" + strings.Title(strings.ToLower(TraccarProto)) + "protocol", t)
-//log.Println("info: OsmAnd: ", fmt.Sprintf(TraccarServerURL + ":" + TraccarPortOsmAnd + "?" + "id=" + TraccarClientId) + "&" + "timestamp=" + Date2 + "%" + "20" + Time2 + "&" + "lat=" + fmt.Sprintf("%f", m.Latitude) + "&" + "lon=" + fmt.Sprintf("%f", m.Longitude) + "&" + "speed=" + fmt.Sprint(m.Speed) + "&" + "course=" + fmt.Sprintf("%f", m.Course) + "&" + "variation=" + fmt.Sprintf("%f", m.Variation))
-//log.Println("info: GPS Position Sent to Traccar Server. Next Position Report in " + fmt.Sprintf(strconv.Itoa(FreqReportm)) + " minute(s)")
-}
-}
-}()
-}
-
-*/
-
-/* T55 Protocol.
-Info: https://www.traccar.org/traccar-client-protocol
-T55 protocol is used by old version of Traccar Client.
-New version use OsmAnd protocol. T55 Protocol uses TCP/IP as a transport layer.
-It is more simple. Can be UDP also, but it is less reliable. Messages are separated
-simply by carriage return and line feed characters (\r\n).
-
-How to format T55 message for sending to Traccar?
-
-Login (send once the TCP connection is establshed):
-$PGID,12345*0F\r\n (where 12345 - IMEI or other unique id)
-
-Simple location report format is just a standard NMEA GPRMC sentence:
-$GPRMC,225446,A,4916.45,N,12311.12,W,000.5,054.7,191194,020.3,E*68\r\n
-
-225446 - Time of fix 22:54:46 UTC
-A - Navigation receiver warning A = OK, V = warning
-4916.45,N - Latitude 49 deg. 16.45 min North
-12311.12,W - Longitude 123 deg. 11.12 min West
-000.5 - Speed over ground, Knots
-054.7 - Course Made Good, True
-191194 - Date of fix 19 November 1994
-020.3,E - Magnetic variation 20.3 deg East
-*68 - Checksum
-
-Extended location report format:
-
-$TRCCR,20140111000000.000,A,60.000000,60.000000,0.00,0.00,0.00,50,*3a\r\n
-
-20140111000000.000 - Date and tim of fix 2014-01-11 00:00:00.000 UTC
-A - Navigation receiver warning A = OK, V = warning
-60.000000 - Latitude in degrees 60 deg (negative for south hemisphere)
-60.000000 - Longitude in degrees 60 deg (negative for west hemisphere)
-0.00 - Speed over ground, Knots
-0.00 - Course Made Good, True
-0.00 - Altitude in meters
-50 - Battery level
-*/
-
-//T55(1)
-
-//T55(2)
-//Another T55 TCP Connection with keep-alive. EOF for indicating a connection drop.
-//Keep-alive. Client stays connected between sending position.
-
 func tcpSendT55Traccar2() {
-
-	//Hard coded for testing
-	//pgid := "$PGID,12345*0F\r\n"  // Unique Client ID (e.g. 12345). Follow with carriage return and line feed characters (\r\n).
-	//gprmc := "$GPRMC,114614.00,A,4446.82735,N,02030.94387,E,0.030,,151019,,,A*70\r\n" //  Test sentence. Send after pgid. Follow \r\n.
 
 	pgid := "$PGID" + "," + TraccarClientId + "*0F" + "\r" + "\n" // Unique Client ID (e.g. 12345). Follow with carriage return and line feed $
 	gprmc := fmt.Sprint(m) + "\r" + "\n"
@@ -472,14 +323,7 @@ func tcpSendT55Traccar2() {
 		return
 	}
 
-	//log.Println("info: Sending T55 Position Report to Traccar ")
-	//log.Println("info: Connection established with Traccar Server :", TraccarServerIP)
-	//log.Println("info: Traccar Server Address :", conn.RemoteAddr().String())
-	//log.Println("info: Traccar Client Address :", conn.LocalAddr().String())
-
 	log.Println("info: Traccar Client:", conn.LocalAddr().String(), "Connected to Server:", conn.RemoteAddr().String())
-
-	// Send a T55 position report...
 
 	fmt.Fprintf(conn, pgid) // Send ID
 	time.Sleep(1 * time.Second)
@@ -487,8 +331,6 @@ func tcpSendT55Traccar2() {
 	log.Println("info: Sending position message to Traccar over Protocol: " + strings.Title(strings.ToLower(TraccarProto)))
 
 	notify := make(chan error)
-
-	// error checking for a closed connection. dispatch a goroutine to read from the connection until there's an EOF error.
 
 	go func() {
 		buf := make([]byte, 1024)
@@ -504,7 +346,6 @@ func tcpSendT55Traccar2() {
 
 			if n > 0 {
 				log.Printf("Unexpected Data: %s", buf[:n])
-				//fmt.Println("Unexpected Data: %s", buf[:n])
 			}
 		}
 	}()
@@ -513,38 +354,18 @@ func tcpSendT55Traccar2() {
 		select {
 		case err := <-notify:
 			log.Println("info: Traccar Server Connection dropped message", err)
-			//fmt.Println("Traccar Server Connection dropped message", err)
 
 			if err == io.EOF {
 				log.Println("Connection to Traccar Server was closed")
-				//fmt.Println("Connection to Traccar Server was closed")
 				return
 			}
 		case <-time.After(time.Second * 60):
 			log.Println("Traccar Server Connection Timeout 60. Still Alive")
-			//fmt.Println("Traccar Server Connection Timeout 60. Still Alive")
 		}
 	}
 }
 
-// T55(2) End
-
-// Sending over OsmAnd and OpenGTS.
-// OsmAnd is primary Traccar protocol for sending position over http api.
-
-// OpenGTS currently not working. Need to check if format parsing is correct?
-// Traccar returns 400 http error.
-// A request example for OpenGTS protocol in Traccar is...
-// http://10.8.0.1:5159/?id=12345&gprmc=$GPRMC,094852,A,4446.8347,N,02030.9393,E,0.0147,69.114,041019,,*10
-// This is correct format for OpenGTS. Works directly from a web browser.
-// For troubleshooting this problem check /opt/traccar/logs/tracker-server.log in the Traccar server
-// Message will be HEX coded. Decode with calculator
-// OsmAnd is working OK.
-
 func httpSendTraccar() {
-
-	//Date1 := fmt.Sprint(gpsdatereorder())                 // Reformatted date for Tracar
-	//Time1 := fmt.Sprint("%s", truncateString(GPSTime, 8)) // Truncate time for Traccar
 
 	if TrackEnabled {
 		if TraccarSendTo {
@@ -553,21 +374,15 @@ func httpSendTraccar() {
 			} else if TraccarProto == "opengts" {
 				TraccarServerFullURL = fmt.Sprint(TraccarServerURL) + ":" + fmt.Sprint(TraccarPortOpenGTS) + "/" + "?" + "id=" + TraccarClientId + "&" + "gprmc=" + fmt.Sprint(m)
 
-				//gprmctest = "$GPRMC,081753.00,A,4446.82690,N,02030.95217,E,0.285,,011219,,,A*73"
-				//TraccarServerFullURL := `http://10.8.0.1:5055?id=tk-demo-04&timestamp=2019-10-05%2011:30:00&lat=44.000000&lon=20.000000&speed=0.000&course=0.000000&variation=0.000000`
-				//TraccarServerFullURL := (fmt.Sprint(TraccarServerURL) + ":" + fmt.Sprint(TraccarPortOsmAnd) + "?" + "id=" + TraccarClientId + "&" + "timestamp=" + fmt.Sprint(gpsdatereorder()) + "%20" + time2() + "&" + "lat=" + fmt.Sprint(GPSLatitude) + "&" + "lon=" + fmt.Sprint(GPSLongitude) + "&" + "speed=" + fmt.Sprint(GPSSpeed) + "&" + "course=" + fmt.Sprint(GPSCourse) + "&" + "variation=" + fmt.Sprint(GPSVariation))
-				//http://10.8.0.1:5159/?id=12345&gprmc=$GPRMC,094852,A,4446.8347,N,02030.9393,E,0.0147,69.114,041019,,*10 //URL for testing openGTS
-
 			}
 		}
-	} //
+	}
 
 	response, err := http.Get(TraccarServerFullURL)
 
 	if err != nil {
 
 		log.Println("error: Cannot Establish Connection with Traccar Server! Error ", err)
-		// Print to LCD "TRACK ERR 1". Error 1 for network connectivity problems with Traccar server. Check why the connectivity failed?
 		currentTime := time.Now()
 		if TargetBoard == "rpi" {
 			if TrackEnabled {
@@ -582,34 +397,26 @@ func httpSendTraccar() {
 				}
 			}
 		}
-		// LCD TRACK ERR1 to screen
 		return
 
 	} else {
 		contents, err := ioutil.ReadAll(response.Body)
-		// if it's no error then defer the call for closing body
 		defer response.Body.Close()
 
 		if err != nil {
 			log.Println("error: Error Sending Data to Traccar Server!")
 		}
 
-		// if http request response body is empty
 		if response.ContentLength == 0 {
 			log.Println("info: Empty Request Response Body")
 		} else {
 			//
 			log.Println("info: Traccar Web Server Response -->\n" + "-------------------------------------------------------------\n" + string(contents) + "-------------------------------------------------------------")
 		}
-		// Added code to read http response status code, 2xx, 4xx.
 		log.Println("info: HTTP Response Status from Traccar:", response.StatusCode, http.StatusText(response.StatusCode))
 		if response.StatusCode >= 200 && response.StatusCode <= 299 {
 			log.Println("info: HTTP Status Code from Traccar is in the 2xx range. This is OK.")
 
-			// "TRACK OK" Message To LCD.
-			// Print LCD message "TRACK OK" to LCD, overwrite row with "GPS OK" + timestamp to report a
-			// position had been successfully transferred to Traccar (after 200 OK).
-			// time.Sleep(1 * time.Second)
 			currentTime := time.Now()
 			if TargetBoard == "rpi" {
 				if TrackEnabled {
@@ -624,9 +431,7 @@ func httpSendTraccar() {
 					}
 				}
 			}
-			// "TRACK OK" Message.
 		} else {
-			// "TRACK ERR 2" Message to LCD. Error 2 means connectivity is working, but something else went wrong (Response Status 400), like data is corrupted. HEX decode Traccar Server log message. Keep trying.
 			currentTime := time.Now()
 			if TargetBoard == "rpi" {
 				if TrackEnabled {
@@ -642,19 +447,8 @@ func httpSendTraccar() {
 				}
 			}
 		}
-		// "TRACK ERR2" Message.
-	} //
-	// Note: When sending over Traccar client ports 5055, 5159 response code should be 200 OK. No "body text" is visible.
-	// If using Trccar web port 8082 to test, code 200 OK and "body text" from Traccar server will show.
+	}
 }
-
-// OsmAnd End
-
-// Some helper functons to use with GPS
-
-// Truncate function. Need to truncate .0000 / milliseconds time from GPSTime. Is there a more simple way?
-// example: Time := fmt.Sprint(truncateString(GPSTime,8))  -> show only the first 8 characters, ending with seconds.
-// Should gps time be different type? int64?
 
 func truncateString(str string, num int) string {
 	shortstr := str
@@ -664,28 +458,16 @@ func truncateString(str string, num int) string {
 	return shortstr
 }
 
-// Or trim string like this fmt... (string[:num])... num from which character.
-
-// helper to reorder gps date from dd/mm/yy to yyyy/mm/dd format
-
 func gpsdatereorder() string {
 	GPSDate := "01/12/19" // Works with hard coded date for test. How to make date from GPS visible to helper?
-	//GPSDate := fmt.Sprintf("%s", m.Date)
 	dd := GPSDate[0:2]
-	//fmt.Println(yy) //test
-	//runtime error: slice bounds out of range! But works in Go Playground. Need to fix this error.
 	mm := GPSDate[3:5]
-	//fmt.Println(mm) // test
 	yy := GPSDate[6:8]
-	//fmt.Println(dd) //test
 	yyyy := "20" + yy
-	//fmt.Println(yyyy) //test
 	Date1reorder := yyyy + "-" + mm + "-" + dd
-	//fmt.Println(Date1reorder)
 	return Date1reorder
 }
 
-// current time system stamp
 func time2() string {
 	currentTime := time.Now()
 	Time2 := fmt.Sprintf("%s", currentTime.Format("15:04:05"))

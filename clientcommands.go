@@ -68,7 +68,7 @@ func (b *Talkkonnect) CleanUp() {
 			oledDisplay(false, 7, 1, "www.talkkonnect.com")
 		}
 		if !LedStripEnabled {
-			b.LEDOffAll()
+			LEDOffAll()
 		} else {
 			MyLedStripLEDOffAll()
 		}

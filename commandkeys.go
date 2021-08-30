@@ -806,7 +806,7 @@ func (b *Talkkonnect) cmdPanicSimulation() {
 		b.IsTransmitting = false
 
 		if PLowProfile {
-			b.LEDOffAll()
+			LEDOffAll()
 			log.Println("info: Low Profile Lights Option is Enabled. Turning All Leds Off During Panic Event")
 			if LCDEnabled {
 				log.Println("info: Low Profile Lights is Enabled. Turning Off Display During Panic Event")

@@ -108,7 +108,7 @@ func (b *Talkkonnect) OnDisconnect(e *gumble.DisconnectEvent) {
 
 	if TargetBoard == "rpi" {
 		if !LedStripEnabled {
-			b.LEDOffAll()
+			LEDOffAll()
 		} else {
 			MyLedStripLEDOffAll()
 		}

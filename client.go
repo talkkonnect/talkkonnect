@@ -233,7 +233,7 @@ func (b *Talkkonnect) ClientStart() {
 
 	if TargetBoard == "rpi" {
 		if !LedStripEnabled {
-			b.LEDOffAll()
+			LEDOffAll()
 		}
 	}
 

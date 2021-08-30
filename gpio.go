@@ -374,7 +374,7 @@ func LEDOffFunc(LED gpio.Pin) {
 	LED.Low()
 }
 
-func (b *Talkkonnect) LEDOffAll() {
+func LEDOffAll() {
 	if TargetBoard != "rpi" {
 		return
 	}

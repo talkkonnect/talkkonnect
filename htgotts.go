@@ -37,15 +37,17 @@ import (
 	"os"
 )
 
-func (b *Talkkonnect) Speak(text string, destination string, playBackVolume float32, duration float32, loop int) {
-	Folder := "audio"
+func (b *Talkkonnect) Speak(text string, destination string, playBackVolume float32, duration float32, loop int, language string) {
 	generatedHashName := generateHashName(text)
-	fileNameWithPath := Folder + "/" + generatedHashName + ".mp3"
+	fileNameWithPath := TTSSoundDirectory + "/" + generatedHashName + ".mp3"
 
-	createFolderIfNotExists(Folder)
-	downloadIfNotExists(fileNameWithPath, text)
+	createFolderIfNotExists(TTSSoundDirectory)
+	downloadIfNotExists(fileNameWithPath, text, language)
 
 	if destination == "local" {
+		if FileExists(TTSAnnouncementTone) {
+			localMediaPlayer(TTSAnnouncementTone, playBackVolume, 10, 1)
+		}
 		localMediaPlayer(fileNameWithPath, playBackVolume, duration, loop)
 	}
 
@@ -61,6 +63,9 @@ func (b *Talkkonnect) Speak(text string, destination string, playBackVolume floa
 		NowStreaming = IsPlayStream
 
 		log.Println("info: Playing Recieved Text Message Into Stream as ", fileNameWithPath)
+		if FileExists(TTSAnnouncementTone) {
+			b.playIntoStream(TTSAnnouncementTone, StreamSoundVolume)
+		}
 		b.playIntoStream(fileNameWithPath, StreamSoundVolume)
 		IsPlayStream = false
 		NowStreaming = IsPlayStream
@@ -79,10 +84,10 @@ func createFolderIfNotExists(folder string) {
 	dir.Close()
 }
 
-func downloadIfNotExists(fileName string, text string) {
+func downloadIfNotExists(fileName string, text string, language string) {
 	f, err := os.Open(fileName)
 	if err != nil {
-		url := fmt.Sprintf("http://translate.google.com/translate_tts?ie=UTF-8&total=1&idx=0&textlen=32&client=tw-ob&q=%s&tl=%s", url.QueryEscape(text), "en")
+		url := fmt.Sprintf("http://translate.google.com/translate_tts?ie=UTF-8&total=1&idx=0&textlen=32&client=tw-ob&q=%s&tl=%s", url.QueryEscape(text), language)
 		response, err := http.Get(url)
 		if err != nil {
 			return
@@ -111,13 +116,13 @@ func (b *Talkkonnect) TTSPlayer(ttsMessage string, ttsLocalPlay bool, ttsLocalPl
 		if ttsLocalPlayRXLed {
 			LEDOnFunc(VoiceActivityLED)
 		}
-		b.Speak(ttsMessage, "local", 1, 0, 1)
+		b.Speak(ttsMessage, "local", 1, 0, 1, TTSLanguage)
 		if ttsLocalPlayRXLed {
 			LEDOffFunc(VoiceActivityLED)
 		}
 	}
 
 	if ttlPlayIntoStream {
-		b.Speak(ttsMessage, "intostream", 1, 0, 1)
+		b.Speak(ttsMessage, "intostream", 1, 0, 1, TTSLanguage)
 	}
 }

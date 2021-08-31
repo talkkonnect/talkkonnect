@@ -51,8 +51,8 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.67.23"
-	talkkonnectReleased string = "Aug 30 2021"
+	talkkonnectVersion  string = "1.67.24"
+	talkkonnectReleased string = "Aug 31 2021"
 )
 
 // Generic Global Variables
@@ -315,6 +315,10 @@ var (
 	TTSLocalPlay          bool
 	TTSLocalPlayWithRXLED bool
 	TTSPlayIntoStream     bool
+	TTSSoundDirectory     string = "/sounds"
+	TTSLanguage           string = "en"
+	TTSAnnouncementTone   string = ""
+	TTSMessageFromTag     bool   = true
 )
 
 //indicator light settings
@@ -734,10 +738,14 @@ type DocumentStruct struct {
 				MQTTAttentionBlinkmsecs int    `xml:"attentionblinkmsecs"`
 			} `xml:"mqtt"`
 			TTSMessages struct {
-				TTSMessageEnabled     bool `xml:"enabled,attr"`
-				TTSLocalPlay          bool `xml:"localplay"`
-				TTSLocalPlayWithRXLED bool `xml:"localplaywithrxled"`
-				TTSPlayIntoStream     bool `xml:"playintostream"`
+				TTSMessageEnabled     bool   `xml:"enabled,attr"`
+				TTSLocalPlay          bool   `xml:"localplay"`
+				TTSLocalPlayWithRXLED bool   `xml:"localplaywithrxled"`
+				TTSPlayIntoStream     bool   `xml:"playintostream"`
+				TTSSoundDirectory     string `xml:"ttssounddirectory"`
+				TTSLanguage           string `xml:"ttslanguage"`
+				TTSAnnouncementTone   string `xml:"ttsannouncementtone"`
+				TTSMessageFromTag     bool   `xml:"ttsmessagefromtag"`
 			} `xml:"ttsmessages"`
 		} `xml:"software"`
 		Hardware struct {
@@ -1448,6 +1456,10 @@ func readxmlconfig(file string) error {
 	TTSLocalPlay = Document.Global.Software.TTSMessages.TTSLocalPlay
 	TTSLocalPlayWithRXLED = Document.Global.Software.TTSMessages.TTSLocalPlayWithRXLED
 	TTSPlayIntoStream = Document.Global.Software.TTSMessages.TTSPlayIntoStream
+	TTSLanguage = Document.Global.Software.TTSMessages.TTSLanguage
+	TTSSoundDirectory = Document.Global.Software.TTSMessages.TTSSoundDirectory
+	TTSAnnouncementTone = Document.Global.Software.TTSMessages.TTSAnnouncementTone
+	TTSMessageFromTag = Document.Global.Software.TTSMessages.TTSMessageFromTag
 
 	PrintHTTPAPI = Document.Global.Software.PrintVariables.PrintHTTPAPI
 	PrintTargetboard = Document.Global.Software.PrintVariables.PrintTargetBoard
@@ -1994,10 +2006,14 @@ func printxmlconfig() {
 
 	if PrintTTSMessages {
 		log.Println("info: ------------ TTSMessages Function -------------- ")
-		log.Println("info: Enabled            " + fmt.Sprintf("%v", TTSMessageEnabled))
-		log.Println("info: LocalPlay          " + fmt.Sprintf("%v", TTSLocalPlay))
-		log.Println("info: LocalPlayWithRXLED " + fmt.Sprintf("%v", TTSLocalPlayWithRXLED))
-		log.Println("info: Play Into Stream   " + fmt.Sprintf("%v", TTSPlayIntoStream))
+		log.Println("info: Enabled             " + fmt.Sprintf("%v", TTSMessageEnabled))
+		log.Println("info: LocalPlay           " + fmt.Sprintf("%v", TTSLocalPlay))
+		log.Println("info: LocalPlayWithRXLED  " + fmt.Sprintf("%v", TTSLocalPlayWithRXLED))
+		log.Println("info: Play Into Stream    " + fmt.Sprintf("%v", TTSPlayIntoStream))
+		log.Println("info: TTSLanguage         " + fmt.Sprintf("%v", TTSLanguage))
+		log.Println("info: TTSSoundDirectory   " + fmt.Sprintf("%v", TTSSoundDirectory))
+		log.Println("info: TTSAnnouncementTone " + fmt.Sprintf("%v", TTSAnnouncementTone))
+		log.Println("info: TTSMessageFromTag   " + fmt.Sprintf("%v", TTSMessageFromTag))
 	} else {
 		log.Println("info: ------------ TTSMessages Function ------- SKIPPED ")
 	}

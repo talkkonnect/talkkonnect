@@ -278,7 +278,7 @@ func (b *Talkkonnect) ParticipantLEDUpdate(verbose bool) {
 	if participantCount > 1 && participantCount != prevParticipantCount {
 
 		if TTSEnabled && TTSParticipants {
-			b.Speak("There Are Currently "+strconv.Itoa(participantCount)+" Users in The Channel "+b.Client.Self.Channel.Name, "local", 1, 0, 1)
+			b.Speak("There Are Currently "+strconv.Itoa(participantCount)+" Users in The Channel "+b.Client.Self.Channel.Name, "local", 1, 0, 1, TTSLanguage)
 		}
 
 		prevParticipantCount = participantCount
@@ -318,7 +318,7 @@ func (b *Talkkonnect) ParticipantLEDUpdate(verbose bool) {
 
 		if verbose {
 			if TTSEnabled && TTSParticipants {
-				b.Speak("You are Currently Alone in The Channel "+b.Client.Self.Channel.Name, "local", 1, 0, 1)
+				b.Speak("You are Currently Alone in The Channel "+b.Client.Self.Channel.Name, "local", 1, 0, 1, TTSLanguage)
 			}
 			log.Println("info: Channel ", b.Client.Self.Channel.Name, " has no other participants")
 

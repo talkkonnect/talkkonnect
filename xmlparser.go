@@ -51,8 +51,8 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.67.24"
-	talkkonnectReleased string = "Aug 31 2021"
+	talkkonnectVersion  string = "1.67.25"
+	talkkonnectReleased string = "Sep 4 2021"
 )
 
 // Generic Global Variables
@@ -265,6 +265,7 @@ var (
 	PrintProvisioning bool
 	PrintBeacon       bool
 	PrintTTS          bool
+	PrintIgnoreUser   bool
 	PrintSMTP         bool
 	PrintSounds       bool
 	PrintTxTimeout    bool
@@ -319,6 +320,11 @@ var (
 	TTSLanguage           string = "en"
 	TTSAnnouncementTone   string = ""
 	TTSMessageFromTag     bool   = true
+)
+
+var (
+	IgnoreUserEnabled bool
+	IgnoreUserRegex   string
 )
 
 //indicator light settings
@@ -701,6 +707,7 @@ type DocumentStruct struct {
 				PrintProvisioning bool `xml:"printprovisioning"`
 				PrintBeacon       bool `xml:"printbeacon"`
 				PrintTTS          bool `xml:"printtts"`
+				PrintIgnoreUser   bool `xml:"printignoreuser"`
 				PrintSMTP         bool `xml:"printsmtp"`
 				PrintSounds       bool `xml:"printsounds"`
 				PrintTxTimeout    bool `xml:"printtxtimeout"`
@@ -747,6 +754,10 @@ type DocumentStruct struct {
 				TTSAnnouncementTone   string `xml:"ttsannouncementtone"`
 				TTSMessageFromTag     bool   `xml:"ttsmessagefromtag"`
 			} `xml:"ttsmessages"`
+			IgnoreUser struct {
+				IgnoreUserEnabled bool   `xml:"enabled,attr"`
+				IgnoreUserRegex   string `xml:"ignoreuserregex"`
+			} `xml:"ignoreuser"`
 		} `xml:"software"`
 		Hardware struct {
 			TargetBoard string `xml:"targetboard,attr"`
@@ -1433,6 +1444,7 @@ func readxmlconfig(file string) error {
 	PrintProvisioning = Document.Global.Software.PrintVariables.PrintProvisioning
 	PrintBeacon = Document.Global.Software.PrintVariables.PrintBeacon
 	PrintTTS = Document.Global.Software.PrintVariables.PrintTTS
+	PrintIgnoreUser = Document.Global.Software.PrintVariables.PrintIgnoreUser
 	PrintSMTP = Document.Global.Software.PrintVariables.PrintSMTP
 	PrintSounds = Document.Global.Software.PrintVariables.PrintSounds
 	PrintTxTimeout = Document.Global.Software.PrintVariables.PrintTxTimeout
@@ -1460,6 +1472,9 @@ func readxmlconfig(file string) error {
 	TTSSoundDirectory = Document.Global.Software.TTSMessages.TTSSoundDirectory
 	TTSAnnouncementTone = Document.Global.Software.TTSMessages.TTSAnnouncementTone
 	TTSMessageFromTag = Document.Global.Software.TTSMessages.TTSMessageFromTag
+
+	IgnoreUserEnabled = Document.Global.Software.IgnoreUser.IgnoreUserEnabled
+	IgnoreUserRegex = Document.Global.Software.IgnoreUser.IgnoreUserRegex
 
 	PrintHTTPAPI = Document.Global.Software.PrintVariables.PrintHTTPAPI
 	PrintTargetboard = Document.Global.Software.PrintVariables.PrintTargetBoard
@@ -2016,6 +2031,14 @@ func printxmlconfig() {
 		log.Println("info: TTSMessageFromTag   " + fmt.Sprintf("%v", TTSMessageFromTag))
 	} else {
 		log.Println("info: ------------ TTSMessages Function ------- SKIPPED ")
+	}
+
+	if PrintIgnoreUser {
+		log.Println("info: ------------ IgnoreUserRegex Function -------------- ")
+		log.Println("info: Enabled             " + fmt.Sprintf("%v", IgnoreUserEnabled))
+		log.Println("info: IgnoreUserRegex     " + fmt.Sprintf("%v", IgnoreUserRegex))
+	} else {
+		log.Println("info: ------------ IgnoreUserRegex Function ------- SKIPPED ")
 	}
 
 	if PrintKeyboardMap {

@@ -34,7 +34,6 @@ package talkkonnect
 import (
 	"archive/zip"
 	"fmt"
-
 	"io"
 	"log"
 	"math"
@@ -42,6 +41,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -341,4 +341,13 @@ func restart() {
 	c.Stdout = os.Stdout
 	c.Run()
 	os.Exit(0)
+}
+
+func checkRegex(regex string, compareto string) bool {
+	match, err := regexp.MatchString(regex, compareto)
+	if err != nil {
+		log.Println("error: Cannot Match Regular Expression Error", err)
+		return false
+	}
+	return match
 }

@@ -207,6 +207,14 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 		for packet := range e.C {
 			Talking <- true
 
+			if IgnoreUserEnabled {
+				if len(IgnoreUserRegex) > 0 {
+					if checkRegex(IgnoreUserRegex, *e.LastSpeaker) {
+						continue
+					}
+				}
+			}
+
 			if TargetBoard == "rpi" && LCDEnabled {
 				LEDOnFunc(BackLightLED)
 			}

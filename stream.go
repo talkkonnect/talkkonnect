@@ -158,7 +158,18 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 					if !RXLEDStatus {
 						RXLEDStatus = true
 						LEDOnFunc(VoiceActivityLED)
-						log.Println("info: Speaking->", *e.LastSpeaker)
+
+						if IgnoreUserEnabled {
+							if len(IgnoreUserRegex) > 0 {
+								if checkRegex(IgnoreUserRegex, *e.LastSpeaker) {
+									log.Println("info: Ignoring Speaker->", *e.LastSpeaker)
+								} else {
+									log.Println("info: Speaking->", *e.LastSpeaker)
+
+								}
+							}
+						}
+
 						t := time.Now()
 						if TargetBoard == "rpi" {
 							if LCDEnabled {

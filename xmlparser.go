@@ -51,7 +51,7 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.67.25"
+	talkkonnectVersion  string = "1.67.26"
 	talkkonnectReleased string = "Sep 4 2021"
 )
 
@@ -69,7 +69,6 @@ var (
 	RXLEDStatus           bool
 	BackLightTime         = time.NewTicker(5 * time.Second)
 	BackLightTimePtr      = &BackLightTime
-	source                = openal.NewSource()
 	StartTime             = time.Now()
 	LastTime              = now.Unix()
 	StreamCounter         = 0
@@ -92,6 +91,7 @@ var (
 	txcounter int
 	isTx      bool
 	pstream   *gumbleffmpeg.Stream
+	source    = openal.NewSource()
 )
 
 //account settings
@@ -274,6 +274,7 @@ var (
 	PrintLeds         bool
 	PrintHeartbeat    bool
 	PrintButtons      bool
+	PrintRelays       bool
 	PrintComment      bool
 	PrintLcd          bool
 	PrintOled         bool
@@ -358,27 +359,44 @@ var (
 
 //button settings
 var (
-	TxButton           gpio.Pin
-	TxToggle           gpio.Pin
-	UpButton           gpio.Pin
-	DownButton         gpio.Pin
-	PanicButton        gpio.Pin
+	TxButton      gpio.Pin
+	TxButtonPin   uint
+	TxButtonState uint
+
+	TxToggle      gpio.Pin
+	TxTogglePin   uint
+	TxToggleState uint
+
+	UpButton      gpio.Pin
+	UpButtonPin   uint
+	UpButtonState uint
+
+	DownButton      gpio.Pin
+	DownButtonPin   uint
+	DownButtonState uint
+
+	PanicButton      gpio.Pin
+	PanicButtonPin   uint
+	PanicButtonState uint
+
 	CommentButton      gpio.Pin
-	StreamButton       gpio.Pin
-	TxButtonPin        uint
-	TxTogglePin        uint
-	TxButtonState      uint
-	TxToggleState      uint
-	UpButtonPin        uint
-	UpButtonState      uint
-	DownButtonPin      uint
-	DownButtonState    uint
-	PanicButtonPin     uint
-	PanicButtonState   uint
-	StreamButtonPin    uint
-	StreamButtonState  uint
-	CommentButtonState uint
 	CommentButtonPin   uint
+	CommentButtonState uint
+
+	StreamButton      gpio.Pin
+	StreamButtonPin   uint
+	StreamButtonState uint
+)
+
+var (
+	Relay0Pin int
+	Relay1Pin int
+	Relay2Pin int
+	Relay3Pin int
+	Relay0    gpio.Pin
+	Relay1    gpio.Pin
+	Relay2    gpio.Pin
+	Relay3    gpio.Pin
 )
 
 //comment settings
@@ -716,6 +734,7 @@ type DocumentStruct struct {
 				PrintLeds         bool `xml:"printleds"`
 				PrintHeartbeat    bool `xml:"printheartbeat"`
 				PrintButtons      bool `xml:"printbuttons"`
+				PrintRelays       bool `xml:"printrelays"`
 				PrintComment      bool `xml:"printcomment"`
 				PrintLcd          bool `xml:"printlcd"`
 				PrintOled         bool `xml:"printoled"`
@@ -785,6 +804,12 @@ type DocumentStruct struct {
 				PanicButtonPin  string `xml:"panicbuttonpin"`
 				StreamButtonPin string `xml:"streambuttonpin"`
 			} `xml:"buttons"`
+			Relays struct {
+				Relay0Pin string `xml:"relay0pin"`
+				Relay1Pin string `xml:"relay1pin"`
+				Relay2Pin string `xml:"relay2pin"`
+				Relay3Pin string `xml:"relay3pin"`
+			} `xml:"relays"`
 			Comment struct {
 				CommentButtonPin  string `xml:"commentbuttonpin"`
 				CommentMessageOff string `xml:"commentmessageoff"`
@@ -1481,6 +1506,7 @@ func readxmlconfig(file string) error {
 	PrintLeds = Document.Global.Software.PrintVariables.PrintLeds
 	PrintHeartbeat = Document.Global.Software.PrintVariables.PrintHeartbeat
 	PrintButtons = Document.Global.Software.PrintVariables.PrintButtons
+	PrintRelays = Document.Global.Software.PrintVariables.PrintRelays
 	PrintComment = Document.Global.Software.PrintVariables.PrintComment
 	PrintLcd = Document.Global.Software.PrintVariables.PrintLcd
 	PrintOled = Document.Global.Software.PrintVariables.PrintOled
@@ -1544,6 +1570,14 @@ func readxmlconfig(file string) error {
 	// my stupid work around for null uint xml unmarshelling problem with numbers so use strings and convert it 2 times
 	temp13, _ := strconv.ParseUint(Document.Global.Hardware.LCD.BackLightLEDPin, 10, 64)
 	LCDBackLightLEDPin = int(temp13)
+	temp16, _ := strconv.ParseUint(Document.Global.Hardware.Relays.Relay0Pin, 10, 64)
+	Relay0Pin = int(temp16)
+	temp17, _ := strconv.ParseUint(Document.Global.Hardware.Relays.Relay1Pin, 10, 64)
+	Relay1Pin = int(temp17)
+	temp18, _ := strconv.ParseUint(Document.Global.Hardware.Relays.Relay2Pin, 10, 64)
+	Relay2Pin = int(temp18)
+	temp19, _ := strconv.ParseUint(Document.Global.Hardware.Relays.Relay3Pin, 10, 64)
+	Relay3Pin = int(temp19)
 
 	LCDRSPin = Document.Global.Hardware.LCD.RsPin
 	LCDEPin = Document.Global.Hardware.LCD.EPin
@@ -1882,6 +1916,16 @@ func printxmlconfig() {
 		log.Println("info: ------------ Buttons  ------------------- SKIPPED ")
 	}
 
+	if PrintRelays {
+		log.Println("info: ------------ Relays  ------------------- ")
+		log.Println("info: Relay 0   Pin           " + fmt.Sprintf("%v", Relay0Pin))
+		log.Println("info: Relay 1   Pin           " + fmt.Sprintf("%v", Relay1Pin))
+		log.Println("info: Relay 2   Pin           " + fmt.Sprintf("%v", Relay2Pin))
+		log.Println("info: Relay 3   Pin           " + fmt.Sprintf("%v", Relay3Pin))
+	} else {
+		log.Println("info: ------------ Relays  ------------------- SKIPPED ")
+	}
+
 	if PrintComment {
 		log.Println("info: ------------ Comment  ------------------- ")
 		log.Println("info: Comment Button Pin         " + fmt.Sprintf("%v", CommentButtonPin))
@@ -2081,5 +2125,5 @@ func modifyXMLTagServerHopping(inputXMLFile string, newserverindex int) {
 		return
 	}
 
-	restart()
+	killSession()
 }

@@ -27,14 +27,7 @@ Modified for talkkonnect by Suvir Kumar <suvir@talkkonnect.com>
 package talkkonnect
 
 import (
-	"crypto/md5"
-	"encoding/hex"
-	"fmt"
-	"io"
 	"log"
-	"net/http"
-	"net/url"
-	"os"
 )
 
 func (b *Talkkonnect) Speak(text string, destination string, playBackVolume float32, duration float32, loop int, language string) {
@@ -72,42 +65,6 @@ func (b *Talkkonnect) Speak(text string, destination string, playBackVolume floa
 
 	}
 
-}
-
-func createFolderIfNotExists(folder string) {
-	dir, err := os.Open(folder)
-	if os.IsNotExist(err) {
-		os.MkdirAll(folder, 0700)
-		return
-	}
-
-	dir.Close()
-}
-
-func downloadIfNotExists(fileName string, text string, language string) {
-	f, err := os.Open(fileName)
-	if err != nil {
-		url := fmt.Sprintf("http://translate.google.com/translate_tts?ie=UTF-8&total=1&idx=0&textlen=32&client=tw-ob&q=%s&tl=%s", url.QueryEscape(text), language)
-		response, err := http.Get(url)
-		if err != nil {
-			return
-		}
-		defer response.Body.Close()
-
-		output, err := os.Create(fileName)
-		if err != nil {
-			return
-		}
-
-		_, _ = io.Copy(output, response.Body)
-	}
-
-	f.Close()
-}
-
-func generateHashName(name string) string {
-	hash := md5.Sum([]byte(name))
-	return hex.EncodeToString(hash[:])
 }
 
 func (b *Talkkonnect) TTSPlayer(ttsMessage string, ttsLocalPlay bool, ttsLocalPlayRXLed bool, ttlPlayIntoStream bool) {

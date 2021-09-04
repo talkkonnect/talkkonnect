@@ -57,50 +57,7 @@ import (
 	"time"
 
 	MQTT "github.com/eclipse/paho.mqtt.golang"
-	"github.com/talkkonnect/gpio"
 )
-
-func relayCommand(relayNo int, command string) {
-	// all relays (0)
-	if relayNo == 0 {
-		for i := 1; i <= int(TotalRelays); i++ {
-			if command == "on" {
-				log.Println("info: Relay ", i, "On")
-				gpio.NewOutput(RelayPins[i], false)
-
-			}
-			if command == "off" {
-				log.Println("info: Relay ", i, "Off")
-				gpio.NewOutput(RelayPins[i], true)
-			}
-			if command == "pulse" {
-				log.Println("info: Relay ", i, "Pulse")
-				gpio.NewOutput(RelayPins[i], false)
-				time.Sleep(RelayPulseMills * time.Millisecond)
-				gpio.NewOutput(RelayPins[i], true)
-			}
-		}
-		return
-	}
-
-	//specific relay (Number Between 1 and TotalRelays)
-	if relayNo >= 0 && relayNo <= int(TotalRelays) {
-		if command == "on" {
-			log.Println("info: Relay ", relayNo, "On")
-			gpio.NewOutput(RelayPins[relayNo], false)
-		}
-		if command == "off" {
-			log.Println("info: Relay ", relayNo, "Off")
-			gpio.NewOutput(RelayPins[relayNo], true)
-		}
-		if command == "pulse" {
-			log.Println("info: Relay ", relayNo, "Pulse")
-			gpio.NewOutput(RelayPins[relayNo], false)
-			time.Sleep(RelayPulseMills * time.Millisecond)
-			gpio.NewOutput(RelayPins[relayNo], true)
-		}
-	}
-}
 
 func (b *Talkkonnect) mqttsubscribe() {
 

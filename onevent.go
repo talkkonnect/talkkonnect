@@ -224,6 +224,10 @@ func (b *Talkkonnect) OnUserChange(e *gumble.UserChangeEvent) {
 		LcdText[3] = ""
 	case gumble.UserChangeComment:
 		info = "chg comment"
+		b.BackLightTimer()
+		if EventSoundEnabled {
+			localMediaPlayer(EventMessageSoundFilenameAndPath, EventVolume, 0, 1)
+		}
 	case gumble.UserChangeAudio:
 		info = "chg audio"
 	case gumble.UserChangePrioritySpeaker:

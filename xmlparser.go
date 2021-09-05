@@ -51,7 +51,7 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.68.01"
+	talkkonnectVersion  string = "1.68.02"
 	talkkonnectReleased string = "Sep 5 2021"
 )
 
@@ -76,7 +76,6 @@ var (
 	LcdText               = [4]string{"nil", "nil", "nil", "nil"}
 	ConfigXMLFile         string
 	Streaming             bool
-	ServerHop             bool
 	HTTPServRunning       bool
 	NowStreaming          bool
 	MyLedStrip            *LedStrip

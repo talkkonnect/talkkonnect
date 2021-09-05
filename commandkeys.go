@@ -405,7 +405,6 @@ func (b *Talkkonnect) cmdQuitTalkkonnect() {
 	if TTSEnabled && TTSQuitTalkkonnect {
 		localMediaPlayer(TTSQuitTalkkonnectFilenameAndPath, TTSVolumeLevel, 0, 1)
 	}
-	ServerHop = true
 	b.CleanUp()
 }
 

@@ -90,13 +90,8 @@ func (b *Talkkonnect) Connect() {
 
 	if err != nil {
 		log.Printf("error: Connection Error %v  connecting to %v failed, attempting again...", err, b.Address)
-		if !ServerHop {
-			log.Println("debug: In the Connect Function & Trying With Username ", Username)
-			log.Println("debug: DEBUG Serverhop  Not Set Reconnecting!!")
-			b.ReConnect()
-		}
-	} else {
-		b.OpenStream()
+		log.Println("debug: In the Connect Function & Trying With Username ", Username)
+		b.ReConnect()
 	}
 }
 
@@ -111,10 +106,8 @@ func (b *Talkkonnect) ReConnect() {
 	}
 
 	if ConnectAttempts < 3 {
-		if !ServerHop {
-			ConnectAttempts++
-			b.Connect()
-		}
+		ConnectAttempts++
+		b.Connect()
 	} else {
 		if TargetBoard == "rpi" {
 			if LCDEnabled {

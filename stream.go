@@ -34,7 +34,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"strconv"
 	"time"
 
 	"github.com/talkkonnect/go-openal/openal"
@@ -315,29 +314,6 @@ func (s *Stream) playIntoStream(filepath string, vol float32) {
 }
 
 func (b *Talkkonnect) OpenStream() {
-	if ServerHop {
-		log.Println("debug: Server Hop Requested Will Now Destroy Old Server Stream")
-		b.Stream.Destroy()
-		var participantCount = len(b.Client.Self.Channel.Users)
-
-		log.Println("info: Current Channel ", b.Client.Self.Channel.Name, " has (", participantCount, ") participants")
-		b.ListUsers()
-		if TargetBoard == "rpi" {
-			if LCDEnabled {
-				LcdText[0] = b.Address
-				LcdText[1] = b.Client.Self.Channel.Name + " (" + strconv.Itoa(participantCount) + " Users)"
-				LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
-			}
-			if OLEDEnabled {
-				oledDisplay(false, 0, 1, b.Address)
-				oledDisplay(false, 1, 1, b.Client.Self.Channel.Name+" ("+strconv.Itoa(participantCount)+" Users)")
-				oledDisplay(false, 6, 1, "Please Visit")
-				oledDisplay(false, 7, 1, "www.talkkonnect.com")
-			}
-
-		}
-	}
-
 	if stream, err := New(b.Client); err != nil {
 
 		if TargetBoard == "rpi" {

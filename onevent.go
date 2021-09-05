@@ -93,9 +93,7 @@ func (b *Talkkonnect) OnConnect(e *gumble.ConnectEvent) {
 }
 
 func (b *Talkkonnect) OnDisconnect(e *gumble.DisconnectEvent) {
-	if !ServerHop {
-		b.BackLightTimer()
-	}
+	b.BackLightTimer()
 
 	var reason string
 
@@ -114,12 +112,10 @@ func (b *Talkkonnect) OnDisconnect(e *gumble.DisconnectEvent) {
 		}
 	}
 
-	if !ServerHop {
-		log.Println("alert: Attempting Reconnect in 10 seconds...")
-		log.Println("alert: Connection to ", b.Address, "disconnected")
-		log.Println("alert: Disconnection Reason ", reason)
-		b.ReConnect()
-	}
+	log.Println("alert: Attempting Reconnect in 10 seconds...")
+	log.Println("alert: Connection to ", b.Address, "disconnected")
+	log.Println("alert: Disconnection Reason ", reason)
+	b.ReConnect()
 
 }
 

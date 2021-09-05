@@ -51,7 +51,7 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.67.28"
+	talkkonnectVersion  string = "1.67.29"
 	talkkonnectReleased string = "Sep 5 2021"
 )
 
@@ -259,6 +259,8 @@ var (
 	APIPingServersEnabled bool
 	APIRepeatTxLoopTest   bool
 	APIPrintXmlConfig     bool
+	APIPlayRepeaterTone   bool
+	APISetVoiceTarget     bool
 )
 
 //print xml config sections for easy debugging, set any section to false to prevent printing to screen
@@ -725,6 +727,8 @@ type DocumentStruct struct {
 				PrintXmlConfig     bool   `xml:"printxmlconfig"`
 				SendEmail          bool   `xml:"sendemail"`
 				PingServers        bool   `xml:"pingservers"`
+				PlayRepeaterTone   bool   `xml:"playrepeatertone"`
+				SetVoiceTarget     bool   `xml:"setvoicetarget"`
 			} `xml:"api"`
 			PrintVariables struct {
 				PrintAccount      bool `xml:"printaccount"`
@@ -1478,6 +1482,8 @@ func readxmlconfig(file string) error {
 	APIPingServersEnabled = Document.Global.Software.API.Enabled
 	APIRepeatTxLoopTest = Document.Global.Software.API.RepeatTxLoopTest
 	APIPrintXmlConfig = Document.Global.Software.API.PrintXmlConfig
+	APIPlayRepeaterTone = Document.Global.Software.API.PlayRepeaterTone
+	APISetVoiceTarget = Document.Global.Software.API.SetVoiceTarget
 
 	PrintAccount = Document.Global.Software.PrintVariables.PrintAccount
 	PrintLogging = Document.Global.Software.PrintVariables.PrintLogging
@@ -1890,6 +1896,8 @@ func printxmlconfig() {
 		log.Println("info: PingServersEnabled " + fmt.Sprintf("%t", APIPingServersEnabled))
 		log.Println("info: TxLoopTest         " + fmt.Sprintf("%t", APIRepeatTxLoopTest))
 		log.Println("info: PrintXmlConfig     " + fmt.Sprintf("%t", APIPrintXmlConfig))
+		log.Println("info: PlayRepeaterTone   " + fmt.Sprintf("%t", APIPlayRepeaterTone))
+		log.Println("info: SetVoiceTarget     " + fmt.Sprintf("%t", APISetVoiceTarget))
 	} else {
 		log.Println("info: ------------ HTTP API  ----------------- SKIPPED ")
 	}

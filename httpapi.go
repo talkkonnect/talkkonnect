@@ -251,14 +251,22 @@ func (b *Talkkonnect) httpAPI(w http.ResponseWriter, r *http.Request) {
 			b.cmdDumpXMLConfig()
 			fmt.Fprintf(w, "API Print XML Config Processed Successfully\n")
 		} else {
-			fmt.Fprintf(w, "API Print XML Congfig Denied\n")
+			fmt.Fprintf(w, "API Print XML Config Denied\n")
 		}
 	case "playrepeatertone":
-		b.cmdPlayRepeaterTone()
-		fmt.Fprintf(w, "API Play Repeater Tone Processed Successfully\n")
+		if APIPlayRepeaterTone {
+			b.cmdPlayRepeaterTone()
+			fmt.Fprintf(w, "API Play Repeater Tone Processed Successfully\n")
+		} else {
+			fmt.Fprintf(w, "API Play Repeater Tone Denied\n")
+		}
 	case "setvoicetarget":
-		fmt.Fprintf(w, "API Set Voice Target to ID %v Processed Successfully\n", ID)
-		b.cmdSendVoiceTargets(uint32(ID))
+		if APISetVoiceTarget {
+			fmt.Fprintf(w, "API Set Voice Target to ID %v Processed Successfully\n", ID)
+			b.cmdSendVoiceTargets(uint32(ID))
+		} else {
+			fmt.Fprintf(w, "API Set Voice Target Denied\n")
+		}
 	default:
 		fmt.Fprintf(w, "API Command Not Defined\n")
 	}

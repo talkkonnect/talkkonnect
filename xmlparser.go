@@ -51,7 +51,7 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.67.27"
+	talkkonnectVersion  string = "1.67.28"
 	talkkonnectReleased string = "Sep 5 2021"
 )
 
@@ -86,6 +86,7 @@ var (
 	StreamOnStartAfter    time.Duration
 	TXOnStart             bool
 	TXOnStartAfter        time.Duration
+	RepeatTXTimes         int
 )
 
 // Generic Local Variables for xmlparser
@@ -585,6 +586,7 @@ type DocumentStruct struct {
 				StreamOnStartAfter time.Duration `xml:"streamonstartafter"`
 				TXOnStart          bool          `xml:"txonstart"`
 				TXOnStartAfter     time.Duration `xml:"txonstartafter"`
+				RepeatTXTimes      int           `xml:"repeattxtimes"`
 				SimplexWithMute    bool          `xml:"simplexwithmute"`
 				TxCounter          bool          `xml:"txcounter"`
 				NextServerIndex    int           `xml:"nextserverindex"`
@@ -1110,6 +1112,8 @@ func readxmlconfig(file string) error {
 	TXOnStart = Document.Global.Software.Settings.TXOnStart
 
 	TXOnStartAfter = Document.Global.Software.Settings.TXOnStartAfter
+
+	RepeatTXTimes = Document.Global.Software.Settings.RepeatTXTimes
 
 	SimplexWithMute = Document.Global.Software.Settings.SimplexWithMute
 	TxCounter = Document.Global.Software.Settings.TxCounter
@@ -1730,6 +1734,7 @@ func printxmlconfig() {
 		log.Println("info: StreamOnStartAfter   ", fmt.Sprintf("%v", StreamOnStartAfter))
 		log.Println("info: TXOnStart            ", fmt.Sprintf("%t", TXOnStart))
 		log.Println("info: TXOnStartAfter       ", fmt.Sprintf("%v", TXOnStartAfter))
+		log.Println("info: RepeatTXTimes        ", fmt.Sprintf("%v", RepeatTXTimes))
 		log.Println("info: SimplexWithMute      ", fmt.Sprintf("%t", SimplexWithMute))
 		log.Println("info: TxCounter            ", fmt.Sprintf("%t", TxCounter))
 		log.Println("info: NextServerIndex      ", fmt.Sprintf("%v", NextServerIndex))

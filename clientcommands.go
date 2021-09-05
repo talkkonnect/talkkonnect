@@ -668,7 +668,7 @@ func (b *Talkkonnect) pingServers() {
 }
 
 func (b *Talkkonnect) repeatTx() {
-	for i := 0; i < 100; i++ {
+	for i := 0; i < RepeatTXTimes; i++ {
 		b.TransmitStart()
 		b.IsTransmitting = true
 		time.Sleep(1 * time.Second)

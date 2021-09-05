@@ -126,6 +126,10 @@ func (b *Talkkonnect) OnDisconnect(e *gumble.DisconnectEvent) {
 func (b *Talkkonnect) OnTextMessage(e *gumble.TextMessageEvent) {
 	b.BackLightTimer()
 
+	if EventSoundEnabled {
+		localMediaPlayer(EventMessageSoundFilenameAndPath, EventVolume, 0, 1)
+	}
+
 	if len(cleanstring(e.Message)) > 105 {
 		log.Println("warn: Message Too Long to Be Displayed on Screen")
 		message = strings.TrimSpace(cleanstring(e.Message)[:105])
@@ -195,12 +199,6 @@ func (b *Talkkonnect) OnTextMessage(e *gumble.TextMessageEvent) {
 		}
 	}
 
-	if EventSoundEnabled {
-		err := aplayLocal(EventMessageSoundFilenameAndPath, 100)
-		if err != nil {
-			log.Println("error: aplayLocal(EventMessageSoundFilenameAndPath) Returned Error: ", err)
-		}
-	}
 }
 
 func (b *Talkkonnect) OnUserChange(e *gumble.UserChangeEvent) {

@@ -310,10 +310,7 @@ func (b *Talkkonnect) ClientStart() {
 	}
 
 	if TTSEnabled && TTSTalkkonnectLoaded {
-		err := aplayLocal(TTSTalkkonnectLoadedFilenameAndPath, TTSVolumeLevel)
-		if err != nil {
-			log.Println("error: aplayLocal(TTSTalkkonnectLoadedFilenameAndPath) Returned Error: ", err)
-		}
+		localMediaPlayer(TTSTalkkonnectLoadedFilenameAndPath, TTSVolumeLevel, 0, 1)
 	}
 
 	b.Connect()

@@ -45,11 +45,7 @@ func (b *Talkkonnect) cmdDisplayMenu() {
 	log.Println("debug: Delete Key Pressed Menu and Session Information Requested")
 
 	if TTSEnabled && TTSDisplayMenu {
-		err := aplayLocal(TTSDisplayMenuFilenameAndPath, TTSVolumeLevel)
-		if err != nil {
-			log.Println("error: aplayLocal(TTSDisplayMenuFilenameAndPath) Returned Error: ", err)
-		}
-
+		localMediaPlayer(TTSDisplayMenuFilenameAndPath, TTSVolumeLevel, 0, 1)
 	}
 
 	b.talkkonnectMenu("\u001b[44;1m") // add blue background to banner reference https://www.lihaoyi.com/post/BuildyourownCommandLinewithANSIescapecodes.html#background-colors
@@ -70,10 +66,7 @@ func (b *Talkkonnect) cmdMuteUnmute(subCommand string) {
 
 	log.Println("debug: F3 pressed Mute/Unmute Speaker Requested")
 	if TTSEnabled && TTSMuteUnMuteSpeaker {
-		err := aplayLocal(TTSMuteUnMuteSpeakerFilenameAndPath, TTSVolumeLevel)
-		if err != nil {
-			log.Println("error: aplayLocal(TTSMuteUnMuteSpeakerFilenameAndPath) Returned Error: ", err)
-		}
+		localMediaPlayer(TTSMuteUnMuteSpeakerFilenameAndPath, TTSVolumeLevel, 0, 1)
 	}
 
 	OrigMuted, err := volume.GetMuted(OutputDevice)
@@ -177,11 +170,7 @@ func (b *Talkkonnect) cmdCurrentVolume() {
 	log.Println("info: Volume Level is at", OrigVolume, "%")
 
 	if TTSEnabled && TTSCurrentVolumeLevel {
-		err := aplayLocal(TTSCurrentVolumeLevelFilenameAndPath, TTSVolumeLevel)
-		if err != nil {
-			log.Println("error: aplayLocal(TTSCurrentVolumeLevelFilenameAndPath) Returned Error: ", err)
-		}
-
+		localMediaPlayer(TTSCurrentVolumeLevelFilenameAndPath, TTSVolumeLevel, 0, 1)
 	}
 	if TargetBoard == "rpi" {
 		if LCDEnabled {
@@ -233,13 +222,8 @@ func (b *Talkkonnect) cmdVolumeUp() {
 	}
 
 	if TTSEnabled && TTSDigitalVolumeUp {
-		err := aplayLocal(TTSDigitalVolumeUpFilenameAndPath, TTSVolumeLevel)
-		if err != nil {
-			log.Println("error: aplayLocal(TTSDigitalVolumeUpFilenameAndPath) Returned Error: ", err)
-		}
-
+		localMediaPlayer(TTSDigitalVolumeUpFilenameAndPath, TTSVolumeLevel, 0, 1)
 	}
-
 }
 
 func (b *Talkkonnect) cmdVolumeDown() {
@@ -282,24 +266,15 @@ func (b *Talkkonnect) cmdVolumeDown() {
 	}
 
 	if TTSEnabled && TTSDigitalVolumeDown {
-		err := aplayLocal(TTSDigitalVolumeDownFilenameAndPath, TTSVolumeLevel)
-		if err != nil {
-			log.Println("error: aplayLocal(TTSDigitalVolumeDownFilenameAndPath) Returned Error: ", err)
-		}
-
+		localMediaPlayer(TTSDigitalVolumeDownFilenameAndPath, TTSVolumeLevel, 0, 1)
 	}
-
 }
 
 func (b *Talkkonnect) cmdListServerChannels() {
 	log.Println("debug: F7 pressed Channel List Requested")
 
 	if TTSEnabled && TTSListServerChannels {
-		err := aplayLocal(TTSListServerChannelsFilenameAndPath, TTSVolumeLevel)
-		if err != nil {
-			log.Println("error: aplayLocal(TTSListServerChannelsFilenameAndPath) Returned Error: ", err)
-		}
-
+		localMediaPlayer(TTSListServerChannelsFilenameAndPath, TTSVolumeLevel, 0, 1)
 	}
 
 	b.ListChannels(true)
@@ -311,11 +286,7 @@ func (b *Talkkonnect) cmdStartTransmitting() {
 	log.Println("info: Start Transmitting")
 
 	if TTSEnabled && TTSStartTransmitting {
-		err := aplayLocal(TTSStartTransmittingFilenameAndPath, TTSVolumeLevel)
-		if err != nil {
-			log.Println("error: aplayLocal(TTSStartTransmittingFilenameAndPath) Returned Error: ", err)
-		}
-
+		localMediaPlayer(TTSStartTransmittingFilenameAndPath, TTSVolumeLevel, 0, 1)
 	}
 
 	if IsPlayStream {
@@ -338,11 +309,7 @@ func (b *Talkkonnect) cmdStopTransmitting() {
 	log.Println("info: Stop Transmitting")
 
 	if TTSEnabled && TTSStopTransmitting {
-		err := aplayLocal(TTSStopTransmittingFilenameAndPath, TTSVolumeLevel)
-		if err != nil {
-			log.Println("error: Play Wav Local Module Returned Error: ", err)
-		}
-
+		localMediaPlayer(TTSStopTransmittingFilenameAndPath, TTSVolumeLevel, 0, 1)
 	}
 
 	if IsPlayStream {
@@ -365,11 +332,7 @@ func (b *Talkkonnect) cmdListOnlineUsers() {
 	log.Println("info: F10 Online User(s) in Current Channel")
 
 	if TTSEnabled && TTSListOnlineUsers {
-		err := aplayLocal(TTSListOnlineUsersFilenameAndPath, TTSVolumeLevel)
-		if err != nil {
-			log.Println("error: aplayLocal(TTSListOnlineUsersFilenameAndPath) Returned Error: ", err)
-		}
-
+		localMediaPlayer(TTSListOnlineUsersFilenameAndPath, TTSVolumeLevel, 0, 1)
 	}
 
 	log.Println(fmt.Sprintf("info: Channel %#v Has %d Online User(s)", b.Client.Self.Channel.Name, len(b.Client.Self.Channel.Users)))
@@ -384,12 +347,7 @@ func (b *Talkkonnect) cmdPlayback() {
 	b.BackLightTimer()
 
 	if TTSEnabled && TTSPlayStream {
-		err := aplayLocal(TTSPlayStreamFilenameAndPath, TTSVolumeLevel)
-		if err != nil {
-			log.Println("error: aplayLocal(TTSPlayStreamFilenameAndPath) Returned Error: ", err)
-
-		}
-
+		localMediaPlayer(TTSPlayStreamFilenameAndPath, TTSVolumeLevel, 0, 1)
 	}
 
 	if b.IsTransmitting {
@@ -413,11 +371,7 @@ func (b *Talkkonnect) cmdGPSPosition() {
 	log.Println("info: GPS details requested")
 
 	if TTSEnabled && TTSRequestGpsPosition {
-		err := aplayLocal(TTSRequestGpsPositionFilenameAndPath, TTSVolumeLevel)
-		if err != nil {
-			log.Println("error: aplayLocal(TTSRequestGpsPositionFilenameAndPath) Returned Error: ", err)
-		}
-
+		localMediaPlayer(TTSRequestGpsPositionFilenameAndPath, TTSVolumeLevel, 0, 1)
 	}
 
 	var i int = 0
@@ -449,11 +403,7 @@ func (b *Talkkonnect) cmdQuitTalkkonnect() {
 	log.Printf("info: Talkkonnect Now Running For %v \n", secondsToHuman(int(duration.Seconds())))
 
 	if TTSEnabled && TTSQuitTalkkonnect {
-		err := aplayLocal(TTSQuitTalkkonnectFilenameAndPath, TTSVolumeLevel)
-		if err != nil {
-			log.Println("error: aplayLocal(TTSQuitTalkkonnectFilenameAndPath) Returned Error: ", err)
-		}
-
+		localMediaPlayer(TTSQuitTalkkonnectFilenameAndPath, TTSVolumeLevel, 0, 1)
 	}
 	ServerHop = true
 	b.CleanUp()
@@ -501,11 +451,7 @@ func (b *Talkkonnect) cmdSendEmail() {
 	}
 
 	if TTSEnabled && TTSSendEmail {
-		err := aplayLocal(TTSSendEmailFilenameAndPath, TTSVolumeLevel)
-		if err != nil {
-			log.Println("warn: aplayLocal(TTSSendEmailFilenameAndPath) Returned Error: ", err)
-		}
-
+		localMediaPlayer(TTSSendEmailFilenameAndPath, TTSVolumeLevel, 0, 1)
 	}
 
 	if EmailEnabled {
@@ -540,11 +486,7 @@ func (b *Talkkonnect) cmdConnPreviousServer() {
 	log.Println("info: Previous Server Requested")
 
 	if TTSEnabled && TTSPreviousServer {
-		err := aplayLocal(TTSPreviousServerFilenameAndPath, TTSVolumeLevel)
-		if err != nil {
-			log.Println("error: aplayLocal(TTSPreviousServerFilenameAndPath) Returned Error: ", err)
-		}
-
+		localMediaPlayer(TTSPreviousServerFilenameAndPath, TTSVolumeLevel, 0, 1)
 	}
 
 	if AccountCount > 1 {
@@ -582,11 +524,7 @@ func (b *Talkkonnect) cmdPingServers() {
 	log.Println("info: Ping Servers")
 
 	if TTSEnabled && TTSPingServers {
-		err := aplayLocal(TTSPingServersFilenameAndPath, TTSVolumeLevel)
-		if err != nil {
-			log.Println("alert: aplayLocal(TTSPingServersFilenameAndPath) Returned Error: ", err)
-		}
-
+		localMediaPlayer(TTSPingServersFilenameAndPath, TTSVolumeLevel, 0, 1)
 	}
 
 	b.pingServers()
@@ -597,11 +535,7 @@ func (b *Talkkonnect) cmdConnNextServer() {
 	log.Println("info: Next Server Requested Killing This Session, talkkonnect should be restarted by systemd")
 
 	if TTSEnabled && TTSNextServer {
-		err := aplayLocal(TTSNextServerFilenameAndPath, TTSVolumeLevel)
-		if err != nil {
-			log.Println("alert: aplayLocal(TTSNextServerFilenameAndPath) Returned Error: ", err)
-		}
-
+		localMediaPlayer(TTSNextServerFilenameAndPath, TTSVolumeLevel, 0, 1)
 	}
 
 	if AccountCount > 1 {
@@ -721,11 +655,7 @@ func (b *Talkkonnect) cmdPanicSimulation() {
 	log.Println("info: Panic Button Start/Stop Simulation Requested")
 
 	if TTSEnabled && TTSPanicSimulation {
-		err := aplayLocal(TTSPanicSimulationFilenameAndPath, TTSVolumeLevel)
-		if err != nil {
-			log.Println("error: aplayLocal(TTSPanicSimulationFilenameAndPath) Returned Error: ", err)
-		}
-
+		localMediaPlayer(TTSPanicSimulationFilenameAndPath, TTSVolumeLevel, 0, 1)
 	}
 
 	if PEnabled {
@@ -832,11 +762,7 @@ func (b *Talkkonnect) cmdScanChannels() {
 	log.Println("info: Scanning Channels")
 
 	if TTSEnabled && TTSScan {
-		err := aplayLocal(TTSScanFilenameAndPath, TTSVolumeLevel)
-		if err != nil {
-			log.Println("error: aplayLocal(TTSScanFilenameAndPath) Returned Error: ", err)
-		}
-
+		localMediaPlayer(TTSScanFilenameAndPath, TTSVolumeLevel, 0, 1)
 	}
 
 	b.Scan()
@@ -866,11 +792,7 @@ func (b *Talkkonnect) cmdDumpXMLConfig() {
 	log.Println("info: Print XML Config " + ConfigXMLFile)
 
 	if TTSEnabled && TTSPrintXmlConfig {
-		err := aplayLocal(TTSPrintXmlConfigFilenameAndPath, TTSVolumeLevel)
-		if err != nil {
-			log.Println("error: aplayLocal(TTSPrintXmlConfigFilenameAndPath) Returned Error: ", err)
-		}
-
+		localMediaPlayer(TTSPrintXmlConfigFilenameAndPath, TTSVolumeLevel, 0, 1)
 	}
 
 	printxmlconfig()

@@ -51,7 +51,7 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.67.29"
+	talkkonnectVersion  string = "1.68.01"
 	talkkonnectReleased string = "Sep 5 2021"
 )
 
@@ -148,7 +148,7 @@ var (
 //tts
 var (
 	TTSEnabled                           bool
-	TTSVolumeLevel                       int
+	TTSVolumeLevel                       float32
 	TTSParticipants                      bool
 	TTSChannelUp                         bool
 	TTSChannelUpFilenameAndPath          string
@@ -212,6 +212,7 @@ var (
 //sound settings
 var (
 	EventSoundEnabled                 bool
+	EventVolume                       float32
 	EventJoinedSoundFilenameAndPath   string
 	EventLeftSoundFilenameAndPath     string
 	EventMessageSoundFilenameAndPath  string
@@ -607,51 +608,51 @@ type DocumentStruct struct {
 				Volume            float32 `xml:"volume"`
 			} `xml:"beacon"`
 			TTS struct {
-				Enabled                           bool   `xml:"enabled,attr"`
-				VolumeLevel                       int    `xml:"volumelevel"`
-				Participants                      bool   `xml:"participants"`
-				ChannelUp                         bool   `xml:"channelup"`
-				ChannelUpFilenameAndPath          string `xml:"channelupfilenameandpath"`
-				ChannelDown                       bool   `xml:"channeldown"`
-				ChannelDownFilenameAndPath        string `xml:"channeldownfilenameandpath"`
-				MuteUnmuteSpeaker                 bool   `xml:"muteunmutespeaker"`
-				MuteUnmuteSpeakerFilenameAndPath  string `xml:"muteunmutespeakerfilenameandpath"`
-				CurrentVolumeLevel                bool   `xml:"currentvolumelevel"`
-				CurrentVolumeLevelFilenameAndPath string `xml:"currentvolumelevelfilenameandpath"`
-				DigitalVolumeUp                   bool   `xml:"digitalvolumeup"`
-				DigitalVolumeUpFilenameAndPath    string `xml:"digitalvolumeupfilenameandpath"`
-				DigitalVolumeDown                 bool   `xml:"digitalvolumedown"`
-				DigitalVolumeDownFilenameAndPath  string `xml:"digitalvolumedownfilenameandpath"`
-				ListServerChannels                bool   `xml:"listserverchannels"`
-				ListServerChannelsFilenameAndPath string `xml:"listserverchannelsfilenameandpath"`
-				StartTransmitting                 bool   `xml:"starttransmitting"`
-				StartTransmittingFilenameAndPath  string `xml:"starttransmittingfilenameandpath"`
-				StopTransmitting                  bool   `xml:"stoptransmitting"`
-				StopTransmittingFilenameAndPath   string `xml:"stoptransmittingfilenameandpath"`
-				ListOnlineUsers                   bool   `xml:"listonlineusers"`
-				ListOnlineUsersFilenameAndPath    string `xml:"listonlineusersfilenameandpath"`
-				PlayStream                        bool   `xml:"playstream"`
-				PlayStreamFilenameAndPath         string `xml:"playstreamfilenameandpath"`
-				RequestGpsPosition                bool   `xml:"requestgpsposition"`
-				RequestGpsPositionFilenameAndPath string `xml:"requestgpspositionfilenameandpath"`
-				NextServer                        bool   `xml:"nextserver"`
-				NextServerFilenameAndPath         string `xml:"nextserverfilenameandpath"`
-				PreviousServer                    bool   `xml:"previousserver"`
-				PreviousServerFilenameAndPath     string `xml:"previousserverfilenameandpath"`
-				PanicSimulation                   bool   `xml:"panicsimulation"`
-				PanicSimulationFilenameAndPath    string `xml:"panicsimulationfilenameandpath"`
-				PrintXmlConfig                    bool   `xml:"printxmlconfig"`
-				PrintXmlConfigFilenameAndPath     string `xml:"printxmlconfigfilenameandpath"`
-				SendEmail                         bool   `xml:"sendemail"`
-				SendEmailFilenameAndPath          string `xml:"sendemailfilenameandpath"`
-				DisplayMenu                       bool   `xml:"displaymenu"`
-				DisplayMenuFilenameAndPath        string `xml:"displaymenufilenameandpath"`
-				QuitTalkkonnect                   bool   `xml:"quittalkkonnect"`
-				QuitTalkkonnectFilenameAndPath    string `xml:"quittalkkonnectfilenameandpath"`
-				TalkkonnectLoaded                 bool   `xml:"talkkonnectloaded"`
-				TalkkonnectLoadedFilenameAndPath  string `xml:"talkkonnectloadedfilenameandpath"`
-				PingServers                       bool   `xml:"pingservers"`
-				PingServersFilenameAndPath        string `xml:"pingserversfilenameandpath"`
+				Enabled                           bool    `xml:"enabled,attr"`
+				VolumeLevel                       float32 `xml:"volumelevel"`
+				Participants                      bool    `xml:"participants"`
+				ChannelUp                         bool    `xml:"channelup"`
+				ChannelUpFilenameAndPath          string  `xml:"channelupfilenameandpath"`
+				ChannelDown                       bool    `xml:"channeldown"`
+				ChannelDownFilenameAndPath        string  `xml:"channeldownfilenameandpath"`
+				MuteUnmuteSpeaker                 bool    `xml:"muteunmutespeaker"`
+				MuteUnmuteSpeakerFilenameAndPath  string  `xml:"muteunmutespeakerfilenameandpath"`
+				CurrentVolumeLevel                bool    `xml:"currentvolumelevel"`
+				CurrentVolumeLevelFilenameAndPath string  `xml:"currentvolumelevelfilenameandpath"`
+				DigitalVolumeUp                   bool    `xml:"digitalvolumeup"`
+				DigitalVolumeUpFilenameAndPath    string  `xml:"digitalvolumeupfilenameandpath"`
+				DigitalVolumeDown                 bool    `xml:"digitalvolumedown"`
+				DigitalVolumeDownFilenameAndPath  string  `xml:"digitalvolumedownfilenameandpath"`
+				ListServerChannels                bool    `xml:"listserverchannels"`
+				ListServerChannelsFilenameAndPath string  `xml:"listserverchannelsfilenameandpath"`
+				StartTransmitting                 bool    `xml:"starttransmitting"`
+				StartTransmittingFilenameAndPath  string  `xml:"starttransmittingfilenameandpath"`
+				StopTransmitting                  bool    `xml:"stoptransmitting"`
+				StopTransmittingFilenameAndPath   string  `xml:"stoptransmittingfilenameandpath"`
+				ListOnlineUsers                   bool    `xml:"listonlineusers"`
+				ListOnlineUsersFilenameAndPath    string  `xml:"listonlineusersfilenameandpath"`
+				PlayStream                        bool    `xml:"playstream"`
+				PlayStreamFilenameAndPath         string  `xml:"playstreamfilenameandpath"`
+				RequestGpsPosition                bool    `xml:"requestgpsposition"`
+				RequestGpsPositionFilenameAndPath string  `xml:"requestgpspositionfilenameandpath"`
+				NextServer                        bool    `xml:"nextserver"`
+				NextServerFilenameAndPath         string  `xml:"nextserverfilenameandpath"`
+				PreviousServer                    bool    `xml:"previousserver"`
+				PreviousServerFilenameAndPath     string  `xml:"previousserverfilenameandpath"`
+				PanicSimulation                   bool    `xml:"panicsimulation"`
+				PanicSimulationFilenameAndPath    string  `xml:"panicsimulationfilenameandpath"`
+				PrintXmlConfig                    bool    `xml:"printxmlconfig"`
+				PrintXmlConfigFilenameAndPath     string  `xml:"printxmlconfigfilenameandpath"`
+				SendEmail                         bool    `xml:"sendemail"`
+				SendEmailFilenameAndPath          string  `xml:"sendemailfilenameandpath"`
+				DisplayMenu                       bool    `xml:"displaymenu"`
+				DisplayMenuFilenameAndPath        string  `xml:"displaymenufilenameandpath"`
+				QuitTalkkonnect                   bool    `xml:"quittalkkonnect"`
+				QuitTalkkonnectFilenameAndPath    string  `xml:"quittalkkonnectfilenameandpath"`
+				TalkkonnectLoaded                 bool    `xml:"talkkonnectloaded"`
+				TalkkonnectLoadedFilenameAndPath  string  `xml:"talkkonnectloadedfilenameandpath"`
+				PingServers                       bool    `xml:"pingservers"`
+				PingServersFilenameAndPath        string  `xml:"pingserversfilenameandpath"`
 			} `xml:"tts"`
 			SMTP struct {
 				Enabled       bool   `xml:"enabled,attr"`
@@ -666,10 +667,11 @@ type DocumentStruct struct {
 			} `xml:"smtp"`
 			Sounds struct {
 				Event struct {
-					Enabled                bool   `xml:"enabled,attr"`
-					JoinedFilenameAndPath  string `xml:"joinedfilenameandpath"`
-					LeftFilenameAndPath    string `xml:"leftfilenameandpath"`
-					MessageFilenameAndPath string `xml:"messagefilenameandpath"`
+					Enabled                bool    `xml:"enabled,attr"`
+					EventVolume            float32 `xml:"eventvolume"`
+					JoinedFilenameAndPath  string  `xml:"joinedfilenameandpath"`
+					LeftFilenameAndPath    string  `xml:"leftfilenameandpath"`
+					MessageFilenameAndPath string  `xml:"messagefilenameandpath"`
 				} `xml:"event"`
 				Alert struct {
 					Enabled         bool    `xml:"enabled,attr"`
@@ -1381,6 +1383,7 @@ func readxmlconfig(file string) error {
 	EmailGoogleMapsURL = Document.Global.Software.SMTP.GoogleMapsURL
 
 	EventSoundEnabled = Document.Global.Software.Sounds.Event.Enabled
+	EventVolume = Document.Global.Software.Sounds.Event.EventVolume
 	EventJoinedSoundFilenameAndPath = Document.Global.Software.Sounds.Event.JoinedFilenameAndPath
 	EventLeftSoundFilenameAndPath = Document.Global.Software.Sounds.Event.LeftFilenameAndPath
 	EventMessageSoundFilenameAndPath = Document.Global.Software.Sounds.Event.MessageFilenameAndPath
@@ -1772,7 +1775,7 @@ func printxmlconfig() {
 	if PrintTTS {
 		log.Println("info: -------- TTS  -------- ")
 		log.Println("info: TTS Global Enabled     ", fmt.Sprintf("%t", TTSEnabled))
-		log.Println("info: TTS Volume Level (%)   ", fmt.Sprintf("%d", TTSVolumeLevel))
+		log.Println("info: TTS Volume Level (%)   ", fmt.Sprintf("%.1f", TTSVolumeLevel))
 		log.Println("info: TTS Participants       ", fmt.Sprintf("%t", TTSParticipants))
 		log.Println("info: TTS ChannelUp          ", fmt.Sprintf("%t", TTSChannelUp))
 		log.Println("info: TTS ChannelUpFilenameAndPath ", TTSChannelUpFilenameAndPath)
@@ -1839,6 +1842,7 @@ func printxmlconfig() {
 	if PrintSounds {
 		log.Println("info: ------------- Sounds  ------------------ ")
 		log.Println("info: Event Sound Enabled         " + fmt.Sprintf("%t", EventSoundEnabled))
+		log.Println("info: Event Volume                " + fmt.Sprintf("%.1f", EventVolume))
 		log.Println("info: Event Joined Sound Filename " + EventJoinedSoundFilenameAndPath)
 		log.Println("info: Event Left Sound Filename   " + EventJoinedSoundFilenameAndPath)
 		log.Println("info: Event Msg Sound Filename    " + EventMessageSoundFilenameAndPath)

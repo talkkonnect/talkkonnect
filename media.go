@@ -42,7 +42,7 @@ import (
 	"github.com/talkkonnect/gumble/gumbleffmpeg"
 )
 
-func aplayLocal(filepath string, playbackvolume int) error {
+func aplayLocal(filepath string, playbackvolume float32) error {
 	var player string
 
 	if path, err := exec.LookPath("aplay"); err == nil {

@@ -262,16 +262,10 @@ func (b *Talkkonnect) ParticipantLEDUpdate(verbose bool) {
 
 	if EventSoundEnabled {
 		if participantCount > prevParticipantCount {
-			err := aplayLocal(EventJoinedSoundFilenameAndPath, 100)
-			if err != nil {
-				log.Println("error: aplayLocal(EventJoinedSoundFilenameAndPath) Returned Error: ", err)
-			}
+			localMediaPlayer(EventJoinedSoundFilenameAndPath, EventVolume, 0, 1)
 		}
 		if participantCount < prevParticipantCount {
-			err := aplayLocal(EventLeftSoundFilenameAndPath, 100)
-			if err != nil {
-				log.Println("error: aplayLocal(EventLeftSoundFilenameAndPath) Returned Error: ", err)
-			}
+			localMediaPlayer(EventLeftSoundFilenameAndPath, EventVolume, 0, 1)
 		}
 	}
 
@@ -404,11 +398,7 @@ func (b *Talkkonnect) ChannelUp() {
 	}
 
 	if TTSEnabled && TTSChannelUp {
-		err := aplayLocal(TTSChannelUpFilenameAndPath, TTSVolumeLevel)
-		if err != nil {
-			log.Println("error: aplayLocal(TTSChannelDownFilenameAndPath) Returned Error: ", err)
-		}
-
+		localMediaPlayer(TTSChannelUpFilenameAndPath, EventVolume, 0, 1)
 	}
 
 	prevButtonPress = "ChannelUp"
@@ -475,11 +465,7 @@ func (b *Talkkonnect) ChannelDown() {
 	}
 
 	if TTSEnabled && TTSChannelDown {
-		err := aplayLocal(TTSChannelDownFilenameAndPath, TTSVolumeLevel)
-		if err != nil {
-			log.Println("error: aplayLocal(TTSChannelDownFilenameAndPath) Returned Error: ", err)
-		}
-
+		localMediaPlayer(TTSChannelDownFilenameAndPath, TTSVolumeLevel, 0, 1)
 	}
 
 	prevButtonPress = "ChannelDown"

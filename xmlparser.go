@@ -51,8 +51,8 @@ import (
 
 //version and release date
 const (
-	talkkonnectVersion  string = "1.67.26"
-	talkkonnectReleased string = "Sep 4 2021"
+	talkkonnectVersion  string = "1.67.27"
+	talkkonnectReleased string = "Sep 5 2021"
 )
 
 // Generic Global Variables
@@ -83,7 +83,9 @@ var (
 	TargetBoard           string = "pc"
 	CancellableStream     bool   = true
 	StreamOnStart         bool
-	StreamStartAfter      uint
+	StreamOnStartAfter    time.Duration
+	TXOnStart             bool
+	TXOnStartAfter        time.Duration
 )
 
 // Generic Local Variables for xmlparser
@@ -572,17 +574,20 @@ type DocumentStruct struct {
 	Global struct {
 		Software struct {
 			Settings struct {
-				OutputDevice       string `xml:"outputdevice"`
-				OutputDeviceShort  string `xml:"outputdeviceshort"`
-				LogFilenameAndPath string `xml:"logfilenameandpath"`
-				Logging            string `xml:"logging"`
-				Loglevel           string `xml:"loglevel"`
-				Daemonize          bool   `xml:"daemonize"`
-				CancellableStream  bool   `xml:"cancellablestream"`
-				StreamOnStart      bool   `xml:"streamonstart"`
-				SimplexWithMute    bool   `xml:"simplexwithmute"`
-				TxCounter          bool   `xml:"txcounter"`
-				NextServerIndex    int    `xml:"nextserverindex"`
+				OutputDevice       string        `xml:"outputdevice"`
+				OutputDeviceShort  string        `xml:"outputdeviceshort"`
+				LogFilenameAndPath string        `xml:"logfilenameandpath"`
+				Logging            string        `xml:"logging"`
+				Loglevel           string        `xml:"loglevel"`
+				Daemonize          bool          `xml:"daemonize"`
+				CancellableStream  bool          `xml:"cancellablestream"`
+				StreamOnStart      bool          `xml:"streamonstart"`
+				StreamOnStartAfter time.Duration `xml:"streamonstartafter"`
+				TXOnStart          bool          `xml:"txonstart"`
+				TXOnStartAfter     time.Duration `xml:"txonstartafter"`
+				SimplexWithMute    bool          `xml:"simplexwithmute"`
+				TxCounter          bool          `xml:"txcounter"`
+				NextServerIndex    int           `xml:"nextserverindex"`
 			} `xml:"settings"`
 			AutoProvisioning struct {
 				Enabled      bool   `xml:"enabled,attr"`
@@ -1099,6 +1104,12 @@ func readxmlconfig(file string) error {
 
 	CancellableStream = Document.Global.Software.Settings.CancellableStream
 	StreamOnStart = Document.Global.Software.Settings.StreamOnStart
+
+	StreamOnStartAfter = Document.Global.Software.Settings.StreamOnStartAfter
+
+	TXOnStart = Document.Global.Software.Settings.TXOnStart
+
+	TXOnStartAfter = Document.Global.Software.Settings.TXOnStartAfter
 
 	SimplexWithMute = Document.Global.Software.Settings.SimplexWithMute
 	TxCounter = Document.Global.Software.Settings.TxCounter
@@ -1716,6 +1727,9 @@ func printxmlconfig() {
 		log.Println("info: Daemonize            ", fmt.Sprintf("%t", Daemonize))
 		log.Println("info: CancellableStream    ", fmt.Sprintf("%t", CancellableStream))
 		log.Println("info: StreamOnStart        ", fmt.Sprintf("%t", StreamOnStart))
+		log.Println("info: StreamOnStartAfter   ", fmt.Sprintf("%v", StreamOnStartAfter))
+		log.Println("info: TXOnStart            ", fmt.Sprintf("%t", TXOnStart))
+		log.Println("info: TXOnStartAfter       ", fmt.Sprintf("%v", TXOnStartAfter))
 		log.Println("info: SimplexWithMute      ", fmt.Sprintf("%t", SimplexWithMute))
 		log.Println("info: TxCounter            ", fmt.Sprintf("%t", TxCounter))
 		log.Println("info: NextServerIndex      ", fmt.Sprintf("%v", NextServerIndex))

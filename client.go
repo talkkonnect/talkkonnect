@@ -431,6 +431,16 @@ func (b *Talkkonnect) ClientStart() {
 
 	}
 
+	if StreamOnStart {
+		time.Sleep(StreamOnStartAfter * time.Second)
+		b.cmdPlayback()
+	}
+
+	if TXOnStart {
+		time.Sleep(TXOnStartAfter * time.Second)
+		b.cmdStartTransmitting()
+	}
+
 keyPressListenerLoop:
 	for {
 		switch ev := term.PollEvent(); ev.Type {

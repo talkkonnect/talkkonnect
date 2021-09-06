@@ -92,6 +92,8 @@ func (b *Talkkonnect) Connect() {
 		log.Printf("error: Connection Error %v  connecting to %v failed, attempting again...", err, b.Address)
 		log.Println("debug: In the Connect Function & Trying With Username ", Username)
 		b.ReConnect()
+	} else {
+		b.OpenStream()
 	}
 }
 

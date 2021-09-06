@@ -347,7 +347,6 @@ func (b *Talkkonnect) initGPIO() {
 
 	if LCDBackLightLEDPin > 0 {
 		BackLightLED = gpio.NewOutput(uint(LCDBackLightLEDPin), false)
-		BackLightLED = gpio.NewOutput(uint(LCDBackLightLEDPin), false)
 	}
 
 	if VoiceActivityLEDPin > 0 {

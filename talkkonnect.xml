@@ -238,9 +238,9 @@
 			</lights>
 			<heartbeat enabled="false">
 				<heartbeatledpin>2</heartbeatledpin>
-				<periodmsecs>2000</periodmsecs>
+				<periodmsecs>3000</periodmsecs>
 				<ledonmsecs>1000</ledonmsecs>
-				<ledoffmsecs>1010</ledoffmsecs>
+				<ledoffmsecs>1500</ledoffmsecs>
 			</heartbeat>
 			<buttons>
 				<txbuttonpin>26</txbuttonpin>

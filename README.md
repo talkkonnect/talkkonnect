@@ -3,6 +3,24 @@
 ### A Headless Mumble Client/Transceiver/Walkie Talkie/Intercom/Gateway for Single Board Computers, PCs or Virtual Environments (IP Radio/IP PTT <push-to-talk>)
 
 ---
+
+### talKKonnect Version 2 Release Notice!
+* Version 2 breaks backward compatability with version 1 configs!! So make sure you use the correct version of the config file to make it work
+
+#### New Features in Version 2
+* GPIO expander you can now have up to 16 x 8 = 128 GPIO using The MCP23017 Chip over I2c
+* Seven Segment Support For Showing Channel like CB Rado using MAX7219 Chip with Seven Segment Displays 
+* Rotary Encoder Support for Channel Up/Down
+* Shout and Whisper Support
+* Channel Token Support
+* Configurable Voice Target and Shortcut Support over USB Keypad
+* Full Duplex Support (No More Audio Stuttering on Multiple people talking over each other)
+* Sound Files can be tied with events/actions in config (Support both blocking and non-blocking modes)
+* Announciator Support using Google TTS with Multi Language Support)
+* API/MQTT Granular Configurable Support 
+* GPIO Granular Configurable Support 
+* Multimedia Playing Support both local and remote by API call
+
 ### What is talKKonnect?
 
 [talKKonnect](http://www.talkkonnect.com) is a headless self contained mumble Push to Talk (PTT) client complete with LCD, Channel and Volume control.

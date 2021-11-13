@@ -41,7 +41,7 @@ import (
 )
 
 func autoProvision() error {
-	if len(TkID) < 8 {
+	if len(Config.Global.Software.AutoProvisioning.TkID) < 8 {
 		var err error
 		var macaddress []string
 		macaddress, err = getMacAddr()
@@ -53,25 +53,25 @@ func autoProvision() error {
 			if err != nil {
 				FatalCleanUp(err.Error())
 			}
-			TkID = re.ReplaceAllString(a, "")
+			Config.Global.Software.AutoProvisioning.TkID = re.ReplaceAllString(a, "")
 		}
 	}
 
-	if string(TkID[len(TkID)-4]) != ".xml" {
-		TkID = TkID + ".xml"
+	if string(Config.Global.Software.AutoProvisioning.TkID[len(Config.Global.Software.AutoProvisioning.TkID)-4]) != ".xml" {
+		Config.Global.Software.AutoProvisioning.TkID = Config.Global.Software.AutoProvisioning.TkID + ".xml"
 	}
 
-	if string(URL[len(URL)-1]) != "/" {
-		URL = URL + "/"
+	if string(Config.Global.Software.AutoProvisioning.URL[len(Config.Global.Software.AutoProvisioning.URL)-1]) != "/" {
+		Config.Global.Software.AutoProvisioning.URL = Config.Global.Software.AutoProvisioning.URL + "/"
 	}
 
-	if string(SaveFilePath[len(SaveFilePath)-1]) != "/" {
-		SaveFilePath = SaveFilePath + "/"
+	if string(Config.Global.Software.AutoProvisioning.SaveFilePath[len(Config.Global.Software.AutoProvisioning.SaveFilePath)-1]) != "/" {
+		Config.Global.Software.AutoProvisioning.SaveFilePath = Config.Global.Software.AutoProvisioning.SaveFilePath + "/"
 	}
 
-	fileURL := URL + TkID
+	fileURL := Config.Global.Software.AutoProvisioning.URL + Config.Global.Software.AutoProvisioning.TkID
 	log.Println("info: Trying to Autoprovision with URL: ", fileURL)
-	err := downloadFile(SaveFilePath, SaveFilename, fileURL)
+	err := downloadFile(Config.Global.Software.AutoProvisioning.SaveFilePath, Config.Global.Software.AutoProvisioning.SaveFilePath, fileURL)
 	if err != nil {
 		return fmt.Errorf("error: DownloadFile Module Returned an Error: %q", err.Error())
 	}

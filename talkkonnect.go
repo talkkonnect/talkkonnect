@@ -30,10 +30,10 @@
 package talkkonnect
 
 import (
-	"github.com/talkkonnect/volume-go"
 	"log"
-	"os"
 	"strconv"
+
+	"github.com/talkkonnect/volume-go"
 )
 
 func talkkonnectBanner(backgroundcolor string) {
@@ -95,7 +95,8 @@ func (b *Talkkonnect) talkkonnectMenu(backgroundcolor string) {
 	log.Println("info: " + backgroundcolor + "│ <F9>  Stop Transmitting     │ <F10> List Online Users        │" + backgroundreset)
 	log.Println("info: " + backgroundcolor + "│ <F11> Playback/Stop Stream  │ <F12> For GPS Position         │" + backgroundreset)
 	log.Println("info: " + backgroundcolor + "├─────────────────────────────┼────────────────────────────────┤" + backgroundreset)
-	log.Println("info: " + backgroundcolor + "│<Ctrl-D> Debug Stacktrace    │                                │" + backgroundreset)
+	log.Println("info: " + backgroundcolor + "│<Ctrl-B> Reload XML Config   │ <Ctrl-D> Debug Stacktrace      │" + backgroundreset)
+	log.Println("info: " + backgroundcolor + "│<Ctrl-H> Check XML Config    │                                │" + backgroundreset)
 	log.Println("info: " + backgroundcolor + "├─────────────────────────────┼────────────────────────────────┤" + backgroundreset)
 	log.Println("info: " + backgroundcolor + "│<Ctrl-E> Send Email          │<Ctrl-N> Conn Next Server       │" + backgroundreset)
 	log.Println("info: " + backgroundcolor + "│<Ctrl-F> Conn Previous Server│<Ctrl-P> Panic Simulation       │" + backgroundreset)
@@ -126,23 +127,16 @@ func (b *Talkkonnect) talkkonnectMenu(backgroundcolor string) {
 		}
 	}
 
-	origMuted, _ := volume.GetMuted(OutputDevice)
+	origMuted, _ := volume.GetMuted(Config.Global.Software.Settings.OutputDevice)
 	if origMuted {
 		log.Println("info: Speaker Currently Muted")
 	} else {
-		origVolume, err := volume.GetVolume(OutputDevice)
+		origVolume, err := volume.GetVolume(Config.Global.Software.Settings.OutputDevice)
 		if err == nil {
 			log.Printf("info: Speaker Not Muted & Current Volume at Level %v%%\n", origVolume)
 		} else {
 			log.Println("error: Can't Get Volume Level From Sound Card!")
 		}
 	}
-	hostname, err1 := os.Hostname()
-	if err1 != nil {
-		log.Printf("warn: Cannot Get Hostname\n")
-	} else {
-		log.Printf("info: Hostname is %s\n", hostname)
-	}
-
 	log.Printf("info: Talkkonnect Version %v Released %v\n", talkkonnectVersion, talkkonnectReleased)
 }

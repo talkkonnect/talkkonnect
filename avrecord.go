@@ -13,14 +13,13 @@
  *
  * talkkonnect is the based on talkiepi and barnard by Daniel Chote and Tim Cooper
  *
- * The Initial Developer of the Original Code is
- * Suvir Kumar <suvir@talkkonnect.com>
+ * The Initial Developer of the Original Code is Zoran Dimitrijevic
  * Portions created by the Initial Developer are Copyright (C) Suvir Kumar. All Rights Reserved.
  *
  * Contributor(s):
  *
- * Suvir Kumar <suvir@talkkonnect.com>
  * Zoran Dimitrijevic
+ * Suvir Kumar
  * My Blog is at www.talkkonnect.com
  * The source code is hosted at github.com/talkkonnect
  *
@@ -60,22 +59,22 @@ func AudioRecordTraffic() {
 		log.Println("debug: Old sox instance was Killed Before Running New")
 	}
 
-	createDirIfNotExist(AudioRecordSavePath)
-	createDirIfNotExist(AudioRecordArchivePath)
-	emptydirchk, err := dirIsEmpty(AudioRecordSavePath)
+	createDirIfNotExist(Config.Global.Hardware.AudioRecordFunction.RecordSavePath)
+	createDirIfNotExist(Config.Global.Hardware.AudioRecordFunction.RecordArchivePath)
+	emptydirchk, err := dirIsEmpty(Config.Global.Hardware.AudioRecordFunction.RecordSavePath)
 	if err == nil && !emptydirchk {
 
 		filezip := time.Now().Format("20060102150405") + ".zip"
-		go zipit(AudioRecordSavePath+"/", AudioRecordArchivePath+"/"+filezip)
-		log.Println("debug: Archiving Old Audio Files to", AudioRecordArchivePath+"/"+filezip)
+		go zipit(Config.Global.Hardware.AudioRecordFunction.RecordSavePath+"/", Config.Global.Hardware.AudioRecordFunction.RecordArchivePath+"/"+filezip)
+		log.Println("debug: Archiving Old Audio Files to", Config.Global.Hardware.AudioRecordFunction.RecordArchivePath+"/"+filezip)
 		time.Sleep(1 * time.Second)
-		cleardir(AudioRecordSavePath)
+		cleardir(Config.Global.Hardware.AudioRecordFunction.RecordSavePath)
 	} else {
 		log.Println("debug: Audio Recording Folder Is Empty. No Old Files to Archive")
 	}
 	time.Sleep(1 * time.Second)
 	go audiorecordtraffic()
-	log.Println("debug: sox is Recording Traffic to", AudioRecordSavePath)
+	log.Println("debug: sox is Recording Traffic to", Config.Global.Hardware.AudioRecordFunction.RecordSavePath)
 
 }
 
@@ -83,15 +82,15 @@ func AudioRecordTraffic() {
 
 func AudioRecordAmbient() {
 
-	createDirIfNotExist(AudioRecordSavePath)
-	createDirIfNotExist(AudioRecordArchivePath)
-	emptydirchk, err := dirIsEmpty(AudioRecordSavePath)
+	createDirIfNotExist(Config.Global.Hardware.AudioRecordFunction.RecordSavePath)
+	createDirIfNotExist(Config.Global.Hardware.AudioRecordFunction.RecordArchivePath)
+	emptydirchk, err := dirIsEmpty(Config.Global.Hardware.AudioRecordFunction.RecordSavePath)
 	if err == nil && !emptydirchk {
 		filezip := time.Now().Format("20060102150405") + ".zip"
-		go zipit(AudioRecordSavePath+"/", AudioRecordArchivePath+"/"+filezip) // path to end with "/" or not?
-		log.Println("info: Archiving Old Audio Files to", AudioRecordArchivePath+"/"+filezip)
+		go zipit(Config.Global.Hardware.AudioRecordFunction.RecordSavePath+"/", Config.Global.Hardware.AudioRecordFunction.RecordArchivePath+"/"+filezip) // path to end with "/" or not?
+		log.Println("info: Archiving Old Audio Files to", Config.Global.Hardware.AudioRecordFunction.RecordArchivePath+"/"+filezip)
 		time.Sleep(1 * time.Second)
-		cleardir(AudioRecordSavePath) // Remove old files
+		cleardir(Config.Global.Hardware.AudioRecordFunction.RecordSavePath) // Remove old files
 	} else {
 		log.Println("debug: Audio Recording Folder Is Empty. No Old Files to Archive")
 	}
@@ -104,15 +103,15 @@ func AudioRecordAmbient() {
 
 func AudioRecordCombo() {
 
-	createDirIfNotExist(AudioRecordSavePath)
-	createDirIfNotExist(AudioRecordArchivePath)
-	emptydirchk, err := dirIsEmpty(AudioRecordSavePath)
+	createDirIfNotExist(Config.Global.Hardware.AudioRecordFunction.RecordSavePath)
+	createDirIfNotExist(Config.Global.Hardware.AudioRecordFunction.RecordArchivePath)
+	emptydirchk, err := dirIsEmpty(Config.Global.Hardware.AudioRecordFunction.RecordSavePath)
 	if err == nil && !emptydirchk {
 		filezip := time.Now().Format("20060102150405") + ".zip"
-		go zipit(AudioRecordSavePath+"/", AudioRecordArchivePath+"/"+filezip)
-		log.Println("info: Archiving Old Audio Files to", AudioRecordArchivePath+"/"+filezip)
+		go zipit(Config.Global.Hardware.AudioRecordFunction.RecordSavePath+"/", Config.Global.Hardware.AudioRecordFunction.RecordArchivePath+"/"+filezip)
+		log.Println("info: Archiving Old Audio Files to", Config.Global.Hardware.AudioRecordFunction.RecordArchivePath+"/"+filezip)
 		time.Sleep(1 * time.Second)
-		cleardir(AudioRecordSavePath)
+		cleardir(Config.Global.Hardware.AudioRecordFunction.RecordSavePath)
 	} else {
 		log.Println("debug: Audio Recording Folder Is Empty. No Old Files to Archive")
 	}
@@ -131,24 +130,24 @@ func audiorecordtraffic() {
 		log.Println("error: sox is Missing. Is the Package Installed?")
 	}
 
-	audrecfile := time.Now().Format("20060102150405") + "." + AudioRecordFileFormat
-	log.Println("info: sox is Recording Traffic to", AudioRecordSavePath+"/"+audrecfile)
-	log.Println("info: Audio Recording Mode:", AudioRecordMode)
+	audrecfile := time.Now().Format("20060102150405") + "." + Config.Global.Hardware.AudioRecordFunction.RecordFileFormat
+	log.Println("info: sox is Recording Traffic to", Config.Global.Hardware.AudioRecordFunction.RecordSavePath+"/"+audrecfile)
+	log.Println("info: Audio Recording Mode:", Config.Global.Hardware.AudioRecordFunction.RecordMode)
 
-	if AudioRecordTimeout != 0 { // Record traffic, but stop it after timeout, if specified. "0" for no timeout.
+	if Config.Global.Hardware.AudioRecordFunction.RecordTimeout != 0 { // Record traffic, but stop it after timeout, if specified. "0" for no timeout.
 
-		args := []string{"-t", AudioRecordSystem, AudioRecordFromOutput, "-t", AudioRecordFileFormat, audrecfile, "trim", "0", AudioRecordChunkSize, ":", "newfile", ":", "restart"}
+		args := []string{"-t", Config.Global.Hardware.AudioRecordFunction.RecordSystem, Config.Global.Hardware.AudioRecordFunction.RecordFromOutput, "-t", Config.Global.Hardware.AudioRecordFunction.RecordFileFormat, audrecfile, "trim", "0", Config.Global.Hardware.AudioRecordFunction.RecordChunkSize, ":", "newfile", ":", "restart"}
 
 		log.Println("debug: sox Arguments: " + fmt.Sprint(strings.Trim(fmt.Sprint(args), "[]")))
-		log.Println("debug: Traffic Recording will Timeout After:", AudioRecordTimeout, "seconds")
+		log.Println("debug: Traffic Recording will Timeout After:", Config.Global.Hardware.AudioRecordFunction.RecordTimeout, "seconds")
 
 		cmd := exec.Command("/usr/bin/sox", args...)
-		cmd.Dir = AudioRecordSavePath
+		cmd.Dir = Config.Global.Hardware.AudioRecordFunction.RecordSavePath
 		err := cmd.Start()
 		check(err)
 		done := make(chan struct{})
 
-		time.Sleep(time.Duration(AudioRecordTimeout) * time.Second) // let sox record for a time, then send kill signal
+		time.Sleep(time.Duration(Config.Global.Hardware.AudioRecordFunction.RecordTimeout) * time.Second) // let sox record for a time, then send kill signal
 		go func() {
 			err := cmd.Wait()
 			status := cmd.ProcessState.Sys().(syscall.WaitStatus)
@@ -163,27 +162,27 @@ func audiorecordtraffic() {
 			}
 			close(done)
 			// Did sox close ?
-			log.Println("info: sox Stopped Recording Traffic to", AudioRecordSavePath)
+			log.Println("info: sox Stopped Recording Traffic to", Config.Global.Hardware.AudioRecordFunction.RecordSavePath)
 		}()
 		cmd.Process.Kill()
 		<-done
 
 	} else { // if AudioRecordTimeout is zero? Just keep recording until there is disk space on media.
 
-		audrecfile := time.Now().Format("20060102150405") + "." + AudioRecordFileFormat // mp3, wav
+		audrecfile := time.Now().Format("20060102150405") + "." + Config.Global.Hardware.AudioRecordFunction.RecordFileFormat // mp3, wav
 
-		args := []string{"-t", AudioRecordSystem, AudioRecordFromOutput, "-t", "mp3", audrecfile, "silence", "-l", "1", "1", "2%", "-1", "0.5", "2%", "trim", "0", AudioRecordChunkSize, ":", "newfile", ":", "restart"}
+		args := []string{"-t", Config.Global.Hardware.AudioRecordFunction.RecordSystem, Config.Global.Hardware.AudioRecordFunction.RecordFromOutput, "-t", "mp3", audrecfile, "silence", "-l", "1", "1", "2%", "-1", "0.5", "2%", "trim", "0", Config.Global.Hardware.AudioRecordFunction.RecordChunkSize, ":", "newfile", ":", "restart"}
 
 		cmd := exec.Command("/usr/bin/sox", args...)
-		cmd.Dir = AudioRecordSavePath
+		cmd.Dir = Config.Global.Hardware.AudioRecordFunction.RecordSavePath
 		err := cmd.Start()
 		check(err)
 		time.Sleep(2 * time.Second)
 
-		emptydirchk, err := dirIsEmpty(AudioRecordSavePath) // If sox didn't start recording for wrong parameters or any reason...  No  file.
+		emptydirchk, err := dirIsEmpty(Config.Global.Hardware.AudioRecordFunction.RecordSavePath) // If sox didn't start recording for wrong parameters or any reason...  No  file.
 
 		if err == nil && !emptydirchk {
-			log.Println("info: sox is Recording Traffic to", AudioRecordSavePath)
+			log.Println("info: sox is Recording Traffic to", Config.Global.Hardware.AudioRecordFunction.RecordSavePath)
 			log.Println("info: sox will Go On Recording, Until it Runs out of Space or is Interrupted")
 
 			starttime := time.Now()
@@ -238,22 +237,22 @@ func audiorecordambient() {
 
 	//Need apt-get install sox libsox-fmt-mp3 (lame)
 
-	audrecfile := time.Now().Format("20060102150405") + "." + AudioRecordFileFormat // mp3, wav
+	audrecfile := time.Now().Format("20060102150405") + "." + Config.Global.Hardware.AudioRecordFunction.RecordFileFormat // mp3, wav
 
-	log.Println("info: sox is Recording Ambient Audio to", AudioRecordSavePath+"/"+audrecfile)
-	log.Println("info: sox Audio Recording will Stop After", fmt.Sprint(AudioRecordMicTimeout), "seconds")
+	log.Println("info: sox is Recording Ambient Audio to", Config.Global.Hardware.AudioRecordFunction.RecordSavePath+"/"+audrecfile)
+	log.Println("info: sox Audio Recording will Stop After", fmt.Sprint(Config.Global.Hardware.AudioRecordFunction.RecordMicTimeout), "seconds")
 
-	if AudioRecordMicTimeout != 0 { // Record ambient audio, but stop it after timeout, if specified. "0" no timeout.
+	if Config.Global.Hardware.AudioRecordFunction.RecordMicTimeout != 0 { // Record ambient audio, but stop it after timeout, if specified. "0" no timeout.
 
-		args := []string{"-t", AudioRecordSystem, AudioRecordFromInput, "-t", "mp3", audrecfile, "trim", "0", AudioRecordChunkSize, ":", "newfile", ":", "restart"}
+		args := []string{"-t", Config.Global.Hardware.AudioRecordFunction.RecordSystem, Config.Global.Hardware.AudioRecordFunction.RecordFromInput, "-t", "mp3", audrecfile, "trim", "0", Config.Global.Hardware.AudioRecordFunction.RecordChunkSize, ":", "newfile", ":", "restart"}
 
 		cmd := exec.Command("/usr/bin/sox", args...)
 
-		cmd.Dir = AudioRecordSavePath // save audio recording
+		cmd.Dir = Config.Global.Hardware.AudioRecordFunction.RecordSavePath // save audio recording
 		err := cmd.Start()
 		check(err)
 		done := make(chan struct{})
-		time.Sleep(time.Duration(AudioRecordMicTimeout) * time.Second) // let sox record for a time, then signal kill
+		time.Sleep(time.Duration(Config.Global.Hardware.AudioRecordFunction.RecordMicTimeout) * time.Second) // let sox record for a time, then signal kill
 
 		go func() {
 			err := cmd.Wait()
@@ -269,23 +268,23 @@ func audiorecordambient() {
 			}
 			close(done)
 			// Did sox close ?
-			log.Println("info: sox Stopped Recording Traffic to", AudioRecordSavePath)
+			log.Println("info: sox Stopped Recording Traffic to", Config.Global.Hardware.AudioRecordFunction.RecordSavePath)
 		}()
 		cmd.Process.Kill()
 	} else {
-		audrecfile := time.Now().Format("20060102150405") + "." + AudioRecordFileFormat // mp3, wav
+		audrecfile := time.Now().Format("20060102150405") + "." + Config.Global.Hardware.AudioRecordFunction.RecordFileFormat // mp3, wav
 
-		args := []string{"-t", AudioRecordSystem, AudioRecordFromInput, "-t", "mp3", audrecfile, "silence", "-l", "1", "1", `2%`, "-1", "0.5", `2%`, "trim", "0", AudioRecordChunkSize, ":", "newfile", ":", "restart"} // voice detect, trim silence with 5 min audio chunks
+		args := []string{"-t", Config.Global.Hardware.AudioRecordFunction.RecordSystem, Config.Global.Hardware.AudioRecordFunction.RecordFromInput, "-t", "mp3", audrecfile, "silence", "-l", "1", "1", `2%`, "-1", "0.5", `2%`, "trim", "0", Config.Global.Hardware.AudioRecordFunction.RecordChunkSize, ":", "newfile", ":", "restart"} // voice detect, trim silence with 5 min audio chunks
 
 		cmd := exec.Command("/usr/bin/sox", args...)
-		cmd.Dir = AudioRecordSavePath // save audio recording to dir
+		cmd.Dir = Config.Global.Hardware.AudioRecordFunction.RecordSavePath // save audio recording to dir
 		err := cmd.Start()
 		check(err)
 
-		emptydirchk, err := dirIsEmpty(AudioRecordSavePath) // If sox didn't start recording for wrong parameters or any reason...  No file.
+		emptydirchk, err := dirIsEmpty(Config.Global.Hardware.AudioRecordFunction.RecordSavePath) // If sox didn't start recording for wrong parameters or any reason...  No file.
 
 		if err == nil && !emptydirchk {
-			log.Println("info: sox is Recording Ambient Audio to", AudioRecordSavePath)
+			log.Println("info: sox is Recording Ambient Audio to", Config.Global.Hardware.AudioRecordFunction.RecordSavePath)
 			log.Println("warn: sox will Go On Recording, Until it Runs out of Space or is Interrupted")
 
 			starttime := time.Now()
@@ -340,24 +339,24 @@ func audiorecordcombo() {
 
 	//Need apt-get install sox libsox-fmt-mp3 (lame)
 
-	audrecfile := time.Now().Format("20060102150405") + "." + AudioRecordFileFormat
-	log.Println("info: sox is Recording Traffic to", AudioRecordSavePath+"/"+audrecfile)
-	log.Println("info: Audio Recording Mode:", AudioRecordMode)
+	audrecfile := time.Now().Format("20060102150405") + "." + Config.Global.Hardware.AudioRecordFunction.RecordFileFormat
+	log.Println("info: sox is Recording Traffic to", Config.Global.Hardware.AudioRecordFunction.RecordSavePath+"/"+audrecfile)
+	log.Println("info: Audio Recording Mode:", Config.Global.Hardware.AudioRecordFunction.RecordMode)
 
-	if AudioRecordTimeout != 0 { // Record traffic, but stop it after timeout, if specified. "0" no timeout.
+	if Config.Global.Hardware.AudioRecordFunction.RecordTimeout != 0 { // Record traffic, but stop it after timeout, if specified. "0" no timeout.
 
-		args := []string{"-m", "-t", AudioRecordSystem, AudioRecordFromOutput, "-t", AudioRecordSystem, AudioRecordFromInput, "-t", AudioRecordFileFormat, audrecfile, "silence", "-l", "1", "1", `2%`, "-1", "0.5", `2%`, "trim", "0", AudioRecordChunkSize, ":", "newfile", ":", "restart"}
+		args := []string{"-m", "-t", Config.Global.Hardware.AudioRecordFunction.RecordSystem, Config.Global.Hardware.AudioRecordFunction.RecordFromOutput, "-t", Config.Global.Hardware.AudioRecordFunction.RecordSystem, Config.Global.Hardware.AudioRecordFunction.RecordFromInput, "-t", Config.Global.Hardware.AudioRecordFunction.RecordFileFormat, audrecfile, "silence", "-l", "1", "1", `2%`, "-1", "0.5", `2%`, "trim", "0", Config.Global.Hardware.AudioRecordFunction.RecordChunkSize, ":", "newfile", ":", "restart"}
 
 		log.Println("debug: sox Arguments: " + fmt.Sprint(strings.Trim(fmt.Sprint(args), "[]")))
-		log.Println("info: Audio Combo Recording will Timeout After:", AudioRecordTimeout, "seconds")
+		log.Println("info: Audio Combo Recording will Timeout After:", Config.Global.Hardware.AudioRecordFunction.RecordTimeout, "seconds")
 
 		cmd := exec.Command("/usr/bin/sox", args...)
-		cmd.Dir = AudioRecordSavePath
+		cmd.Dir = Config.Global.Hardware.AudioRecordFunction.RecordSavePath
 		err := cmd.Start()
 		check(err)
 		done := make(chan struct{})
 
-		time.Sleep(time.Duration(AudioRecordTimeout) * time.Second) // let sox record for a time, then send kill signal
+		time.Sleep(time.Duration(Config.Global.Hardware.AudioRecordFunction.RecordTimeout) * time.Second) // let sox record for a time, then send kill signal
 
 		go func() {
 			err := cmd.Wait()
@@ -373,27 +372,27 @@ func audiorecordcombo() {
 			}
 			close(done)
 			// Did sox close ?
-			log.Println("info: sox Stopped Recording Traffic to", AudioRecordSavePath)
+			log.Println("info: sox Stopped Recording Traffic to", Config.Global.Hardware.AudioRecordFunction.RecordSavePath)
 		}()
 		cmd.Process.Kill()
 		<-done
 
 	} else { // if AudioRecordTimeout is zero? Just keep recording until there is disk space on media.
 
-		audrecfile := time.Now().Format("20060102150405") + "." + AudioRecordFileFormat // mp3, wav
+		audrecfile := time.Now().Format("20060102150405") + "." + Config.Global.Hardware.AudioRecordFunction.RecordFileFormat // mp3, wav
 
-		args := []string{"-m", "-t", AudioRecordSystem, AudioRecordFromOutput, "-t", AudioRecordSystem, AudioRecordFromInput, "-t", "mp3", audrecfile, "silence", "-l", "1", "1", `2%`, "-1", "0.5", `2%`, "trim", "0", AudioRecordChunkSize, ":", "newfile", ":", "restart"}
+		args := []string{"-m", "-t", Config.Global.Hardware.AudioRecordFunction.RecordSystem, Config.Global.Hardware.AudioRecordFunction.RecordFromOutput, "-t", Config.Global.Hardware.AudioRecordFunction.RecordSystem, Config.Global.Hardware.AudioRecordFunction.RecordFromInput, "-t", "mp3", audrecfile, "silence", "-l", "1", "1", `2%`, "-1", "0.5", `2%`, "trim", "0", Config.Global.Hardware.AudioRecordFunction.RecordChunkSize, ":", "newfile", ":", "restart"}
 
 		cmd := exec.Command("/usr/bin/sox", args...)
-		cmd.Dir = AudioRecordSavePath
+		cmd.Dir = Config.Global.Hardware.AudioRecordFunction.RecordSavePath
 		err := cmd.Start()
 		check(err)
 		time.Sleep(2 * time.Second)
 
-		emptydirchk, err := dirIsEmpty(AudioRecordSavePath) // If sox didn't start recording for wrong parameters or any reason...  No files.
+		emptydirchk, err := dirIsEmpty(Config.Global.Hardware.AudioRecordFunction.RecordSavePath) // If sox didn't start recording for wrong parameters or any reason...  No files.
 
 		if err == nil && !emptydirchk {
-			log.Println("info: sox is Recording Mixed Audio to", AudioRecordSavePath)
+			log.Println("info: sox is Recording Mixed Audio to", Config.Global.Hardware.AudioRecordFunction.RecordSavePath)
 			log.Println("warn: sox will Go On Recording, Until it Runs out of Space or is Interrupted")
 
 			starttime := time.Now()

@@ -13,14 +13,15 @@
  *
  * talkkonnect is the based on talkiepi and barnard by Daniel Chote and Tim Cooper
  *
- * The Initial Developer of the Original Code is
- * Suvir Kumar <suvir@talkkonnect.com>
+ * The Initial Developer of the Original Code is Suvir Kumar <suvir@talkkonnect.com>
+ *
  * Portions created by the Initial Developer are Copyright (C) Suvir Kumar. All Rights Reserved.
  *
  * Contributor(s):
  *
  * Suvir Kumar <suvir@talkkonnect.com>
  * Zoran Dimitrijevic
+ *
  * My Blog is at www.talkkonnect.com
  * The source code is hosted at github.com/talkkonnect
  *
@@ -41,504 +42,21 @@ import (
 	"strings"
 	"time"
 
+	"github.com/comail/colog"
 	goled "github.com/talkkonnect/go-oled-i2c"
-	"github.com/talkkonnect/go-openal/openal"
-	"github.com/talkkonnect/gpio"
+
+	//	"github.com/talkkonnect/go-openal/openal"
 	"github.com/talkkonnect/gumble/gumble"
 	"github.com/talkkonnect/gumble/gumbleffmpeg"
 	"golang.org/x/sys/unix"
 )
 
-//version and release date
 const (
-	talkkonnectVersion  string = "1.68.03"
-	talkkonnectReleased string = "Sep 5 2021"
+	talkkonnectVersion  string = "2.03.03"
+	talkkonnectReleased string = "Oct 29 2021"
 )
 
-// Generic Global Variables
-var (
-	AccountCount          int
-	KillHeartBeat         bool
-	IsPlayStream          bool
-	ConnectAttempts       int
-	IsConnected           bool
-	BufferToOpenALCounter int
-	AccountIndex          int
-	GenericCounter        int
-	IsNumlock             bool
-	RXLEDStatus           bool
-	BackLightTime         = time.NewTicker(5 * time.Second)
-	BackLightTimePtr      = &BackLightTime
-	StartTime             = time.Now()
-	LastTime              = now.Unix()
-	StreamCounter         = 0
-	TimerTalked           = time.NewTicker(time.Millisecond * 200)
-	LcdText               = [4]string{"nil", "nil", "nil", "nil"}
-	ConfigXMLFile         string
-	Streaming             bool
-	HTTPServRunning       bool
-	NowStreaming          bool
-	MyLedStrip            *LedStrip
-	TargetBoard           string = "pc"
-	CancellableStream     bool   = true
-	StreamOnStart         bool
-	StreamOnStartAfter    time.Duration
-	TXOnStart             bool
-	TXOnStartAfter        time.Duration
-	RepeatTXTimes         int
-)
-
-// Generic Local Variables for xmlparser
-var (
-	txcounter int
-	isTx      bool
-	pstream   *gumbleffmpeg.Stream
-	source    = openal.NewSource()
-)
-
-//account settings
-var (
-	Default             []bool
-	Name                []string
-	Server              []string
-	Username            []string
-	Password            []string
-	Insecure            []bool
-	Register            []bool
-	Certificate         []string
-	Channel             []string
-	Ident               []string
-	Tokens              []gumble.AccessTokens
-	VT                  []VTStruct
-	Accounts            int
-	MaxTokensInAccounts int
-)
-
-//software settings
-var (
-	OutputDevice       string = "Speaker"
-	OutputDeviceShort  string
-	LogFilenameAndPath string = "/var/log/talkkonnect.log"
-	Logging            string = "screen"
-	Loglevel           string = "info"
-	Daemonize          bool
-	SimplexWithMute    bool = true
-	TxCounter          bool
-	NextServerIndex    int = 0
-)
-
-//autoprovision settings
-var (
-	APEnabled    bool
-	TkID         string
-	URL          string
-	SaveFilePath string
-	SaveFilename string
-)
-
-//beacon settings
-var (
-	BeaconEnabled         bool
-	BeaconTimerSecs       int = 30
-	BeaconFilenameAndPath string
-	BVolume               float32 = 1.0
-)
-
-//tts
-var (
-	TTSEnabled                           bool
-	TTSVolumeLevel                       float32
-	TTSParticipants                      bool
-	TTSChannelUp                         bool
-	TTSChannelUpFilenameAndPath          string
-	TTSChannelDown                       bool
-	TTSChannelDownFilenameAndPath        string
-	TTSMuteUnMuteSpeaker                 bool
-	TTSMuteUnMuteSpeakerFilenameAndPath  string
-	TTSCurrentVolumeLevel                bool
-	TTSCurrentVolumeLevelFilenameAndPath string
-	TTSDigitalVolumeUp                   bool
-	TTSDigitalVolumeUpFilenameAndPath    string
-	TTSDigitalVolumeDown                 bool
-	TTSDigitalVolumeDownFilenameAndPath  string
-	TTSListServerChannels                bool
-	TTSListServerChannelsFilenameAndPath string
-	TTSStartTransmitting                 bool
-	TTSStartTransmittingFilenameAndPath  string
-	TTSStopTransmitting                  bool
-	TTSStopTransmittingFilenameAndPath   string
-	TTSListOnlineUsers                   bool
-	TTSListOnlineUsersFilenameAndPath    string
-	TTSPlayStream                        bool
-	TTSPlayStreamFilenameAndPath         string
-	TTSRequestGpsPosition                bool
-	TTSRequestGpsPositionFilenameAndPath string
-	TTSNextServer                        bool
-	TTSNextServerFilenameAndPath         string
-	TTSPreviousServer                    bool
-	TTSPreviousServerFilenameAndPath     string
-	TTSPanicSimulation                   bool
-	TTSPanicSimulationFilenameAndPath    string
-	TTSPrintXmlConfig                    bool
-	TTSPrintXmlConfigFilenameAndPath     string
-	TTSSendEmail                         bool
-	TTSSendEmailFilenameAndPath          string
-	TTSDisplayMenu                       bool
-	TTSDisplayMenuFilenameAndPath        string
-	TTSQuitTalkkonnect                   bool
-	TTSQuitTalkkonnectFilenameAndPath    string
-	TTSTalkkonnectLoaded                 bool
-	TTSTalkkonnectLoadedFilenameAndPath  string
-	TTSPingServers                       bool
-	TTSPingServersFilenameAndPath        string
-	TTSScan                              bool
-	TTSScanFilenameAndPath               string
-)
-
-//gmail smtp settings
-var (
-	EmailEnabled       bool
-	EmailUsername      string
-	EmailPassword      string
-	EmailReceiver      string
-	EmailSubject       string
-	EmailMessage       string
-	EmailGpsDateTime   bool
-	EmailGpsLatLong    bool
-	EmailGoogleMapsURL bool
-)
-
-//sound settings
-var (
-	EventSoundEnabled                 bool
-	EventVolume                       float32
-	EventJoinedSoundFilenameAndPath   string
-	EventLeftSoundFilenameAndPath     string
-	EventMessageSoundFilenameAndPath  string
-	AlertSoundEnabled                 bool
-	AlertSoundFilenameAndPath         string
-	AlertSoundVolume                  float32 = 1
-	IncommingBeepSoundEnabled         bool
-	IncommingBeepSoundFilenameAndPath string
-	IncommingBeepSoundVolume          float32
-	RogerBeepSoundEnabled             bool
-	RogerBeepSoundFilenameAndPath     string
-	RogerBeepSoundVolume              float32
-	RepeaterToneEnabled               bool
-	RepeaterToneFrequencyHz           int
-	RepeaterToneDurationSec           int
-	StreamSoundEnabled                bool
-	StreamSoundFilenameAndPath        string
-	StreamSoundVolume                 float32
-)
-
-//api settings
-var (
-	APIEnabled            bool
-	APIListenPort         string
-	APIDisplayMenu        bool
-	APIChannelUp          bool
-	APIChannelDown        bool
-	APIMute               bool
-	APICurrentVolumeLevel bool
-	APIDigitalVolumeUp    bool
-	APIDigitalVolumeDown  bool
-	APIListServerChannels bool
-	APIStartTransmitting  bool
-	APIStopTransmitting   bool
-	APIListOnlineUsers    bool
-	APIPlayStream         bool
-	APIRequestGpsPosition bool
-	APIEmailEnabled       bool
-	APINextServer         bool
-	APIPreviousServer     bool
-	APIPanicSimulation    bool
-	APIScanChannels       bool
-	APIDisplayVersion     bool
-	APIClearScreen        bool
-	APIPingServersEnabled bool
-	APIRepeatTxLoopTest   bool
-	APIPrintXmlConfig     bool
-	APIPlayRepeaterTone   bool
-	APISetVoiceTarget     bool
-)
-
-//print xml config sections for easy debugging, set any section to false to prevent printing to screen
-var (
-	PrintAccount      bool
-	PrintLogging      bool
-	PrintProvisioning bool
-	PrintBeacon       bool
-	PrintTTS          bool
-	PrintIgnoreUser   bool
-	PrintSMTP         bool
-	PrintSounds       bool
-	PrintTxTimeout    bool
-	PrintHTTPAPI      bool
-	PrintTargetboard  bool
-	PrintLeds         bool
-	PrintHeartbeat    bool
-	PrintButtons      bool
-	PrintRelays       bool
-	PrintComment      bool
-	PrintLcd          bool
-	PrintOled         bool
-	PrintGps          bool
-	PrintTraccar      bool
-	PrintPanic        bool
-	PrintAudioRecord  bool
-	PrintMQTT         bool
-	PrintTTSMessages  bool
-	PrintKeyboardMap  bool
-	PrintUSBKeyboard  bool
-)
-
-// mqtt settings
-var (
-	MQTTEnabled             bool = false
-	Iotuuid                 string
-	RelayAllState           bool = false
-	RelayPulseMills         time.Duration
-	TotalRelays             uint
-	RelayPins               = [9]uint{}
-	MQTTTopic               string
-	MQTTBroker              string
-	MQTTPassword            string
-	MQTTUser                string
-	MQTTId                  string
-	MQTTCleansess           bool
-	MQTTQos                 int
-	MQTTNum                 int
-	MQTTPayload             string
-	MQTTAction              string
-	MQTTStore               string
-	MQTTAttentionBlinkTimes int
-	MQTTAttentionBlinkmsecs int
-)
-
-// ttsmessages settings
-var (
-	TTSMessageEnabled     bool
-	TTSLocalPlay          bool
-	TTSLocalPlayWithRXLED bool
-	TTSPlayIntoStream     bool
-	TTSSoundDirectory     string = "/sounds"
-	TTSLanguage           string = "en"
-	TTSAnnouncementTone   string = ""
-	TTSMessageFromTag     bool   = true
-)
-
-var (
-	IgnoreUserEnabled bool
-	IgnoreUserRegex   string
-)
-
-//indicator light settings
-var (
-	LedStripEnabled     bool
-	VoiceActivityLEDPin uint
-	ParticipantsLEDPin  uint
-	TransmitLEDPin      uint
-	OnlineLEDPin        uint
-	AttentionLEDPin     uint
-	HeartBeatLEDPin     uint
-	VoiceTargetLEDPin   uint
-
-	VoiceActivityLED gpio.Pin
-	ParticipantsLED  gpio.Pin
-	TransmitLED      gpio.Pin
-	OnlineLED        gpio.Pin
-	AttentionLED     gpio.Pin
-	HeartBeatLED     gpio.Pin
-	BackLightLED     gpio.Pin
-	VoiceTargetLED   gpio.Pin
-)
-
-//heartbeat light settings
-var (
-	HeartBeatEnabled bool
-	PeriodmSecs      int
-	LEDOnmSecs       int
-	LEDOffmSecs      int
-)
-
-//button settings
-var (
-	TxButton      gpio.Pin
-	TxButtonPin   uint
-	TxButtonState uint
-
-	TxToggle      gpio.Pin
-	TxTogglePin   uint
-	TxToggleState uint
-
-	UpButton      gpio.Pin
-	UpButtonPin   uint
-	UpButtonState uint
-
-	DownButton      gpio.Pin
-	DownButtonPin   uint
-	DownButtonState uint
-
-	PanicButton      gpio.Pin
-	PanicButtonPin   uint
-	PanicButtonState uint
-
-	CommentButton      gpio.Pin
-	CommentButtonPin   uint
-	CommentButtonState uint
-
-	StreamButton      gpio.Pin
-	StreamButtonPin   uint
-	StreamButtonState uint
-)
-
-var (
-	Relay0Pin int
-	Relay1Pin int
-	Relay2Pin int
-	Relay3Pin int
-	Relay0    gpio.Pin
-	Relay1    gpio.Pin
-	Relay2    gpio.Pin
-	Relay3    gpio.Pin
-)
-
-//comment settings
-var (
-	CommentMessageOff string
-	CommentMessageOn  string
-)
-
-//HD44780 screen lcd settings
-var (
-	LCDEnabled               bool
-	LCDInterfaceType         string
-	LCDI2CAddress            uint8
-	LCDBackLightTimerEnabled bool
-	LCDBackLightTimeout      time.Duration
-	LCDBackLightLEDPin       int
-	LCDRSPin                 int
-	LCDEPin                  int
-	LCDD4Pin                 int
-	LCDD5Pin                 int
-	LCDD6Pin                 int
-	LCDD7Pin                 int
-	LCDIsDark                bool
-)
-
-//OLED screen settings
-var (
-	OLEDEnabled                 bool
-	OLEDInterfacetype           string
-	OLEDDefaultI2cAddress       uint8
-	OLEDDefaultI2cBus           int
-	OLEDScreenWidth             int
-	OLEDScreenHeight            int
-	OLEDDisplayRows             int
-	OLEDDisplayColumns          uint8
-	OLEDStartColumn             int
-	OLEDCharLength              int
-	OLEDCommandColumnAddressing int
-	OLEDAddressBasePageStart    int
-	Oled                        *goled.Oled
-)
-
-//txtimeout settings
-var (
-	TxTimeOutEnabled bool
-	TxTimeOutSecs    int
-)
-
-//gps settings
-var (
-	GpsEnabled          bool
-	Port                string
-	Baud                uint
-	TxData              string
-	Even                bool
-	Odd                 bool
-	Rs485               bool
-	Rs485HighDuringSend bool
-	Rs485HighAfterSend  bool
-	StopBits            uint
-	DataBits            uint
-	CharTimeOut         uint
-	MinRead             uint
-	Rx                  bool
-	GpsInfoVerbose      bool
-)
-
-//traccar
-var (
-	TrackEnabled           bool
-	TraccarSendTo          bool
-	TraccarServerURL       string
-	TraccarServerIP        string
-	TraccarClientId        string
-	TraccarReportFrequency int64
-	TraccarProto           string
-	TraccarServerFullURL   string
-	TrackGPSShowLCD        bool
-	TrackVerbose           bool
-	TraccarPortT55         string = "5005" // Old Traccar Client port 5005 for working with T55 Protocol
-	TraccarPortOpenGTS     string = "5159" // Traccar Client port 5159 for for working OpenGTS Protocol
-	TraccarPortOsmAnd      string = "5055" // Traccar Client port 5055 for working with OsmAnd Protocol
-	GPSTime                string
-	GPSDate                string
-	GPSLatitude            float64
-	GPSLongitude           float64
-	GPSSpeed               float64
-	GPSCourse              float64
-	GPSVariation           float64
-)
-
-//panic function settings
-var (
-	PEnabled           bool
-	PFilenameAndPath   string
-	PMessage           string
-	PMailEnabled       bool
-	PRecursive         bool
-	PVolume            float32
-	PSendIdent         bool
-	PSendGpsLocation   bool
-	PTxLockEnabled     bool
-	PTxlockTimeOutSecs uint
-	PLowProfile        bool
-)
-
-// audio recording
-var (
-	AudioRecordEnabled     bool
-	AudioRecordOnStart     bool
-	AudioRecordSystem      string
-	AudioRecordMode        string
-	AudioRecordTimeout     int64
-	AudioRecordFromOutput  string
-	AudioRecordFromInput   string
-	AudioRecordMicTimeout  int64
-	AudioRecordSoft        string
-	AudioRecordSavePath    string
-	AudioRecordArchivePath string
-	AudioRecordProfile     string
-	AudioRecordFileFormat  string
-	AudioRecordChunkSize   string
-)
-
-//keyboard settings
-var (
-	USBKeyboardPath    string = "/dev/input/event0"
-	USBKeyboardEnabled bool
-	NumlockScanID      rune
-	TTYKeyMap          = make(map[rune]TTYKBStruct)
-	USBKeyMap          = make(map[rune]USBKBStruct)
-)
-
-//read xml config into struct
-var Document DocumentStruct
-
-type DocumentStruct struct {
+type ConfigStruct struct {
 	XMLName  xml.Name `xml:"document"`
 	Accounts struct {
 		Account []struct {
@@ -577,18 +95,20 @@ type DocumentStruct struct {
 	Global struct {
 		Software struct {
 			Settings struct {
+				SingleInstance     bool          `xml:"singleinstance"`
 				OutputDevice       string        `xml:"outputdevice"`
 				OutputDeviceShort  string        `xml:"outputdeviceshort"`
 				LogFilenameAndPath string        `xml:"logfilenameandpath"`
 				Logging            string        `xml:"logging"`
 				Loglevel           string        `xml:"loglevel"`
-				Daemonize          bool          `xml:"daemonize"`
 				CancellableStream  bool          `xml:"cancellablestream"`
 				StreamOnStart      bool          `xml:"streamonstart"`
 				StreamOnStartAfter time.Duration `xml:"streamonstartafter"`
+				StreamSendMessage  bool          `xml:"streamsendmessage"`
 				TXOnStart          bool          `xml:"txonstart"`
 				TXOnStartAfter     time.Duration `xml:"txonstartafter"`
 				RepeatTXTimes      int           `xml:"repeattxtimes"`
+				RepeatTXDelay      time.Duration `xml:"repeattxdelay"`
 				SimplexWithMute    bool          `xml:"simplexwithmute"`
 				TxCounter          bool          `xml:"txcounter"`
 				NextServerIndex    int           `xml:"nextserverindex"`
@@ -607,51 +127,15 @@ type DocumentStruct struct {
 				Volume            float32 `xml:"volume"`
 			} `xml:"beacon"`
 			TTS struct {
-				Enabled                           bool    `xml:"enabled,attr"`
-				VolumeLevel                       float32 `xml:"volumelevel"`
-				Participants                      bool    `xml:"participants"`
-				ChannelUp                         bool    `xml:"channelup"`
-				ChannelUpFilenameAndPath          string  `xml:"channelupfilenameandpath"`
-				ChannelDown                       bool    `xml:"channeldown"`
-				ChannelDownFilenameAndPath        string  `xml:"channeldownfilenameandpath"`
-				MuteUnmuteSpeaker                 bool    `xml:"muteunmutespeaker"`
-				MuteUnmuteSpeakerFilenameAndPath  string  `xml:"muteunmutespeakerfilenameandpath"`
-				CurrentVolumeLevel                bool    `xml:"currentvolumelevel"`
-				CurrentVolumeLevelFilenameAndPath string  `xml:"currentvolumelevelfilenameandpath"`
-				DigitalVolumeUp                   bool    `xml:"digitalvolumeup"`
-				DigitalVolumeUpFilenameAndPath    string  `xml:"digitalvolumeupfilenameandpath"`
-				DigitalVolumeDown                 bool    `xml:"digitalvolumedown"`
-				DigitalVolumeDownFilenameAndPath  string  `xml:"digitalvolumedownfilenameandpath"`
-				ListServerChannels                bool    `xml:"listserverchannels"`
-				ListServerChannelsFilenameAndPath string  `xml:"listserverchannelsfilenameandpath"`
-				StartTransmitting                 bool    `xml:"starttransmitting"`
-				StartTransmittingFilenameAndPath  string  `xml:"starttransmittingfilenameandpath"`
-				StopTransmitting                  bool    `xml:"stoptransmitting"`
-				StopTransmittingFilenameAndPath   string  `xml:"stoptransmittingfilenameandpath"`
-				ListOnlineUsers                   bool    `xml:"listonlineusers"`
-				ListOnlineUsersFilenameAndPath    string  `xml:"listonlineusersfilenameandpath"`
-				PlayStream                        bool    `xml:"playstream"`
-				PlayStreamFilenameAndPath         string  `xml:"playstreamfilenameandpath"`
-				RequestGpsPosition                bool    `xml:"requestgpsposition"`
-				RequestGpsPositionFilenameAndPath string  `xml:"requestgpspositionfilenameandpath"`
-				NextServer                        bool    `xml:"nextserver"`
-				NextServerFilenameAndPath         string  `xml:"nextserverfilenameandpath"`
-				PreviousServer                    bool    `xml:"previousserver"`
-				PreviousServerFilenameAndPath     string  `xml:"previousserverfilenameandpath"`
-				PanicSimulation                   bool    `xml:"panicsimulation"`
-				PanicSimulationFilenameAndPath    string  `xml:"panicsimulationfilenameandpath"`
-				PrintXmlConfig                    bool    `xml:"printxmlconfig"`
-				PrintXmlConfigFilenameAndPath     string  `xml:"printxmlconfigfilenameandpath"`
-				SendEmail                         bool    `xml:"sendemail"`
-				SendEmailFilenameAndPath          string  `xml:"sendemailfilenameandpath"`
-				DisplayMenu                       bool    `xml:"displaymenu"`
-				DisplayMenuFilenameAndPath        string  `xml:"displaymenufilenameandpath"`
-				QuitTalkkonnect                   bool    `xml:"quittalkkonnect"`
-				QuitTalkkonnectFilenameAndPath    string  `xml:"quittalkkonnectfilenameandpath"`
-				TalkkonnectLoaded                 bool    `xml:"talkkonnectloaded"`
-				TalkkonnectLoadedFilenameAndPath  string  `xml:"talkkonnectloadedfilenameandpath"`
-				PingServers                       bool    `xml:"pingservers"`
-				PingServersFilenameAndPath        string  `xml:"pingserversfilenameandpath"`
+				Enabled     bool   `xml:"enabled,attr"`
+				Volumelevel int    `xml:"volumelevel"`
+				Language    string `xml:"language,attr"`
+				Sound       []struct {
+					Action   string `xml:"action,attr"`
+					File     string `xml:"file,attr"`
+					Blocking bool   `xml:"blocking,attr"`
+					Enabled  bool   `xml:"enabled,attr"`
+				} `xml:"sound"`
 			} `xml:"tts"`
 			SMTP struct {
 				Enabled       bool   `xml:"enabled,attr"`
@@ -665,125 +149,127 @@ type DocumentStruct struct {
 				GoogleMapsURL bool   `xml:"googlemapsurl"`
 			} `xml:"smtp"`
 			Sounds struct {
-				Event struct {
-					Enabled                bool    `xml:"enabled,attr"`
-					EventVolume            float32 `xml:"eventvolume"`
-					JoinedFilenameAndPath  string  `xml:"joinedfilenameandpath"`
-					LeftFilenameAndPath    string  `xml:"leftfilenameandpath"`
-					MessageFilenameAndPath string  `xml:"messagefilenameandpath"`
-				} `xml:"event"`
-				Alert struct {
-					Enabled         bool    `xml:"enabled,attr"`
-					FilenameAndPath string  `xml:"filenameandpath"`
-					Volume          float32 `xml:"volume"`
-				} `xml:"alert"`
-				IncommingBeep struct {
-					Enabled         bool    `xml:"enabled,attr"`
-					FilenameAndPath string  `xml:"filenameandpath"`
-					Volume          float32 `xml:"volume"`
-				} `xml:"incommingbeep"`
-				RogerBeep struct {
-					Enabled         bool    `xml:"enabled,attr"`
-					FilenameAndPath string  `xml:"filenameandpath"`
-					Volume          float32 `xml:"volume"`
-				} `xml:"rogerbeep"`
+				Sound []struct {
+					Event    string `xml:"event,attr"`
+					File     string `xml:"file,attr"`
+					Volume   string `xml:"volume,attr"`
+					Blocking bool   `xml:"blocking,attr"`
+					Enabled  bool   `xml:"enabled,attr"`
+				} `xml:"sound"`
 				RepeaterTone struct {
 					Enabled         bool `xml:"enabled,attr"`
 					ToneFrequencyHz int  `xml:"tonefrequencyhz"`
 					ToneDurationSec int  `xml:"tonedurationsec"`
+					Sound           struct {
+						Event           string `xml:"event,attr"`
+						Tonefrequencyhz int    `xml:"tonefrequencyhz,attr"`
+						Volume          int    `xml:"volume,attr"`
+						Tonedurationsec int    `xml:"tonedurationsec,attr"`
+						Blocking        bool   `xml:"blocking,attr"`
+						Enabled         bool   `xml:"enabled,attr"`
+					} `xml:"sound"`
 				} `xml:"repeatertone"`
-				Stream struct {
-					Enabled         bool    `xml:"enabled,attr"`
-					FilenameAndPath string  `xml:"filenameandpath"`
-					Volume          float32 `xml:"volume"`
-				} `xml:"stream"`
 			} `xml:"sounds"`
 			TxTimeOut struct {
 				Enabled       bool `xml:"enabled,attr"`
 				TxTimeOutSecs int  `xml:"txtimeoutsecs"`
 			} `xml:"txtimeout"`
-			API struct {
-				Enabled            bool   `xml:"enabled,attr"`
-				ListenPort         string `xml:"apilistenport"`
-				DisplayMenu        bool   `xml:"displaymenu"`
-				ChannelUp          bool   `xml:"channelup"`
-				ChannelDown        bool   `xml:"channeldown"`
-				Mute               bool   `xml:"mute"`
-				CurrentVolumeLevel bool   `xml:"currentvolumelevel"`
-				DigitalVolumeUp    bool   `xml:"digitalvolumeup"`
-				DigitalVolumeDown  bool   `xml:"digitalvolumedown"`
-				ListServerChannels bool   `xml:"listserverchannels"`
-				StartTransmitting  bool   `xml:"starttransmitting"`
-				StopTransmitting   bool   `xml:"stoptransmitting"`
-				ListOnlineUsers    bool   `xml:"listonlineusers"`
-				PlayStream         bool   `xml:"playstream"`
-				RequestGpsPosition bool   `xml:"requestgpsposition"`
-				PreviousServer     bool   `xml:"previousserver"`
-				NextServer         bool   `xml:"nextserver"`
-				PanicSimulation    bool   `xml:"panicsimulation"`
-				ScanChannels       bool   `xml:"scanchannels"`
-				DisplayVersion     bool   `xml:"displayversion"`
-				ClearScreen        bool   `xml:"clearscreen"`
-				RepeatTxLoopTest   bool   `xml:"repeattxlooptest"`
-				PrintXmlConfig     bool   `xml:"printxmlconfig"`
-				SendEmail          bool   `xml:"sendemail"`
-				PingServers        bool   `xml:"pingservers"`
-				PlayRepeaterTone   bool   `xml:"playrepeatertone"`
-				SetVoiceTarget     bool   `xml:"setvoicetarget"`
-			} `xml:"api"`
+			RemoteControl struct {
+				XMLName xml.Name `xml:"remotecontrol"`
+				HTTP    struct {
+					Enabled    bool   `xml:"enabled,attr"`
+					ListenPort string `xml:"listenport,attr"`
+					Command    []struct {
+						Action        string `xml:"action,attr"`
+						Funcname      string `xml:"funcname,attr"`
+						Funcparamname string `xml:"funcparamname,attr"`
+						Message       string `xml:"message,attr"`
+						Enabled       bool   `xml:"enabled,attr"`
+					} `xml:"command"`
+				} `xml:"http"`
+				MQTT struct {
+					Enabled  bool `xml:"enabled,attr"`
+					Settings struct {
+						MQTTEnabled             bool   `xml:"enabled,attr"`
+						MQTTTopic               string `xml:"mqtttopic"`
+						MQTTBroker              string `xml:"mqttbroker"`
+						MQTTPassword            string `xml:"mqttpassword"`
+						MQTTUser                string `xml:"mqttuser"`
+						MQTTId                  string `xml:"mqttid"`
+						MQTTCleansess           bool   `xml:"cleansess"`
+						MQTTQos                 int    `xml:"qos"`
+						MQTTNum                 int    `xml:"num"`
+						MQTTPayload             string `xml:"payload"`
+						MQTTAction              string `xml:"action"`
+						MQTTStore               string `xml:"store"`
+						MQTTAttentionBlinkTimes int    `xml:"attentionblinktimes"`
+						MQTTAttentionBlinkmsecs int    `xml:"attentionblinkmsecs"`
+					} `xml:"settings"`
+					Commands struct {
+						Command []struct {
+							Action  string `xml:"action,attr"`
+							Message string `xml:"message,attr"`
+							Enabled bool   `xml:"enabled,attr"`
+						} `xml:"command"`
+					} `xml:"commands"`
+				} `xml:"mqtt"`
+			}
 			PrintVariables struct {
-				PrintAccount      bool `xml:"printaccount"`
-				PrintLogging      bool `xml:"printlogging"`
-				PrintProvisioning bool `xml:"printprovisioning"`
-				PrintBeacon       bool `xml:"printbeacon"`
-				PrintTTS          bool `xml:"printtts"`
-				PrintIgnoreUser   bool `xml:"printignoreuser"`
-				PrintSMTP         bool `xml:"printsmtp"`
-				PrintSounds       bool `xml:"printsounds"`
-				PrintTxTimeout    bool `xml:"printtxtimeout"`
-				PrintHTTPAPI      bool `xml:"printhttpapi"`
-				PrintTargetBoard  bool `xml:"printtargetboard"`
-				PrintLeds         bool `xml:"printleds"`
-				PrintHeartbeat    bool `xml:"printheartbeat"`
-				PrintButtons      bool `xml:"printbuttons"`
-				PrintRelays       bool `xml:"printrelays"`
-				PrintComment      bool `xml:"printcomment"`
-				PrintLcd          bool `xml:"printlcd"`
-				PrintOled         bool `xml:"printoled"`
-				PrintGps          bool `xml:"printgps"`
-				PrintTraccar      bool `xml:"printtraccar"`
-				PrintPanic        bool `xml:"printpanic"`
-				PrintAudioRecord  bool `xml:"printaudiorecord"`
-				PrintMQTT         bool `xml:"printmqtt"`
-				PrintTTSMessages  bool `xml:"printttsmessages"`
-				PrintKeyboardMap  bool `xml:"printkeyboardmap"`
-				PrintUSBKeyboard  bool `xml:"printusbkeyboard"`
+				PrintAccount        bool `xml:"printaccount"`
+				PrintSystemSettings bool `xml:"printsystemsettings"`
+				PrintProvisioning   bool `xml:"printprovisioning"`
+				PrintBeacon         bool `xml:"printbeacon"`
+				PrintTTS            bool `xml:"printtts"`
+				PrintIgnoreUser     bool `xml:"printignoreuser"`
+				PrintSMTP           bool `xml:"printsmtp"`
+				PrintSounds         bool `xml:"printsounds"`
+				PrintTxTimeout      bool `xml:"printtxtimeout"`
+				PrintHTTPAPI        bool `xml:"printhttpapi"`
+				PrintTargetBoard    bool `xml:"printtargetboard"`
+				PrintLeds           bool `xml:"printleds"`
+				PrintHeartbeat      bool `xml:"printheartbeat"`
+				PrintGPIO           bool `xml:"printgpio"`
+				PrintButtons        bool `xml:"printbuttons"`
+				PrintComment        bool `xml:"printcomment"`
+				PrintLcd            bool `xml:"printlcd"`
+				PrintOled           bool `xml:"printoled"`
+				PrintGps            bool `xml:"printgps"`
+				PrintTraccar        bool `xml:"printtraccar"`
+				PrintPanic          bool `xml:"printpanic"`
+				PrintAudioRecord    bool `xml:"printaudiorecord"`
+				PrintMQTT           bool `xml:"printmqtt"`
+				PrintTTSMessages    bool `xml:"printttsmessages"`
+				PrintKeyboardMap    bool `xml:"printkeyboardmap"`
+				PrintUSBKeyboard    bool `xml:"printusbkeyboard"`
+				PrintMultimedia     bool `xml:"printmultimedia"`
 			} `xml:"printvariables"`
-			MQTT struct {
-				MQTTEnabled             bool   `xml:"enabled,attr"`
-				MQTTTopic               string `xml:"mqtttopic"`
-				MQTTBroker              string `xml:"mqttbroker"`
-				MQTTPassword            string `xml:"mqttpassword"`
-				MQTTUser                string `xml:"mqttuser"`
-				MQTTId                  string `xml:"mqttid"`
-				MQTTCleansess           bool   `xml:"cleansess"`
-				MQTTQos                 int    `xml:"qos"`
-				MQTTNum                 int    `xml:"num"`
-				MQTTPayload             string `xml:"payload"`
-				MQTTAction              string `xml:"action"`
-				MQTTStore               string `xml:"store"`
-				MQTTAttentionBlinkTimes int    `xml:"attentionblinktimes"`
-				MQTTAttentionBlinkmsecs int    `xml:"attentionblinkmsecs"`
-			} `xml:"mqtt"`
 			TTSMessages struct {
-				TTSMessageEnabled     bool   `xml:"enabled,attr"`
-				TTSLocalPlay          bool   `xml:"localplay"`
-				TTSLocalPlayWithRXLED bool   `xml:"localplaywithrxled"`
-				TTSPlayIntoStream     bool   `xml:"playintostream"`
-				TTSSoundDirectory     string `xml:"ttssounddirectory"`
-				TTSLanguage           string `xml:"ttslanguage"`
-				TTSAnnouncementTone   string `xml:"ttsannouncementtone"`
-				TTSMessageFromTag     bool   `xml:"ttsmessagefromtag"`
+				Enabled           bool   `xml:"enabled,attr"`
+				TTSLanguage       string `xml:"ttslanguage"`
+				TTSMessageFromTag bool   `xml:"ttsmessagefromtag"`
+				TTSTone           struct {
+					ToneEnabled bool   `xml:"enabled,attr"`
+					ToneFile    string `xml:"file,attr"`
+					ToneVolume  int    `xml:"volume,attr"`
+				} `xml:"ttstone"`
+				Blocking              bool    `xml:"localblocking"`
+				TTSSoundDirectory     string  `xml:"ttssounddirectory"`
+				LocalPlay             bool    `xml:"localplay"`
+				PlayIntoStream        bool    `xml:"playintostream"`
+				SpeakVolumeIntoStream int     `xml:"speakvolumeintostream"`
+				PlayVolumeIntoStream  float32 `xml:"playvolumeintostream"`
+				GPIO                  struct {
+					Name    string `xml:"name,attr"`
+					Enabled bool   `xml:"enabled,attr"`
+				} `xml:"gpio"`
+				PreDelay struct {
+					Value   time.Duration `xml:"value,attr"`
+					Enabled bool          `xml:"enabled,attr"`
+				} `xml:"predelay"`
+				PostDelay struct {
+					Value   time.Duration `xml:"value,attr"`
+					Enabled bool          `xml:"enabled,attr"`
+				} `xml:"postdelay"`
 			} `xml:"ttsmessages"`
 			IgnoreUser struct {
 				IgnoreUserEnabled bool   `xml:"enabled,attr"`
@@ -791,16 +277,42 @@ type DocumentStruct struct {
 			} `xml:"ignoreuser"`
 		} `xml:"software"`
 		Hardware struct {
-			TargetBoard string `xml:"targetboard,attr"`
-			Lights      struct {
-				LedStripEnabled     bool   `xml:"ledstripenabled"`
-				VoiceActivityLedPin string `xml:"voiceactivityledpin"`
-				ParticipantsLedPin  string `xml:"participantsledpin"`
-				TransmitLedPin      string `xml:"transmitledpin"`
-				OnlineLedPin        string `xml:"onlineledpin"`
-				AttentionLedPin     string `xml:"attentionledpin"`
-				VoiceTargetLedPin   string `xml:"voicetargetledpin"`
-			} `xml:"lights"`
+			TargetBoard     string `xml:"targetboard,attr"`
+			LedStripEnabled bool   `xml:"ledstripenabled"`
+			IO              struct {
+				GPIOExpander struct {
+					Enabled bool `xml:"enabled,attr"`
+					Chip    []struct {
+						ID             int   `xml:"id,attr"`
+						I2Cbus         uint8 `xml:"i2cbus,attr"`
+						MCP23017Device uint8 `xml:"mcp23017device,attr"`
+						Enabled        bool  `xml:"enabled,attr"`
+					} `xml:"chip"`
+				} `xml:"gpioexpander"`
+				Max7219 struct {
+					Enabled         bool `xml:"enabled,attr"`
+					Max7219Cascaded int  `xml:"max7219cascaded,attr"`
+					SPIBus          int  `xml:"spibus,attr"`
+					SPIDevice       int  `xml:"spidevice,attr"`
+					Brightness      byte `xml:"brightness,attr"`
+				} `xml:"max7219"`
+				Pins struct {
+					Pin []struct {
+						Direction string `xml:"direction,attr"`
+						Device    string `xml:"device,attr"`
+						Name      string `xml:"name,attr"`
+						PinNo     uint   `xml:"pinno,attr"`
+						Type      string `xml:"type,attr"`
+						ID        int    `xml:"chipid,attr"`
+						Enabled   bool   `xml:"enabled,attr"`
+					} `xml:"pin"`
+				} `xml:"pins"`
+				Pulse struct {
+					Leading  time.Duration `xml:"leadingmsecs,attr"`
+					Pulse    time.Duration `xml:"pulsemsecs,attr"`
+					Trailing time.Duration `xml:"trailingmsecs,attr"`
+				} `xml:"pulse"`
+			} `xml:"io"`
 			HeartBeat struct {
 				Enabled     bool   `xml:"enabled,attr"`
 				LEDPin      string `xml:"heartbeatledpin"`
@@ -808,20 +320,6 @@ type DocumentStruct struct {
 				LEDOnmsecs  int    `xml:"ledonmsecs"`
 				LEDOffmsecs int    `xml:"ledoffmsecs"`
 			} `xml:"heartbeat"`
-			Buttons struct {
-				TxButtonPin     string `xml:"txbuttonpin"`
-				TxTogglePin     string `xml:"txtogglepin"`
-				UpButtonPin     string `xml:"upbuttonpin"`
-				DownButtonPin   string `xml:"downbuttonpin"`
-				PanicButtonPin  string `xml:"panicbuttonpin"`
-				StreamButtonPin string `xml:"streambuttonpin"`
-			} `xml:"buttons"`
-			Relays struct {
-				Relay0Pin string `xml:"relay0pin"`
-				Relay1Pin string `xml:"relay1pin"`
-				Relay2Pin string `xml:"relay2pin"`
-				Relay3Pin string `xml:"relay3pin"`
-			} `xml:"relays"`
 			Comment struct {
 				CommentButtonPin  string `xml:"commentbuttonpin"`
 				CommentMessageOff string `xml:"commentmessageoff"`
@@ -888,11 +386,12 @@ type DocumentStruct struct {
 				Enabled              bool    `xml:"enabled,attr"`
 				FilenameAndPath      string  `xml:"filenameandpath"`
 				Volume               float32 `xml:"volume"`
+				Blocking             bool    `xml:"blocking,attr"`
 				SendIdent            bool    `xml:"sendident"`
 				Message              string  `xml:"panicmessage"`
 				PMailEnabled         bool    `xml:"panicemail"`
 				PEavesdropEnabled    bool    `xml:"eavesdrop"`
-				RecursiveSendMessage string  `xml:"recursivesendmessage"`
+				RecursiveSendMessage bool    `xml:"recursivesendmessage"`
 				SendGpsLocation      bool    `xml:"sendgpslocation"`
 				TxLockEnabled        bool    `xml:"txlockenabled"`
 				TxLockTimeOutSecs    uint    `xml:"txlocktimeoutsecs"`
@@ -919,29 +418,66 @@ type DocumentStruct struct {
 				RecordFileFormat  string `xml:"recordfileformat"`
 				RecordChunkSize   string `xml:"recordchunksize"`
 			} `xml:"audiorecordfunction"`
-			KeyboardCommands struct {
+			Keyboard struct {
 				Command []struct {
-					Name    string `xml:"name,attr"`
-					Enabled bool   `xml:"enabled,attr"`
-					Params  struct {
-						Param []struct {
-							Name  string `xml:"name,attr"`
-							Value string `xml:"value,attr"`
-						} `xml:"param"`
-					} `xml:"params"`
+					Action      string `xml:"action,attr"`
+					ParamName   string `xml:"paramname,attr"`
+					Paramvalue  string `xml:"paramvalue,attr"`
+					Enabled     bool   `xml:"enabled,attr"`
 					Ttykeyboard struct {
 						Scanid   rune   `xml:"scanid,attr"`
+						Keylabel uint32 `xml:"keylabel,attr"`
 						Enabled  bool   `xml:"enabled,attr"`
-						Keylabel uint32 `xml:"keylabel"`
 					} `xml:"ttykeyboard"`
 					Usbkeyboard struct {
 						Scanid   rune   `xml:"scanid,attr"`
+						Keylabel uint32 `xml:"keylabel,attr"`
 						Enabled  bool   `xml:"enabled,attr"`
-						Keylabel uint32 `xml:"keylabel"`
 					} `xml:"usbkeyboard"`
 				} `xml:"command"`
-			} `xml:"keyboardcommands"`
+			} `xml:"keyboard"`
 		} `xml:"hardware"`
+		Multimedia struct {
+			ID []struct {
+				Value   string `xml:"value,attr"`
+				Enabled bool   `xml:"enabled,attr"`
+				Params  struct {
+					Announcementtone struct {
+						File     string `xml:"file,attr"`
+						Volume   int    `xml:"volume,attr"`
+						Blocking bool   `xml:"blocking"`
+						Enabled  bool   `xml:"enabled,attr"`
+					} `xml:"announcementtone"`
+					Localplay bool `xml:"localplay"`
+					GPIO      struct {
+						Name    string `xml:"name,attr"`
+						Enabled bool   `xml:"enabled,attr"`
+					} `xml:"gpio"`
+					Predelay struct {
+						Value   time.Duration `xml:"value,attr"`
+						Enabled bool          `xml:"enabled,attr"`
+					} `xml:"predelay"`
+					Postdelay struct {
+						Value   time.Duration `xml:"value,attr"`
+						Enabled bool          `xml:"enabled,attr"`
+					} `xml:"postdelay"`
+					Playintostream bool   `xml:"playintostream"`
+					Voicetarget    string `xml:"voicetarget"`
+				} `xml:"params"`
+				Media struct {
+					Source []struct {
+						Name     string  `xml:"name,attr"`
+						File     string  `xml:"file,attr"`
+						Volume   int     `xml:"volume,attr"`
+						Duration float32 `xml:"duration,attr"`
+						Offset   float32 `xml:"offset,attr"`
+						Loop     int     `xml:"loop,attr"`
+						Blocking bool    `xml:"blocking"`
+						Enabled  bool    `xml:"enabled,attr"`
+					} `xml:"source"`
+				} `xml:"media"`
+			} `xml:"id"`
+		} `xml:"multimedia"`
 	} `xml:"global"`
 }
 
@@ -978,7 +514,125 @@ type USBKBStruct struct {
 	ParamValue string
 }
 
-func readxmlconfig(file string) error {
+type EventSoundStruct struct {
+	Enabled  bool
+	FileName string
+	Volume   string
+	Blocking bool
+}
+
+type streamTrackerStruct struct {
+	UserID      uint32
+	UserName    string
+	UserSession uint32
+	C           <-chan *gumble.AudioPacket
+}
+
+// Generic Global Config Variables
+var Config ConfigStruct
+var ConfigXMLFile string
+
+// Generic Global State Variables
+var (
+	KillHeartBeat   bool
+	IsPlayStream    bool
+	IsConnected     bool
+	Streaming       bool
+	HTTPServRunning bool
+	NowStreaming    bool
+	InStreamTalking bool
+	InStreamSource  bool
+	LCDIsDark       bool
+)
+
+// Generic Global Counter Variables
+var (
+	AccountCount    int
+	ConnectAttempts int
+	AccountIndex    int
+	GenericCounter  int
+	ChannelIndex    int
+)
+
+// Generic Global Timer Variables
+var (
+	BackLightTime    = time.NewTicker(5 * time.Second)
+	BackLightTimePtr = &BackLightTime
+	StartTime        = time.Now()
+	LastTime         = now.Unix()
+	TimerTalked      = time.NewTicker(time.Millisecond * 200)
+)
+
+var (
+	LcdText    = [4]string{"nil", "nil", "nil", "nil"}
+	MyLedStrip *LedStrip
+	TTYKeyMap  = make(map[rune]TTYKBStruct)
+	USBKeyMap  = make(map[rune]USBKBStruct)
+)
+
+//Mumble Account Settings Global Variables
+var (
+	Default             []bool
+	Name                []string
+	Server              []string
+	Username            []string
+	Password            []string
+	Insecure            []bool
+	Register            []bool
+	Certificate         []string
+	Channel             []string
+	Ident               []string
+	Tokens              []gumble.AccessTokens
+	VT                  []VTStruct
+	Accounts            int
+	MaxTokensInAccounts int
+)
+
+//HD44780 LCD Screen Settings Golbal Variables
+var (
+	LCDEnabled               bool
+	LCDInterfaceType         string
+	LCDI2CAddress            uint8
+	LCDBackLightTimerEnabled bool
+	LCDBackLightTimeout      time.Duration
+	LCDRSPin                 int
+	LCDEPin                  int
+	LCDD4Pin                 int
+	LCDD5Pin                 int
+	LCDD6Pin                 int
+	LCDD7Pin                 int
+)
+
+//OLED Screen Settings Golbal Variables
+var (
+	OLEDEnabled                 bool
+	OLEDInterfacetype           string
+	OLEDDefaultI2cAddress       uint8
+	OLEDDefaultI2cBus           int
+	OLEDScreenWidth             int
+	OLEDScreenHeight            int
+	OLEDDisplayRows             int
+	OLEDDisplayColumns          uint8
+	OLEDStartColumn             int
+	OLEDCharLength              int
+	OLEDCommandColumnAddressing int
+	OLEDAddressBasePageStart    int
+	Oled                        *goled.Oled
+)
+
+// Generic Local Variables
+var (
+	txcounter int
+	isTx      bool
+	pstream   *gumbleffmpeg.Stream
+	//source    = openal.NewSource()
+)
+
+var StreamTracker = map[uint32]streamTrackerStruct{}
+
+func readxmlconfig(file string, reloadxml bool) error {
+	var ReConfig ConfigStruct
+
 	xmlFile, err := os.Open(file)
 	if err != nil {
 		return fmt.Errorf(err.Error())
@@ -988,41 +642,46 @@ func readxmlconfig(file string) error {
 
 	byteValue, _ := ioutil.ReadAll(xmlFile)
 
-	err = xml.Unmarshal(byteValue, &Document)
-	if err != nil {
-		return fmt.Errorf(filepath.Base(file) + " " + err.Error())
-	}
-	for _, account := range Document.Accounts.Account {
-		if account.Default {
-			Name = append(Name, account.Name)
-			Server = append(Server, account.ServerAndPort)
-			Username = append(Username, account.UserName)
-			Password = append(Password, account.Password)
-			Insecure = append(Insecure, account.Insecure)
-			Register = append(Register, account.Register)
-			Certificate = append(Certificate, account.Certificate)
-			Channel = append(Channel, account.Channel)
-			Ident = append(Ident, account.Ident)
-			Tokens = append(Tokens, account.Tokens.Token)
-			VT = append(VT, VTStruct(account.Voicetargets))
-			AccountCount++
+	if !reloadxml {
+		err = xml.Unmarshal(byteValue, &Config)
+		if err != nil {
+			return fmt.Errorf(filepath.Base(file) + " " + err.Error())
+		}
+	} else {
+		err = xml.Unmarshal(byteValue, &ReConfig)
+		if err != nil {
+			return fmt.Errorf(filepath.Base(file) + " " + err.Error())
 		}
 	}
+	CheckConfigSanity(reloadxml)
 
-	if AccountCount == 0 {
-		FatalCleanUp("No Default Accounts Found in talkkonnect.xml File! Please Add At Least 1 Account in XML")
-	}
-
-	for _, KMainCommands := range Document.Global.Hardware.KeyboardCommands.Command {
-		if KMainCommands.Enabled {
-			for _, KSubCommands := range KMainCommands.Params.Param {
-				if KMainCommands.Ttykeyboard.Enabled {
-					TTYKeyMap[KMainCommands.Ttykeyboard.Scanid] = TTYKBStruct{KMainCommands.Ttykeyboard.Enabled, KMainCommands.Ttykeyboard.Keylabel, KMainCommands.Name, KSubCommands.Name, KSubCommands.Value}
-				}
-				if KMainCommands.Usbkeyboard.Enabled {
-					USBKeyMap[KMainCommands.Usbkeyboard.Scanid] = USBKBStruct{KMainCommands.Usbkeyboard.Enabled, KMainCommands.Usbkeyboard.Keylabel, KMainCommands.Name, KSubCommands.Name, KSubCommands.Value}
-				}
+	if !reloadxml {
+		for _, account := range Config.Accounts.Account {
+			if account.Default {
+				Name = append(Name, account.Name)
+				Server = append(Server, account.ServerAndPort)
+				Username = append(Username, account.UserName)
+				Password = append(Password, account.Password)
+				Insecure = append(Insecure, account.Insecure)
+				Register = append(Register, account.Register)
+				Certificate = append(Certificate, account.Certificate)
+				Channel = append(Channel, account.Channel)
+				Ident = append(Ident, account.Ident)
+				Tokens = append(Tokens, account.Tokens.Token)
+				VT = append(VT, VTStruct(account.Voicetargets))
+				AccountCount++
 			}
+		}
+	}
+	for _, kMainCommands := range Config.Global.Hardware.Keyboard.Command {
+		if kMainCommands.Enabled {
+			if kMainCommands.Ttykeyboard.Enabled {
+				TTYKeyMap[kMainCommands.Ttykeyboard.Scanid] = TTYKBStruct{kMainCommands.Ttykeyboard.Enabled, kMainCommands.Ttykeyboard.Keylabel, kMainCommands.Action, kMainCommands.ParamName, kMainCommands.Paramvalue}
+			}
+			if kMainCommands.Usbkeyboard.Enabled {
+				USBKeyMap[kMainCommands.Usbkeyboard.Scanid] = USBKBStruct{kMainCommands.Usbkeyboard.Enabled, kMainCommands.Usbkeyboard.Keylabel, kMainCommands.Action, kMainCommands.ParamName, kMainCommands.Paramvalue}
+			}
+
 		}
 	}
 
@@ -1066,913 +725,272 @@ func readxmlconfig(file string) error {
 		f.Close()
 	}
 
-	// Set our default sharefile path
-	defaultSharePath := "/tmp"
-	dir := filepath.Dir(exec)
-	//Check for soundfiles directory in various locations
-	// First, check env for $GOPATH and check in the hardcoded talkkonnect/talkkonnect dir
-	if os.Getenv("GOPATH") != "" {
-		defaultRepo := os.Getenv("GOPATH") + "/src/github.com/talkkonnect/talkkonnect"
-		if stat, err := os.Stat(defaultRepo); err == nil && stat.IsDir() {
-			defaultSharePath = defaultRepo
+	if len(Config.Global.Software.Settings.OutputDeviceShort) == 0 {
+		Config.Global.Software.Settings.OutputDeviceShort = Config.Global.Software.Settings.OutputDevice
+	}
+
+	if strings.ToLower(Config.Global.Software.Settings.Logging) != "screen" && Config.Global.Software.Settings.LogFilenameAndPath == "" {
+		Config.Global.Software.Settings.LogFilenameAndPath = defaultLogPath
+	}
+
+	if !reloadxml {
+		LCDEnabled = Config.Global.Hardware.LCD.Enabled
+		LCDInterfaceType = Config.Global.Hardware.LCD.InterfaceType
+		LCDI2CAddress = Config.Global.Hardware.LCD.I2CAddress
+		LCDBackLightTimerEnabled = Config.Global.Hardware.LCD.Enabled
+		LCDBackLightTimeout = time.Duration(Config.Global.Hardware.LCD.BackLightTimeoutSecs)
+		LCDRSPin = Config.Global.Hardware.LCD.RsPin
+		LCDEPin = Config.Global.Hardware.LCD.EPin
+		LCDD4Pin = Config.Global.Hardware.LCD.D4Pin
+		LCDD5Pin = Config.Global.Hardware.LCD.D5Pin
+		LCDD6Pin = Config.Global.Hardware.LCD.D6Pin
+		LCDD7Pin = Config.Global.Hardware.LCD.D7Pin
+
+		OLEDEnabled = Config.Global.Hardware.OLED.Enabled
+		OLEDInterfacetype = Config.Global.Hardware.OLED.InterfaceType
+		OLEDDisplayRows = Config.Global.Hardware.OLED.DisplayRows
+		OLEDDisplayColumns = Config.Global.Hardware.OLED.DisplayColumns
+		OLEDDefaultI2cBus = Config.Global.Hardware.OLED.DefaultI2CBus
+		OLEDDefaultI2cAddress = Config.Global.Hardware.OLED.DefaultI2CAddress
+		OLEDScreenWidth = Config.Global.Hardware.OLED.ScreenWidth
+		OLEDScreenHeight = Config.Global.Hardware.OLED.ScreenHeight
+		OLEDCommandColumnAddressing = Config.Global.Hardware.OLED.CommandColumnAddressing
+		OLEDAddressBasePageStart = Config.Global.Hardware.OLED.AddressBasePageStart
+		OLEDCharLength = Config.Global.Hardware.OLED.CharLength
+		OLEDStartColumn = Config.Global.Hardware.OLED.StartColumn
+
+		if Config.Global.Hardware.TargetBoard != "rpi" {
+			LCDBackLightTimerEnabled = false
 		}
-	}
-	// Next, check the same dir as executable for 'soundfiles'
-	if stat, err := os.Stat(dir + "/soundfiles"); err == nil && stat.IsDir() {
-		defaultSharePath = dir
-	}
-	// Last, if its in a bin directory, we check for ../share/talkkonnect/ and prioritize it if it exists
-	if strings.HasSuffix(dir, "bin") {
-		shareDir := filepath.Dir(dir) + "/share/" + filepath.Base(exec)
-		if stat, err := os.Stat(shareDir); err == nil && stat.IsDir() {
-			defaultSharePath = shareDir
-		}
-	}
 
-	OutputDevice = Document.Global.Software.Settings.OutputDevice
-	OutputDeviceShort = Document.Global.Software.Settings.OutputDeviceShort
-
-	if len(OutputDeviceShort) == 0 {
-		OutputDeviceShort = Document.Global.Software.Settings.OutputDevice
-	}
-
-	LogFilenameAndPath = Document.Global.Software.Settings.LogFilenameAndPath
-	Logging = Document.Global.Software.Settings.Logging
-
-	if Document.Global.Software.Settings.Loglevel == "trace" || Document.Global.Software.Settings.Loglevel == "debug" || Document.Global.Software.Settings.Loglevel == "info" || Document.Global.Software.Settings.Loglevel == "warning" || Document.Global.Software.Settings.Loglevel == "error" || Document.Global.Software.Settings.Loglevel == "alert" {
-		Loglevel = Document.Global.Software.Settings.Loglevel
-	}
-
-	if strings.ToLower(Logging) != "screen" && LogFilenameAndPath == "" {
-		LogFilenameAndPath = defaultLogPath
-	}
-
-	Daemonize = Document.Global.Software.Settings.Daemonize
-
-	CancellableStream = Document.Global.Software.Settings.CancellableStream
-	StreamOnStart = Document.Global.Software.Settings.StreamOnStart
-
-	StreamOnStartAfter = Document.Global.Software.Settings.StreamOnStartAfter
-
-	TXOnStart = Document.Global.Software.Settings.TXOnStart
-
-	TXOnStartAfter = Document.Global.Software.Settings.TXOnStartAfter
-
-	RepeatTXTimes = Document.Global.Software.Settings.RepeatTXTimes
-
-	SimplexWithMute = Document.Global.Software.Settings.SimplexWithMute
-	TxCounter = Document.Global.Software.Settings.TxCounter
-	NextServerIndex = Document.Global.Software.Settings.NextServerIndex
-
-	APEnabled = Document.Global.Software.AutoProvisioning.Enabled
-	TkID = Document.Global.Software.AutoProvisioning.TkID
-	URL = Document.Global.Software.AutoProvisioning.URL
-	SaveFilePath = Document.Global.Software.AutoProvisioning.SaveFilePath
-	SaveFilename = Document.Global.Software.AutoProvisioning.SaveFilename
-
-	if APEnabled && SaveFilePath == "" {
-		SaveFilePath = defaultConfPath
-	}
-
-	if APEnabled && SaveFilename == "" {
-		SaveFilename = filepath.Base(exec) + "talkkonnect.xml"
-	}
-
-	BeaconEnabled = Document.Global.Software.Beacon.Enabled
-	BeaconTimerSecs = Document.Global.Software.Beacon.BeaconTimerSecs
-	BeaconFilenameAndPath = Document.Global.Software.Beacon.BeaconFileAndPath
-	if BeaconEnabled && BeaconFilenameAndPath == "" {
-		path := defaultSharePath + "/soundfiles/voiceprompts/Beacon.wav"
-		if _, err := os.Stat(path); err == nil {
-			BeaconFilenameAndPath = path
-		}
-	}
-
-	BVolume = Document.Global.Software.Beacon.Volume
-
-	TTSEnabled = Document.Global.Software.TTS.Enabled
-	TTSVolumeLevel = Document.Global.Software.TTS.VolumeLevel
-	TTSParticipants = Document.Global.Software.TTS.Participants
-	TTSChannelUp = Document.Global.Software.TTS.ChannelUp
-	TTSChannelUpFilenameAndPath = Document.Global.Software.TTS.ChannelUpFilenameAndPath
-
-	if TTSChannelUp && TTSChannelUpFilenameAndPath == "" {
-		path := defaultSharePath + "/soundfiles/voiceprompts/ChannelUp.wav"
-		if _, err := os.Stat(path); err == nil {
-			TTSChannelUpFilenameAndPath = path
-		}
-	}
-
-	TTSChannelUpFilenameAndPath = Document.Global.Software.TTS.ChannelUpFilenameAndPath
-	TTSChannelDown = Document.Global.Software.TTS.ChannelDown
-	TTSChannelDownFilenameAndPath = Document.Global.Software.TTS.ChannelDownFilenameAndPath
-
-	if TTSChannelDown && TTSChannelDownFilenameAndPath == "" {
-		path := defaultSharePath + "/soundfiles/voiceprompts/ChannelDown.wav"
-		if _, err := os.Stat(path); err == nil {
-			TTSChannelDownFilenameAndPath = path
-		}
-	}
-
-	TTSMuteUnMuteSpeaker = Document.Global.Software.TTS.MuteUnmuteSpeaker
-	TTSMuteUnMuteSpeakerFilenameAndPath = Document.Global.Software.TTS.MuteUnmuteSpeakerFilenameAndPath
-
-	if TTSMuteUnMuteSpeaker && TTSMuteUnMuteSpeakerFilenameAndPath == "" {
-		path := defaultSharePath + "/soundfiles/voiceprompts/MuteUnMuteSpeaker.wav"
-		if _, err := os.Stat(path); err == nil {
-			TTSMuteUnMuteSpeakerFilenameAndPath = path
-		}
-	}
-
-	TTSCurrentVolumeLevel = Document.Global.Software.TTS.CurrentVolumeLevel
-	TTSCurrentVolumeLevelFilenameAndPath = Document.Global.Software.TTS.CurrentVolumeLevelFilenameAndPath
-
-	if TTSCurrentVolumeLevel && TTSCurrentVolumeLevelFilenameAndPath == "" {
-		path := defaultSharePath + "/soundfiles/voiceprompts/CurrentVolumeLevel.wav"
-		if _, err := os.Stat(path); err == nil {
-			TTSCurrentVolumeLevelFilenameAndPath = path
-		}
-	}
-
-	TTSDigitalVolumeUp = Document.Global.Software.TTS.DigitalVolumeUp
-	TTSDigitalVolumeUpFilenameAndPath = Document.Global.Software.TTS.DigitalVolumeUpFilenameAndPath
-
-	if TTSDigitalVolumeUp && TTSDigitalVolumeUpFilenameAndPath == "" {
-		path := defaultSharePath + "/soundfiles/voiceprompts/DigitalVolumeUp.wav"
-		if _, err := os.Stat(path); err == nil {
-			TTSDigitalVolumeUpFilenameAndPath = path
-		}
-	}
-
-	TTSDigitalVolumeDown = Document.Global.Software.TTS.DigitalVolumeDown
-	TTSDigitalVolumeDownFilenameAndPath = Document.Global.Software.TTS.DigitalVolumeDownFilenameAndPath
-
-	if TTSDigitalVolumeDown && TTSDigitalVolumeDownFilenameAndPath == "" {
-		path := defaultSharePath + "/soundfiles/voiceprompts/DigitalVolumeDown.wav"
-		if _, err := os.Stat(path); err == nil {
-			TTSDigitalVolumeDownFilenameAndPath = path
-		}
-	}
-
-	TTSListServerChannels = Document.Global.Software.TTS.ListServerChannels
-	TTSListServerChannelsFilenameAndPath = Document.Global.Software.TTS.ListServerChannelsFilenameAndPath
-
-	if TTSListServerChannels && TTSListServerChannelsFilenameAndPath == "" {
-		path := defaultSharePath + "/soundfiles/voiceprompts/ListServerChannels.wav"
-		if _, err := os.Stat(path); err == nil {
-			TTSListServerChannelsFilenameAndPath = path
-		}
-	}
-
-	TTSStartTransmitting = Document.Global.Software.TTS.StartTransmitting
-	TTSStartTransmittingFilenameAndPath = Document.Global.Software.TTS.StartTransmittingFilenameAndPath
-
-	if TTSStartTransmitting && TTSStartTransmittingFilenameAndPath == "" {
-		path := defaultSharePath + "/soundfiles/voiceprompts/StartTransmitting.wav"
-		if _, err := os.Stat(path); err == nil {
-			TTSStartTransmittingFilenameAndPath = path
-		}
-	}
-
-	TTSStopTransmitting = Document.Global.Software.TTS.StopTransmitting
-	TTSStopTransmittingFilenameAndPath = Document.Global.Software.TTS.StopTransmittingFilenameAndPath
-
-	if TTSStopTransmitting && TTSStopTransmittingFilenameAndPath == "" {
-		path := defaultSharePath + "/soundfiles/voiceprompts/StopTransmitting.wav"
-		if _, err := os.Stat(path); err == nil {
-			TTSStopTransmittingFilenameAndPath = path
-		}
-	}
-
-	TTSListOnlineUsers = Document.Global.Software.TTS.ListOnlineUsers
-	TTSListOnlineUsersFilenameAndPath = Document.Global.Software.TTS.ListOnlineUsersFilenameAndPath
-
-	if TTSListOnlineUsers && TTSListOnlineUsersFilenameAndPath == "" {
-		path := defaultSharePath + "/soundfiles/voiceprompts/ListOnlineUsers.wav"
-		if _, err := os.Stat(path); err == nil {
-			TTSListOnlineUsersFilenameAndPath = path
-		}
-	}
-
-	TTSPlayStream = Document.Global.Software.TTS.PlayStream
-	TTSPlayStreamFilenameAndPath = Document.Global.Software.TTS.PlayStreamFilenameAndPath
-
-	if TTSPlayStream && TTSPlayStreamFilenameAndPath == "" {
-		path := defaultSharePath + "/soundfiles/voiceprompts/PlayStream.wav"
-		if _, err := os.Stat(path); err == nil {
-			TTSPlayStreamFilenameAndPath = path
-		}
-	}
-
-	TTSRequestGpsPosition = Document.Global.Software.TTS.RequestGpsPosition
-	TTSRequestGpsPositionFilenameAndPath = Document.Global.Software.TTS.RequestGpsPositionFilenameAndPath
-
-	if TTSRequestGpsPosition && TTSRequestGpsPositionFilenameAndPath == "" {
-		path := defaultSharePath + "/soundfiles/voiceprompts/RequestGpsPosition.wav"
-		if _, err := os.Stat(path); err == nil {
-			TTSRequestGpsPositionFilenameAndPath = path
-		}
-	}
-
-	TTSNextServer = Document.Global.Software.TTS.NextServer
-	TTSNextServerFilenameAndPath = Document.Global.Software.TTS.NextServerFilenameAndPath
-	/*
-		//TODO: No default sound available. Placeholder for now
-		if TTSNextServer && TTSNextServerFilenameAndPath == "" {
-			path := defaultSharePath + "/soundfiles/voiceprompts/TODO"
-			if _, err := os.Stat(path); err == nil {
-				TTSNextServerFilenameAndPath = path
+		if OLEDEnabled {
+			Oled, err = goled.BeginOled(OLEDDefaultI2cAddress, OLEDDefaultI2cBus, OLEDScreenWidth, OLEDScreenHeight, OLEDDisplayRows, OLEDDisplayColumns, OLEDStartColumn, OLEDCharLength, OLEDCommandColumnAddressing, OLEDAddressBasePageStart)
+			if err != nil {
+				log.Println("error: Cannot Communicate with OLED")
 			}
 		}
-	*/
-
-	TTSPreviousServer = Document.Global.Software.TTS.PreviousServer
-	TTSPreviousServerFilenameAndPath = Document.Global.Software.TTS.PreviousServerFilenameAndPath
-
-	/*
-		//TODO: No default sound available. Placeholder for now
-		if TTSPreviousServer && TTSPreviousServerFilenameAndPath == "" {
-			path := defaultSharePath + "/soundfiles/voiceprompts/TODO"
-			if _, err := os.Stat(path); err == nil {
-				TTSPreviousServerFilenameAndPath = path
-			}
-		}
-	*/
-
-	TTSPanicSimulation = Document.Global.Software.TTS.PanicSimulation
-	TTSPanicSimulationFilenameAndPath = Document.Global.Software.TTS.PanicSimulationFilenameAndPath
-	if TTSPanicSimulation && TTSPanicSimulationFilenameAndPath == "" {
-		path := defaultSharePath + "/soundfiles/voiceprompts/PanicSimulation.wav"
-		if _, err := os.Stat(path); err == nil {
-			TTSPanicSimulationFilenameAndPath = path
-		}
 	}
-
-	TTSPrintXmlConfig = Document.Global.Software.TTS.PrintXmlConfig
-	TTSPrintXmlConfigFilenameAndPath = Document.Global.Software.TTS.PrintXmlConfigFilenameAndPath
-
-	if TTSPrintXmlConfig && TTSPrintXmlConfigFilenameAndPath == "" {
-		path := defaultSharePath + "/soundfiles/voiceprompts/PrintXmlConfig.wav"
-		if _, err := os.Stat(path); err == nil {
-			TTSPrintXmlConfigFilenameAndPath = path
-		}
-	}
-
-	TTSSendEmail = Document.Global.Software.TTS.SendEmail
-	TTSSendEmailFilenameAndPath = Document.Global.Software.TTS.SendEmailFilenameAndPath
-
-	if TTSSendEmail && TTSSendEmailFilenameAndPath == "" {
-		path := defaultSharePath + "/soundfiles/voiceprompts/SendEmail.wav"
-		if _, err := os.Stat(path); err == nil {
-			TTSSendEmailFilenameAndPath = path
-		}
-	}
-
-	TTSDisplayMenu = Document.Global.Software.TTS.DisplayMenu
-	TTSDisplayMenuFilenameAndPath = Document.Global.Software.TTS.DisplayMenuFilenameAndPath
-
-	if TTSDisplayMenu && TTSDisplayMenuFilenameAndPath == "" {
-		path := defaultSharePath + "/soundfiles/voiceprompts/DisplayMenu.wav"
-		if _, err := os.Stat(path); err == nil {
-			TTSDisplayMenuFilenameAndPath = path
-		}
-	}
-
-	TTSQuitTalkkonnect = Document.Global.Software.TTS.QuitTalkkonnect
-	TTSQuitTalkkonnectFilenameAndPath = Document.Global.Software.TTS.QuitTalkkonnectFilenameAndPath
-
-	if TTSQuitTalkkonnect && TTSQuitTalkkonnectFilenameAndPath == "" {
-		path := defaultSharePath + "/soundfiles/voiceprompts/QuitTalkkonnect.wav"
-		if _, err := os.Stat(path); err == nil {
-			TTSQuitTalkkonnectFilenameAndPath = path
-		}
-	}
-
-	TTSTalkkonnectLoaded = Document.Global.Software.TTS.TalkkonnectLoaded
-	TTSTalkkonnectLoadedFilenameAndPath = Document.Global.Software.TTS.TalkkonnectLoadedFilenameAndPath
-
-	if TTSTalkkonnectLoaded && TTSTalkkonnectLoadedFilenameAndPath == "" {
-		path := defaultSharePath + "/soundfiles/voiceprompts/Loaded.wav"
-		if _, err := os.Stat(path); err == nil {
-			TTSTalkkonnectLoadedFilenameAndPath = path
-		}
-	}
-
-	TTSPingServers = Document.Global.Software.TTS.PingServers
-	TTSPingServersFilenameAndPath = Document.Global.Software.TTS.PingServersFilenameAndPath
-
-	/*
-		//TODO: No default sound available. Placeholder for now
-		if TTSPingServers && TTSPingServersFilenameAndPath == "" {
-			path := defaultSharePath + "/soundfiles/voiceprompts/TODO"
-			if _, err := os.Stat(path); err == nil {
-				TTSPingServersFilenameAndPath = path
-			}
-		}
-	*/
-
-	EmailEnabled = Document.Global.Software.SMTP.Enabled
-	EmailUsername = Document.Global.Software.SMTP.Username
-	EmailPassword = Document.Global.Software.SMTP.Password
-	EmailReceiver = Document.Global.Software.SMTP.Receiver
-	EmailSubject = Document.Global.Software.SMTP.Subject
-	EmailMessage = Document.Global.Software.SMTP.Message
-	EmailGpsDateTime = Document.Global.Software.SMTP.GpsDateTime
-	EmailGpsLatLong = Document.Global.Software.SMTP.GpsLatLong
-	EmailGoogleMapsURL = Document.Global.Software.SMTP.GoogleMapsURL
-
-	EventSoundEnabled = Document.Global.Software.Sounds.Event.Enabled
-	EventVolume = Document.Global.Software.Sounds.Event.EventVolume
-	EventJoinedSoundFilenameAndPath = Document.Global.Software.Sounds.Event.JoinedFilenameAndPath
-	EventLeftSoundFilenameAndPath = Document.Global.Software.Sounds.Event.LeftFilenameAndPath
-	EventMessageSoundFilenameAndPath = Document.Global.Software.Sounds.Event.MessageFilenameAndPath
-
-	if EventSoundEnabled && EventJoinedSoundFilenameAndPath == "" {
-		path := defaultSharePath + "/soundfiles/events/event.wav"
-		if _, err := os.Stat(path); err == nil {
-			EventJoinedSoundFilenameAndPath = path
-		}
-	}
-	if EventSoundEnabled && EventLeftSoundFilenameAndPath == "" {
-		path := defaultSharePath + "/soundfiles/events/event.wav"
-		if _, err := os.Stat(path); err == nil {
-			EventLeftSoundFilenameAndPath = path
-		}
-	}
-	if EventSoundEnabled && EventMessageSoundFilenameAndPath == "" {
-		path := defaultSharePath + "/soundfiles/events/event.wav"
-		if _, err := os.Stat(path); err == nil {
-			EventMessageSoundFilenameAndPath = path
-		}
-	}
-	AlertSoundEnabled = Document.Global.Software.Sounds.Alert.Enabled
-	AlertSoundFilenameAndPath = Document.Global.Software.Sounds.Alert.FilenameAndPath
-
-	if AlertSoundEnabled && AlertSoundFilenameAndPath == "" {
-		path := defaultSharePath + "/soundfiles/alerts/alert.wav"
-		if _, err := os.Stat(path); err == nil {
-			AlertSoundFilenameAndPath = path
-		}
-	}
-
-	AlertSoundVolume = Document.Global.Software.Sounds.Alert.Volume
-
-	IncommingBeepSoundEnabled = Document.Global.Software.Sounds.IncommingBeep.Enabled
-	IncommingBeepSoundFilenameAndPath = Document.Global.Software.Sounds.IncommingBeep.FilenameAndPath
-
-	if IncommingBeepSoundEnabled && IncommingBeepSoundFilenameAndPath == "" {
-		path := defaultSharePath + "/soundfiles/rogerbeeps/Chirsp.wav"
-		if _, err := os.Stat(path); err == nil {
-			IncommingBeepSoundFilenameAndPath = path
-		}
-	}
-
-	IncommingBeepSoundVolume = Document.Global.Software.Sounds.IncommingBeep.Volume
-
-	RogerBeepSoundEnabled = Document.Global.Software.Sounds.RogerBeep.Enabled
-	RogerBeepSoundFilenameAndPath = Document.Global.Software.Sounds.RogerBeep.FilenameAndPath
-
-	if RogerBeepSoundEnabled && RogerBeepSoundFilenameAndPath == "" {
-		path := defaultSharePath + "/soundfiles/rogerbeeps/Chirsp.wav"
-		if _, err := os.Stat(path); err == nil {
-			RogerBeepSoundFilenameAndPath = path
-		}
-	}
-
-	RogerBeepSoundVolume = Document.Global.Software.Sounds.RogerBeep.Volume
-
-	RepeaterToneEnabled = Document.Global.Software.Sounds.RepeaterTone.Enabled
-	RepeaterToneFrequencyHz = Document.Global.Software.Sounds.RepeaterTone.ToneFrequencyHz
-	RepeaterToneDurationSec = Document.Global.Software.Sounds.RepeaterTone.ToneDurationSec
-
-	StreamSoundEnabled = Document.Global.Software.Sounds.Stream.Enabled
-	StreamSoundFilenameAndPath = Document.Global.Software.Sounds.Stream.FilenameAndPath
-
-	if StreamSoundEnabled && StreamSoundFilenameAndPath == "" {
-		path := defaultSharePath + "/soundfiles/alerts/stream.wav"
-		if _, err := os.Stat(path); err == nil {
-			StreamSoundFilenameAndPath = path
-		}
-	}
-
-	StreamSoundVolume = Document.Global.Software.Sounds.Stream.Volume
-
-	TxTimeOutEnabled = Document.Global.Software.TxTimeOut.Enabled
-	TxTimeOutSecs = Document.Global.Software.TxTimeOut.TxTimeOutSecs
-
-	APIEnabled = Document.Global.Software.API.Enabled
-	APIListenPort = Document.Global.Software.API.ListenPort
-	APIDisplayMenu = Document.Global.Software.API.DisplayMenu
-	APIChannelUp = Document.Global.Software.API.ChannelUp
-	APIChannelDown = Document.Global.Software.API.ChannelDown
-	APIMute = Document.Global.Software.API.Mute
-	APICurrentVolumeLevel = Document.Global.Software.API.CurrentVolumeLevel
-	APIDigitalVolumeUp = Document.Global.Software.API.DigitalVolumeUp
-	APIDigitalVolumeDown = Document.Global.Software.API.DigitalVolumeDown
-	APIListServerChannels = Document.Global.Software.API.ListServerChannels
-	APIStartTransmitting = Document.Global.Software.API.StartTransmitting
-	APIStopTransmitting = Document.Global.Software.API.StopTransmitting
-	APIListOnlineUsers = Document.Global.Software.API.ListOnlineUsers
-	APIPlayStream = Document.Global.Software.API.PlayStream
-	APIRequestGpsPosition = Document.Global.Software.API.RequestGpsPosition
-	APIEmailEnabled = Document.Global.Software.API.Enabled
-	APINextServer = Document.Global.Software.API.NextServer
-	APIPreviousServer = Document.Global.Software.API.PreviousServer
-	APIPanicSimulation = Document.Global.Software.API.PanicSimulation
-	APIDisplayVersion = Document.Global.Software.API.DisplayVersion
-	APIClearScreen = Document.Global.Software.API.ClearScreen
-	APIPingServersEnabled = Document.Global.Software.API.Enabled
-	APIRepeatTxLoopTest = Document.Global.Software.API.RepeatTxLoopTest
-	APIPrintXmlConfig = Document.Global.Software.API.PrintXmlConfig
-	APIPlayRepeaterTone = Document.Global.Software.API.PlayRepeaterTone
-	APISetVoiceTarget = Document.Global.Software.API.SetVoiceTarget
-
-	PrintAccount = Document.Global.Software.PrintVariables.PrintAccount
-	PrintLogging = Document.Global.Software.PrintVariables.PrintLogging
-	PrintProvisioning = Document.Global.Software.PrintVariables.PrintProvisioning
-	PrintBeacon = Document.Global.Software.PrintVariables.PrintBeacon
-	PrintTTS = Document.Global.Software.PrintVariables.PrintTTS
-	PrintIgnoreUser = Document.Global.Software.PrintVariables.PrintIgnoreUser
-	PrintSMTP = Document.Global.Software.PrintVariables.PrintSMTP
-	PrintSounds = Document.Global.Software.PrintVariables.PrintSounds
-	PrintTxTimeout = Document.Global.Software.PrintVariables.PrintTxTimeout
-
-	MQTTEnabled = Document.Global.Software.MQTT.MQTTEnabled
-	MQTTTopic = Document.Global.Software.MQTT.MQTTTopic
-	MQTTBroker = Document.Global.Software.MQTT.MQTTBroker
-	MQTTPassword = Document.Global.Software.MQTT.MQTTPassword
-	MQTTUser = Document.Global.Software.MQTT.MQTTUser
-	MQTTId = Document.Global.Software.MQTT.MQTTId
-	MQTTCleansess = Document.Global.Software.MQTT.MQTTCleansess
-	MQTTQos = Document.Global.Software.MQTT.MQTTQos
-	MQTTNum = Document.Global.Software.MQTT.MQTTNum
-	MQTTPayload = Document.Global.Software.MQTT.MQTTPayload
-	MQTTAction = Document.Global.Software.MQTT.MQTTAction
-	MQTTStore = Document.Global.Software.MQTT.MQTTStore
-	MQTTAttentionBlinkTimes = Document.Global.Software.MQTT.MQTTAttentionBlinkTimes
-	MQTTAttentionBlinkmsecs = Document.Global.Software.MQTT.MQTTAttentionBlinkmsecs
-
-	TTSMessageEnabled = Document.Global.Software.TTSMessages.TTSMessageEnabled
-	TTSLocalPlay = Document.Global.Software.TTSMessages.TTSLocalPlay
-	TTSLocalPlayWithRXLED = Document.Global.Software.TTSMessages.TTSLocalPlayWithRXLED
-	TTSPlayIntoStream = Document.Global.Software.TTSMessages.TTSPlayIntoStream
-	TTSLanguage = Document.Global.Software.TTSMessages.TTSLanguage
-	TTSSoundDirectory = Document.Global.Software.TTSMessages.TTSSoundDirectory
-	TTSAnnouncementTone = Document.Global.Software.TTSMessages.TTSAnnouncementTone
-	TTSMessageFromTag = Document.Global.Software.TTSMessages.TTSMessageFromTag
-
-	IgnoreUserEnabled = Document.Global.Software.IgnoreUser.IgnoreUserEnabled
-	IgnoreUserRegex = Document.Global.Software.IgnoreUser.IgnoreUserRegex
-
-	PrintHTTPAPI = Document.Global.Software.PrintVariables.PrintHTTPAPI
-	PrintTargetboard = Document.Global.Software.PrintVariables.PrintTargetBoard
-	PrintLeds = Document.Global.Software.PrintVariables.PrintLeds
-	PrintHeartbeat = Document.Global.Software.PrintVariables.PrintHeartbeat
-	PrintButtons = Document.Global.Software.PrintVariables.PrintButtons
-	PrintRelays = Document.Global.Software.PrintVariables.PrintRelays
-	PrintComment = Document.Global.Software.PrintVariables.PrintComment
-	PrintLcd = Document.Global.Software.PrintVariables.PrintLcd
-	PrintOled = Document.Global.Software.PrintVariables.PrintOled
-	PrintGps = Document.Global.Software.PrintVariables.PrintGps
-	PrintTraccar = Document.Global.Software.PrintVariables.PrintTraccar
-	PrintPanic = Document.Global.Software.PrintVariables.PrintPanic
-	PrintAudioRecord = Document.Global.Software.PrintVariables.PrintAudioRecord
-	PrintMQTT = Document.Global.Software.PrintVariables.PrintMQTT
-	PrintTTSMessages = Document.Global.Software.PrintVariables.PrintTTSMessages
-	PrintKeyboardMap = Document.Global.Software.PrintVariables.PrintKeyboardMap
-	PrintUSBKeyboard = Document.Global.Software.PrintVariables.PrintUSBKeyboard
-	TargetBoard = Document.Global.Hardware.TargetBoard
-	LedStripEnabled = Document.Global.Hardware.Lights.LedStripEnabled
-	// my stupid work around for null uint xml unmarshelling problem with numbers so use strings and convert it 2 times
-	temp0, _ := strconv.ParseUint(Document.Global.Hardware.Lights.VoiceActivityLedPin, 10, 64)
-	VoiceActivityLEDPin = uint(temp0)
-	temp1, _ := strconv.ParseUint(Document.Global.Hardware.Lights.VoiceActivityLedPin, 10, 64)
-	VoiceActivityLEDPin = uint(temp1)
-	temp2, _ := strconv.ParseUint(Document.Global.Hardware.Lights.ParticipantsLedPin, 10, 64)
-	ParticipantsLEDPin = uint(temp2)
-	temp3, _ := strconv.ParseUint(Document.Global.Hardware.Lights.TransmitLedPin, 10, 64)
-	TransmitLEDPin = uint(temp3)
-	temp4, _ := strconv.ParseUint(Document.Global.Hardware.Lights.OnlineLedPin, 10, 64)
-	OnlineLEDPin = uint(temp4)
-	temp14, _ := strconv.ParseUint(Document.Global.Hardware.Lights.AttentionLedPin, 10, 64)
-	AttentionLEDPin = uint(temp14)
-	temp15, _ := strconv.ParseUint(Document.Global.Hardware.Lights.VoiceTargetLedPin, 10, 64)
-	VoiceTargetLEDPin = uint(temp15)
-
-	temp5, _ := strconv.ParseUint(Document.Global.Hardware.HeartBeat.LEDPin, 10, 64)
-	HeartBeatLEDPin = uint(temp5)
-	HeartBeatEnabled = Document.Global.Hardware.HeartBeat.Enabled
-	PeriodmSecs = Document.Global.Hardware.HeartBeat.Periodmsecs
-	LEDOnmSecs = Document.Global.Hardware.HeartBeat.LEDOnmsecs
-	LEDOffmSecs = Document.Global.Hardware.HeartBeat.LEDOffmsecs
-
-	// my stupid work around for null uint xml unmarshelling problem with numbers so use strings and convert it 2 times
-	temp6, _ := strconv.ParseUint(Document.Global.Hardware.Buttons.TxButtonPin, 10, 64)
-	TxButtonPin = uint(temp6)
-	temp7, _ := strconv.ParseUint(Document.Global.Hardware.Buttons.TxTogglePin, 10, 64)
-	TxTogglePin = uint(temp7)
-	temp8, _ := strconv.ParseUint(Document.Global.Hardware.Buttons.UpButtonPin, 10, 64)
-	UpButtonPin = uint(temp8)
-	temp9, _ := strconv.ParseUint(Document.Global.Hardware.Buttons.DownButtonPin, 10, 64)
-	DownButtonPin = uint(temp9)
-	temp10, _ := strconv.ParseUint(Document.Global.Hardware.Buttons.PanicButtonPin, 10, 64)
-	PanicButtonPin = uint(temp10)
-	temp11, _ := strconv.ParseUint(Document.Global.Hardware.Comment.CommentButtonPin, 10, 64)
-	CommentButtonPin = uint(temp11)
-	CommentMessageOff = Document.Global.Hardware.Comment.CommentMessageOff
-	CommentMessageOn = Document.Global.Hardware.Comment.CommentMessageOn
-	temp12, _ := strconv.ParseUint(Document.Global.Hardware.Buttons.StreamButtonPin, 10, 64)
-	StreamButtonPin = uint(temp12)
-
-	LCDEnabled = Document.Global.Hardware.LCD.Enabled
-	LCDInterfaceType = Document.Global.Hardware.LCD.InterfaceType
-	LCDI2CAddress = Document.Global.Hardware.LCD.I2CAddress
-	LCDBackLightTimerEnabled = Document.Global.Hardware.LCD.Enabled
-	LCDBackLightTimeout = time.Duration(Document.Global.Hardware.LCD.BackLightTimeoutSecs)
-
-	// my stupid work around for null uint xml unmarshelling problem with numbers so use strings and convert it 2 times
-	temp13, _ := strconv.ParseUint(Document.Global.Hardware.LCD.BackLightLEDPin, 10, 64)
-	LCDBackLightLEDPin = int(temp13)
-	temp16, _ := strconv.ParseUint(Document.Global.Hardware.Relays.Relay0Pin, 10, 64)
-	Relay0Pin = int(temp16)
-	temp17, _ := strconv.ParseUint(Document.Global.Hardware.Relays.Relay1Pin, 10, 64)
-	Relay1Pin = int(temp17)
-	temp18, _ := strconv.ParseUint(Document.Global.Hardware.Relays.Relay2Pin, 10, 64)
-	Relay2Pin = int(temp18)
-	temp19, _ := strconv.ParseUint(Document.Global.Hardware.Relays.Relay3Pin, 10, 64)
-	Relay3Pin = int(temp19)
-
-	LCDRSPin = Document.Global.Hardware.LCD.RsPin
-	LCDEPin = Document.Global.Hardware.LCD.EPin
-	LCDD4Pin = Document.Global.Hardware.LCD.D4Pin
-	LCDD5Pin = Document.Global.Hardware.LCD.D5Pin
-	LCDD6Pin = Document.Global.Hardware.LCD.D6Pin
-	LCDD7Pin = Document.Global.Hardware.LCD.D7Pin
-
-	OLEDEnabled = Document.Global.Hardware.OLED.Enabled
-	OLEDInterfacetype = Document.Global.Hardware.OLED.InterfaceType
-	OLEDDisplayRows = Document.Global.Hardware.OLED.DisplayRows
-	OLEDDisplayColumns = Document.Global.Hardware.OLED.DisplayColumns
-	OLEDDefaultI2cBus = Document.Global.Hardware.OLED.DefaultI2CBus
-	OLEDDefaultI2cAddress = Document.Global.Hardware.OLED.DefaultI2CAddress
-	OLEDScreenWidth = Document.Global.Hardware.OLED.ScreenWidth
-	OLEDScreenHeight = Document.Global.Hardware.OLED.ScreenHeight
-	OLEDCommandColumnAddressing = Document.Global.Hardware.OLED.CommandColumnAddressing
-	OLEDAddressBasePageStart = Document.Global.Hardware.OLED.AddressBasePageStart
-	OLEDCharLength = Document.Global.Hardware.OLED.CharLength
-	OLEDStartColumn = Document.Global.Hardware.OLED.StartColumn
-
-	GpsEnabled = Document.Global.Hardware.GPS.Enabled
-	Port = Document.Global.Hardware.GPS.Port
-	Baud = Document.Global.Hardware.GPS.Baud
-	TxData = Document.Global.Hardware.GPS.TxData
-	Even = Document.Global.Hardware.GPS.Even
-	Odd = Document.Global.Hardware.GPS.Odd
-	Rs485 = Document.Global.Hardware.GPS.Rs485
-	Rs485HighDuringSend = Document.Global.Hardware.GPS.Rs485HighDuringSend
-	Rs485HighAfterSend = Document.Global.Hardware.GPS.Rs485HighAfterSend
-	StopBits = Document.Global.Hardware.GPS.StopBits
-	DataBits = Document.Global.Hardware.GPS.DataBits
-	CharTimeOut = Document.Global.Hardware.GPS.CharTimeOut
-	MinRead = Document.Global.Hardware.GPS.MinRead
-	Rx = Document.Global.Hardware.GPS.Rx
-	GpsInfoVerbose = Document.Global.Hardware.GPS.GpsInfoVerbose
-	TrackEnabled = Document.Global.Hardware.GPSTrackingFunction.TrackEnabled
-	TraccarSendTo = Document.Global.Hardware.GPSTrackingFunction.TraccarSendTo
-	TraccarServerURL = Document.Global.Hardware.GPSTrackingFunction.TraccarServerURL
-	TraccarServerIP = Document.Global.Hardware.GPSTrackingFunction.TraccarServerIP
-	TraccarClientId = Document.Global.Hardware.GPSTrackingFunction.TraccarClientId
-	TraccarReportFrequency = Document.Global.Hardware.GPSTrackingFunction.TraccarReportFrequency
-	TraccarProto = Document.Global.Hardware.GPSTrackingFunction.TraccarProto
-	TraccarServerFullURL = Document.Global.Hardware.GPSTrackingFunction.TraccarServerFullURL
-	TrackGPSShowLCD = Document.Global.Hardware.GPSTrackingFunction.TrackGPSShowLCD
-	TrackVerbose = Document.Global.Hardware.GPSTrackingFunction.TrackVerbose
-	PEnabled = Document.Global.Hardware.PanicFunction.Enabled
-	PFilenameAndPath = Document.Global.Hardware.PanicFunction.FilenameAndPath
-
-	if PEnabled && PFilenameAndPath == "" {
-		path := defaultSharePath + "/soundfiles/alerts/alert.wav"
-		if _, err := os.Stat(path); err == nil {
-			PFilenameAndPath = path
-		}
-	}
-
-	PMessage = Document.Global.Hardware.PanicFunction.Message
-	PMailEnabled = Document.Global.Hardware.PanicFunction.PMailEnabled
-	PVolume = Document.Global.Hardware.PanicFunction.Volume
-	PSendIdent = Document.Global.Hardware.PanicFunction.SendIdent
-	PSendGpsLocation = Document.Global.Hardware.PanicFunction.SendGpsLocation
-	PTxLockEnabled = Document.Global.Hardware.PanicFunction.TxLockEnabled
-	PTxlockTimeOutSecs = Document.Global.Hardware.PanicFunction.TxLockTimeOutSecs
-	PLowProfile = Document.Global.Hardware.PanicFunction.PLowProfile
-	USBKeyboardEnabled = Document.Global.Hardware.USBKeyboard.Enabled
-	USBKeyboardPath = Document.Global.Hardware.USBKeyboard.USBKeyboardPath
-	NumlockScanID = Document.Global.Hardware.USBKeyboard.NumlockScanID
-	AudioRecordEnabled = Document.Global.Hardware.AudioRecordFunction.Enabled
-	AudioRecordOnStart = Document.Global.Hardware.AudioRecordFunction.RecordOnStart
-	AudioRecordSystem = Document.Global.Hardware.AudioRecordFunction.RecordSystem
-	AudioRecordMode = Document.Global.Hardware.AudioRecordFunction.RecordMode
-	AudioRecordTimeout = Document.Global.Hardware.AudioRecordFunction.RecordTimeout
-	AudioRecordFromOutput = Document.Global.Hardware.AudioRecordFunction.RecordFromOutput
-	AudioRecordFromInput = Document.Global.Hardware.AudioRecordFunction.RecordFromInput
-	AudioRecordMicTimeout = Document.Global.Hardware.AudioRecordFunction.RecordMicTimeout
-	AudioRecordSavePath = Document.Global.Hardware.AudioRecordFunction.RecordSavePath
-	AudioRecordArchivePath = Document.Global.Hardware.AudioRecordFunction.RecordArchivePath
-	AudioRecordSoft = Document.Global.Hardware.AudioRecordFunction.RecordSoft
-	AudioRecordProfile = Document.Global.Hardware.AudioRecordFunction.RecordProfile
-	AudioRecordFileFormat = Document.Global.Hardware.AudioRecordFunction.RecordFileFormat
-	AudioRecordChunkSize = Document.Global.Hardware.AudioRecordFunction.RecordChunkSize
-
-	if TargetBoard != "rpi" {
-		LCDBackLightTimerEnabled = false
-	}
-
-	if LCDBackLightTimerEnabled && (!OLEDEnabled && !LCDEnabled) {
-		FatalCleanUp("Alert: Logical Error in LCDBacklight Timer Check XML config file. Backlight Timer Enabled but both LCD and OLED disabled!")
-	}
-
-	if OLEDEnabled {
-		Oled, err = goled.BeginOled(OLEDDefaultI2cAddress, OLEDDefaultI2cBus, OLEDScreenWidth, OLEDScreenHeight, OLEDDisplayRows, OLEDDisplayColumns, OLEDStartColumn, OLEDCharLength, OLEDCommandColumnAddressing, OLEDAddressBasePageStart)
-		if err != nil {
-			log.Println("error: Cannot Communicate with OLED")
-		}
-	}
-
 	log.Println("Successfully loaded XML configuration file into memory")
 
-	for i := 0; i < len(Document.Accounts.Account); i++ {
-		if Document.Accounts.Account[i].Default {
-			log.Printf("info: Successfully Added Account %s to Index [%d]\n", Document.Accounts.Account[i].Name, i)
+	// Add Allowed Mutable Settings For talkkonnect upon live reloadxml config to the list below omit all other variables
+	if reloadxml {
+		if Config.Global.Software.Settings.Loglevel != ReConfig.Global.Software.Settings.Loglevel {
+			Config.Global.Software.Settings.Loglevel = ReConfig.Global.Software.Settings.Loglevel
+			switch Config.Global.Software.Settings.Loglevel {
+			case "trace":
+				colog.SetMinLevel(colog.LTrace)
+				log.Println("info: Loglevel Set to Trace")
+			case "debug":
+				colog.SetMinLevel(colog.LDebug)
+				log.Println("info: Loglevel Set to Debug")
+			case "info":
+				colog.SetMinLevel(colog.LInfo)
+				log.Println("info: Loglevel Set to Info")
+			case "warning":
+				colog.SetMinLevel(colog.LWarning)
+				log.Println("info: Loglevel Set to Warning")
+			case "error":
+				colog.SetMinLevel(colog.LError)
+				log.Println("info: Loglevel Set to Error")
+			case "alert":
+				colog.SetMinLevel(colog.LAlert)
+				log.Println("info: Loglevel Set to Alert")
+			default:
+				colog.SetMinLevel(colog.LInfo)
+				log.Println("info: Default Loglevel unset in XML config automatically loglevel to Info")
+			}
 		}
-	}
 
+		Config.Global.Software.Settings.CancellableStream = ReConfig.Global.Software.Settings.CancellableStream
+		Config.Global.Software.Settings.StreamSendMessage = ReConfig.Global.Software.Settings.StreamSendMessage
+		Config.Global.Software.Settings.RepeatTXTimes = ReConfig.Global.Software.Settings.RepeatTXTimes
+		Config.Global.Software.Settings.RepeatTXDelay = ReConfig.Global.Software.Settings.RepeatTXDelay
+		Config.Global.Software.Settings.SimplexWithMute = ReConfig.Global.Software.Settings.SimplexWithMute
+		Config.Global.Software.Beacon = ReConfig.Global.Software.Beacon
+		Config.Global.Software.TTS = ReConfig.Global.Software.TTS
+		Config.Global.Software.Sounds = ReConfig.Global.Software.Sounds
+		Config.Global.Software.TxTimeOut = ReConfig.Global.Software.TxTimeOut
+		Config.Global.Software.RemoteControl.HTTP.Enabled = ReConfig.Global.Software.RemoteControl.HTTP.Enabled
+		Config.Global.Software.RemoteControl.HTTP.Command = ReConfig.Global.Software.RemoteControl.HTTP.Command
+		Config.Global.Software.RemoteControl.MQTT.Commands.Command = ReConfig.Global.Software.RemoteControl.MQTT.Commands.Command
+		Config.Global.Software.PrintVariables = ReConfig.Global.Software.PrintVariables
+		Config.Global.Software.TTSMessages = ReConfig.Global.Software.TTSMessages
+		Config.Global.Software.IgnoreUser = ReConfig.Global.Software.IgnoreUser
+		Config.Global.Hardware.PanicFunction = ReConfig.Global.Hardware.PanicFunction
+		Config.Global.Hardware.Keyboard.Command = ReConfig.Global.Hardware.Keyboard.Command
+		Config.Global.Multimedia = ReConfig.Global.Multimedia
+
+	}
 	return nil
 }
 
 func printxmlconfig() {
 
-	if PrintAccount {
-		log.Println("info: ---------- Account Information -------- ")
-		log.Println("info: Default              ", fmt.Sprintf("%t", Default))
-		log.Println("info: Server               ", Server[AccountIndex])
-		log.Println("info: Username             ", Username[AccountIndex])
-		log.Println("info: Password             ", Password[AccountIndex])
-		log.Println("info: Insecure             ", fmt.Sprintf("%t", Insecure[AccountIndex]))
-		log.Println("info: Register             ", fmt.Sprintf("%t", Register[AccountIndex]))
-		log.Println("info: Certificate          ", Certificate[AccountIndex])
-		log.Println("info: Channel              ", Channel[AccountIndex])
-		log.Println("info: Ident                ", Ident[AccountIndex])
-		log.Println("info: Tokens               ", Tokens[AccountIndex])
-		log.Println("info: VoiceTargets         ", VT[AccountIndex])
-
+	if Config.Global.Software.PrintVariables.PrintAccount {
+		log.Println("info: ---------- Account Info ---------- ")
+		for index, account := range Config.Accounts.Account {
+			if account.Default {
+				var AcctIsDefault string = "x"
+				if Server[AccountIndex] == account.ServerAndPort && Username[AccountIndex] == account.UserName {
+					AcctIsDefault = "✓"
+				}
+				log.Printf("info: %v Account %v Name %v Enabled %v \n", AcctIsDefault, index, account.Name, account.Default)
+				log.Printf("info: %v Server:Port     %v \n", AcctIsDefault, account.ServerAndPort)
+				log.Printf("info: %v Username %v Password %v \n", AcctIsDefault, account.UserName, account.Password)
+				log.Printf("info: %v Insecure %v Register %v \n", AcctIsDefault, account.Insecure, account.Register)
+				log.Printf("info: %v Certificate      %v \n", AcctIsDefault, account.Certificate)
+				log.Printf("info: %v Channel          %v \n", AcctIsDefault, account.Channel)
+				log.Printf("info: %v Ident            %v \n", AcctIsDefault, account.Ident)
+				log.Printf("info: %v Tokens           %v \n", AcctIsDefault, account.Tokens)
+				log.Printf("info: %v VoiceTargets     %v \n", AcctIsDefault, account.Voicetargets)
+			}
+		}
 	} else {
 		log.Println("info: ---------- Account Information -------- SKIPPED ")
 	}
 
-	if PrintLogging {
-		log.Println("info: -------- Logging & Daemonizing -------- ")
-		log.Println("info: Output Device        ", OutputDevice)
-		log.Println("info: Output Device(Short) ", OutputDeviceShort)
-		log.Println("info: Log File             ", LogFilenameAndPath)
-		log.Println("info: Logging              ", Logging)
-		log.Println("info: Loglevel             ", Loglevel)
-		log.Println("info: Daemonize            ", fmt.Sprintf("%t", Daemonize))
-		log.Println("info: CancellableStream    ", fmt.Sprintf("%t", CancellableStream))
-		log.Println("info: StreamOnStart        ", fmt.Sprintf("%t", StreamOnStart))
-		log.Println("info: StreamOnStartAfter   ", fmt.Sprintf("%v", StreamOnStartAfter))
-		log.Println("info: TXOnStart            ", fmt.Sprintf("%t", TXOnStart))
-		log.Println("info: TXOnStartAfter       ", fmt.Sprintf("%v", TXOnStartAfter))
-		log.Println("info: RepeatTXTimes        ", fmt.Sprintf("%v", RepeatTXTimes))
-		log.Println("info: SimplexWithMute      ", fmt.Sprintf("%t", SimplexWithMute))
-		log.Println("info: TxCounter            ", fmt.Sprintf("%t", TxCounter))
-		log.Println("info: NextServerIndex      ", fmt.Sprintf("%v", NextServerIndex))
+	if Config.Global.Software.PrintVariables.PrintSystemSettings {
+		log.Println("info: -------- System Settings -------- ")
+		log.Println("info: Single Instance      ", Config.Global.Software.Settings.SingleInstance)
+		log.Println("info: Output Device        ", Config.Global.Software.Settings.OutputDevice)
+		log.Println("info: Output Device(Short) ", Config.Global.Software.Settings.OutputDeviceShort)
+		log.Println("info: Log File             ", Config.Global.Software.Settings.LogFilenameAndPath)
+		log.Println("info: Logging              ", Config.Global.Software.Settings.Logging)
+		log.Println("info: Loglevel             ", Config.Global.Software.Settings.Loglevel)
+		log.Println("info: CancellableStream    ", fmt.Sprintf("%t", Config.Global.Software.Settings.CancellableStream))
+		log.Println("info: StreamOnStart        ", fmt.Sprintf("%t", Config.Global.Software.Settings.StreamOnStart))
+		log.Println("info: StreamOnStartAfter   ", fmt.Sprintf("%v", Config.Global.Software.Settings.StreamOnStartAfter))
+		log.Println("info: TXOnStart            ", fmt.Sprintf("%t", Config.Global.Software.Settings.TXOnStart))
+		log.Println("info: TXOnStartAfter       ", fmt.Sprintf("%v", Config.Global.Software.Settings.TXOnStartAfter))
+		log.Println("info: RepeatTXTimes        ", fmt.Sprintf("%v", Config.Global.Software.Settings.RepeatTXTimes))
+		log.Println("info: RepeatTXDelay        ", fmt.Sprintf("%v", Config.Global.Software.Settings.RepeatTXDelay))
+		log.Println("info: SimplexWithMute      ", fmt.Sprintf("%t", Config.Global.Software.Settings.SimplexWithMute))
+		log.Println("info: TxCounter            ", fmt.Sprintf("%t", Config.Global.Software.Settings.TxCounter))
+		log.Println("info: NextServerIndex      ", fmt.Sprintf("%v", Config.Global.Software.Settings.NextServerIndex))
 	} else {
-		log.Println("info: --------   Logging & Daemonizing -------- SKIPPED ")
+		log.Println("info: -------- System Settings -------- SKIPPED ")
 	}
 
-	if PrintProvisioning {
+	if Config.Global.Software.PrintVariables.PrintProvisioning {
 		log.Println("info: --------   AutoProvisioning   --------- ")
-		log.Println("info: AutoProvisioning Enabled    " + fmt.Sprintf("%t", APEnabled))
-		log.Println("info: Talkkonned ID (tkid)        " + TkID)
-		log.Println("info: AutoProvisioning Server URL " + URL)
-		log.Println("info: Config Local Path           " + SaveFilePath)
-		log.Println("info: Config Local Filename       " + SaveFilename)
+		log.Println("info: AutoProvisioning Enabled    " + fmt.Sprintf("%t", Config.Global.Software.AutoProvisioning.Enabled))
+		log.Println("info: Talkkonned ID (tkid)        " + Config.Global.Software.AutoProvisioning.TkID)
+		log.Println("info: AutoProvisioning Server URL " + Config.Global.Software.AutoProvisioning.URL)
+		log.Println("info: Config Local Path           " + Config.Global.Software.AutoProvisioning.SaveFilePath)
+		log.Println("info: Config Local Filename       " + Config.Global.Software.AutoProvisioning.SaveFilename)
 	} else {
 		log.Println("info: --------   AutoProvisioning   --------- SKIPPED ")
 	}
 
-	if PrintBeacon {
+	if Config.Global.Software.PrintVariables.PrintBeacon {
 		log.Println("info: --------  Beacon   --------- ")
-		log.Println("info: Beacon Enabled         " + fmt.Sprintf("%t", BeaconEnabled))
-		log.Println("info: Beacon Time (Secs)     " + fmt.Sprintf("%v", BeaconTimerSecs))
-		log.Println("info: Beacon Filename & Path " + BeaconFilenameAndPath)
-		log.Println("info: Beacon Playback Volume " + fmt.Sprintf("%v", BVolume))
+		log.Println("info: Beacon Enabled         " + fmt.Sprintf("%t", Config.Global.Software.Beacon.Enabled))
+		log.Println("info: Beacon Time (Secs)     " + fmt.Sprintf("%v", Config.Global.Software.Beacon.BeaconTimerSecs))
+		log.Println("info: Beacon Filename & Path " + Config.Global.Software.Beacon.BeaconFileAndPath)
+		log.Println("info: Beacon Playback Volume " + fmt.Sprintf("%v", Config.Global.Software.Beacon.Volume))
 	} else {
 		log.Println("info: --------   Beacon   --------- SKIPPED ")
 	}
 
-	if PrintTTS {
+	if Config.Global.Software.PrintVariables.PrintTTS {
 		log.Println("info: -------- TTS  -------- ")
-		log.Println("info: TTS Global Enabled     ", fmt.Sprintf("%t", TTSEnabled))
-		log.Println("info: TTS Volume Level (%)   ", fmt.Sprintf("%.1f", TTSVolumeLevel))
-		log.Println("info: TTS Participants       ", fmt.Sprintf("%t", TTSParticipants))
-		log.Println("info: TTS ChannelUp          ", fmt.Sprintf("%t", TTSChannelUp))
-		log.Println("info: TTS ChannelUpFilenameAndPath ", TTSChannelUpFilenameAndPath)
-		log.Println("info: TTS ChannelDown        ", fmt.Sprintf("%t", TTSChannelDown))
-		log.Println("info: TTS ChannelDownFilenameAndPath  ", TTSChannelDownFilenameAndPath)
-		log.Println("info: TTS MuteUnMuteSpeaker  ", fmt.Sprintf("%t", TTSMuteUnMuteSpeaker))
-		log.Println("info: TTS MuteUnMuteSpeakerFilenameAndPath ", TTSMuteUnMuteSpeakerFilenameAndPath)
-		log.Println("info: TTS CurrentVolumeLevel ", fmt.Sprintf("%t", TTSCurrentVolumeLevel))
-		log.Println("info: TTS CurrentVolumeLevelFilenameAndPath ", TTSCurrentVolumeLevelFilenameAndPath)
-		log.Println("info: TTS DigitalVolumeUp    ", fmt.Sprintf("%t", TTSDigitalVolumeUp))
-		log.Println("info: TTS DigitalVolumeUpFilenameAndPath ", TTSDigitalVolumeUpFilenameAndPath)
-		log.Println("info: TTS DigitalVolumeDown  ", fmt.Sprintf("%t", TTSDigitalVolumeDown))
-		log.Println("info: TTS DigitalVolumeDownFilenameAndPath ", TTSDigitalVolumeDownFilenameAndPath)
-		log.Println("info: TTS ListServerChannels ", fmt.Sprintf("%t", TTSListServerChannels))
-		log.Println("info: TTS ListServerChannelsFilenameAndPath  ", TTSListServerChannelsFilenameAndPath)
-		log.Println("info: TTS StartTransmitting  ", fmt.Sprintf("%t", TTSStartTransmitting))
-		log.Println("info: TTS StartTransmittingFilenameAndPath ", TTSStartTransmittingFilenameAndPath)
-		log.Println("info: TTS StopTransmitting   ", fmt.Sprintf("%t", TTSStopTransmitting))
-		log.Println("info: TTS StopTransmittingFilenameAndPath ", TTSStopTransmittingFilenameAndPath)
-		log.Println("info: TTS ListOnlineUsers    ", fmt.Sprintf("%t", TTSListOnlineUsers))
-		log.Println("info: TTS ListOnlineUsersFilenameAndPath ", TTSListOnlineUsersFilenameAndPath)
-		log.Println("info: TTS PlayStream         ", fmt.Sprintf("%t", TTSPlayStream))
-		log.Println("info: TTS PlayStreamFilenameAndPath ", TTSPlayStreamFilenameAndPath)
-		log.Println("info: TTS RequestGpsPosition ", fmt.Sprintf("%t", TTSRequestGpsPosition))
-		log.Println("info: TTS RequestGpsPositionFilenameAndPath ", TTSRequestGpsPositionFilenameAndPath)
-		log.Println("info: TTS NextServer         ", fmt.Sprintf("%t", TTSNextServer))
-		log.Println("info: TTS NextServerFilenameAndPath         ", TTSNextServerFilenameAndPath)
-		log.Println("info: TTS PreviousServer     ", fmt.Sprintf("%t", TTSPreviousServer))
-		log.Println("info: TTS PreviousServerFilenameAndPath  ", TTSPreviousServerFilenameAndPath)
-		log.Println("info: TTS PanicSimulation    ", fmt.Sprintf("%t", TTSPanicSimulation))
-		log.Println("info: TTS PanicSimulationFilenameAndPath ", TTSPanicSimulationFilenameAndPath)
-		log.Println("info: TTS PrintXmlConfig     ", fmt.Sprintf("%t", TTSPrintXmlConfig))
-		log.Println("info: TTS PrintXmlConfigFilenameAndPath ", TTSPrintXmlConfigFilenameAndPath)
-		log.Println("info: TTS SendEmail          ", fmt.Sprintf("%t", TTSSendEmail))
-		log.Println("info: TTS SendEmailFilenameAndPath ", TTSSendEmailFilenameAndPath)
-		log.Println("info: TTS DisplayMenu        ", fmt.Sprintf("%t", TTSDisplayMenu))
-		log.Println("info: TTS DisplayMenuFilenameAndPath ", TTSDisplayMenuFilenameAndPath)
-		log.Println("info: TTS QuitTalkkonnect    ", fmt.Sprintf("%t", TTSQuitTalkkonnect))
-		log.Println("info: TTS QuitTalkkonnectFilenameAndPath ", TTSQuitTalkkonnectFilenameAndPath)
-		log.Println("info: TTS TalkkonnectLoaded  ", fmt.Sprintf("%t", TTSTalkkonnectLoaded))
-		log.Println("info: TTS TalkkonnectLoadedFilenameAndPath ", TTSTalkkonnectLoadedFilenameAndPath)
-		log.Println("info: TTS TalkkonnectLoaded  " + fmt.Sprintf("%t", TTSTalkkonnectLoaded))
-		log.Println("info: TTS PingServersFilenameAndPath ", TTSPingServersFilenameAndPath)
-		log.Println("info: TTS PingServers " + fmt.Sprintf("%t", TTSPingServers))
+		for _, tts := range Config.Global.Software.TTS.Sound {
+			log.Printf("%+v\n", tts)
+		}
 	} else {
 		log.Println("info: --------   TTS  -------- SKIPPED ")
 	}
 
-	if PrintSMTP {
+	if Config.Global.Software.PrintVariables.PrintSMTP {
 		log.Println("info: --------  Gmail SMTP Settings  -------- ")
-		log.Println("info: Email Enabled   " + fmt.Sprintf("%t", EmailEnabled))
-		log.Println("info: Username        " + EmailUsername)
-		log.Println("info: Password        " + EmailPassword)
-		log.Println("info: Receiver        " + EmailReceiver)
-		log.Println("info: Subject         " + EmailSubject)
-		log.Println("info: Message         " + EmailMessage)
-		log.Println("info: GPS Date/Time   " + fmt.Sprintf("%t", EmailGpsDateTime))
-		log.Println("info: GPS Lat/Long    " + fmt.Sprintf("%t", EmailGpsLatLong))
-		log.Println("info: Google Maps URL " + fmt.Sprintf("%t", EmailGoogleMapsURL))
+		log.Println("info: Email Enabled   " + fmt.Sprintf("%t", Config.Global.Software.SMTP.Enabled))
+		log.Println("info: Username        " + Config.Global.Software.SMTP.Username)
+		log.Println("info: Password        " + Config.Global.Software.SMTP.Password)
+		log.Println("info: Receiver        " + Config.Global.Software.SMTP.Receiver)
+		log.Println("info: Subject         " + Config.Global.Software.SMTP.Subject)
+		log.Println("info: Message         " + Config.Global.Software.SMTP.Message)
+		log.Println("info: GPS Date/Time   " + fmt.Sprintf("%t", Config.Global.Software.SMTP.GpsDateTime))
+		log.Println("info: GPS Lat/Long    " + fmt.Sprintf("%t", Config.Global.Software.SMTP.GpsLatLong))
+		log.Println("info: Google Maps URL " + fmt.Sprintf("%t", Config.Global.Software.SMTP.GoogleMapsURL))
 	} else {
 		log.Println("info: --------   Gmail SMTP Settings  -------- SKIPPED ")
 	}
 
-	if PrintSounds {
+	if Config.Global.Software.PrintVariables.PrintSounds {
 		log.Println("info: ------------- Sounds  ------------------ ")
-		log.Println("info: Event Sound Enabled         " + fmt.Sprintf("%t", EventSoundEnabled))
-		log.Println("info: Event Volume                " + fmt.Sprintf("%.1f", EventVolume))
-		log.Println("info: Event Joined Sound Filename " + EventJoinedSoundFilenameAndPath)
-		log.Println("info: Event Left Sound Filename   " + EventJoinedSoundFilenameAndPath)
-		log.Println("info: Event Msg Sound Filename    " + EventMessageSoundFilenameAndPath)
-		log.Println("info: Alert Sound Enabled         " + fmt.Sprintf("%t", AlertSoundEnabled))
-		log.Println("info: Alert Sound Filename        " + AlertSoundFilenameAndPath)
-		log.Println("info: Alert Sound Volume          " + fmt.Sprintf("%v", AlertSoundVolume))
-		log.Println("info: Incoming Beep Enabled       " + fmt.Sprintf("%t", IncommingBeepSoundEnabled))
-		log.Println("info: Incoming Beep File          " + IncommingBeepSoundFilenameAndPath)
-		log.Println("info: Incoming Beep Volume        " + fmt.Sprintf("%v", IncommingBeepSoundVolume))
-		log.Println("info: Roger Beep Enabled         " + fmt.Sprintf("%t", RogerBeepSoundEnabled))
-		log.Println("info: Roger Beep File            " + RogerBeepSoundFilenameAndPath)
-		log.Println("info: Roger Beep Volume          " + fmt.Sprintf("%v", RogerBeepSoundVolume))
-		log.Println("info: Repeater Tone Enabled      " + fmt.Sprintf("%t", RepeaterToneEnabled))
-		log.Println("info: Repeater Tone Freq (Hz)    " + fmt.Sprintf("%v", RepeaterToneFrequencyHz))
-		log.Println("info: Repeater Tone Length (Sec) " + fmt.Sprintf("%v", RepeaterToneDurationSec))
-		log.Println("info: Stream Enabled             " + fmt.Sprintf("%t", StreamSoundEnabled))
-		log.Println("info: Stream File                " + StreamSoundFilenameAndPath)
-		log.Println("info: Stream Volume              " + fmt.Sprintf("%v", StreamSoundVolume))
+		for _, sounds := range Config.Global.Software.Sounds.Sound {
+			log.Printf("info: |Event=%v |File=%v |Volume=%v |Blocking=%v |Enabled=%v\n", sounds.Event, sounds.File, sounds.Volume, sounds.Blocking, sounds.Enabled)
+		}
 	} else {
 		log.Println("info: ------------ Sounds  ------------------ SKIPPED ")
 	}
 
-	if PrintTxTimeout {
+	if Config.Global.Software.PrintVariables.PrintTxTimeout {
 		log.Println("info: ------------ TX Timeout ------------------ ")
-		log.Println("info: Tx Timeout Enabled  " + fmt.Sprintf("%t", TxTimeOutEnabled))
-		log.Println("info: Tx Timeout Secs     " + fmt.Sprintf("%v", TxTimeOutSecs))
+		log.Println("info: Tx Timeout Enabled  " + fmt.Sprintf("%t", Config.Global.Software.TxTimeOut.Enabled))
+		log.Println("info: Tx Timeout Secs     " + fmt.Sprintf("%v", Config.Global.Software.TxTimeOut.TxTimeOutSecs))
 	} else {
 		log.Println("info: ------------ TX Timeout ------------------ SKIPPED ")
 	}
 
-	if PrintHTTPAPI {
+	if Config.Global.Software.PrintVariables.PrintHTTPAPI {
 		log.Println("info: ------------ HTTP API  ----------------- ")
-		log.Println("info: API Enabled        " + fmt.Sprintf("%t", APIEnabled))
-		log.Println("info: API Listen Port    " + APIListenPort)
-		log.Println("info: DisplayMenu        " + fmt.Sprintf("%t", APIDisplayMenu))
-		log.Println("info: ChannelUp          " + fmt.Sprintf("%t", APIChannelUp))
-		log.Println("info: ChannelDown        " + fmt.Sprintf("%t", APIChannelDown))
-		log.Println("info: Mute               " + fmt.Sprintf("%t", APIMute))
-		log.Println("info: CurentVolumeLevel  " + fmt.Sprintf("%t", APICurrentVolumeLevel))
-		log.Println("info: DigitalVolumeUp    " + fmt.Sprintf("%t", APIDigitalVolumeUp))
-		log.Println("info: DigitalVolumeDown  " + fmt.Sprintf("%t", APIDigitalVolumeDown))
-		log.Println("info: ListServerChannels " + fmt.Sprintf("%t", APIListServerChannels))
-		log.Println("info: StartTransmitting  " + fmt.Sprintf("%t", APIStartTransmitting))
-		log.Println("info: StopTransmitting   " + fmt.Sprintf("%t", APIStopTransmitting))
-		log.Println("info: ListOnlineUsers    " + fmt.Sprintf("%t", APIListOnlineUsers))
-		log.Println("info: PlayStream         " + fmt.Sprintf("%t", APIPlayStream))
-		log.Println("info: RequestGpsPosition " + fmt.Sprintf("%t", APIRequestGpsPosition))
-		log.Println("info: EmailEnabled       " + fmt.Sprintf("%t", APIEmailEnabled))
-		log.Println("info: NextServer         " + fmt.Sprintf("%t", APINextServer))
-		log.Println("info: PreviousServer     " + fmt.Sprintf("%t", APIPreviousServer))
-		log.Println("info: PanicSimulation    " + fmt.Sprintf("%t", APIPanicSimulation))
-		log.Println("info: ScanChannels       " + fmt.Sprintf("%t", APIScanChannels))
-		log.Println("info: DisplayVersion     " + fmt.Sprintf("%t", APIDisplayVersion))
-		log.Println("info: ClearScreen        " + fmt.Sprintf("%t", APIClearScreen))
-		log.Println("info: PingServersEnabled " + fmt.Sprintf("%t", APIPingServersEnabled))
-		log.Println("info: TxLoopTest         " + fmt.Sprintf("%t", APIRepeatTxLoopTest))
-		log.Println("info: PrintXmlConfig     " + fmt.Sprintf("%t", APIPrintXmlConfig))
-		log.Println("info: PlayRepeaterTone   " + fmt.Sprintf("%t", APIPlayRepeaterTone))
-		log.Println("info: SetVoiceTarget     " + fmt.Sprintf("%t", APISetVoiceTarget))
+		log.Println("info: HTTP API Enabled ", Config.Global.Software.RemoteControl.HTTP.Enabled)
+		log.Println("info: HTTP API Listen Port ", Config.Global.Software.RemoteControl.HTTP.ListenPort)
+		for _, command := range Config.Global.Software.RemoteControl.HTTP.Command {
+			log.Printf("info: Enabled=%v Action=%v Name=%v Param=%v Message=%v\n", command.Enabled, command.Action, command.Funcname, command.Funcparamname, command.Message)
+		}
 	} else {
 		log.Println("info: ------------ HTTP API  ----------------- SKIPPED ")
 	}
 
-	if PrintTargetboard {
+	if Config.Global.Software.PrintVariables.PrintTargetBoard {
 		log.Println("info: ------------ Target Board --------------- ")
-		log.Println("info: Target Board " + fmt.Sprintf("%v", TargetBoard))
+		log.Println("info: Target Board " + fmt.Sprintf("%v", Config.Global.Hardware.TargetBoard))
 	} else {
 		log.Println("info: ------------ Target Board --------------- SKIPPED ")
 	}
 
-	if PrintLeds {
+	if Config.Global.Software.PrintVariables.PrintLeds {
 		log.Println("info: ------------ LEDS  ---------------------- ")
-		log.Println("info: Led Strip Enabled      " + fmt.Sprintf("%v", LedStripEnabled))
-		log.Println("info: Voice Activity Led Pin " + fmt.Sprintf("%v", VoiceActivityLEDPin))
-		log.Println("info: Participants Led Pin   " + fmt.Sprintf("%v", ParticipantsLEDPin))
-		log.Println("info: Transmit Led Pin       " + fmt.Sprintf("%v", TransmitLEDPin))
-		log.Println("info: Online Led Pin         " + fmt.Sprintf("%v", OnlineLEDPin))
-		log.Println("info: Attention Led Pin      " + fmt.Sprintf("%v", AttentionLEDPin))
-		log.Println("info: VoiceTarget Led Pin    " + fmt.Sprintf("%v", VoiceTargetLEDPin))
+		log.Println("info: Led Strip Enabled      " + fmt.Sprintf("%v", Config.Global.Hardware.LedStripEnabled))
 	} else {
 		log.Println("info: ------------ LEDS  ---------------------- SKIPPED ")
 	}
 
-	if PrintHeartbeat {
+	if Config.Global.Software.PrintVariables.PrintHeartbeat {
 		log.Println("info: ---------- HEARTBEAT -------------------- ")
-		log.Println("info: HeartBeat Enabled " + fmt.Sprintf("%v", HeartBeatEnabled))
-		log.Println("info: HeartBeat LED Pin " + fmt.Sprintf("%v", HeartBeatLEDPin))
-		log.Println("info: Period  mSecs     " + fmt.Sprintf("%v", PeriodmSecs))
-		log.Println("info: Led On  mSecs     " + fmt.Sprintf("%v", LEDOnmSecs))
-		log.Println("info: Led Off mSecs     " + fmt.Sprintf("%v", LEDOffmSecs))
+		log.Println("info: HeartBeat Enabled " + fmt.Sprintf("%v", Config.Global.Hardware.HeartBeat.Enabled))
+		log.Println("info: Period  mSecs     " + fmt.Sprintf("%v", Config.Global.Hardware.HeartBeat.Periodmsecs))
+		log.Println("info: Led On  mSecs     " + fmt.Sprintf("%v", Config.Global.Hardware.HeartBeat.LEDOnmsecs))
+		log.Println("info: Led Off mSecs     " + fmt.Sprintf("%v", Config.Global.Hardware.HeartBeat.LEDOffmsecs))
 	}
 
-	if PrintButtons {
-		log.Println("info: ------------ Buttons  ------------------- ")
-		log.Println("info: Tx Button Pin           " + fmt.Sprintf("%v", TxButtonPin))
-		log.Println("info: Tx Toggle Pin           " + fmt.Sprintf("%v", TxTogglePin))
-		log.Println("info: Channel Up Button Pin   " + fmt.Sprintf("%v", UpButtonPin))
-		log.Println("info: Channel Down Button Pin " + fmt.Sprintf("%v", DownButtonPin))
-		log.Println("info: Panic Button Pin        " + fmt.Sprintf("%v", PanicButtonPin))
-		log.Println("info: Stream Button Pin       " + fmt.Sprintf("%v", StreamButtonPin))
+	if Config.Global.Software.PrintVariables.PrintGPIO {
+		log.Println("info: ------------ GPIO  ------------------- ")
+		for _, value := range Config.Global.Hardware.IO.Pins.Pin {
+			log.Printf("%+v\n", value)
+		}
 	} else {
-		log.Println("info: ------------ Buttons  ------------------- SKIPPED ")
+		log.Println("info: ------------ GPIO  ------------------- SKIPPED ")
 	}
 
-	if PrintRelays {
-		log.Println("info: ------------ Relays  ------------------- ")
-		log.Println("info: Relay 0   Pin           " + fmt.Sprintf("%v", Relay0Pin))
-		log.Println("info: Relay 1   Pin           " + fmt.Sprintf("%v", Relay1Pin))
-		log.Println("info: Relay 2   Pin           " + fmt.Sprintf("%v", Relay2Pin))
-		log.Println("info: Relay 3   Pin           " + fmt.Sprintf("%v", Relay3Pin))
-	} else {
-		log.Println("info: ------------ Relays  ------------------- SKIPPED ")
-	}
-
-	if PrintComment {
+	if Config.Global.Software.PrintVariables.PrintComment {
 		log.Println("info: ------------ Comment  ------------------- ")
-		log.Println("info: Comment Button Pin         " + fmt.Sprintf("%v", CommentButtonPin))
-		log.Println("info: Comment Message State 1    " + fmt.Sprintf("%v", CommentMessageOff))
-		log.Println("info: Comment Message State 2    " + fmt.Sprintf("%v", CommentMessageOn))
+		log.Println("info: Comment Button Pin            " + fmt.Sprintf("%v", CommentButtonPin))
+		log.Println("info: Comment Message State 1 (off) " + fmt.Sprintf("%v", Config.Global.Hardware.Comment.CommentMessageOff))
+		log.Println("info: Comment Message State 2 (on)  " + fmt.Sprintf("%v", Config.Global.Hardware.Comment.CommentMessageOn))
 	} else {
 		log.Println("info: ------------ Comment  ------------------- SKIPPED ")
 	}
 
-	if PrintLcd {
+	if Config.Global.Software.PrintVariables.PrintLcd {
 		log.Println("info: ------------ LCD HD44780 ----------------------- ")
 		log.Println("info: LCDEnabled               " + fmt.Sprintf("%v", LCDEnabled))
 		log.Println("info: LCDInterfaceType         " + fmt.Sprintf("%v", LCDInterfaceType))
 		log.Println("info: Lcd I2C Address          " + fmt.Sprintf("%x", LCDI2CAddress))
 		log.Println("info: Back Light Timer Enabled " + fmt.Sprintf("%t", LCDBackLightTimerEnabled))
 		log.Println("info: Back Light Timer Timeout " + fmt.Sprintf("%v", LCDBackLightTimeout))
-		log.Println("info: Back Light Pin " + fmt.Sprintf("%v", LCDBackLightLEDPin))
 		log.Println("info: RS Pin " + fmt.Sprintf("%v", LCDRSPin))
 		log.Println("info: E  Pin " + fmt.Sprintf("%v", LCDEPin))
 		log.Println("info: D4 Pin " + fmt.Sprintf("%v", LCDD4Pin))
@@ -1983,7 +1001,7 @@ func printxmlconfig() {
 		log.Println("info: ------------ LCD  ----------------------- SKIPPED ")
 	}
 
-	if PrintOled {
+	if Config.Global.Software.PrintVariables.PrintOled {
 		log.Println("info: ------------ OLED ----------------------- ")
 		log.Println("info: Enabled                 " + fmt.Sprintf("%v", OLEDEnabled))
 		log.Println("info: Interfacetype           " + fmt.Sprintf("%v", OLEDInterfacetype))
@@ -2001,135 +1019,176 @@ func printxmlconfig() {
 		log.Println("info: ------------ OLED ----------------------- SKIPPED ")
 	}
 
-	if PrintGps {
+	if Config.Global.Software.PrintVariables.PrintGps {
 		log.Println("info: ------------ GPS  ------------------------ ")
-		log.Println("info: GPS Enabled            " + fmt.Sprintf("%t", GpsEnabled))
-		log.Println("info: Port                   ", Port)
-		log.Println("info: Baud                   " + fmt.Sprintf("%v", Baud))
-		log.Println("info: TxData                 ", TxData)
-		log.Println("info: Even                   " + fmt.Sprintf("%v", Even))
-		log.Println("info: Odd                    " + fmt.Sprintf("%v", Odd))
-		log.Println("info: RS485                  " + fmt.Sprintf("%v", Rs485))
-		log.Println("info: RS485 High During Send " + fmt.Sprintf("%v", Rs485HighDuringSend))
-		log.Println("info: RS485 High After Send  " + fmt.Sprintf("%v", Rs485HighAfterSend))
-		log.Println("info: Stop Bits              " + fmt.Sprintf("%v", StopBits))
-		log.Println("info: Data Bits              " + fmt.Sprintf("%v", DataBits))
-		log.Println("info: Char Time Out          " + fmt.Sprintf("%v", CharTimeOut))
-		log.Println("info: Min Read               " + fmt.Sprintf("%v", MinRead))
-		log.Println("info: Rx                     " + fmt.Sprintf("%t", Rx))
+		log.Println("info: GPS Enabled            " + fmt.Sprintf("%t", Config.Global.Hardware.GPS.Enabled))
+		log.Println("info: Port                   ", Config.Global.Hardware.GPS.Port)
+		log.Println("info: Baud                   " + fmt.Sprintf("%v", Config.Global.Hardware.GPS.Baud))
+		log.Println("info: TxData                 ", Config.Global.Hardware.GPS.TxData)
+		log.Println("info: Even                   " + fmt.Sprintf("%v", Config.Global.Hardware.GPS.Even))
+		log.Println("info: Odd                    " + fmt.Sprintf("%v", Config.Global.Hardware.GPS.Odd))
+		log.Println("info: RS485                  " + fmt.Sprintf("%v", Config.Global.Hardware.GPS.Rs485))
+		log.Println("info: RS485 High During Send " + fmt.Sprintf("%v", Config.Global.Hardware.GPS.Rs485HighDuringSend))
+		log.Println("info: RS485 High After Send  " + fmt.Sprintf("%v", Config.Global.Hardware.GPS.Rs485HighAfterSend))
+		log.Println("info: Stop Bits              " + fmt.Sprintf("%v", Config.Global.Hardware.GPS.StopBits))
+		log.Println("info: Data Bits              " + fmt.Sprintf("%v", Config.Global.Hardware.GPS.DataBits))
+		log.Println("info: Char Time Out          " + fmt.Sprintf("%v", Config.Global.Hardware.GPS.CharTimeOut))
+		log.Println("info: Min Read               " + fmt.Sprintf("%v", Config.Global.Hardware.GPS.MinRead))
+		log.Println("info: Rx                     " + fmt.Sprintf("%t", Config.Global.Hardware.GPS.Rx))
 	} else {
 		log.Println("info: ------------ GPS  ------------------------ SKIPPED ")
 	}
 
-	if PrintTraccar {
+	if Config.Global.Software.PrintVariables.PrintTraccar {
 		log.Println("info: ------------ TRACCAR Info  ----------------------- ")
-		log.Println("info: Track Enabled            " + fmt.Sprintf("%t", TrackEnabled))
-		log.Println("info: Traccar Send To          " + fmt.Sprintf("%t", TraccarSendTo))
-		log.Println("info: Traccar Server URL       ", TraccarServerURL)
-		log.Println("info: Traccar Server IP        ", TraccarServerIP)
-		log.Println("info: Traccar Client ID        ", TraccarClientId)
-		log.Println("info: Traccar Report Frequency " + fmt.Sprintf("%v", TraccarReportFrequency))
-		log.Println("info: Traccar Proto            ", TraccarProto)
-		log.Println("info: Traccar Server Full URL  ", TraccarServerFullURL)
-		log.Println("info: Track GPS Show Lcd       " + fmt.Sprintf("%t", TrackGPSShowLCD))
-		log.Println("info: Track Verbose            " + fmt.Sprintf("%t", TrackVerbose))
+		log.Println("info: Track Enabled            " + fmt.Sprintf("%t", Config.Global.Hardware.GPSTrackingFunction.TrackEnabled))
+		log.Println("info: Traccar Send To          " + fmt.Sprintf("%t", Config.Global.Hardware.GPSTrackingFunction.TraccarSendTo))
+		log.Println("info: Traccar Server URL       ", Config.Global.Hardware.GPSTrackingFunction.TraccarServerURL)
+		log.Println("info: Traccar Server IP        ", Config.Global.Hardware.GPSTrackingFunction.TraccarServerIP)
+		log.Println("info: Traccar Client ID        ", Config.Global.Hardware.GPSTrackingFunction.TraccarClientId)
+		log.Println("info: Traccar Report Frequency " + fmt.Sprintf("%v", Config.Global.Hardware.GPSTrackingFunction.TraccarReportFrequency))
+		log.Println("info: Traccar Proto            ", Config.Global.Hardware.GPSTrackingFunction.TraccarProto)
+		log.Println("info: Traccar Server Full URL  ", Config.Global.Hardware.GPSTrackingFunction.TraccarServerFullURL)
+		log.Println("info: Track GPS Show Lcd       " + fmt.Sprintf("%t", Config.Global.Hardware.GPSTrackingFunction.TrackGPSShowLCD))
+		log.Println("info: Track Verbose            " + fmt.Sprintf("%t", Config.Global.Hardware.GPSTrackingFunction.TrackVerbose))
 
 	} else {
 		log.Println("info: ------------ TRACCAR Info ------------------------ SKIPPED ")
 	}
 
-	if PrintPanic {
+	if Config.Global.Software.PrintVariables.PrintPanic {
 		log.Println("info: ------------ PANIC Function -------------- ")
-		log.Println("info: Panic Function Enable          ", fmt.Sprintf("%t", PEnabled))
-		log.Println("info: Panic Sound Filename and Path  ", PFilenameAndPath)
-		log.Println("info: Panic Message                  ", PMessage)
-		log.Println("info: Panic Email Send               ", fmt.Sprintf("%t", PMailEnabled))
-		log.Println("info: Panic Message Send Recursively ", fmt.Sprintf("%t", PRecursive))
-		log.Println("info: Panic Volume                   ", fmt.Sprintf("%v", PVolume))
-		log.Println("info: Panic Send Ident               ", fmt.Sprintf("%t", PSendIdent))
-		log.Println("info: Panic Send GPS Location        ", fmt.Sprintf("%t", PSendGpsLocation))
-		log.Println("info: Panic TX Lock Enabled          ", fmt.Sprintf("%t", PTxLockEnabled))
-		log.Println("info: Panic TX Lock Timeout Secs     ", fmt.Sprintf("%v", PTxlockTimeOutSecs))
-		log.Println("info: Panic Low Profile Lights Enable", fmt.Sprintf("%v", PLowProfile))
+		log.Println("info: Panic Function Enable          ", fmt.Sprintf("%t", Config.Global.Hardware.PanicFunction.Enabled))
+		log.Println("info: Panic Sound Filename and Path  ", Config.Global.Hardware.PanicFunction.FilenameAndPath)
+		log.Println("info: Panic Message                  ", Config.Global.Hardware.PanicFunction.Message)
+		log.Println("info: Panic Email Send               ", fmt.Sprintf("%t", Config.Global.Hardware.PanicFunction.PMailEnabled))
+		log.Println("info: Panic Message Send Recursively ", fmt.Sprintf("%t", Config.Global.Hardware.PanicFunction.RecursiveSendMessage))
+		log.Println("info: Panic Volume                   ", fmt.Sprintf("%v", Config.Global.Hardware.PanicFunction.Volume))
+		log.Println("info: Panic Send Ident               ", fmt.Sprintf("%t", Config.Global.Hardware.PanicFunction.SendIdent))
+		log.Println("info: Panic Send GPS Location        ", fmt.Sprintf("%t", Config.Global.Hardware.PanicFunction.SendGpsLocation))
+		log.Println("info: Panic TX Lock Enabled          ", fmt.Sprintf("%t", Config.Global.Hardware.PanicFunction.TxLockEnabled))
+		log.Println("info: Panic TX Lock Timeout Secs     ", fmt.Sprintf("%v", Config.Global.Hardware.PanicFunction.TxLockEnabled))
+		log.Println("info: Panic Low Profile Lights Enable", fmt.Sprintf("%v", Config.Global.Hardware.PanicFunction.PLowProfile))
 	} else {
 		log.Println("info: ------------ PANIC Function -------------- SKIPPED ")
 	}
 
-	if PrintAudioRecord {
+	if Config.Global.Software.PrintVariables.PrintAudioRecord {
 		log.Println("info: ------------ AUDIO RECORDING Function -------------- ")
-		log.Println("info: Audio Recording Enabled " + fmt.Sprintf("%v", AudioRecordEnabled))
-		log.Println("info: Audio Recording On Start " + fmt.Sprintf("%v", AudioRecordOnStart))
-		log.Println("info: Audio Recording System " + fmt.Sprintf("%v", AudioRecordSystem))
-		log.Println("info: Audio Record Mode " + fmt.Sprintf("%v", AudioRecordMode))
-		log.Println("info: Audio Record Timeout " + fmt.Sprintf("%v", AudioRecordTimeout))
-		log.Println("info: Audio Record From Output " + fmt.Sprintf("%v", AudioRecordFromOutput))
-		log.Println("info: Audio Record From Input " + fmt.Sprintf("%v", AudioRecordFromInput))
-		log.Println("info: Audio Recording Mic Timeout " + fmt.Sprintf("%v", AudioRecordMicTimeout))
-		log.Println("info: Audio Recording Save Path " + fmt.Sprintf("%v", AudioRecordSavePath))
-		log.Println("info: Audio Recording Archive Path " + fmt.Sprintf("%v", AudioRecordArchivePath))
-		log.Println("info: Audio Recording Soft " + fmt.Sprintf("%v", AudioRecordSoft))
-		log.Println("info: Audio Recording Profile " + fmt.Sprintf("%v", AudioRecordProfile))
-		log.Println("info: Audio Recording File Format " + fmt.Sprintf("%v", AudioRecordFileFormat))
-		log.Println("info: Audio Recording Chunk Size " + fmt.Sprintf("%v", AudioRecordChunkSize))
+		log.Println("info: Audio Recording Enabled " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.Enabled))
+		log.Println("info: Audio Recording On Start " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordOnStart))
+		log.Println("info: Audio Recording System " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordSystem))
+		log.Println("info: Audio Record Mode " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordMode))
+		log.Println("info: Audio Record Timeout " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordTimeout))
+		log.Println("info: Audio Record From Output " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordFromOutput))
+		log.Println("info: Audio Record From Input " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordFromInput))
+		log.Println("info: Audio Recording Mic Timeout " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordMicTimeout))
+		log.Println("info: Audio Recording Save Path " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordSavePath))
+		log.Println("info: Audio Recording Archive Path " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordArchivePath))
+		log.Println("info: Audio Recording Soft " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordSoft))
+		log.Println("info: Audio Recording Profile " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordProfile))
+		log.Println("info: Audio Recording File Format " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordFileFormat))
+		log.Println("info: Audio Recording Chunk Size " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordChunkSize))
 	} else {
 		log.Println("info: ------------ AUDIO RECORDING Function ------- SKIPPED ")
 	}
-	if PrintMQTT {
+	if Config.Global.Software.PrintVariables.PrintMQTT {
 		log.Println("info: ------------ MQTT Function -------------- ")
-		log.Println("info: Enabled             " + fmt.Sprintf("%v", MQTTEnabled))
-		log.Println("info: Topic               " + fmt.Sprintf("%v", MQTTTopic))
-		log.Println("info: Broker              " + fmt.Sprintf("%v", MQTTBroker))
-		log.Println("info: Password            " + fmt.Sprintf("%v", MQTTPassword))
-		log.Println("info: Id                  " + fmt.Sprintf("%v", MQTTId))
-		log.Println("info: Cleansess           " + fmt.Sprintf("%v", MQTTCleansess))
-		log.Println("info: Qos                 " + fmt.Sprintf("%v", MQTTQos))
-		log.Println("info: Num                 " + fmt.Sprintf("%v", MQTTNum))
-		log.Println("info: Payload             " + fmt.Sprintf("%v", MQTTPayload))
-		log.Println("info: Action              " + fmt.Sprintf("%v", MQTTAction))
-		log.Println("info: Store               " + fmt.Sprintf("%v", MQTTStore))
-		log.Println("info: AttentionBlinkTimes " + fmt.Sprintf("%v", MQTTAttentionBlinkTimes))
-		log.Println("info: AttentionBlinkmsecs " + fmt.Sprintf("%v", MQTTAttentionBlinkmsecs))
+		log.Println("info: Enabled             " + fmt.Sprintf("%v", Config.Global.Software.RemoteControl.MQTT.Enabled))
+		log.Println("info: Topic               " + fmt.Sprintf("%v", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTTopic))
+		log.Println("info: Broker              " + fmt.Sprintf("%v", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTBroker))
+		log.Println("info: Password            " + fmt.Sprintf("%v", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTPassword))
+		log.Println("info: Id                  " + fmt.Sprintf("%v", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTId))
+		log.Println("info: Cleansess           " + fmt.Sprintf("%v", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTCleansess))
+		log.Println("info: Qos                 " + fmt.Sprintf("%v", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTQos))
+		log.Println("info: Num                 " + fmt.Sprintf("%v", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTNum))
+		log.Println("info: Payload             " + fmt.Sprintf("%v", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTPayload))
+		log.Println("info: Action              " + fmt.Sprintf("%v", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTAction))
+		log.Println("info: Store               " + fmt.Sprintf("%v", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTStore))
+		log.Println("info: AttentionBlinkTimes " + fmt.Sprintf("%v", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTAttentionBlinkTimes))
+		log.Println("info: AttentionBlinkmsecs " + fmt.Sprintf("%v", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTAttentionBlinkmsecs))
+		for _, command := range Config.Global.Software.RemoteControl.MQTT.Commands.Command {
+			log.Printf("info: Enabled=%v Action=%v Message=%v\n", command.Enabled, command.Action, command.Message)
+		}
 	} else {
 		log.Println("info: ------------ MQTT Function ------- SKIPPED ")
 	}
 
-	if PrintTTSMessages {
+	if Config.Global.Software.PrintVariables.PrintTTSMessages {
 		log.Println("info: ------------ TTSMessages Function -------------- ")
-		log.Println("info: Enabled             " + fmt.Sprintf("%v", TTSMessageEnabled))
-		log.Println("info: LocalPlay           " + fmt.Sprintf("%v", TTSLocalPlay))
-		log.Println("info: LocalPlayWithRXLED  " + fmt.Sprintf("%v", TTSLocalPlayWithRXLED))
-		log.Println("info: Play Into Stream    " + fmt.Sprintf("%v", TTSPlayIntoStream))
-		log.Println("info: TTSLanguage         " + fmt.Sprintf("%v", TTSLanguage))
-		log.Println("info: TTSSoundDirectory   " + fmt.Sprintf("%v", TTSSoundDirectory))
-		log.Println("info: TTSAnnouncementTone " + fmt.Sprintf("%v", TTSAnnouncementTone))
-		log.Println("info: TTSMessageFromTag   " + fmt.Sprintf("%v", TTSMessageFromTag))
+		log.Println("info: Enabled                      " + fmt.Sprintf("%v", Config.Global.Software.TTSMessages.Enabled))
+		log.Println("info: LocalPlay                    " + fmt.Sprintf("%v", Config.Global.Software.TTSMessages.LocalPlay))
+		log.Println("info: Play Into Stream             " + fmt.Sprintf("%v", Config.Global.Software.TTSMessages.PlayIntoStream))
+		log.Println("info: TTS Speak Volume Into Stream " + fmt.Sprintf("%v", Config.Global.Software.TTSMessages.SpeakVolumeIntoStream))
+		log.Println("info: TTS Play Volume Into Stream  " + fmt.Sprintf("%v", Config.Global.Software.TTSMessages.PlayVolumeIntoStream))
+		log.Println("info: TTSLanguage                  " + fmt.Sprintf("%v", Config.Global.Software.TTSMessages.TTSLanguage))
+		log.Println("info: TTSSoundDirectory            " + fmt.Sprintf("%v", Config.Global.Software.TTSMessages.TTSSoundDirectory))
+		log.Println("info: TTSAnnouncementTone Enabled  " + fmt.Sprintf("%v", Config.Global.Software.TTSMessages.TTSTone.ToneEnabled))
+		log.Println("info: TTSAnnouncementTone File     " + fmt.Sprintf("%v", Config.Global.Software.TTSMessages.TTSTone.ToneFile))
+		log.Println("info: TTSMessageFromTag            " + fmt.Sprintf("%v", Config.Global.Software.TTSMessages.TTSMessageFromTag))
+		log.Println("info: TTSGPIOEnabled               " + fmt.Sprintf("%v", Config.Global.Software.TTSMessages.GPIO.Enabled))
+		log.Println("info: TTSGPIOName                  " + fmt.Sprintf("%v", Config.Global.Software.TTSMessages.GPIO.Name))
+		log.Println("info: TTSPreDelay                  " + fmt.Sprintf("%v", Config.Global.Software.TTSMessages.PreDelay))
+		log.Println("info: TTSPostDelay                 " + fmt.Sprintf("%v", Config.Global.Software.TTSMessages.PreDelay))
 	} else {
 		log.Println("info: ------------ TTSMessages Function ------- SKIPPED ")
 	}
 
-	if PrintIgnoreUser {
+	if Config.Global.Software.PrintVariables.PrintIgnoreUser {
 		log.Println("info: ------------ IgnoreUserRegex Function -------------- ")
-		log.Println("info: Enabled             " + fmt.Sprintf("%v", IgnoreUserEnabled))
-		log.Println("info: IgnoreUserRegex     " + fmt.Sprintf("%v", IgnoreUserRegex))
+		log.Println("info: Enabled             " + fmt.Sprintf("%v", Config.Global.Software.IgnoreUser.IgnoreUserEnabled))
+		log.Println("info: IgnoreUserRegex     " + fmt.Sprintf("%v", Config.Global.Software.IgnoreUser.IgnoreUserRegex))
 	} else {
 		log.Println("info: ------------ IgnoreUserRegex Function ------- SKIPPED ")
 	}
 
-	if PrintKeyboardMap {
+	if Config.Global.Software.PrintVariables.PrintKeyboardMap {
 		log.Println("info: ------------ KeyboardMap Function -------------- ")
-		log.Printf("TTYKeymap %+v\n", TTYKeyMap)
-		log.Printf("USBKeymap %+v\n", USBKeyMap)
+		counter := 1
+		for _, value := range Config.Global.Hardware.Keyboard.Command {
+			if value.Enabled {
+				log.Printf("info: %v Enabled %v Command %v ParamValue %v\n", counter, value.Enabled, value.Action, value.Paramvalue)
+				counter++
+			}
+			if value.Ttykeyboard.Enabled {
+				log.Println("info: TTYKeyboard " + fmt.Sprintf("%+v", value.Ttykeyboard))
+			}
+			if value.Usbkeyboard.Enabled {
+				log.Println("info: USBKeyboard " + fmt.Sprintf("%+v", value.Usbkeyboard))
+			}
+		}
 	} else {
 		log.Println("info: ------------ KeyboardMap Function ------ SKIPPED ")
 	}
 
-	if PrintUSBKeyboard {
+	if Config.Global.Software.PrintVariables.PrintUSBKeyboard {
 		log.Println("info: ------------ USBKeyboard Function -------------- ")
-		log.Println("USBKeyboardEnabled", USBKeyboardEnabled)
-		log.Println("USBKeyboardPath", USBKeyboardPath)
-		log.Println("NumLockScanID", NumlockScanID)
+		log.Println("USBKeyboardEnabled", Config.Global.Hardware.USBKeyboard.Enabled)
+		log.Println("USBKeyboardPath", Config.Global.Hardware.USBKeyboard.USBKeyboardPath)
+		log.Println("NumLockScanID", Config.Global.Hardware.USBKeyboard.NumlockScanID)
 	} else {
 		log.Println("info: ------------ USBKeyboard Function ------ SKIPPED ")
+	}
+
+	if Config.Global.Software.PrintVariables.PrintMultimedia {
+		log.Println("info: ------------ Multimedia Function -------------- ")
+		for _, value := range Config.Global.Multimedia.ID {
+			if value.Enabled {
+				log.Printf("info: Announcement Tone Enabled %v \n", value.Params.Announcementtone.Enabled)
+				log.Printf("info: Announcement Tone File %v \n", value.Params.Announcementtone.File)
+				log.Printf("info: GPIO Enabled %v \n", value.Params.GPIO.Enabled)
+				log.Printf("info: GPIO Name    %v \n", value.Params.GPIO.Name)
+				log.Printf("info: Local Play %v \n", value.Params.Localplay)
+				log.Printf("info: Play Into Stream %v \n", value.Params.Playintostream)
+				log.Printf("info: Pre  Delay  %v \n", value.Params.Predelay)
+				log.Printf("info: Post Delay %v \n", value.Params.Postdelay)
+				log.Printf("info: Voice Target %v \n", value.Params.Voicetarget)
+				log.Printf("info: Enabled %v \n", value.Enabled)
+				log.Printf("info: Media Souce %+v \n", value.Media.Source)
+			}
+		}
+	} else {
+		log.Println("info: ------------ Multimedia Function ------ SKIPPED ")
 	}
 
 }
@@ -2141,12 +1200,12 @@ func modifyXMLTagServerHopping(inputXMLFile string, newserverindex int) {
 		return
 	}
 
-	if NextServerIndex == newserverindex {
+	if Config.Global.Software.Settings.NextServerIndex == newserverindex {
 		log.Println("error: Server Index is Not Changed")
 		return
 	}
 
-	PreparedSEDCommand := fmt.Sprintf("s#<nextserverindex>%d</nextserverindex>#<nextserverindex>%d</nextserverindex>#", NextServerIndex, newserverindex)
+	PreparedSEDCommand := fmt.Sprintf("s#<nextserverindex>%d</nextserverindex>#<nextserverindex>%d</nextserverindex>#", Config.Global.Software.Settings.NextServerIndex, newserverindex)
 	cmd := exec.Command("sed", "-i", PreparedSEDCommand, inputXMLFile)
 
 	err := cmd.Run()
@@ -2156,4 +1215,297 @@ func modifyXMLTagServerHopping(inputXMLFile string, newserverindex int) {
 	}
 
 	killSession()
+}
+
+func CheckConfigSanity(reloadxml bool) {
+
+	Warnings := 0
+	Alerts := 0
+
+	log.Println("info: Starting XML Configuration Sanity and Logical Checks")
+
+	Counter := 0
+	for _, account := range Config.Accounts.Account {
+		if account.Default {
+			if len(account.Name) == 0 {
+				log.Print("warn: Config Error [Section Accounts] Account Name Not Defined for Enabled Account")
+			}
+			if len(account.ServerAndPort) == 0 {
+				log.Print("alert: Config Error [Section Accounts] Account Server And Port Not Defined for Enabled Account")
+			}
+
+			if len(account.Certificate) > 0 && !FileExists(account.Certificate) {
+				log.Print("warn: Config Error [Section Accounts] Certificate Enabled but Not Found")
+			}
+			Counter++
+		}
+	}
+
+	if Counter == 0 {
+		log.Print("alert: Config Error [Section Accounts] No Default/Enabled Accounts Found in Config")
+		Alerts++
+	}
+
+	if Config.Global.Software.Settings.NextServerIndex > Counter {
+		log.Print("warn: Config Error [Section Settings] Next Server Index Invalid Defaulting back to 0")
+		Config.Global.Software.Settings.NextServerIndex = 0
+		Warnings++
+	}
+
+	if Config.Global.Software.AutoProvisioning.Enabled {
+
+		if len(Config.Global.Software.AutoProvisioning.TkID) == 0 || len(Config.Global.Software.AutoProvisioning.URL) == 0 || len(Config.Global.Software.AutoProvisioning.SaveFilePath) == 0 || len(Config.Global.Software.AutoProvisioning.SaveFilename) == 0 {
+			log.Print("warn: Config Error [Section Autoprovisioning] Some Parameters Not Defined Disabling AutoProvisioning")
+			Config.Global.Software.AutoProvisioning.Enabled = false
+			Warnings++
+		}
+
+	}
+
+	if Config.Global.Software.Beacon.Enabled {
+		if Config.Global.Software.Beacon.BeaconTimerSecs == 0 || len(Config.Global.Software.Beacon.BeaconFileAndPath) == 0 || Config.Global.Software.Beacon.Volume == 0 {
+			log.Print("warn: Config Error [Section Beacon] Some Parameters Not Defined Disabling Beacon")
+			Config.Global.Software.Beacon.Enabled = false
+			Warnings++
+		}
+	}
+
+	for index, sounds := range Config.Global.Software.Sounds.Sound {
+		if sounds.Enabled {
+			if len(sounds.File) > 0 {
+				if !FileExists(sounds.File) {
+					if !checkRegex("(http|rtsp)", sounds.File) {
+						log.Printf("warn: Config Error [Section Sounds] Enabled Sound Event %v File/Link Missing in Config\n", sounds.Event)
+						Config.Global.Software.Sounds.Sound[index].Enabled = false
+						Warnings++
+					}
+				}
+			}
+
+			volume, _ := strconv.Atoi(sounds.Volume)
+			if volume == 0 {
+				log.Printf("warn: Config Error [Section Sounds] Enabled Sound Event %v Volume = 0 in Config\n", sounds.Event)
+				Config.Global.Software.Sounds.Sound[index].Enabled = false
+				Warnings++
+			}
+		}
+	}
+
+	if Config.Global.Software.SMTP.Enabled {
+		if len(Config.Global.Software.SMTP.Username) == 0 || len(Config.Global.Software.SMTP.Password) == 0 || len(Config.Global.Software.SMTP.Receiver) == 0 {
+			log.Print("warn: Config Error [Section SMTP] Some Parameters Not Defined Disabling SMTP")
+			Config.Global.Software.SMTP.Enabled = false
+			Warnings++
+		}
+	}
+
+	for index, gpio := range Config.Global.Hardware.IO.Pins.Pin {
+		if gpio.Enabled {
+			if !(gpio.Direction == "input" || gpio.Direction == "output") {
+				log.Printf("warn: Config Error [Section GPIO] Enabled GPIO Name %v Pin Number %v Direction %v Misconfiguired\n", gpio.Name, gpio.PinNo, gpio.Direction)
+				Config.Global.Hardware.IO.Pins.Pin[index].Enabled = false
+				Warnings++
+			}
+			if (gpio.Direction == "input") && !(gpio.Device == "pushbutton" || gpio.Device == "toggleswitch" || gpio.Device == "rotaryencoder") {
+				log.Printf("warn: Config Error [Section GPIO] Enabled Input GPIO Name %v Pin Number %v Name Mis-Configured\n", gpio.Name, gpio.PinNo)
+				Config.Global.Hardware.IO.Pins.Pin[index].Enabled = false
+				Warnings++
+			}
+			if (gpio.Direction == "output") && !(gpio.Device == "led/relay" || gpio.Device == "lcd") {
+				log.Printf("warn: Config Error [Section GPIO] Enabled Output GPIO Name %v Pin Number %v Name Mis-Configured\n", gpio.Name, gpio.PinNo)
+				Config.Global.Hardware.IO.Pins.Pin[index].Enabled = false
+				Warnings++
+			}
+
+			if !(gpio.Name == "voiceactivity" || gpio.Name == "participants" || gpio.Name == "transmit" || gpio.Name == "online" || gpio.Name == "attention" || gpio.Name == "voicetarget" || gpio.Name == "heartbeat" || gpio.Name == "backlight" || gpio.Name == "relay0" || gpio.Name == "txptt" || gpio.Name == "txtoggle" || gpio.Name == "channelup" || gpio.Name == "channeldown" || gpio.Name == "panic" || gpio.Name == "streamtoggle" || gpio.Name == "comment" || gpio.Name == "rotarya" || gpio.Name == "rotaryb") {
+				log.Printf("warn: Config Error [Section GPIO] Enabled GPIO Name %v Pin Number %v Invalid Name\n", gpio.Name, gpio.PinNo)
+				Config.Global.Hardware.IO.Pins.Pin[index].Enabled = false
+				Warnings++
+			}
+
+			if gpio.PinNo > 30 {
+				log.Printf("warn: Config Error [Section GPIO] Enabled GPIO Name %v Pin Number %v Invalid GPIO Number\n", gpio.Name, gpio.PinNo)
+				Config.Global.Hardware.IO.Pins.Pin[index].Enabled = false
+				Warnings++
+			}
+
+			if gpio.ID > 8 {
+				log.Print("warn: Config Error [Section GPIO] Invalid ChipID Address")
+				Config.Global.Hardware.IO.Pins.Pin[index].Enabled = false
+				Warnings++
+			}
+
+			if gpio.Name == "heartbeat" {
+				if Config.Global.Hardware.HeartBeat.Periodmsecs < 100 || Config.Global.Hardware.HeartBeat.LEDOnmsecs < 100 || Config.Global.Hardware.HeartBeat.LEDOffmsecs < 100 {
+					if gpio.PinNo == 0 {
+						log.Printf("warn: Config Error [Section GPIO] Name %v Invalid GPIO Pin %v Value\n", gpio.Name, gpio.PinNo)
+						Config.Global.Hardware.IO.Pins.Pin[index].Enabled = false
+						Warnings++
+					}
+				}
+			}
+
+		}
+	}
+
+	if Config.Global.Hardware.LCD.BacklightTimerEnabled && (!Config.Global.Hardware.OLED.Enabled || !Config.Global.Hardware.LCD.Enabled) {
+		log.Println("warn: Disabling Backlight Timer Since Neither LCD or OLED Displays Enabled")
+		Config.Global.Hardware.LCD.BacklightTimerEnabled = false
+		Warnings++
+	}
+
+	if Config.Global.Hardware.LCD.Enabled {
+		if !(Config.Global.Hardware.LCD.InterfaceType == "i2c" || Config.Global.Hardware.LCD.InterfaceType == "parallel") {
+			log.Printf("warn: Config Error [Section LCD] Enabled LCD Interface Type %v Invalid\n", Config.Global.Hardware.LCD.InterfaceType)
+			Config.Global.Hardware.LCD.Enabled = false
+			Warnings++
+		}
+
+		if Config.Global.Hardware.LCD.InterfaceType == "i2c" {
+			if Config.Global.Hardware.LCD.I2CAddress == 0 {
+				log.Printf("warn: Config Error [Section LCD] Enabled LCD Interface %v Invalid\n", Config.Global.Hardware.LCD.InterfaceType)
+				Config.Global.Hardware.LCD.Enabled = false
+				Warnings++
+			}
+		}
+
+		if Config.Global.Hardware.LCD.InterfaceType == "parallel" {
+			if Config.Global.Hardware.LCD.RsPin == 0 {
+				log.Printf("warn: Config Error [Section LCD] Enabled LCD Interface %v RsPin %v Invalid\n", Config.Global.Hardware.LCD.InterfaceType, Config.Global.Hardware.LCD.RsPin)
+				Config.Global.Hardware.LCD.Enabled = false
+				Warnings++
+			}
+			if Config.Global.Hardware.LCD.EPin == 0 {
+				log.Printf("warn: Config Error [Section LCD] Enabled LCD Interface %v EPin %v Invalid\n", Config.Global.Hardware.LCD.InterfaceType, Config.Global.Hardware.LCD.RsPin)
+				Config.Global.Hardware.LCD.Enabled = false
+				Warnings++
+			}
+			if Config.Global.Hardware.LCD.D4Pin == 0 {
+				log.Printf("warn: Config Error [Section LCD] Enabled LCD Interface %v D4Pin %v Invalid\n", Config.Global.Hardware.LCD.InterfaceType, Config.Global.Hardware.LCD.RsPin)
+				Config.Global.Hardware.LCD.Enabled = false
+				Warnings++
+			}
+			if Config.Global.Hardware.LCD.D5Pin == 0 {
+				log.Printf("warn: Config Error [Section LCD] Enabled LCD Interface %v D5Pin %v Invalid\n", Config.Global.Hardware.LCD.InterfaceType, Config.Global.Hardware.LCD.RsPin)
+				Config.Global.Hardware.LCD.Enabled = false
+				Warnings++
+			}
+			if Config.Global.Hardware.LCD.D6Pin == 0 {
+				log.Printf("warn: Config Error [Section LCD] Enabled LCD Interface %v D6Pin %v Invalid\n", Config.Global.Hardware.LCD.InterfaceType, Config.Global.Hardware.LCD.RsPin)
+				Config.Global.Hardware.LCD.Enabled = false
+				Warnings++
+			}
+			if Config.Global.Hardware.LCD.D7Pin == 0 {
+				log.Printf("warn: Config Error [Section LCD] Enabled LCD Interface %v D7Pin %v Invalid\n", Config.Global.Hardware.LCD.InterfaceType, Config.Global.Hardware.LCD.RsPin)
+				Config.Global.Hardware.LCD.Enabled = false
+				Warnings++
+			}
+		}
+	}
+	if Config.Global.Hardware.LCD.BacklightTimerEnabled {
+		if Config.Global.Hardware.LCD.BackLightTimeoutSecs == 0 {
+			log.Print("warn: Config Error [Section LCD] Disabling Invalid Backlight Timer")
+			Config.Global.Hardware.LCD.BacklightTimerEnabled = false
+			Warnings++
+		}
+	}
+
+	if Config.Global.Hardware.GPS.Enabled {
+		if !FileExists(Config.Global.Hardware.GPS.Port) {
+			log.Printf("warn: Config Error [Section GPS] Enabled GPS Port %v Invalid\n", Config.Global.Hardware.GPS.Port)
+			Config.Global.Hardware.GPS.Enabled = false
+			Warnings++
+		}
+		if !(Config.Global.Hardware.GPS.Baud == 2400 || Config.Global.Hardware.GPS.Baud == 4800 || Config.Global.Hardware.GPS.Baud == 9600 || Config.Global.Hardware.GPS.Baud == 14400 || Config.Global.Hardware.GPS.Baud == 19200 || Config.Global.Hardware.GPS.Baud == 38400 || Config.Global.Hardware.GPS.Baud == 57600 || Config.Global.Hardware.GPS.Baud == 115200) {
+			log.Printf("warn: Config Error [Section GPS] Enabled GPS Port %v Invalid Baud %v Setting\n", Config.Global.Hardware.GPS.Port, Config.Global.Hardware.GPS.Baud)
+			Config.Global.Hardware.GPS.Enabled = false
+			Warnings++
+		}
+
+		if Config.Global.Hardware.GPS.Even && Config.Global.Hardware.GPS.Odd {
+			log.Printf("warn: Config Error [Section GPS] Enabled GPS Port %v Invalid Parity Both Even & Odd Set\n", Config.Global.Hardware.GPS.Port)
+			Config.Global.Hardware.GPS.Enabled = false
+			Warnings++
+		}
+
+		if Config.Global.Hardware.GPS.StopBits == 0 {
+			log.Printf("warn: Config Error [Section GPS] Enabled GPS Port %v Invalid Stop Bits\n", Config.Global.Hardware.GPS.Port)
+			Config.Global.Hardware.GPS.Enabled = false
+			Warnings++
+		}
+
+		if Config.Global.Hardware.GPS.DataBits == 0 {
+			log.Printf("warn: Config Error [Section GPS] Enabled GPS Port %v Invalid Data Bits\n", Config.Global.Hardware.GPS.Port)
+			Config.Global.Hardware.GPS.Enabled = false
+			Warnings++
+		}
+	}
+
+	if Config.Global.Software.RemoteControl.MQTT.Enabled {
+
+		if len(Config.Global.Software.RemoteControl.MQTT.Settings.MQTTTopic) == 0 {
+			log.Println("warn: Config Error [Section MQTT] Enabled MQTT With Empty Topic")
+			Config.Global.Software.RemoteControl.MQTT.Enabled = false
+			Warnings++
+		}
+		if len(Config.Global.Software.RemoteControl.MQTT.Settings.MQTTBroker) == 0 {
+			log.Println("warn: Config Error [Section MQTT] Enabled MQTT With Empty Broker")
+			Config.Global.Software.RemoteControl.MQTT.Enabled = false
+			Warnings++
+		}
+		if len(Config.Global.Software.RemoteControl.MQTT.Settings.MQTTPassword) == 0 {
+			log.Println("warn: Config Error [Section MQTT] Enabled MQTT With Empty MQTTPassword")
+			Config.Global.Software.RemoteControl.MQTT.Enabled = false
+			Warnings++
+		}
+		if len(Config.Global.Software.RemoteControl.MQTT.Settings.MQTTId) == 0 {
+			log.Println("warn: Config Error [Section MQTT] Enabled MQTT With Empty MQTTID")
+			Config.Global.Software.RemoteControl.MQTT.Enabled = false
+			Warnings++
+		}
+
+	}
+
+	if Config.Global.Software.IgnoreUser.IgnoreUserEnabled {
+		if len(Config.Global.Software.IgnoreUser.IgnoreUserRegex) < 4 {
+			log.Printf("warn: Config Error [Section ignoreuser]  %v Invalid Regex\n", Config.Global.Software.IgnoreUser.IgnoreUserRegex)
+			Config.Global.Software.IgnoreUser.IgnoreUserEnabled = false
+		}
+	}
+
+	for index, keyboard := range Config.Global.Hardware.Keyboard.Command {
+		if keyboard.Enabled {
+			if !(keyboard.Action == "channelup" || keyboard.Action == "channeldown" || keyboard.Action == "serverup" || keyboard.Action == "serverdown" || keyboard.Action == "mute" || keyboard.Action == "unmute" || keyboard.Action == "mute-toggle" || keyboard.Action == "stream-toggle" || keyboard.Action == "volumeup" || keyboard.Action == "volumedown" || keyboard.Action == "setcomment" || keyboard.Action == "transmitstart" || keyboard.Action == "transmitstop" || keyboard.Action == "record" || keyboard.Action == "voicetargetset") {
+				log.Printf("warn: Config Error [Section Keyboard] Enabled Keyboard Action %v Invalid\n", keyboard.Action)
+				Config.Global.Hardware.Keyboard.Command[index].Enabled = false
+				Warnings++
+
+			}
+			if keyboard.Ttykeyboard.Enabled {
+				if keyboard.Ttykeyboard.Scanid == 0 || keyboard.Ttykeyboard.Scanid > 255 {
+					log.Printf("warn: Config Error [Section Keyboard] Enabled TTYKeyboard ScanID %v Invalid\n", keyboard.Ttykeyboard.Scanid)
+					Config.Global.Hardware.Keyboard.Command[index].Ttykeyboard.Enabled = false
+					Warnings++
+				}
+			}
+			if keyboard.Usbkeyboard.Enabled {
+				if keyboard.Usbkeyboard.Scanid == 0 || keyboard.Usbkeyboard.Scanid > 255 {
+					log.Printf("warn: Config Error [Section Keyboard] Enabled USBKeyboard ScanID %v Invalid\n", keyboard.Usbkeyboard.Scanid)
+					Config.Global.Hardware.Keyboard.Command[index].Usbkeyboard.Enabled = false
+					Warnings++
+				}
+			}
+		}
+	}
+	if Warnings+Alerts > 0 {
+		if Alerts > 0 {
+			FatalCleanUp("alert: Fatal Errors Found In talkkonnect.xml config file please fix errors, talkkonnect stopping now!")
+		}
+
+		if Warnings > 0 {
+			log.Println("warn: Non-Critical Errors Found In talkkonnect.xml config file please fix errors or talkkonnect may not behave as expected")
+		}
+	} else {
+		log.Println("info: Finished XML Configuration Sanity and Logical Checks Without Any Alerts/Errors/Warnings")
+	}
 }

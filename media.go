@@ -33,15 +33,14 @@ package talkkonnect
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"log"
 	"os/exec"
 	"strconv"
-
-	"github.com/talkkonnect/gumble/gumbleffmpeg"
+	"time"
 )
 
+/*
 func aplayLocal(filepath string, playbackvolume float32) error {
 	var player string
 
@@ -65,53 +64,32 @@ func aplayLocal(filepath string, playbackvolume float32) error {
 
 	return nil
 }
+*/
 
-func localMediaPlayer(fileNameWithPath string, playbackvolume float32, duration float32, loop int) {
+func localMediaPlayer(fileNameWithPath string, playbackvolume int, blocking bool, duration float32, loop int) {
 
 	if loop == 0 || loop > 3 {
 		log.Println("warn: Infinite Loop or more than 3 loops not allowed")
 		return
 	}
 
-	CmdArguments := []string{fileNameWithPath, "-af", "volume=" + fmt.Sprintf("%1.1f", playbackvolume), "-autoexit", "-loop", strconv.Itoa(loop), "-autoexit", "-nodisp"}
+	CmdArguments := []string{fileNameWithPath, "-volume", strconv.Itoa(playbackvolume), "-autoexit", "-loop", strconv.Itoa(loop), "-autoexit", "-nodisp"}
 
 	if duration > 0 {
-		CmdArguments = []string{fileNameWithPath, "-af", "volume=" + fmt.Sprintf("%1.1f", playbackvolume), "-autoexit", "-t", fmt.Sprintf("%.1f", duration), "-loop", strconv.Itoa(loop), "-autoexit", "-nodisp"}
+		CmdArguments = []string{fileNameWithPath, "-volume", strconv.Itoa(playbackvolume), "-autoexit", "-t", fmt.Sprintf("%.1f", duration), "-loop", strconv.Itoa(loop), "-autoexit", "-nodisp"}
 	}
 
 	cmd := exec.Command("/usr/bin/ffplay", CmdArguments...)
-	cmd.Run()
 
-}
-
-func (b *Talkkonnect) playIntoStream(filepath string, vol float32) {
-	if !IsPlayStream {
-		log.Println(fmt.Sprintf("info: File %s Stopped!", filepath))
-		pstream.Stop()
-		LEDOffFunc(TransmitLED)
-		return
-	}
-
-	if StreamSoundEnabled && IsPlayStream {
-		if pstream != nil && pstream.State() == gumbleffmpeg.StatePlaying {
-			pstream.Stop()
-			return
+	WaitForFFPlay := make(chan struct{})
+	go func() {
+		cmd.Run()
+		if blocking {
+			WaitForFFPlay <- struct{}{} // signal that the routine has completed
 		}
-
-		LEDOnFunc(TransmitLED)
-
-		IsPlayStream = true
-		pstream = gumbleffmpeg.New(b.Client, gumbleffmpeg.SourceFile(filepath), vol)
-		if err := pstream.Play(); err != nil {
-			log.Println(fmt.Sprintf("error: Can't play %s error %s", filepath, err))
-		} else {
-			log.Println(fmt.Sprintf("info: File %s Playing!", filepath))
-			pstream.Wait()
-			pstream.Stop()
-			LEDOffFunc(TransmitLED)
-		}
-	} else {
-		log.Println("warn: Sound Disabled by Config")
+	}()
+	if blocking {
+		<-WaitForFFPlay
 	}
 }
 
@@ -125,22 +103,68 @@ func (b *Talkkonnect) PlayTone(toneFreq int, toneDuration int, destination strin
 		cmd.Stdout = &out
 
 		if withRXLED {
-			LEDOnFunc(VoiceActivityLED)
+			GPIOOutPin("voiceactivity", "on")
 		}
 		err := cmd.Run()
 		if err != nil {
 			log.Println("error: ffplay error ", err)
 			if withRXLED {
-				LEDOffFunc(VoiceActivityLED)
+				GPIOOutPin("voiceactivity", "off")
 			}
 			return
 		}
 		if withRXLED {
-			LEDOffFunc(VoiceActivityLED)
+			GPIOOutPin("voiceactivity", "off")
 		}
 
-		log.Println("info: Played Tone at Frequency " + strconv.Itoa(RepeaterToneFrequencyHz) + " Hz With Duration of " + strconv.Itoa(RepeaterToneDurationSec) + " Seconds For Opening Repeater")
+		log.Printf("info: Played Tone at Frequency %v Hz With Duration of %v Seconds For Opening Repeater", toneFreq, toneDuration)
+	}
+}
 
+func playAnnouncementMedia(id int) {
+
+	for _, multimedia := range Config.Global.Multimedia.ID {
+		apiid, err := strconv.Atoi(multimedia.Value)
+		if apiid == id && err == nil {
+			if multimedia.Params.Localplay {
+				if multimedia.Params.GPIO.Enabled {
+					GPIOOutPin(multimedia.Params.GPIO.Name, "on")
+				}
+				if multimedia.Params.Predelay.Enabled && multimedia.Params.Predelay.Value > 0 {
+					time.Sleep(multimedia.Params.Predelay.Value * time.Second)
+				}
+				if multimedia.Params.Announcementtone.Enabled && FileExists(multimedia.Params.Announcementtone.File) {
+					localMediaPlayer(multimedia.Params.Announcementtone.File, multimedia.Params.Announcementtone.Volume, multimedia.Params.Announcementtone.Blocking, 0, 1) //todo replace 1 with volume from xmlconfig
+				}
+				for _, source := range multimedia.Media.Source {
+					if source.Enabled {
+						log.Printf("debug: Playing %v filename %v\n", source.Name, source.File)
+						localMediaPlayer(source.File, source.Volume, multimedia.Params.Announcementtone.Blocking, source.Duration, source.Loop)
+					}
+				}
+				if multimedia.Params.Postdelay.Enabled && multimedia.Params.Postdelay.Value > 0 {
+					time.Sleep(multimedia.Params.Postdelay.Value * time.Second)
+				}
+				if multimedia.Params.GPIO.Enabled {
+					GPIOOutPin(multimedia.Params.GPIO.Name, "off")
+				}
+			}
+			if multimedia.Params.Playintostream {
+				log.Println("todo play into stream")
+			}
+		}
 	}
 
+	// Config.Global.Multimedia.Params.Playintostream
+	// Config.Global.Multimedia.Params.Voicetarget
+
+}
+
+func findEventSound(findEventSound string) EventSoundStruct {
+	for _, sound := range Config.Global.Software.Sounds.Sound {
+		if sound.Enabled && sound.Event == findEventSound {
+			return EventSoundStruct{sound.Enabled, sound.File, sound.Volume, sound.Blocking}
+		}
+	}
+	return EventSoundStruct{false, "", "0", false}
 }

@@ -52,55 +52,69 @@ import (
 	"github.com/talkkonnect/go-nmea"
 )
 
+//GPS Related Global Variables
+var (
+	TraccarPortT55     string = "5005" // Old Traccar Client port 5005 for working with T55 Protocol
+	TraccarPortOpenGTS string = "5159" // Traccar Client port 5159 for for working OpenGTS Protocol
+	TraccarPortOsmAnd  string = "5055" // Traccar Client port 5055 for working with OsmAnd Protocol
+	GPSTime            string
+	GPSDate            string
+	GPSLatitude        float64
+	GPSLongitude       float64
+	GPSSpeed           float64
+	GPSCourse          float64
+	GPSVariation       float64
+)
+
 var goodGPSRead bool = false
 
 func getGpsPosition(verbose bool) (bool, error) {
 
-	if GpsEnabled {
+	if Config.Global.Hardware.GPS.Enabled {
 
-		if Port == "" {
+		if Config.Global.Hardware.GPS.Port == "" {
 			return false, errors.New("you must specify port")
 		}
 
-		if Even && Odd {
+		if Config.Global.Hardware.GPS.Even && Config.Global.Hardware.GPS.Odd {
 			return false, errors.New("cant specify both even and odd parity")
 		}
 
 		parity := serial.PARITY_NONE
 
-		if Even {
+		if Config.Global.Hardware.GPS.Even {
 			parity = serial.PARITY_EVEN
-		} else if Odd {
+		} else if Config.Global.Hardware.GPS.Odd {
 			parity = serial.PARITY_ODD
 		}
 
 		options := serial.OpenOptions{
-			PortName:               Port,
-			BaudRate:               Baud,
-			DataBits:               DataBits,
-			StopBits:               StopBits,
-			MinimumReadSize:        MinRead,
-			InterCharacterTimeout:  CharTimeOut,
+			PortName:               Config.Global.Hardware.GPS.Port,
+			BaudRate:               Config.Global.Hardware.GPS.Baud,
+			DataBits:               Config.Global.Hardware.GPS.DataBits,
+			StopBits:               Config.Global.Hardware.GPS.StopBits,
+			MinimumReadSize:        Config.Global.Hardware.GPS.MinRead,
+			InterCharacterTimeout:  Config.Global.Hardware.GPS.CharTimeOut,
 			ParityMode:             parity,
-			Rs485Enable:            Rs485,
-			Rs485RtsHighDuringSend: Rs485HighDuringSend,
-			Rs485RtsHighAfterSend:  Rs485HighAfterSend,
+			Rs485Enable:            Config.Global.Hardware.GPS.Rs485,
+			Rs485RtsHighDuringSend: Config.Global.Hardware.GPS.Rs485HighDuringSend,
+			Rs485RtsHighAfterSend:  Config.Global.Hardware.GPS.Rs485HighAfterSend,
 		}
 
 		f, err := serial.Open(options)
 
 		if err != nil {
-			GpsEnabled = false
+			Config.Global.Hardware.GPS.Enabled = false
 			return false, errors.New("cannot open serial port")
 		} else {
 			defer f.Close()
 		}
 
-		if TxData != "" {
-			txData, err := hex.DecodeString(TxData)
+		if Config.Global.Hardware.GPS.TxData != "" {
+			txData, err := hex.DecodeString(Config.Global.Hardware.GPS.TxData)
 
 			if err != nil {
-				GpsEnabled = false
+				Config.Global.Hardware.GPS.Enabled = false
 				return false, errors.New("cannot decode hex data")
 			}
 
@@ -116,7 +130,7 @@ func getGpsPosition(verbose bool) (bool, error) {
 
 		}
 
-		if Rx {
+		if Config.Global.Hardware.GPS.Rx {
 			serialPort, err := serial.Open(options)
 			if err != nil {
 				log.Println("warn: Unable to Open Serial Port Error ", err)
@@ -138,11 +152,11 @@ func getGpsPosition(verbose bool) (bool, error) {
 						if m.Latitude != 0 && m.Longitude != 0 {
 							goodGPSRead = true
 
-							FreqReport := float64(TraccarReportFrequency)                        // Reporting Frequency
-							FreqReports := (time.Duration(TraccarReportFrequency) * time.Second) // Frequency of GPS Reporting. Minutes, Seconds or hours?
+							FreqReport := float64(Config.Global.Hardware.GPSTrackingFunction.TraccarReportFrequency)                        // Reporting Frequency
+							FreqReports := (time.Duration(Config.Global.Hardware.GPSTrackingFunction.TraccarReportFrequency) * time.Second) // Frequency of GPS Reporting. Minutes, Seconds or hours?
 
-							if TrackEnabled && TraccarSendTo {
-								if TraccarProto == "t55" {
+							if Config.Global.Hardware.GPSTrackingFunction.TrackEnabled && Config.Global.Hardware.GPSTrackingFunction.TraccarSendTo {
+								if Config.Global.Hardware.GPSTrackingFunction.TraccarProto == "t55" {
 									go tcpSendT55Traccar2() // Initial Send GPS position to Traccar with old T55 client protocol. No keep-alive.
 								} else {
 									go httpSendTraccar() // Initial Send GPS position to Traccar over http function for both OsmAnd or OpenGTS protocol.
@@ -154,8 +168,8 @@ func getGpsPosition(verbose bool) (bool, error) {
 							var TraccarCounter = 1
 							go func() {
 								for range PositionReporter.C {
-									if TrackEnabled && TraccarSendTo {
-										if TraccarProto == "t55" {
+									if Config.Global.Hardware.GPSTrackingFunction.TrackEnabled && Config.Global.Hardware.GPSTrackingFunction.TraccarSendTo {
+										if Config.Global.Hardware.GPSTrackingFunction.TraccarProto == "t55" {
 											tcpSendT55Traccar2() // Send GPS position to Traccar with old T55 client protocol. No keep-alive.
 										} else {
 											httpSendTraccar() // Send GPS position to Traccar over http function for both OsmAnd or OpenGTS protocol.
@@ -164,21 +178,21 @@ func getGpsPosition(verbose bool) (bool, error) {
 									TraccarCounter++
 
 									if verbose {
-										if TrackEnabled && TraccarSendTo {
-											if TraccarProto == "osmand" {
-												log.Println("info: OsmAnd: ", TraccarServerURL+":"+fmt.Sprint(TraccarPortOsmAnd)+"?"+"id="+TraccarClientId+"&"+"timestamp="+date2()+"%20"+time2()+"&"+"lat="+fmt.Sprint(m.Latitude)+"&"+"lon="+fmt.Sprint(m.Longitude)+"&"+"speed="+fmt.Sprint(m.Speed)+"&"+"course="+fmt.Sprint(m.Course)+"&"+"variation="+fmt.Sprint(m.Variation))
-											} else if TraccarProto == "t55" {
-												log.Println("info: T55: " + "Sending " + fmt.Sprint(m) + " to " + TraccarServerURL + ":" + fmt.Sprint(TraccarPortT55))
-											} else if TraccarProto == "opengts" {
-												log.Println("info: OpenGTS: ", TraccarServerURL+":"+fmt.Sprint(TraccarPortOpenGTS)+"/?"+"id="+TraccarClientId+"&"+fmt.Sprint(m))
+										if Config.Global.Hardware.GPSTrackingFunction.TrackEnabled && Config.Global.Hardware.GPSTrackingFunction.TraccarSendTo {
+											if Config.Global.Hardware.GPSTrackingFunction.TraccarProto == "osmand" {
+												log.Println("info: OsmAnd: ", Config.Global.Hardware.GPSTrackingFunction.TraccarServerURL+":"+fmt.Sprint(TraccarPortOsmAnd)+"?"+"id="+Config.Global.Hardware.GPSTrackingFunction.TraccarClientId+"&"+"timestamp="+date2()+"%20"+time2()+"&"+"lat="+fmt.Sprint(m.Latitude)+"&"+"lon="+fmt.Sprint(m.Longitude)+"&"+"speed="+fmt.Sprint(m.Speed)+"&"+"course="+fmt.Sprint(m.Course)+"&"+"variation="+fmt.Sprint(m.Variation))
+											} else if Config.Global.Hardware.GPSTrackingFunction.TraccarProto == "t55" {
+												log.Println("info: T55: " + "Sending " + fmt.Sprint(m) + " to " + Config.Global.Hardware.GPSTrackingFunction.TraccarServerURL + ":" + fmt.Sprint(TraccarPortT55))
+											} else if Config.Global.Hardware.GPSTrackingFunction.TraccarProto == "opengts" {
+												log.Println("info: OpenGTS: ", Config.Global.Hardware.GPSTrackingFunction.TraccarServerURL+":"+fmt.Sprint(TraccarPortOpenGTS)+"/?"+"id="+Config.Global.Hardware.GPSTrackingFunction.TraccarClientId+"&"+fmt.Sprint(m))
 											}
 											log.Println("info: GPS Position Report Nr " + "(" + fmt.Sprint(TraccarCounter) + ")" + " Sent to Traccar Server. Next Position Report in " + fmt.Sprintf("%.2f", FreqReport/60) + " minute(s)")
 										}
 									}
 
-									if TargetBoard == "rpi" {
-										if TrackEnabled {
-											if TrackGPSShowLCD {
+									if Config.Global.Hardware.TargetBoard == "rpi" {
+										if Config.Global.Hardware.GPSTrackingFunction.TrackEnabled {
+											if Config.Global.Hardware.GPSTrackingFunction.TrackGPSShowLCD {
 												log.Println("info: Showing GPS Info in LCD: " + "Lat: " + fmt.Sprint(m.Latitude) + " Long: " + fmt.Sprint(m.Longitude))
 												time.Sleep(5 * time.Second)
 												t := time.Now()
@@ -219,8 +233,8 @@ func getGpsPosition(verbose bool) (bool, error) {
 							GPSCourse = m.Course
 							GPSVariation = m.Variation
 
-							Date1 := fmt.Sprint(gpsdatereorder())                  // Reformatted date for Tracar
-							Time1 := fmt.Sprintf("%s", truncateString(GPSTime, 8)) // Truncate time for Traccar
+							Date1 := fmt.Sprint(gpsdatereorder()) // Reformatted date for Tracar
+							Time1 := truncateString(GPSTime, 8)   // Truncate time for Traccar
 
 							currentTime := time.Now()
 							//Date2 := fmt.Sprintf(currentTime.Format("2006-01-02"))
@@ -247,25 +261,25 @@ func getGpsPosition(verbose bool) (bool, error) {
 								log.Println("info: Speed: ", m.Speed) // Is this knots?
 								log.Println("info: Course: ", m.Course)
 								log.Println("info: Variation: ", m.Variation)
-								log.Println("info: Traccar Cmd Osmand: " + fmt.Sprint(TraccarServerFullURL))
+								log.Println("info: Traccar Cmd Osmand: " + fmt.Sprint(Config.Global.Hardware.GPSTrackingFunction.TraccarServerFullURL))
 								log.Println("info: Traccar $GPRMC Sentence for T55/OpenGTS: " + fmt.Sprint(m))
 
-								if TrackEnabled {
+								if Config.Global.Hardware.GPSTrackingFunction.TrackEnabled {
 									//log.Println("info: GPS Tracking Enabled: " + fmt.Sprint(TrackEnabled))
-									if TraccarSendTo {
+									if Config.Global.Hardware.GPSTrackingFunction.TraccarSendTo {
 										log.Println("info: Sending GPS Position to Traccar Server Enabled")
-										log.Println("info: Traccar Protocol: " + strings.Title(strings.ToLower(TraccarProto)) + "; " + "Reporting Frequency: " + fmt.Sprintf("%.2f", FreqReport/60) + " minutes;")
+										log.Println("info: Traccar Protocol: " + strings.Title(strings.ToLower(Config.Global.Hardware.GPSTrackingFunction.TraccarProto)) + "; " + "Reporting Frequency: " + fmt.Sprintf("%.2f", FreqReport/60) + " minutes;")
 										//Print GPS message format for sending to Traccar depending on tracking protocol.
 
-										switch TraccarProto {
+										switch Config.Global.Hardware.GPSTrackingFunction.TraccarProto {
 										case "osmand":
-											log.Println("info: OsmAnd: ", TraccarServerFullURL)
+											log.Println("info: OsmAnd: ", Config.Global.Hardware.GPSTrackingFunction.TraccarServerFullURL)
 										case "opengts":
-											log.Println("info: OpenGTS: ", TraccarServerIP)
+											log.Println("info: OpenGTS: ", Config.Global.Hardware.GPSTrackingFunction.TraccarServerIP)
 										case "t55":
-											log.Println("info: T55:", fmt.Sprint(m), "...", TraccarServerURL+":"+TraccarPortT55)
+											log.Println("info: T55:", fmt.Sprint(m), "...", Config.Global.Hardware.GPSTrackingFunction.TraccarServerURL+":"+TraccarPortT55)
 										default:
-											log.Println("info: OsmAnd: ", TraccarServerFullURL)
+											log.Println("info: OsmAnd: ", Config.Global.Hardware.GPSTrackingFunction.TraccarServerFullURL)
 										}
 									}
 								}
@@ -296,12 +310,12 @@ func getGpsPosition(verbose bool) (bool, error) {
 
 func tcpSendT55Traccar2() {
 
-	pgid := "$PGID" + "," + TraccarClientId + "*0F" + "\r" + "\n" // Unique Client ID (e.g. 12345). Follow with carriage return and line feed $
+	pgid := "$PGID" + "," + Config.Global.Hardware.GPSTrackingFunction.TraccarClientId + "*0F" + "\r" + "\n" // Unique Client ID (e.g. 12345). Follow with carriage return and line feed $
 	gprmc := fmt.Sprint(m) + "\r" + "\n"
 	log.Println("info: $GPRMC to send is: " + fmt.Sprint(m))
 	fmt.Println(m)
 
-	conn, _ := net.Dial("tcp", TraccarServerIP+":"+fmt.Sprint(TraccarPortT55)) // Use port 5005 for T55. Keep-alive.
+	conn, _ := net.Dial("tcp", Config.Global.Hardware.GPSTrackingFunction.TraccarServerIP+":"+fmt.Sprint(TraccarPortT55)) // Use port 5005 for T55. Keep-alive.
 	err := conn.(*net.TCPConn).SetKeepAlive(true)
 	if err != nil {
 		fmt.Println(err)
@@ -328,7 +342,7 @@ func tcpSendT55Traccar2() {
 	fmt.Fprintf(conn, pgid) // Send ID
 	time.Sleep(1 * time.Second)
 	fmt.Fprintf(conn, gprmc) // send $GPRMC
-	log.Println("info: Sending position message to Traccar over Protocol: " + strings.Title(strings.ToLower(TraccarProto)))
+	log.Println("info: Sending position message to Traccar over Protocol: " + strings.Title(strings.ToLower(Config.Global.Hardware.GPSTrackingFunction.TraccarProto)))
 
 	notify := make(chan error)
 
@@ -367,26 +381,26 @@ func tcpSendT55Traccar2() {
 
 func httpSendTraccar() {
 
-	if TrackEnabled {
-		if TraccarSendTo {
-			if TraccarProto == "osmand" {
-				TraccarServerFullURL = (fmt.Sprint(TraccarServerURL) + ":" + fmt.Sprint(TraccarPortOsmAnd) + "?" + "id=" + TraccarClientId + "&" + "timestamp=" + date2() + "%20" + time2() + "&" + "lat=" + fmt.Sprintf("%f", GPSLatitude) + "&" + "lon=" + fmt.Sprintf("%f", GPSLongitude) + "&" + "speed=" + fmt.Sprintf("%f", GPSSpeed) + "&" + "course=" + fmt.Sprintf("%f", GPSCourse) + "&" + "variation=" + fmt.Sprintf("%f", GPSVariation))
-			} else if TraccarProto == "opengts" {
-				TraccarServerFullURL = fmt.Sprint(TraccarServerURL) + ":" + fmt.Sprint(TraccarPortOpenGTS) + "/" + "?" + "id=" + TraccarClientId + "&" + "gprmc=" + fmt.Sprint(m)
+	if Config.Global.Hardware.GPSTrackingFunction.TrackEnabled {
+		if Config.Global.Hardware.GPSTrackingFunction.TraccarSendTo {
+			if Config.Global.Hardware.GPSTrackingFunction.TraccarProto == "osmand" {
+				Config.Global.Hardware.GPSTrackingFunction.TraccarServerFullURL = (fmt.Sprint(Config.Global.Hardware.GPSTrackingFunction.TraccarServerURL) + ":" + fmt.Sprint(TraccarPortOsmAnd) + "?" + "id=" + Config.Global.Hardware.GPSTrackingFunction.TraccarClientId + "&" + "timestamp=" + date2() + "%20" + time2() + "&" + "lat=" + fmt.Sprintf("%f", GPSLatitude) + "&" + "lon=" + fmt.Sprintf("%f", GPSLongitude) + "&" + "speed=" + fmt.Sprintf("%f", GPSSpeed) + "&" + "course=" + fmt.Sprintf("%f", GPSCourse) + "&" + "variation=" + fmt.Sprintf("%f", GPSVariation))
+			} else if Config.Global.Hardware.GPSTrackingFunction.TraccarProto == "opengts" {
+				Config.Global.Hardware.GPSTrackingFunction.TraccarServerFullURL = fmt.Sprint(Config.Global.Hardware.GPSTrackingFunction.TraccarServerURL) + ":" + fmt.Sprint(TraccarPortOpenGTS) + "/" + "?" + "id=" + Config.Global.Hardware.GPSTrackingFunction.TraccarClientId + "&" + "gprmc=" + fmt.Sprint(m)
 
 			}
 		}
 	}
 
-	response, err := http.Get(TraccarServerFullURL)
+	response, err := http.Get(Config.Global.Hardware.GPSTrackingFunction.TraccarServerFullURL)
 
 	if err != nil {
 
 		log.Println("error: Cannot Establish Connection with Traccar Server! Error ", err)
 		currentTime := time.Now()
-		if TargetBoard == "rpi" {
-			if TrackEnabled {
-				if TrackGPSShowLCD {
+		if Config.Global.Hardware.TargetBoard == "rpi" {
+			if Config.Global.Hardware.GPSTrackingFunction.TrackEnabled {
+				if Config.Global.Hardware.GPSTrackingFunction.TrackGPSShowLCD {
 					if LCDEnabled {
 						LcdText = [4]string{"nil", "TRACK ERR1 " + currentTime.Format("15:04:05"), "nil", "nil"}
 						go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
@@ -418,9 +432,9 @@ func httpSendTraccar() {
 			log.Println("info: HTTP Status Code from Traccar is in the 2xx range. This is OK.")
 
 			currentTime := time.Now()
-			if TargetBoard == "rpi" {
-				if TrackEnabled {
-					if TrackGPSShowLCD {
+			if Config.Global.Hardware.TargetBoard == "rpi" {
+				if Config.Global.Hardware.GPSTrackingFunction.TrackEnabled {
+					if Config.Global.Hardware.GPSTrackingFunction.TrackGPSShowLCD {
 						if LCDEnabled {
 							LcdText = [4]string{"nil", "TRACK OK " + currentTime.Format("15:04:05"), "nil", "nil"}
 							go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
@@ -433,9 +447,9 @@ func httpSendTraccar() {
 			}
 		} else {
 			currentTime := time.Now()
-			if TargetBoard == "rpi" {
-				if TrackEnabled {
-					if TrackGPSShowLCD {
+			if Config.Global.Hardware.TargetBoard == "rpi" {
+				if Config.Global.Hardware.GPSTrackingFunction.TrackEnabled {
+					if Config.Global.Hardware.GPSTrackingFunction.TrackGPSShowLCD {
 						if LCDEnabled {
 							LcdText = [4]string{"nil", "TRACK ERR2 " + currentTime.Format("15:04:05"), "nil", "nil"}
 							go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
@@ -470,13 +484,13 @@ func gpsdatereorder() string {
 
 func time2() string {
 	currentTime := time.Now()
-	Time2 := fmt.Sprintf("%s", currentTime.Format("15:04:05"))
+	Time2 := currentTime.Format("15:04:05")
 	return Time2
 }
 
 // current date system
 func date2() string {
 	currentTime := time.Now()
-	Date2 := fmt.Sprintf("%s", currentTime.Format("2006-01-02"))
+	Date2 := currentTime.Format("2006-01-02")
 	return Date2
 }

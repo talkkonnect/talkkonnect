@@ -31,6 +31,7 @@
 package talkkonnect
 
 import (
+	"errors"
 	"log"
 	"strconv"
 
@@ -104,6 +105,9 @@ func NewLedStrip() (*LedStrip, error) {
 }
 
 func (ls *LedStrip) ledCtrl(num int, color string) error {
+	if !Config.Global.Hardware.LedStripEnabled {
+		return errors.New("LedStrip Not Enabled in Config")
+	}
 	rgb, err := strconv.ParseUint(color, 16, 32)
 	if err != nil {
 		return err

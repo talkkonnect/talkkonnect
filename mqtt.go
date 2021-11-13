@@ -47,7 +47,6 @@ package talkkonnect
 
 import (
 	"crypto/tls"
-	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -62,26 +61,26 @@ import (
 func (b *Talkkonnect) mqttsubscribe() {
 
 	log.Printf("info: MQTT Subscription Information")
-	log.Printf("info: MQTT Broker      : %s\n", MQTTBroker)
-	log.Printf("debug: MQTT clientid    : %s\n", MQTTId)
-	log.Printf("debug: MQTT user        : %s\n", MQTTUser)
-	log.Printf("debug: MQTT password    : %s\n", MQTTPassword)
-	log.Printf("info: Subscribed topic : %s\n", MQTTTopic)
+	log.Printf("info: MQTT Broker      : %s\n", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTBroker)
+	log.Printf("debug: MQTT clientid    : %s\n", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTId)
+	log.Printf("debug: MQTT user        : %s\n", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTUser)
+	log.Printf("debug: MQTT password    : %s\n", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTPassword)
+	log.Printf("info: Subscribed topic : %s\n", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTTopic)
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 
-	connOpts := MQTT.NewClientOptions().AddBroker(MQTTBroker).SetClientID(MQTTId).SetCleanSession(true)
-	if MQTTUser != "" {
-		connOpts.SetUsername(MQTTUser)
-		if MQTTPassword != "" {
-			connOpts.SetPassword(MQTTPassword)
+	connOpts := MQTT.NewClientOptions().AddBroker(Config.Global.Software.RemoteControl.MQTT.Settings.MQTTBroker).SetClientID(Config.Global.Software.RemoteControl.MQTT.Settings.MQTTId).SetCleanSession(true)
+	if Config.Global.Software.RemoteControl.MQTT.Settings.MQTTUser != "" {
+		connOpts.SetUsername(Config.Global.Software.RemoteControl.MQTT.Settings.MQTTUser)
+		if Config.Global.Software.RemoteControl.MQTT.Settings.MQTTPassword != "" {
+			connOpts.SetPassword(Config.Global.Software.RemoteControl.MQTT.Settings.MQTTPassword)
 		}
 	}
 	tlsConfig := &tls.Config{InsecureSkipVerify: true, ClientAuth: tls.NoClientCert}
 	connOpts.SetTLSConfig(tlsConfig)
 
 	connOpts.OnConnect = func(c MQTT.Client) {
-		if token := c.Subscribe(MQTTTopic, byte(MQTTQos), b.onMessageReceived); token.Wait() && token.Error() != nil {
+		if token := c.Subscribe(Config.Global.Software.RemoteControl.MQTT.Settings.MQTTTopic, byte(Config.Global.Software.RemoteControl.MQTT.Settings.MQTTQos), b.onMessageReceived); token.Wait() && token.Error() != nil {
 			panic(token.Error())
 		}
 	}
@@ -90,147 +89,170 @@ func (b *Talkkonnect) mqttsubscribe() {
 	if token := client.Connect(); token.Wait() && token.Error() != nil {
 		panic(token.Error())
 	} else {
-		log.Printf("info: Connected to     : %s\n", MQTTBroker)
+		log.Printf("info: Connected to     : %s\n", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTBroker)
 	}
 
 	<-c
 }
 
 func (b *Talkkonnect) onMessageReceived(client MQTT.Client, message MQTT.Message) {
-	log.Printf("info: Received MQTT message on topic: %s Payload: %s\n", message.Topic(), message.Payload())
 
-	PayLoad := strings.ToLower(string(message.Payload()))
+	var (
+		CommandDefined bool
+		PayLoad        string
+	)
 
-	var ID int
-	var err error
+	funcs := map[string]interface{}{
+		"displaymenu":        b.cmdDisplayMenu,
+		"channelup":          b.cmdChannelUp,
+		"channeldown":        b.cmdChannelDown,
+		"muteunmute":         b.cmdMuteUnmute,
+		"currentvolume":      b.cmdCurrentVolume,
+		"volumeup":           b.cmdVolumeUp,
+		"volumedown":         b.cmdVolumeDown,
+		"listserverchannels": b.cmdListServerChannels,
+		"starttransmitting":  b.cmdStartTransmitting,
+		"stoptransmitting":   b.cmdStopTransmitting,
+		"listonlineusers":    b.cmdListOnlineUsers,
+		"playback":           b.cmdPlayback,
+		"gpsposition":        b.cmdGPSPosition,
+		"sendemail":          b.cmdSendEmail,
+		"previousserver":     b.cmdConnPreviousServer,
+		"connnextserver":     b.cmdConnNextServer,
+		"clearscreen":        b.cmdClearScreen,
+		"pingservers":        b.cmdPingServers,
+		"panicsimulation":    b.cmdPanicSimulation,
+		"repeattxloop":       b.cmdRepeatTxLoop,
+		"scanchannels":       b.cmdScanChannels,
+		"thanks":             cmdThanks,
+		"showuptime":         b.cmdShowUptime,
+		"dumpxmlconfig":      b.cmdDumpXMLConfig,
+		"voicetargetset":     b.cmdSendVoiceTargets,
+		"attention":          attention,
+		"relay":              relay}
 
-	if strings.Contains(PayLoad, "voicetargetset") {
-		if strings.Contains(PayLoad, ":") {
-			IDString := fmt.Sprintf("%v", PayLoad[15:])
-			ID, err = strconv.Atoi(IDString)
-			if err != nil {
-				log.Println("error: Target is ID not a number")
-				return
-			}
-			if ID >= 0 && ID <= 31 {
-				b.cmdSendVoiceTargets(uint32(ID))
-				log.Printf("info: MQTT SetTargetID %v Request Processed Successfully\n", IDString)
-				return
-			} else {
-				log.Println("error: Target ID NOT in Valid Range")
-				return
-			}
+	PayLoad = strings.ToLower(string(message.Payload()))
+	log.Printf("info: Received MQTT message on topic: %s Payload: %s\n", message.Topic(), PayLoad)
+
+	for _, mqttcommand := range Config.Global.Software.RemoteControl.MQTT.Commands.Command {
+		if strings.Contains(PayLoad, strings.ToLower(mqttcommand.Action)) {
+			CommandDefined = true
 		}
 	}
 
-	switch PayLoad {
-	case "displaymenu":
-		log.Println("info: MQTT Display Menu Request Processed Successfully")
-		b.cmdDisplayMenu()
-	case "channelup":
-		log.Println("info: MQTT Channel Up Request Processed Successfully")
-		b.cmdChannelUp()
-	case "channeldown":
-		log.Println("info: MQTT Channel Down Request Processed Successfully")
-		b.cmdChannelDown()
-	case "mute-toggle":
-		log.Println("info: MQTT Mute/UnMute Speaker Request Processed Successfully")
-		b.cmdMuteUnmute("toggle")
-	case "mute":
-		log.Println("info: MQTT Mute/UnMute Speaker Request Processed Successfully")
-		b.cmdMuteUnmute("mute")
-	case "unmute":
-		log.Println("info: MQTT Mute/UnMute Speaker Request Processed Successfully")
-		b.cmdMuteUnmute("unmute")
-	case "currentvolume":
-		log.Println("info: MQTT Current Volume Level Request Processed Successfully")
-		b.cmdCurrentVolume()
-	case "volumeup":
-		log.Println("info: MQTT Digital Volume Up Request Processed Successfully")
-		b.cmdVolumeUp()
-	case "volumedown":
-		log.Println("info: MQTT Digital Volume Down Request Processed Successfully")
-		b.cmdVolumeDown()
-	case "listchannels":
-		log.Println("info: MQTT List Server Channels Request Processed Successfully")
-		b.cmdListServerChannels()
-	case "starttransmitting":
-		log.Println("info: MQTT Start Transmitting Request Processed Successfully")
-		b.cmdStartTransmitting()
-	case "stoptransmitting":
-		log.Println("info: MQTT Stop Transmitting Request Processed Successfully")
-		b.cmdStopTransmitting()
-	case "listonlineusers":
-		log.Println("info: MQTT List Online Users Request Processed Successfully")
-		b.cmdListOnlineUsers()
-	case "stream-toggle":
-		log.Println("info: MQTT Play/Stop Stream Request Processed Successfully")
-		b.cmdPlayback()
-	case "gpsposition":
-		log.Println("info: MQTT Request GPS Position Processed Successfully")
-		b.cmdGPSPosition()
-	case "sendemail":
-		log.Println("info: MQTT Send Email Processed Successfully")
-		b.cmdSendEmail()
-	case "connpreviousserver":
-		log.Println("info: MQTT Previous Server Processed Successfully")
-		b.cmdConnPreviousServer()
-	case "connnextserver":
-		log.Println("info: MQTT Next Server Processed Successfully")
-		b.cmdConnNextServer()
-	case "clearscreen":
-		log.Println("info: MQTT Clear Screen Processed Successfully")
-		b.cmdClearScreen()
-	case "pingservers":
-		log.Println("info: MQTT Ping Servers Processed Successfully")
-		b.cmdPingServers()
-	case "panicsimulation":
-		log.Println("info: MQTT Request Panic Simulation Processed Successfully")
-		b.cmdPanicSimulation()
-	case "repeattxLoop":
-		log.Println("info: MQTT Request Repeat Tx Loop Test Processed Successfully")
-		b.cmdRepeatTxLoop()
-	case "scanchannels":
-		log.Println("info: MQTT Request Scan Processed Successfully")
-		b.cmdScanChannels()
-	case "thanks":
-		log.Println("info: MQTT Request Show Acknowledgements Processed Successfully")
-		b.cmdThanks()
-	case "showuptime":
-		log.Println("info: MQTT Request Current Version Successfully")
-		b.cmdShowUptime()
-	case "dumpxmlconfig":
-		log.Println("info: MQTT Print XML Config Processed Successfully")
-		b.cmdDumpXMLConfig()
-	case "attentionled:on":
-		log.Println("info: MQTT Turn On Attention LED Successfully")
-		LEDOnFunc(AttentionLED)
-	case "attentionled:off":
-		log.Println("info: MQTT Turn Off Attention LED Successfully")
-		LEDOffFunc(AttentionLED)
-	case "attentionled:blink":
-		log.Println("info: MQTT Blink Attention LED 20 times Successfully")
-		for i := 0; i < MQTTAttentionBlinkTimes; i++ {
-			LEDOnFunc(AttentionLED)
-			time.Sleep(time.Duration(MQTTAttentionBlinkmsecs) * time.Millisecond)
-			LEDOffFunc(AttentionLED)
-			time.Sleep(time.Duration(MQTTAttentionBlinkmsecs) * time.Millisecond)
-		}
-	case "relay1:on":
-		log.Println("info: MQTT Turn On Relay 1 Successfully")
-		relayCommand(1, "on")
-	case "relay1:off":
-		log.Println("info: MQTT Turn Off Relay 1 Successfully")
-		relayCommand(1, "off")
-	case "relay1:pulse":
-		log.Println("info: MQTT Pulse Relay 1 Successfully")
-		relayCommand(1, "pulse")
-	case "playrepeatertone":
-		log.Println("info: MQTT Play Repeater Tone Processed Successfully")
-		b.cmdPlayRepeaterTone()
+	if !CommandDefined {
+		log.Printf("error: MQTT Command %v Not Defined\n", PayLoad)
+		return
+	}
 
-	// todo add other automation control for buttons, relays and leds here as needed in the future
-	default:
-		log.Printf("error: Undefined Command Received MQTT message on topic: %s Payload: %s\n", message.Topic(), message.Payload())
+	Command := []string{}
+	Command = strings.Split(strings.ToLower(PayLoad), ":")
+
+	for _, mqttcommand := range Config.Global.Software.RemoteControl.MQTT.Commands.Command {
+		if strings.Contains(Command[0], mqttcommand.Action) {
+			if mqttcommand.Enabled {
+				var Err error
+				switch Command[0] {
+				case "muteunmute":
+					if len(Command) == 2 {
+						if Command[1] == "toggle" {
+							_, Err = b.Call(funcs, mqttcommand.Action, "mute-toggle")
+						}
+						if Command[1] == "mute" {
+							_, Err = b.Call(funcs, mqttcommand.Action, "mute")
+						}
+						if Command[1] == "unmute" {
+							_, Err = b.Call(funcs, mqttcommand.Action, "unmute")
+						}
+					} else {
+						log.Println("error: Malformed MQTT Command")
+					}
+				case "attention":
+					if len(Command) == 2 {
+						if Command[1] == "blink" {
+							_, Err = b.Call(funcs, mqttcommand.Action, "blink")
+						}
+						if Command[1] == "on" {
+							_, Err = b.Call(funcs, mqttcommand.Action, "on")
+						}
+						if Command[1] == "off" {
+							_, Err = b.Call(funcs, mqttcommand.Action, "off")
+						}
+					} else {
+						log.Println("error: Malformed MQTT Command")
+					}
+				case "relay":
+					if len(Command) == 3 {
+						if Command[2] == "pulse" {
+							_, Err = b.Call(funcs, mqttcommand.Action, "pulse", Command[3])
+						}
+						if Command[2] == "on" {
+							_, Err = b.Call(funcs, mqttcommand.Action, "on", Command[3])
+						}
+						if Command[2] == "off" {
+							_, Err = b.Call(funcs, mqttcommand.Action, "off", Command[3])
+						}
+					} else {
+						log.Println("error: Malformed MQTT Command")
+					}
+				case "voicetargetset":
+					if len(Command) == 2 {
+						id, err := strconv.Atoi(Command[1])
+						if err != nil {
+							return
+						}
+						if id < 32 {
+							_, Err = b.Call(funcs, mqttcommand.Action, uint32(id))
+						} else {
+							log.Println("error: Value of Target ID Not In Range (0-31) ", id)
+						}
+					} else {
+						log.Println("error: Malformed MQTT Command")
+					}
+				default:
+					if len(Command) == 1 {
+						_, Err = b.Call(funcs, mqttcommand.Action)
+					}
+				}
+
+				if Err == nil {
+					log.Printf("MQTT Command %v Processed", Command)
+				} else {
+					log.Printf("error: MQTT Command %v Failed", Command)
+				}
+			}
+		}
+	}
+}
+
+func attention(command string) {
+	switch command {
+	case "blink":
+		for i := 0; i < Config.Global.Software.RemoteControl.MQTT.Settings.MQTTAttentionBlinkTimes; i++ {
+			GPIOOutPin("attention", "on")
+			time.Sleep(time.Duration(Config.Global.Software.RemoteControl.MQTT.Settings.MQTTAttentionBlinkmsecs) * time.Millisecond)
+			GPIOOutPin("attention", "off")
+			time.Sleep(time.Duration(Config.Global.Software.RemoteControl.MQTT.Settings.MQTTAttentionBlinkmsecs) * time.Millisecond)
+		}
+	case "on":
+		GPIOOutPin("attention", "on")
+	case "off":
+		GPIOOutPin("attention", "off")
+	}
+}
+
+func relay(command string, no string) {
+	number := no
+	checkno, err := strconv.Atoi(no)
+	if err != nil || checkno == 0 || checkno > 2 {
+		return
+	}
+	switch command {
+	case "pulse":
+		GPIOOutPin("relay"+number, "pulse")
+	case "on":
+		GPIOOutPin("relay"+number, "on")
+	case "off":
+		GPIOOutPin("relay"+number, "off")
 	}
 }

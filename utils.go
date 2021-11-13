@@ -160,7 +160,15 @@ func sendviagmail(username string, password string, receiver string, subject str
 		return fmt.Errorf("sending Email Via GMAIL Error")
 	}
 
-	go LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+	if Config.Global.Hardware.TargetBoard == "rpi" {
+		if LCDEnabled {
+			LcdText = [4]string{"nil", "nil", "nil", "Sending Email"}
+			go LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+		}
+		if OLEDEnabled {
+			oledDisplay(false, 6, 1, "Sending Email")
+		}
+	}
 
 	return nil
 }

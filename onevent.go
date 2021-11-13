@@ -34,6 +34,7 @@ import (
 	"log"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/talkkonnect/gumble/gumble"
 )
@@ -60,16 +61,16 @@ func (b *Talkkonnect) OnConnect(e *gumble.ConnectEvent) {
 
 	log.Printf("debug: Connected to %s Address %s on attempt %d index [%d]\n ", b.Name, b.Client.Conn.RemoteAddr(), b.ConnectAttempts, AccountIndex)
 	if e.WelcomeMessage != nil {
-		var message string = fmt.Sprintf("%v", esc(*e.WelcomeMessage))
+		var tmessage string = fmt.Sprintf("%v", esc(*e.WelcomeMessage))
 		log.Println("info: Welcome message: ")
-		for _, line := range strings.Split(strings.TrimSuffix(message, "\n"), "\n") {
+		for _, line := range strings.Split(strings.TrimSuffix(tmessage, "\n"), "\n") {
 			log.Println("info: ", line)
 		}
 	}
 
-	if TargetBoard == "rpi" {
-		if !LedStripEnabled {
-			LEDOnFunc(OnlineLED)
+	if Config.Global.Hardware.TargetBoard == "rpi" {
+		if !Config.Global.Hardware.LedStripEnabled {
+			GPIOOutPin("online", "on")
 		} else {
 			MyLedStripOnlineLEDOn()
 		}
@@ -104,33 +105,37 @@ func (b *Talkkonnect) OnDisconnect(e *gumble.DisconnectEvent) {
 
 	IsConnected = false
 
-	if TargetBoard == "rpi" {
-		if !LedStripEnabled {
-			LEDOffAll()
+	if Config.Global.Hardware.TargetBoard == "rpi" {
+		if !Config.Global.Hardware.LedStripEnabled {
+			GPIOOutAll("led/relay", "off")
 		} else {
-			MyLedStripLEDOffAll()
+			MyLedStripGPIOOutAll()
 		}
 	}
 
-	log.Println("alert: Attempting Reconnect in 10 seconds...")
+	log.Println("alert: Attempting Reconnect in 5 seconds...")
 	log.Println("alert: Connection to ", b.Address, "disconnected")
 	log.Println("alert: Disconnection Reason ", reason)
-	b.ReConnect()
 
+	time.Sleep(5 * time.Second)
+	b.ReConnect()
 }
 
 func (b *Talkkonnect) OnTextMessage(e *gumble.TextMessageEvent) {
 	b.BackLightTimer()
 
-	if EventSoundEnabled {
-		localMediaPlayer(EventMessageSoundFilenameAndPath, EventVolume, 0, 1)
-	}
+	var eventSound EventSoundStruct = findEventSound("message")
+	if eventSound.Enabled {
+		if v, err := strconv.Atoi(eventSound.Volume); err == nil {
+			localMediaPlayer(eventSound.FileName, v, eventSound.Blocking, 0, 1)
 
+		}
+	}
 	if len(cleanstring(e.Message)) > 105 {
 		log.Println("warn: Message Too Long to Be Displayed on Screen")
-		message = strings.TrimSpace(cleanstring(e.Message)[:105])
+		tmessage = strings.TrimSpace(cleanstring(e.Message)[:105])
 	} else {
-		message = strings.TrimSpace(cleanstring(e.Message))
+		tmessage = strings.TrimSpace(cleanstring(e.Message))
 	}
 
 	var sender string
@@ -142,55 +147,59 @@ func (b *Talkkonnect) OnTextMessage(e *gumble.TextMessageEvent) {
 		sender = ""
 	}
 
-	log.Println(fmt.Sprintf("info: Message ("+strconv.Itoa(len(message))+") from %v %v\n", sender, message))
+	log.Println(fmt.Sprintf("info: Message ("+strconv.Itoa(len(tmessage))+") from %v %v\n", sender, tmessage))
 
-	if TTSMessageEnabled {
-		voiceMessage := fmt.Sprintf("Message from %v %v\n", sender, cleanstring(e.Message))
-		if TTSMessageFromTag {
-			b.TTSPlayer(voiceMessage, TTSLocalPlay, TTSLocalPlayWithRXLED, TTSPlayIntoStream)
-		} else {
-			b.TTSPlayer(cleanstring(e.Message), TTSLocalPlay, TTSLocalPlayWithRXLED, TTSPlayIntoStream)
+	for _, tts := range Config.Global.Software.TTS.Sound {
+		if tts.Action == "message" {
+			if tts.Enabled {
+				voiceMessage := fmt.Sprintf("Message from %v %v\n", sender, cleanstring(e.Message))
+				if Config.Global.Software.TTSMessages.TTSMessageFromTag {
+					b.TTSPlayerMessage(voiceMessage, Config.Global.Software.TTSMessages.LocalPlay, Config.Global.Software.TTSMessages.PlayIntoStream)
+				} else {
+					b.TTSPlayerMessage(cleanstring(e.Message), Config.Global.Software.TTSMessages.LocalPlay, Config.Global.Software.TTSMessages.PlayIntoStream)
+				}
+			}
 		}
 	}
 
-	if TargetBoard == "rpi" {
+	if Config.Global.Hardware.TargetBoard == "rpi" {
 		if LCDEnabled {
 			LcdText[0] = "Msg From " + sender
-			LcdText[1] = message
+			LcdText[1] = tmessage
 			LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 		}
 		if OLEDEnabled {
 			oledDisplay(false, 2, 1, "Msg From "+sender)
-			if len(message) <= 21 {
-				oledDisplay(false, 3, 1, message)
+			if len(tmessage) <= 21 {
+				oledDisplay(false, 3, 1, tmessage)
 				oledDisplay(false, 4, 1, "")
 				oledDisplay(false, 5, 1, "")
 				oledDisplay(false, 6, 1, "")
 				oledDisplay(false, 7, 1, "")
-			} else if len(message) <= 42 {
-				oledDisplay(false, 3, 1, message[0:21])
-				oledDisplay(false, 4, 1, message[21:41])
+			} else if len(tmessage) <= 42 {
+				oledDisplay(false, 3, 1, tmessage[0:21])
+				oledDisplay(false, 4, 1, tmessage[21:41])
 				oledDisplay(false, 5, 1, "")
 				oledDisplay(false, 6, 1, "")
 				oledDisplay(false, 7, 1, "")
-			} else if len(message) <= 63 {
-				oledDisplay(false, 3, 1, message[0:21])
-				oledDisplay(false, 4, 1, message[21:42])
-				oledDisplay(false, 5, 1, message[42:])
+			} else if len(tmessage) <= 63 {
+				oledDisplay(false, 3, 1, tmessage[0:21])
+				oledDisplay(false, 4, 1, tmessage[21:42])
+				oledDisplay(false, 5, 1, tmessage[42:])
 				oledDisplay(false, 6, 1, "")
 				oledDisplay(false, 7, 1, "")
-			} else if len(message) <= 84 {
-				oledDisplay(false, 3, 1, message[0:21])
-				oledDisplay(false, 4, 1, message[21:42])
-				oledDisplay(false, 5, 1, message[42:63])
-				oledDisplay(false, 6, 1, message[63:])
+			} else if len(tmessage) <= 84 {
+				oledDisplay(false, 3, 1, tmessage[0:21])
+				oledDisplay(false, 4, 1, tmessage[21:42])
+				oledDisplay(false, 5, 1, tmessage[42:63])
+				oledDisplay(false, 6, 1, tmessage[63:])
 				oledDisplay(false, 7, 1, "")
-			} else if len(message) <= 105 {
-				oledDisplay(false, 3, 1, message[0:20])
-				oledDisplay(false, 4, 1, message[21:44])
-				oledDisplay(false, 5, 1, message[42:63])
-				oledDisplay(false, 6, 1, message[63:84])
-				oledDisplay(false, 7, 1, message[84:105])
+			} else if len(tmessage) <= 105 {
+				oledDisplay(false, 3, 1, tmessage[0:20])
+				oledDisplay(false, 4, 1, tmessage[21:44])
+				oledDisplay(false, 5, 1, tmessage[42:63])
+				oledDisplay(false, 6, 1, tmessage[63:84])
+				oledDisplay(false, 7, 1, tmessage[84:105])
 			}
 		}
 	}
@@ -222,12 +231,11 @@ func (b *Talkkonnect) OnUserChange(e *gumble.UserChangeEvent) {
 		log.Println("info:", cleanstring(e.User.Name), " Changed Channel to ", e.User.Channel.Name)
 		LcdText[2] = cleanstring(e.User.Name) + "->" + e.User.Channel.Name
 		LcdText[3] = ""
+		if Config.Global.Hardware.IO.Max7219.Enabled {
+			Max7219(Config.Global.Hardware.IO.Max7219.Max7219Cascaded, Config.Global.Hardware.IO.Max7219.SPIBus, Config.Global.Hardware.IO.Max7219.SPIDevice, Config.Global.Hardware.IO.Max7219.Brightness, strconv.Itoa(int(b.Client.Self.Channel.ID)))
+		}
 	case gumble.UserChangeComment:
 		info = "chg comment"
-		b.BackLightTimer()
-		if EventSoundEnabled {
-			localMediaPlayer(EventMessageSoundFilenameAndPath, EventVolume, 0, 1)
-		}
 	case gumble.UserChangeAudio:
 		info = "chg audio"
 	case gumble.UserChangePrioritySpeaker:
@@ -240,8 +248,13 @@ func (b *Talkkonnect) OnUserChange(e *gumble.UserChangeEvent) {
 		if info != "chg channel" {
 			if info != "" {
 				log.Println("info: User ", cleanstring(e.User.Name), " ", info, "Event type=", e.Type, " channel=", e.User.Channel.Name)
-				if TTSEnabled && TTSParticipants {
-					b.Speak("User "+cleanstring(e.User.Name)+info+"Has Changed to "+e.User.Channel.Name, "local", 1, 0, 1, TTSLanguage)
+
+				for _, tts := range Config.Global.Software.TTS.Sound {
+					if tts.Action == "participants" {
+						if tts.Enabled {
+							b.Speak("User "+cleanstring(e.User.Name)+info+"Has Changed to "+e.User.Channel.Name, "local", 1, 0, 1, Config.Global.Software.TTSMessages.TTSLanguage)
+						}
+					}
 				}
 			}
 
@@ -290,7 +303,7 @@ func (b *Talkkonnect) OnPermissionDenied(e *gumble.PermissionDeniedEvent) {
 			LcdText[1] = b.Client.Self.Channel.Name + " (" + strconv.Itoa(len(b.Client.Self.Channel.Users)) + " Users)"
 		}
 
-		if TargetBoard == "rpi" {
+		if Config.Global.Hardware.TargetBoard == "rpi" {
 			if LCDEnabled {
 				LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 			}

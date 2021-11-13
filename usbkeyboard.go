@@ -40,9 +40,9 @@ import (
 
 func (b *Talkkonnect) USBKeyboard() {
 
-	device, err := evdev.Open(USBKeyboardPath)
+	device, err := evdev.Open(Config.Global.Hardware.USBKeyboard.USBKeyboardPath)
 	if err != nil {
-		log.Printf("error: Unable to open USB Keyboard input device: %s\nError: %v It will now Be Disabled\n", USBKeyboardPath, err)
+		log.Printf("error: Unable to open USB Keyboard input device: %s\nError: %v It will now Be Disabled\n", Config.Global.Hardware.USBKeyboard.USBKeyboardPath, err)
 		return
 	}
 
@@ -96,7 +96,7 @@ func (b *Talkkonnect) USBKeyboard() {
 					case "record":
 						b.cmdAudioTrafficRecord()
 						b.cmdAudioMicRecord()
-					case "setvoicetarget":
+					case "voicetargetset":
 						voicetarget, err := strconv.Atoi(USBKeyMap[rune(ke.Scancode)].ParamValue)
 						if err != nil {
 							log.Println("error: Target is Non-Numeric Value")
@@ -107,7 +107,7 @@ func (b *Talkkonnect) USBKeyboard() {
 						log.Println("Command Not Defined ", strings.ToLower(USBKeyMap[rune(ke.Scancode)].Command))
 					}
 				} else {
-					if ke.Scancode != uint16(NumlockScanID) {
+					if ke.Scancode != uint16(Config.Global.Hardware.USBKeyboard.NumlockScanID) {
 						log.Println("error: Key Not Mapped ASC ", ke.Scancode)
 					}
 				}
@@ -115,3 +115,4 @@ func (b *Talkkonnect) USBKeyboard() {
 		}
 	}
 }
+

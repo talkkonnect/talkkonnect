@@ -28,20 +28,21 @@ package talkkonnect
 
 import (
 	"log"
+	"time"
 )
 
-func (b *Talkkonnect) Speak(text string, destination string, playBackVolume float32, duration float32, loop int, language string) {
+func (b *Talkkonnect) Speak(text string, destination string, playBackVolume int, duration float32, loop int, language string) {
 	generatedHashName := generateHashName(text)
-	fileNameWithPath := TTSSoundDirectory + "/" + generatedHashName + ".mp3"
+	fileNameWithPath := Config.Global.Software.TTSMessages.TTSSoundDirectory + "/" + generatedHashName + ".mp3"
 
-	createFolderIfNotExists(TTSSoundDirectory)
+	createFolderIfNotExists(Config.Global.Software.TTSMessages.TTSSoundDirectory)
 	downloadIfNotExists(fileNameWithPath, text, language)
 
 	if destination == "local" {
-		if FileExists(TTSAnnouncementTone) {
-			localMediaPlayer(TTSAnnouncementTone, playBackVolume, 10, 1)
+		if Config.Global.Software.TTSMessages.Enabled && FileExists(Config.Global.Software.TTSMessages.TTSTone.ToneFile) {
+			localMediaPlayer(Config.Global.Software.TTSMessages.TTSTone.ToneFile, Config.Global.Software.TTSMessages.TTSTone.ToneVolume, Config.Global.Software.TTSMessages.Blocking, 0, 1)
 		}
-		localMediaPlayer(fileNameWithPath, playBackVolume, duration, loop)
+		localMediaPlayer(fileNameWithPath, playBackVolume, true, duration, loop)
 	}
 
 	if destination == "intostream" {
@@ -56,30 +57,74 @@ func (b *Talkkonnect) Speak(text string, destination string, playBackVolume floa
 		NowStreaming = IsPlayStream
 
 		log.Println("info: Playing Recieved Text Message Into Stream as ", fileNameWithPath)
-		if FileExists(TTSAnnouncementTone) {
-			b.playIntoStream(TTSAnnouncementTone, StreamSoundVolume)
+		if Config.Global.Software.TTSMessages.TTSTone.ToneEnabled && FileExists(Config.Global.Software.TTSMessages.TTSTone.ToneFile) {
+			b.playIntoStream(Config.Global.Software.TTSMessages.TTSTone.ToneFile, float32(Config.Global.Software.TTSMessages.TTSTone.ToneVolume))
 		}
-		b.playIntoStream(fileNameWithPath, StreamSoundVolume)
+		b.playIntoStream(fileNameWithPath, Config.Global.Software.TTSMessages.PlayVolumeIntoStream)
 		IsPlayStream = false
 		NowStreaming = IsPlayStream
-
 	}
 
 }
 
-func (b *Talkkonnect) TTSPlayer(ttsMessage string, ttsLocalPlay bool, ttsLocalPlayRXLed bool, ttlPlayIntoStream bool) {
+func (b *Talkkonnect) TTSPlayerMessage(ttsMessage string, ttsLocalPlay bool, ttsPlayIntoStream bool) {
 
 	if ttsLocalPlay {
-		if ttsLocalPlayRXLed {
-			LEDOnFunc(VoiceActivityLED)
+		if Config.Global.Software.TTSMessages.GPIO.Enabled {
+			GPIOOutPin(Config.Global.Software.TTSMessages.GPIO.Name, "on")
 		}
-		b.Speak(ttsMessage, "local", 1, 0, 1, TTSLanguage)
-		if ttsLocalPlayRXLed {
-			LEDOffFunc(VoiceActivityLED)
+		if Config.Global.Software.TTSMessages.PreDelay.Value.Seconds() > 0 {
+			time.Sleep(time.Duration(Config.Global.Software.TTSMessages.PreDelay.Value.Seconds()))
+		}
+		b.Speak(ttsMessage, "local", Config.Global.Software.TTS.Volumelevel, 0, 1, Config.Global.Software.TTSMessages.TTSLanguage)
+		if Config.Global.Software.TTSMessages.PostDelay.Value.Seconds() > 0 {
+			time.Sleep(time.Duration(Config.Global.Software.TTSMessages.PostDelay.Value.Seconds()))
+		}
+		if Config.Global.Software.TTSMessages.GPIO.Enabled {
+			GPIOOutPin(Config.Global.Software.TTSMessages.GPIO.Name, "off")
 		}
 	}
 
-	if ttlPlayIntoStream {
-		b.Speak(ttsMessage, "intostream", 1, 0, 1, TTSLanguage)
+	if ttsPlayIntoStream {
+		b.Speak(ttsMessage, "intostream", Config.Global.Software.TTSMessages.SpeakVolumeIntoStream, 0, 1, Config.Global.Software.TTSMessages.TTSLanguage)
+	}
+}
+
+func (b *Talkkonnect) TTSPlayerAPI(ttsMessage string, ttsLocalPlay bool, ttsPlayIntoStream bool, gpioEnabled bool, gpioName string, preDelay time.Duration, postDelay time.Duration, TTSLanguage string) {
+
+	if ttsLocalPlay {
+		if gpioEnabled {
+			GPIOOutPin(gpioName, "on")
+		}
+		if preDelay > 0 {
+			time.Sleep(preDelay)
+		}
+		b.Speak(ttsMessage, "local", Config.Global.Software.TTSMessages.SpeakVolumeIntoStream, 0, 1, TTSLanguage)
+		if postDelay > 0 {
+			time.Sleep(postDelay)
+		}
+		if gpioEnabled {
+			GPIOOutPin(gpioName, "off")
+		}
+	}
+
+	if ttsPlayIntoStream {
+		b.Speak(ttsMessage, "intostream", Config.Global.Software.TTSMessages.SpeakVolumeIntoStream, 0, 1, TTSLanguage)
+	}
+}
+
+func TTSEvent(name string) {
+	if !Config.Global.Software.TTS.Enabled {
+		return
+	}
+
+	for _, tts := range Config.Global.Software.TTS.Sound {
+
+		if tts.Action == name {
+			if tts.Enabled {
+				localMediaPlayer(tts.File, Config.Global.Software.TTS.Volumelevel, tts.Blocking, 0, 1)
+				return
+			}
+		}
 	}
 }

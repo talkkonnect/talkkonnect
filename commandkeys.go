@@ -20,6 +20,7 @@
  * Contributor(s):
  *
  * Suvir Kumar <suvir@talkkonnect.com>
+ * Zoran Dimitrijevic
  *
  * My Blog is at www.talkkonnect.com
  * The source code is hosted at github.com/talkkonnect
@@ -44,10 +45,7 @@ import (
 func (b *Talkkonnect) cmdDisplayMenu() {
 	log.Println("debug: Delete Key Pressed Menu and Session Information Requested")
 
-	if TTSEnabled && TTSDisplayMenu {
-		localMediaPlayer(TTSDisplayMenuFilenameAndPath, TTSVolumeLevel, 0, 1)
-	}
-
+	TTSEvent("displaymenu")
 	b.talkkonnectMenu("\u001b[44;1m") // add blue background to banner reference https://www.lihaoyi.com/post/BuildyourownCommandLinewithANSIescapecodes.html#background-colors
 	b.ParticipantLEDUpdate(true)
 }
@@ -64,12 +62,8 @@ func (b *Talkkonnect) cmdChannelDown() {
 
 func (b *Talkkonnect) cmdMuteUnmute(subCommand string) {
 
-	log.Println("debug: F3 pressed Mute/Unmute Speaker Requested")
-	if TTSEnabled && TTSMuteUnMuteSpeaker {
-		localMediaPlayer(TTSMuteUnMuteSpeakerFilenameAndPath, TTSVolumeLevel, 0, 1)
-	}
-
-	OrigMuted, err := volume.GetMuted(OutputDevice)
+	log.Printf("debug: F3 pressed %v Speaker Requested\n", subCommand)
+	OrigMuted, err := volume.GetMuted(Config.Global.Software.Settings.OutputDevice)
 
 	if err != nil {
 		log.Println("error: Unable to get current Muted/Unmuted State ", err)
@@ -83,13 +77,14 @@ func (b *Talkkonnect) cmdMuteUnmute(subCommand string) {
 
 	if subCommand == "toggle" {
 		if OrigMuted {
-			err := volume.Unmute(OutputDevice)
+			err := volume.Unmute(Config.Global.Software.Settings.OutputDevice)
 			if err != nil {
 				log.Println("error: Unmuting Failed", err)
 				return
 			}
+			TTSEvent("unmutespeaker")
 			log.Println("info: Output Device Unmuted")
-			if TargetBoard == "rpi" {
+			if Config.Global.Hardware.TargetBoard == "rpi" {
 				if LCDEnabled {
 					LcdText = [4]string{"nil", "nil", "nil", "UnMuted"}
 					LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
@@ -100,12 +95,13 @@ func (b *Talkkonnect) cmdMuteUnmute(subCommand string) {
 			}
 			return
 		} else {
-			err = volume.Mute(OutputDevice)
+			TTSEvent("mutespeaker")
+			err = volume.Mute(Config.Global.Software.Settings.OutputDevice)
 			if err != nil {
 				log.Println("error: Muting Failed", err)
 			}
 			log.Println("info: Output Device Muted")
-			if TargetBoard == "rpi" {
+			if Config.Global.Hardware.TargetBoard == "rpi" {
 				if LCDEnabled {
 					LcdText = [4]string{"nil", "nil", "nil", "Muted"}
 					LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
@@ -120,13 +116,14 @@ func (b *Talkkonnect) cmdMuteUnmute(subCommand string) {
 
 	//force mute
 	if subCommand == "mute" {
-		err = volume.Mute(OutputDevice)
+		TTSEvent("mutespeaker")
+		err = volume.Mute(Config.Global.Software.Settings.OutputDevice)
 		if err != nil {
 			log.Println("error: Muting Failed ", err)
 			return
 		}
 		log.Println("info: Output Device Muted")
-		if TargetBoard == "rpi" {
+		if Config.Global.Hardware.TargetBoard == "rpi" {
 			if LCDEnabled {
 				LcdText = [4]string{"nil", "nil", "nil", "Muted"}
 				LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
@@ -137,31 +134,30 @@ func (b *Talkkonnect) cmdMuteUnmute(subCommand string) {
 			}
 			return
 		}
-
-		//force unmute
-		if subCommand == "unmute" {
-			err := volume.Unmute(OutputDevice)
-			if err != nil {
-				log.Println("error: Unmute Failed ", err)
-				return
-			}
-			log.Println("info: Output Device Unmuted")
-			if TargetBoard == "rpi" {
-				if LCDEnabled {
-					LcdText = [4]string{"nil", "nil", "nil", "UnMuted"}
-					LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
-				}
-				if OLEDEnabled {
-					oledDisplay(false, 6, 1, "Unmuted")
-				}
-			}
+	}
+	//force unmute
+	if subCommand == "unmute" {
+		err := volume.Unmute(Config.Global.Software.Settings.OutputDevice)
+		TTSEvent("unmutespeaker")
+		if err != nil {
+			log.Println("error: Unmute Failed ", err)
 			return
 		}
-
+		log.Println("info: Output Device Unmuted")
+		if Config.Global.Hardware.TargetBoard == "rpi" {
+			if LCDEnabled {
+				LcdText = [4]string{"nil", "nil", "nil", "UnMuted"}
+				LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+			}
+			if OLEDEnabled {
+				oledDisplay(false, 6, 1, "Unmuted")
+			}
+		}
+		return
 	}
 }
 func (b *Talkkonnect) cmdCurrentVolume() {
-	OrigVolume, err := volume.GetVolume(OutputDeviceShort)
+	OrigVolume, err := volume.GetVolume(Config.Global.Software.Settings.OutputDevice)
 	if err != nil {
 		log.Printf("error: Unable to get current volume: %+v\n", err)
 	}
@@ -169,10 +165,8 @@ func (b *Talkkonnect) cmdCurrentVolume() {
 	log.Println("debug: F4 pressed Volume Level Requested")
 	log.Println("info: Volume Level is at", OrigVolume, "%")
 
-	if TTSEnabled && TTSCurrentVolumeLevel {
-		localMediaPlayer(TTSCurrentVolumeLevelFilenameAndPath, TTSVolumeLevel, 0, 1)
-	}
-	if TargetBoard == "rpi" {
+	TTSEvent("currentvolumelevel")
+	if Config.Global.Hardware.TargetBoard == "rpi" {
 		if LCDEnabled {
 			LcdText = [4]string{"nil", "nil", "nil", "Volume " + strconv.Itoa(OrigVolume)}
 			LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
@@ -185,20 +179,20 @@ func (b *Talkkonnect) cmdCurrentVolume() {
 }
 
 func (b *Talkkonnect) cmdVolumeUp() {
-	origVolume, err := volume.GetVolume(OutputDeviceShort)
+	origVolume, err := volume.GetVolume(Config.Global.Software.Settings.OutputDevice)
 	if err != nil {
 		log.Printf("warn: unable to get original volume: %+v\n", err)
 	}
 
 	if origVolume < 100 {
-		err := volume.IncreaseVolume(+1, OutputDeviceShort)
+		err := volume.IncreaseVolume(+1, Config.Global.Software.Settings.OutputDevice)
 		if err != nil {
 			log.Println("warn: F5 Increase Volume Failed! ", err)
 		}
 
 		log.Println("debug: F5 pressed Volume UP (+)")
 		log.Println("info: Volume UP (+) Now At ", origVolume, "%")
-		if TargetBoard == "rpi" {
+		if Config.Global.Hardware.TargetBoard == "rpi" {
 			if LCDEnabled {
 				LcdText = [4]string{"nil", "nil", "nil", "Volume + " + strconv.Itoa(origVolume)}
 				LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
@@ -210,7 +204,7 @@ func (b *Talkkonnect) cmdVolumeUp() {
 	} else {
 		log.Println("debug: F5 Increase Volume")
 		log.Println("info: Already at Maximum Possible Volume")
-		if TargetBoard == "rpi" {
+		if Config.Global.Hardware.TargetBoard == "rpi" {
 			if LCDEnabled {
 				LcdText = [4]string{"nil", "nil", "nil", "Max Vol"}
 				LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
@@ -221,27 +215,25 @@ func (b *Talkkonnect) cmdVolumeUp() {
 		}
 	}
 
-	if TTSEnabled && TTSDigitalVolumeUp {
-		localMediaPlayer(TTSDigitalVolumeUpFilenameAndPath, TTSVolumeLevel, 0, 1)
-	}
+	TTSEvent("digitalvolumeup")
 }
 
 func (b *Talkkonnect) cmdVolumeDown() {
-	origVolume, err := volume.GetVolume(OutputDeviceShort)
+	origVolume, err := volume.GetVolume(Config.Global.Software.Settings.OutputDevice)
 	if err != nil {
 		log.Printf("error: unable to get original volume: %+v\n", err)
 	}
 
 	if origVolume > 0 {
 		origVolume--
-		err := volume.IncreaseVolume(-1, OutputDeviceShort)
+		err := volume.IncreaseVolume(-1, Config.Global.Software.Settings.OutputDevice)
 		if err != nil {
 			log.Println("error: F6 Decrease Volume Failed! ", err)
 		}
 
 		log.Println("info: F6 pressed Volume Down (-)")
 		log.Println("info: Volume Down (-) Now At ", origVolume, "%")
-		if TargetBoard == "rpi" {
+		if Config.Global.Hardware.TargetBoard == "rpi" {
 			if LCDEnabled {
 				LcdText = [4]string{"nil", "nil", "nil", "Volume - " + strconv.Itoa(origVolume)}
 				LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
@@ -254,7 +246,7 @@ func (b *Talkkonnect) cmdVolumeDown() {
 	} else {
 		log.Println("debug: F6 Increase Volume Already")
 		log.Println("info: Already at Minimum Possible Volume")
-		if TargetBoard == "rpi" {
+		if Config.Global.Hardware.TargetBoard == "rpi" {
 			if LCDEnabled {
 				LcdText = [4]string{"nil", "nil", "nil", "Min Vol"}
 				LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
@@ -264,19 +256,13 @@ func (b *Talkkonnect) cmdVolumeDown() {
 			}
 		}
 	}
-
-	if TTSEnabled && TTSDigitalVolumeDown {
-		localMediaPlayer(TTSDigitalVolumeDownFilenameAndPath, TTSVolumeLevel, 0, 1)
-	}
+	TTSEvent("digitalvolumedown")
 }
 
 func (b *Talkkonnect) cmdListServerChannels() {
 	log.Println("debug: F7 pressed Channel List Requested")
 
-	if TTSEnabled && TTSListServerChannels {
-		localMediaPlayer(TTSListServerChannelsFilenameAndPath, TTSVolumeLevel, 0, 1)
-	}
-
+	TTSEvent("listserverchannels")
 	b.ListChannels(true)
 	b.ParticipantLEDUpdate(true)
 }
@@ -285,15 +271,18 @@ func (b *Talkkonnect) cmdStartTransmitting() {
 	log.Println("debug: F8 pressed TX Mode Requested (Start Transmitting)")
 	log.Println("info: Start Transmitting")
 
-	if TTSEnabled && TTSStartTransmitting {
-		localMediaPlayer(TTSStartTransmittingFilenameAndPath, TTSVolumeLevel, 0, 1)
-	}
+	TTSEvent("starttransmitting")
 
 	if IsPlayStream {
 		IsPlayStream = false
 		NowStreaming = false
 
-		b.playIntoStream(StreamSoundFilenameAndPath, StreamSoundVolume)
+		var eventSound EventSoundStruct = findEventSound("stream")
+		if eventSound.Enabled {
+			if s, err := strconv.ParseFloat(eventSound.Volume, 32); err == nil {
+				b.playIntoStream(eventSound.FileName, float32(s))
+			}
+		}
 	}
 
 	if !b.IsTransmitting {
@@ -308,15 +297,18 @@ func (b *Talkkonnect) cmdStopTransmitting() {
 	log.Println("debug: F9 pressed RX Mode Request (Stop Transmitting)")
 	log.Println("info: Stop Transmitting")
 
-	if TTSEnabled && TTSStopTransmitting {
-		localMediaPlayer(TTSStopTransmittingFilenameAndPath, TTSVolumeLevel, 0, 1)
-	}
+	TTSEvent("stoptransmitting")
 
 	if IsPlayStream {
 		IsPlayStream = false
 		NowStreaming = false
 
-		b.playIntoStream(StreamSoundFilenameAndPath, StreamSoundVolume)
+		var eventSound EventSoundStruct = findEventSound("stream")
+		if eventSound.Enabled {
+			if s, err := strconv.ParseFloat(eventSound.Volume, 32); err == nil {
+				b.playIntoStream(eventSound.FileName, float32(s))
+			}
+		}
 	}
 
 	if b.IsTransmitting {
@@ -331,9 +323,7 @@ func (b *Talkkonnect) cmdListOnlineUsers() {
 	log.Println("debug: F10 pressed Online User(s) in Current Channel Requested")
 	log.Println("info: F10 Online User(s) in Current Channel")
 
-	if TTSEnabled && TTSListOnlineUsers {
-		localMediaPlayer(TTSListOnlineUsersFilenameAndPath, TTSVolumeLevel, 0, 1)
-	}
+	TTSEvent("listonlineusers")
 
 	log.Println(fmt.Sprintf("info: Channel %#v Has %d Online User(s)", b.Client.Self.Channel.Name, len(b.Client.Self.Channel.Users)))
 	b.ListUsers()
@@ -346,9 +336,7 @@ func (b *Talkkonnect) cmdPlayback() {
 
 	b.BackLightTimer()
 
-	if TTSEnabled && TTSPlayStream {
-		localMediaPlayer(TTSPlayStreamFilenameAndPath, TTSVolumeLevel, 0, 1)
-	}
+	TTSEvent("playstream")
 
 	if b.IsTransmitting {
 		log.Println("alert: talkkonnect was already transmitting will now stop transmitting and start the stream")
@@ -358,21 +346,23 @@ func (b *Talkkonnect) cmdPlayback() {
 	IsPlayStream = !IsPlayStream
 	NowStreaming = IsPlayStream
 
-	if IsPlayStream {
+	if IsPlayStream && Config.Global.Software.Settings.StreamSendMessage {
 		b.SendMessage(fmt.Sprintf("%s Streaming", b.Username), false)
 	}
 
-	go b.playIntoStream(StreamSoundFilenameAndPath, StreamSoundVolume)
-
+	var eventSound EventSoundStruct = findEventSound("stream")
+	if eventSound.Enabled {
+		if s, err := strconv.ParseFloat(eventSound.Volume, 32); err == nil {
+			go b.playIntoStream(eventSound.FileName, float32(s))
+		}
+	}
 }
 
 func (b *Talkkonnect) cmdGPSPosition() {
 	log.Println("debug: F12 pressed")
 	log.Println("info: GPS details requested")
 
-	if TTSEnabled && TTSRequestGpsPosition {
-		localMediaPlayer(TTSRequestGpsPositionFilenameAndPath, TTSVolumeLevel, 0, 1)
-	}
+	TTSEvent("requestgpsposition")
 
 	var i int = 0
 	var tries int = 10
@@ -401,11 +391,8 @@ func (b *Talkkonnect) cmdQuitTalkkonnect() {
 	log.Println("debug: Ctrl-C Terminate Program Requested")
 	duration := time.Since(StartTime)
 	log.Printf("info: Talkkonnect Now Running For %v \n", secondsToHuman(int(duration.Seconds())))
-
-	if TTSEnabled && TTSQuitTalkkonnect {
-		localMediaPlayer(TTSQuitTalkkonnectFilenameAndPath, TTSVolumeLevel, 0, 1)
-	}
-	b.CleanUp()
+	TTSEvent("quittalkkonnect")
+	CleanUp()
 }
 
 func (b *Talkkonnect) cmdDebugStacktrace() {
@@ -421,6 +408,7 @@ func (b *Talkkonnect) cmdDebugStacktrace() {
 		log.Printf("debug: line: %d %s\n", line, scanner.Text())
 		line++
 	}
+	goStreamStats()
 }
 
 func (b *Talkkonnect) cmdSendEmail() {
@@ -449,29 +437,27 @@ func (b *Talkkonnect) cmdSendEmail() {
 		return
 	}
 
-	if TTSEnabled && TTSSendEmail {
-		localMediaPlayer(TTSSendEmailFilenameAndPath, TTSVolumeLevel, 0, 1)
-	}
+	TTSEvent("sendemail")
 
-	if EmailEnabled {
+	if Config.Global.Software.SMTP.Enabled {
 
-		emailMessage := fmt.Sprintf(EmailMessage + "\n")
+		emailMessage := fmt.Sprintf(Config.Global.Software.SMTP.Message + "\n")
 		emailMessage = emailMessage + fmt.Sprintf("Ident: %s \n", b.Ident)
 		emailMessage = emailMessage + fmt.Sprintf("Mumble Username: %s \n", b.Username)
 
-		if EmailGpsDateTime {
+		if Config.Global.Software.SMTP.GpsDateTime {
 			emailMessage = emailMessage + fmt.Sprintf("Date "+GPSDate+" UTC Time "+GPSTime+"\n")
 		}
 
-		if EmailGpsLatLong {
+		if Config.Global.Software.SMTP.GpsLatLong {
 			emailMessage = emailMessage + fmt.Sprintf("Latitude "+strconv.FormatFloat(GPSLatitude, 'f', 6, 64)+" Longitude "+strconv.FormatFloat(GPSLongitude, 'f', 6, 64)+"\n")
 		}
 
-		if EmailGoogleMapsURL {
+		if Config.Global.Software.SMTP.GoogleMapsURL {
 			emailMessage = emailMessage + "http://www.google.com/maps/place/" + strconv.FormatFloat(GPSLatitude, 'f', 6, 64) + "," + strconv.FormatFloat(GPSLongitude, 'f', 6, 64)
 		}
 
-		err := sendviagmail(EmailUsername, EmailPassword, EmailReceiver, EmailSubject, emailMessage)
+		err := sendviagmail(Config.Global.Software.SMTP.Username, Config.Global.Software.SMTP.Password, Config.Global.Software.SMTP.Receiver, Config.Global.Software.SMTP.Subject, emailMessage)
 		if err != nil {
 			log.Println("error: Error from Email Module: ", err)
 		}
@@ -484,27 +470,22 @@ func (b *Talkkonnect) cmdConnPreviousServer() {
 	log.Println("debug: Ctrl-F Pressed")
 	log.Println("info: Previous Server Requested")
 
-	if TTSEnabled && TTSPreviousServer {
-		localMediaPlayer(TTSPreviousServerFilenameAndPath, TTSVolumeLevel, 0, 1)
-	}
+	TTSEvent("previousserver")
 
 	if AccountCount > 1 {
-
 		if AccountIndex > 0 {
 			AccountIndex--
 		} else {
 			AccountIndex = AccountCount - 1
 		}
-
 		modifyXMLTagServerHopping(ConfigXMLFile, AccountIndex)
 	}
-
 }
 
 func (b *Talkkonnect) cmdClearScreen() {
 	reset()
 	log.Println("debug: Ctrl-L Pressed Cleared Screen")
-	if TargetBoard == "rpi" {
+	if Config.Global.Hardware.TargetBoard == "rpi" {
 		if LCDEnabled {
 			LcdText = [4]string{"nil", "nil", "nil", "nil"}
 			LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
@@ -521,11 +502,7 @@ func (b *Talkkonnect) cmdClearScreen() {
 func (b *Talkkonnect) cmdPingServers() {
 	log.Println("debug: Ctrl-O Pressed")
 	log.Println("info: Ping Servers")
-
-	if TTSEnabled && TTSPingServers {
-		localMediaPlayer(TTSPingServersFilenameAndPath, TTSVolumeLevel, 0, 1)
-	}
-
+	TTSEvent("pingservers")
 	b.pingServers()
 }
 
@@ -533,9 +510,7 @@ func (b *Talkkonnect) cmdConnNextServer() {
 	log.Println("debug: Ctrl-N Pressed")
 	log.Println("info: Next Server Requested Killing This Session, talkkonnect should be restarted by systemd")
 
-	if TTSEnabled && TTSNextServer {
-		localMediaPlayer(TTSNextServerFilenameAndPath, TTSVolumeLevel, 0, 1)
-	}
+	TTSEvent("nextserver")
 
 	if AccountCount > 1 {
 		if AccountIndex < AccountCount-1 {
@@ -543,7 +518,6 @@ func (b *Talkkonnect) cmdConnNextServer() {
 		} else {
 			AccountIndex = 0
 		}
-
 		modifyXMLTagServerHopping(ConfigXMLFile, AccountIndex)
 	}
 
@@ -552,19 +526,19 @@ func (b *Talkkonnect) cmdConnNextServer() {
 func (b *Talkkonnect) cmdAudioTrafficRecord() {
 	log.Println("debug: Ctrl-I Pressed")
 	log.Println("info: Traffic Recording Requested")
-	if !AudioRecordEnabled {
+	if !Config.Global.Hardware.AudioRecordFunction.Enabled {
 		log.Println("warn: Audio Recording Function Not Enabled")
 	}
-	if AudioRecordMode != "traffic" {
+	if Config.Global.Hardware.AudioRecordFunction.RecordMode != "traffic" {
 		log.Println("warn: Traffic Recording Not Enabled")
 	}
 
-	if AudioRecordEnabled {
-		if AudioRecordMode == "traffic" {
-			if AudioRecordFromOutput != "" {
-				if AudioRecordSoft == "sox" {
+	if Config.Global.Hardware.AudioRecordFunction.Enabled {
+		if Config.Global.Hardware.AudioRecordFunction.RecordMode == "traffic" {
+			if Config.Global.Hardware.AudioRecordFunction.RecordFromOutput != "" {
+				if Config.Global.Hardware.AudioRecordFunction.RecordSoft == "sox" {
 					go AudioRecordTraffic()
-					if TargetBoard == "rpi" {
+					if Config.Global.Hardware.TargetBoard == "rpi" {
 						if LCDEnabled {
 							LcdText = [4]string{"nil", "nil", "Traffic Audio Rec ->", "nil"} // 4 or 3
 							LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
@@ -584,19 +558,19 @@ func (b *Talkkonnect) cmdAudioTrafficRecord() {
 func (b *Talkkonnect) cmdAudioMicRecord() {
 	log.Println("debug: Ctrl-J Pressed")
 	log.Println("info: Ambient (Mic) Recording Requested")
-	if !AudioRecordEnabled {
+	if !Config.Global.Hardware.AudioRecordFunction.Enabled {
 		log.Println("warn: Audio Recording Function Not Enabled")
 	}
-	if AudioRecordMode != "ambient" {
+	if Config.Global.Hardware.AudioRecordFunction.RecordMode != "ambient" {
 		log.Println("warn: Ambient (Mic) Recording Not Enabled")
 	}
 
-	if AudioRecordEnabled {
-		if AudioRecordMode == "ambient" {
-			if AudioRecordFromInput != "" {
-				if AudioRecordSoft == "sox" {
+	if Config.Global.Hardware.AudioRecordFunction.Enabled {
+		if Config.Global.Hardware.AudioRecordFunction.RecordMode == "ambient" {
+			if Config.Global.Hardware.AudioRecordFunction.RecordFromInput != "" {
+				if Config.Global.Hardware.AudioRecordFunction.RecordSoft == "sox" {
 					go AudioRecordAmbient()
-					if TargetBoard == "rpi" {
+					if Config.Global.Hardware.TargetBoard == "rpi" {
 						if LCDEnabled {
 							LcdText = [4]string{"nil", "nil", "Mic Audio Rec ->", "nil"} // 4 or 3
 							LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
@@ -616,19 +590,19 @@ func (b *Talkkonnect) cmdAudioMicRecord() {
 func (b *Talkkonnect) cmdAudioMicTrafficRecord() {
 	log.Println("debug: Ctrl-K Pressed")
 	log.Println("info: Recording (Traffic and Mic) Requested")
-	if !AudioRecordEnabled {
+	if !Config.Global.Hardware.AudioRecordFunction.Enabled {
 		log.Println("warn: Audio Recording Function Not Enabled")
 	}
-	if AudioRecordMode != "combo" {
+	if Config.Global.Hardware.AudioRecordFunction.RecordMode != "combo" {
 		log.Println("warn: Combo Recording (Traffic and Mic) Not Enabled")
 	}
 
-	if AudioRecordEnabled {
-		if AudioRecordMode == "combo" {
-			if AudioRecordFromInput != "" {
-				if AudioRecordSoft == "sox" {
+	if Config.Global.Hardware.AudioRecordFunction.Enabled {
+		if Config.Global.Hardware.AudioRecordFunction.RecordMode == "combo" {
+			if Config.Global.Hardware.AudioRecordFunction.RecordFromInput != "" {
+				if Config.Global.Hardware.AudioRecordFunction.RecordSoft == "sox" {
 					go AudioRecordCombo()
-					if TargetBoard == "rpi" {
+					if Config.Global.Hardware.TargetBoard == "rpi" {
 						if LCDEnabled {
 							LcdText = [4]string{"nil", "nil", "Combo Audio Rec ->", "nil"} // 4 or 3
 							LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
@@ -653,25 +627,23 @@ func (b *Talkkonnect) cmdPanicSimulation() {
 	log.Println("debug: Ctrl-P Pressed")
 	log.Println("info: Panic Button Start/Stop Simulation Requested")
 
-	if TTSEnabled && TTSPanicSimulation {
-		localMediaPlayer(TTSPanicSimulationFilenameAndPath, TTSVolumeLevel, 0, 1)
-	}
+	TTSEvent("panicsimulation")
 
-	if PEnabled {
+	if Config.Global.Hardware.PanicFunction.Enabled {
 
 		if b.IsTransmitting {
 			b.TransmitStop(false)
 		} else {
 			b.IsTransmitting = true
-			b.SendMessage(PMessage, PRecursive)
+			b.SendMessage(Config.Global.Hardware.PanicFunction.Message, Config.Global.Hardware.PanicFunction.RecursiveSendMessage)
 
 		}
 
-		if PSendIdent {
-			b.SendMessage(fmt.Sprintf("My Username is %s and Ident is %s", b.Username, b.Ident), PRecursive)
+		if Config.Global.Hardware.PanicFunction.SendIdent {
+			b.SendMessage(fmt.Sprintf("My Username is %s and Ident is %s", b.Username, b.Ident), Config.Global.Hardware.PanicFunction.RecursiveSendMessage)
 		}
 
-		if PSendGpsLocation {
+		if Config.Global.Hardware.PanicFunction.SendGpsLocation {
 
 			var i int = 0
 			var tries int = 10
@@ -696,12 +668,12 @@ func (b *Talkkonnect) cmdPanicSimulation() {
 			if goodGPSRead && i != tries {
 				log.Println("info: Sending GPS Info My Message")
 				gpsMessage := "My GPS Coordinates are " + fmt.Sprintf(" Latitude "+strconv.FormatFloat(GPSLatitude, 'f', 6, 64)) + fmt.Sprintf(" Longitude "+strconv.FormatFloat(GPSLongitude, 'f', 6, 64))
-				b.SendMessage(gpsMessage, PRecursive)
+				b.SendMessage(gpsMessage, Config.Global.Hardware.PanicFunction.RecursiveSendMessage)
 			}
 
 			IsPlayStream = true
-			b.playIntoStream(PFilenameAndPath, PVolume)
-			if TargetBoard == "rpi" {
+			b.playIntoStream(Config.Global.Hardware.PanicFunction.FilenameAndPath, Config.Global.Hardware.PanicFunction.Volume)
+			if Config.Global.Hardware.TargetBoard == "rpi" {
 				if LCDEnabled {
 					LcdText = [4]string{"nil", "nil", "nil", "Panic Message Sent!"}
 					LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
@@ -710,19 +682,19 @@ func (b *Talkkonnect) cmdPanicSimulation() {
 					oledDisplay(false, 6, 1, "Panic Message Sent!")
 				}
 			}
-			if PTxLockEnabled && PTxlockTimeOutSecs > 0 {
+			if Config.Global.Hardware.PanicFunction.TxLockEnabled && Config.Global.Hardware.PanicFunction.TxLockTimeOutSecs > 0 {
 				b.TxLockTimer()
 			}
 
 			// New. Send email after Panic Event //
-			if PMailEnabled {
+			if Config.Global.Hardware.PanicFunction.PMailEnabled {
 				b.cmdSendEmail()
 				log.Println("info: Sending Panic Alert Email To Predefined Email Address")
 			}
 			//
 
 			// New. Record ambient audio on Panic Event if recording is enabled
-			if AudioRecordEnabled {
+			if Config.Global.Hardware.AudioRecordFunction.Enabled {
 				log.Println("info: Running sox for Audio Recording...")
 				AudioRecordAmbient()
 			}
@@ -734,8 +706,8 @@ func (b *Talkkonnect) cmdPanicSimulation() {
 		IsPlayStream = false
 		b.IsTransmitting = false
 
-		if PLowProfile {
-			LEDOffAll()
+		if Config.Global.Hardware.PanicFunction.PLowProfile {
+			GPIOOutAll("led/relay", "off")
 			log.Println("info: Low Profile Lights Option is Enabled. Turning All Leds Off During Panic Event")
 			if LCDEnabled {
 				log.Println("info: Low Profile Lights is Enabled. Turning Off Display During Panic Event")
@@ -760,40 +732,33 @@ func (b *Talkkonnect) cmdScanChannels() {
 	log.Println("debug: Ctrl-S Pressed")
 	log.Println("info: Scanning Channels")
 
-	if TTSEnabled && TTSScan {
-		localMediaPlayer(TTSScanFilenameAndPath, TTSVolumeLevel, 0, 1)
-	}
-
+	TTSEvent("startscanning")
 	b.Scan()
 }
 
-func (b *Talkkonnect) cmdThanks() {
+func cmdThanks() {
 	log.Println("debug: Ctrl-T Pressed")
 	log.Println("info: Thanks and Acknowledgements Screen Request ")
 	talkkonnectAcknowledgements("\u001b[44;1m") // add blue background to banner reference https://www.lihaoyi.com/post/BuildyourownCommandLinewithANSIescapecodes.html#background-colors
 }
 
 func (b *Talkkonnect) cmdShowUptime() {
-	log.Println("debug: Ctrl-V Pressed")
-	log.Println("info: Ctrl-V Version Request")
-	log.Printf("info: Talkkonnect Version %v Released %v\n", talkkonnectVersion, talkkonnectReleased)
-}
-
-func (b *Talkkonnect) cmdDisplayVersion() {
 	log.Println("debug: Ctrl-U Pressed")
 	log.Println("info: Talkkonnect Uptime Request ")
 	duration := time.Since(StartTime)
 	log.Printf("info: Talkkonnect Now Running For %v \n", secondsToHuman(int(duration.Seconds())))
 }
 
+func (b *Talkkonnect) cmdDisplayVersion() {
+	log.Println("debug: Ctrl-V Pressed")
+	log.Println("info: Talkkonnect Version Request ")
+	log.Printf("info: Talkkonnect Version %v Released %v\n", talkkonnectVersion, talkkonnectReleased)
+}
+
 func (b *Talkkonnect) cmdDumpXMLConfig() {
 	log.Println("debug: Ctrl-X Pressed")
 	log.Println("info: Print XML Config " + ConfigXMLFile)
-
-	if TTSEnabled && TTSPrintXmlConfig {
-		localMediaPlayer(TTSPrintXmlConfigFilenameAndPath, TTSVolumeLevel, 0, 1)
-	}
-
+	TTSEvent("printxmlconfig")
 	printxmlconfig()
 }
 
@@ -802,10 +767,27 @@ func (b *Talkkonnect) cmdPlayRepeaterTone() {
 	log.Println("info: Play Repeater Tone on Speaker and Simulate RX Signal")
 
 	b.BackLightTimer()
-	if RepeaterToneEnabled {
-		b.PlayTone(RepeaterToneFrequencyHz, RepeaterToneDurationSec, "local", true)
+
+	if Config.Global.Software.Sounds.RepeaterTone.Enabled {
+		b.PlayTone(Config.Global.Software.Sounds.RepeaterTone.ToneFrequencyHz, Config.Global.Software.Sounds.RepeaterTone.ToneDurationSec, "local", true)
 	} else {
 		log.Println("warn: Repeater Tone Disabled by Config")
 	}
 
+}
+
+func (b *Talkkonnect) cmdLiveReload() {
+	log.Println("debug: Ctrl-B Pressed")
+	log.Println("info: XML Config Live Reload")
+	err := readxmlconfig(ConfigXMLFile, true)
+	if err != nil {
+		message := err.Error()
+		FatalCleanUp(message)
+	}
+}
+
+func cmdSanityCheck() {
+	log.Println("debug: Ctrl-H Pressed")
+	log.Println("info: XML Sanity Checker")
+	CheckConfigSanity(false)
 }

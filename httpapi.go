@@ -30,244 +30,218 @@
 package talkkonnect
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
+	"reflect"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func (b *Talkkonnect) httpAPI(w http.ResponseWriter, r *http.Request) {
-	Commands, ok := r.URL.Query()["command"]
-	if !ok || len(Commands) < 1 {
-		log.Println("error: URL Param 'command' is missing example http api commands should be of the format http://a.b.c.d/?command=starttransmitting")
-		fmt.Fprintf(w, "error: API should be of the format http://a.b.c.d:"+APIListenPort+"/?command=StartTransmitting or of the format http://a.b.c.d:"+APIListenPort+"?command=setvoicetarget&id=0\n")
+
+	funcs := map[string]interface{}{
+		"displaymenu":        b.cmdDisplayMenu,
+		"channelup":          b.cmdChannelUp,
+		"channeldown":        b.cmdChannelDown,
+		"mute-toggle":        b.cmdMuteUnmute,
+		"mute":               b.cmdMuteUnmute,
+		"unmute":             b.cmdMuteUnmute,
+		"currentvolume":      b.cmdCurrentVolume,
+		"volumeup":           b.cmdVolumeUp,
+		"volumedown":         b.cmdVolumeDown,
+		"listserverchannels": b.cmdListServerChannels,
+		"starttransmitting":  b.cmdStartTransmitting,
+		"stoptransmitting":   b.cmdStopTransmitting,
+		"listonlineusers":    b.cmdListOnlineUsers,
+		"playback":           b.cmdPlayback,
+		"gpsposition":        b.cmdGPSPosition,
+		"sendemail":          b.cmdSendEmail,
+		"previousserver":     b.cmdConnPreviousServer,
+		"connnextserver":     b.cmdConnNextServer,
+		"clearscreen":        b.cmdClearScreen,
+		"pingservers":        b.cmdPingServers,
+		"panicsimulation":    b.cmdPanicSimulation,
+		"repeattxloop":       b.cmdRepeatTxLoop,
+		"scanchannels":       b.cmdScanChannels,
+		"thanks":             cmdThanks,
+		"showuptime":         b.cmdShowUptime,
+		"showversion":        b.cmdDisplayVersion,
+		"dumpxmlconfig":      b.cmdDumpXMLConfig,
+		"ttsannouncement":    b.TTSPlayerAPI,
+		"voicetargetset":     b.cmdSendVoiceTargets,
+		"listapi":            listAPI}
+
+	APICommands, ok := r.URL.Query()["command"]
+
+	if !ok || len(APICommands[0]) < 1 {
+		log.Println("error: URL Param 'command' is missing example http API commands should be of the format http://a.b.c.d/?command=listapi")
+		fmt.Fprintf(w, "error: API should be of the format http://a.b.c.d:"+Config.Global.Software.RemoteControl.HTTP.ListenPort+"/?command=StartTransmitting or of the format http://a.b.c.d:"+Config.Global.Software.RemoteControl.HTTP.ListenPort+"?command=setvoicetarget&id=0\n")
 		return
 	}
 
-	var Command string
-	var ID int
+	var APIID int
+	var APITTSMessage string
+	var APITTSLocalPlay bool
+	var APITTSPlayIntoStream bool
+	var APIGPIOEnabled bool
+	var APIGPIOName string
+	var APIPreDelay int
+	var APIPostDelay int
+	var APILanguage string
 	var err error
 
-	for key, values := range r.URL.Query() {
-		if strings.ToLower(key) == "command" {
-			Command = values[0]
+	APICommand := strings.ToLower(APICommands[0])
+	APIDefined := false
+	for _, apicommand := range Config.Global.Software.RemoteControl.HTTP.Command {
+		if APICommand == "listapi" && apicommand.Enabled {
+			fmt.Fprintf(w, "200 OK: API Command %v for %v Control Available\n", apicommand.Action, apicommand.Message)
 		}
-		if strings.ToLower(key) == "id" {
-			ID, err = strconv.Atoi(values[0])
-			if err != nil {
-				log.Println("error: Target ID is not Number")
-				fmt.Fprintf(w, "API VoiceTarget ID is not Number\n")
-				return
-			}
+		if apicommand.Action == APICommand {
+			APIDefined = true
 		}
 	}
 
-	log.Println("debug: http command    " + string(Command))
-	log.Println("debug: http parameters ", ID)
+	if !APIDefined {
+		log.Printf("error: API Command %v Not A Valid Defined Command\n", APICommand)
+		fmt.Fprintf(w, "404 error: API Command %v Not A Valid Defined Command\n", APICommand)
+		return
+	}
 
-	b.BackLightTimer()
-
-	switch string(strings.ToLower(Command)) {
-	case "displaymenu":
-		if APIDisplayMenu {
-			b.cmdDisplayMenu()
-			fmt.Fprintf(w, "API Display Menu Request Processed Successfully\n")
-		} else {
-			fmt.Fprintf(w, "API Display Menu Request Denied\n")
-		}
-	case "channelup":
-		if APIChannelUp {
-			b.cmdChannelUp()
-			fmt.Fprintf(w, "API Channel Up Request Processed Successfully\n")
-		} else {
-			fmt.Fprintf(w, "API Channel Up Request Denied\n")
-		}
-	case "channeldown":
-		if APIChannelDown {
-			b.cmdChannelDown()
-			fmt.Fprintf(w, "API Channel Down Request Processed Successfully\n")
-		} else {
-			fmt.Fprintf(w, "API Channel Down Request Denied\n")
-		}
-	case "mute-toggle":
-		if APIMute {
-			b.cmdMuteUnmute("toggle")
-			fmt.Fprintf(w, "API Mute/UnMute Speaker Request Processed Successfully\n")
-		} else {
-			fmt.Fprintf(w, "API Mute/Unmute Speaker Request Denied\n")
-		}
-	case "mute":
-		if APIMute {
-			b.cmdMuteUnmute("mute")
-			fmt.Fprintf(w, "API Mute/UnMute Speaker Request Processed Successfully\n")
-		} else {
-			fmt.Fprintf(w, "API Mute/Unmute Speaker Request Denied\n")
-		}
-	case "unmute":
-		if APIMute {
-			b.cmdMuteUnmute("unmute")
-			fmt.Fprintf(w, "API Mute/UnMute Speaker Request Processed Successfully\n")
-		} else {
-			fmt.Fprintf(w, "API Mute/Unmute Speaker Request Denied\n")
-		}
-	case "currentvolume":
-		if APICurrentVolumeLevel {
-			b.cmdCurrentVolume()
-			fmt.Fprintf(w, "API Current Volume Level Request Processed Successfully\n")
-		} else {
-			fmt.Fprintf(w, "API Current Volume Level Request Denied\n")
-		}
-	case "volumeup":
-		if APIDigitalVolumeUp {
-			b.cmdVolumeUp()
-			fmt.Fprintf(w, "API Digital Volume Up Request Processed Successfully\n")
-		} else {
-			fmt.Fprintf(w, "API Digital Volume Up Request Denied\n")
-		}
-	case "volumedown":
-		if APIDigitalVolumeDown {
-			b.cmdVolumeDown()
-			fmt.Fprintf(w, "API Digital Volume Down Request Processed Successfully\n")
-		} else {
-			fmt.Fprintf(w, "API Digital Volume Down Request Denied\n")
-		}
-	case "listchannels":
-		if APIListServerChannels {
-			b.cmdListServerChannels()
-			fmt.Fprintf(w, "API List Server Channels Request Processed Successfully\n")
-		} else {
-			fmt.Fprintf(w, "API List Server Channels Request Denied\n")
-		}
-	case "starttransmitting":
-		if APIStartTransmitting {
-			b.cmdStartTransmitting()
-			fmt.Fprintf(w, "API Start Transmitting Request Processed Successfully\n")
-		} else {
-			fmt.Fprintf(w, "API Start Transmitting Request Denied\n")
-		}
-	case "stoptransmitting":
-		if APIStopTransmitting {
-			b.cmdStopTransmitting()
-			fmt.Fprintf(w, "API Stop Transmitting Request Processed Successfully\n")
-		} else {
-			fmt.Fprintf(w, "API Stop Transmitting Request Denied\n")
-		}
-	case "listonlineusers":
-		if APIListOnlineUsers {
-			b.cmdListOnlineUsers()
-			fmt.Fprintf(w, "API List Online Users Request Processed Successfully\n")
-		} else {
-			fmt.Fprintf(w, "API List Online Users Request Denied\n")
-		}
-	case "stream-toggle":
-		if APIPlayStream {
-			b.cmdPlayback()
-			fmt.Fprintf(w, "API Play/Stop Stream Request Processed Successfully\n")
-		} else {
-			fmt.Fprintf(w, "API Play/Stop Stream Request Denied\n")
-		}
-	case "gpsposition":
-		if APIRequestGpsPosition {
-			b.cmdGPSPosition()
-			fmt.Fprintf(w, "API Request GPS Position Processed Successfully\n")
-		} else {
-			fmt.Fprintf(w, "API Request GPS Position Denied\n")
+	for key, values := range r.URL.Query() {
+		if strings.ToLower(key) == "command" {
+			APICommand = values[0]
 		}
 
-	case "sendemail":
-		if APIEmailEnabled {
-			b.cmdSendEmail()
-			fmt.Fprintf(w, "API Send Email Processed Successfully\n")
-		} else {
-			fmt.Fprintf(w, "API Send Email Config Denied\n")
-		}
-	case "connpreviousserver":
-		if APINextServer {
-			b.cmdConnPreviousServer()
-			fmt.Fprintf(w, "API Previous Server Processed Successfully\n")
-		} else {
-			fmt.Fprintf(w, "API Previous Server Denied\n")
-		}
-	case "connnextserver":
-		if APINextServer {
-			b.cmdConnNextServer()
-			fmt.Fprintf(w, "API Next Server Processed Successfully\n")
-		} else {
-			fmt.Fprintf(w, "API Next Server Denied\n")
+		if strings.ToLower(key) == "id" {
+			APIID, err = strconv.Atoi(values[0])
+			if err != nil {
+				log.Println("error: Target ID is not Number")
+				fmt.Fprintf(w, "404 error: API VoiceTarget ID is not Number\n")
+				return
+			}
 		}
 
-	case "clearscreen":
-		if APIClearScreen {
-			b.cmdClearScreen()
-			fmt.Fprintf(w, "API Clear Screen Processed Successfully\n")
-		} else {
-			fmt.Fprintf(w, "API Clear Screen Denied\n")
+		if strings.ToLower(key) == "ttsmessage" {
+			APITTSMessage = values[0]
 		}
-	case "pingservers":
-		if APIEmailEnabled {
-			b.cmdPingServers()
-			fmt.Fprintf(w, "API Ping Servers Processed Successfully\n")
-		} else {
-			fmt.Fprintf(w, "API Ping Servers Denied\n")
+
+		if strings.ToLower(key) == "ttslocalplay" {
+			var temp string = values[0]
+			if strings.ToLower(temp) == "true" {
+				APITTSLocalPlay = true
+			}
+			if strings.ToLower(temp) == "false" {
+				APITTSLocalPlay = false
+			}
 		}
-	case "panicsimulation":
-		if APIPanicSimulation {
-			b.cmdPanicSimulation()
-			fmt.Fprintf(w, "API Request Panic Simulation Processed Successfully\n")
-		} else {
-			fmt.Fprintf(w, "API Request Panic Simulation Denied\n")
+
+		if strings.ToLower(key) == "playintostream" {
+			var temp string = values[0]
+			if strings.ToLower(temp) == "true" {
+				APITTSPlayIntoStream = true
+			}
+			if strings.ToLower(temp) == "false" {
+				APITTSPlayIntoStream = false
+			}
 		}
-	case "repeattxloop":
-		if APIRepeatTxLoopTest {
-			b.cmdRepeatTxLoop()
-			fmt.Fprintf(w, "API Request Repeat Tx Loop Test Processed Successfully\n")
-		} else {
-			fmt.Fprintf(w, "API Request Repeat Tx Loop Test Denied\n")
+
+		if strings.ToLower(key) == "gpioenabled" {
+			var temp string = values[0]
+			if strings.ToLower(temp) == "true" {
+				APIGPIOEnabled = true
+			}
+			if strings.ToLower(temp) == "false" {
+				APIGPIOEnabled = false
+			}
 		}
-	case "scanchannels":
-		if APIScanChannels {
-			b.cmdScanChannels()
-			fmt.Fprintf(w, "API Request Scan Processed Successfully\n")
-		} else {
-			fmt.Fprintf(w, "API Request Scan Denied\n")
+
+		if strings.ToLower(key) == "gpioname" {
+			APIGPIOName = values[0]
 		}
-	case "thanks":
-		if true {
-			b.cmdThanks()
-			fmt.Fprintf(w, "API Request Show Acknowledgements Processed Successfully\n")
-		} else {
-			fmt.Fprintf(w, "API Request Show Acknowledgements Denied\n")
+
+		if strings.ToLower(key) == "predelay" {
+			APIPreDelay, err = strconv.Atoi(values[0])
+			if err != nil {
+				log.Println("error: PreDelay is not Number")
+				fmt.Fprintf(w, "404 error: API PreDelay is not Number\n")
+				return
+			}
 		}
-	case "showuptime":
-		if APIDisplayVersion {
-			b.cmdShowUptime()
-			fmt.Fprintf(w, "API Request Current Version Successfully\n")
-		} else {
-			fmt.Fprintf(w, "API Request Current Version Denied\n")
+
+		if strings.ToLower(key) == "postdelay" {
+			APIPostDelay, err = strconv.Atoi(values[0])
+			if err != nil {
+				log.Println("error: PostDelay is not Number")
+				fmt.Fprintf(w, "404 error: API PostDelay is not Number\n")
+				return
+			}
 		}
-	case "dumpxmlconfig":
-		if APIPrintXmlConfig {
-			b.cmdDumpXMLConfig()
-			fmt.Fprintf(w, "API Print XML Config Processed Successfully\n")
-		} else {
-			fmt.Fprintf(w, "API Print XML Config Denied\n")
+
+		if strings.ToLower(key) == "language" {
+			APILanguage = values[0]
 		}
-	case "playrepeatertone":
-		if APIPlayRepeaterTone {
-			b.cmdPlayRepeaterTone()
-			fmt.Fprintf(w, "API Play Repeater Tone Processed Successfully\n")
-		} else {
-			fmt.Fprintf(w, "API Play Repeater Tone Denied\n")
+
+	}
+
+	for _, apicommand := range Config.Global.Software.RemoteControl.HTTP.Command {
+		if apicommand.Action == APICommand {
+			if len(apicommand.Funcparamname) == 0 {
+				_, err := b.Call(funcs, apicommand.Action)
+				if err != nil {
+					log.Println("error: Wrong Parameters to Call Function")
+				} else {
+					fmt.Fprintf(w, "200 OK: http command %v OK \n", APICommand)
+				}
+			} else {
+				if apicommand.Funcparamname != "value" {
+					_, err := b.Call(funcs, apicommand.Action, apicommand.Funcparamname)
+					if err != nil {
+						log.Println("error: Wrong Parameters to Call Function")
+					} else {
+						fmt.Fprintf(w, "200 OK: http command %v For %v Control\n", apicommand.Action, apicommand.Message)
+					}
+				} else {
+					switch APICommand {
+					case "voicetargetset":
+						_, err := b.Call(funcs, apicommand.Action, uint32(APIID))
+						if err != nil {
+							log.Println("error: Wrong Parameters to Call Function")
+						} else {
+							fmt.Fprintf(w, "200 OK: http command %v OK \n", APICommand)
+						}
+					case "ttsannouncement":
+						_, err := b.Call(funcs, apicommand.Action, APITTSMessage, APITTSLocalPlay, APITTSPlayIntoStream, APIGPIOEnabled, APIGPIOName, time.Duration(APIPreDelay*int(time.Second)), time.Duration(APIPostDelay)*time.Second, APILanguage)
+						if err != nil {
+							log.Println("error: Wrong Parameters to Call Function")
+						} else {
+							fmt.Fprintf(w, "200 OK: http command %v OK \n", APICommand)
+						}
+					}
+				}
+			}
 		}
-	case "setvoicetarget":
-		if APISetVoiceTarget {
-			fmt.Fprintf(w, "API Set Voice Target to ID %v Processed Successfully\n", ID)
-			b.cmdSendVoiceTargets(uint32(ID))
-		} else {
-			fmt.Fprintf(w, "API Set Voice Target Denied\n")
-		}
-	default:
-		fmt.Fprintf(w, "API Command Not Defined\n")
+	}
+}
+
+func (b *Talkkonnect) Call(m map[string]interface{}, name string, params ...interface{}) (result []reflect.Value, err error) {
+	f := reflect.ValueOf(m[name])
+	if len(params) != f.Type().NumIn() {
+		err = errors.New("the number of params is not adapted")
+		return
+	}
+	in := make([]reflect.Value, len(params))
+	for k, param := range params {
+		in[k] = reflect.ValueOf(param)
+	}
+	result = f.Call(in)
+	return
+}
+
+func listAPI() {
+	for _, apicommand := range Config.Global.Software.RemoteControl.HTTP.Command {
+		log.Printf("info: API Command %v for %v Control Available\n", apicommand.Action, apicommand.Message)
 	}
 }

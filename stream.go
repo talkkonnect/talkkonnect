@@ -34,6 +34,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"strconv"
 	"time"
 
 	"github.com/talkkonnect/go-openal/openal"
@@ -42,12 +43,17 @@ import (
 )
 
 var (
-	errState   = errors.New("gumbleopenal: invalid state")
-	lcdtext    = [4]string{"nil", "nil", "nil", ""}
-	now        = time.Now()
-	debuglevel = 2
-	emptyBufs  = openal.NewBuffers(16)
+	errState     = errors.New("gumbleopenal: invalid state")
+	lcdtext      = [4]string{"nil", "nil", "nil", ""}
+	now          = time.Now()
+	debuglevel   = 2
+	RXLEDStatus  bool
+	TotalStreams int
+	NeedToKill   int
 )
+
+// MumbleDuplex - listenera and outgoing
+type MumbleDuplex struct{}
 
 type Stream struct {
 	client *gumble.Client
@@ -61,7 +67,7 @@ type Stream struct {
 	contextSink *openal.Context
 }
 
-func New(client *gumble.Client) (*Stream, error) {
+func (b *Talkkonnect) New(client *gumble.Client) (*Stream, error) {
 	s := &Stream{
 		client:          client,
 		sourceFrameSize: client.Config.AudioFrameSize(),
@@ -79,131 +85,86 @@ func New(client *gumble.Client) (*Stream, error) {
 	return s, nil
 }
 
-func (s *Stream) Destroy() {
+func (b *Talkkonnect) Destroy() {
 	if debuglevel >= 3 {
 		log.Println("debug: Destroy Stream Source")
 	}
-	s.link.Detach()
-	if s.deviceSource != nil {
-		s.StopSource()
-		s.deviceSource.CaptureCloseDevice()
-		s.deviceSource = nil
+	b.Stream.link.Detach()
+	if b.Stream.deviceSource != nil {
+		b.Stream.deviceSource.CaptureStop()
+		b.Stream.deviceSource.CaptureCloseDevice()
+		b.Stream.deviceSource = nil
 	}
-	if s.deviceSink != nil {
-		s.contextSink.Destroy()
-		s.deviceSink.CloseDevice()
-		s.contextSink = nil
-		s.deviceSink = nil
+	if b.Stream.deviceSink != nil {
+		b.Stream.contextSink.Destroy()
+		b.Stream.deviceSink.CloseDevice()
+		b.Stream.contextSink = nil
+		b.Stream.deviceSink = nil
 	}
 }
 
-func (s *Stream) StartSource() error {
+func (b *Talkkonnect) StartSource() error {
 	if debuglevel >= 3 {
 		log.Println("debug: Start Stream Source")
 	}
-	if s.sourceStop != nil {
-		return errState
-	}
 
-	if IncommingBeepSoundEnabled {
-		s.playIntoStream(IncommingBeepSoundFilenameAndPath, IncommingBeepSoundVolume)
-	}
+	// if b.Stream.sourceStop == nil {
+	// 	return errState
+	// }
 
-	s.deviceSource.CaptureStart()
-	s.sourceStop = make(chan bool)
-	go s.sourceRoutine()
+	var eventSound EventSoundStruct = findEventSound("incommingbeep")
+	if eventSound.Enabled {
+		if v, err := strconv.ParseFloat(eventSound.Volume, 32); err == nil {
+			time.Sleep(300 * time.Millisecond)
+			log.Println("alert: Playing Incomming into Stream")
+			b.splayIntoStream(eventSound.FileName, float32(v))
+		}
+	}
+	b.Stream.deviceSource.CaptureStart()
+	b.Stream.sourceStop = make(chan bool)
+	go b.sourceRoutine()
 	return nil
 }
 
-func (s *Stream) StopSource() error {
+func (b *Talkkonnect) StopSource() error {
 	if debuglevel >= 3 {
 		log.Println("debug: Stop Source File")
 	}
-	if s.sourceStop == nil {
+	if b.Stream.sourceStop == nil {
 		return errState
 	}
-	close(s.sourceStop)
-	s.sourceStop = nil
-	s.deviceSource.CaptureStop()
-	s.deviceSource.CaptureCloseDevice()
+	close(b.Stream.sourceStop)
+	b.Stream.sourceStop = nil
+	b.Stream.deviceSource.CaptureStop()
+	b.Stream.deviceSource.CaptureCloseDevice()
 
-	if RogerBeepSoundEnabled {
+	var eventSound EventSoundStruct = findEventSound("rogerbeep")
+	if eventSound.Enabled {
+		GPIOOutPin("transmit", "on")
 		log.Println("debug: Rogerbeep Playing")
-		s.playIntoStream(RogerBeepSoundFilenameAndPath, RogerBeepSoundVolume)
+		if v, err := strconv.ParseFloat(eventSound.Volume, 32); err == nil {
+			b.splayIntoStream(eventSound.FileName, float32(v))
+		}
+		GPIOOutPin("transmit", "off")
 	}
 
-	s.deviceSource = openal.CaptureOpenDevice("", gumble.AudioSampleRate, openal.FormatMono16, uint32(s.sourceFrameSize))
+	b.Stream.deviceSource = openal.CaptureOpenDevice("", gumble.AudioSampleRate, openal.FormatMono16, uint32(b.Stream.sourceFrameSize))
 
 	return nil
 }
 
 func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
-
-	if TargetBoard == "rpi" && LCDEnabled {
-		LEDOffFunc(BackLightLED)
+	TotalStreams++
+	if _, userexists := StreamTracker[e.User.UserID]; userexists {
+		log.Printf("info: Stale GoRoutine Detected For UserID=%v UserName=%v Session=%v AudioStreamChannel=%v", e.User.UserID, e.User.Name, e.User.Session, e.C)
+		NeedToKill++
 	}
-
-	StreamCounter++
-
-	TalkedTicker := time.NewTicker(200 * time.Millisecond)
-	Talking := make(chan bool)
-
-	if StreamCounter == 1 {
-		go func() {
-			for {
-				select {
-				case <-Talking:
-					TalkedTicker.Reset(200 * time.Millisecond)
-					if !RXLEDStatus {
-						RXLEDStatus = true
-						LEDOnFunc(VoiceActivityLED)
-
-						if IgnoreUserEnabled {
-							if len(IgnoreUserRegex) > 0 {
-								if checkRegex(IgnoreUserRegex, *e.LastSpeaker) {
-									log.Println("info: Ignoring Speaker->", *e.LastSpeaker)
-								} else {
-									log.Println("info: Speaking->", *e.LastSpeaker)
-
-								}
-							}
-						}
-
-						t := time.Now()
-						if TargetBoard == "rpi" {
-							if LCDEnabled {
-								LEDOnFunc(BackLightLED)
-								lcdtext = [4]string{"nil", "", "", *e.LastSpeaker + " " + t.Format("15:04:05")}
-								LcdDisplay(lcdtext, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
-								BackLightTime.Reset(time.Duration(LCDBackLightTimeout) * time.Second)
-							}
-
-							if OLEDEnabled {
-								Oled.DisplayOn()
-								go oledDisplay(false, 3, 1, *e.LastSpeaker+" "+t.Format("15:04:05"))
-								BackLightTime.Reset(time.Duration(LCDBackLightTimeout) * time.Second)
-							}
-						}
-					}
-				case <-TalkedTicker.C:
-					RXLEDStatus = false
-					LEDOffFunc(VoiceActivityLED)
-					TalkedTicker.Stop()
-
-				}
-			}
-		}()
-	}
+	StreamTracker[e.User.UserID] = streamTrackerStruct{UserID: e.User.UserID, UserName: e.User.Name, UserSession: e.User.Session, C: e.C}
+	goStreamStats()
 
 	go func() {
-		if StreamCounter > 1 {
-			StreamCounter--
-			return
-		}
-
-		source = openal.NewSource()
-		emptyBufs = openal.NewBuffers(16)
-
+		source := openal.NewSource()
+		emptyBufs := openal.NewBuffers(24)
 		reclaim := func() {
 			if n := source.BuffersProcessed(); n > 0 {
 				reclaimedBufs := make(openal.Buffers, n)
@@ -211,30 +172,9 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 				emptyBufs = append(emptyBufs, reclaimedBufs...)
 			}
 		}
-
 		var raw [gumble.AudioMaximumFrameSize * 2]byte
-
 		for packet := range e.C {
-			Talking <- true
-
-			if IgnoreUserEnabled {
-				if len(IgnoreUserRegex) > 0 {
-					if checkRegex(IgnoreUserRegex, *e.LastSpeaker) {
-						continue
-					}
-				}
-			}
-
-			if TargetBoard == "rpi" && LCDEnabled {
-				LEDOnFunc(BackLightLED)
-			}
-
-			if CancellableStream && NowStreaming {
-				pstream.Stop()
-			}
-
 			samples := len(packet.AudioBuffer)
-
 			if samples > cap(raw) {
 				continue
 			}
@@ -243,7 +183,6 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 			}
 			reclaim()
 			if len(emptyBufs) == 0 {
-				emptyBufs = openal.NewBuffers(16)
 				continue
 			}
 			last := len(emptyBufs) - 1
@@ -254,7 +193,6 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 			if source.State() != openal.Playing {
 				source.Play()
 			}
-			Talking <- false
 		}
 		reclaim()
 		emptyBufs.Delete()
@@ -262,22 +200,22 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 	}()
 }
 
-func (s *Stream) sourceRoutine() {
-	interval := s.client.Config.AudioInterval
-	frameSize := s.client.Config.AudioFrameSize()
+func (b *Talkkonnect) sourceRoutine() {
+	interval := b.Stream.client.Config.AudioInterval
+	frameSize := b.Stream.client.Config.AudioFrameSize()
 
-	if frameSize != s.sourceFrameSize {
+	if frameSize != b.Stream.sourceFrameSize {
 		log.Println("error: FrameSize Error!")
-		s.deviceSource.CaptureCloseDevice()
-		s.sourceFrameSize = frameSize
-		s.deviceSource = openal.CaptureOpenDevice("", gumble.AudioSampleRate, openal.FormatMono16, uint32(s.sourceFrameSize))
+		b.Stream.deviceSource.CaptureCloseDevice()
+		b.Stream.sourceFrameSize = frameSize
+		b.Stream.deviceSource = openal.CaptureOpenDevice("", gumble.AudioSampleRate, openal.FormatMono16, uint32(b.Stream.sourceFrameSize))
 	}
 
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
-	stop := s.sourceStop
+	stop := b.Stream.sourceStop
 
-	outgoing := s.client.AudioOutgoing()
+	outgoing := b.Stream.client.AudioOutgoing()
 	defer close(outgoing)
 
 	for {
@@ -289,7 +227,7 @@ func (s *Stream) sourceRoutine() {
 			return
 		case <-ticker.C:
 			//this is for encoding (transmitting)
-			buff := s.deviceSource.CaptureSamples(uint32(frameSize))
+			buff := b.Stream.deviceSource.CaptureSamples(uint32(frameSize))
 			if len(buff) != frameSize*2 {
 				continue
 			}
@@ -302,8 +240,40 @@ func (s *Stream) sourceRoutine() {
 	}
 }
 
-func (s *Stream) playIntoStream(filepath string, vol float32) {
-	pstream = gumbleffmpeg.New(s.client, gumbleffmpeg.SourceFile(filepath), vol)
+func (b *Talkkonnect) playIntoStream(filepath string, vol float32) {
+	if !IsPlayStream {
+		log.Println(fmt.Sprintf("info: File %s Stopped!", filepath))
+		pstream.Stop()
+		GPIOOutPin("transmit", "off")
+		return
+	}
+
+	var eventSound EventSoundStruct = findEventSound("stream")
+	if eventSound.Enabled {
+		if pstream != nil && pstream.State() == gumbleffmpeg.StatePlaying {
+			pstream.Stop()
+			return
+		}
+
+		GPIOOutPin("transmit", "on")
+
+		IsPlayStream = true
+		pstream = gumbleffmpeg.New(b.Client, gumbleffmpeg.SourceFile(filepath), vol/100)
+		if err := pstream.Play(); err != nil {
+			log.Println(fmt.Sprintf("error: Can't play %s error %s", filepath, err))
+		} else {
+			log.Println(fmt.Sprintf("info: File %s Playing!", filepath))
+			pstream.Wait()
+			pstream.Stop()
+			GPIOOutPin("transmit", "off")
+		}
+	} else {
+		log.Println("warn: Sound Disabled by Config")
+	}
+}
+
+func (b *Talkkonnect) splayIntoStream(filepath string, vol float32) {
+	pstream = gumbleffmpeg.New(b.Stream.client, gumbleffmpeg.SourceFile(filepath), vol/100)
 	if err := pstream.Play(); err != nil {
 		log.Println(fmt.Sprintf("error: Can't play %s error %s", filepath, err))
 	} else {
@@ -314,9 +284,9 @@ func (s *Stream) playIntoStream(filepath string, vol float32) {
 }
 
 func (b *Talkkonnect) OpenStream() {
-	if stream, err := New(b.Client); err != nil {
+	if stream, err := b.New(b.Client); err != nil {
 
-		if TargetBoard == "rpi" {
+		if Config.Global.Hardware.TargetBoard == "rpi" {
 			if LCDEnabled {
 				LcdText = [4]string{"Stream Error!", "nil", "nil", "nil"}
 				LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
@@ -333,7 +303,15 @@ func (b *Talkkonnect) OpenStream() {
 }
 
 func (b *Talkkonnect) ResetStream() {
-	b.Stream.Destroy()
+	b.Stream.contextSink.Destroy()
 	time.Sleep(50 * time.Millisecond)
 	b.OpenStream()
+}
+
+func goStreamStats() {
+	log.Println("info: Active Streams")
+	for item, value := range StreamTracker {
+		log.Printf("info: Item=%v UserID=%v UserName=%v Session=%v AudioStreamChannel=%v", item, value.UserID, value.UserName, value.UserSession, value.C)
+	}
+	log.Printf("Total GoRoutines Open=%v, Total GoRoutines Wasted=%v \n", TotalStreams, NeedToKill)
 }

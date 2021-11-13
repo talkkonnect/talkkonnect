@@ -51,9 +51,9 @@ func FatalCleanUp(message string) {
 	os.Exit(1)
 }
 
-func (b *Talkkonnect) CleanUp() {
+func CleanUp() {
 
-	if TargetBoard == "rpi" {
+	if Config.Global.Hardware.TargetBoard == "rpi" {
 		t := time.Now()
 		if LCDEnabled {
 			LcdText = [4]string{"talkkonnect stopped", t.Format("02-01-2006 15:04:05"), "Please Visit", "www.talkkonnect.com"}
@@ -67,10 +67,10 @@ func (b *Talkkonnect) CleanUp() {
 			oledDisplay(false, 6, 1, "Please Visit")
 			oledDisplay(false, 7, 1, "www.talkkonnect.com")
 		}
-		if !LedStripEnabled {
-			LEDOffAll()
+		if !Config.Global.Hardware.LedStripEnabled {
+			GPIOOutAll("led/relay", "off")
 		} else {
-			MyLedStripLEDOffAll()
+			MyLedStripGPIOOutAll()
 		}
 	}
 
@@ -111,7 +111,7 @@ func (b *Talkkonnect) ReConnect() {
 		ConnectAttempts++
 		b.Connect()
 	} else {
-		if TargetBoard == "rpi" {
+		if Config.Global.Hardware.TargetBoard == "rpi" {
 			if LCDEnabled {
 				LcdText = [4]string{"Failed to Connect!", "nil", "nil", "nil"}
 				LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
@@ -132,8 +132,8 @@ func (b *Talkkonnect) TransmitStart() {
 	b.BackLightTimer()
 	t := time.Now()
 
-	if SimplexWithMute {
-		err := volume.Mute(OutputDevice)
+	if Config.Global.Software.Settings.SimplexWithMute {
+		err := volume.Mute(Config.Global.Software.Settings.OutputDevice)
 		if err != nil {
 			log.Println("error: Unable to Mute ", err)
 		} else {
@@ -145,12 +145,21 @@ func (b *Talkkonnect) TransmitStart() {
 		IsPlayStream = false
 		NowStreaming = false
 		time.Sleep(100 * time.Millisecond)
-		b.playIntoStream(StreamSoundFilenameAndPath, StreamSoundVolume)
+
+		for _, sound := range Config.Global.Software.Sounds.Sound {
+			if sound.Enabled {
+				if sound.Event == "stream" {
+					if s, err := strconv.ParseFloat(sound.Volume, 32); err == nil {
+						b.playIntoStream(sound.File, float32(s))
+					}
+				}
+			}
+		}
 	}
 
-	if TargetBoard == "rpi" {
-		if !LedStripEnabled {
-			LEDOnFunc(TransmitLED)
+	if Config.Global.Hardware.TargetBoard == "rpi" {
+		if !Config.Global.Hardware.LedStripEnabled {
+			GPIOOutPin("transmit", "on")
 		} else {
 			MyLedStripTransmitLEDOn()
 		}
@@ -175,7 +184,7 @@ func (b *Talkkonnect) TransmitStart() {
 		pstream.Stop()
 	}
 
-	b.Stream.StartSource()
+	b.StartSource()
 
 }
 
@@ -186,9 +195,9 @@ func (b *Talkkonnect) TransmitStop(withBeep bool) {
 
 	b.BackLightTimer()
 
-	if TargetBoard == "rpi" {
-		if !LedStripEnabled {
-			LEDOffFunc(TransmitLED)
+	if Config.Global.Hardware.TargetBoard == "rpi" {
+		if !Config.Global.Hardware.LedStripEnabled {
+			GPIOOutPin("transmit", "off")
 		} else {
 			MyLedStripTransmitLEDOff()
 		}
@@ -202,10 +211,10 @@ func (b *Talkkonnect) TransmitStop(withBeep bool) {
 	}
 
 	b.IsTransmitting = false
-	b.Stream.StopSource()
+	b.StopSource()
 
-	if SimplexWithMute {
-		err := volume.Unmute(OutputDevice)
+	if Config.Global.Software.Settings.SimplexWithMute {
+		err := volume.Unmute(Config.Global.Software.Settings.OutputDevice)
 		if err != nil {
 			log.Println("error: Unable to Unmute ", err)
 		} else {
@@ -226,7 +235,7 @@ func (b *Talkkonnect) ChangeChannel(ChannelName string) {
 
 		b.Client.Self.Move(channel)
 
-		if TargetBoard == "rpi" {
+		if Config.Global.Hardware.TargetBoard == "rpi" {
 			if LCDEnabled {
 				LcdText[1] = "Joined " + ChannelName
 				LcdText[2] = Username[AccountIndex]
@@ -255,19 +264,35 @@ func (b *Talkkonnect) ParticipantLEDUpdate(verbose bool) {
 
 	var participantCount = len(b.Client.Self.Channel.Users)
 
-	if EventSoundEnabled {
+	var eventSound = EventSoundStruct{}
+
+	eventSound = findEventSound("joinedchannel")
+	if eventSound.Enabled {
 		if participantCount > prevParticipantCount {
-			localMediaPlayer(EventJoinedSoundFilenameAndPath, EventVolume, 0, 1)
-		}
-		if participantCount < prevParticipantCount {
-			localMediaPlayer(EventLeftSoundFilenameAndPath, EventVolume, 0, 1)
+			if v, err := strconv.Atoi(eventSound.Volume); err == nil {
+				localMediaPlayer(eventSound.FileName, v, eventSound.Blocking, 0, 1)
+			}
 		}
 	}
-
+	eventSound = findEventSound("leftchannel")
+	if eventSound.Enabled {
+		if participantCount < prevParticipantCount {
+			if v, err := strconv.Atoi(eventSound.Volume); err == nil {
+				localMediaPlayer(eventSound.FileName, v, eventSound.Blocking, 0, 1)
+			}
+		}
+	}
 	if participantCount > 1 && participantCount != prevParticipantCount {
 
-		if TTSEnabled && TTSParticipants {
-			b.Speak("There Are Currently "+strconv.Itoa(participantCount)+" Users in The Channel "+b.Client.Self.Channel.Name, "local", 1, 0, 1, TTSLanguage)
+		for _, tts := range Config.Global.Software.TTS.Sound {
+			if tts.Action == "participants" {
+				if tts.Enabled {
+					tempStatus := Config.Global.Software.TTSMessages.TTSTone.ToneEnabled
+					Config.Global.Software.TTSMessages.TTSTone.ToneEnabled = false
+					b.Speak("There Are Currently "+strconv.Itoa(participantCount)+" Users in The Channel "+b.Client.Self.Channel.Name, "local", 1, 0, 1, Config.Global.Software.TTSMessages.TTSLanguage)
+					Config.Global.Software.TTSMessages.TTSTone.ToneEnabled = tempStatus
+				}
+			}
 		}
 
 		prevParticipantCount = participantCount
@@ -275,7 +300,7 @@ func (b *Talkkonnect) ParticipantLEDUpdate(verbose bool) {
 		if verbose {
 			log.Println("info: Current Channel ", b.Client.Self.Channel.Name, " has (", participantCount, ") participants")
 			b.ListUsers()
-			if TargetBoard == "rpi" {
+			if Config.Global.Hardware.TargetBoard == "rpi" {
 				if LCDEnabled {
 					LcdText[0] = b.Address
 					LcdText[1] = b.Client.Self.Channel.Name + " (" + strconv.Itoa(participantCount) + " Users)"
@@ -293,10 +318,10 @@ func (b *Talkkonnect) ParticipantLEDUpdate(verbose bool) {
 	}
 
 	if participantCount > 1 {
-		if TargetBoard == "rpi" {
-			if !LedStripEnabled {
-				LEDOnFunc(ParticipantsLED)
-				LEDOnFunc(OnlineLED)
+		if Config.Global.Hardware.TargetBoard == "rpi" {
+			if !Config.Global.Hardware.LedStripEnabled {
+				GPIOOutPin("participants", "on")
+				GPIOOutPin("online", "on")
 			} else {
 				MyLedStripParticipantsLEDOn()
 				MyLedStripOnlineLEDOn()
@@ -306,16 +331,21 @@ func (b *Talkkonnect) ParticipantLEDUpdate(verbose bool) {
 	} else {
 
 		if verbose {
-			if TTSEnabled && TTSParticipants {
-				b.Speak("You are Currently Alone in The Channel "+b.Client.Self.Channel.Name, "local", 1, 0, 1, TTSLanguage)
+			for _, tts := range Config.Global.Software.TTS.Sound {
+				if tts.Action == "participants" {
+					if tts.Enabled {
+						b.Speak("You are Currently Alone in The Channel "+b.Client.Self.Channel.Name, "local", 1, 0, 1, Config.Global.Software.TTSMessages.TTSLanguage)
+					}
+				}
 			}
+
 			log.Println("info: Channel ", b.Client.Self.Channel.Name, " has no other participants")
 
 			prevParticipantCount = 0
 
-			if TargetBoard == "rpi" {
-				if !LedStripEnabled {
-					LEDOffFunc(ParticipantsLED)
+			if Config.Global.Hardware.TargetBoard == "rpi" {
+				if !Config.Global.Hardware.LedStripEnabled {
+					GPIOOutPin("participants", "off")
 				} else {
 					MyLedStripParticipantsLEDOff()
 				}
@@ -361,7 +391,45 @@ func (b *Talkkonnect) ListChannels(verbose bool) {
 		channelsList[counter].chanName = ch.Name
 		channelsList[counter].chanParent = ch.Parent
 		channelsList[counter].chanUsers = len(ch.Users)
-
+		if verbose {
+			if ch.Permission() != nil {
+				if (*ch.Permission() & gumble.PermissionWrite) > 0 {
+					log.Printf("info: Channel %v Write Permissions\n", ch.Name)
+				}
+				if (*ch.Permission() & gumble.PermissionTraverse) > 0 {
+					log.Printf("info: Channel %v Transverse Permissions\n", ch.Name)
+				}
+				if (*ch.Permission() & gumble.PermissionEnter) > 0 {
+					log.Printf("info: Channel %v Enter Permissions\n", ch.Name)
+				}
+				if (*ch.Permission() & gumble.PermissionSpeak) > 0 {
+					log.Printf("info: Channel %v Speak Permissions\n", ch.Name)
+				}
+				if (*ch.Permission() & gumble.PermissionMuteDeafen) > 0 {
+					log.Printf("info: Channel %v MuteDefen Permissions\n", ch.Name)
+				}
+				if (*ch.Permission() & gumble.PermissionMove) > 0 {
+					log.Printf("info: Channel %v Move Permissions\n", ch.Name)
+				}
+				if (*ch.Permission() & gumble.PermissionMakeChannel) > 0 {
+					log.Printf("info: Channel %v Make Permissions\n", ch.Name)
+				}
+				if (*ch.Permission() & gumble.PermissionLinkChannel) > 0 {
+					log.Printf("info: Channel %v Link Permissions\n", ch.Name)
+				}
+				if (*ch.Permission() & gumble.PermissionWhisper) > 0 {
+					log.Printf("info: Channel %v Whisper Permissions\n", ch.Name)
+				}
+				if (*ch.Permission() & gumble.PermissionTextMessage) > 0 {
+					log.Printf("info: Channel %v Message Permissions\n", ch.Name)
+				}
+				if (*ch.Permission() & gumble.PermissionMakeTemporaryChannel) > 0 {
+					log.Printf("info: Channel %v Make Temp Channel Permissions\n", ch.Name)
+				}
+			} else {
+				log.Printf("info: Channel %v Nil Permissions\n", ch.Name)
+			}
+		}
 		if ch.ID > maxchannelid {
 			maxchannelid = ch.ID
 		}
@@ -392,9 +460,7 @@ func (b *Talkkonnect) ChannelUp() {
 		prevChannelID = b.Client.Self.Channel.ID
 	}
 
-	if TTSEnabled && TTSChannelUp {
-		localMediaPlayer(TTSChannelUpFilenameAndPath, EventVolume, 0, 1)
-	}
+	TTSEvent("channelup")
 
 	prevButtonPress = "ChannelUp"
 
@@ -402,17 +468,10 @@ func (b *Talkkonnect) ChannelUp() {
 
 	// Set Upper Boundary
 	if b.Client.Self.Channel.ID == maxchannelid {
-		log.Println("error: Can't Increment Channel Maximum Channel Reached")
-		if TargetBoard == "rpi" {
-			if LCDEnabled {
-				LcdText[2] = "Max Chan Reached"
-				LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
-			}
-			if OLEDEnabled {
-				oledDisplay(false, 1, 1, "Max Chan Reached")
-			}
-
-		}
+		log.Println("alert: Max Channel Reached Rolling Back to Root Channel")
+		channel := b.Client.Channels.Find()
+		b.Client.Self.Move(channel)
+		prevChannelID = 0
 		return
 	}
 
@@ -429,7 +488,7 @@ func (b *Talkkonnect) ChannelUp() {
 				b.Client.Self.Move(channel)
 				//displaychannel
 				time.Sleep(500 * time.Millisecond)
-				if TargetBoard == "rpi" {
+				if Config.Global.Hardware.TargetBoard == "rpi" {
 
 					if len(b.Client.Self.Channel.Users) == 1 {
 						LcdText[1] = "Alone in " + b.Client.Self.Channel.Name
@@ -459,21 +518,17 @@ func (b *Talkkonnect) ChannelDown() {
 		prevChannelID = b.Client.Self.Channel.ID
 	}
 
-	if TTSEnabled && TTSChannelDown {
-		localMediaPlayer(TTSChannelDownFilenameAndPath, TTSVolumeLevel, 0, 1)
-	}
+	TTSEvent("channeldown")
 
 	prevButtonPress = "ChannelDown"
 	b.ListChannels(false)
 
 	// Set Lower Boundary
 	if int(b.Client.Self.Channel.ID) == 0 {
-		log.Println("error: Can't Decrement Channel Root Channel Reached")
-		channel := b.Client.Channels[uint32(AccountIndex)]
-		b.Client.Self.Move(channel)
-		//displaychannel
-		time.Sleep(500 * time.Millisecond)
-		if TargetBoard == "rpi" {
+		log.Println("error: Can't Decrement Channel Root Channel Reached Rolling Back to Highest Channel ID")
+		b.Client.Self.Move(b.Client.Channels[maxchannelid])
+		prevChannelID = maxchannelid
+		if Config.Global.Hardware.TargetBoard == "rpi" {
 
 			if len(b.Client.Self.Channel.Users) == 1 {
 				LcdText[1] = "Alone in " + b.Client.Self.Channel.Name
@@ -503,7 +558,7 @@ func (b *Talkkonnect) ChannelDown() {
 				b.Client.Self.Move(channel)
 				//displaychannel
 				time.Sleep(500 * time.Millisecond)
-				if TargetBoard == "rpi" {
+				if Config.Global.Hardware.TargetBoard == "rpi" {
 
 					if len(b.Client.Self.Channel.Users) == 1 {
 						LcdText[1] = "Alone in " + b.Client.Self.Channel.Name
@@ -572,7 +627,7 @@ func (b *Talkkonnect) SetComment(comment string) {
 		b.BackLightTimer()
 		b.Client.Self.SetComment(comment)
 		t := time.Now()
-		if TargetBoard == "rpi" {
+		if Config.Global.Hardware.TargetBoard == "rpi" {
 			if LCDEnabled {
 				LcdText[2] = "Status at " + t.Format("15:04:05")
 				time.Sleep(500 * time.Millisecond)
@@ -590,12 +645,12 @@ func (b *Talkkonnect) SetComment(comment string) {
 func (b *Talkkonnect) BackLightTimer() {
 	BackLightTime = *BackLightTimePtr
 
-	if TargetBoard != "rpi" || (!LCDBackLightTimerEnabled && !OLEDEnabled && !LCDEnabled) {
+	if Config.Global.Hardware.TargetBoard != "rpi" || (!LCDBackLightTimerEnabled && !OLEDEnabled && !LCDEnabled) {
 		return
 	}
 
 	if LCDEnabled {
-		LEDOnFunc(BackLightLED)
+		GPIOOutPin("backlight", "on")
 	}
 
 	if OLEDEnabled {
@@ -606,16 +661,16 @@ func (b *Talkkonnect) BackLightTimer() {
 }
 
 func (b *Talkkonnect) TxLockTimer() {
-	if PTxLockEnabled {
-		TxLockTicker := time.NewTicker(time.Duration(PTxlockTimeOutSecs) * time.Second)
-		log.Println("info: TX Locked for ", PTxlockTimeOutSecs, " seconds")
+	if Config.Global.Hardware.PanicFunction.TxLockEnabled {
+		TxLockTicker := time.NewTicker(time.Duration(Config.Global.Hardware.PanicFunction.TxLockTimeOutSecs) * time.Second)
+		log.Println("info: TX Locked for ", Config.Global.Hardware.PanicFunction.TxLockTimeOutSecs, " seconds")
 		b.TransmitStop(false)
 		b.TransmitStart()
 
 		go func() {
 			<-TxLockTicker.C
 			b.TransmitStop(true)
-			log.Println("info: TX UnLocked After ", PTxlockTimeOutSecs, " seconds")
+			log.Println("info: TX UnLocked After ", Config.Global.Hardware.PanicFunction.TxLockTimeOutSecs, " seconds")
 		}()
 	}
 }
@@ -649,13 +704,16 @@ func (b *Talkkonnect) pingServers() {
 }
 
 func (b *Talkkonnect) repeatTx() {
-	for i := 0; i < RepeatTXTimes; i++ {
+	if Config.Global.Software.Settings.RepeatTXTimes == 0 || Config.Global.Software.Settings.RepeatTXDelay == 0 {
+		return
+	}
+	for i := 0; i < Config.Global.Software.Settings.RepeatTXTimes; i++ {
 		b.TransmitStart()
 		b.IsTransmitting = true
-		time.Sleep(1 * time.Second)
+		time.Sleep(Config.Global.Software.Settings.RepeatTXDelay * time.Second)
 		b.TransmitStop(true)
 		b.IsTransmitting = false
-		time.Sleep(1 * time.Second)
+		time.Sleep(Config.Global.Software.Settings.RepeatTXDelay * time.Second)
 		if i > 0 {
 			log.Println("info: TX Cycle ", i)
 			if isrepeattx {
@@ -672,7 +730,7 @@ func (b *Talkkonnect) repeatTx() {
 func (b *Talkkonnect) cmdSendVoiceTargets(targetID uint32) {
 
 	GenericCounter = 0
-	for _, account := range Document.Accounts.Account {
+	for _, account := range Config.Accounts.Account {
 		if account.Default {
 			for _, vtvalue := range account.Voicetargets.ID {
 
@@ -710,10 +768,10 @@ func (b *Talkkonnect) VoiceTargetUserSet(TargetID uint32, TargetUser string) {
 		b.Client.VoiceTarget = vtarget
 		if TargetID > 0 {
 			log.Printf("debug: Added User %v to VT ID %v\n", TargetUser, TargetID)
-			LEDOnFunc(VoiceTargetLED)
+			GPIOOutPin("voicetarget", "on")
 		} else {
 			//b.VoiceTarget.Clear()
-			LEDOffFunc(VoiceTargetLED)
+			GPIOOutPin("voicetarget", "off")
 			log.Println("debug: Cleared Voice Targets")
 		}
 		b.Client.Send(vtarget)
@@ -748,7 +806,7 @@ func (b *Talkkonnect) VoiceTargetChannelSet(targetID uint32, targetChannelName s
 		b.Client.VoiceTarget = vtarget
 		b.Client.Send(vtarget)
 		log.Printf("debug: Shouting to Root Channel %v to VT ID %v with recursive %v links %v group %v\n", vChannel.Name, targetID, recursive, links, group)
-		LEDOffFunc(VoiceTargetLED)
+		GPIOOutPin("voicetarget", "off")
 		return
 	}
 
@@ -762,6 +820,6 @@ func (b *Talkkonnect) VoiceTargetChannelSet(targetID uint32, targetChannelName s
 	b.Client.Send(vtarget)
 	log.Printf("debug: Shouting to Child Channel %v to VT ID %v with recursive %v links %v group %v\n", vChannel.Name, targetID, recursive, links, group)
 	if targetID > 0 {
-		LEDOnFunc(VoiceTargetLED)
+		GPIOOutPin("voicetarget", "on")
 	}
 }

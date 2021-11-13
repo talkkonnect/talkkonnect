@@ -28,6 +28,7 @@
 ## Please RUN this Script as root user
 
 ## If this script is run after a fresh install of raspbian you man want to update the 2 lines below
+
 apt-get update
 apt-get -y dist upgrade
 
@@ -47,8 +48,8 @@ mkdir -p /home/talkkonnect/bin
 touch /var/log/talkkonnect.log
 
 cd /usr/local
-wget https://golang.org/dl/go1.15.linux-armv6l.tar.gz
-tar -zxvf go1.15.linux-armv6l.tar.gz
+wget https://golang.org/dl/go1.17.2.linux-armv6l.tar.gz
+tar -zxvf go1.17.2.linux-armv6l.tar.gz
 
 echo export PATH=$PATH:/usr/local/go/bin >>  ~/.bashrc
 echo export GOPATH=/home/talkkonnect/gocode >>  ~/.bashrc
@@ -68,6 +69,7 @@ go get -v github.com/talkkonnect/talkkonnect
 
 ## Build talkkonnect as binary
 cd $GOPATH/src/github.com/talkkonnect/talkkonnect
+mv $GOPATH/src/github.com/talkkonnect/talkkonnect $GOPATH/src/github.com/talkkonnect/talkkonnect
 /usr/local/go/bin/go build -o /home/talkkonnect/bin/talkkonnect cmd/talkkonnect/main.go
 
 ## Notify User

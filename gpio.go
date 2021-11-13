@@ -33,13 +33,61 @@ import (
 	"log"
 	"time"
 
-	"github.com/stianeikeland/go-rpio/v4"
+	"github.com/stianeikeland/go-rpio"
+	"github.com/talkkonnect/go-mcp23017"
 	"github.com/talkkonnect/gpio"
+	"github.com/talkkonnect/max7219"
 )
+
+//Variables for Input Buttons/Switches
+var (
+	TxButtonUsed  bool
+	TxButton      gpio.Pin
+	TxButtonPin   uint
+	TxButtonState uint
+
+	TxToggleUsed  bool
+	TxToggle      gpio.Pin
+	TxTogglePin   uint
+	TxToggleState uint
+
+	UpButtonUsed  bool
+	UpButton      gpio.Pin
+	UpButtonPin   uint
+	UpButtonState uint
+
+	DownButtonUsed  bool
+	DownButton      gpio.Pin
+	DownButtonPin   uint
+	DownButtonState uint
+
+	PanicUsed        bool
+	PanicButton      gpio.Pin
+	PanicButtonPin   uint
+	PanicButtonState uint
+
+	StreamToggleUsed  bool
+	StreamButton      gpio.Pin
+	StreamButtonPin   uint
+	StreamButtonState uint
+
+	CommentUsed        bool
+	CommentButton      gpio.Pin
+	CommentButtonPin   uint
+	CommentButtonState uint
+
+	RotaryUsed bool
+	RotaryA    gpio.Pin
+	RotaryB    gpio.Pin
+	RotaryAPin uint
+	RotaryBPin uint
+)
+
+var D [8]*mcp23017.Device
 
 func (b *Talkkonnect) initGPIO() {
 
-	if TargetBoard != "rpi" {
+	if Config.Global.Hardware.TargetBoard != "rpi" {
 		return
 	}
 
@@ -50,65 +98,129 @@ func (b *Talkkonnect) initGPIO() {
 	}
 	b.GPIOEnabled = true
 
-	if TxButtonPin > 0 {
-		TxButtonPinPullUp := rpio.Pin(TxButtonPin)
-		TxButtonPinPullUp.PullUp()
+	// Handle GPIO Expander Pins As Outputs if Enabled
+	if Config.Global.Hardware.IO.GPIOExpander.Enabled {
+		for _, gpioExpander := range Config.Global.Hardware.IO.GPIOExpander.Chip {
+			if Config.Global.Hardware.IO.GPIOExpander.Chip[gpioExpander.ID].Enabled {
+				log.Printf("debug: Setting up MCP23017 GPIO Expander on IC2 Bus %v Device No %v\n", gpioExpander.I2Cbus, gpioExpander.MCP23017Device)
+				var err error
+				D[gpioExpander.MCP23017Device], err = mcp23017.Open(gpioExpander.I2Cbus, gpioExpander.MCP23017Device)
+				if err != nil {
+					// log.Println("error: Unable To Setup Expander GPIO Chip On I2C Bus " + strconv.Itoa(int(gpioExpander.I2Cbus)) + " Device " + strconv.Itoa(int(gpioExpander.MCP23017Device)) + " With " + err.Error())
+					return
+				}
+				for y := 0; y < 16; y++ {
+					if Config.Global.Hardware.IO.Pins.Pin[y].Enabled && Config.Global.Hardware.IO.Pins.Pin[y].Direction == "output" && Config.Global.Hardware.IO.Pins.Pin[y].Type == "mcp23017" {
+						log.Printf("debug: Pin %v Enabled as Output\n", y)
+						err := D[gpioExpander.MCP23017Device].PinMode(uint8(y), mcp23017.OUTPUT)
+						if err != nil {
+							log.Printf("error: Cannot Set Pin %v as Output With Error %v\n", y, err)
+						}
+					}
+					if Config.Global.Hardware.IO.Pins.Pin[y].Enabled && Config.Global.Hardware.IO.Pins.Pin[y].Direction == "input" && Config.Global.Hardware.IO.Pins.Pin[y].Type == "mcp23017" {
+						log.Printf("debug: Pin %v Enabled as Input\n", y)
+						err := D[gpioExpander.MCP23017Device].PinMode(uint8(y), mcp23017.INPUT)
+						if err != nil {
+							log.Printf("error: Cannot Set Pin %v as Input With Error %v\n", y, err)
+						}
+					}
+				}
+			}
+		}
 	}
 
-	if TxTogglePin > 0 {
-		TxTogglePinPullUp := rpio.Pin(TxTogglePin)
-		TxTogglePinPullUp.PullUp()
+	//handle inputs on RPI GPIO
+	for _, io := range Config.Global.Hardware.IO.Pins.Pin {
+		if io.Enabled && io.Direction == "input" && io.Type == "gpio" {
+			if io.Name == "txptt" && io.PinNo > 0 {
+				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
+				TxButtonPinPullUp := rpio.Pin(io.PinNo)
+				TxButtonPinPullUp.PullUp()
+				TxButtonUsed = true
+				TxButtonPin = io.PinNo
+			}
+			if io.Name == "txtoggle" && io.PinNo > 0 {
+				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
+				TxTogglePinPullUp := rpio.Pin(io.PinNo)
+				TxTogglePinPullUp.PullUp()
+				TxToggleUsed = true
+				TxTogglePin = io.PinNo
+			}
+			if io.Name == "channelup" && io.PinNo > 0 {
+				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
+				ChannelUpPinPullUp := rpio.Pin(io.PinNo)
+				ChannelUpPinPullUp.PullUp()
+				UpButtonUsed = true
+				UpButtonPin = io.PinNo
+			}
+			if io.Name == "channeldown" && io.PinNo > 0 {
+				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
+				ChannelDownPinPullUp := rpio.Pin(io.PinNo)
+				ChannelDownPinPullUp.PullUp()
+				DownButtonUsed = true
+				DownButtonPin = io.PinNo
+			}
+			if io.Name == "panic" && io.PinNo > 0 {
+				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
+				PanicPinPullUp := rpio.Pin(io.PinNo)
+				PanicPinPullUp.PullUp()
+				PanicUsed = true
+				PanicButtonPin = io.PinNo
+			}
+			if io.Name == "streamtoggle" && io.PinNo > 0 {
+				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
+				StreamTogglePinPullUp := rpio.Pin(io.PinNo)
+				StreamTogglePinPullUp.PullUp()
+				StreamToggleUsed = true
+				StreamButtonPin = io.PinNo
+			}
+			if io.Name == "comment" && io.PinNo > 0 {
+				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
+				CommentPinPullUp := rpio.Pin(io.PinNo)
+				CommentPinPullUp.PullUp()
+				CommentUsed = true
+				CommentButtonPin = io.PinNo
+			}
+			if io.Name == "rotarya" && io.PinNo > 0 {
+				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
+				RotaryAPinPullUp := rpio.Pin(io.PinNo)
+				RotaryAPinPullUp.PullUp()
+				RotaryUsed = true
+				RotaryAPin = io.PinNo
+			}
+			if io.Name == "rotaryb" && io.PinNo > 0 {
+				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
+				RotaryBPinPullUp := rpio.Pin(io.PinNo)
+				RotaryBPinPullUp.PullUp()
+				RotaryUsed = true
+				RotaryBPin = io.PinNo
+			}
+		}
 	}
 
-	if UpButtonPin > 0 {
-		UpButtonPinPullUp := rpio.Pin(UpButtonPin)
-		UpButtonPinPullUp.PullUp()
-	}
-
-	if DownButtonPin > 0 {
-		DownButtonPinPullUp := rpio.Pin(DownButtonPin)
-		DownButtonPinPullUp.PullUp()
-	}
-
-	if PanicButtonPin > 0 {
-		PanicButtonPinPullUp := rpio.Pin(PanicButtonPin)
-		PanicButtonPinPullUp.PullUp()
-	}
-
-	if CommentButtonPin > 0 {
-		CommentButtonPinPullUp := rpio.Pin(CommentButtonPin)
-		CommentButtonPinPullUp.PullUp()
-	}
-
-	if StreamButtonPin > 0 {
-		StreamButtonPinPullUp := rpio.Pin(StreamButtonPin)
-		StreamButtonPinPullUp.PullUp()
-	}
-
-	if TxButtonPin > 0 || TxTogglePin > 0 || UpButtonPin > 0 || DownButtonPin > 0 || PanicButtonPin > 0 || CommentButtonPin > 0 {
+	if TxButtonUsed || TxToggleUsed || UpButtonUsed || DownButtonUsed || PanicUsed || StreamToggleUsed || CommentUsed || RotaryUsed {
 		rpio.Close()
 	}
 
-	if TxButtonPin > 0 {
+	if TxButtonUsed {
 		TxButton = gpio.NewInput(TxButtonPin)
 
 		go func() {
 			for {
 				if IsConnected {
 
-					time.Sleep(200 * time.Millisecond)
+					time.Sleep(150 * time.Millisecond)
 					currentState, err := TxButton.Read()
 
 					if currentState != TxButtonState && err == nil {
 						TxButtonState = currentState
-
 						if b.Stream != nil {
 							if TxButtonState == 1 {
 								if isTx {
 									isTx = false
 									b.TransmitStop(true)
-									time.Sleep(250 * time.Millisecond)
-									if TxCounter {
+									time.Sleep(150 * time.Millisecond)
+									if Config.Global.Software.Settings.TxCounter {
 										txcounter++
 										log.Println("debug: Tx Button Count ", txcounter)
 									}
@@ -119,7 +231,7 @@ func (b *Talkkonnect) initGPIO() {
 								if !isTx {
 									isTx = true
 									b.TransmitStart()
-									time.Sleep(250 * time.Millisecond)
+									time.Sleep(150 * time.Millisecond)
 								}
 							}
 						}
@@ -132,7 +244,7 @@ func (b *Talkkonnect) initGPIO() {
 
 	}
 
-	if TxTogglePin > 0 {
+	if TxToggleUsed {
 		TxToggle = gpio.NewInput(TxTogglePin)
 		go func() {
 			var prevState uint = 1
@@ -160,7 +272,7 @@ func (b *Talkkonnect) initGPIO() {
 								}
 							}
 							prevState = 1
-							time.Sleep(200 * time.Millisecond)
+							time.Sleep(150 * time.Millisecond)
 						}
 
 						if !isTx {
@@ -174,7 +286,7 @@ func (b *Talkkonnect) initGPIO() {
 							}
 							prevState = 1
 							log.Println("debug: Toggle Started Transmitting")
-							time.Sleep(200 * time.Millisecond)
+							time.Sleep(150 * time.Millisecond)
 						}
 					}
 				} else {
@@ -184,14 +296,14 @@ func (b *Talkkonnect) initGPIO() {
 		}()
 	}
 
-	if UpButtonPin > 0 {
+	if UpButtonUsed {
 		UpButton = gpio.NewInput(UpButtonPin)
 		go func() {
 			for {
 				if IsConnected {
 
 					currentState, err := UpButton.Read()
-					time.Sleep(200 * time.Millisecond)
+					time.Sleep(150 * time.Millisecond)
 
 					if currentState != UpButtonState && err == nil {
 						UpButtonState = currentState
@@ -201,7 +313,7 @@ func (b *Talkkonnect) initGPIO() {
 						} else {
 							log.Println("debug: UP Button is pressed")
 							b.ChannelUp()
-							time.Sleep(200 * time.Millisecond)
+							time.Sleep(150 * time.Millisecond)
 						}
 
 					}
@@ -212,14 +324,14 @@ func (b *Talkkonnect) initGPIO() {
 		}()
 	}
 
-	if DownButtonPin > 0 {
+	if DownButtonUsed {
 		DownButton = gpio.NewInput(DownButtonPin)
 		go func() {
 			for {
 				if IsConnected {
 
 					currentState, err := DownButton.Read()
-					time.Sleep(200 * time.Millisecond)
+					time.Sleep(150 * time.Millisecond)
 
 					if currentState != DownButtonState && err == nil {
 						DownButtonState = currentState
@@ -229,7 +341,7 @@ func (b *Talkkonnect) initGPIO() {
 						} else {
 							log.Println("debug: Ch Down Button is pressed")
 							b.ChannelDown()
-							time.Sleep(200 * time.Millisecond)
+							time.Sleep(150 * time.Millisecond)
 						}
 					}
 				} else {
@@ -239,7 +351,7 @@ func (b *Talkkonnect) initGPIO() {
 		}()
 	}
 
-	if PanicButtonPin > 0 {
+	if PanicUsed {
 
 		PanicButton = gpio.NewInput(PanicButtonPin)
 		go func() {
@@ -247,7 +359,7 @@ func (b *Talkkonnect) initGPIO() {
 				if IsConnected {
 
 					currentState, err := PanicButton.Read()
-					time.Sleep(200 * time.Millisecond)
+					time.Sleep(150 * time.Millisecond)
 
 					if currentState != PanicButtonState && err == nil {
 						PanicButtonState = currentState
@@ -257,7 +369,7 @@ func (b *Talkkonnect) initGPIO() {
 						} else {
 							log.Println("debug: Panic Button is pressed")
 							b.cmdPanicSimulation()
-							time.Sleep(200 * time.Millisecond)
+							time.Sleep(150 * time.Millisecond)
 						}
 					}
 				} else {
@@ -267,7 +379,7 @@ func (b *Talkkonnect) initGPIO() {
 		}()
 	}
 
-	if CommentButtonPin > 0 {
+	if CommentUsed {
 
 		CommentButton = gpio.NewInput(CommentButtonPin)
 		go func() {
@@ -275,19 +387,19 @@ func (b *Talkkonnect) initGPIO() {
 				if IsConnected {
 
 					currentState, err := CommentButton.Read()
-					time.Sleep(200 * time.Millisecond)
+					time.Sleep(150 * time.Millisecond)
 
 					if currentState != CommentButtonState && err == nil {
 						CommentButtonState = currentState
 
 						if CommentButtonState == 1 {
-							log.Println("debug: Comment Button State 1 setting comment to State 1 Message")
-							b.SetComment(CommentMessageOff)
+							log.Println("debug: Comment Button State 1 setting comment to State 1 Message ", Config.Global.Hardware.Comment.CommentMessageOff)
+							b.SetComment(Config.Global.Hardware.Comment.CommentMessageOff)
 						} else {
-							log.Println("debug: Comment Button State 2 setting comment to State 2 Message")
-							b.SetComment(CommentMessageOn)
+							log.Println("debug: Comment Button State 2 setting comment to State 2 Message ", Config.Global.Hardware.Comment.CommentMessageOn)
+							b.SetComment(Config.Global.Hardware.Comment.CommentMessageOn)
 						}
-						time.Sleep(200 * time.Millisecond)
+						time.Sleep(150 * time.Millisecond)
 					}
 				} else {
 					time.Sleep(1 * time.Second)
@@ -297,7 +409,7 @@ func (b *Talkkonnect) initGPIO() {
 
 	}
 
-	if StreamButtonPin > 0 {
+	if StreamToggleUsed {
 
 		StreamButton = gpio.NewInput(StreamButtonPin)
 		go func() {
@@ -305,7 +417,7 @@ func (b *Talkkonnect) initGPIO() {
 				if IsConnected {
 
 					currentState, err := StreamButton.Read()
-					time.Sleep(200 * time.Millisecond)
+					time.Sleep(150 * time.Millisecond)
 
 					if currentState != StreamButtonState && err == nil {
 						StreamButtonState = currentState
@@ -315,7 +427,7 @@ func (b *Talkkonnect) initGPIO() {
 						} else {
 							log.Println("debug: Stream Button is pressed")
 							b.cmdPlayback()
-							time.Sleep(200 * time.Millisecond)
+							time.Sleep(150 * time.Millisecond)
 						}
 					}
 				} else {
@@ -325,89 +437,156 @@ func (b *Talkkonnect) initGPIO() {
 		}()
 	}
 
-	if OnlineLEDPin > 0 {
-		OnlineLED = gpio.NewOutput(OnlineLEDPin, false)
+	if RotaryUsed {
+		RotaryA = gpio.NewInput(RotaryAPin)
+		RotaryB = gpio.NewInput(RotaryBPin)
+		go func() {
+			var LastStateA uint = 0
+			for {
+				if IsConnected {
+					time.Sleep(5 * time.Millisecond)
+					currentStateA, err0 := RotaryA.Read()
+					if currentStateA != LastStateA && err0 == nil {
+						currentStateB, err1 := RotaryB.Read()
+						if currentStateB != currentStateA && err1 == nil {
+							b.cmdChannelUp()
+							log.Println("debug: Rotating Clockwise")
+						} else {
+							log.Println("debug: Rotating CounterClockwise")
+							b.cmdChannelDown()
+						}
+					}
+					LastStateA = currentStateA
+				} else {
+					time.Sleep(1 * time.Second)
+				}
+			}
+		}()
 	}
-
-	if ParticipantsLEDPin > 0 {
-		ParticipantsLED = gpio.NewOutput(ParticipantsLEDPin, false)
-	}
-
-	if TransmitLEDPin > 0 {
-		TransmitLED = gpio.NewOutput(TransmitLEDPin, false)
-	}
-
-	if HeartBeatLEDPin > 0 {
-		HeartBeatLED = gpio.NewOutput(HeartBeatLEDPin, false)
-	}
-
-	if AttentionLEDPin > 0 {
-		AttentionLED = gpio.NewOutput(AttentionLEDPin, false)
-	}
-
-	if LCDBackLightLEDPin > 0 {
-		BackLightLED = gpio.NewOutput(uint(LCDBackLightLEDPin), false)
-	}
-
-	if VoiceActivityLEDPin > 0 {
-		VoiceActivityLED = gpio.NewOutput(VoiceActivityLEDPin, false)
-	}
-
-	if VoiceTargetLEDPin > 0 {
-		VoiceTargetLED = gpio.NewOutput(VoiceTargetLEDPin, false)
-	}
-
 }
 
-func LEDOnFunc(LED gpio.Pin) {
-	if TargetBoard != "rpi" {
+func GPIOOutPin(name string, command string) {
+	if Config.Global.Hardware.TargetBoard != "rpi" {
 		return
 	}
-	LED.High()
+
+	for _, io := range Config.Global.Hardware.IO.Pins.Pin {
+
+		if io.Enabled && io.Direction == "output" && io.Name == name {
+			if command == "on" {
+				switch io.Type {
+				case "gpio":
+					log.Printf("debug: Turning On %v at pin %v Output GPIO\n", io.Name, io.PinNo)
+					gpio.NewOutput(io.PinNo, true)
+				case "mcp23017":
+					log.Printf("debug: Turning On %v at pin %v Output mcp23017\n", io.Name, io.PinNo)
+					err := D[io.ID].DigitalWrite(uint8(io.PinNo), mcp23017.LOW)
+					if err != nil {
+						log.Printf("error: Error Turning On %v at pin %v Output mcp23017 with error %v\n", io.Name, io.PinNo, err)
+					}
+				default:
+					log.Println("error: GPIO Types Currently Supported are gpio or mcp23017 only!")
+				}
+				break
+			}
+
+			if command == "off" {
+				switch io.Type {
+				case "gpio":
+					log.Printf("debug: Turning Off %v at pin %v Output GPIO\n", io.Name, io.PinNo)
+					gpio.NewOutput(io.PinNo, false)
+				case "mcp23017":
+					log.Printf("debug: Turning Off %v at pin %v Output mcp23017\n", io.Name, io.PinNo)
+					err := D[io.ID].DigitalWrite(uint8(io.PinNo), mcp23017.HIGH)
+					if err != nil {
+						log.Printf("error: Error Turning Off %v at pin %v Output mcp23017 with error %v\n", io.Name, io.PinNo, err)
+					}
+				default:
+					log.Println("error: GPIO Types Currently Supported are gpio or mcp23017 only!")
+				}
+				break
+			}
+
+			if command == "pulse" {
+				switch io.Type {
+				case "gpio":
+					log.Printf("debug: Pulsing %v at pin %v Output GPIO\n", io.Name, io.PinNo)
+					gpio.NewOutput(io.PinNo, false)
+					time.Sleep(Config.Global.Hardware.IO.Pulse.Leading * time.Millisecond)
+					gpio.NewOutput(io.PinNo, true)
+					time.Sleep(Config.Global.Hardware.IO.Pulse.Pulse * time.Millisecond)
+					gpio.NewOutput(io.PinNo, false)
+					time.Sleep(Config.Global.Hardware.IO.Pulse.Trailing * time.Millisecond)
+				case "mcp23017":
+					log.Printf("debug: Pulsing %v at pin %v Output mcp23017\n", io.Name, io.PinNo)
+					err := D[io.ID].DigitalWrite(uint8(io.PinNo), mcp23017.HIGH)
+					if err != nil {
+						log.Printf("error: Error Turning Off %v at pin %v Output mcp23017\n", io.Name, io.PinNo)
+					}
+					time.Sleep(Config.Global.Hardware.IO.Pulse.Leading * time.Millisecond)
+					err = D[io.ID].DigitalWrite(uint8(io.PinNo), mcp23017.LOW)
+					if err != nil {
+						log.Printf("error: Error Turning On %v at pin %v Output mcp23017\n", io.Name, io.PinNo)
+					}
+					time.Sleep(Config.Global.Hardware.IO.Pulse.Pulse * time.Millisecond)
+					err = D[io.ID].DigitalWrite(uint8(io.PinNo), mcp23017.HIGH)
+					if err != nil {
+						log.Printf("error: Error Turning Off %v at pin %v Output mcp23017\n", io.Name, io.PinNo)
+					}
+					time.Sleep(Config.Global.Hardware.IO.Pulse.Trailing * time.Millisecond)
+				default:
+					log.Println("error: GPIO Types Currently Supported are gpio or mcp23017 only!")
+				}
+				break
+			}
+		}
+	}
 }
 
-func LEDOffFunc(LED gpio.Pin) {
-	if TargetBoard != "rpi" {
+func GPIOOutAll(name string, command string) {
+	if Config.Global.Hardware.TargetBoard != "rpi" {
 		return
 	}
-	LED.Low()
+
+	for _, io := range Config.Global.Hardware.IO.Pins.Pin {
+		if io.Enabled && io.Direction == "output" && io.Device == "led/relay" {
+			switch io.Type {
+			case "gpio":
+				if command == "on" {
+					log.Printf("debug: Turning On %v Output GPIO\n", io.Name)
+					gpio.NewOutput(io.PinNo, true)
+				}
+				if command == "off" {
+					log.Printf("debug: Turning Off %v Output GPIO\n", io.Name)
+					gpio.NewOutput(io.PinNo, false)
+				}
+			case "mcp23017":
+				if command == "on" {
+					log.Printf("debug: Turning On %v Output mcp23017\n", io.Name)
+					if D[io.ID] != nil {
+						err := D[io.ID].DigitalWrite(uint8(io.PinNo), mcp23017.LOW)
+						if err != nil {
+							log.Printf("error: Error Turning On %v at pin %v Output mcp23017\n", io.Name, io.PinNo)
+						}
+					}
+				}
+				if command == "off" {
+					log.Printf("debug: Turning Off %v Output mcp23017\n", io.Name)
+					if D[io.ID] != nil {
+						err := D[io.ID].DigitalWrite(uint8(io.PinNo), mcp23017.HIGH)
+						if err != nil {
+							log.Printf("error: Error Turning Off %v at pin %v Output mcp23017\n", io.Name, io.PinNo)
+						}
+					}
+				}
+			default:
+				log.Println("error: GPIO Types Currently Supported are gpio or mcp23017 only!")
+			}
+		}
+	}
 }
 
-func LEDOffAll() {
-	if TargetBoard != "rpi" {
-		return
-	}
-	log.Println("debug: Turning Off All LEDS!")
-
-	if OnlineLEDPin > 0 {
-		LEDOffFunc(OnlineLED)
-	}
-	if ParticipantsLEDPin > 0 {
-		LEDOffFunc(ParticipantsLED)
-	}
-	if TransmitLEDPin > 0 {
-		LEDOffFunc(TransmitLED)
-	}
-	if HeartBeatLEDPin > 0 {
-		LEDOffFunc(HeartBeatLED)
-	}
-	if AttentionLEDPin > 0 {
-		LEDOffFunc(AttentionLED)
-	}
-	if LCDBackLightLEDPin > 0 {
-		LEDOffFunc(BackLightLED)
-	}
-	if VoiceActivityLEDPin > 0 {
-		LEDOffFunc(VoiceActivityLED)
-	}
-
-	if VoiceTargetLEDPin > 0 {
-		LEDOffFunc(VoiceTargetLED)
-	}
-
-}
-
-func MyLedStripLEDOffAll() {
+func MyLedStripGPIOOutAll() {
 	MyLedStrip.ledCtrl(SOnlineLED, OffCol)
 	MyLedStrip.ledCtrl(SParticipantsLED, OffCol)
 	MyLedStrip.ledCtrl(STransmitLED, OffCol)
@@ -437,44 +616,15 @@ func MyLedStripTransmitLEDOff() {
 	MyLedStrip.ledCtrl(STransmitLED, OffCol)
 }
 
-func relayCommand(relayNo int, command string) {
-	// all relays (0)
-	if relayNo == 0 {
-		for i := 1; i <= int(TotalRelays); i++ {
-			if command == "on" {
-				log.Println("info: Relay ", i, "On")
-				gpio.NewOutput(RelayPins[i], false)
+func Max7219(max7219Cascaded int, spiBus int, spiDevice int, brightness byte, toDisplay string) {
+	if Config.Global.Hardware.IO.Max7219.Enabled {
+		mtx := max7219.NewMatrix(max7219Cascaded)
+		err := mtx.Open(spiBus, spiDevice, brightness)
+		if err != nil {
+			log.Fatal(err)
 
-			}
-			if command == "off" {
-				log.Println("info: Relay ", i, "Off")
-				gpio.NewOutput(RelayPins[i], true)
-			}
-			if command == "pulse" {
-				log.Println("info: Relay ", i, "Pulse")
-				gpio.NewOutput(RelayPins[i], false)
-				time.Sleep(RelayPulseMills * time.Millisecond)
-				gpio.NewOutput(RelayPins[i], true)
-			}
 		}
-		return
-	}
-
-	//specific relay (Number Between 1 and TotalRelays)
-	if relayNo >= 0 && relayNo <= int(TotalRelays) {
-		if command == "on" {
-			log.Println("info: Relay ", relayNo, "On")
-			gpio.NewOutput(RelayPins[relayNo], false)
-		}
-		if command == "off" {
-			log.Println("info: Relay ", relayNo, "Off")
-			gpio.NewOutput(RelayPins[relayNo], true)
-		}
-		if command == "pulse" {
-			log.Println("info: Relay ", relayNo, "Pulse")
-			gpio.NewOutput(RelayPins[relayNo], false)
-			time.Sleep(RelayPulseMills * time.Millisecond)
-			gpio.NewOutput(RelayPins[relayNo], true)
-		}
+		mtx.Device.SevenSegmentDisplay(toDisplay)
+		defer mtx.Close()
 	}
 }

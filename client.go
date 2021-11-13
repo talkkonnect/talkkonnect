@@ -43,6 +43,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/allan-simon/go-singleinstance"
 	"github.com/comail/colog"
 	hd44780 "github.com/talkkonnect/go-hd44780"
 	"github.com/talkkonnect/gumble/gumble"
@@ -59,7 +60,7 @@ var (
 	prevParticipantCount int    = 0
 	prevButtonPress      string = "none"
 	maxchannelid         uint32
-	message              string
+	tmessage             string
 	isrepeattx           bool = true
 	m                    string
 )
@@ -76,7 +77,6 @@ type Talkkonnect struct {
 	ConnectAttempts uint
 	Stream          *Stream
 	ChannelName     string
-	Daemonize       bool
 	IsTransmitting  bool
 	IsPlayStream    bool
 	GPIOEnabled     bool
@@ -100,21 +100,32 @@ func Init(file string, ServerIndex string) {
 	colog.SetOutput(os.Stdout)
 
 	ConfigXMLFile = file
-	err = readxmlconfig(ConfigXMLFile)
+	err = readxmlconfig(ConfigXMLFile, false)
 	if err != nil {
 		message := err.Error()
 		FatalCleanUp(message)
 	}
 
-	if Logging == "screen" {
+	if Config.Global.Software.Settings.SingleInstance {
+		lockFile, err := singleinstance.CreateLockFile("talkkonnect.lock")
+		if err != nil {
+			log.Println("error: Another Instance of talkkonnect is already running!!, Killing this Instance")
+			time.Sleep(5 * time.Second)
+			TTSEvent("quittalkkonnect")
+			CleanUp()
+		}
+		defer lockFile.Close()
+	}
+
+	if Config.Global.Software.Settings.Logging == "screen" {
 		colog.SetFlags(log.Ldate | log.Ltime)
 	}
 
-	if Logging == "screenwithlineno" || Logging == "screenandfilewithlineno" {
+	if Config.Global.Software.Settings.Logging == "screenwithlineno" || Config.Global.Software.Settings.Logging == "screenandfilewithlineno" {
 		colog.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 	}
 
-	switch Loglevel {
+	switch Config.Global.Software.Settings.Loglevel {
 	case "trace":
 		colog.SetMinLevel(colog.LTrace)
 		log.Println("info: Loglevel Set to Trace")
@@ -138,7 +149,7 @@ func Init(file string, ServerIndex string) {
 		log.Println("info: Default Loglevel unset in XML config automatically loglevel to Info")
 	}
 
-	if APEnabled {
+	if Config.Global.Software.AutoProvisioning.Enabled {
 		log.Println("info: Contacting http Provisioning Server Pls Wait")
 		err := autoProvision()
 		time.Sleep(5 * time.Second)
@@ -147,12 +158,12 @@ func Init(file string, ServerIndex string) {
 		} else {
 			log.Println("info: Loading XML Config")
 			ConfigXMLFile = file
-			readxmlconfig(ConfigXMLFile)
+			readxmlconfig(ConfigXMLFile, false)
 		}
 	}
 
-	if NextServerIndex > 0 {
-		AccountIndex = NextServerIndex
+	if Config.Global.Software.Settings.NextServerIndex > 0 {
+		AccountIndex = Config.Global.Software.Settings.NextServerIndex
 	} else {
 		AccountIndex, _ = strconv.Atoi(ServerIndex)
 	}
@@ -164,31 +175,44 @@ func Init(file string, ServerIndex string) {
 		Username:    Username[AccountIndex],
 		Ident:       Ident[AccountIndex],
 		ChannelName: Channel[AccountIndex],
-		Daemonize:   Daemonize,
 	}
 
-	if MQTTEnabled {
+	if Config.Global.Software.RemoteControl.MQTT.Enabled {
 		log.Printf("info: Attempting to Contact MQTT Server")
-		log.Printf("info: MQTT Broker      : %s\n", MQTTBroker)
-		log.Printf("info: Subscribed topic : %s\n", MQTTTopic)
+		log.Printf("info: MQTT Broker      : %s\n", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTBroker)
+		log.Printf("info: Subscribed topic : %s\n", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTTopic)
 		go b.mqttsubscribe()
 	} else {
 		log.Printf("info: MQTT Server Subscription Disabled in Config")
 	}
 
+	MACName := ""
 	if len(b.Username) == 0 {
-		buf := make([]byte, 6)
-		_, err := rand.Read(buf)
+		macaddress, err := getMacAddr()
 		if err != nil {
-			FatalCleanUp("Cannot Generate Random Number Error " + err.Error())
+			log.Println("error: Could Not Get Network Interface MAC Address")
+		} else {
+			for _, a := range macaddress {
+				tmacname := a
+				MACName = strings.Replace(tmacname, ":", "", -1)
+			}
 		}
-
-		buf[0] |= 2
-		b.Config.Username = fmt.Sprintf("talkkonnect-%02x%02x%02x%02x%02x%02x", buf[0], buf[1], buf[2], buf[3], buf[4], buf[5])
+		if len(MACName) == 0 {
+			buf := make([]byte, 6)
+			_, err := rand.Read(buf)
+			if err != nil {
+				FatalCleanUp("Cannot Generate Random Number Error " + err.Error())
+			}
+			buf[0] |= 2
+			b.Config.Username = fmt.Sprintf("talkkonnect-%02x%02x%02x%02x%02x%02x", buf[0], buf[1], buf[2], buf[3], buf[4], buf[5])
+		} else {
+			b.Config.Username = fmt.Sprintf("talkkonnect-%v", MACName)
+		}
 	} else {
 		b.Config.Username = Username[AccountIndex]
 	}
 
+	log.Printf("info: Connecting to Server %v Identified As %v With Username %v\n", Config.Accounts.Account[AccountIndex].ServerAndPort, Config.Accounts.Account[AccountIndex].Name, b.Config.Username)
 	b.Config.Password = Password[AccountIndex]
 
 	if Insecure[AccountIndex] {
@@ -202,17 +226,17 @@ func Init(file string, ServerIndex string) {
 		b.TLSConfig.Certificates = append(b.TLSConfig.Certificates, cert)
 	}
 
-	if APIEnabled && !HTTPServRunning {
+	if Config.Global.Software.RemoteControl.HTTP.Enabled && !HTTPServRunning {
 		go func() {
 			http.HandleFunc("/", b.httpAPI)
-
-			if err := http.ListenAndServe(":"+APIListenPort, nil); err != nil {
+			if err := http.ListenAndServe(":"+Config.Global.Software.RemoteControl.HTTP.ListenPort, nil); err != nil {
 				FatalCleanUp("Problem Starting HTTP API Server " + err.Error())
 			}
 		}()
 	}
 
 	b.ClientStart()
+
 	IsConnected = false
 
 	sigs := make(chan os.Signal, 1)
@@ -220,32 +244,32 @@ func Init(file string, ServerIndex string) {
 	exitStatus := 0
 
 	<-sigs
-	b.CleanUp()
+	CleanUp()
 	os.Exit(exitStatus)
 }
 
 func (b *Talkkonnect) ClientStart() {
-	f, err := os.OpenFile(LogFilenameAndPath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-	log.Println("info: Trying to Open File ", LogFilenameAndPath)
+	f, err := os.OpenFile(Config.Global.Software.Settings.LogFilenameAndPath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	log.Println("info: Trying to Open File ", Config.Global.Software.Settings.LogFilenameAndPath)
 	if err != nil {
 		FatalCleanUp("Problem Opening talkkonnect.log file " + err.Error())
 	}
 
-	if TargetBoard == "rpi" {
-		if !LedStripEnabled {
-			LEDOffAll()
+	if Config.Global.Hardware.TargetBoard == "rpi" {
+		if !Config.Global.Hardware.LedStripEnabled {
+			GPIOOutAll("led/relay", "off")
 		}
 	}
 
-	if Logging == "screenandfile" {
-		log.Println("info: Logging is set to: ", Logging)
+	if Config.Global.Software.Settings.Logging == "screenandfile" {
+		log.Println("info: Logging is set to: ", Config.Global.Software.Settings.Logging)
 		wrt := io.MultiWriter(os.Stdout, f)
 		colog.SetFlags(log.Ldate | log.Ltime)
 		colog.SetOutput(wrt)
 	}
 
-	if Logging == "screenandfilewithlineno" {
-		log.Println("info: Logging is set to: ", Logging)
+	if Config.Global.Software.Settings.Logging == "screenandfilewithlineno" {
+		log.Println("info: Logging is set to: ", Config.Global.Software.Settings.Logging)
 		wrt := io.MultiWriter(os.Stdout, f)
 		colog.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 		colog.SetOutput(wrt)
@@ -256,10 +280,10 @@ func (b *Talkkonnect) ClientStart() {
 
 	log.Printf("info: [%d] Default Mumble Accounts Found in XML config\n", AccountCount)
 
-	if TargetBoard == "rpi" {
+	if Config.Global.Hardware.TargetBoard == "rpi" {
 		log.Println("info: Target Board Set as RPI (gpio enabled) ")
 		b.initGPIO()
-		if LedStripEnabled {
+		if Config.Global.Hardware.LedStripEnabled {
 			MyLedStrip, _ = NewLedStrip()
 			log.Printf("info: Led Strip %v %s\n", MyLedStrip.buf, MyLedStrip.display)
 		}
@@ -267,11 +291,11 @@ func (b *Talkkonnect) ClientStart() {
 		log.Println("info: Target Board Set as PC (gpio disabled) ")
 	}
 
-	if (TargetBoard == "rpi" && LCDBackLightTimerEnabled) && (OLEDEnabled || LCDEnabled) {
+	if (Config.Global.Hardware.TargetBoard == "rpi" && Config.Global.Hardware.LCD.BacklightTimerEnabled) && (OLEDEnabled || Config.Global.Hardware.LCD.Enabled) {
 
 		log.Println("info: Backlight Timer Enabled by Config")
 		BackLightTime = *BackLightTimePtr
-		BackLightTime = time.NewTicker(LCDBackLightTimeout * time.Second)
+		BackLightTime = time.NewTicker(time.Duration(Config.Global.Hardware.LCD.BackLightTimeoutSecs) * time.Second)
 
 		go func() {
 			for {
@@ -279,7 +303,7 @@ func (b *Talkkonnect) ClientStart() {
 				log.Printf("debug: LCD Backlight Ticker Timed Out After %d Seconds", LCDBackLightTimeout)
 				LCDIsDark = true
 				if LCDInterfaceType == "parallel" {
-					LEDOffFunc(BackLightLED)
+					GPIOOutPin("backlight", "off")
 				}
 				if LCDInterfaceType == "i2c" {
 					lcd := hd44780.NewI2C4bit(LCDI2CAddress)
@@ -301,7 +325,7 @@ func (b *Talkkonnect) ClientStart() {
 
 	talkkonnectBanner("\u001b[44;1m") // add blue background to banner reference https://www.lihaoyi.com/post/BuildyourownCommandLinewithANSIescapecodes.html#background-colors
 
-	err = volume.Unmute(OutputDevice)
+	err = volume.Unmute(Config.Global.Software.Settings.OutputDevice)
 
 	if err != nil {
 		log.Println("error: Unable to Unmute ", err)
@@ -309,28 +333,26 @@ func (b *Talkkonnect) ClientStart() {
 		log.Println("debug: Speaker UnMuted Before Connect to Server")
 	}
 
-	if TTSEnabled && TTSTalkkonnectLoaded {
-		localMediaPlayer(TTSTalkkonnectLoadedFilenameAndPath, TTSVolumeLevel, 0, 1)
-	}
+	TTSEvent("talkkonnectloaded")
 
 	b.Connect()
 
 	pstream = gumbleffmpeg.New(b.Client, gumbleffmpeg.SourceFile(""), 0)
 
-	if (HeartBeatEnabled) && (TargetBoard == "rpi") {
-		HeartBeat := time.NewTicker(time.Duration(PeriodmSecs) * time.Millisecond)
+	if (Config.Global.Hardware.HeartBeat.Enabled) && (Config.Global.Hardware.TargetBoard == "rpi") {
+		HeartBeat := time.NewTicker(time.Duration(Config.Global.Hardware.HeartBeat.Periodmsecs) * time.Millisecond)
 
 		go func() {
 			for range HeartBeat.C {
-				timer1 := time.NewTimer(time.Duration(LEDOnmSecs) * time.Millisecond)
-				timer2 := time.NewTimer(time.Duration(LEDOffmSecs) * time.Millisecond)
+				timer1 := time.NewTimer(time.Duration(Config.Global.Hardware.HeartBeat.LEDOnmsecs) * time.Millisecond)
+				timer2 := time.NewTimer(time.Duration(Config.Global.Hardware.HeartBeat.LEDOffmsecs) * time.Millisecond)
 				<-timer1.C
-				if HeartBeatEnabled {
-					LEDOnFunc(HeartBeatLED)
+				if Config.Global.Hardware.HeartBeat.Enabled {
+					GPIOOutPin("heartbeat", "on")
 				}
 				<-timer2.C
-				if HeartBeatEnabled {
-					LEDOffFunc(HeartBeatLED)
+				if Config.Global.Hardware.HeartBeat.Enabled {
+					GPIOOutPin("heartbeat", "off")
 				}
 				if KillHeartBeat {
 					HeartBeat.Stop()
@@ -340,15 +362,15 @@ func (b *Talkkonnect) ClientStart() {
 		}()
 	}
 
-	if BeaconEnabled {
-		BeaconTicker := time.NewTicker(time.Duration(BeaconTimerSecs) * time.Second)
+	if Config.Global.Software.Beacon.Enabled {
+		BeaconTicker := time.NewTicker(time.Duration(Config.Global.Software.Beacon.BeaconTimerSecs) * time.Second)
 
 		go func() {
 			for range BeaconTicker.C {
 				IsPlayStream = true
-				b.playIntoStream(BeaconFilenameAndPath, BVolume)
+				b.playIntoStream(Config.Global.Software.Beacon.BeaconFileAndPath, Config.Global.Software.Beacon.Volume)
 				IsPlayStream = false
-				log.Println("info: Beacon Enabled and Timed Out Auto Played File ", BeaconFilenameAndPath, " Into Stream")
+				log.Println("info: Beacon Enabled and Timed Out Auto Played File ", Config.Global.Software.Beacon.BeaconFileAndPath, " Into Stream")
 			}
 		}()
 	}
@@ -356,7 +378,7 @@ func (b *Talkkonnect) ClientStart() {
 	b.BackLightTimer()
 
 	if LCDEnabled {
-		LEDOnFunc(BackLightLED)
+		GPIOOutPin("backlight", "on")
 		LCDIsDark = false
 	}
 
@@ -365,16 +387,16 @@ func (b *Talkkonnect) ClientStart() {
 		LCDIsDark = false
 	}
 
-	if AudioRecordEnabled {
+	if Config.Global.Hardware.AudioRecordFunction.Enabled {
 
-		if AudioRecordOnStart {
+		if Config.Global.Hardware.AudioRecordFunction.RecordOnStart {
 
-			if AudioRecordMode != "" {
+			if Config.Global.Hardware.AudioRecordFunction.RecordMode != "" {
 
-				if AudioRecordMode == "traffic" {
+				if Config.Global.Hardware.AudioRecordFunction.RecordMode == "traffic" {
 					log.Println("info: Incoming Traffic will be Recorded with sox")
 					AudioRecordTraffic()
-					if TargetBoard == "rpi" {
+					if Config.Global.Hardware.TargetBoard == "rpi" {
 						if LCDEnabled {
 							LcdText = [4]string{"nil", "nil", "nil", "Traffic Recording ->"} // 4
 							LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
@@ -384,10 +406,10 @@ func (b *Talkkonnect) ClientStart() {
 						}
 					}
 				}
-				if AudioRecordMode == "ambient" {
+				if Config.Global.Hardware.AudioRecordFunction.RecordMode == "ambient" {
 					log.Println("info: Ambient Audio from Mic will be Recorded with sox")
 					AudioRecordAmbient()
-					if TargetBoard == "rpi" {
+					if Config.Global.Hardware.TargetBoard == "rpi" {
 						if LCDEnabled {
 							LcdText = [4]string{"nil", "nil", "nil", "Mic Recording ->"} // 4
 							LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
@@ -397,10 +419,10 @@ func (b *Talkkonnect) ClientStart() {
 						}
 					}
 				}
-				if AudioRecordMode == "combo" {
+				if Config.Global.Hardware.AudioRecordFunction.RecordMode == "combo" {
 					log.Println("info: Both Incoming Traffic and Ambient Audio from Mic will be Recorded with sox")
 					AudioRecordCombo()
-					if TargetBoard == "rpi" {
+					if Config.Global.Hardware.TargetBoard == "rpi" {
 						if LCDEnabled {
 							LcdText = [4]string{"nil", "nil", "nil", "Combo Recording ->"} // 4
 							LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
@@ -416,7 +438,7 @@ func (b *Talkkonnect) ClientStart() {
 		}
 	}
 
-	if USBKeyboardEnabled && len(USBKeyboardPath) > 0 {
+	if Config.Global.Hardware.USBKeyboard.Enabled && len(Config.Global.Hardware.USBKeyboard.USBKeyboardPath) > 0 {
 		go b.USBKeyboard()
 	}
 
@@ -424,17 +446,17 @@ func (b *Talkkonnect) ClientStart() {
 		b.Client.Self.Register()
 		log.Println("alert: Client Is Now Registered")
 	} else {
-		log.Println("alert: Client Is Already Registered")
+		log.Println("info: Client Is Already Registered")
 
 	}
 
-	if StreamOnStart {
-		time.Sleep(StreamOnStartAfter * time.Second)
+	if Config.Global.Software.Settings.StreamOnStart {
+		time.Sleep(Config.Global.Software.Settings.StreamOnStartAfter * time.Second)
 		b.cmdPlayback()
 	}
 
-	if TXOnStart {
-		time.Sleep(TXOnStartAfter * time.Second)
+	if Config.Global.Software.Settings.TXOnStart {
+		time.Sleep(Config.Global.Software.Settings.TXOnStartAfter * time.Second)
 		b.cmdStartTransmitting()
 	}
 
@@ -473,6 +495,8 @@ keyPressListenerLoop:
 				b.cmdPlayback()
 			case term.KeyF12:
 				b.cmdGPSPosition()
+			case term.KeyCtrlB:
+				b.cmdLiveReload()
 			case term.KeyCtrlC:
 				talkkonnectAcknowledgements("\u001b[44;1m") // add blue background to banner reference https://www.lihaoyi.com/post/BuildyourownCommandLinewithANSIescapecodes.html#background-colors
 				b.cmdQuitTalkkonnect()
@@ -482,6 +506,8 @@ keyPressListenerLoop:
 				b.cmdSendEmail()
 			case term.KeyCtrlF:
 				b.cmdConnPreviousServer()
+			case term.KeyCtrlH:
+				cmdSanityCheck()
 			case term.KeyCtrlI: // New. Audio Recording. Traffic
 				b.cmdAudioTrafficRecord()
 			case term.KeyCtrlJ: // New. Audio Recording. Mic
@@ -503,10 +529,10 @@ keyPressListenerLoop:
 			case term.KeyCtrlS:
 				b.cmdScanChannels()
 			case term.KeyCtrlT:
-				b.cmdThanks()
-			case term.KeyCtrlV:
-				b.cmdShowUptime()
+				cmdThanks()
 			case term.KeyCtrlU:
+				b.cmdShowUptime()
+			case term.KeyCtrlV:
 				b.cmdDisplayVersion()
 			case term.KeyCtrlX:
 				b.cmdDumpXMLConfig()
@@ -534,7 +560,7 @@ keyPressListenerLoop:
 					case "volumedown":
 						b.cmdVolumeDown()
 					case "setcomment":
-						if TTYKeyMap[ev.Ch].ParamName == "setcomment" {
+						if TTYKeyMap[ev.Ch].ParamValue == "setcomment" {
 							log.Println("info: Set Commment ", TTYKeyMap[ev.Ch].ParamValue)
 							b.Client.Self.SetComment(TTYKeyMap[ev.Ch].ParamValue)
 						}
@@ -545,13 +571,12 @@ keyPressListenerLoop:
 					case "record":
 						b.cmdAudioTrafficRecord()
 						b.cmdAudioMicRecord()
-					case "setvoicetarget":
-						voicetarget, err := strconv.Atoi(TTYKeyMap[ev.Ch].ParamValue)
+					case "voicetargetset":
+						Paramvalue, err := strconv.Atoi(TTYKeyMap[ev.Ch].ParamValue)
 						if err != nil {
-							log.Println("error: Target is Non-Numeric Value")
-						} else {
-							b.cmdSendVoiceTargets(uint32(voicetarget))
+							log.Printf("error: Error Message %v, %v Is Not A Number", err, Paramvalue)
 						}
+						b.cmdSendVoiceTargets(uint32(Paramvalue))
 					default:
 						log.Println("Command Not Defined ", strings.ToLower(TTYKeyMap[ev.Ch].Command))
 					}

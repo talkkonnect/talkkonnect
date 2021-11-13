@@ -3,13 +3,13 @@
   <accounts>
     <account name="talkkonnect-community" default="true">
       <serverandport>mumble.talkkonnect.com:64738</serverandport>
-      <username></username>
+      <username>suvir-onnut</username>
       <password>talkkonnect</password>
       <insecure>true</insecure>
-      <register>false</register>
-      <certificate></certificate>
+      <register>true</register>
+      <certificate>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/mumble.pem</certificate>
       <channel/>
-      <ident>Name Surname</ident>
+      <ident>Suvir Kumar</ident>
       <tokens enabled="true">
         <token>token1</token>
         <token>token2</token>
@@ -22,7 +22,7 @@
         </id>
         <id value="1">
           <users>
-            <user>suvir-laptop</user>
+            <user>zoran-laptop</user>
           </users>
         </id>
         <id value="2">
@@ -43,6 +43,27 @@
         </id>
       </voicetargets>
     </account>
+    <account name="zoran-canada" default="false">
+      <serverandport>caczkd001.dynu.net:64738</serverandport>
+      <username>suvir-onnut</username>
+      <password>etcmumble</password>
+      <insecure>true</insecure>
+      <register>false</register>
+      <certificate></certificate>
+      <channel/>
+      <ident>Suvir Kumar</ident>
+     </account>
+    <account name="singapore" default="true">
+      <serverandport>mumble.blameitonthe.network:64738</serverandport>
+      <username>raspbi</username>
+      <password></password>
+      <insecure>true</insecure>
+      <register>false</register>
+      <certificate></certificate>
+      <channel/>
+      <ident>Suvir Kumar</ident>
+     </account>
+
   </accounts>
   <global>
     <software>
@@ -262,7 +283,7 @@
         <ignoreuserregex>^(suvirsony)$</ignoreuserregex>
       </ignoreuser>
     </software>
-    <hardware targetboard="pc">
+    <hardware targetboard="rpi">
       <ledstripenabled>false</ledstripenabled>
       <io>
         <pins>
@@ -322,7 +343,7 @@
         <oledcharlength>9</oledcharlength>
         <oledstartcolumn>0</oledstartcolumn>
       </oled>
-      <gps enabled="false">
+      <gps enabled="true">
         <port>/dev/ttyAMA0</port>
         <baud>115200</baud>
         <txdata/>
@@ -363,7 +384,8 @@
         <recordfileformat/>
         <recordchunksize/>
       </audiorecordfunction>
-      <usbkeyboard enabled="false">
+      <usbkeyboard enabled="true">
+        <!--<usbkeyboarddevpath>/dev/input/event0</usbkeyboarddevpath>-->
         <usbkeyboarddevpath>/dev/input/event0</usbkeyboarddevpath>
         <numlockscanid>69</numlockscanid>
       </usbkeyboard>

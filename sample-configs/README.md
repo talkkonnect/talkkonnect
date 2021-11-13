@@ -23,30 +23,34 @@
 * x86 PCs Running Linux
 * AMD PCs Running Linux
 ---
+#### Version 2 Templates (Version 2 config is not backward compatable with version 1)
+/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/sample-configs/talkkonnect-version2-pc-nogpio.xml
 
+
+#### Version 1 Templates (For those still using version 1)
 #### For Raspberry Pi 3, 3B+, A Models with HD44780 4x20 LCD with Parallel Interface use the template
 ````
-/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/sample-configs/talkkonnect-raspberrypi-hd44780-parallel.xml
+/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/sample-configs/talkkonnect-version1-raspberrypi-hd44780-parallel.xml
 `````
 
 #### For Raspberry Pi 3, 3B+, A Models with HD44780 4x20 LCD with I2C Interface use the template
 ````
-/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/sample-configs/talkkonnect-raspberrypi-hd44780-i2c.xml
+/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/sample-configs/talkkonnect-version1-raspberrypi-hd44780-i2c.xml
 ````
 
 #### For Raspberry Pi 3, 3B+, A Models with 4Pin IIC I2C OLED Display Module 12864  use the template
 ````
-/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/sample-configs/talkkonnect-raspberrypi-OLED-i2c.xml
+/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/sample-configs/talkkonnect-version1-raspberrypi-OLED-i2c.xml
 ````
 
 #### For PCs/VMs use the template
 ````
-/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/sample-configs/talkkonnect-pc-nogpio.xml
+/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/sample-configs/talkkonnect-version1-pc-nogpio.xml
 ````
 
 #### For OrangePiZero with 4Pin IIC I2C OLED Display Module 12864  use the template
 ````
-/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/sample-configs/talkkonnect-orangepizero-OLED-i2c.xml
+/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/sample-configs/talkkonnect-version1-orangepizero-OLED-i2c.xml
 ````
 
 
@@ -59,5 +63,5 @@ Please visit our [blog](www.talkkonnect.com) for our blog or [github](github.com
 ## License 
 [talKKonnect](http://www.talkkonnect.com) is open source and available under the MPL V2.00 license.
 
-<suvir@talkkonnect.com> Updated 17/April/2019  talkkonnect version 1.42.13 is the latest release as of this writing.
+<suvir@talkkonnect.com> Updated 13/November/2021  talkkonnect version 2.03.03 is the latest release as of this writing.
 

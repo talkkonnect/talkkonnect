@@ -21,7 +21,7 @@
 * GPIO Granular Configurable Support 
 * Multimedia Playing Support both local and remote by API call
 
-### What is talKKonnect?
+### So What then is talKKonnect, and why should I be Interested?
 
 [talKKonnect](http://www.talkkonnect.com) is a headless self contained mumble Push to Talk (PTT) client complete with LCD, Channel and Volume control.
 
@@ -33,9 +33,9 @@ The Potential Uses of talKKonnect
 * Ad-Hoc Group Communications where talkkonnect is used as the base station and Android Phones/IPhones or other rugged Android Devices used in the field.
 * Use for IP Based Public Announcements (Recorded and Live) with targeting to specific devices or groups
 * A Text to Speech Alert Announcement by API/MQTT to either play locally or to remote clients
-* IP Intercom/Door Intercom or Intercom between remote places
+* IP Intercom/Door Intercom or Intercom between remote places (Germans Love this for some unknown reason)
 * A Toy for our big adults like amateur radio enthusiasts (like me and many of you). 
-* A toy for your kids (so that they can feel how it was like to be a kid in the 80s with a CB radio)
+* A toy for your kids (so that they can feel how it was like to be a kid in the 80s with a CB radio Now With 7-Segment and Rotary Encoder Channel Changing)
 * A customized version of your particular PTT Communication unique usecase as this project is an open souce platform whereby people can build on quickly
 
 
@@ -53,7 +53,7 @@ Rasperry Pi Zero W and Pi Zero WH  will work with a "watered down" version of ta
 I [Suvir Kumar](https://www.linkedin.com/in/suvir-kumar-51a1333b) created talKKonnect for fun. I missed the younger days making homebrew CB, HAM radios and talking to all
 those amazing people who taught me so much. 
 
-Living in an apartment in the age of the internet with the itch to innovate drove me to create talKKonnect. I did it to learn programming so in no way am I a professional programmer.
+Living in an apartment in the age of the internet with the itch to innovate drove me to create talKKonnect. I did it to learn programming so in no way am I a professional programmer, however talkkonnect is very stable and production ready.
 
 I have tried to make the talKKonnect source code readable and stable to the best of my ability. Time permitting I will continue to work and learn from all those people who give feedback 
 and show interest in using talkkonnect. 
@@ -128,7 +128,7 @@ Instead of the onboard sound card or USB Sound Card, you can also use a ReSpeake
   this means the PTT Button and the LEDS on the 2 Mic Respeaker Hat will work right away. You will need to connect an external speaker to the HAT for these images.
 * Feel Free to explore the various example talkkonnect.xml configurations that can be found in the directory /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/sample-configs here you can find various configurations that work with LCD, OLED, LEDS and PUSH Button Switches. The files are named descriptively.
   
-### Image for Use with Raspberry pi 2/3 and USB Sound Card ###
+### talkkonnect Version 1 Image for Use with Raspberry pi 2/3 and USB Sound Card ###
 * [Click Here to Download Pre-Configured SD Card Image for USB Sound Card](https://drive.google.com/file/d/1hbMFtKvlEYX-akqf976aVjHP4TcYFXgL/view?usp=sharing)
 * This image uses the standard 32 Bit Sampling and will work properly with all mumble clients on windows, android and iphone with good quality sound.
 * Since 32 Bit Sampling is used this will only work reliably on Raspberry 2 Series, 3 Series and NOT on Raspberry PI Zero. 
@@ -140,7 +140,7 @@ Instead of the onboard sound card or USB Sound Card, you can also use a ReSpeake
 * After you intall the image you can copy the bash script tk-update.sh in the scripts folder to your /root home and run it in the root user's folder to update to the lastest version.
 * Notice!!! On this particular build wireless is disabled you will need to run the command rfkill list to see and you will see it hard blocked you will then need to run rfkill unblock 0 for wireless to work again.	
 
-### Quick Download Link for Pre-Made SD Card Image for Use with Raspberry pi 2/3  and RESPEAKER Compatable HAT ###
+### talkkonnect Version 1 Quick Download Link for Pre-Made SD Card Image for Use with Raspberry pi 2/3  and RESPEAKER Compatable HAT ###
 * [Click Here to Download Pre-Configured SD Card Image for Respeaker Hat](https://drive.google.com/file/d/1nwdorhtPgFv2IfRaLubsn9aAtGJBSp3A/view?usp=sharing) 
 * This image uses the standard 32 Bit Sampling and will work properly with all mumble clients on windows, android and iphone with good quality sound.
 * Since 32 Bit Sampling is used this will only work reliably on Raspberry 2 Series, 3 Series and NOT on Raspberry PI Zero. 
@@ -150,7 +150,7 @@ Instead of the onboard sound card or USB Sound Card, you can also use a ReSpeake
 * This image is a good starting point if you already have all the components at home or if you want to use talkkonnect as a push to talk headless device to talk directly to other mumble clients.
 * After you intall the image you can copy the bash script tk-update.sh in the scripts folder to your /root home and run it in the root user's folder to update to the lastest version.
 
-### Quick Download Link for Pre-Made SD Card Image for Use with Raspberry pi 2/3  and IM69D130 Mems Microphone ### 
+### talkkonnect Version 1 Quick Download Link for Pre-Made SD Card Image for Use with Raspberry pi 2/3  and IM69D130 Mems Microphone ### 
 * [Click Here to Download Pre-Configured SD Card Image for talkkonnect with IM69D130 Mems Microphone](https://drive.google.com/file/d/1lutT3rNk5-zLz6M7FdLNJ47FIvDNCmNC/view?usp=sharing) 
 * This image uses the standard 32 Bit Sampling and will work properly with all mumble clients on windows, android and iphone with good quality sound.
 * Since 32 Bit Sampling is used this will only work reliably on Raspberry 2 Series, 3 Series and NOT on Raspberry PI Zero. 
@@ -161,7 +161,7 @@ Instead of the onboard sound card or USB Sound Card, you can also use a ReSpeake
 * For the wiring of the microphone to Raspberry Pi See This [inmp411 wiring diagram](https://makersportal.com/shop/i2s-mems-microphone-for-raspberry-pi-inmp441)
 * After you intall the image you can copy the bash script tk-update.sh in the scripts folder to your /root home and run it in the root user's folder to update to the lastest version.
 
-### Quick Download Link for Pre-Made SD Card Image for Use with Raspberry pi ZERO With RESPEAKER Compatable HAT ### 
+### talkkonnect Version 1 Quick Download Link for Pre-Made SD Card Image for Use with Raspberry pi ZERO With RESPEAKER Compatable HAT ### 
 * [Click Here to Download Pre-Configured SD Card Image for talkkonnect for Raspberry PI Zero with Respeaker](https://drive.google.com/file/d/15EJ84oFKAFWkdF4191Xi_kPz3E8MC1J0/view?usp=sharing)
 * This image uses NON-STANDARD 16 Bit Sampling and will NOT work properly with all standard mumble clients!!
 * This image is good for those who want to make a small portable device and are serious about form factor.
@@ -174,9 +174,9 @@ Instead of the onboard sound card or USB Sound Card, you can also use a ReSpeake
 
 ### Installation Instructions For Raspberry Pi Boards (from Source code) ###
 
-Download the latest version of [Raspberry Pi OS Lite](https://downloads.raspberrypi.org/raspios_lite_armhf/images/raspios_lite_armhf-2021-05-28/2021-05-07-raspios-buster-armhf-lite.zip). 
-At the time of making/updating this document latest image release date was 07/05/2021 (Kernel Version 5.10). 
-Download the 444MB ZIP file and extract IMG file to some temporary directory.
+Download the latest version of [Raspberry Pi OS Lite](https://downloads.raspberrypi.org/raspios_lite_armhf/images/raspios_lite_armhf-2021-11-08/2021-10-30-raspios-bullseye-armhf-lite.zip). 
+At the time of making/updating this document latest image release date was 30/10/2021 (Kernel Version 5.10). 
+Download the 463MB ZIP file and extract IMG file to some temporary directory.
 
 It is recommended that you use the raspberry Pi Imager for Windows or any USB / SD card imaging software for Windows or your other OS. 
 The best current option for windows is :
@@ -233,7 +233,7 @@ Now you should be able to log in remotely via ssh using the root account and con
 To get the newer versions of golang used for this project I suggest installing a precompiled binary of golang. If you use apt-get to install golang at this moment you will get an older incompatible version of golang.
 
 To install GO as required for this project on the raspberry pi. First with your browser look on the website https://golang.org/dl/ on your browser and choose the latest version for the 
-arm archecture. At the time of this writing the version is go1.15.6.linux-armv6l.tar.gz.
+arm archecture. At the time of this writing the version can be found at https://golang.org/dl/go1.17.3.linux-armv6l.tar.gz
 
 Please Note that if you use apt-get to install golang instead of follow the recommended instructions in this blog you will get the following error when compiling 
 BackLightTime.Reset undefined (type * time.Ticker has no field or method Reset) 
@@ -242,9 +242,9 @@ As root user Get the link and use wget to download the binary to your talkkonnec
 
 ` cd /usr/local `
 
-` wget https://golang.org/dl/go1.15.6.linux-armv6l.tar.gz `
+` wget https://golang.org/dl/go1.17.3.linux-armv6l.tar.gz `
 
-` tar -zxvf go1.15.6.linux-armv6l.tar.gz `
+` tar -zxvf go1.17.3.linux-armv6l.tar.gz `
 
 ` nano ~/.bashrc `
 
@@ -352,7 +352,7 @@ sleep 2
  │Additional Modifications Released under MPL 2.0 License         │
  │Blog at www.talkkonnect.com, source at github.com/talkkonnect   │
  └────────────────────────────────────────────────────────────────┘
- Talkkonnect Version 1.67.15 Released Aug 24 2021
+ Talkkonnect Version 2.03.03 Released Oct 29 2021
 ````
 
 ##### I2C OLED Screen Installation #####
@@ -486,7 +486,8 @@ For a speaker muting to work when pressing a PTT, you need to enter the exact na
 │ <F9>  Stop Transmitting     │ <F10> List Online Users        │
 │ <F11> Playback/Stop Stream  │ <F12> For GPS Position         │
 ├─────────────────────────────┼────────────────────────────────┤
-│<Ctrl-D> Debug Stacktrace    │                                │
+│<Ctrl-B> Reload XML Config   │ <Ctrl-D> Debug Stacktrace      │
+│<Ctrl-H> Check XML Config    │                                │
 ├─────────────────────────────┼────────────────────────────────┤
 │<Ctrl-E> Send Email          │<Ctrl-N> Conn Next Server       │
 │<Ctrl-F> Conn Previous Server│<Ctrl-P> Panic Simulation       │
@@ -505,7 +506,7 @@ For a speaker muting to work when pressing a PTT, you need to enter the exact na
 ````
 
 
-### Explanation of older talkkonnect.xml configuration files sections and tags (missing voicetargeting features in this video) 
+### Explanation of older talkkonnect.xml configuration files sections and tags (version 1 of talkkonnect) 
 [youtube-video](https://www.youtube.com/watch?v=-Dy96FXw0gA&ab_channel=SuvirKumar) is a video made for explaining the xml tags
 
 #### The Accounts Section
@@ -744,4 +745,4 @@ Thank you all for your kind feedback sent along with some pictures and use cases
 ## License 
 [talKKonnect](http://www.talkkonnect.com) is open source and available under the MPL V2.00 license.
 
-<suvir@talkkonnect.com> Updated 27/08/2021 talkkonnect version 2.67.15 is the latest release as of this writing.
+<suvir@talkkonnect.com> Updated 15/11/2021 talkkonnect version 2.03.03u is the latest release as of this writing.

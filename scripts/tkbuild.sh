@@ -24,7 +24,7 @@
 ## The source code is hosted at github.com/talkkonnect
 
 
-## Installation BASH Script for talkkonnect on fresh install of raspbian
+## Installation BASH Script for talkkonnect version 2 on fresh install of raspbian bullseye
 ## Please RUN this Script as root user
 
 ## If this script is run after a fresh install of raspbian you man want to update the 2 lines below

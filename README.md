@@ -6,6 +6,7 @@
 
 ### talKKonnect Version 2 Release Notice!
 * Version 2 breaks backward compatability with version 1 configs!! So make sure you use the correct version of the config file to make it work
+* The sample configs can be found in the sample-configs directory (they are marked as version 2 and version 1 respectively)	
 
 #### New Features in Version 2
 * GPIO expander you can now have up to 16 x 8 = 128 GPIO using The MCP23017 Chip over I2c

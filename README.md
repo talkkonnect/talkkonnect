@@ -129,6 +129,18 @@ Instead of the onboard sound card or USB Sound Card, you can also use a ReSpeake
   this means the PTT Button and the LEDS on the 2 Mic Respeaker Hat will work right away. You will need to connect an external speaker to the HAT for these images.
 * Feel Free to explore the various example talkkonnect.xml configurations that can be found in the directory /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/sample-configs here you can find various configurations that work with LCD, OLED, LEDS and PUSH Button Switches. The files are named descriptively.
   
+### talkkonnect Version 2 Quick Download Link for Pre-Made SD Card Image for Use with Raspberry pi zero 2w  and RESPEAKER Compatable HAT ###
+* [Click Here to Download Pre-Configured SD Card Image for Talkkonnect Version 2 for Raspberry Pi Zero 2W Respeaker Hat](https://drive.google.com/file/d/166bR3Nx6_MN_JQoBXLQe6KEvs-ncmwOp/view?usp=sharing) 
+* This image uses the standard 32 Bit Sampling and will work properly with all mumble clients on windows, android and iphone with good quality sound.
+* This image has been configured to work with a Respeaker HAT out of the box so I2S, I2C and all required modules are installed and running. 
+* The XML file is configured to run in rpi mode so GPIO will initalized, this is so that the respeaker will work with output sound on the headphone jack, led strip working and push button 
+  microswitch on the hat can be used for transmitting.    
+* This image is a good starting point if you already have all the components at home or if you want to use talkkonnect as a push to talk headless device to talk directly to other mumble clients.
+* This Image should work out of the box it also has serial console on the usb port for easy access to ssh thorough com port on windows and macOS
+* For this image out of the box it will connect to a wifi with ssid network and password 1234567890 (if you are lazy you can do this)
+* You can also use the serial console to log in as root and change the /etc/wpa_supplicant/wpa_supplicant.conf file to change it to your network for this you will need a micro usb port cable and plug it into your windows machine and access it over a tool like putty over the serial port 
+* Alternativly you can also create the wpa_supplicant.conf file and put it in the /boot/ folder on windows before inserting the card into your raspberry pi zero 2w.
+	
 ### talkkonnect Version 1 Image for Use with Raspberry pi 2/3 and USB Sound Card ###
 * [Click Here to Download Pre-Configured SD Card Image for USB Sound Card](https://drive.google.com/file/d/1hbMFtKvlEYX-akqf976aVjHP4TcYFXgL/view?usp=sharing)
 * This image uses the standard 32 Bit Sampling and will work properly with all mumble clients on windows, android and iphone with good quality sound.

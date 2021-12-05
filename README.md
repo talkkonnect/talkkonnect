@@ -133,6 +133,7 @@ Instead of the onboard sound card or USB Sound Card, you can also use a ReSpeake
 	
 ### talkkonnect Version 2 Quick Download Link for Pre-Made SD Card Image for Use with Raspberry 2/3/4 and USB Sound Card ###
 * [Click Here to Download Pre-Configured SD Card Image for Talkkonnect Version 2 for Raspberry 3/4/Pi and USB Sound Card](https://drive.google.com/file/d/1NMdeAfKFpjGZH5jkN9VlDR-jiitUkIjj/view?usp=sharing) 
+* You will need a CM-108 or equavilent sound card plugged in before booting for this image to work otherwise it will connect and disconnect to the server in an endless loop.	
 * This image uses the standard 32 Bit Sampling and will work properly with all mumble clients on windows, android and iphone with good quality sound.
 * This image has been configured to work with a USB CM108 Sound Card and GPIO will work out of the box for PTT and LEDs. 
 * This Image should work out of the box it also has serial console on the usb port for easy access to ssh thorough com port on windows and macOS
@@ -156,6 +157,7 @@ Instead of the onboard sound card or USB Sound Card, you can also use a ReSpeake
 
 ### talkkonnect Version 1 Image for Use with Raspberry pi 2/3 and USB Sound Card ###
 * [Click Here to Download Pre-Configured SD Card Image for USB Sound Card](https://drive.google.com/file/d/1hbMFtKvlEYX-akqf976aVjHP4TcYFXgL/view?usp=sharing)
+* You will need a CM-108 or equavilent sound card plugged in before booting for this image to work otherwise it will connect and disconnect to the server in an endless loop.	
 * This image uses the standard 32 Bit Sampling and will work properly with all mumble clients on windows, android and iphone with good quality sound.
 * Since 32 Bit Sampling is used this will only work reliably on Raspberry 2 Series, 3 Series and NOT on Raspberry PI Zero. 
 * This image has been configured to work with a external USB sound card (Works with CM-108 Chipsets) out of the box

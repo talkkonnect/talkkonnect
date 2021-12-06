@@ -138,7 +138,8 @@ Instead of the onboard sound card or USB Sound Card, you can also use a ReSpeake
 * This image has been configured to work with a USB CM108 Sound Card and GPIO will work out of the box for PTT and LEDs. 
 * This Image should work out of the box it also has serial console on the usb port for easy access to ssh thorough com port on windows and macOS
 * This image will work with LAN Cabled Ethernet connection out of the box
-	
+* Since this image was created on Raspberry 3B+ Board if you use Raspberry 4 please note that you will have to do the following apt install firmware-brcm80211
+  then you will have to use raspi-config to set the wifi country for the wifi to work.	
 ### talkkonnect Version 2 Quick Download Link for Pre-Made SD Card Image for Use with Raspberry 3/4/pi zero 2w  and RESPEAKER Compatable HAT ###
 * [Click Here to Download Pre-Configured SD Card Image for Talkkonnect Version 2 for Raspberry 3/4/Pi Zero 2W Respeaker Hat](https://drive.google.com/file/d/166bR3Nx6_MN_JQoBXLQe6KEvs-ncmwOp/view?usp=sharing) 
 * This image uses the standard 32 Bit Sampling and will work properly with all mumble clients on windows, android and iphone with good quality sound.
@@ -146,6 +147,8 @@ Instead of the onboard sound card or USB Sound Card, you can also use a ReSpeake
 * The XML file is configured to run in rpi mode so GPIO will initalized, this is so that the respeaker will work with output sound on the headphone jack, led strip working and push button 
   microswitch on the hat can be used for transmitting.    
 * This Image should work out of the box it also has serial console on the usb port for easy access to ssh thorough com port on windows and macOS
+* Since this image was created on Raspberry 3B+ Board if you use Raspberry 4 please note that you will have to do the following apt install firmware-brcm80211
+  then you will have to use raspi-config to set the wifi country for the wifi to work.	
 * For this image out of the box it will connect to a wifi with ssid network and password 1234567890 (if you are lazy you can do this)
 * You can also use the serial console to log in as root and change the /etc/wpa_supplicant/wpa_supplicant.conf file to change it to your network for this you will need a micro usb port cable and plug it into your windows machine and access it over a tool like putty over the serial port 
 * Alternativly you can also create the wpa_supplicant.conf file and put it in the /boot/ folder on windows before inserting the card into your raspberry pi zero 2w.

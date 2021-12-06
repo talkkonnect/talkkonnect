@@ -174,6 +174,7 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 		}
 		var raw [gumble.AudioMaximumFrameSize * 2]byte
 		for packet := range e.C {
+			Talking <- true
 			samples := len(packet.AudioBuffer)
 			if samples > cap(raw) {
 				continue
@@ -193,6 +194,7 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 			if source.State() != openal.Playing {
 				source.Play()
 			}
+			Talking <- false
 		}
 		reclaim()
 		emptyBufs.Delete()

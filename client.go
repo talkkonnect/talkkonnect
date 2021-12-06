@@ -460,6 +460,31 @@ func (b *Talkkonnect) ClientStart() {
 		b.cmdStartTransmitting()
 	}
 
+	go func() {
+		for {
+			select {
+			case <-Talking:
+				TalkedTicker.Reset(200 * time.Millisecond)
+				if !RXLEDStatus {
+					RXLEDStatus = true
+					if !Config.Global.Hardware.LedStripEnabled {
+						GPIOOutPin("voiceactivity", "on")
+					} else {
+						MyLedStripOnlineLEDOn()
+					}
+				}
+			case <-TalkedTicker.C:
+				RXLEDStatus = false
+				if !Config.Global.Hardware.LedStripEnabled {
+					GPIOOutPin("voiceactivity", "off")
+				} else {
+					MyLedStripOnlineLEDOff()
+				}
+				TalkedTicker.Stop()
+			}
+		}
+	}()
+
 keyPressListenerLoop:
 	for {
 		switch ev := term.PollEvent(); ev.Type {

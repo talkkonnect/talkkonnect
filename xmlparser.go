@@ -52,8 +52,8 @@ import (
 )
 
 const (
-	talkkonnectVersion  string = "2.03.03"
-	talkkonnectReleased string = "Oct 29 2021"
+	talkkonnectVersion  string = "2.03.04"
+	talkkonnectReleased string = "Dec 6 2021"
 )
 
 type ConfigStruct struct {
@@ -560,7 +560,8 @@ var (
 	BackLightTimePtr = &BackLightTime
 	StartTime        = time.Now()
 	LastTime         = now.Unix()
-	TimerTalked      = time.NewTicker(time.Millisecond * 200)
+	TalkedTicker     = time.NewTicker(time.Millisecond * 200)
+	Talking          = make(chan bool)
 )
 
 var (

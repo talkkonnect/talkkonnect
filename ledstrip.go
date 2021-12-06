@@ -47,9 +47,9 @@ const (
 	SOnlineLED       int    = 0
 	SParticipantsLED int    = 1
 	STransmitLED     int    = 2
-	OnlineCol        string = "FF0000"
-	ParticipantsCol  string = "00FF00"
-	TransmitCol      string = "0000FF"
+	OnlineCol        string = "00FF00"
+	ParticipantsCol  string = "0000FF"
+	TransmitCol      string = "FF0000"
 	OffCol           string = "000000"
 )
 

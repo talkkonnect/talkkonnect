@@ -3,13 +3,13 @@
   <accounts>
     <account name="talkkonnect-community" default="true">
       <serverandport>mumble.talkkonnect.com:64738</serverandport>
-      <username>suvir-onnut</username>
+      <username></username>
       <password>talkkonnect</password>
       <insecure>true</insecure>
-      <register>true</register>
-      <certificate>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/mumble.pem</certificate>
+      <register>false</register>
+      <certificate></certificate>
       <channel/>
-      <ident>Suvir Kumar</ident>
+      <ident>Name Surname</ident>
       <tokens enabled="true">
         <token>token1</token>
         <token>token2</token>
@@ -17,12 +17,12 @@
       <voicetargets>
         <id value="0">
           <users>
-            <user>suvir-onnut</user>
+            <user>suvir-laptop</user>
           </users>
         </id>
         <id value="1">
           <users>
-            <user>zoran-laptop</user>
+            <user>suvir-mobile</user>
           </users>
         </id>
         <id value="2">
@@ -43,27 +43,6 @@
         </id>
       </voicetargets>
     </account>
-    <account name="zoran-canada" default="false">
-      <serverandport>caczkd001.dynu.net:64738</serverandport>
-      <username>suvir-onnut</username>
-      <password>etcmumble</password>
-      <insecure>true</insecure>
-      <register>false</register>
-      <certificate></certificate>
-      <channel/>
-      <ident>Suvir Kumar</ident>
-     </account>
-    <account name="singapore" default="true">
-      <serverandport>mumble.blameitonthe.network:64738</serverandport>
-      <username>raspbi</username>
-      <password></password>
-      <insecure>true</insecure>
-      <register>false</register>
-      <certificate></certificate>
-      <channel/>
-      <ident>Suvir Kumar</ident>
-     </account>
-
   </accounts>
   <global>
     <software>
@@ -459,7 +438,7 @@
         </params>
         <media>
           <source name="1st-song" file="http://prdonline.prd.go.th:8200" volume="10" duration="0" offset="0" loop="1" blocking="false" enabled="true"/>
-          <source name="2nd-song" file="/root/whateveryoulike.mp3" volume="10" duration="0" offset="0" loop="1" blocking="false" enabled="false"/>
+          <source name="2nd-song" file="/root/song1.mp3" volume="10" duration="0" offset="0" loop="1" blocking="false" enabled="false"/>
         </media>
       </id>
       <id value="1" enabled="true">
@@ -474,8 +453,8 @@
           <voicetarget/>
         </params>
         <media>
-          <source name="1st-song" file="/root/alwaysandforever.mp3" volume="10" duration="0" offset="0" loop="1" blocking="false" enabled="false"/>
-          <source name="2nd-song" file="/root/whateveryoulike.mp3" volume="10" duration="0" offset="0" loop="1" blocking="false" enabled="true"/>
+          <source name="1st-song" file="/root/song1.mp3" volume="10" duration="0" offset="0" loop="1" blocking="false" enabled="false"/>
+          <source name="2nd-song" file="/root/song2.mp3" volume="10" duration="0" offset="0" loop="1" blocking="false" enabled="true"/>
         </media>
       </id>
     </multimedia>

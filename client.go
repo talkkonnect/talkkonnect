@@ -460,13 +460,31 @@ func (b *Talkkonnect) ClientStart() {
 		b.cmdStartTransmitting()
 	}
 
-	var LastSpeaker string = ""
 	go func() {
 		for {
 			select {
 			case <-Talking:
 				v := <-Talking
 				TalkedTicker.Reset(200 * time.Millisecond)
+				if LastSpeaker != v.WhoTalking {
+					LastSpeaker = v.WhoTalking
+					t := time.Now()
+					if Config.Global.Hardware.TargetBoard == "rpi" {
+						if LCDEnabled {
+							GPIOOutPin("backlight", "on")
+							lcdtext = [4]string{"nil", "", "", LastSpeaker + " " + t.Format("15:04:05")}
+							LcdDisplay(lcdtext, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+							BackLightTime.Reset(time.Duration(LCDBackLightTimeout) * time.Second)
+						}
+
+						if OLEDEnabled {
+							Oled.DisplayOn()
+							go oledDisplay(false, 3, 1, LastSpeaker+" "+t.Format("15:04:05"))
+							BackLightTime.Reset(time.Duration(LCDBackLightTimeout) * time.Second)
+						}
+					}
+				}
+
 				if !RXLEDStatus {
 					RXLEDStatus = true
 					log.Println("info: Speaking->", v.WhoTalking)
@@ -474,24 +492,6 @@ func (b *Talkkonnect) ClientStart() {
 						GPIOOutPin("voiceactivity", "on")
 					} else {
 						MyLedStripOnlineLEDOn()
-					}
-					if LastSpeaker != v.WhoTalking {
-						LastSpeaker = v.WhoTalking
-						t := time.Now()
-						if Config.Global.Hardware.TargetBoard == "rpi" {
-							if LCDEnabled {
-								GPIOOutPin("backlight", "on")
-								lcdtext = [4]string{"nil", "", "", LastSpeaker + " " + t.Format("15:04:05")}
-								LcdDisplay(lcdtext, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
-								BackLightTime.Reset(time.Duration(LCDBackLightTimeout) * time.Second)
-							}
-
-							if OLEDEnabled {
-								Oled.DisplayOn()
-								go oledDisplay(false, 3, 1, LastSpeaker+" "+t.Format("15:04:05"))
-								BackLightTime.Reset(time.Duration(LCDBackLightTimeout) * time.Second)
-							}
-						}
 					}
 				}
 			case <-TalkedTicker.C:

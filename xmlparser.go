@@ -52,7 +52,7 @@ import (
 )
 
 const (
-	talkkonnectVersion  string = "2.04.03"
+	talkkonnectVersion  string = "2.04.04"
 	talkkonnectReleased string = "Dec 10 2021"
 )
 
@@ -631,7 +631,7 @@ var (
 	txcounter int
 	isTx      bool
 	pstream   *gumbleffmpeg.Stream
-	//source    = openal.NewSource()
+	LastSpeaker string = ""
 )
 
 var StreamTracker = map[uint32]streamTrackerStruct{}

@@ -131,7 +131,7 @@ func (b *Talkkonnect) TransmitStart() {
 
 	b.BackLightTimer()
 	t := time.Now()
-
+	LastSpeaker = ""
 	if Config.Global.Software.Settings.SimplexWithMute {
 		err := volume.Mute(Config.Global.Software.Settings.OutputDevice)
 		if err != nil {

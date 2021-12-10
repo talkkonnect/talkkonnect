@@ -52,8 +52,8 @@ import (
 )
 
 const (
-	talkkonnectVersion  string = "2.03.04"
-	talkkonnectReleased string = "Dec 6 2021"
+	talkkonnectVersion  string = "2.04.01"
+	talkkonnectReleased string = "Dec 10 2021"
 )
 
 type ConfigStruct struct {
@@ -528,6 +528,11 @@ type streamTrackerStruct struct {
 	C           <-chan *gumble.AudioPacket
 }
 
+type talkingStruct struct {
+	IsTalking  bool
+	WhoTalking string
+}
+
 // Generic Global Config Variables
 var Config ConfigStruct
 var ConfigXMLFile string
@@ -561,7 +566,7 @@ var (
 	StartTime        = time.Now()
 	LastTime         = now.Unix()
 	TalkedTicker     = time.NewTicker(time.Millisecond * 200)
-	Talking          = make(chan bool)
+	Talking          = make(chan talkingStruct)
 )
 
 var (

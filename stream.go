@@ -174,7 +174,14 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 		}
 		var raw [gumble.AudioMaximumFrameSize * 2]byte
 		for packet := range e.C {
-			Talking <- true
+			if Config.Global.Software.IgnoreUser.IgnoreUserEnabled {
+				if len(Config.Global.Software.IgnoreUser.IgnoreUserRegex) > 0 {
+					if checkRegex(Config.Global.Software.IgnoreUser.IgnoreUserRegex, e.User.Name) {
+						continue
+					}
+				}
+			}
+			Talking <- talkingStruct{true, e.User.Name}
 			samples := len(packet.AudioBuffer)
 			if samples > cap(raw) {
 				continue
@@ -194,7 +201,7 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 			if source.State() != openal.Playing {
 				source.Play()
 			}
-			Talking <- false
+			Talking <- talkingStruct{false, e.User.Name}
 		}
 		reclaim()
 		emptyBufs.Delete()

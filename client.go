@@ -464,11 +464,13 @@ func (b *Talkkonnect) ClientStart() {
 		for {
 			select {
 			case <-Talking:
+				v := <-Talking
 				TalkedTicker.Reset(200 * time.Millisecond)
 				if !RXLEDStatus {
 					RXLEDStatus = true
 					if !Config.Global.Hardware.LedStripEnabled {
 						GPIOOutPin("voiceactivity", "on")
+						log.Println("info: Speaking->", v.WhoTalking)
 					} else {
 						MyLedStripOnlineLEDOn()
 					}

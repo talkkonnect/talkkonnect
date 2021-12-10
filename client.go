@@ -475,6 +475,21 @@ func (b *Talkkonnect) ClientStart() {
 						MyLedStripOnlineLEDOn()
 					}
 				}
+				t := time.Now()
+				if Config.Global.Hardware.TargetBoard == "rpi" {
+					if LCDEnabled {
+						GPIOOutPin("backlight", "on")
+						lcdtext = [4]string{"nil", "", "", v.WhoTalking + " " + t.Format("15:04:05")}
+						LcdDisplay(lcdtext, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+						BackLightTime.Reset(time.Duration(LCDBackLightTimeout) * time.Second)
+					}
+
+					if OLEDEnabled {
+						Oled.DisplayOn()
+						go oledDisplay(false, 3, 1, v.WhoTalking+" "+t.Format("15:04:05"))
+						BackLightTime.Reset(time.Duration(LCDBackLightTimeout) * time.Second)
+					}
+				}
 			case <-TalkedTicker.C:
 				RXLEDStatus = false
 				if !Config.Global.Hardware.LedStripEnabled {

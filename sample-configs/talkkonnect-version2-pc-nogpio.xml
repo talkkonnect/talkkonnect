@@ -265,6 +265,10 @@
     <hardware targetboard="rpi">
       <ledstripenabled>false</ledstripenabled>
       <io>
+        <gpioexpander enabled="false">
+          <chip id="0" i2cbus="1" mcpdevice="0" enabled="false"/>
+        </gpioexpander>
+        <max7219 max7219cascaded="1" spibus="0" spidevice="0" brightness="7"  enabled="false"/>
         <pins>
           <pin direction="output" device="led/relay"    name="voiceactivity" pinno="2"  type="gpio" chipid="0" enabled="true"/>
           <pin direction="output" device="led/relay"    name="participants"  pinno="3"  type="gpio" chipid="0" enabled="true"/>

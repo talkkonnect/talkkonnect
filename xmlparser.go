@@ -52,8 +52,8 @@ import (
 )
 
 const (
-	talkkonnectVersion  string = "2.04.04"
-	talkkonnectReleased string = "Dec 10 2021"
+	talkkonnectVersion  string = "2.04.05"
+	talkkonnectReleased string = "Dec 11 2021"
 )
 
 type ConfigStruct struct {
@@ -628,9 +628,9 @@ var (
 
 // Generic Local Variables
 var (
-	txcounter int
-	isTx      bool
-	pstream   *gumbleffmpeg.Stream
+	txcounter   int
+	isTx        bool
+	pstream     *gumbleffmpeg.Stream
 	LastSpeaker string = ""
 )
 

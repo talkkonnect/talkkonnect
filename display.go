@@ -32,16 +32,15 @@ package talkkonnect
 import (
 	"log"
 	"strings"
-	"sync"
 
 	hd44780 "github.com/talkkonnect/go-hd44780"
 )
 
-var mutex = &sync.Mutex{}
+//var mutex = &sync.Mutex{}
 
 func oledDisplay(OledClear bool, OledRow int, OledColumn int, OledText string) {
-	mutex.Lock()
-	defer mutex.Unlock()
+	//mutex.Lock()
+	//defer mutex.Unlock()
 
 	if !OLEDEnabled {
 		log.Println("error: OLED Function Called in Error!")

@@ -264,6 +264,7 @@
     </software>
     <hardware targetboard="rpi">
       <ledstripenabled>false</ledstripenabled>
+      <voiceactivitytimermsecs>200</voiceactivitytimermsecs>
       <io>
         <gpioexpander enabled="false">
           <chip id="0" i2cbus="1" mcpdevice="0" enabled="false"/>

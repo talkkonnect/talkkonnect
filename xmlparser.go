@@ -52,7 +52,7 @@ import (
 )
 
 const (
-	talkkonnectVersion  string = "2.04.06"
+	talkkonnectVersion  string = "2.04.07"
 	talkkonnectReleased string = "Dec 12 2021"
 )
 
@@ -277,9 +277,10 @@ type ConfigStruct struct {
 			} `xml:"ignoreuser"`
 		} `xml:"software"`
 		Hardware struct {
-			TargetBoard     string `xml:"targetboard,attr"`
-			LedStripEnabled bool   `xml:"ledstripenabled"`
-			IO              struct {
+			TargetBoard             string        `xml:"targetboard,attr"`
+			LedStripEnabled         bool          `xml:"ledstripenabled"`
+			VoiceActivityTimermsecs time.Duration `xml:"voiceactivitytimermsecs"`
+			IO                      struct {
 				GPIOExpander struct {
 					Enabled bool `xml:"enabled,attr"`
 					Chip    []struct {
@@ -769,6 +770,10 @@ func readxmlconfig(file string, reloadxml bool) error {
 			LCDBackLightTimerEnabled = false
 		}
 
+		if Config.Global.Hardware.VoiceActivityTimermsecs == 0 {
+			Config.Global.Hardware.VoiceActivityTimermsecs = 200
+		}
+
 		if OLEDEnabled {
 			Oled, err = goled.BeginOled(OLEDDefaultI2cAddress, OLEDDefaultI2cBus, OLEDScreenWidth, OLEDScreenHeight, OLEDDisplayRows, OLEDDisplayColumns, OLEDStartColumn, OLEDCharLength, OLEDCommandColumnAddressing, OLEDAddressBasePageStart)
 			if err != nil {
@@ -953,6 +958,7 @@ func printxmlconfig() {
 	if Config.Global.Software.PrintVariables.PrintTargetBoard {
 		log.Println("info: ------------ Target Board --------------- ")
 		log.Println("info: Target Board " + fmt.Sprintf("%v", Config.Global.Hardware.TargetBoard))
+		log.Println("info: Voice Activity LED Timer " + fmt.Sprintf("%v", Config.Global.Hardware.VoiceActivityTimermsecs))
 	} else {
 		log.Println("info: ------------ Target Board --------------- SKIPPED ")
 	}

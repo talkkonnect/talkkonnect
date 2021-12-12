@@ -464,7 +464,7 @@ func (b *Talkkonnect) ClientStart() {
 		for {
 			select {
 			case <-Talking:
-				TalkedTicker.Reset(200 * time.Millisecond)
+				TalkedTicker.Reset(Config.Global.Hardware.VoiceActivityTimermsecs * time.Millisecond)
 				v := <-Talking
 
 				if LastSpeaker != v.WhoTalking {

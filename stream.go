@@ -47,7 +47,6 @@ var (
 	lcdtext      = [4]string{"nil", "nil", "nil", ""}
 	now          = time.Now()
 	debuglevel   = 2
-	RXLEDStatus  bool
 	TotalStreams int
 	NeedToKill   int
 )

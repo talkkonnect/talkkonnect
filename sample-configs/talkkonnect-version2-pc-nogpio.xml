@@ -288,7 +288,7 @@
           <pin direction="input"  device="pushbutton"   name="streamtoggle"  pinno="14" type="gpio" chipid="0" enabled="false"/>
           <pin direction="input"  device="toggleswitch" name="comment"       pinno="14" type="gpio" chipid="0" enabled="false"/>
           <pin direction="input"  device="rotaryencoder" name="rotarya"       pinno="17" type="gpio" chipid="0" enabled="false"/>
-          <pin direction="input"  device="rotaryencoder" name="rotaryb"       pinno="18" type="gpio" chipid="0" enabled="false/>
+          <pin direction="input"  device="rotaryencoder" name="rotaryb"       pinno="18" type="gpio" chipid="0" enabled="false"/>
         </pins>
         <pulse leadingmsecs="1000" pulsemsecs="1000" trailingmsecs="1000"/>
       </io>

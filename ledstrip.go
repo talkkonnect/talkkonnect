@@ -43,14 +43,14 @@ import (
 )
 
 const (
-	numLEDs          int    = 3
-	SOnlineLED       int    = 0
-	SParticipantsLED int    = 1
-	STransmitLED     int    = 2
-	OnlineCol        string = "00FF00"
-	ParticipantsCol  string = "0000FF"
-	TransmitCol      string = "FF0000"
-	OffCol           string = "000000"
+	numLEDs           int    = 3
+	SOnlineLED        int    = 0
+	SVoiceActivityLED int    = 1
+	STransmitLED      int    = 2
+	OnlineCol         string = "00FF00" //Green
+	VoiceActivityCol  string = "0000FF" //Blue
+	TransmitCol       string = "FF0000" //Red
+	OffCol            string = "000000" //Off
 )
 
 type LedStrip struct {
@@ -120,8 +120,6 @@ func (ls *LedStrip) ledCtrl(num int, color string) error {
 	ls.buf[num*numLEDs+2] = b
 
 	_, err = ls.display.Write(ls.buf)
-
-	log.Printf("debug: LedStrip %v\n", ls.buf)
 
 	return err
 }

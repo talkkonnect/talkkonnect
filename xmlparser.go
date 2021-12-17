@@ -52,8 +52,8 @@ import (
 )
 
 const (
-	talkkonnectVersion  string = "2.04.08"
-	talkkonnectReleased string = "Dec 13 2021"
+	talkkonnectVersion  string = "2.04.089"
+	talkkonnectReleased string = "Dec 17 2021"
 )
 
 type ConfigStruct struct {
@@ -549,7 +549,7 @@ var (
 	InStreamTalking bool
 	InStreamSource  bool
 	LCDIsDark       bool
- 	RXLEDStatus  bool
+	RXLEDStatus     bool
 )
 
 // Generic Global Counter Variables

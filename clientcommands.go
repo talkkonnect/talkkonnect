@@ -67,11 +67,8 @@ func CleanUp() {
 			oledDisplay(false, 6, 1, "Please Visit")
 			oledDisplay(false, 7, 1, "www.talkkonnect.com")
 		}
-		if !Config.Global.Hardware.LedStripEnabled {
-			GPIOOutAll("led/relay", "off")
-		} else {
-			MyLedStripGPIOOutAll()
-		}
+		GPIOOutAll("led/relay", "off")
+		MyLedStripGPIOOffAll()
 	}
 
 	term.Close()
@@ -158,11 +155,8 @@ func (b *Talkkonnect) TransmitStart() {
 	}
 
 	if Config.Global.Hardware.TargetBoard == "rpi" {
-		if !Config.Global.Hardware.LedStripEnabled {
-			GPIOOutPin("transmit", "on")
-		} else {
-			MyLedStripTransmitLEDOn()
-		}
+		GPIOOutPin("transmit", "on")
+		MyLedStripTransmitLEDOn()
 		if LCDEnabled {
 			LcdText[0] = "Online/TX"
 			LcdText[3] = "TX at " + t.Format("15:04:05")
@@ -196,11 +190,8 @@ func (b *Talkkonnect) TransmitStop(withBeep bool) {
 	b.BackLightTimer()
 
 	if Config.Global.Hardware.TargetBoard == "rpi" {
-		if !Config.Global.Hardware.LedStripEnabled {
-			GPIOOutPin("transmit", "off")
-		} else {
-			MyLedStripTransmitLEDOff()
-		}
+		GPIOOutPin("transmit", "off")
+		MyLedStripTransmitLEDOff()
 		if LCDEnabled {
 			LcdText[0] = b.Address
 			LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
@@ -319,15 +310,8 @@ func (b *Talkkonnect) ParticipantLEDUpdate(verbose bool) {
 
 	if participantCount > 1 {
 		if Config.Global.Hardware.TargetBoard == "rpi" {
-			if !Config.Global.Hardware.LedStripEnabled {
-				GPIOOutPin("participants", "on")
-				GPIOOutPin("online", "on")
-			} else {
-				MyLedStripParticipantsLEDOn()
-				MyLedStripOnlineLEDOn()
-			}
+			GPIOOutPin("participants", "on")
 		}
-
 	} else {
 
 		if verbose {
@@ -344,11 +328,7 @@ func (b *Talkkonnect) ParticipantLEDUpdate(verbose bool) {
 			prevParticipantCount = 0
 
 			if Config.Global.Hardware.TargetBoard == "rpi" {
-				if !Config.Global.Hardware.LedStripEnabled {
-					GPIOOutPin("participants", "off")
-				} else {
-					MyLedStripParticipantsLEDOff()
-				}
+				GPIOOutPin("participants", "off")
 				if LCDEnabled {
 					LcdText = [4]string{b.Address, "Alone in " + b.Client.Self.Channel.Name, "", "nil"}
 					LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)

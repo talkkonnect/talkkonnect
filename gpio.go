@@ -586,34 +586,58 @@ func GPIOOutAll(name string, command string) {
 	}
 }
 
-func MyLedStripGPIOOutAll() {
-	MyLedStrip.ledCtrl(SOnlineLED, OffCol)
-	MyLedStrip.ledCtrl(SParticipantsLED, OffCol)
-	MyLedStrip.ledCtrl(STransmitLED, OffCol)
+func MyLedStripGPIOOffAll() {
+	if Config.Global.Hardware.LedStripEnabled {
+		log.Println("debug: Turning Off All LEDStrip LEDs")
+		MyLedStrip.ledCtrl(SOnlineLED, OffCol)
+		MyLedStrip.ledCtrl(SVoiceActivityLED, OffCol)
+		MyLedStrip.ledCtrl(STransmitLED, OffCol)
+	}
 }
 
 func MyLedStripOnlineLEDOn() {
-	MyLedStrip.ledCtrl(SOnlineLED, OnlineCol)
+	if Config.Global.Hardware.LedStripEnabled {
+		log.Println("debug: Turning On LEDStrip Online LED")
+		MyLedStrip.ledCtrl(SOnlineLED, OnlineCol)
+	}
 }
 
 func MyLedStripOnlineLEDOff() {
-	MyLedStrip.ledCtrl(SOnlineLED, OffCol)
+	if Config.Global.Hardware.LedStripEnabled {
+		log.Println("debug: Turning Off LEDStrip Online LED")
+		MyLedStrip.ledCtrl(SOnlineLED, OffCol)
+
+	}
 }
 
-func MyLedStripParticipantsLEDOn() {
-	MyLedStrip.ledCtrl(SParticipantsLED, ParticipantsCol)
+func MyLedStripVoiceActivityLEDOn() {
+	if Config.Global.Hardware.LedStripEnabled {
+		log.Println("debug: Turning On LEDStrip VoiceActivity LED")
+		MyLedStrip.ledCtrl(SVoiceActivityLED, VoiceActivityCol)
+	}
 }
 
-func MyLedStripParticipantsLEDOff() {
-	MyLedStrip.ledCtrl(SParticipantsLED, OffCol)
+func MyLedStripVoiceActivityLEDOff() {
+	if Config.Global.Hardware.LedStripEnabled {
+		log.Println("debug: Turning Off LEDStrip VoiceActivity LED")
+		MyLedStrip.ledCtrl(SVoiceActivityLED, OffCol)
+
+	}
 }
 
 func MyLedStripTransmitLEDOn() {
-	MyLedStrip.ledCtrl(STransmitLED, TransmitCol)
-}
+	if Config.Global.Hardware.LedStripEnabled {
+		log.Println("debug: Turning On LEDStrip Transmit LED")
+		MyLedStrip.ledCtrl(STransmitLED, TransmitCol)
 
+	}
+}
 func MyLedStripTransmitLEDOff() {
-	MyLedStrip.ledCtrl(STransmitLED, OffCol)
+	if Config.Global.Hardware.LedStripEnabled {
+		log.Println("debug: Turning Off LEDStrip Transmit LED")
+		MyLedStrip.ledCtrl(STransmitLED, OffCol)
+
+	}
 }
 
 func Max7219(max7219Cascaded int, spiBus int, spiDevice int, brightness byte, toDisplay string) {

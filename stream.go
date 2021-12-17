@@ -140,11 +140,13 @@ func (b *Talkkonnect) StopSource() error {
 	var eventSound EventSoundStruct = findEventSound("rogerbeep")
 	if eventSound.Enabled {
 		GPIOOutPin("transmit", "on")
+		MyLedStripTransmitLEDOn()
 		log.Println("debug: Rogerbeep Playing")
 		if v, err := strconv.ParseFloat(eventSound.Volume, 32); err == nil {
 			b.splayIntoStream(eventSound.FileName, float32(v))
 		}
 		GPIOOutPin("transmit", "off")
+		MyLedStripTransmitLEDOff()
 	}
 
 	b.Stream.deviceSource = openal.CaptureOpenDevice("", gumble.AudioSampleRate, openal.FormatMono16, uint32(b.Stream.sourceFrameSize))
@@ -253,6 +255,7 @@ func (b *Talkkonnect) playIntoStream(filepath string, vol float32) {
 		log.Println(fmt.Sprintf("info: File %s Stopped!", filepath))
 		pstream.Stop()
 		GPIOOutPin("transmit", "off")
+		MyLedStripTransmitLEDOff()
 		return
 	}
 
@@ -264,6 +267,7 @@ func (b *Talkkonnect) playIntoStream(filepath string, vol float32) {
 		}
 
 		GPIOOutPin("transmit", "on")
+		MyLedStripTransmitLEDOn()
 
 		IsPlayStream = true
 		pstream = gumbleffmpeg.New(b.Client, gumbleffmpeg.SourceFile(filepath), vol/100)
@@ -274,6 +278,7 @@ func (b *Talkkonnect) playIntoStream(filepath string, vol float32) {
 			pstream.Wait()
 			pstream.Stop()
 			GPIOOutPin("transmit", "off")
+			MyLedStripTransmitLEDOff()
 		}
 	} else {
 		log.Println("warn: Sound Disabled by Config")

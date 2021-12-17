@@ -256,9 +256,7 @@ func (b *Talkkonnect) ClientStart() {
 	}
 
 	if Config.Global.Hardware.TargetBoard == "rpi" {
-		if !Config.Global.Hardware.LedStripEnabled {
-			GPIOOutAll("led/relay", "off")
-		}
+		GPIOOutAll("led/relay", "off")
 	}
 
 	if Config.Global.Software.Settings.Logging == "screenandfile" {
@@ -473,14 +471,9 @@ func (b *Talkkonnect) ClientStart() {
 
 				if !RXLEDStatus {
 					log.Println("info: Speaking->", v.WhoTalking)
-					if !Config.Global.Hardware.LedStripEnabled {
-						RXLEDStatus = true
-						GPIOOutPin("voiceactivity", "on")
-					} else {
-						RXLEDStatus = true
-						MyLedStripOnlineLEDOn()
-					}
-
+					RXLEDStatus = true
+					GPIOOutPin("voiceactivity", "on")
+					MyLedStripVoiceActivityLEDOn()
 					if LCDEnabled && Config.Global.Hardware.TargetBoard == "rpi" {
 						GPIOOutPin("backlight", "on")
 						lcdtext = [4]string{"nil", "", "", LastSpeaker + " " + time.Now().Format("15:04:05")}
@@ -497,11 +490,8 @@ func (b *Talkkonnect) ClientStart() {
 				}
 			case <-TalkedTicker.C:
 				RXLEDStatus = false
-				if !Config.Global.Hardware.LedStripEnabled {
-					GPIOOutPin("voiceactivity", "off")
-				} else {
-					MyLedStripOnlineLEDOff()
-				}
+				GPIOOutPin("voiceactivity", "off")
+				MyLedStripVoiceActivityLEDOff()
 				TalkedTicker.Stop()
 			}
 		}

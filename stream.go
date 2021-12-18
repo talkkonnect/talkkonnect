@@ -175,6 +175,7 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 		}
 		var raw [gumble.AudioMaximumFrameSize * 2]byte
 		for packet := range e.C {
+			TalkedTicker.Reset(Config.Global.Hardware.VoiceActivityTimermsecs * time.Millisecond)
 			if Config.Global.Software.IgnoreUser.IgnoreUserEnabled {
 				if len(Config.Global.Software.IgnoreUser.IgnoreUserRegex) > 0 {
 					if checkRegex(Config.Global.Software.IgnoreUser.IgnoreUserRegex, e.User.Name) {

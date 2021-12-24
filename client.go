@@ -459,6 +459,7 @@ func (b *Talkkonnect) ClientStart() {
 	}
 
 	go func() {
+		var RXLEDStatus bool
 		for {
 			select {
 			case <-Talking:

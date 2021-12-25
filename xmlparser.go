@@ -52,8 +52,8 @@ import (
 )
 
 const (
-	talkkonnectVersion  string = "2.04.11"
-	talkkonnectReleased string = "Dec 24 2021"
+	talkkonnectVersion  string = "2.05.01"
+	talkkonnectReleased string = "Dec 25 2021"
 )
 
 type ConfigStruct struct {
@@ -1329,7 +1329,7 @@ func CheckConfigSanity(reloadxml bool) {
 				Warnings++
 			}
 
-			if !(gpio.Name == "voiceactivity" || gpio.Name == "participants" || gpio.Name == "transmit" || gpio.Name == "online" || gpio.Name == "attention" || gpio.Name == "voicetarget" || gpio.Name == "heartbeat" || gpio.Name == "backlight" || gpio.Name == "relay0" || gpio.Name == "txptt" || gpio.Name == "txtoggle" || gpio.Name == "channelup" || gpio.Name == "channeldown" || gpio.Name == "panic" || gpio.Name == "streamtoggle" || gpio.Name == "comment" || gpio.Name == "rotarya" || gpio.Name == "rotaryb") {
+			if !(gpio.Name == "voiceactivity" || gpio.Name == "participants" || gpio.Name == "transmit" || gpio.Name == "online" || gpio.Name == "attention" || gpio.Name == "voicetarget" || gpio.Name == "heartbeat" || gpio.Name == "backlight" || gpio.Name == "relay0" || gpio.Name == "txptt" || gpio.Name == "txtoggle" || gpio.Name == "channelup" || gpio.Name == "channeldown" || gpio.Name == "panic" || gpio.Name == "streamtoggle" || gpio.Name == "comment" || gpio.Name == "rotarya" || gpio.Name == "rotaryb" || gpio.Name == "volup" || gpio.Name == "voldown") {
 				log.Printf("warn: Config Error [Section GPIO] Enabled GPIO Name %v Pin Number %v Invalid Name\n", gpio.Name, gpio.PinNo)
 				Config.Global.Hardware.IO.Pins.Pin[index].Enabled = false
 				Warnings++
@@ -1487,7 +1487,7 @@ func CheckConfigSanity(reloadxml bool) {
 
 	for index, keyboard := range Config.Global.Hardware.Keyboard.Command {
 		if keyboard.Enabled {
-			if !(keyboard.Action == "channelup" || keyboard.Action == "channeldown" || keyboard.Action == "serverup" || keyboard.Action == "serverdown" || keyboard.Action == "mute" || keyboard.Action == "unmute" || keyboard.Action == "mute-toggle" || keyboard.Action == "stream-toggle" || keyboard.Action == "volumeup" || keyboard.Action == "volumedown" || keyboard.Action == "setcomment" || keyboard.Action == "transmitstart" || keyboard.Action == "transmitstop" || keyboard.Action == "record" || keyboard.Action == "voicetargetset") {
+			if !(keyboard.Action == "channelup" || keyboard.Action == "channeldown" || keyboard.Action == "serverup" || keyboard.Action == "serverdown" || keyboard.Action == "mute" || keyboard.Action == "unmute" || keyboard.Action == "mute-toggle" || keyboard.Action == "stream-toggle" || keyboard.Action == "volumeup" || keyboard.Action == "volumedown" || keyboard.Action == "setcomment" || keyboard.Action == "transmitstart" || keyboard.Action == "transmitstop" || keyboard.Action == "record" || keyboard.Action == "voicetargetset") || keyboard.Action == "volup" || keyboard.Action == "voldown" {
 				log.Printf("warn: Config Error [Section Keyboard] Enabled Keyboard Action %v Invalid\n", keyboard.Action)
 				Config.Global.Hardware.Keyboard.Command[index].Enabled = false
 				Warnings++

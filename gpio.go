@@ -81,6 +81,16 @@ var (
 	RotaryB    gpio.Pin
 	RotaryAPin uint
 	RotaryBPin uint
+
+	VolUpButtonUsed  bool
+	VolUpButton      gpio.Pin
+	VolUpButtonPin   uint
+	VolUpButtonState uint
+
+	VolDownButtonUsed  bool
+	VolDownButton      gpio.Pin
+	VolDownButtonPin   uint
+	VolDownButtonState uint
 )
 
 var D [8]*mcp23017.Device
@@ -195,10 +205,24 @@ func (b *Talkkonnect) initGPIO() {
 				RotaryUsed = true
 				RotaryBPin = io.PinNo
 			}
+			if io.Name == "volup" && io.PinNo > 0 {
+				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
+				VolUpPinPullUp := rpio.Pin(io.PinNo)
+				VolUpPinPullUp.PullUp()
+				VolUpButtonUsed = true
+				VolUpButtonPin = io.PinNo
+			}
+			if io.Name == "voldown" && io.PinNo > 0 {
+				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
+				VolDownPinPullUp := rpio.Pin(io.PinNo)
+				VolDownPinPullUp.PullUp()
+				VolDownButtonUsed = true
+				VolDownButtonPin = io.PinNo
+			}
 		}
 	}
 
-	if TxButtonUsed || TxToggleUsed || UpButtonUsed || DownButtonUsed || PanicUsed || StreamToggleUsed || CommentUsed || RotaryUsed {
+	if TxButtonUsed || TxToggleUsed || UpButtonUsed || DownButtonUsed || PanicUsed || StreamToggleUsed || CommentUsed || RotaryUsed || VolUpButtonUsed || VolDownButtonUsed {
 		rpio.Close()
 	}
 
@@ -463,6 +487,59 @@ func (b *Talkkonnect) initGPIO() {
 			}
 		}()
 	}
+
+	if VolUpButtonUsed {
+		VolUpButton = gpio.NewInput(VolUpButtonPin)
+		go func() {
+			for {
+				if IsConnected {
+					currentState, err := VolUpButton.Read()
+					time.Sleep(150 * time.Millisecond)
+
+					if currentState != VolUpButtonState && err == nil {
+						VolUpButtonState = currentState
+
+						if VolUpButtonState == 1 {
+							log.Println("debug: Vol UP Button is released")
+						} else {
+							log.Println("debug: Vol UP Button is pressed")
+							b.cmdVolumeUp()
+							time.Sleep(150 * time.Millisecond)
+						}
+					}
+				} else {
+					time.Sleep(1 * time.Second)
+				}
+			}
+		}()
+	}
+
+	if VolDownButtonUsed {
+		VolDownButton = gpio.NewInput(VolDownButtonPin)
+		go func() {
+			for {
+				if IsConnected {
+					currentState, err := VolDownButton.Read()
+					time.Sleep(150 * time.Millisecond)
+
+					if currentState != VolDownButtonState && err == nil {
+						VolDownButtonState = currentState
+
+						if VolDownButtonState == 1 {
+							log.Println("debug: Vol Down Button is released")
+						} else {
+							log.Println("debug: Vol Down Button is pressed")
+							b.cmdVolumeDown()
+							time.Sleep(150 * time.Millisecond)
+						}
+					}
+				} else {
+					time.Sleep(1 * time.Second)
+				}
+			}
+		}()
+	}
+
 }
 
 func GPIOOutPin(name string, command string) {

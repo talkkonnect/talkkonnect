@@ -44,16 +44,14 @@ import (
 
 	"github.com/comail/colog"
 	goled "github.com/talkkonnect/go-oled-i2c"
-
-	//	"github.com/talkkonnect/go-openal/openal"
 	"github.com/talkkonnect/gumble/gumble"
 	"github.com/talkkonnect/gumble/gumbleffmpeg"
 	"golang.org/x/sys/unix"
 )
 
 const (
-	talkkonnectVersion  string = "2.05.01"
-	talkkonnectReleased string = "Dec 25 2021"
+	talkkonnectVersion  string = "2.06.01"
+	talkkonnectReleased string = "Dec 27 2021"
 )
 
 type ConfigStruct struct {
@@ -98,6 +96,9 @@ type ConfigStruct struct {
 				SingleInstance     bool          `xml:"singleinstance"`
 				OutputDevice       string        `xml:"outputdevice"`
 				OutputDeviceShort  string        `xml:"outputdeviceshort"`
+				OutputVolControlDevice  string   `xml:"outputvolcontroldevice"`
+				OutputMuteControlDevice string   `xml:"outputmutecontroldevice"` 
+				OutputVolControlDeviceRegex  string `xml:"outputvolcontroldeviceregex"`
 				LogFilenameAndPath string        `xml:"logfilenameandpath"`
 				Logging            string        `xml:"logging"`
 				Loglevel           string        `xml:"loglevel"`
@@ -736,6 +737,17 @@ func readxmlconfig(file string, reloadxml bool) error {
 		Config.Global.Software.Settings.OutputDeviceShort = Config.Global.Software.Settings.OutputDevice
 	}
 
+	if len(Config.Global.Software.Settings.OutputVolControlDevice) == 0 {
+		Config.Global.Software.Settings.OutputVolControlDevice = Config.Global.Software.Settings.OutputDevice
+	}
+	if len(Config.Global.Software.Settings.OutputMuteControlDevice) == 0 {
+		Config.Global.Software.Settings.OutputMuteControlDevice = Config.Global.Software.Settings.OutputDevice
+	}
+	if len(Config.Global.Software.Settings.OutputVolControlDeviceRegex) == 0 {
+		Config.Global.Software.Settings.OutputVolControlDeviceRegex = "Playback" //Assuming USB Sound Card
+		//Config.Global.Software.Settings.OutputVolControlDeviceRegex = "Front Left:" //Assuming WM8960 Sound Card
+	}
+
 	if strings.ToLower(Config.Global.Software.Settings.Logging) != "screen" && Config.Global.Software.Settings.LogFilenameAndPath == "" {
 		Config.Global.Software.Settings.LogFilenameAndPath = defaultLogPath
 	}
@@ -862,22 +874,25 @@ func printxmlconfig() {
 
 	if Config.Global.Software.PrintVariables.PrintSystemSettings {
 		log.Println("info: -------- System Settings -------- ")
-		log.Println("info: Single Instance      ", Config.Global.Software.Settings.SingleInstance)
-		log.Println("info: Output Device        ", Config.Global.Software.Settings.OutputDevice)
-		log.Println("info: Output Device(Short) ", Config.Global.Software.Settings.OutputDeviceShort)
-		log.Println("info: Log File             ", Config.Global.Software.Settings.LogFilenameAndPath)
-		log.Println("info: Logging              ", Config.Global.Software.Settings.Logging)
-		log.Println("info: Loglevel             ", Config.Global.Software.Settings.Loglevel)
-		log.Println("info: CancellableStream    ", fmt.Sprintf("%t", Config.Global.Software.Settings.CancellableStream))
-		log.Println("info: StreamOnStart        ", fmt.Sprintf("%t", Config.Global.Software.Settings.StreamOnStart))
-		log.Println("info: StreamOnStartAfter   ", fmt.Sprintf("%v", Config.Global.Software.Settings.StreamOnStartAfter))
-		log.Println("info: TXOnStart            ", fmt.Sprintf("%t", Config.Global.Software.Settings.TXOnStart))
-		log.Println("info: TXOnStartAfter       ", fmt.Sprintf("%v", Config.Global.Software.Settings.TXOnStartAfter))
-		log.Println("info: RepeatTXTimes        ", fmt.Sprintf("%v", Config.Global.Software.Settings.RepeatTXTimes))
-		log.Println("info: RepeatTXDelay        ", fmt.Sprintf("%v", Config.Global.Software.Settings.RepeatTXDelay))
-		log.Println("info: SimplexWithMute      ", fmt.Sprintf("%t", Config.Global.Software.Settings.SimplexWithMute))
-		log.Println("info: TxCounter            ", fmt.Sprintf("%t", Config.Global.Software.Settings.TxCounter))
-		log.Println("info: NextServerIndex      ", fmt.Sprintf("%v", Config.Global.Software.Settings.NextServerIndex))
+		log.Println("info: Single Instance                  ", Config.Global.Software.Settings.SingleInstance)
+		log.Println("info: Output Device                    ", Config.Global.Software.Settings.OutputDevice)
+		log.Println("info: Output Device(Short)             ", Config.Global.Software.Settings.OutputDeviceShort)
+		log.Println("info: Output Vol Control Device        ", Config.Global.Software.Settings.OutputVolControlDevice)
+		log.Println("info: Output Mute Control Device       ", Config.Global.Software.Settings.OutputMuteControlDevice)
+		log.Println("info: Output Mute Control Device Regex ", Config.Global.Software.Settings.OutputVolControlDeviceRegex)
+		log.Println("info: Log File                         ", Config.Global.Software.Settings.LogFilenameAndPath)
+		log.Println("info: Logging                          ", Config.Global.Software.Settings.Logging)
+		log.Println("info: Loglevel                         ", Config.Global.Software.Settings.Loglevel)
+		log.Println("info: CancellableStream                ", fmt.Sprintf("%t", Config.Global.Software.Settings.CancellableStream))
+		log.Println("info: StreamOnStart                    ", fmt.Sprintf("%t", Config.Global.Software.Settings.StreamOnStart))
+		log.Println("info: StreamOnStartAfter               ", fmt.Sprintf("%v", Config.Global.Software.Settings.StreamOnStartAfter))
+		log.Println("info: TXOnStart                        ", fmt.Sprintf("%t", Config.Global.Software.Settings.TXOnStart))
+		log.Println("info: TXOnStartAfter                   ", fmt.Sprintf("%v", Config.Global.Software.Settings.TXOnStartAfter))
+		log.Println("info: RepeatTXTimes                    ", fmt.Sprintf("%v", Config.Global.Software.Settings.RepeatTXTimes))
+		log.Println("info: RepeatTXDelay                    ", fmt.Sprintf("%v", Config.Global.Software.Settings.RepeatTXDelay))
+		log.Println("info: SimplexWithMute                  ", fmt.Sprintf("%t", Config.Global.Software.Settings.SimplexWithMute))
+		log.Println("info: TxCounter                        ", fmt.Sprintf("%t", Config.Global.Software.Settings.TxCounter))
+		log.Println("info: NextServerIndex                  ", fmt.Sprintf("%v", Config.Global.Software.Settings.NextServerIndex))
 	} else {
 		log.Println("info: -------- System Settings -------- SKIPPED ")
 	}

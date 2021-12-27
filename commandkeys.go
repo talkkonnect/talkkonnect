@@ -63,7 +63,7 @@ func (b *Talkkonnect) cmdChannelDown() {
 func (b *Talkkonnect) cmdMuteUnmute(subCommand string) {
 
 	log.Printf("debug: F3 pressed %v Speaker Requested\n", subCommand)
-	OrigMuted, err := volume.GetMuted(Config.Global.Software.Settings.OutputDevice)
+	OrigMuted, err := volume.GetMuted(Config.Global.Software.Settings.OutputMuteControlDevice)
 
 	if err != nil {
 		log.Println("error: Unable to get current Muted/Unmuted State ", err)
@@ -77,7 +77,7 @@ func (b *Talkkonnect) cmdMuteUnmute(subCommand string) {
 
 	if subCommand == "toggle" {
 		if OrigMuted {
-			err := volume.Unmute(Config.Global.Software.Settings.OutputDevice)
+			err := volume.Unmute(Config.Global.Software.Settings.OutputMuteControlDevice)
 			if err != nil {
 				log.Println("error: Unmuting Failed", err)
 				return
@@ -96,7 +96,7 @@ func (b *Talkkonnect) cmdMuteUnmute(subCommand string) {
 			return
 		} else {
 			TTSEvent("mutespeaker")
-			err = volume.Mute(Config.Global.Software.Settings.OutputDevice)
+			err = volume.Mute(Config.Global.Software.Settings.OutputMuteControlDevice)
 			if err != nil {
 				log.Println("error: Muting Failed", err)
 			}
@@ -117,7 +117,7 @@ func (b *Talkkonnect) cmdMuteUnmute(subCommand string) {
 	//force mute
 	if subCommand == "mute" {
 		TTSEvent("mutespeaker")
-		err = volume.Mute(Config.Global.Software.Settings.OutputDevice)
+		err = volume.Mute(Config.Global.Software.Settings.OutputMuteControlDevice)
 		if err != nil {
 			log.Println("error: Muting Failed ", err)
 			return
@@ -137,7 +137,7 @@ func (b *Talkkonnect) cmdMuteUnmute(subCommand string) {
 	}
 	//force unmute
 	if subCommand == "unmute" {
-		err := volume.Unmute(Config.Global.Software.Settings.OutputDevice)
+		err := volume.Unmute(Config.Global.Software.Settings.OutputMuteControlDevice)
 		TTSEvent("unmutespeaker")
 		if err != nil {
 			log.Println("error: Unmute Failed ", err)
@@ -157,7 +157,7 @@ func (b *Talkkonnect) cmdMuteUnmute(subCommand string) {
 	}
 }
 func (b *Talkkonnect) cmdCurrentVolume() {
-	OrigVolume, err := volume.GetVolume(Config.Global.Software.Settings.OutputDevice)
+	OrigVolume, err := volume.GetVolume(Config.Global.Software.Settings.OutputVolControlDevice)
 	if err != nil {
 		log.Printf("error: Unable to get current volume: %+v\n", err)
 	}
@@ -179,13 +179,13 @@ func (b *Talkkonnect) cmdCurrentVolume() {
 }
 
 func (b *Talkkonnect) cmdVolumeUp() {
-	origVolume, err := volume.GetVolume(Config.Global.Software.Settings.OutputDevice)
+	origVolume, err := volume.GetVolume(Config.Global.Software.Settings.OutputVolControlDevice)
 	if err != nil {
 		log.Printf("warn: unable to get original volume: %+v\n", err)
 	}
 
 	if origVolume < 100 {
-		err := volume.IncreaseVolume(+1, Config.Global.Software.Settings.OutputDevice)
+		err := volume.IncreaseVolume(+1, Config.Global.Software.Settings.OutputVolControlDevice)
 		if err != nil {
 			log.Println("warn: F5 Increase Volume Failed! ", err)
 		}
@@ -219,14 +219,14 @@ func (b *Talkkonnect) cmdVolumeUp() {
 }
 
 func (b *Talkkonnect) cmdVolumeDown() {
-	origVolume, err := volume.GetVolume(Config.Global.Software.Settings.OutputDevice)
+	origVolume, err := volume.GetVolume(Config.Global.Software.Settings.OutputVolControlDevice)
 	if err != nil {
 		log.Printf("error: unable to get original volume: %+v\n", err)
 	}
 
 	if origVolume > 0 {
 		origVolume--
-		err := volume.IncreaseVolume(-1, Config.Global.Software.Settings.OutputDevice)
+		err := volume.IncreaseVolume(-1, Config.Global.Software.Settings.OutputVolControlDevice)
 		if err != nil {
 			log.Println("error: F6 Decrease Volume Failed! ", err)
 		}

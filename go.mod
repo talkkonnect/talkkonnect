@@ -11,7 +11,6 @@ require (
 	github.com/jacobsa/go-serial v0.0.0-20180131005756-15cf729a72d4
 	github.com/kennygrant/sanitize v1.2.4
 	github.com/stianeikeland/go-rpio v4.2.0+incompatible
-	github.com/stianeikeland/go-rpio/v4 v4.5.1
 	github.com/talkkonnect/go-hd44780 v0.0.0-20210824123606-f3398c777f39
 	github.com/talkkonnect/go-mcp23017 v0.0.0-20210831103122-1c46ab6c8c82
 	github.com/talkkonnect/go-nmea v0.0.0-20210719131409-1f6a4b9c6894
@@ -21,9 +20,9 @@ require (
 	github.com/talkkonnect/gumble v0.0.0-20211002133403-8965a63155bf
 	github.com/talkkonnect/max7219 v0.0.0-20211028104259-8b131029f2b7
 	github.com/talkkonnect/termbox-go v0.0.0-20181013101158-0ee46dd7ddac
-	github.com/talkkonnect/volume-go v0.0.0-20210720063739-bb23887b7601
+	github.com/talkkonnect/volume-go v0.0.0-20211227103341-448474dc443b
 	github.com/xackery/gomail v0.0.0-20150929200936-cc84600edc17
-	golang.org/x/sys v0.0.0-20211113001501-0c823b97ae02
+	golang.org/x/sys v0.0.0-20211216021012-1d35b9e2eb4e
 	periph.io/x/periph v3.6.8+incompatible
 )
 

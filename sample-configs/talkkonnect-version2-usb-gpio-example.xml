@@ -262,7 +262,7 @@
         <ignoreuserregex>^(suvirsony)$</ignoreuserregex>
       </ignoreuser>
     </software>
-    <hardware targetboard="pc">
+    <hardware targetboard="rpi">
       <ledstripenabled>false</ledstripenabled>
       <voiceactivitytimermsecs>200</voiceactivitytimermsecs>
       <io>

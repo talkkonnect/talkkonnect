@@ -239,7 +239,7 @@ func (b *Talkkonnect) cmdVolumeDown() {
 				LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 			}
 			if OLEDEnabled {
-				oledDisplay(false, 6, 1, "Volume -")
+				oledDisplay(false, 6, 1, "Volume "+strconv.Itoa(origVolume))
 			}
 
 		}

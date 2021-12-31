@@ -71,7 +71,7 @@ func autoProvision() error {
 
 	fileURL := Config.Global.Software.AutoProvisioning.URL + Config.Global.Software.AutoProvisioning.TkID
 	log.Println("info: Trying to Autoprovision with URL: ", fileURL)
-	err := downloadFile(Config.Global.Software.AutoProvisioning.SaveFilePath, Config.Global.Software.AutoProvisioning.SaveFilePath, fileURL)
+	err := downloadFile(Config.Global.Software.AutoProvisioning.SaveFilePath, "talkkonnect.xml", fileURL)
 	if err != nil {
 		return fmt.Errorf("error: DownloadFile Module Returned an Error: %q", err.Error())
 	}

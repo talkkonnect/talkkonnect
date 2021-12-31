@@ -304,7 +304,14 @@ func (b *Talkkonnect) initGPIO() {
 								}
 							}
 							prevState = 1
-							time.Sleep(150 * time.Millisecond)
+							var inputeventSound InputEventSoundStruct = findInputEventSound("txtoggle")
+							if inputeventSound.Enabled {
+								if inputeventSound.ToneDuration > 0 && inputeventSound.ToneFrequency > 500 && inputeventSound.ToneFrequency < 2500 {
+									b.PlayTone(inputeventSound.ToneFrequency, inputeventSound.ToneDuration, "local", false)
+								}
+							} else {
+								time.Sleep(150 * time.Millisecond)
+							}
 						}
 
 						if !isTx {
@@ -345,7 +352,14 @@ func (b *Talkkonnect) initGPIO() {
 						} else {
 							log.Println("debug: UP Button is pressed")
 							b.ChannelUp()
-							time.Sleep(150 * time.Millisecond)
+							var inputeventSound InputEventSoundStruct = findInputEventSound("channelup")
+							if inputeventSound.Enabled {
+								if inputeventSound.ToneDuration > 0 && inputeventSound.ToneFrequency > 500 && inputeventSound.ToneFrequency < 2500 {
+									b.PlayTone(inputeventSound.ToneFrequency, inputeventSound.ToneDuration, "local", false)
+								}
+							} else {
+								time.Sleep(150 * time.Millisecond)
+							}
 						}
 
 					}
@@ -373,7 +387,14 @@ func (b *Talkkonnect) initGPIO() {
 						} else {
 							log.Println("debug: Ch Down Button is pressed")
 							b.ChannelDown()
-							time.Sleep(150 * time.Millisecond)
+							var inputeventSound InputEventSoundStruct = findInputEventSound("channeldown")
+							if inputeventSound.Enabled {
+								if inputeventSound.ToneDuration > 0 && inputeventSound.ToneFrequency > 500 && inputeventSound.ToneFrequency < 2500 {
+									b.PlayTone(inputeventSound.ToneFrequency, inputeventSound.ToneDuration, "local", false)
+								}
+							} else {
+								time.Sleep(150 * time.Millisecond)
+							}
 						}
 					}
 				} else {
@@ -401,7 +422,14 @@ func (b *Talkkonnect) initGPIO() {
 						} else {
 							log.Println("debug: Panic Button is pressed")
 							b.cmdPanicSimulation()
-							time.Sleep(150 * time.Millisecond)
+							var inputeventSound InputEventSoundStruct = findInputEventSound("panic")
+							if inputeventSound.Enabled {
+								if inputeventSound.ToneDuration > 0 && inputeventSound.ToneFrequency > 500 && inputeventSound.ToneFrequency < 2500 {
+									b.PlayTone(inputeventSound.ToneFrequency, inputeventSound.ToneDuration, "local", false)
+								}
+							} else {
+								time.Sleep(150 * time.Millisecond)
+							}
 						}
 					}
 				} else {
@@ -430,8 +458,15 @@ func (b *Talkkonnect) initGPIO() {
 						} else {
 							log.Println("debug: Comment Button State 2 setting comment to State 2 Message ", Config.Global.Hardware.Comment.CommentMessageOn)
 							b.SetComment(Config.Global.Hardware.Comment.CommentMessageOn)
+							var inputeventSound InputEventSoundStruct = findInputEventSound("comment")
+							if inputeventSound.Enabled {
+								if inputeventSound.ToneDuration > 0 && inputeventSound.ToneFrequency > 500 && inputeventSound.ToneFrequency < 2500 {
+									b.PlayTone(inputeventSound.ToneFrequency, inputeventSound.ToneDuration, "local", false)
+								}
+							} else {
+								time.Sleep(150 * time.Millisecond)
+							}
 						}
-						time.Sleep(150 * time.Millisecond)
 					}
 				} else {
 					time.Sleep(1 * time.Second)
@@ -459,7 +494,14 @@ func (b *Talkkonnect) initGPIO() {
 						} else {
 							log.Println("debug: Stream Button is pressed")
 							b.cmdPlayback()
-							time.Sleep(150 * time.Millisecond)
+							var inputeventSound InputEventSoundStruct = findInputEventSound("streamtoggle")
+							if inputeventSound.Enabled {
+								if inputeventSound.ToneDuration > 0 && inputeventSound.ToneFrequency > 500 && inputeventSound.ToneFrequency < 2500 {
+									b.PlayTone(inputeventSound.ToneFrequency, inputeventSound.ToneDuration, "local", false)
+								}
+							} else {
+								time.Sleep(150 * time.Millisecond)
+							}
 						}
 					}
 				} else {
@@ -481,11 +523,23 @@ func (b *Talkkonnect) initGPIO() {
 					if currentStateA != LastStateA && err0 == nil {
 						currentStateB, err1 := RotaryB.Read()
 						if currentStateB != currentStateA && err1 == nil {
-							b.cmdChannelUp()
 							log.Println("debug: Rotating Clockwise")
+							b.cmdChannelUp()
+							var inputeventSound InputEventSoundStruct = findInputEventSound("rotarya")
+							if inputeventSound.Enabled {
+								if inputeventSound.ToneDuration > 0 && inputeventSound.ToneFrequency > 500 && inputeventSound.ToneFrequency < 2500 {
+									b.PlayTone(inputeventSound.ToneFrequency, inputeventSound.ToneDuration, "local", false)
+								}
+							}
 						} else {
 							log.Println("debug: Rotating CounterClockwise")
 							b.cmdChannelDown()
+							var inputeventSound InputEventSoundStruct = findInputEventSound("rotaryb")
+							if inputeventSound.Enabled {
+								if inputeventSound.ToneDuration > 0 && inputeventSound.ToneFrequency > 500 && inputeventSound.ToneFrequency < 2500 {
+									b.PlayTone(inputeventSound.ToneFrequency, inputeventSound.ToneDuration, "local", false)
+								}
+							}
 						}
 					}
 					LastStateA = currentStateA
@@ -512,7 +566,12 @@ func (b *Talkkonnect) initGPIO() {
 						} else {
 							log.Println("debug: Vol UP Button is pressed")
 							b.cmdVolumeUp()
-							time.Sleep(150 * time.Millisecond)
+							var inputeventSound InputEventSoundStruct = findInputEventSound("volup")
+							if inputeventSound.Enabled {
+								if inputeventSound.ToneDuration > 0 && inputeventSound.ToneFrequency > 500 && inputeventSound.ToneFrequency < 2500 {
+									b.PlayTone(inputeventSound.ToneFrequency, inputeventSound.ToneDuration, "local", false)
+								}
+							}
 						}
 					}
 				} else {
@@ -538,7 +597,12 @@ func (b *Talkkonnect) initGPIO() {
 						} else {
 							log.Println("debug: Vol Down Button is pressed")
 							b.cmdVolumeDown()
-							time.Sleep(150 * time.Millisecond)
+							var inputeventSound InputEventSoundStruct = findInputEventSound("voldown")
+							if inputeventSound.Enabled {
+								if inputeventSound.ToneDuration > 0 && inputeventSound.ToneFrequency > 500 && inputeventSound.ToneFrequency < 2500 {
+									b.PlayTone(inputeventSound.ToneFrequency, inputeventSound.ToneDuration, "local", false)
+								}
+							}
 						}
 					}
 				} else {

@@ -93,26 +93,25 @@ type ConfigStruct struct {
 	Global struct {
 		Software struct {
 			Settings struct {
-				SingleInstance              bool          `xml:"singleinstance"`
-				OutputDevice                string        `xml:"outputdevice"`
-				OutputDeviceShort           string        `xml:"outputdeviceshort"`
-				OutputVolControlDevice      string        `xml:"outputvolcontroldevice"`
-				OutputMuteControlDevice     string        `xml:"outputmutecontroldevice"`
-				OutputVolControlDeviceRegex string        `xml:"outputvolcontroldeviceregex"`
-				LogFilenameAndPath          string        `xml:"logfilenameandpath"`
-				Logging                     string        `xml:"logging"`
-				Loglevel                    string        `xml:"loglevel"`
-				CancellableStream           bool          `xml:"cancellablestream"`
-				StreamOnStart               bool          `xml:"streamonstart"`
-				StreamOnStartAfter          time.Duration `xml:"streamonstartafter"`
-				StreamSendMessage           bool          `xml:"streamsendmessage"`
-				TXOnStart                   bool          `xml:"txonstart"`
-				TXOnStartAfter              time.Duration `xml:"txonstartafter"`
-				RepeatTXTimes               int           `xml:"repeattxtimes"`
-				RepeatTXDelay               time.Duration `xml:"repeattxdelay"`
-				SimplexWithMute             bool          `xml:"simplexwithmute"`
-				TxCounter                   bool          `xml:"txcounter"`
-				NextServerIndex             int           `xml:"nextserverindex"`
+				SingleInstance          bool          `xml:"singleinstance"`
+				OutputDevice            string        `xml:"outputdevice"`
+				OutputDeviceShort       string        `xml:"outputdeviceshort"`
+				OutputVolControlDevice  string        `xml:"outputvolcontroldevice"`
+				OutputMuteControlDevice string        `xml:"outputmutecontroldevice"`
+				LogFilenameAndPath      string        `xml:"logfilenameandpath"`
+				Logging                 string        `xml:"logging"`
+				Loglevel                string        `xml:"loglevel"`
+				CancellableStream       bool          `xml:"cancellablestream"`
+				StreamOnStart           bool          `xml:"streamonstart"`
+				StreamOnStartAfter      time.Duration `xml:"streamonstartafter"`
+				StreamSendMessage       bool          `xml:"streamsendmessage"`
+				TXOnStart               bool          `xml:"txonstart"`
+				TXOnStartAfter          time.Duration `xml:"txonstartafter"`
+				RepeatTXTimes           int           `xml:"repeattxtimes"`
+				RepeatTXDelay           time.Duration `xml:"repeattxdelay"`
+				SimplexWithMute         bool          `xml:"simplexwithmute"`
+				TxCounter               bool          `xml:"txcounter"`
+				NextServerIndex         int           `xml:"nextserverindex"`
 			} `xml:"settings"`
 			AutoProvisioning struct {
 				Enabled      bool   `xml:"enabled,attr"`
@@ -758,10 +757,6 @@ func readxmlconfig(file string, reloadxml bool) error {
 	if len(Config.Global.Software.Settings.OutputMuteControlDevice) == 0 {
 		Config.Global.Software.Settings.OutputMuteControlDevice = Config.Global.Software.Settings.OutputDevice
 	}
-	if len(Config.Global.Software.Settings.OutputVolControlDeviceRegex) == 0 {
-		Config.Global.Software.Settings.OutputVolControlDeviceRegex = "Playback" //Assuming USB Sound Card
-		//Config.Global.Software.Settings.OutputVolControlDeviceRegex = "Front Left:" //Assuming WM8960 Sound Card
-	}
 
 	if strings.ToLower(Config.Global.Software.Settings.Logging) != "screen" && Config.Global.Software.Settings.LogFilenameAndPath == "" {
 		Config.Global.Software.Settings.LogFilenameAndPath = defaultLogPath
@@ -894,7 +889,6 @@ func printxmlconfig() {
 		log.Println("info: Output Device(Short)             ", Config.Global.Software.Settings.OutputDeviceShort)
 		log.Println("info: Output Vol Control Device        ", Config.Global.Software.Settings.OutputVolControlDevice)
 		log.Println("info: Output Mute Control Device       ", Config.Global.Software.Settings.OutputMuteControlDevice)
-		log.Println("info: Output Mute Control Device Regex ", Config.Global.Software.Settings.OutputVolControlDeviceRegex)
 		log.Println("info: Log File                         ", Config.Global.Software.Settings.LogFilenameAndPath)
 		log.Println("info: Logging                          ", Config.Global.Software.Settings.Logging)
 		log.Println("info: Loglevel                         ", Config.Global.Software.Settings.Loglevel)

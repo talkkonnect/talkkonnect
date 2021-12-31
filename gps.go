@@ -139,6 +139,7 @@ func getGpsPosition(verbose bool) (bool, error) {
 							GPSLatitude = m.Latitude
 							GPSLongitude = m.Longitude
 							if verbose {
+								log.Println("info: Raw Sentence ", m)
 								log.Println("info: Time: ", m.Time)
 								log.Println("info: Validity: ", m.Validity)
 								log.Println("info: Latitude GPS: ", nmea.FormatGPS(m.Latitude))

@@ -128,6 +128,19 @@
         <repeatertone enabled="true">
           <sound event="repeatertone" tonefrequencyhz="1750" volume="50" tonedurationsec="10" blocking="false" enabled="true"/>
         </repeatertone>
+        <oneventgentone>
+          <sound inputevent="txptt"        tonefrequency="800" toneduration="0.2" enabled="false"/>
+          <sound inputevent="txtoggle"     tonefrequency="800" toneduration="0.2" enabled="false"/>
+          <sound inputevent="channelup"    tonefrequency="800" toneduration="0.2" enabled="false"/>
+          <sound inputevent="channeldown"  tonefrequency="800" toneduration="0.2" enabled="false"/>
+          <sound inputevent="panic"        tonefrequency="800" toneduration="0.2" enabled="false"/>
+          <sound inputevent="streamtoggle" tonefrequency="800" toneduration="0.2" enabled="false"/>
+          <sound inputevent="comment"      tonefrequency="800" toneduration="0.2" enabled="false"/>
+          <sound inputevent="rotarya"      tonefrequency="800" toneduration="0.2" enabled="false"/>
+          <sound inputevent="rotaryb"      tonefrequency="800" toneduration="0.2" enabled="false"/>
+          <sound inputevent="volup"        tonefrequency="800" toneduration="0.2" enabled="false"/>
+          <sound inputevent="voldown"      tonefrequency="800" toneduration="0.2" enabled="false"/>
+        </oneventgentone>
       </sounds>
       <txtimeout enabled="false">
         <txtimeoutsecs>60</txtimeoutsecs>

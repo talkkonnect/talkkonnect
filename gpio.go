@@ -243,7 +243,15 @@ func (b *Talkkonnect) initGPIO() {
 								if isTx {
 									isTx = false
 									b.TransmitStop(true)
-									time.Sleep(150 * time.Millisecond)
+									var inputeventSound InputEventSoundStruct = findInputEventSound("txptt")
+									if inputeventSound.Enabled {
+										if inputeventSound.ToneDuration > 0 && inputeventSound.ToneFrequency > 500 && inputeventSound.ToneFrequency < 2500 {
+											b.PlayTone(inputeventSound.ToneFrequency, inputeventSound.ToneDuration, "local", false)
+										}
+									} else {
+										time.Sleep(150 * time.Millisecond)
+									}
+
 									if Config.Global.Software.Settings.TxCounter {
 										txcounter++
 										log.Println("debug: Tx Button Count ", txcounter)

@@ -50,8 +50,8 @@ import (
 )
 
 const (
-	talkkonnectVersion  string = "2.06.02"
-	talkkonnectReleased string = "Dec 28 2021"
+	talkkonnectVersion  string = "2.06.03"
+	talkkonnectReleased string = "Dec 31 2021"
 )
 
 type ConfigStruct struct {
@@ -93,26 +93,26 @@ type ConfigStruct struct {
 	Global struct {
 		Software struct {
 			Settings struct {
-				SingleInstance     bool          `xml:"singleinstance"`
-				OutputDevice       string        `xml:"outputdevice"`
-				OutputDeviceShort  string        `xml:"outputdeviceshort"`
-				OutputVolControlDevice  string   `xml:"outputvolcontroldevice"`
-				OutputMuteControlDevice string   `xml:"outputmutecontroldevice"` 
-				OutputVolControlDeviceRegex  string `xml:"outputvolcontroldeviceregex"`
-				LogFilenameAndPath string        `xml:"logfilenameandpath"`
-				Logging            string        `xml:"logging"`
-				Loglevel           string        `xml:"loglevel"`
-				CancellableStream  bool          `xml:"cancellablestream"`
-				StreamOnStart      bool          `xml:"streamonstart"`
-				StreamOnStartAfter time.Duration `xml:"streamonstartafter"`
-				StreamSendMessage  bool          `xml:"streamsendmessage"`
-				TXOnStart          bool          `xml:"txonstart"`
-				TXOnStartAfter     time.Duration `xml:"txonstartafter"`
-				RepeatTXTimes      int           `xml:"repeattxtimes"`
-				RepeatTXDelay      time.Duration `xml:"repeattxdelay"`
-				SimplexWithMute    bool          `xml:"simplexwithmute"`
-				TxCounter          bool          `xml:"txcounter"`
-				NextServerIndex    int           `xml:"nextserverindex"`
+				SingleInstance              bool          `xml:"singleinstance"`
+				OutputDevice                string        `xml:"outputdevice"`
+				OutputDeviceShort           string        `xml:"outputdeviceshort"`
+				OutputVolControlDevice      string        `xml:"outputvolcontroldevice"`
+				OutputMuteControlDevice     string        `xml:"outputmutecontroldevice"`
+				OutputVolControlDeviceRegex string        `xml:"outputvolcontroldeviceregex"`
+				LogFilenameAndPath          string        `xml:"logfilenameandpath"`
+				Logging                     string        `xml:"logging"`
+				Loglevel                    string        `xml:"loglevel"`
+				CancellableStream           bool          `xml:"cancellablestream"`
+				StreamOnStart               bool          `xml:"streamonstart"`
+				StreamOnStartAfter          time.Duration `xml:"streamonstartafter"`
+				StreamSendMessage           bool          `xml:"streamsendmessage"`
+				TXOnStart                   bool          `xml:"txonstart"`
+				TXOnStartAfter              time.Duration `xml:"txonstartafter"`
+				RepeatTXTimes               int           `xml:"repeattxtimes"`
+				RepeatTXDelay               time.Duration `xml:"repeattxdelay"`
+				SimplexWithMute             bool          `xml:"simplexwithmute"`
+				TxCounter                   bool          `xml:"txcounter"`
+				NextServerIndex             int           `xml:"nextserverindex"`
 			} `xml:"settings"`
 			AutoProvisioning struct {
 				Enabled      bool   `xml:"enabled,attr"`
@@ -158,9 +158,9 @@ type ConfigStruct struct {
 					Enabled  bool   `xml:"enabled,attr"`
 				} `xml:"sound"`
 				RepeaterTone struct {
-					Enabled         bool `xml:"enabled,attr"`
-					ToneFrequencyHz int  `xml:"tonefrequencyhz"`
-					ToneDurationSec int  `xml:"tonedurationsec"`
+					Enabled         bool    `xml:"enabled,attr"`
+					ToneFrequencyHz int     `xml:"tonefrequencyhz"`
+					ToneDurationSec float32 `xml:"tonedurationsec"`
 					Sound           struct {
 						Event           string `xml:"event,attr"`
 						Tonefrequencyhz int    `xml:"tonefrequencyhz,attr"`
@@ -170,6 +170,14 @@ type ConfigStruct struct {
 						Enabled         bool   `xml:"enabled,attr"`
 					} `xml:"sound"`
 				} `xml:"repeatertone"`
+				OnEventGenTone struct {
+					Sound []struct {
+						Inputevent    string  `xml:"inputevent,attr"`
+						Tonefrequency int     `xml:"tonefrequency,attr"`
+						Toneduration  float32 `xml:"toneduration,attr"`
+						Enabled       bool    `xml:"enabled,attr"`
+					} `xml:"sound"`
+				} `xml:"oneventgentone"`
 			} `xml:"sounds"`
 			TxTimeOut struct {
 				Enabled       bool `xml:"enabled,attr"`
@@ -521,6 +529,13 @@ type EventSoundStruct struct {
 	FileName string
 	Volume   string
 	Blocking bool
+}
+
+type InputEventSoundStruct struct {
+	Enabled       bool
+	InputEvent    string
+	ToneFrequency int
+	ToneDuration  float32
 }
 
 type streamTrackerStruct struct {

@@ -93,11 +93,11 @@ func localMediaPlayer(fileNameWithPath string, playbackvolume int, blocking bool
 	}
 }
 
-func (b *Talkkonnect) PlayTone(toneFreq int, toneDuration int, destination string, withRXLED bool) {
+func (b *Talkkonnect) PlayTone(toneFreq int, toneDuration float32, destination string, withRXLED bool) {
 
 	if destination == "local" {
 
-		cmdArguments := []string{"-f", "lavfi", "-i", "sine=frequency=" + strconv.Itoa(toneFreq) + ":duration=" + strconv.Itoa(toneDuration), "-autoexit", "-nodisp"}
+		cmdArguments := []string{"-f", "lavfi", "-i", "sine=frequency=" + strconv.Itoa(toneFreq) + ":duration=" + fmt.Sprintf("%f", toneDuration), "-autoexit", "-nodisp"}
 		cmd := exec.Command("/usr/bin/ffplay", cmdArguments...)
 		var out bytes.Buffer
 		cmd.Stdout = &out
@@ -117,7 +117,7 @@ func (b *Talkkonnect) PlayTone(toneFreq int, toneDuration int, destination strin
 			GPIOOutPin("voiceactivity", "off")
 		}
 
-		log.Printf("info: Played Tone at Frequency %v Hz With Duration of %v Seconds For Opening Repeater", toneFreq, toneDuration)
+		log.Printf("info: Played Tone at Frequency %v Hz With Duration of %v Seconds\n", toneFreq, toneDuration)
 	}
 }
 
@@ -167,4 +167,13 @@ func findEventSound(findEventSound string) EventSoundStruct {
 		}
 	}
 	return EventSoundStruct{false, "", "0", false}
+}
+
+func findInputEventSound(findInputEventSound string) InputEventSoundStruct {
+	for _, sound := range Config.Global.Software.Sounds.OnEventGenTone.Sound {
+		if sound.Inputevent == findInputEventSound {
+			return InputEventSoundStruct{sound.Enabled, sound.Inputevent, sound.Tonefrequency, sound.Toneduration}
+		}
+	}
+	return InputEventSoundStruct{false, "", 0, 0}
 }

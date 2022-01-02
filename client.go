@@ -464,9 +464,6 @@ func (b *Talkkonnect) ClientStart() {
 			case v := <-Talking:
 				if LastSpeaker != v.WhoTalking {
 					LastSpeaker = v.WhoTalking
-					RXLEDStatus = false
-					GPIOOutPin("voiceactivity", "off")
-					MyLedStripVoiceActivityLEDOff()
 				}
 
 				if !RXLEDStatus {
@@ -489,10 +486,12 @@ func (b *Talkkonnect) ClientStart() {
 
 				}
 			case <-TalkedTicker.C:
-				RXLEDStatus = false
-				GPIOOutPin("voiceactivity", "off")
-				MyLedStripVoiceActivityLEDOff()
-				TalkedTicker.Stop()
+				if RXLEDStatus {
+					RXLEDStatus = false
+					GPIOOutPin("voiceactivity", "off")
+					MyLedStripVoiceActivityLEDOff()
+					//TalkedTicker.Stop()
+				}
 			}
 		}
 	}()

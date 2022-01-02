@@ -62,7 +62,6 @@ var (
 	maxchannelid         uint32
 	tmessage             string
 	isrepeattx           bool = true
-	m                    string
 )
 
 type Talkkonnect struct {

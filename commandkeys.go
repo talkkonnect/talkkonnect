@@ -446,15 +446,15 @@ func (b *Talkkonnect) cmdSendEmail() {
 		emailMessage = emailMessage + fmt.Sprintf("Mumble Username: %s \n", b.Username)
 
 		if Config.Global.Software.SMTP.GpsDateTime {
-			emailMessage = emailMessage + fmt.Sprintf("Date "+GPSDate+" UTC Time "+GPSTime+"\n")
+			emailMessage = emailMessage + fmt.Sprintf("Date "+GNSSData.Date+" UTC Time "+GNSSData.Time+"\n")
 		}
 
 		if Config.Global.Software.SMTP.GpsLatLong {
-			emailMessage = emailMessage + fmt.Sprintf("Latitude "+strconv.FormatFloat(GPSLatitude, 'f', 6, 64)+" Longitude "+strconv.FormatFloat(GPSLongitude, 'f', 6, 64)+"\n")
+			emailMessage = emailMessage + fmt.Sprintf("Latitude "+strconv.FormatFloat(GNSSData.Lattitude, 'f', 6, 64)+" Longitude "+strconv.FormatFloat(GNSSData.Longitude, 'f', 6, 64)+"\n")
 		}
 
 		if Config.Global.Software.SMTP.GoogleMapsURL {
-			emailMessage = emailMessage + "http://www.google.com/maps/place/" + strconv.FormatFloat(GPSLatitude, 'f', 6, 64) + "," + strconv.FormatFloat(GPSLongitude, 'f', 6, 64)
+			emailMessage = emailMessage + "http://www.google.com/maps/place/" + strconv.FormatFloat(GNSSData.Lattitude, 'f', 6, 64) + "," + strconv.FormatFloat(GNSSData.Longitude, 'f', 6, 64)
 		}
 
 		err := sendviagmail(Config.Global.Software.SMTP.Username, Config.Global.Software.SMTP.Password, Config.Global.Software.SMTP.Receiver, Config.Global.Software.SMTP.Subject, emailMessage)
@@ -667,7 +667,7 @@ func (b *Talkkonnect) cmdPanicSimulation() {
 
 			if goodGPSRead && i != tries {
 				log.Println("info: Sending GPS Info My Message")
-				gpsMessage := "My GPS Coordinates are " + fmt.Sprintf(" Latitude "+strconv.FormatFloat(GPSLatitude, 'f', 6, 64)) + fmt.Sprintf(" Longitude "+strconv.FormatFloat(GPSLongitude, 'f', 6, 64))
+				gpsMessage := "My GPS Coordinates are " + fmt.Sprintf(" Latitude "+strconv.FormatFloat(GNSSData.Lattitude, 'f', 6, 64)) + fmt.Sprintf(" Longitude "+strconv.FormatFloat(GNSSData.Longitude, 'f', 6, 64))
 				b.SendMessage(gpsMessage, Config.Global.Hardware.PanicFunction.RecursiveSendMessage)
 			}
 

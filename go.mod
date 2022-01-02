@@ -3,6 +3,7 @@ module github.com/talkkonnect/talkkonnect
 go 1.17
 
 require (
+	github.com/adrianmo/go-nmea v1.5.0
 	github.com/allan-simon/go-singleinstance v0.0.0-20210120080615-d0997106ab37
 	github.com/comail/colog v0.0.0-20160416085026-fba8e7b1f46c
 	github.com/eclipse/paho.mqtt.golang v1.3.5
@@ -13,7 +14,6 @@ require (
 	github.com/stianeikeland/go-rpio v4.2.0+incompatible
 	github.com/talkkonnect/go-hd44780 v0.0.0-20210824123606-f3398c777f39
 	github.com/talkkonnect/go-mcp23017 v0.0.0-20210831103122-1c46ab6c8c82
-	github.com/talkkonnect/go-nmea v0.0.0-20210719131409-1f6a4b9c6894
 	github.com/talkkonnect/go-oled-i2c v0.0.0-20190324002809-c9178f9ccd23
 	github.com/talkkonnect/go-openal v0.0.0-20181013102444-59f5b1d30aff
 	github.com/talkkonnect/gpio v0.0.0-20181225144829-9b8a2de8e6fe

@@ -37,27 +37,49 @@ import (
 	"log"
 
 	"github.com/jacobsa/go-serial/serial"
-	"github.com/talkkonnect/go-nmea"
+	"github.com/adrianmo/go-nmea"
 )
 
-//GPS Related Global Variables
+type GSVDataStruct struct {
+	PRNNumber int64
+	SNR       int64
+	Azimuth   int64
+	Elevation int64
+}
+
+type GNSSDataStruct struct {
+	Time       string
+	Validity   string
+	Lattitude  float64
+	Longitude  float64
+	Speed      float64
+	Course     float64
+	Date       string
+	Variation  float64
+	FixQuality string
+	SatsInUse  int64
+	SatsInView int64
+	GSVData    [4]GSVDataStruct
+}
+
 var (
-	GPSTime      string
-	GPSDate      string
-	GPSLatitude  float64
-	GPSLongitude float64
-	GPSSpeed     float64
-	GPSCourse    float64
-	GPSVariation float64
+	RMCSentenceValid bool
+	GGASentenceValid bool
+	GSVSentenceValid bool
+	goodGPSRead      bool
+	GNSSData         GNSSDataStruct
 )
-
-var goodGPSRead bool = false
 
 func getGpsPosition(verbose bool) (bool, error) {
+	RMCSentenceValid = false
+	GGASentenceValid = false
+	GSVSentenceValid = false
+	goodGPSRead = false
+
 	if Config.Global.Hardware.GPS.Enabled {
 
 		if Config.Global.Hardware.GPS.Port == "" {
-			return false, errors.New("You Must Specify Port")
+			return false, errors.New("gnss port not specified")
 		}
 
 		if Config.Global.Hardware.GPS.Even && Config.Global.Hardware.GPS.Odd {
@@ -89,7 +111,7 @@ func getGpsPosition(verbose bool) (bool, error) {
 
 		if err != nil {
 			Config.Global.Hardware.GPS.Enabled = false
-			return false, errors.New("Cannot Open Serial Port")
+			return false, errors.New("cannot open serial port")
 		} else {
 			defer f.Close()
 		}
@@ -99,7 +121,7 @@ func getGpsPosition(verbose bool) (bool, error) {
 
 			if err != nil {
 				Config.Global.Hardware.GPS.Enabled = false
-				return false, errors.New("Cannot Decode Hex Data")
+				return false, errors.New("cannot decode hex data")
 			}
 
 			log.Println("Sending: ", hex.EncodeToString(txData_))
@@ -107,9 +129,9 @@ func getGpsPosition(verbose bool) (bool, error) {
 			count, err := f.Write(txData_)
 
 			if err != nil {
-				return false, errors.New("Error writing to serial port")
+				return false, errors.New("error writing to serial port")
 			} else {
-				log.Println("Wrote %v bytes\n", count)
+				log.Printf("Wrote %v bytes\n", count)
 			}
 
 		}
@@ -125,46 +147,83 @@ func getGpsPosition(verbose bool) (bool, error) {
 			reader := bufio.NewReader(serialPort)
 			scanner := bufio.NewScanner(reader)
 
-			goodGPSRead = false
 			for scanner.Scan() {
 				s, err := nmea.Parse(scanner.Text())
 
 				if err == nil {
-					if s.DataType() == nmea.TypeRMC {
-						m := s.(nmea.RMC)
-						if m.Latitude != 0 && m.Longitude != 0 {
-							goodGPSRead = true
-							GPSTime = fmt.Sprintf("%v", m.Time)
-							GPSDate = fmt.Sprintf("%v", m.Date)
-							GPSLatitude = m.Latitude
-							GPSLongitude = m.Longitude
-							if verbose {
-								log.Println("info: Raw Sentence ", m)
-								log.Println("info: Time: ", m.Time)
-								log.Println("info: Validity: ", m.Validity)
-								log.Println("info: Latitude GPS: ", nmea.FormatGPS(m.Latitude))
-								log.Println("info: Latitude DMS: ", nmea.FormatDMS(m.Latitude))
-								log.Println("info: Longitude GPS: ", nmea.FormatGPS(m.Longitude))
-								log.Println("info: Longitude DMS: ", nmea.FormatDMS(m.Longitude))
-								log.Println("info: Speed: ", m.Speed)
-								log.Println("info: Course: ", m.Course)
-								log.Println("info: Date: ", m.Date)
-								log.Println("info: Variation: ", m.Variation)
+
+					switch s.DataType() {
+
+					case nmea.TypeRMC:
+						{
+							m := s.(nmea.RMC)
+							if m.Latitude != 0 && m.Longitude != 0 && !RMCSentenceValid {
+								RMCSentenceValid = true
+								GNSSData.Date = fmt.Sprintf("%v", m.Date)
+								GNSSData.Time = fmt.Sprintf("%v", m.Time)
+								GNSSData.Validity = fmt.Sprintf("%v", m.Validity)
+								GNSSData.Lattitude = m.Latitude
+								GNSSData.Longitude = m.Longitude
+								GNSSData.Speed = m.Speed
+								GNSSData.Course = m.Course
+								GNSSData.Variation = m.Variation
+
 							}
-							break
-						} else {
-							log.Println("warn: Got Latitude 0 and Longtitude 0 from GPS")
 						}
-					} else {
-						log.Println("warn: GPS Sentence Format Was not nmea.RMC")
+					case nmea.TypeGGA:
+						{
+							m := s.(nmea.GGA)
+							if m.Latitude != 0 && m.Longitude != 0 && !GGASentenceValid {
+								GGASentenceValid = true
+								GNSSData.FixQuality = m.FixQuality
+								GNSSData.SatsInUse = m.NumSatellites
+							}
+						}
+
+					case nmea.TypeGSV:
+						{
+							m := s.(nmea.GSV)
+
+							for i := range m.Info {
+								if m.Info[i].SNR > 0 && !GSVSentenceValid {
+									GNSSData.GSVData[i].PRNNumber = s.(nmea.GSV).Info[i].SVPRNNumber
+									GNSSData.GSVData[i].SNR = s.(nmea.GSV).Info[i].SNR
+									GNSSData.GSVData[i].Azimuth = s.(nmea.GSV).Info[i].Azimuth
+									GNSSData.GSVData[i].Elevation = s.(nmea.GSV).Info[i].Elevation
+									if i >= 3 {
+										GSVSentenceValid = true
+										GNSSData.SatsInView = m.NumberSVsInView
+									}
+								}
+							}
+						}
 					}
 				}
 			}
+			if RMCSentenceValid && GGASentenceValid && GSVSentenceValid {
+				goodGPSRead = true
+				log.Println("info: RMC Date                    ", GNSSData.Date)
+				log.Println("info: RMC Time                    ", GNSSData.Time)
+				log.Println("info: RMC Validity                ", GNSSData.Validity)
+				log.Println("info: RMC Latitude DMS            ", GNSSData.Longitude)
+				log.Println("info: RMC Longitude DMS           ", GNSSData.Lattitude)
+				log.Println("info: RMC Speed                   ", GNSSData.Speed)
+				log.Println("info: RMC Course                  ", GNSSData.Course)
+				log.Println("info: RMC Variation               ", GNSSData.Variation)
+				log.Println("info: GGA GPS Quality Indicator   ", GNSSData.FixQuality)
+				log.Println("info: GGA No of Satellites in Use ", GNSSData.SatsInUse)
+				log.Println("info: GSV No of Satellites View   ", GNSSData.SatsInView)
+				for i := range GNSSData.GSVData {
+					log.Println("info: GSV SVPRNNumber Satellite   ", i, " ", GNSSData.GSVData[i].PRNNumber)
+					log.Println("info: GSV SNR         Satellite   ", i, " ", GNSSData.GSVData[i].SNR)
+					log.Println("info: GSV Azimuth     Satellite   ", i, " ", GNSSData.GSVData[i].Azimuth)
+					log.Println("info: GSV Elevation   Satellite   ", i, " ", GNSSData.GSVData[i].Elevation)
+				}
+			}
 		} else {
-			return false, errors.New("Rx Not Set")
+			return false, errors.New("error parsing gnss module")
 		}
-
 		return goodGPSRead, nil
 	}
-	return false, errors.New("GPS Not Enabled")
+	return false, errors.New("gnss not enabled")
 }

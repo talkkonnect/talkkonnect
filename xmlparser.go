@@ -50,8 +50,8 @@ import (
 )
 
 const (
-	talkkonnectVersion  string = "2.07.01"
-	talkkonnectReleased string = "Dec 31 2021"
+	talkkonnectVersion  string = "2.07.02"
+	talkkonnectReleased string = "Jan 02 2022"
 )
 
 type ConfigStruct struct {

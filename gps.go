@@ -177,7 +177,6 @@ func getGpsPosition(verbose bool) (bool, error) {
 								GNSSData.SatsInUse = m.NumSatellites
 								GNSSData.HDOP = m.HDOP
 								GNSSData.Altitude = m.Altitude
-								log.Println("debug: gga ", m.Latitude)
 							}
 						}
 

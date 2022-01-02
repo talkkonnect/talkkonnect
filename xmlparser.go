@@ -50,7 +50,7 @@ import (
 )
 
 const (
-	talkkonnectVersion  string = "2.07.02"
+	talkkonnectVersion  string = "2.07.03"
 	talkkonnectReleased string = "Jan 02 2022"
 )
 

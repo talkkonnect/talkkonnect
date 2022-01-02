@@ -36,15 +36,14 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/jacobsa/go-serial/serial"
 	"github.com/adrianmo/go-nmea"
+	"github.com/jacobsa/go-serial/serial"
 )
 
 type GSVDataStruct struct {
 	PRNNumber int64
 	SNR       int64
 	Azimuth   int64
-	Elevation int64
 }
 
 type GNSSDataStruct struct {
@@ -55,10 +54,11 @@ type GNSSDataStruct struct {
 	Speed      float64
 	Course     float64
 	Date       string
-	Variation  float64
 	FixQuality string
 	SatsInUse  int64
 	SatsInView int64
+	HDOP       float64
+	Altitude   float64
 	GSVData    [4]GSVDataStruct
 }
 
@@ -166,8 +166,6 @@ func getGpsPosition(verbose bool) (bool, error) {
 								GNSSData.Longitude = m.Longitude
 								GNSSData.Speed = m.Speed
 								GNSSData.Course = m.Course
-								GNSSData.Variation = m.Variation
-
 							}
 						}
 					case nmea.TypeGGA:
@@ -177,19 +175,20 @@ func getGpsPosition(verbose bool) (bool, error) {
 								GGASentenceValid = true
 								GNSSData.FixQuality = m.FixQuality
 								GNSSData.SatsInUse = m.NumSatellites
+								GNSSData.HDOP = m.HDOP
+								GNSSData.Altitude = m.Altitude
+								log.Println("debug: gga ", m.Latitude)
 							}
 						}
 
 					case nmea.TypeGSV:
 						{
 							m := s.(nmea.GSV)
-
 							for i := range m.Info {
 								if m.Info[i].SNR > 0 && !GSVSentenceValid {
 									GNSSData.GSVData[i].PRNNumber = s.(nmea.GSV).Info[i].SVPRNNumber
 									GNSSData.GSVData[i].SNR = s.(nmea.GSV).Info[i].SNR
 									GNSSData.GSVData[i].Azimuth = s.(nmea.GSV).Info[i].Azimuth
-									GNSSData.GSVData[i].Elevation = s.(nmea.GSV).Info[i].Elevation
 									if i >= 3 {
 										GSVSentenceValid = true
 										GNSSData.SatsInView = m.NumberSVsInView
@@ -209,15 +208,16 @@ func getGpsPosition(verbose bool) (bool, error) {
 				log.Println("info: RMC Longitude DMS           ", GNSSData.Lattitude)
 				log.Println("info: RMC Speed                   ", GNSSData.Speed)
 				log.Println("info: RMC Course                  ", GNSSData.Course)
-				log.Println("info: RMC Variation               ", GNSSData.Variation)
 				log.Println("info: GGA GPS Quality Indicator   ", GNSSData.FixQuality)
 				log.Println("info: GGA No of Satellites in Use ", GNSSData.SatsInUse)
+				log.Println("info: GGA HDOP                    ", GNSSData.HDOP)
+				log.Println("info: GGA Altitude                ", GNSSData.Altitude)
 				log.Println("info: GSV No of Satellites View   ", GNSSData.SatsInView)
+
 				for i := range GNSSData.GSVData {
 					log.Println("info: GSV SVPRNNumber Satellite   ", i, " ", GNSSData.GSVData[i].PRNNumber)
 					log.Println("info: GSV SNR         Satellite   ", i, " ", GNSSData.GSVData[i].SNR)
 					log.Println("info: GSV Azimuth     Satellite   ", i, " ", GNSSData.GSVData[i].Azimuth)
-					log.Println("info: GSV Elevation   Satellite   ", i, " ", GNSSData.GSVData[i].Elevation)
 				}
 			}
 		} else {

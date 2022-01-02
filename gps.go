@@ -34,7 +34,10 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"log"
+	"net/http"
+	"time"
 
 	"github.com/adrianmo/go-nmea"
 	"github.com/jacobsa/go-serial/serial"
@@ -47,13 +50,14 @@ type GSVDataStruct struct {
 }
 
 type GNSSDataStruct struct {
+	DateTime   time.Time
+	Date       string
 	Time       string
 	Validity   string
 	Lattitude  float64
 	Longitude  float64
 	Speed      float64
 	Course     float64
-	Date       string
 	FixQuality string
 	SatsInUse  int64
 	SatsInView int64
@@ -159,6 +163,7 @@ func getGpsPosition(verbose bool) (bool, error) {
 							m := s.(nmea.RMC)
 							if m.Latitude != 0 && m.Longitude != 0 && !RMCSentenceValid {
 								RMCSentenceValid = true
+								GNSSData.DateTime = time.Now().UTC()
 								GNSSData.Date = fmt.Sprintf("%v", m.Date)
 								GNSSData.Time = fmt.Sprintf("%v", m.Time)
 								GNSSData.Validity = fmt.Sprintf("%v", m.Validity)
@@ -202,6 +207,7 @@ func getGpsPosition(verbose bool) (bool, error) {
 				goodGPSRead = true
 				log.Println("info: RMC Date                    ", GNSSData.Date)
 				log.Println("info: RMC Time                    ", GNSSData.Time)
+				log.Println("info: OS  DateTime(UTC)           ", GNSSData.DateTime)
 				log.Println("info: RMC Validity                ", GNSSData.Validity)
 				log.Println("info: RMC Latitude DMS            ", GNSSData.Longitude)
 				log.Println("info: RMC Longitude DMS           ", GNSSData.Lattitude)
@@ -218,11 +224,51 @@ func getGpsPosition(verbose bool) (bool, error) {
 					log.Println("info: GSV SNR         Satellite   ", i, " ", GNSSData.GSVData[i].SNR)
 					log.Println("info: GSV Azimuth     Satellite   ", i, " ", GNSSData.GSVData[i].Azimuth)
 				}
+				httpSendTraccar(GNSSData)
 			}
+
 		} else {
 			return false, errors.New("error parsing gnss module")
 		}
 		return goodGPSRead, nil
 	}
 	return false, errors.New("gnss not enabled")
+}
+
+func httpSendTraccar(GNSSDataTraccar GNSSDataStruct) {
+
+	TraccarServerURL := "http://"
+	TraccarPortOsmAnd := 5055
+	TraccarClientId := "suvir"
+	TraccarDateTime := GNSSDataTraccar.DateTime.Format("2006-02-01") + "%20" + GNSSDataTraccar.DateTime.Format("15:04:05")
+
+	TraccarServerFullURL := (fmt.Sprint(TraccarServerURL) + ":" + fmt.Sprint(TraccarPortOsmAnd) + "/?" + "id=" + TraccarClientId + "&" +
+		"timestamp=" + TraccarDateTime + "&" + "lat=" + fmt.Sprintf("%f", GNSSDataTraccar.Lattitude) +
+		"&" + "lon=" + fmt.Sprintf("%f", GNSSDataTraccar.Longitude) + "&" + "speed=" + fmt.Sprintf("%f", GNSSDataTraccar.Speed) + "&" + "course=" +
+		fmt.Sprintf("%f", GNSSDataTraccar.Course) + "&" + "variation=" + fmt.Sprintf("%f", GNSSDataTraccar.HDOP))
+
+	response, err := http.Get(TraccarServerFullURL)
+
+	if err != nil {
+		log.Println("error: Cannot Establish Connection with Traccar Server! Error ", err)
+	} else {
+		contents, err := ioutil.ReadAll(response.Body)
+		defer response.Body.Close()
+
+		if err != nil {
+			log.Println("error: Error Sending Data to Traccar Server!")
+		}
+
+		if response.ContentLength == 0 {
+			log.Println("info: Empty Request Response Body")
+		} else {
+			//
+			log.Println("info: Traccar Web Server Response -->\n" + "-------------------------------------------------------------\n" + string(contents) + "-------------------------------------------------------------")
+		}
+		log.Println("info: HTTP Response Status from Traccar:", response.StatusCode, http.StatusText(response.StatusCode))
+		if response.StatusCode >= 200 && response.StatusCode <= 299 {
+			log.Println("info: HTTP Status Code from Traccar is in the 2xx range. This is OK.")
+
+		}
+	}
 }

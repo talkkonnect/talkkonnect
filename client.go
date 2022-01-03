@@ -496,6 +496,8 @@ func (b *Talkkonnect) ClientStart() {
 		}
 	}()
 
+	go screenLogging()
+
 keyPressListenerLoop:
 	for {
 		switch ev := term.PollEvent(); ev.Type {
@@ -530,7 +532,7 @@ keyPressListenerLoop:
 			case term.KeyF11:
 				b.cmdPlayback()
 			case term.KeyF12:
-				b.cmdGPSPosition()
+				go b.cmdGPSPosition()
 			case term.KeyCtrlB:
 				b.cmdLiveReload()
 			case term.KeyCtrlC:

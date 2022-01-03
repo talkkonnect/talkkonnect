@@ -34,13 +34,17 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
+	"net"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/adrianmo/go-nmea"
 	"github.com/jacobsa/go-serial/serial"
+	hd44780 "github.com/talkkonnect/go-hd44780"
 )
 
 type GSVDataStruct struct {
@@ -52,6 +56,7 @@ type GSVDataStruct struct {
 type GNSSDataStruct struct {
 	DateTime   time.Time
 	Date       string
+	Variation  float64
 	Time       string
 	Validity   string
 	Lattitude  float64
@@ -63,18 +68,39 @@ type GNSSDataStruct struct {
 	SatsInView int64
 	HDOP       float64
 	Altitude   float64
+	RMCRaw     string
 	GSVData    [4]GSVDataStruct
 }
 
+// move to config structure
+var (
+	GPSReadInterval         time.Duration = 10 * time.Second
+	GPSVerbosity            int           = 3
+	TraccarTrackEnabled     bool          = true
+	TracDeviceScreenEnabled bool          = true
+	TraccarProto            string        = "osmand" // "osmand" "opengts" "t55"
+	TraccarServerURL        string        = ""
+	TraccarPortOsmAnd       int           = 5055
+	TraccarClientId         string        = ""
+	TraccarServerIP         string        = ""
+	TraccarPortT55          int           = 5005
+)
+
+//global variables for gps
+var (
+	GNSSData       GNSSDataStruct
+	GNSSDataPublic = make(chan GNSSDataStruct)
+)
+
+//local variables for gps
 var (
 	RMCSentenceValid bool
 	GGASentenceValid bool
 	GSVSentenceValid bool
 	goodGPSRead      bool
-	GNSSData         GNSSDataStruct
 )
 
-func getGpsPosition(verbose bool) (bool, error) {
+func getGpsPosition(verbosity int) (bool, error) {
 	RMCSentenceValid = false
 	GGASentenceValid = false
 	GSVSentenceValid = false
@@ -128,14 +154,14 @@ func getGpsPosition(verbose bool) (bool, error) {
 				return false, errors.New("cannot decode hex data")
 			}
 
-			log.Println("Sending: ", hex.EncodeToString(txData_))
+			log.Println("info: Sending To Serial ", hex.EncodeToString(txData_))
 
 			count, err := f.Write(txData_)
 
 			if err != nil {
 				return false, errors.New("error writing to serial port")
 			} else {
-				log.Printf("Wrote %v bytes\n", count)
+				log.Printf("info: Wrote %v Bytes To Serial\n", count)
 			}
 
 		}
@@ -153,7 +179,6 @@ func getGpsPosition(verbose bool) (bool, error) {
 
 			for scanner.Scan() {
 				s, err := nmea.Parse(scanner.Text())
-
 				if err == nil {
 
 					switch s.DataType() {
@@ -171,6 +196,8 @@ func getGpsPosition(verbose bool) (bool, error) {
 								GNSSData.Longitude = m.Longitude
 								GNSSData.Speed = m.Speed
 								GNSSData.Course = m.Course
+								GNSSData.Variation = m.Variation
+								GNSSData.RMCRaw = m.Raw
 							}
 						}
 					case nmea.TypeGGA:
@@ -203,28 +230,12 @@ func getGpsPosition(verbose bool) (bool, error) {
 					}
 				}
 			}
+
 			if RMCSentenceValid && GGASentenceValid && GSVSentenceValid {
 				goodGPSRead = true
-				log.Println("info: RMC Date                    ", GNSSData.Date)
-				log.Println("info: RMC Time                    ", GNSSData.Time)
-				log.Println("info: OS  DateTime(UTC)           ", GNSSData.DateTime)
-				log.Println("info: RMC Validity                ", GNSSData.Validity)
-				log.Println("info: RMC Latitude DMS            ", GNSSData.Longitude)
-				log.Println("info: RMC Longitude DMS           ", GNSSData.Lattitude)
-				log.Println("info: RMC Speed                   ", GNSSData.Speed)
-				log.Println("info: RMC Course                  ", GNSSData.Course)
-				log.Println("info: GGA GPS Quality Indicator   ", GNSSData.FixQuality)
-				log.Println("info: GGA No of Satellites in Use ", GNSSData.SatsInUse)
-				log.Println("info: GGA HDOP                    ", GNSSData.HDOP)
-				log.Println("info: GGA Altitude                ", GNSSData.Altitude)
-				log.Println("info: GSV No of Satellites View   ", GNSSData.SatsInView)
-
-				for i := range GNSSData.GSVData {
-					log.Println("info: GSV SVPRNNumber Satellite   ", i, " ", GNSSData.GSVData[i].PRNNumber)
-					log.Println("info: GSV SNR         Satellite   ", i, " ", GNSSData.GSVData[i].SNR)
-					log.Println("info: GSV Azimuth     Satellite   ", i, " ", GNSSData.GSVData[i].Azimuth)
-				}
-				httpSendTraccar(GNSSData)
+				log.Println("debug: GPS Good Read")
+				GNSSDataPublic <- GNSSData
+				//time.Sleep(GPSReadInterval)
 			}
 
 		} else {
@@ -235,17 +246,16 @@ func getGpsPosition(verbose bool) (bool, error) {
 	return false, errors.New("gnss not enabled")
 }
 
-func httpSendTraccar(GNSSDataTraccar GNSSDataStruct) {
+func httpSendTraccar() {
 
-	TraccarServerURL := "http://"
-	TraccarPortOsmAnd := 5055
-	TraccarClientId := "suvir"
+	GNSSDataTraccar := <-GNSSDataPublic
+
 	TraccarDateTime := GNSSDataTraccar.DateTime.Format("2006-02-01") + "%20" + GNSSDataTraccar.DateTime.Format("15:04:05")
 
 	TraccarServerFullURL := (fmt.Sprint(TraccarServerURL) + ":" + fmt.Sprint(TraccarPortOsmAnd) + "/?" + "id=" + TraccarClientId + "&" +
 		"timestamp=" + TraccarDateTime + "&" + "lat=" + fmt.Sprintf("%f", GNSSDataTraccar.Lattitude) +
 		"&" + "lon=" + fmt.Sprintf("%f", GNSSDataTraccar.Longitude) + "&" + "speed=" + fmt.Sprintf("%f", GNSSDataTraccar.Speed) + "&" + "course=" +
-		fmt.Sprintf("%f", GNSSDataTraccar.Course) + "&" + "variation=" + fmt.Sprintf("%f", GNSSDataTraccar.HDOP))
+		fmt.Sprintf("%f", GNSSDataTraccar.Course) + "&" + "variation=" + fmt.Sprintf("%f", GNSSDataTraccar.Variation))
 
 	response, err := http.Get(TraccarServerFullURL)
 
@@ -262,13 +272,121 @@ func httpSendTraccar(GNSSDataTraccar GNSSDataStruct) {
 		if response.ContentLength == 0 {
 			log.Println("info: Empty Request Response Body")
 		} else {
-			//
 			log.Println("info: Traccar Web Server Response -->\n" + "-------------------------------------------------------------\n" + string(contents) + "-------------------------------------------------------------")
 		}
+
 		log.Println("info: HTTP Response Status from Traccar:", response.StatusCode, http.StatusText(response.StatusCode))
 		if response.StatusCode >= 200 && response.StatusCode <= 299 {
 			log.Println("info: HTTP Status Code from Traccar is in the 2xx range. This is OK.")
 
+		}
+	}
+}
+
+func tcpSendT55Traccar2() {
+
+	GNSSDataTraccar := <-GNSSDataPublic
+
+	PGID := "$PGID" + "," + TraccarClientId + "*0F" + "\r" + "\n"
+	GPRMC := GNSSDataTraccar.RMCRaw + "\r" + "\n"
+	log.Println("info: $GPRMC to send is: " + GNSSDataTraccar.RMCRaw)
+
+	CONN, _ := net.Dial("tcp", TraccarServerIP+":"+fmt.Sprint(TraccarPortT55)) // Use port 5005 for T55. Keep-alive.
+	err := CONN.(*net.TCPConn).SetKeepAlive(true)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	err = CONN.(*net.TCPConn).SetKeepAlivePeriod(60 * time.Second)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	err = CONN.(*net.TCPConn).SetNoDelay(false)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	err = CONN.(*net.TCPConn).SetLinger(0)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	log.Println("info: Traccar Client:", CONN.LocalAddr().String(), "Connected to Server:", CONN.RemoteAddr().String())
+
+	fmt.Fprint(CONN, PGID) // Send ID
+	time.Sleep(1 * time.Second)
+	fmt.Fprint(CONN, GPRMC) // send $GPRMC
+	log.Println("info: Sending position message to Traccar over Protocol: " + strings.Title(strings.ToLower(TraccarProto)))
+
+	notify := make(chan error)
+
+	go func() {
+		buf := make([]byte, 1024)
+		for {
+			n, err := CONN.Read(buf)
+			if err != nil {
+				notify <- err
+				if io.EOF == err {
+					close(notify)
+					return
+				}
+			}
+
+			if n > 0 {
+				log.Printf("Unexpected Data: %s", buf[:n])
+			}
+		}
+	}()
+
+	for {
+		select {
+		case err := <-notify:
+			log.Println("info: Traccar Server Connection dropped message", err)
+
+			if err == io.EOF {
+				log.Println("Connection to Traccar Server was closed")
+				return
+			}
+		case <-time.After(time.Second * 60):
+			log.Println("Traccar Server Connection Timeout 60. Still Alive")
+		}
+	}
+}
+
+func screenLogging() {
+
+	if GPSVerbosity < 3 && Config.Global.Hardware.TargetBoard != "rpi" {
+		return
+	}
+
+	for {
+		GNSSDataTraccar := <-GNSSDataPublic
+		if GPSVerbosity >= 3 {
+			log.Printf("debug: RMC Validity (%v), GGA GPS Quality Indicator (%v) %v/%v\n", GNSSDataTraccar.Validity, GNSSDataTraccar.FixQuality, GNSSDataTraccar.SatsInUse, GNSSDataTraccar.SatsInView)
+			log.Printf("debug: RMC Date Time              %v %v\n", GNSSDataTraccar.Date, GNSSDataTraccar.Time)
+			log.Printf("debug: OS  DateTime(UTC)          %v\n", GNSSDataTraccar.DateTime)
+			log.Printf("debug: RMC Latitude,Longitude DMS %v,%v\n", GNSSDataTraccar.Lattitude, GNSSDataTraccar.Longitude)
+			log.Printf("debug: RMC Speed, Course          %v,%v\n", GNSSDataTraccar.Speed, GNSSDataTraccar.Course)
+			log.Printf("debug: RMC Variation, GGA HDOP    %v,%v\n", GNSSDataTraccar.Variation, GNSSDataTraccar.HDOP)
+			log.Printf("debug: GGA Altitude               %v\n", GNSSDataTraccar.Altitude)
+			for i := range GNSSData.GSVData {
+				log.Printf("debug: GSV SVPRNNumber,SNR, Azimuth Sat(%v) %v,%v,%v\n", i, GNSSDataTraccar.GSVData[i].PRNNumber, GNSSDataTraccar.GSVData[i].SNR, GNSSDataTraccar.GSVData[i].Azimuth)
+			}
+		}
+		if Config.Global.Hardware.TargetBoard == "rpi" {
+			log.Println("debug: GPS on Device Screen " + "Lat: " + fmt.Sprint(GNSSDataTraccar.Lattitude) + " Long: " + fmt.Sprint(GNSSDataTraccar.Longitude))
+			if Config.Global.Hardware.LCD.Enabled {
+				LcdText = [4]string{"nil", "GPS OK " + GNSSDataTraccar.DateTime.Format("15:04:05"), "lat:" + fmt.Sprintf("%f", GNSSDataTraccar.Lattitude), "lon:" + fmt.Sprintf("%f", GNSSDataTraccar.Longitude) + " s:" + fmt.Sprintf("%.2f", GNSSDataTraccar.Speed*1.852)}
+				go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+			}
+			if Config.Global.Hardware.OLED.Enabled {
+				oledDisplay(false, 4, 1, "GPS OK "+GNSSDataTraccar.DateTime.Format("15:04:05"))
+				oledDisplay(false, 5, 1, "lat: "+fmt.Sprintf("%f", GNSSDataTraccar.Lattitude))
+				oledDisplay(false, 6, 1, "lon: "+fmt.Sprintf("%f", GNSSDataTraccar.Longitude))
+				oledDisplay(false, 7, 1, "sp: "+fmt.Sprintf("%.2f", (GNSSDataTraccar.Speed*1.852)))
+			}
 		}
 	}
 }

@@ -368,7 +368,7 @@ func (b *Talkkonnect) cmdGPSPosition() {
 	var tries int = 10
 
 	for i = 0; i < tries; i++ {
-		goodGPSRead, err := getGpsPosition(true)
+		goodGPSRead, err := getGpsPosition(3)
 
 		if err != nil {
 			log.Println("error: GPS Function Returned Error Message", err)
@@ -419,7 +419,7 @@ func (b *Talkkonnect) cmdSendEmail() {
 	var tries int = 10
 
 	for i = 0; i < tries; i++ {
-		goodGPSRead, err := getGpsPosition(false)
+		goodGPSRead, err := getGpsPosition(3)
 
 		if err != nil {
 			log.Println("error: GPS Function Returned Error Message", err)
@@ -649,7 +649,7 @@ func (b *Talkkonnect) cmdPanicSimulation() {
 			var tries int = 10
 
 			for i = 0; i < tries; i++ {
-				goodGPSRead, err := getGpsPosition(false)
+				goodGPSRead, err := getGpsPosition(3)
 
 				if err != nil {
 					log.Println("error: GPS Function Returned Error Message", err)

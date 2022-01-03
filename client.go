@@ -496,7 +496,25 @@ func (b *Talkkonnect) ClientStart() {
 		}
 	}()
 
-	go screenLogging()
+	if Config.Global.Hardware.GPS.GpsInfoVerbose {
+		go consoleScreenLogging()
+	}
+
+	if Config.Global.Hardware.TargetBoard != "rpi" && Config.Global.Hardware.Traccar.DeviceScreenEnabled {
+		go localScreenLogging()
+	}
+
+	if Config.Global.Hardware.Traccar.Enabled && Config.Global.Hardware.Traccar.Track && Config.Global.Hardware.Traccar.Protocol.Name == "osmand" {
+		go httpSendTraccarOsman()
+	}
+
+	if Config.Global.Hardware.Traccar.Enabled && Config.Global.Hardware.Traccar.Track && Config.Global.Hardware.Traccar.Protocol.Name == "opengts" {
+		go httpSendTraccarOpenGTS()
+	}
+
+	if Config.Global.Hardware.Traccar.Enabled && Config.Global.Hardware.Traccar.Track && Config.Global.Hardware.Traccar.Protocol.Name == "t55" {
+		go tcpSendT55Traccar()
+	}
 
 keyPressListenerLoop:
 	for {

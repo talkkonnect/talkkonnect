@@ -50,7 +50,7 @@ import (
 )
 
 const (
-	talkkonnectVersion  string = "2.07.09"
+	talkkonnectVersion  string = "2.07.10"
 	talkkonnectReleased string = "Jan 03 2022"
 )
 
@@ -379,6 +379,27 @@ type ConfigStruct struct {
 				Rx                  bool   `xml:"rx"`
 				GpsInfoVerbose      bool   `xml:"gpsinfoverbose"`
 			} `xml:"gps"`
+			Traccar struct {
+				Enabled             bool   `xml:"enabled,attr"`
+				Track               bool   `xml:"track"`
+				ClientId            string `xml:"clientid"`
+				DeviceScreenEnabled bool   `xml:"devicescreenenabled"`
+				Protocol            struct {
+					Name   string `xml:"name,attr"`
+					Osmand struct {
+						Port      string `xml:"port,attr"`
+						ServerURL string `xml:"serverurl"`
+					} `xml:"osmand"`
+					T55 struct {
+						Port     string `xml:"port,attr"`
+						ServerIP string `xml:"serverip"`
+					} `xml:"t55"`
+					Opengts struct {
+						Port      string `xml:"port,attr"`
+						ServerURL string `xml:"serverurl"`
+					} `xml:"opengts"`
+				} `xml:"protocol"`
+			} `xml:"traccar"`
 			GPSTrackingFunction struct {
 				TrackEnabled           bool   `xml:"enabled,attr"`
 				TraccarSendTo          bool   `xml:"traccarsendto"`
@@ -564,6 +585,7 @@ var (
 	InStreamTalking bool
 	InStreamSource  bool
 	LCDIsDark       bool
+	Receivers       int
 )
 
 // Generic Global Counter Variables

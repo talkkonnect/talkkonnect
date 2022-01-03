@@ -50,7 +50,7 @@ import (
 )
 
 const (
-	talkkonnectVersion  string = "2.07.10"
+	talkkonnectVersion  string = "2.07.11"
 	talkkonnectReleased string = "Jan 03 2022"
 )
 
@@ -604,7 +604,7 @@ var (
 	StartTime        = time.Now()
 	LastTime         = now.Unix()
 	TalkedTicker     = time.NewTicker(time.Millisecond * 200)
-	Talking          = make(chan talkingStruct)
+	Talking          = make(chan talkingStruct,10)
 )
 
 var (

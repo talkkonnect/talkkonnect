@@ -350,7 +350,24 @@
         <chartimeout>100</chartimeout>
         <minread>0</minread>
         <rx>true</rx>
+        <gpsinfoverbose>true</gpsinfoverbose>
       </gps>
+      <traccar enabled="true">
+      <track>true</track>
+      <clientid>suvir</clientid>
+      <devicescreenenabled>true</devicescreenenabled>
+      <protocol name="osmand">
+      <osmand port="5055">
+        <serverurl>http://1.2.3.4</serverurl>
+      </osmand>
+      <t55 port="5005">
+        <serverip>1.2.3.4</serverip>
+      </t55>
+      <opengts port="5159">
+        <serverurl>http://1.2.3.4</serverurl>
+      </opengts>
+      </protocol>
+    </traccar>
       <panicfunction enabled="false">
         <filenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/alerts/alert.wav</filenameandpath>
         <volume>10</volume>

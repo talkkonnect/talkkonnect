@@ -124,22 +124,25 @@
         <sound event="rogerbeep" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/rogerbeeps/Image.wav" volume="50" blocking="false" enabled="true"/>
         <sound event="stream" file="http://prdonline.prd.go.th:8200" volume="50" blocking="true" enabled="true"/>  
         <!-- <sound event="stream" file="http://d.liveatc.net/vtbs_app_east.mp3" volume="1" blocking="true" enabled="true"/> --> 
+       <input enabled="true">
+          <sound event="txpttstart"   file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/rogerbeeps/YellowJacket.wav" enabled="true"/>
+          <sound event="txpttstop"     file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/rogerbeeps/RogerBeep3.wav" enabled="false"/>
+          <sound event="txtogglestart"    file="" enabled="false"/>
+          <sound event="txtogglestop"    file="" enabled="false"/>
+          <sound event="channelup"   file="" enabled="false"/>
+          <sound event="channeldown" file="" enabled="false"/>
+          <sound event="panic"       file="" enabled="false"/>
+          <sound event="streamtoggle" file="" enabled="false"/>
+          <sound event="commenton"     file="" enabled="false"/>
+          <sound event="commentoff"     file="" enabled="false"/>
+          <sound event="rotarycw"     file="" enabled="false"/>
+          <sound event="rotaryccw"     file="" enabled="false"/>
+          <sound event="volup"       file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/rogerbeeps/RC210#2.wav" enabled="true"/>
+          <sound event="voldown"     file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/rogerbeeps/RC210#2.wav" enabled="true"/>
+         </input>
         <repeatertone enabled="true">
           <sound event="repeatertone" tonefrequencyhz="1750" volume="50" tonedurationsec="10" blocking="false" enabled="true"/>
         </repeatertone>
-        <oneventgentone>
-          <sound inputevent="txptt"        tonefrequency="800" toneduration="0.2" enabled="false"/>
-          <sound inputevent="txtoggle"     tonefrequency="800" toneduration="0.2" enabled="false"/>
-          <sound inputevent="channelup"    tonefrequency="800" toneduration="0.2" enabled="true"/>
-          <sound inputevent="channeldown"  tonefrequency="800" toneduration="0.2" enabled="true"/>
-          <sound inputevent="panic"        tonefrequency="800" toneduration="0.2" enabled="false"/>
-          <sound inputevent="streamtoggle" tonefrequency="800" toneduration="0.2" enabled="false"/>
-          <sound inputevent="comment"      tonefrequency="800" toneduration="0.2" enabled="false"/>
-          <sound inputevent="rotarya"      tonefrequency="800" toneduration="0.2" enabled="false"/>
-          <sound inputevent="rotaryb"      tonefrequency="800" toneduration="0.2" enabled="false"/>
-          <sound inputevent="volup"        tonefrequency="800" toneduration="0.2" enabled="true"/>
-          <sound inputevent="voldown"      tonefrequency="800" toneduration="0.2" enabled="true"/>
-        </oneventgentone>
       </sounds>
       <txtimeout enabled="false">
         <txtimeoutsecs>60</txtimeoutsecs>

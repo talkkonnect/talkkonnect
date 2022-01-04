@@ -40,8 +40,7 @@ import (
 	"time"
 )
 
-/*
-func aplayLocal(filepath string, playbackvolume float32) error {
+func aplayLocal(fileNameWithPath string) {
 	var player string
 
 	if path, err := exec.LookPath("aplay"); err == nil {
@@ -49,22 +48,21 @@ func aplayLocal(filepath string, playbackvolume float32) error {
 	} else if path, err := exec.LookPath("paplay"); err == nil {
 		player = path
 	} else {
-		return errors.New("failed to find either aplay or paplay in path")
+		return
 	}
 
-	log.Println("info: debug player ", player)
-	log.Println("info: debug filepath ", filepath)
-	cmd := exec.Command(player, filepath)
+	CmdArguments := []string{fileNameWithPath, "-q", "-N"}
+
+	log.Printf("debug: player %v filepath %v CmdArguments %v", player, fileNameWithPath, CmdArguments)
+
+	cmd := exec.Command(player, CmdArguments...)
 
 	_, err := cmd.CombinedOutput()
 
 	if err != nil {
-		return fmt.Errorf("error: cmd.Run() for %s failed with %s", player, err)
+		return
 	}
-
-	return nil
 }
-*/
 
 func localMediaPlayer(fileNameWithPath string, playbackvolume int, blocking bool, duration float32, loop int) {
 
@@ -169,11 +167,13 @@ func findEventSound(findEventSound string) EventSoundStruct {
 	return EventSoundStruct{false, "", "0", false}
 }
 
-func findInputEventSound(findInputEventSound string) InputEventSoundStruct {
-	for _, sound := range Config.Global.Software.Sounds.OnEventGenTone.Sound {
-		if sound.Inputevent == findInputEventSound {
-			return InputEventSoundStruct{sound.Enabled, sound.Inputevent, sound.Tonefrequency, sound.Toneduration}
+func findInputEventSoundFile(findInputEventSound string) InputEventSoundFileStruct {
+	for _, sound := range Config.Global.Software.Sounds.Input.Sound {
+		if sound.Event == findInputEventSound {
+			if sound.Enabled {
+				return InputEventSoundFileStruct{sound.Event, sound.File, sound.Enabled}
+			}
 		}
 	}
-	return InputEventSoundStruct{false, "", 0, 0}
+	return InputEventSoundFileStruct{findInputEventSound, "", false}
 }

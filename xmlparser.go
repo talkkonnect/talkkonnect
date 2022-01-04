@@ -50,8 +50,8 @@ import (
 )
 
 const (
-	talkkonnectVersion  string = "2.07.11"
-	talkkonnectReleased string = "Jan 03 2022"
+	talkkonnectVersion  string = "2.07.12"
+	talkkonnectReleased string = "Jan 04 2022"
 )
 
 type ConfigStruct struct {
@@ -156,6 +156,14 @@ type ConfigStruct struct {
 					Blocking bool   `xml:"blocking,attr"`
 					Enabled  bool   `xml:"enabled,attr"`
 				} `xml:"sound"`
+				Input struct {
+					Enabled bool `xml:"enabled,attr"`
+					Sound   []struct {
+						Event   string `xml:"event,attr"`
+						File    string `xml:"file,attr"`
+						Enabled bool   `xml:"enabled,attr"`
+					} `xml:"sound"`
+				} `xml:"input"`
 				RepeaterTone struct {
 					Enabled         bool    `xml:"enabled,attr"`
 					ToneFrequencyHz int     `xml:"tonefrequencyhz"`
@@ -169,14 +177,6 @@ type ConfigStruct struct {
 						Enabled         bool   `xml:"enabled,attr"`
 					} `xml:"sound"`
 				} `xml:"repeatertone"`
-				OnEventGenTone struct {
-					Sound []struct {
-						Inputevent    string  `xml:"inputevent,attr"`
-						Tonefrequency int     `xml:"tonefrequency,attr"`
-						Toneduration  float32 `xml:"toneduration,attr"`
-						Enabled       bool    `xml:"enabled,attr"`
-					} `xml:"sound"`
-				} `xml:"oneventgentone"`
 			} `xml:"sounds"`
 			TxTimeOut struct {
 				Enabled       bool `xml:"enabled,attr"`
@@ -558,6 +558,12 @@ type InputEventSoundStruct struct {
 	ToneDuration  float32
 }
 
+type InputEventSoundFileStruct struct {
+	Event   string
+	File    string
+	Enabled bool
+}
+
 type streamTrackerStruct struct {
 	UserID      uint32
 	UserName    string
@@ -604,7 +610,7 @@ var (
 	StartTime        = time.Now()
 	LastTime         = now.Unix()
 	TalkedTicker     = time.NewTicker(time.Millisecond * 200)
-	Talking          = make(chan talkingStruct,10)
+	Talking          = make(chan talkingStruct, 10)
 )
 
 var (

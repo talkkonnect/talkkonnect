@@ -634,7 +634,7 @@ keyPressListenerLoop:
 						}
 						b.cmdSendVoiceTargets(uint32(Paramvalue))
 					default:
-						log.Println("Command Not Defined ", strings.ToLower(TTYKeyMap[ev.Ch].Command))
+						log.Println("error: Command Not Defined ", strings.ToLower(TTYKeyMap[ev.Ch].Command))
 					}
 				} else {
 					log.Println("error: Key Not Mapped ASC ", ev.Ch)

@@ -49,11 +49,6 @@ import (
 	"golang.org/x/sys/unix"
 )
 
-const (
-	talkkonnectVersion  string = "2.07.12"
-	talkkonnectReleased string = "Jan 04 2022"
-)
-
 type ConfigStruct struct {
 	XMLName  xml.Name `xml:"document"`
 	Accounts struct {
@@ -831,7 +826,7 @@ func readxmlconfig(file string, reloadxml bool) error {
 			}
 		}
 	}
-	log.Println("Successfully loaded XML configuration file into memory")
+	log.Println("info: Successfully loaded XML configuration file into memory")
 
 	// Add Allowed Mutable Settings For talkkonnect upon live reloadxml config to the list below omit all other variables
 	if reloadxml {
@@ -1227,9 +1222,9 @@ func printxmlconfig() {
 
 	if Config.Global.Software.PrintVariables.PrintUSBKeyboard {
 		log.Println("info: ------------ USBKeyboard Function -------------- ")
-		log.Println("USBKeyboardEnabled", Config.Global.Hardware.USBKeyboard.Enabled)
-		log.Println("USBKeyboardPath", Config.Global.Hardware.USBKeyboard.USBKeyboardPath)
-		log.Println("NumLockScanID", Config.Global.Hardware.USBKeyboard.NumlockScanID)
+		log.Println("info: USBKeyboardEnabled", Config.Global.Hardware.USBKeyboard.Enabled)
+		log.Println("info: USBKeyboardPath", Config.Global.Hardware.USBKeyboard.USBKeyboardPath)
+		log.Println("info: NumLockScanID", Config.Global.Hardware.USBKeyboard.NumlockScanID)
 	} else {
 		log.Println("info: ------------ USBKeyboard Function ------ SKIPPED ")
 	}

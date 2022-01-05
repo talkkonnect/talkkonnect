@@ -148,7 +148,7 @@ func playAnnouncementMedia(id int) {
 				}
 			}
 			if multimedia.Params.Playintostream {
-				log.Println("todo play into stream")
+				log.Println("alert: todo play into stream")
 			}
 		}
 	}

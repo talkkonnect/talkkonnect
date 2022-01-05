@@ -364,7 +364,7 @@ func audiorecordcombo() {
 			exitStatus := status.ExitStatus()
 			signaled := status.Signaled()
 			signal := status.Signal()
-			log.Println("erroe: sox Error:", err)
+			log.Println("error: sox Error:", err)
 			if signaled {
 				log.Println("debug: sox Signal:", signal)
 			} else {

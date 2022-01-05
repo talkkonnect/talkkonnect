@@ -104,7 +104,7 @@ func (b *Talkkonnect) USBKeyboard() {
 							b.cmdSendVoiceTargets(uint32(voicetarget))
 						}
 					default:
-						log.Println("Command Not Defined ", strings.ToLower(USBKeyMap[rune(ke.Scancode)].Command))
+						log.Println("error: Command Not Defined ", strings.ToLower(USBKeyMap[rune(ke.Scancode)].Command))
 					}
 				} else {
 					if ke.Scancode != uint16(Config.Global.Hardware.USBKeyboard.NumlockScanID) {
@@ -115,4 +115,3 @@ func (b *Talkkonnect) USBKeyboard() {
 		}
 	}
 }
-

@@ -240,14 +240,7 @@ func (b *Talkkonnect) initGPIO() {
 								if isTx {
 									isTx = false
 									b.TransmitStop(true)
-									if Config.Global.Software.Sounds.Input.Enabled {
-										var inputEventSoundFile InputEventSoundFileStruct = findInputEventSoundFile("txpttstop")
-										if inputEventSoundFile.Enabled {
-											go aplayLocal(inputEventSoundFile.File)
-										}
-									} else {
-										time.Sleep(150 * time.Millisecond)
-									}
+									playIOMedia("iotxpttstop")
 									if Config.Global.Software.Settings.TxCounter {
 										txcounter++
 										log.Println("debug: Tx Button Count ", txcounter)
@@ -257,18 +250,11 @@ func (b *Talkkonnect) initGPIO() {
 								log.Println("debug: Tx Button is pressed")
 								if !isTx {
 									isTx = true
-									if Config.Global.Software.Sounds.Input.Enabled {
-										var inputEventSoundFile InputEventSoundFileStruct = findInputEventSoundFile("txpttstart")
-										if inputEventSoundFile.Enabled {
-											go aplayLocal(inputEventSoundFile.File)
-										} else {
-											time.Sleep(150 * time.Millisecond)
-										}
-									} else {
-										time.Sleep(150 * time.Millisecond)
-									}
-									b.TransmitStart()
+									playIOMedia("iotxpttstart")
+								} else {
+									time.Sleep(150 * time.Millisecond)
 								}
+								b.TransmitStart()
 							}
 						}
 					}
@@ -296,12 +282,7 @@ func (b *Talkkonnect) initGPIO() {
 						if isTx {
 							b.TransmitStop(true)
 							log.Println("debug: Toggle Stopped Transmitting")
-							if Config.Global.Software.Sounds.Input.Enabled {
-								var inputEventSoundFile InputEventSoundFileStruct = findInputEventSoundFile("txtogglestop")
-								if inputEventSoundFile.Enabled {
-									go aplayLocal(inputEventSoundFile.File)
-								}
-							}
+							playIOMedia("iotxtogglestop")
 							for {
 								currentState, err := TxToggle.Read()
 								time.Sleep(150 * time.Millisecond)
@@ -319,7 +300,9 @@ func (b *Talkkonnect) initGPIO() {
 									go aplayLocal(inputEventSoundFile.File)
 								}
 							}
+							playIOMedia("txtogglestart")
 							b.TransmitStart()
+							log.Println("debug: Toggle Started Transmitting")
 							for {
 								currentState, err := TxToggle.Read()
 								time.Sleep(150 * time.Millisecond)
@@ -328,7 +311,6 @@ func (b *Talkkonnect) initGPIO() {
 								}
 							}
 							prevState = 1
-							log.Println("debug: Toggle Started Transmitting")
 							time.Sleep(150 * time.Millisecond)
 						}
 					}
@@ -352,12 +334,7 @@ func (b *Talkkonnect) initGPIO() {
 							log.Println("debug: UP Button is released")
 						} else {
 							log.Println("debug: UP Button is pressed")
-							if Config.Global.Software.Sounds.Input.Enabled {
-								var inputEventSoundFile InputEventSoundFileStruct = findInputEventSoundFile("channelup")
-								if inputEventSoundFile.Enabled {
-									go aplayLocal(inputEventSoundFile.File)
-								}
-							}
+							playIOMedia("iochannelup")
 							b.ChannelUp()
 							time.Sleep(150 * time.Millisecond)
 						}
@@ -385,12 +362,7 @@ func (b *Talkkonnect) initGPIO() {
 							log.Println("debug: Ch Down Button is released")
 						} else {
 							log.Println("debug: Ch Down Button is pressed")
-							if Config.Global.Software.Sounds.Input.Enabled {
-								var inputEventSoundFile InputEventSoundFileStruct = findInputEventSoundFile("channeldown")
-								if inputEventSoundFile.Enabled {
-									go aplayLocal(inputEventSoundFile.File)
-								}
-							}
+							playIOMedia("iochanneldown")
 							b.ChannelDown()
 							time.Sleep(150 * time.Millisecond)
 						}
@@ -416,12 +388,7 @@ func (b *Talkkonnect) initGPIO() {
 							log.Println("debug: Panic Button is released")
 						} else {
 							log.Println("debug: Panic Button is pressed")
-							if Config.Global.Software.Sounds.Input.Enabled {
-								var inputEventSoundFile InputEventSoundFileStruct = findInputEventSoundFile("panic")
-								if inputEventSoundFile.Enabled {
-									go aplayLocal(inputEventSoundFile.File)
-								}
-							}
+							playIOMedia("iopanic")
 							b.cmdPanicSimulation()
 							time.Sleep(150 * time.Millisecond)
 						}
@@ -443,21 +410,11 @@ func (b *Talkkonnect) initGPIO() {
 					if currentState != CommentButtonState && err == nil {
 						CommentButtonState = currentState
 						if CommentButtonState == 1 {
-							if Config.Global.Software.Sounds.Input.Enabled {
-								var inputEventSoundFile InputEventSoundFileStruct = findInputEventSoundFile("commenton")
-								if inputEventSoundFile.Enabled {
-									go aplayLocal(inputEventSoundFile.File)
-								}
-							}
+							playIOMedia("iocommenton")
 							log.Println("debug: Comment Button State 1 setting comment to State 1 Message ", Config.Global.Hardware.Comment.CommentMessageOff)
 							b.SetComment(Config.Global.Hardware.Comment.CommentMessageOff)
 						} else {
-							if Config.Global.Software.Sounds.Input.Enabled {
-								var inputEventSoundFile InputEventSoundFileStruct = findInputEventSoundFile("commentoff")
-								if inputEventSoundFile.Enabled {
-									go aplayLocal(inputEventSoundFile.File)
-								}
-							}
+							playIOMedia("iocommentoff")
 							log.Println("debug: Comment Button State 2 setting comment to State 2 Message ", Config.Global.Hardware.Comment.CommentMessageOn)
 							b.SetComment(Config.Global.Hardware.Comment.CommentMessageOn)
 							time.Sleep(150 * time.Millisecond)
@@ -483,13 +440,8 @@ func (b *Talkkonnect) initGPIO() {
 						if StreamButtonState == 1 {
 							log.Println("debug: Stream Button is released")
 						} else {
+							playIOMedia("iostreamtoggle")
 							log.Println("debug: Stream Button is pressed")
-							if Config.Global.Software.Sounds.Input.Enabled {
-								var inputEventSoundFile InputEventSoundFileStruct = findInputEventSoundFile("streamtoggle")
-								if inputEventSoundFile.Enabled {
-									go aplayLocal(inputEventSoundFile.File)
-								}
-							}
 							b.cmdPlayback()
 							time.Sleep(150 * time.Millisecond)
 						}
@@ -513,22 +465,12 @@ func (b *Talkkonnect) initGPIO() {
 					if currentStateA != LastStateA && err0 == nil {
 						currentStateB, err1 := RotaryB.Read()
 						if currentStateB != currentStateA && err1 == nil {
+							playIOMedia("iorotarycw")
 							log.Println("debug: Rotating Clockwise")
-							if Config.Global.Software.Sounds.Input.Enabled {
-								var inputEventSoundFile InputEventSoundFileStruct = findInputEventSoundFile("rotarycw")
-								if inputEventSoundFile.Enabled {
-									go aplayLocal(inputEventSoundFile.File)
-								}
-							}
 							b.cmdChannelUp()
 						} else {
 							log.Println("debug: Rotating CounterClockwise")
-							if Config.Global.Software.Sounds.Input.Enabled {
-								var inputEventSoundFile InputEventSoundFileStruct = findInputEventSoundFile("rotarycwc")
-								if inputEventSoundFile.Enabled {
-									go aplayLocal(inputEventSoundFile.File)
-								}
-							}
+							playIOMedia("iorotaryccw")
 							b.cmdChannelDown()
 						}
 					}
@@ -555,12 +497,7 @@ func (b *Talkkonnect) initGPIO() {
 							log.Println("debug: Vol UP Button is released")
 						} else {
 							log.Println("debug: Vol UP Button is pressed")
-							if Config.Global.Software.Sounds.Input.Enabled {
-								var inputEventSoundFile InputEventSoundFileStruct = findInputEventSoundFile("volup")
-								if inputEventSoundFile.Enabled {
-									go aplayLocal(inputEventSoundFile.File)
-								}
-							}
+							playIOMedia("iovolup")
 							b.cmdVolumeUp()
 						}
 					}
@@ -584,12 +521,7 @@ func (b *Talkkonnect) initGPIO() {
 							log.Println("debug: Vol Down Button is released")
 						} else {
 							log.Println("debug: Vol Down Button is pressed")
-							if Config.Global.Software.Sounds.Input.Enabled {
-								var inputEventSoundFile InputEventSoundFileStruct = findInputEventSoundFile("voldown")
-								if inputEventSoundFile.Enabled {
-									go aplayLocal(inputEventSoundFile.File)
-								}
-							}
+							playIOMedia("iovoldown")
 							b.cmdVolumeDown()
 						}
 					}

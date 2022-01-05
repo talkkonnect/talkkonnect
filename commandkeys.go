@@ -185,7 +185,7 @@ func (b *Talkkonnect) cmdVolumeUp() {
 	}
 
 	if origVolume < 100 {
-		err := volume.IncreaseVolume(+1, Config.Global.Software.Settings.OutputVolControlDevice)
+		err := volume.IncreaseVolume(Config.Global.Hardware.IO.VolumeButtonStep.VolUpStep, Config.Global.Software.Settings.OutputVolControlDevice)
 		if err != nil {
 			log.Println("warn: F5 Increase Volume Failed! ", err)
 		}
@@ -226,7 +226,7 @@ func (b *Talkkonnect) cmdVolumeDown() {
 
 	if origVolume > 0 {
 		origVolume--
-		err := volume.IncreaseVolume(-1, Config.Global.Software.Settings.OutputVolControlDevice)
+		err := volume.IncreaseVolume(Config.Global.Hardware.IO.VolumeButtonStep.VolDownStep, Config.Global.Software.Settings.OutputVolControlDevice)
 		if err != nil {
 			log.Println("error: F6 Decrease Volume Failed! ", err)
 		}
@@ -752,7 +752,12 @@ func (b *Talkkonnect) cmdShowUptime() {
 func (b *Talkkonnect) cmdDisplayVersion() {
 	log.Println("debug: Ctrl-V Pressed")
 	log.Println("info: Talkkonnect Version Request ")
-	log.Printf("info: Talkkonnect Version %v Released %v\n", talkkonnectVersion, talkkonnectReleased)
+	releasedVersion := checkGitHubVersion()
+	if talkkonnectVersion != releasedVersion {
+		log.Printf("warn: Ver %v Rel %v (Newer Ver %v Available!)\n", talkkonnectVersion, talkkonnectReleased, releasedVersion)
+	} else {
+		log.Printf("info: Ver %v Rel %v (Latest Release)\n", talkkonnectVersion, talkkonnectReleased)
+	}
 }
 
 func (b *Talkkonnect) cmdDumpXMLConfig() {

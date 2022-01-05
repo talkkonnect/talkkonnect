@@ -75,7 +75,7 @@ type GNSSDataStruct struct {
 //global variables for gps
 var (
 	GNSSData       GNSSDataStruct
-	GNSSDataPublic = make(chan GNSSDataStruct, Receivers+1)
+	GNSSDataPublic = make(chan GNSSDataStruct, GPSDataChannelReceivers+1)
 )
 
 //local variables for gps
@@ -219,8 +219,8 @@ func getGpsPosition(verbosity int) (bool, error) {
 
 			if RMCSentenceValid && GGASentenceValid && GSVSentenceValid {
 				goodGPSRead = true
-				log.Printf("debug: GPS Good Read Broadcasting to %v receivers\n", Receivers)
-				for a := 0; a < Receivers; a++ {
+				log.Printf("debug: GPS Good Read Broadcasting to %v GPSDataChannelReceivers\n", GPSDataChannelReceivers)
+				for a := 0; a < GPSDataChannelReceivers; a++ {
 					GNSSDataPublic <- GNSSData
 					time.Sleep(100 * time.Millisecond)
 				}
@@ -236,7 +236,7 @@ func getGpsPosition(verbosity int) (bool, error) {
 
 func httpSendTraccarOsmand() {
 
-	Receivers++
+	GPSDataChannelReceivers++
 	for {
 		GNSSDataTraccar := <-GNSSDataPublic
 
@@ -278,7 +278,7 @@ func httpSendTraccarOsmand() {
 
 func tcpSendT55Traccar() {
 
-	Receivers++
+	GPSDataChannelReceivers++
 
 	for {
 		GNSSDataTraccar := <-GNSSDataPublic
@@ -353,7 +353,7 @@ func tcpSendT55Traccar() {
 }
 
 func httpSendTraccarOpenGTS() {
-	Receivers++
+	GPSDataChannelReceivers++
 	for {
 		GNSSDataTraccar := <-GNSSDataPublic
 
@@ -390,7 +390,7 @@ func httpSendTraccarOpenGTS() {
 }
 
 func consoleScreenLogging() {
-	Receivers++
+	GPSDataChannelReceivers++
 	for {
 		GNSSDataTraccar := <-GNSSDataPublic
 		log.Printf("debug: RMC Validity (%v), GGA GPS Quality Indicator (%v) %v/%v\n", GNSSDataTraccar.Validity, GNSSDataTraccar.FixQuality, GNSSDataTraccar.SatsInUse, GNSSDataTraccar.SatsInView)
@@ -407,7 +407,7 @@ func consoleScreenLogging() {
 }
 
 func localScreenLogging() {
-	Receivers++
+	GPSDataChannelReceivers++
 	for {
 		GNSSDataTraccar := <-GNSSDataPublic
 		log.Printf("debug: Device Screen Latitude : %f Longitude : %f\n", GNSSDataTraccar.Lattitude, GNSSDataTraccar.Longitude)

@@ -124,23 +124,38 @@
         <sound event="rogerbeep" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/rogerbeeps/Image.wav" volume="50" blocking="false" enabled="true"/>
         <sound event="stream" file="http://prdonline.prd.go.th:8200" volume="50" blocking="true" enabled="true"/>  
         <!-- <sound event="stream" file="http://d.liveatc.net/vtbs_app_east.mp3" volume="1" blocking="true" enabled="true"/> --> 
-       <input enabled="true">
-          <sound event="txpttstart"   file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/rogerbeeps/YellowJacket.wav" enabled="true"/>
-          <sound event="txpttstop"     file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/rogerbeeps/RogerBeep3.wav" enabled="false"/>
-          <sound event="txtogglestart"    file="" enabled="false"/>
-          <sound event="txtogglestop"    file="" enabled="false"/>
-          <sound event="channelup"   file="" enabled="false"/>
-          <sound event="channeldown" file="" enabled="false"/>
-          <sound event="panic"       file="" enabled="false"/>
-          <sound event="streamtoggle" file="" enabled="false"/>
-          <sound event="commenton"     file="" enabled="false"/>
-          <sound event="commentoff"     file="" enabled="false"/>
-          <sound event="rotarycw"     file="" enabled="false"/>
-          <sound event="rotaryccw"     file="" enabled="false"/>
-          <sound event="volup"       file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/rogerbeeps/RC210#2.wav" enabled="true"/>
-          <sound event="voldown"     file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/rogerbeeps/RC210#2.wav" enabled="true"/>
+      <input enabled="true">
+          <sound event="iotxpttstart"   file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/rogerbeeps/YellowJacket.wav" enabled="true"/>
+          <sound event="iotxpttstop"     file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/rogerbeeps/RogerBeep3.wav" enabled="false"/>
+          <sound event="iotxtogglestart"    file="" enabled="false"/>
+          <sound event="iotxtogglestop"    file="" enabled="false"/>
+          <sound event="iochannelup"   file="" enabled="false"/>
+          <sound event="iochanneldown" file="" enabled="false"/>
+          <sound event="iopanic"       file="" enabled="false"/>
+          <sound event="iostreamtoggle" file="" enabled="false"/>
+          <sound event="iocommenton"     file="" enabled="false"/>
+          <sound event="iocommentoff"     file="" enabled="false"/>
+          <sound event="iorotarycw"     file="" enabled="false"/>
+          <sound event="iorotaryccw"     file="" enabled="false"/>
+          <sound event="iovolup"       file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/rogerbeeps/RC210#2.wav" enabled="true"/>
+          <sound event="iovoldown"     file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/rogerbeeps/RC210#2.wav" enabled="true"/>
+				  <sound event="usbchannelup" file="" enabled="false"/>
+					<sound event="usbchanneldown" file="" enabled="false"/>
+					<sound event="usbserverup" file="" enabled="false"/>
+					<sound event="usbpreviousserver" file="" enabled="false"/>
+					<sound event="usbmute" file="" enabled="false"/>
+					<sound event="usbunmute" file="" enabled="false"/>
+					<sound event="usbmutetoggle" file="" enabled="false"/>
+					<sound event="usbstreamtoggle" file="" enabled="false"/>
+					<sound event="usbvolup" file="" enabled="false"/>
+					<sound event="usbvoldown" file="" enabled="false"/>
+ 					<sound event="usbsetcomment" file="" enabled="false"/>
+   				<sound event="usbstarttx" file="" enabled="false"/>
+					<sound event="usbstoptx" file="" enabled="false"/>
+					<sound event="usbrecord" file="" enabled="false"/>
+					<sound event="usbvoicetarget" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/rogerbeeps/RC210#2.wav" enabled="true"/>
          </input>
-        <repeatertone enabled="true">
+         <repeatertone enabled="true">
           <sound event="repeatertone" tonefrequencyhz="1750" volume="50" tonedurationsec="10" blocking="false" enabled="true"/>
         </repeatertone>
       </sounds>

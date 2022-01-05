@@ -53,7 +53,7 @@ func aplayLocal(fileNameWithPath string) {
 
 	CmdArguments := []string{fileNameWithPath, "-q", "-N"}
 
-	log.Printf("debug: player %v filepath %v CmdArguments %v", player, fileNameWithPath, CmdArguments)
+	log.Printf("debug: player %v CmdArguments %v", player, CmdArguments)
 
 	cmd := exec.Command(player, CmdArguments...)
 
@@ -176,4 +176,13 @@ func findInputEventSoundFile(findInputEventSound string) InputEventSoundFileStru
 		}
 	}
 	return InputEventSoundFileStruct{findInputEventSound, "", false}
+}
+
+func playIOMedia(inputEvent string) {
+	if Config.Global.Software.Sounds.Input.Enabled {
+		var inputEventSoundFile InputEventSoundFileStruct = findInputEventSoundFile(inputEvent)
+		if inputEventSoundFile.Enabled {
+			go aplayLocal(inputEventSoundFile.File)
+		}
+	}
 }

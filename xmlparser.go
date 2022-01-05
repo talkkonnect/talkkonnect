@@ -308,6 +308,10 @@ type ConfigStruct struct {
 					Pulse    time.Duration `xml:"pulsemsecs,attr"`
 					Trailing time.Duration `xml:"trailingmsecs,attr"`
 				} `xml:"pulse"`
+				VolumeButtonStep struct {
+					VolUpStep   int `xml:"volupstep"`
+					VolDownStep int `xml:"voldownstep"`
+				} `xml:"volumebuttonstep"`
 			} `xml:"io"`
 			HeartBeat struct {
 				Enabled     bool   `xml:"enabled,attr"`
@@ -557,16 +561,16 @@ var ConfigXMLFile string
 
 // Generic Global State Variables
 var (
-	KillHeartBeat   bool
-	IsPlayStream    bool
-	IsConnected     bool
-	Streaming       bool
-	HTTPServRunning bool
-	NowStreaming    bool
-	InStreamTalking bool
-	InStreamSource  bool
-	LCDIsDark       bool
-	Receivers       int
+	KillHeartBeat           bool
+	IsPlayStream            bool
+	IsConnected             bool
+	Streaming               bool
+	HTTPServRunning         bool
+	NowStreaming            bool
+	InStreamTalking         bool
+	InStreamSource          bool
+	LCDIsDark               bool
+	GPSDataChannelReceivers int
 )
 
 // Generic Global Counter Variables
@@ -797,6 +801,14 @@ func readxmlconfig(file string, reloadxml bool) error {
 
 		if Config.Global.Hardware.VoiceActivityTimermsecs == 0 {
 			Config.Global.Hardware.VoiceActivityTimermsecs = 200
+		}
+
+		if Config.Global.Hardware.IO.VolumeButtonStep.VolUpStep == 0 {
+			Config.Global.Hardware.IO.VolumeButtonStep.VolUpStep = +1
+		}
+
+		if Config.Global.Hardware.IO.VolumeButtonStep.VolDownStep == 0 {
+			Config.Global.Hardware.IO.VolumeButtonStep.VolDownStep = -1
 		}
 
 		if OLEDEnabled {

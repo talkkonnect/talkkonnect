@@ -65,35 +65,50 @@ func (b *Talkkonnect) USBKeyboard() {
 				if _, ok := USBKeyMap[rune(ke.Scancode)]; ok {
 					switch strings.ToLower(USBKeyMap[rune(ke.Scancode)].Command) {
 					case "channelup":
+						playIOMedia("usbchannelup")
 						b.cmdChannelUp()
 					case "channeldown":
+						playIOMedia("usbchanneldown")
 						b.cmdChannelDown()
 					case "serverup":
+						playIOMedia("usbserverup")
 						b.cmdConnNextServer()
 					case "serverdown":
+						playIOMedia("usbpreviousserver")
 						b.cmdConnPreviousServer()
 					case "mute":
+						playIOMedia("usbmute")
 						b.cmdMuteUnmute("mute")
 					case "unmute":
 						b.cmdMuteUnmute("unmute")
+						playIOMedia("usbunmute")
 					case "mute-toggle":
+						playIOMedia("usbmutetoggle")
 						b.cmdMuteUnmute("toggle")
+						playIOMedia("usbmutetoggle")
 					case "stream-toggle":
+						playIOMedia("usbstreamtoggle")
 						b.cmdPlayback()
 					case "volumeup":
+						playIOMedia("usbvolup")
 						b.cmdVolumeUp()
 					case "volumedown":
+						playIOMedia("usbvoldown")
 						b.cmdVolumeDown()
 					case "setcomment":
 						if USBKeyMap[rune(ke.Scancode)].ParamName == "setcomment" {
 							log.Println("info: Set Commment ", USBKeyMap[rune(ke.Scancode)].ParamValue)
+							playIOMedia("usbsetcomment")
 							b.Client.Self.SetComment(USBKeyMap[rune(ke.Scancode)].ParamValue)
 						}
 					case "transmitstart":
+						playIOMedia("usbstarttx")
 						b.cmdStartTransmitting()
 					case "transmitstop":
+						playIOMedia("usbstoptx")
 						b.cmdStopTransmitting()
 					case "record":
+						playIOMedia("usbrecord")
 						b.cmdAudioTrafficRecord()
 						b.cmdAudioMicRecord()
 					case "voicetargetset":
@@ -101,6 +116,7 @@ func (b *Talkkonnect) USBKeyboard() {
 						if err != nil {
 							log.Println("error: Target is Non-Numeric Value")
 						} else {
+							playIOMedia("usbvoicetarget")
 							b.cmdSendVoiceTargets(uint32(voicetarget))
 						}
 					default:

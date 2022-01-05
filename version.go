@@ -31,6 +31,11 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.07.14"
+	talkkonnectVersion  string = "2.07.15"
 	talkkonnectReleased string = "Jan 05 2022"
 )
+
+/* Release Notes
+1. Used Zoran's Patch to make traccar working with all 3 protocols
+2. Fixed wrong logic for Config.Global.Hardware.TargetBoard == "rpi" && Config.Global.Hardware.Traccar.DeviceScreenEnabled causing the screen not to work
+*/

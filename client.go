@@ -500,12 +500,12 @@ func (b *Talkkonnect) ClientStart() {
 		go consoleScreenLogging()
 	}
 
-	if Config.Global.Hardware.TargetBoard != "rpi" && Config.Global.Hardware.Traccar.DeviceScreenEnabled {
+	if Config.Global.Hardware.TargetBoard == "rpi" && Config.Global.Hardware.Traccar.DeviceScreenEnabled {
 		go localScreenLogging()
 	}
 
 	if Config.Global.Hardware.Traccar.Enabled && Config.Global.Hardware.Traccar.Track && Config.Global.Hardware.Traccar.Protocol.Name == "osmand" {
-		go httpSendTraccarOsman()
+		go httpSendTraccarOsmand()
 	}
 
 	if Config.Global.Hardware.Traccar.Enabled && Config.Global.Hardware.Traccar.Track && Config.Global.Hardware.Traccar.Protocol.Name == "opengts" {

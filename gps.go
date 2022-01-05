@@ -234,17 +234,18 @@ func getGpsPosition(verbosity int) (bool, error) {
 	return false, errors.New("gnss not enabled")
 }
 
-func httpSendTraccarOsman() {
+func httpSendTraccarOsmand() {
+
 	Receivers++
 	for {
 		GNSSDataTraccar := <-GNSSDataPublic
 
-		TraccarDateTime := GNSSDataTraccar.DateTime.Format("2006-02-01") + "%20" + GNSSDataTraccar.DateTime.Format("15:04:05")
+		TraccarDateTime := GNSSDataTraccar.DateTime.Format("2006-01-02") + "%20" + GNSSDataTraccar.DateTime.Format("15:04:05")
 
 		TraccarServerFullURLOsman := (fmt.Sprint(Config.Global.Hardware.Traccar.Protocol.Osmand.ServerURL) + ":" + fmt.Sprint(Config.Global.Hardware.Traccar.Protocol.Osmand.Port) + "/?" + "id=" + Config.Global.Hardware.Traccar.ClientId + "&" +
 			"timestamp=" + TraccarDateTime + "&" + "lat=" + fmt.Sprintf("%f", GNSSDataTraccar.Lattitude) +
 			"&" + "lon=" + fmt.Sprintf("%f", GNSSDataTraccar.Longitude) + "&" + "speed=" + fmt.Sprintf("%f", GNSSDataTraccar.Speed) + "&" + "course=" +
-			fmt.Sprintf("%f", GNSSDataTraccar.Course) + "&" + "variation=" + fmt.Sprintf("%f", GNSSDataTraccar.Variation))
+			fmt.Sprintf("%f", GNSSDataTraccar.Course) + "&" + "variation=" + fmt.Sprintf("%f", GNSSDataTraccar.Variation) + "&" + "hdop=" + fmt.Sprintf("%f", GNSSData.HDOP) + "&" + "altitude=" + fmt.Sprintf("%f", GNSSData.Altitude))
 
 		response, err := http.Get(TraccarServerFullURLOsman)
 
@@ -272,10 +273,13 @@ func httpSendTraccarOsman() {
 		}
 
 	}
+
 }
 
 func tcpSendT55Traccar() {
+
 	Receivers++
+
 	for {
 		GNSSDataTraccar := <-GNSSDataPublic
 
@@ -308,7 +312,7 @@ func tcpSendT55Traccar() {
 		log.Println("debug: Traccar Client:", CONN.LocalAddr().String(), "Connected to Server:", CONN.RemoteAddr().String())
 
 		fmt.Fprint(CONN, PGID) // Send ID
-		time.Sleep(1 * time.Second)
+		time.Sleep(5 * time.Second)
 		fmt.Fprint(CONN, GPRMC) // send $GPRMC
 		log.Println("debug: Sending position message to Traccar over Protocol: " + strings.Title(strings.ToLower(Config.Global.Hardware.Traccar.Protocol.Name)))
 
@@ -353,7 +357,7 @@ func httpSendTraccarOpenGTS() {
 	for {
 		GNSSDataTraccar := <-GNSSDataPublic
 
-		TraccarServerFullURLOpenGTS := (fmt.Sprint(Config.Global.Hardware.Traccar.Protocol.Opengts.ServerURL) + ":" + fmt.Sprint(Config.Global.Hardware.Traccar.Protocol.Opengts.Port) + "/?id=" + Config.Global.Hardware.Traccar.ClientId + "&grmpc=" + GNSSDataTraccar.RMCRaw)
+		TraccarServerFullURLOpenGTS := (fmt.Sprint(Config.Global.Hardware.Traccar.Protocol.Opengts.ServerURL) + ":" + fmt.Sprint(Config.Global.Hardware.Traccar.Protocol.Opengts.Port) + "/?id=" + Config.Global.Hardware.Traccar.ClientId + "&gprmc=" + GNSSDataTraccar.RMCRaw)
 
 		log.Println("alert:", TraccarServerFullURLOpenGTS)
 

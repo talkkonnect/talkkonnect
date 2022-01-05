@@ -163,14 +163,6 @@ type ConfigStruct struct {
 					Enabled         bool    `xml:"enabled,attr"`
 					ToneFrequencyHz int     `xml:"tonefrequencyhz"`
 					ToneDurationSec float32 `xml:"tonedurationsec"`
-					Sound           struct {
-						Event           string `xml:"event,attr"`
-						Tonefrequencyhz int    `xml:"tonefrequencyhz,attr"`
-						Volume          int    `xml:"volume,attr"`
-						Tonedurationsec int    `xml:"tonedurationsec,attr"`
-						Blocking        bool   `xml:"blocking,attr"`
-						Enabled         bool   `xml:"enabled,attr"`
-					} `xml:"sound"`
 				} `xml:"repeatertone"`
 			} `xml:"sounds"`
 			TxTimeOut struct {
@@ -395,18 +387,6 @@ type ConfigStruct struct {
 					} `xml:"opengts"`
 				} `xml:"protocol"`
 			} `xml:"traccar"`
-			GPSTrackingFunction struct {
-				TrackEnabled           bool   `xml:"enabled,attr"`
-				TraccarSendTo          bool   `xml:"traccarsendto"`
-				TraccarServerURL       string `xml:"traccarserverurl"`
-				TraccarServerIP        string `xml:"traccarserverip"`
-				TraccarClientId        string `xml:"traccarclientid"`
-				TraccarReportFrequency int64  `xml:"traccarreportfrequency"`
-				TraccarProto           string `xml:"traccarproto"`
-				TraccarServerFullURL   string `xml:"traccarserverfullurl"`
-				TrackGPSShowLCD        bool   `xml:"trackgpsshowlcd"`
-				TrackVerbose           bool   `xml:"trackverbose"`
-			} `xml:"gpstrackingfunction"`
 			PanicFunction struct {
 				Enabled              bool    `xml:"enabled,attr"`
 				FilenameAndPath      string  `xml:"filenameandpath"`
@@ -1098,23 +1078,6 @@ func printxmlconfig() {
 		log.Println("info: ------------ GPS  ------------------------ SKIPPED ")
 	}
 
-	if Config.Global.Software.PrintVariables.PrintTraccar {
-		log.Println("info: ------------ TRACCAR Info  ----------------------- ")
-		log.Println("info: Track Enabled            " + fmt.Sprintf("%t", Config.Global.Hardware.GPSTrackingFunction.TrackEnabled))
-		log.Println("info: Traccar Send To          " + fmt.Sprintf("%t", Config.Global.Hardware.GPSTrackingFunction.TraccarSendTo))
-		log.Println("info: Traccar Server URL       ", Config.Global.Hardware.GPSTrackingFunction.TraccarServerURL)
-		log.Println("info: Traccar Server IP        ", Config.Global.Hardware.GPSTrackingFunction.TraccarServerIP)
-		log.Println("info: Traccar Client ID        ", Config.Global.Hardware.GPSTrackingFunction.TraccarClientId)
-		log.Println("info: Traccar Report Frequency " + fmt.Sprintf("%v", Config.Global.Hardware.GPSTrackingFunction.TraccarReportFrequency))
-		log.Println("info: Traccar Proto            ", Config.Global.Hardware.GPSTrackingFunction.TraccarProto)
-		log.Println("info: Traccar Server Full URL  ", Config.Global.Hardware.GPSTrackingFunction.TraccarServerFullURL)
-		log.Println("info: Track GPS Show Lcd       " + fmt.Sprintf("%t", Config.Global.Hardware.GPSTrackingFunction.TrackGPSShowLCD))
-		log.Println("info: Track Verbose            " + fmt.Sprintf("%t", Config.Global.Hardware.GPSTrackingFunction.TrackVerbose))
-
-	} else {
-		log.Println("info: ------------ TRACCAR Info ------------------------ SKIPPED ")
-	}
-
 	if Config.Global.Software.PrintVariables.PrintPanic {
 		log.Println("info: ------------ PANIC Function -------------- ")
 		log.Println("info: Panic Function Enable          ", fmt.Sprintf("%t", Config.Global.Hardware.PanicFunction.Enabled))
@@ -1556,6 +1519,7 @@ func CheckConfigSanity(reloadxml bool) {
 			}
 		}
 	}
+
 	if Warnings+Alerts > 0 {
 		if Alerts > 0 {
 			FatalCleanUp("alert: Fatal Errors Found In talkkonnect.xml config file please fix errors, talkkonnect stopping now!")

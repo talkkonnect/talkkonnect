@@ -37,6 +37,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"math"
 	"net"
@@ -398,4 +399,56 @@ func downloadIfNotExists(fileName string, text string, language string) {
 func generateHashName(name string) string {
 	hash := md5.Sum([]byte(name))
 	return hex.EncodeToString(hash[:])
+}
+
+func checkGitHubVersion() string {
+
+	tmpfileName := "githubversion.txt"
+
+	if FileExists(tmpfileName) {
+		err := os.Remove(tmpfileName)
+		if err != nil {
+			log.Println("error: Cannot Remove Version File so Cannot Check Current GitHub Version")
+			return talkkonnectVersion
+		}
+	}
+
+	file, err := os.Open(tmpfileName)
+
+	if err != nil {
+		defer file.Close()
+		url := "https://raw.githubusercontent.com/talkkonnect/talkkonnect/main/version.go"
+		response, err := http.Get(url)
+		if err != nil {
+			log.Println("error: Cannot Get Version from GitHub")
+			return talkkonnectVersion
+		}
+		defer response.Body.Close()
+
+		output, err := os.Create(tmpfileName)
+		if err != nil {
+			log.Println("error: Cannot Create Temporary File for Version Checking")
+			return talkkonnectVersion
+		}
+
+		_, _ = io.Copy(output, response.Body)
+	}
+
+	fileContent, err := ioutil.ReadFile(tmpfileName)
+	if err != nil {
+		log.Println("error: Cannot Read Temporary File for Version Checking")
+		return talkkonnectVersion
+	}
+
+	temp := strings.Split(string(fileContent), "\n")
+
+	for _, item := range temp {
+		if checkRegex("talkkonnectVersion", item) {
+			regex := regexp.MustCompile(`"(.*)"`)
+			match := regex.FindStringSubmatch(item)[1]
+			return match // this will return the version found on github
+		}
+	}
+
+	return talkkonnectVersion
 }

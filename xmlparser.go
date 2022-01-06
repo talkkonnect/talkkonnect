@@ -210,33 +210,35 @@ type ConfigStruct struct {
 				} `xml:"mqtt"`
 			}
 			PrintVariables struct {
-				PrintAccount        bool `xml:"printaccount"`
-				PrintSystemSettings bool `xml:"printsystemsettings"`
-				PrintProvisioning   bool `xml:"printprovisioning"`
-				PrintBeacon         bool `xml:"printbeacon"`
-				PrintTTS            bool `xml:"printtts"`
-				PrintIgnoreUser     bool `xml:"printignoreuser"`
-				PrintSMTP           bool `xml:"printsmtp"`
-				PrintSounds         bool `xml:"printsounds"`
-				PrintTxTimeout      bool `xml:"printtxtimeout"`
-				PrintHTTPAPI        bool `xml:"printhttpapi"`
-				PrintTargetBoard    bool `xml:"printtargetboard"`
-				PrintLeds           bool `xml:"printleds"`
-				PrintHeartbeat      bool `xml:"printheartbeat"`
-				PrintGPIO           bool `xml:"printgpio"`
-				PrintButtons        bool `xml:"printbuttons"`
-				PrintComment        bool `xml:"printcomment"`
-				PrintLcd            bool `xml:"printlcd"`
-				PrintOled           bool `xml:"printoled"`
-				PrintGps            bool `xml:"printgps"`
-				PrintTraccar        bool `xml:"printtraccar"`
-				PrintPanic          bool `xml:"printpanic"`
-				PrintAudioRecord    bool `xml:"printaudiorecord"`
-				PrintMQTT           bool `xml:"printmqtt"`
-				PrintTTSMessages    bool `xml:"printttsmessages"`
-				PrintKeyboardMap    bool `xml:"printkeyboardmap"`
-				PrintUSBKeyboard    bool `xml:"printusbkeyboard"`
-				PrintMultimedia     bool `xml:"printmultimedia"`
+				PrintAccount          bool `xml:"printaccount"`
+				PrintSystemSettings   bool `xml:"printsystemsettings"`
+				PrintProvisioning     bool `xml:"printprovisioning"`
+				PrintBeacon           bool `xml:"printbeacon"`
+				PrintTTS              bool `xml:"printtts"`
+				PrintSMTP             bool `xml:"printsmtp"`
+				PrintSounds           bool `xml:"printsounds"`
+				PrintTxTimeout        bool `xml:"printtxtimeout"`
+				PrintHTTPAPI          bool `xml:"printhttpapi"`
+				PrintMQTT             bool `xml:"printmqtt"`
+				PrintTTSMessages      bool `xml:"printttsmessages"`
+				PrintIgnoreUser       bool `xml:"printignoreuser"`
+				PrintHardware         bool `xml:"printhardware"`
+				PrintGPIOExpander     bool `xml:"printgpioexpander"`
+				PrintMax7219          bool `xml:"printmax7219"`
+				PrintPins             bool `xml:"printpins"`
+				PrintPulse            bool `xml:"printpulse"`
+				PrintVolumeButtonStep bool `xml:"printvolumebuttonstep"`
+				PrintHeartBeat        bool `xml:"printheartbeat"`
+				PrintComment          bool `xml:"printcomment"`
+				PrintLCD              bool `xml:"printlcd"`
+				PrintOLED             bool `xml:"printoled"`
+				PrintGPS              bool `xml:"printgps"`
+				PrintTraccar          bool `xml:"printtraccar"`
+				PrintPanic            bool `xml:"printpanic"`
+				PrintUSBKeyboard      bool `xml:"printusbkeyboard"`
+				PrintAudioRecord      bool `xml:"printaudiorecord"`
+				PrintKeyboardMap      bool `xml:"printkeyboardmap"`
+				PrintMultimedia       bool `xml:"printmultimedia"`
 			} `xml:"printvariables"`
 			TTSMessages struct {
 				Enabled           bool   `xml:"enabled,attr"`
@@ -944,6 +946,9 @@ func printxmlconfig() {
 
 	if Config.Global.Software.PrintVariables.PrintTTS {
 		log.Println("info: -------- TTS  -------- ")
+		log.Println("info: Enabled      " + fmt.Sprintf("%t", Config.Global.Software.TTS.Enabled))
+		log.Println("info: Volume Level ", Config.Global.Software.TTS.Volumelevel)
+		log.Println("info: Language     ", Config.Global.Software.TTS.Language)
 		for _, tts := range Config.Global.Software.TTS.Sound {
 			log.Printf("%+v\n", tts)
 		}
@@ -971,8 +976,16 @@ func printxmlconfig() {
 		for _, sounds := range Config.Global.Software.Sounds.Sound {
 			log.Printf("info: |Event=%v |File=%v |Volume=%v |Blocking=%v |Enabled=%v\n", sounds.Event, sounds.File, sounds.Volume, sounds.Blocking, sounds.Enabled)
 		}
+		log.Println("info: Input Enabled         " + fmt.Sprintf("%t", Config.Global.Software.Sounds.Input.Enabled))
+		for _, input := range Config.Global.Software.Sounds.Input.Sound {
+			log.Printf("info: |Event=%v |File=%v |Enabled=%v\n", input.Event, input.File, input.Enabled)
+		}
+		log.Println("info: Repeater Tone Enabled      " + fmt.Sprintf("%t", Config.Global.Software.Sounds.RepeaterTone.Enabled))
+		log.Println("info: Repeater Tone Freq (Hz)    ", Config.Global.Software.Sounds.RepeaterTone.ToneFrequencyHz)
+		log.Println("info: Repeater Tone Duration (s) ", Config.Global.Software.Sounds.RepeaterTone.ToneDurationSec)
 	} else {
 		log.Println("info: ------------ Sounds  ------------------ SKIPPED ")
+
 	}
 
 	if Config.Global.Software.PrintVariables.PrintTxTimeout {
@@ -994,138 +1007,6 @@ func printxmlconfig() {
 		log.Println("info: ------------ HTTP API  ----------------- SKIPPED ")
 	}
 
-	if Config.Global.Software.PrintVariables.PrintTargetBoard {
-		log.Println("info: ------------ Target Board --------------- ")
-		log.Println("info: Target Board " + fmt.Sprintf("%v", Config.Global.Hardware.TargetBoard))
-		log.Println("info: Voice Activity LED Timer " + fmt.Sprintf("%v", Config.Global.Hardware.VoiceActivityTimermsecs))
-	} else {
-		log.Println("info: ------------ Target Board --------------- SKIPPED ")
-	}
-
-	if Config.Global.Software.PrintVariables.PrintLeds {
-		log.Println("info: ------------ LEDS  ---------------------- ")
-		log.Println("info: Led Strip Enabled      " + fmt.Sprintf("%v", Config.Global.Hardware.LedStripEnabled))
-	} else {
-		log.Println("info: ------------ LEDS  ---------------------- SKIPPED ")
-	}
-
-	if Config.Global.Software.PrintVariables.PrintHeartbeat {
-		log.Println("info: ---------- HEARTBEAT -------------------- ")
-		log.Println("info: HeartBeat Enabled " + fmt.Sprintf("%v", Config.Global.Hardware.HeartBeat.Enabled))
-		log.Println("info: Period  mSecs     " + fmt.Sprintf("%v", Config.Global.Hardware.HeartBeat.Periodmsecs))
-		log.Println("info: Led On  mSecs     " + fmt.Sprintf("%v", Config.Global.Hardware.HeartBeat.LEDOnmsecs))
-		log.Println("info: Led Off mSecs     " + fmt.Sprintf("%v", Config.Global.Hardware.HeartBeat.LEDOffmsecs))
-	}
-
-	if Config.Global.Software.PrintVariables.PrintGPIO {
-		log.Println("info: ------------ GPIO  ------------------- ")
-		for _, value := range Config.Global.Hardware.IO.Pins.Pin {
-			log.Printf("%+v\n", value)
-		}
-	} else {
-		log.Println("info: ------------ GPIO  ------------------- SKIPPED ")
-	}
-
-	if Config.Global.Software.PrintVariables.PrintComment {
-		log.Println("info: ------------ Comment  ------------------- ")
-		log.Println("info: Comment Button Pin            " + fmt.Sprintf("%v", CommentButtonPin))
-		log.Println("info: Comment Message State 1 (off) " + fmt.Sprintf("%v", Config.Global.Hardware.Comment.CommentMessageOff))
-		log.Println("info: Comment Message State 2 (on)  " + fmt.Sprintf("%v", Config.Global.Hardware.Comment.CommentMessageOn))
-	} else {
-		log.Println("info: ------------ Comment  ------------------- SKIPPED ")
-	}
-
-	if Config.Global.Software.PrintVariables.PrintLcd {
-		log.Println("info: ------------ LCD HD44780 ----------------------- ")
-		log.Println("info: LCDEnabled               " + fmt.Sprintf("%v", LCDEnabled))
-		log.Println("info: LCDInterfaceType         " + fmt.Sprintf("%v", LCDInterfaceType))
-		log.Println("info: Lcd I2C Address          " + fmt.Sprintf("%x", LCDI2CAddress))
-		log.Println("info: Back Light Timer Enabled " + fmt.Sprintf("%t", LCDBackLightTimerEnabled))
-		log.Println("info: Back Light Timer Timeout " + fmt.Sprintf("%v", LCDBackLightTimeout))
-		log.Println("info: RS Pin " + fmt.Sprintf("%v", LCDRSPin))
-		log.Println("info: E  Pin " + fmt.Sprintf("%v", LCDEPin))
-		log.Println("info: D4 Pin " + fmt.Sprintf("%v", LCDD4Pin))
-		log.Println("info: D5 Pin " + fmt.Sprintf("%v", LCDD5Pin))
-		log.Println("info: D6 Pin " + fmt.Sprintf("%v", LCDD6Pin))
-		log.Println("info: D7 Pin " + fmt.Sprintf("%v", LCDD7Pin))
-	} else {
-		log.Println("info: ------------ LCD  ----------------------- SKIPPED ")
-	}
-
-	if Config.Global.Software.PrintVariables.PrintOled {
-		log.Println("info: ------------ OLED ----------------------- ")
-		log.Println("info: Enabled                 " + fmt.Sprintf("%v", OLEDEnabled))
-		log.Println("info: Interfacetype           " + fmt.Sprintf("%v", OLEDInterfacetype))
-		log.Println("info: DisplayRows             " + fmt.Sprintf("%v", OLEDDisplayRows))
-		log.Println("info: DisplayColumns          " + fmt.Sprintf("%v", OLEDDisplayColumns))
-		log.Println("info: DefaultI2cBus           " + fmt.Sprintf("%v", OLEDDefaultI2cBus))
-		log.Println("info: DefaultI2cAddress       " + fmt.Sprintf("%v", OLEDDefaultI2cAddress))
-		log.Println("info: ScreenWidth             " + fmt.Sprintf("%v", OLEDScreenWidth))
-		log.Println("info: ScreenHeight            " + fmt.Sprintf("%v", OLEDScreenHeight))
-		log.Println("info: CommandColumnAddressing " + fmt.Sprintf("%v", OLEDCommandColumnAddressing))
-		log.Println("info: AddressBasePageStart    " + fmt.Sprintf("%v", OLEDAddressBasePageStart))
-		log.Println("info: CharLength              " + fmt.Sprintf("%v", OLEDCharLength))
-		log.Println("info: StartColumn             " + fmt.Sprintf("%v", OLEDStartColumn))
-	} else {
-		log.Println("info: ------------ OLED ----------------------- SKIPPED ")
-	}
-
-	if Config.Global.Software.PrintVariables.PrintGps {
-		log.Println("info: ------------ GPS  ------------------------ ")
-		log.Println("info: GPS Enabled            " + fmt.Sprintf("%t", Config.Global.Hardware.GPS.Enabled))
-		log.Println("info: Port                   ", Config.Global.Hardware.GPS.Port)
-		log.Println("info: Baud                   " + fmt.Sprintf("%v", Config.Global.Hardware.GPS.Baud))
-		log.Println("info: TxData                 ", Config.Global.Hardware.GPS.TxData)
-		log.Println("info: Even                   " + fmt.Sprintf("%v", Config.Global.Hardware.GPS.Even))
-		log.Println("info: Odd                    " + fmt.Sprintf("%v", Config.Global.Hardware.GPS.Odd))
-		log.Println("info: RS485                  " + fmt.Sprintf("%v", Config.Global.Hardware.GPS.Rs485))
-		log.Println("info: RS485 High During Send " + fmt.Sprintf("%v", Config.Global.Hardware.GPS.Rs485HighDuringSend))
-		log.Println("info: RS485 High After Send  " + fmt.Sprintf("%v", Config.Global.Hardware.GPS.Rs485HighAfterSend))
-		log.Println("info: Stop Bits              " + fmt.Sprintf("%v", Config.Global.Hardware.GPS.StopBits))
-		log.Println("info: Data Bits              " + fmt.Sprintf("%v", Config.Global.Hardware.GPS.DataBits))
-		log.Println("info: Char Time Out          " + fmt.Sprintf("%v", Config.Global.Hardware.GPS.CharTimeOut))
-		log.Println("info: Min Read               " + fmt.Sprintf("%v", Config.Global.Hardware.GPS.MinRead))
-		log.Println("info: Rx                     " + fmt.Sprintf("%t", Config.Global.Hardware.GPS.Rx))
-	} else {
-		log.Println("info: ------------ GPS  ------------------------ SKIPPED ")
-	}
-
-	if Config.Global.Software.PrintVariables.PrintPanic {
-		log.Println("info: ------------ PANIC Function -------------- ")
-		log.Println("info: Panic Function Enable          ", fmt.Sprintf("%t", Config.Global.Hardware.PanicFunction.Enabled))
-		log.Println("info: Panic Sound Filename and Path  ", Config.Global.Hardware.PanicFunction.FilenameAndPath)
-		log.Println("info: Panic Message                  ", Config.Global.Hardware.PanicFunction.Message)
-		log.Println("info: Panic Email Send               ", fmt.Sprintf("%t", Config.Global.Hardware.PanicFunction.PMailEnabled))
-		log.Println("info: Panic Message Send Recursively ", fmt.Sprintf("%t", Config.Global.Hardware.PanicFunction.RecursiveSendMessage))
-		log.Println("info: Panic Volume                   ", fmt.Sprintf("%v", Config.Global.Hardware.PanicFunction.Volume))
-		log.Println("info: Panic Send Ident               ", fmt.Sprintf("%t", Config.Global.Hardware.PanicFunction.SendIdent))
-		log.Println("info: Panic Send GPS Location        ", fmt.Sprintf("%t", Config.Global.Hardware.PanicFunction.SendGpsLocation))
-		log.Println("info: Panic TX Lock Enabled          ", fmt.Sprintf("%t", Config.Global.Hardware.PanicFunction.TxLockEnabled))
-		log.Println("info: Panic TX Lock Timeout Secs     ", fmt.Sprintf("%v", Config.Global.Hardware.PanicFunction.TxLockEnabled))
-		log.Println("info: Panic Low Profile Lights Enable", fmt.Sprintf("%v", Config.Global.Hardware.PanicFunction.PLowProfile))
-	} else {
-		log.Println("info: ------------ PANIC Function -------------- SKIPPED ")
-	}
-
-	if Config.Global.Software.PrintVariables.PrintAudioRecord {
-		log.Println("info: ------------ AUDIO RECORDING Function -------------- ")
-		log.Println("info: Audio Recording Enabled " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.Enabled))
-		log.Println("info: Audio Recording On Start " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordOnStart))
-		log.Println("info: Audio Recording System " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordSystem))
-		log.Println("info: Audio Record Mode " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordMode))
-		log.Println("info: Audio Record Timeout " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordTimeout))
-		log.Println("info: Audio Record From Output " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordFromOutput))
-		log.Println("info: Audio Record From Input " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordFromInput))
-		log.Println("info: Audio Recording Mic Timeout " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordMicTimeout))
-		log.Println("info: Audio Recording Save Path " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordSavePath))
-		log.Println("info: Audio Recording Archive Path " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordArchivePath))
-		log.Println("info: Audio Recording Soft " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordSoft))
-		log.Println("info: Audio Recording Profile " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordProfile))
-		log.Println("info: Audio Recording File Format " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordFileFormat))
-		log.Println("info: Audio Recording Chunk Size " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordChunkSize))
-	} else {
-		log.Println("info: ------------ AUDIO RECORDING Function ------- SKIPPED ")
-	}
 	if Config.Global.Software.PrintVariables.PrintMQTT {
 		log.Println("info: ------------ MQTT Function -------------- ")
 		log.Println("info: Enabled             " + fmt.Sprintf("%v", Config.Global.Software.RemoteControl.MQTT.Enabled))
@@ -1176,6 +1057,191 @@ func printxmlconfig() {
 		log.Println("info: ------------ IgnoreUserRegex Function ------- SKIPPED ")
 	}
 
+	if Config.Global.Software.PrintVariables.PrintHardware {
+		log.Println("info: ------------  Hardware Settings -------------- ")
+		log.Println("info: Target Board                 " + fmt.Sprintf("%v", Config.Global.Hardware.TargetBoard))
+		log.Println("info: LED Strip Enabled            " + fmt.Sprintf("%v", Config.Global.Hardware.LedStripEnabled))
+		log.Println("info: VoiceActivity LED Timer (ms) " + fmt.Sprintf("%v", Config.Global.Hardware.VoiceActivityTimermsecs))
+	} else {
+		log.Println("info: ------------  Hardware Settings -------------- SKIPPED")
+	}
+
+	if Config.Global.Software.PrintVariables.PrintGPIOExpander {
+		log.Println("info: ------------  GPIO Expander -------------- ")
+		log.Println("info: GPIO Expander Enabled        " + fmt.Sprintf("%v", Config.Global.Hardware.IO.GPIOExpander.Enabled))
+		for _, gpioexpander := range Config.Global.Hardware.IO.GPIOExpander.Chip {
+			log.Printf("info: ID=%v I2CBus=%v MCP23017Device=%v Enabled=%v\n", gpioexpander.ID, gpioexpander.I2Cbus, gpioexpander.MCP23017Device, gpioexpander.Enabled)
+		}
+	} else {
+		log.Println("info: ------------  GPIO Expander -------------- SKIPPED")
+	}
+
+	if Config.Global.Software.PrintVariables.PrintMax7219 {
+		log.Println("info: ------------  Max7219 -------------- ")
+		log.Println("info: Enabled    " + fmt.Sprintf("%v", Config.Global.Hardware.IO.Max7219.Enabled))
+		log.Println("info: Cascaded   " + fmt.Sprintf("%v", Config.Global.Hardware.IO.Max7219.Max7219Cascaded))
+		log.Println("info: SPIBus     " + fmt.Sprintf("%v", Config.Global.Hardware.IO.Max7219.SPIBus))
+		log.Println("info: SPIDevice  " + fmt.Sprintf("%v", Config.Global.Hardware.IO.Max7219.SPIDevice))
+		log.Println("info: Brightness " + fmt.Sprintf("%v", Config.Global.Hardware.IO.Max7219.Brightness))
+	} else {
+		log.Println("info: ------------  Max7219 -------------- SKIPPPED")
+	}
+
+	if Config.Global.Software.PrintVariables.PrintPins {
+		log.Println("info: ------------  PINS -------------- ")
+		for _, pins := range Config.Global.Hardware.IO.Pins.Pin {
+			log.Printf("info: Direction=%v Device%v Name=%v PinNo=%v Type=%v ID=%v Enabled=%v\n", pins.Direction, pins.Device, pins.Name, pins.PinNo, pins.Type, pins.ID, pins.Enabled)
+		}
+	} else {
+		log.Println("info: ------------  PINS -------------- SKIPPED")
+	}
+
+	if Config.Global.Software.PrintVariables.PrintPulse {
+		log.Println("info: ------------  Pulse -------------- ")
+		log.Println("info: Leading  (ms) " + fmt.Sprintf("%v", Config.Global.Hardware.IO.Pulse.Leading))
+		log.Println("info: Pulse    (ms) " + fmt.Sprintf("%v", Config.Global.Hardware.IO.Pulse.Pulse))
+		log.Println("info: Trailing (ms) " + fmt.Sprintf("%v", Config.Global.Hardware.IO.Pulse.Trailing))
+	} else {
+		log.Println("info: ------------  Pulse -------------- SKIPPED")
+	}
+
+	if Config.Global.Software.PrintVariables.PrintVolumeButtonStep {
+		log.Println("info: ------------  Volume Step -------------- ")
+		log.Println("info: Vol Up   Step " + fmt.Sprintf("%v", Config.Global.Hardware.IO.VolumeButtonStep.VolUpStep))
+		log.Println("info: Vol Down Step " + fmt.Sprintf("%v", Config.Global.Hardware.IO.VolumeButtonStep.VolDownStep))
+	} else {
+		log.Println("info: ------------  Volume Step -------------- SKIPPED")
+	}
+
+	if Config.Global.Software.PrintVariables.PrintHeartBeat {
+		log.Println("info: ---------- HEARTBEAT -------------------- ")
+		log.Println("info: HeartBeat Enabled " + fmt.Sprintf("%v", Config.Global.Hardware.HeartBeat.Enabled))
+		log.Println("info: Period  mSecs     " + fmt.Sprintf("%v", Config.Global.Hardware.HeartBeat.Periodmsecs))
+		log.Println("info: Led On  mSecs     " + fmt.Sprintf("%v", Config.Global.Hardware.HeartBeat.LEDOnmsecs))
+		log.Println("info: Led Off mSecs     " + fmt.Sprintf("%v", Config.Global.Hardware.HeartBeat.LEDOffmsecs))
+	}
+
+	if Config.Global.Software.PrintVariables.PrintComment {
+		log.Println("info: ------------ Comment  ------------------- ")
+		log.Println("info: Comment Button Pin            " + fmt.Sprintf("%v", CommentButtonPin))
+		log.Println("info: Comment Message State 1 (off) " + fmt.Sprintf("%v", Config.Global.Hardware.Comment.CommentMessageOff))
+		log.Println("info: Comment Message State 2 (on)  " + fmt.Sprintf("%v", Config.Global.Hardware.Comment.CommentMessageOn))
+	} else {
+		log.Println("info: ------------ Comment  ------------------- SKIPPED ")
+	}
+
+	if Config.Global.Software.PrintVariables.PrintLCD {
+		log.Println("info: ------------ LCD HD44780 ----------------------- ")
+		log.Println("info: LCDEnabled               " + fmt.Sprintf("%v", LCDEnabled))
+		log.Println("info: LCDInterfaceType         " + fmt.Sprintf("%v", LCDInterfaceType))
+		log.Println("info: Lcd I2C Address          " + fmt.Sprintf("%x", LCDI2CAddress))
+		log.Println("info: Back Light Timer Enabled " + fmt.Sprintf("%t", LCDBackLightTimerEnabled))
+		log.Println("info: Back Light Timer Timeout " + fmt.Sprintf("%v", LCDBackLightTimeout))
+		log.Println("info: RS Pin " + fmt.Sprintf("%v", LCDRSPin))
+		log.Println("info: E  Pin " + fmt.Sprintf("%v", LCDEPin))
+		log.Println("info: D4 Pin " + fmt.Sprintf("%v", LCDD4Pin))
+		log.Println("info: D5 Pin " + fmt.Sprintf("%v", LCDD5Pin))
+		log.Println("info: D6 Pin " + fmt.Sprintf("%v", LCDD6Pin))
+		log.Println("info: D7 Pin " + fmt.Sprintf("%v", LCDD7Pin))
+	} else {
+		log.Println("info: ------------ LCD  ----------------------- SKIPPED ")
+	}
+
+	if Config.Global.Software.PrintVariables.PrintOLED {
+		log.Println("info: ------------ OLED ----------------------- ")
+		log.Println("info: Enabled                 " + fmt.Sprintf("%v", OLEDEnabled))
+		log.Println("info: Interfacetype           " + fmt.Sprintf("%v", OLEDInterfacetype))
+		log.Println("info: DisplayRows             " + fmt.Sprintf("%v", OLEDDisplayRows))
+		log.Println("info: DisplayColumns          " + fmt.Sprintf("%v", OLEDDisplayColumns))
+		log.Println("info: DefaultI2cBus           " + fmt.Sprintf("%v", OLEDDefaultI2cBus))
+		log.Println("info: DefaultI2cAddress       " + fmt.Sprintf("%v", OLEDDefaultI2cAddress))
+		log.Println("info: ScreenWidth             " + fmt.Sprintf("%v", OLEDScreenWidth))
+		log.Println("info: ScreenHeight            " + fmt.Sprintf("%v", OLEDScreenHeight))
+		log.Println("info: CommandColumnAddressing " + fmt.Sprintf("%v", OLEDCommandColumnAddressing))
+		log.Println("info: AddressBasePageStart    " + fmt.Sprintf("%v", OLEDAddressBasePageStart))
+		log.Println("info: CharLength              " + fmt.Sprintf("%v", OLEDCharLength))
+		log.Println("info: StartColumn             " + fmt.Sprintf("%v", OLEDStartColumn))
+	} else {
+		log.Println("info: ------------ OLED ----------------------- SKIPPED ")
+	}
+
+	if Config.Global.Software.PrintVariables.PrintGPS {
+		log.Println("info: ------------ GPS  ------------------------ ")
+		log.Println("info: Enabled                " + fmt.Sprintf("%t", Config.Global.Hardware.GPS.Enabled))
+		log.Println("info: Port                   ", Config.Global.Hardware.GPS.Port)
+		log.Println("info: Baud                   " + fmt.Sprintf("%v", Config.Global.Hardware.GPS.Baud))
+		log.Println("info: TxData                 ", Config.Global.Hardware.GPS.TxData)
+		log.Println("info: Even                   " + fmt.Sprintf("%v", Config.Global.Hardware.GPS.Even))
+		log.Println("info: Odd                    " + fmt.Sprintf("%v", Config.Global.Hardware.GPS.Odd))
+		log.Println("info: RS485                  " + fmt.Sprintf("%v", Config.Global.Hardware.GPS.Rs485))
+		log.Println("info: RS485 High During Send " + fmt.Sprintf("%v", Config.Global.Hardware.GPS.Rs485HighDuringSend))
+		log.Println("info: RS485 High After Send  " + fmt.Sprintf("%v", Config.Global.Hardware.GPS.Rs485HighAfterSend))
+		log.Println("info: Stop Bits              " + fmt.Sprintf("%v", Config.Global.Hardware.GPS.StopBits))
+		log.Println("info: Data Bits              " + fmt.Sprintf("%v", Config.Global.Hardware.GPS.DataBits))
+		log.Println("info: Char Time Out          " + fmt.Sprintf("%v", Config.Global.Hardware.GPS.CharTimeOut))
+		log.Println("info: Min Read               " + fmt.Sprintf("%v", Config.Global.Hardware.GPS.MinRead))
+		log.Println("info: Rx                     " + fmt.Sprintf("%t", Config.Global.Hardware.GPS.Rx))
+	} else {
+		log.Println("info: ------------ GPS  ------------------------ SKIPPED ")
+	}
+
+	if Config.Global.Software.PrintVariables.PrintTraccar {
+		log.Println("info: ------------ Traccar  ------------------------ ")
+		log.Println("info: Enabled               " + fmt.Sprintf("%t", Config.Global.Hardware.Traccar.Enabled))
+		log.Println("info: Track                 ", Config.Global.Hardware.Traccar.Track)
+		log.Println("info: ClientID              ", Config.Global.Hardware.Traccar.ClientId)
+		log.Println("info: Device Screen Enabled " + fmt.Sprintf("%t", Config.Global.Hardware.Traccar.DeviceScreenEnabled))
+	} else {
+		log.Println("info: ------------ Traccar  ------------------------ SKIPPED")
+
+	}
+
+	if Config.Global.Software.PrintVariables.PrintPanic {
+		log.Println("info: ------------ PANIC Function -------------- ")
+		log.Println("info: Panic Function Enable          ", fmt.Sprintf("%t", Config.Global.Hardware.PanicFunction.Enabled))
+		log.Println("info: Panic Sound Filename and Path  ", Config.Global.Hardware.PanicFunction.FilenameAndPath)
+		log.Println("info: Panic Message                  ", Config.Global.Hardware.PanicFunction.Message)
+		log.Println("info: Panic Email Send               ", fmt.Sprintf("%t", Config.Global.Hardware.PanicFunction.PMailEnabled))
+		log.Println("info: Panic Message Send Recursively ", fmt.Sprintf("%t", Config.Global.Hardware.PanicFunction.RecursiveSendMessage))
+		log.Println("info: Panic Volume                   ", fmt.Sprintf("%v", Config.Global.Hardware.PanicFunction.Volume))
+		log.Println("info: Panic Send Ident               ", fmt.Sprintf("%t", Config.Global.Hardware.PanicFunction.SendIdent))
+		log.Println("info: Panic Send GPS Location        ", fmt.Sprintf("%t", Config.Global.Hardware.PanicFunction.SendGpsLocation))
+		log.Println("info: Panic TX Lock Enabled          ", fmt.Sprintf("%t", Config.Global.Hardware.PanicFunction.TxLockEnabled))
+		log.Println("info: Panic TX Lock Timeout Secs     ", fmt.Sprintf("%v", Config.Global.Hardware.PanicFunction.TxLockEnabled))
+		log.Println("info: Panic Low Profile Lights Enable", fmt.Sprintf("%v", Config.Global.Hardware.PanicFunction.PLowProfile))
+	} else {
+		log.Println("info: ------------ PANIC Function -------------- SKIPPED ")
+	}
+
+	if Config.Global.Software.PrintVariables.PrintUSBKeyboard {
+		log.Println("info: ------------ USBKeyboard Function -------------- ")
+		log.Println("info: USBKeyboardEnabled", Config.Global.Hardware.USBKeyboard.Enabled)
+		log.Println("info: USBKeyboardPath", Config.Global.Hardware.USBKeyboard.USBKeyboardPath)
+		log.Println("info: NumLockScanID", Config.Global.Hardware.USBKeyboard.NumlockScanID)
+	} else {
+		log.Println("info: ------------ USBKeyboard Function ------ SKIPPED ")
+	}
+
+	if Config.Global.Software.PrintVariables.PrintAudioRecord {
+		log.Println("info: ------------ AUDIO RECORDING Function -------------- ")
+		log.Println("info: Audio Recording Enabled " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.Enabled))
+		log.Println("info: Audio Recording On Start " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordOnStart))
+		log.Println("info: Audio Recording System " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordSystem))
+		log.Println("info: Audio Record Mode " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordMode))
+		log.Println("info: Audio Record Timeout " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordTimeout))
+		log.Println("info: Audio Record From Output " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordFromOutput))
+		log.Println("info: Audio Record From Input " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordFromInput))
+		log.Println("info: Audio Recording Mic Timeout " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordMicTimeout))
+		log.Println("info: Audio Recording Save Path " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordSavePath))
+		log.Println("info: Audio Recording Archive Path " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordArchivePath))
+		log.Println("info: Audio Recording Soft " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordSoft))
+		log.Println("info: Audio Recording Profile " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordProfile))
+		log.Println("info: Audio Recording File Format " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordFileFormat))
+		log.Println("info: Audio Recording Chunk Size " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordChunkSize))
+	} else {
+		log.Println("info: ------------ AUDIO RECORDING Function ------- SKIPPED ")
+	}
+
 	if Config.Global.Software.PrintVariables.PrintKeyboardMap {
 		log.Println("info: ------------ KeyboardMap Function -------------- ")
 		counter := 1
@@ -1193,15 +1259,6 @@ func printxmlconfig() {
 		}
 	} else {
 		log.Println("info: ------------ KeyboardMap Function ------ SKIPPED ")
-	}
-
-	if Config.Global.Software.PrintVariables.PrintUSBKeyboard {
-		log.Println("info: ------------ USBKeyboard Function -------------- ")
-		log.Println("info: USBKeyboardEnabled", Config.Global.Hardware.USBKeyboard.Enabled)
-		log.Println("info: USBKeyboardPath", Config.Global.Hardware.USBKeyboard.USBKeyboardPath)
-		log.Println("info: NumLockScanID", Config.Global.Hardware.USBKeyboard.NumlockScanID)
-	} else {
-		log.Println("info: ------------ USBKeyboard Function ------ SKIPPED ")
 	}
 
 	if Config.Global.Software.PrintVariables.PrintMultimedia {

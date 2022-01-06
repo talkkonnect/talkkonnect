@@ -31,15 +31,10 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.07.16"
-	talkkonnectReleased string = "Jan 05 2022"
+	talkkonnectVersion  string = "2.07.17"
+	talkkonnectReleased string = "Jan 06 2022"
 )
 
 /* Release Notes
-1. Added Volume Button Step Configurability for step size in %
-2. fixed autoprovisioning to use filename from xml instead of hardcoded to talkkonnect.xml
-3, Changed variable "receivers" to "GPSDataChannelReceivers" to make it more descriptive and readable
-4. Created new function in media.go for simplifying playing of media on input button press
-5. Renamed sound events for io with prefix io for xml configuration
-6/ Added Support for usb keypad press sound with prefix usb for xml configuration
+1. Updated Printing of Variables to match current xml structure
 */

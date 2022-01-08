@@ -251,7 +251,8 @@ func httpSendTraccarOsmand() {
 
 		if err != nil {
 			log.Println("error: Cannot Establish Connection with Traccar Server! Error ", err)
-			return
+			response.Body.Close()
+			continue
 		}
 
 		contents, err := ioutil.ReadAll(response.Body)
@@ -264,7 +265,7 @@ func httpSendTraccarOsmand() {
 		if response.ContentLength == 0 {
 			log.Println("alert: Empty Request Response Body")
 			response.Body.Close()
-	} else {
+		} else {
 			log.Printf("debug: Traccar Web Server Response -->\n-------------------------------------------------------------\n %v \n-------------------------------------------------------------\n", string(contents))
 			response.Body.Close()
 		}
@@ -274,9 +275,7 @@ func httpSendTraccarOsmand() {
 			log.Println("info: HTTP Status Code from Traccar is in the 2xx range. This is OK.")
 			response.Body.Close()
 		}
-
 	}
-
 }
 
 func tcpSendT55Traccar() {
@@ -294,22 +293,26 @@ func tcpSendT55Traccar() {
 		err := CONN.(*net.TCPConn).SetKeepAlive(true)
 		if err != nil {
 			fmt.Println(err)
-			return
+			//pending to close the keepalive connection here
+			continue
 		}
 		err = CONN.(*net.TCPConn).SetKeepAlivePeriod(60 * time.Second)
 		if err != nil {
 			fmt.Println(err)
-			return
+			//pending to close the keepalive connection here
+			continue
 		}
 		err = CONN.(*net.TCPConn).SetNoDelay(false)
 		if err != nil {
 			fmt.Println(err)
-			return
+			//pending to close the keepalive connection here
+			continue
 		}
 		err = CONN.(*net.TCPConn).SetLinger(0)
 		if err != nil {
 			fmt.Println(err)
-			return
+			//pending to close the keepalive connection here
+			continue
 		}
 
 		log.Println("debug: Traccar Client:", CONN.LocalAddr().String(), "Connected to Server:", CONN.RemoteAddr().String())
@@ -346,7 +349,7 @@ func tcpSendT55Traccar() {
 
 				if err == io.EOF {
 					log.Println("alert: Connection to Traccar Server was closed")
-					return
+					continue
 				}
 			case <-time.After(time.Second * 60):
 				log.Println("debug: Traccar Server Connection Timeout 60. Still Alive")
@@ -368,27 +371,29 @@ func httpSendTraccarOpenGTS() {
 
 		if err != nil {
 			log.Println("error: Cannot Establish Connection with Traccar Server! Error ", err)
-			return
+			response.Body.Close()
 		}
 
-		defer response.Body.Close()
 		contents, err := ioutil.ReadAll(response.Body)
 
 		if err != nil {
 			log.Println("error: Error Sending Data to Traccar Server!")
+			response.Body.Close()
 		}
 
 		if response.ContentLength == 0 {
 			log.Println("alert: Empty Request Response Body")
+			response.Body.Close()
 		} else {
 			log.Printf("debug: Traccar Web Server Response -->\n-------------------------------------------------------------\n %v \n-------------------------------------------------------------\n", string(contents))
+			response.Body.Close()
 		}
 
 		log.Println("debug: HTTP Response Status from Traccar:", response.StatusCode, http.StatusText(response.StatusCode))
 		if response.StatusCode >= 200 && response.StatusCode <= 299 {
 			log.Println("info: HTTP Status Code from Traccar is in the 2xx range. This is OK.")
+			response.Body.Close()
 		}
-
 	}
 }
 

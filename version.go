@@ -31,8 +31,8 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.07.17"
-	talkkonnectReleased string = "Jan 06 2022"
+	talkkonnectVersion  string = "2.07.18"
+	talkkonnectReleased string = "Jan 08 2022"
 )
 
 /* Release Notes

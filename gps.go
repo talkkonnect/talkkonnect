@@ -254,22 +254,25 @@ func httpSendTraccarOsmand() {
 			return
 		}
 
-		defer response.Body.Close()
 		contents, err := ioutil.ReadAll(response.Body)
 
 		if err != nil {
 			log.Println("error: Error Sending Data to Traccar Server!")
+			response.Body.Close()
 		}
 
 		if response.ContentLength == 0 {
 			log.Println("alert: Empty Request Response Body")
-		} else {
+			response.Body.Close()
+	} else {
 			log.Printf("debug: Traccar Web Server Response -->\n-------------------------------------------------------------\n %v \n-------------------------------------------------------------\n", string(contents))
+			response.Body.Close()
 		}
 
 		log.Println("debug: HTTP Response Status from Traccar:", response.StatusCode, http.StatusText(response.StatusCode))
 		if response.StatusCode >= 200 && response.StatusCode <= 299 {
 			log.Println("info: HTTP Status Code from Traccar is in the 2xx range. This is OK.")
+			response.Body.Close()
 		}
 
 	}

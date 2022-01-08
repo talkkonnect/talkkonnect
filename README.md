@@ -3,7 +3,8 @@
 ### A Headless Mumble Client/Transceiver/Walkie Talkie/Intercom/Gateway for Single Board Computers, PCs or Virtual Environments (IP Radio/IP PTT <push-to-talk>)
 
 ---
-
+### if you like and use talkkonnect please let us know, please star talkkonnect/talkkonnect repo on github.com.
+	
 ### talKKonnect Version 2 Release Notice!
 * Version 2 breaks backward compatability with version 1 configs!! So make sure you use the correct version of the config file to make it work
 * The sample configs can be found in the sample-configs directory (they are marked as version 2 and version 1 respectively)	

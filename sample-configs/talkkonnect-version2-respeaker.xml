@@ -10,19 +10,19 @@
       <certificate></certificate>
       <channel/>
       <ident>Name Surname</ident>
-      <tokens enabled="true">
+      <tokens enabled="false">
         <token>token1</token>
         <token>token2</token>
       </tokens>
       <voicetargets>
         <id value="0">
           <users>
-            <user>suvir-home</user>
+            <user>suvir-laptop</user>
           </users>
         </id>
         <id value="1">
           <users>
-            <user>suvir-laptop</user>
+            <user>suvir-mobile</user>
           </users>
         </id>
         <id value="2">
@@ -34,7 +34,7 @@
         <id value="3">
           <channels>
             <channel>
-              <name>CHANNEL2</name>
+              <name>TEST1</name>
               <recursive>true</recursive>
               <links>true</links>
               <group>"all"</group>
@@ -51,7 +51,7 @@
         <outputdevice>Right Output Mixer PCM</outputdevice>
         <outputdeviceshort>Right Output Mixer PCM</outputdeviceshort>
         <outputvolcontroldevice>Playback</outputvolcontroldevice>
-	<outputmutecontroldevice>Right Output Mixer PCM</outputmutecontroldevice>
+        <outputmutecontroldevice>Right Output Mixer PCM</outputmutecontroldevice>
         <logfilenameandpath>/var/log/talkkonnect.log</logfilenameandpath>
         <logging>screenwithlineno</logging>
         <loglevel>debug</loglevel>
@@ -61,11 +61,11 @@
         <streamsendmessage>false</streamsendmessage>
         <txonstart>false</txonstart>
         <txafterstart>5</txafterstart>
-        <simplexwithmute>true</simplexwithmute>
-        <txcounter>false</txcounter>
-        <nextserverindex>0</nextserverindex>
         <repeattxtimes>5</repeattxtimes>
         <repeattxdelay>1</repeattxdelay>
+        <simplexwithmute>false</simplexwithmute>
+        <txcounter>false</txcounter>
+        <nextserverindex>0</nextserverindex>
       </settings>
       <autoprovisioning enabled="false">
         <tkid/>
@@ -124,39 +124,39 @@
         <sound event="alert" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/alerts/alert.wav" volume="10" blocking="false" enabled="false"/>
         <sound event="incommingbeep" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/rogerbeeps/Waterdrop.wav" volume="50" blocking="true" enabled="false"/>
         <sound event="rogerbeep" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/rogerbeeps/Image.wav" volume="50" blocking="false" enabled="true"/>
-        <sound event="stream" file="/root/song2.mp3" volume="50" blocking="true" enabled="true"/>  
-      <input enabled="true">
-          <sound event="iotxpttstart"   file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/rogerbeeps/YellowJacket.wav" enabled="true"/>
-          <sound event="iotxpttstop"     file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/rogerbeeps/RogerBeep3.wav" enabled="false"/>
-          <sound event="iotxtogglestart"    file="" enabled="false"/>
-          <sound event="iotxtogglestop"    file="" enabled="false"/>
-          <sound event="iochannelup"   file="" enabled="false"/>
+        <sound event="stream" file="http://prdonline.prd.go.th:8200" volume="50" blocking="true" enabled="true"/>
+        <input enabled="true">
+          <sound event="iotxpttstart" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/rogerbeeps/YellowJacket.wav" enabled="true"/>
+          <sound event="iotxpttstop" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/rogerbeeps/RogerBeep3.wav" enabled="false"/>
+          <sound event="iotxtogglestart" file="" enabled="false"/>
+          <sound event="iotxtogglestop" file="" enabled="false"/>
+          <sound event="iochannelup" file="" enabled="false"/>
           <sound event="iochanneldown" file="" enabled="false"/>
-          <sound event="iopanic"       file="" enabled="false"/>
+          <sound event="iopanic" file="" enabled="false"/>
           <sound event="iostreamtoggle" file="" enabled="false"/>
-          <sound event="iocommenton"     file="" enabled="false"/>
-          <sound event="iocommentoff"     file="" enabled="false"/>
-          <sound event="iorotarycw"     file="" enabled="false"/>
-          <sound event="iorotaryccw"     file="" enabled="false"/>
-          <sound event="iovolup"       file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/rogerbeeps/RC210#2.wav" enabled="true"/>
-          <sound event="iovoldown"     file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/rogerbeeps/RC210#2.wav" enabled="true"/>
-				  <sound event="usbchannelup" file="" enabled="false"/>
-					<sound event="usbchanneldown" file="" enabled="false"/>
-					<sound event="usbserverup" file="" enabled="false"/>
-					<sound event="usbpreviousserver" file="" enabled="false"/>
-					<sound event="usbmute" file="" enabled="false"/>
-					<sound event="usbunmute" file="" enabled="false"/>
-					<sound event="usbmutetoggle" file="" enabled="false"/>
-					<sound event="usbstreamtoggle" file="" enabled="false"/>
-					<sound event="usbvolup" file="" enabled="false"/>
-					<sound event="usbvoldown" file="" enabled="false"/>
- 					<sound event="usbsetcomment" file="" enabled="false"/>
-   				<sound event="usbstarttx" file="" enabled="false"/>
-					<sound event="usbstoptx" file="" enabled="false"/>
-					<sound event="usbrecord" file="" enabled="false"/>
-					<sound event="usbvoicetarget" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/rogerbeeps/RC210#2.wav" enabled="true"/>
-         </input>
- 	<repeatertone enabled="true">
+          <sound event="iocommenton" file="" enabled="false"/>
+          <sound event="iocommentoff" file="" enabled="false"/>
+          <sound event="iorotarycw" file="" enabled="false"/>
+          <sound event="iorotaryccw" file="" enabled="false"/>
+          <sound event="iovolup" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/rogerbeeps/RC210#2.wav" enabled="true"/>
+          <sound event="iovoldown" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/rogerbeeps/RC210#2.wav" enabled="true"/>
+          <sound event="usbchannelup" file="" enabled="false"/>
+          <sound event="usbchanneldown" file="" enabled="false"/>
+          <sound event="usbserverup" file="" enabled="false"/>
+          <sound event="usbpreviousserver" file="" enabled="false"/>
+          <sound event="usbmute" file="" enabled="false"/>
+          <sound event="usbunmute" file="" enabled="false"/>
+          <sound event="usbmutetoggle" file="" enabled="false"/>
+          <sound event="usbstreamtoggle" file="" enabled="false"/>
+          <sound event="usbvolup" file="" enabled="false"/>
+          <sound event="usbvoldown" file="" enabled="false"/>
+          <sound event="usbsetcomment" file="" enabled="false"/>
+          <sound event="usbstarttx" file="" enabled="false"/>
+          <sound event="usbstoptx" file="" enabled="false"/>
+          <sound event="usbrecord" file="" enabled="false"/>
+          <sound event="usbvoicetarget" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/rogerbeeps/RC210#2.wav" enabled="true"/>
+        </input>
+        <repeatertone enabled="false">
           <sound event="repeatertone" tonefrequencyhz="1750" volume="50" tonedurationsec="10" blocking="false" enabled="true"/>
         </repeatertone>
       </sounds>
@@ -165,36 +165,36 @@
       </txtimeout>
       <remotecontrol>
         <http listenport="8080" enabled="true">
-                <command action="displaymenu"        funcparamname=""        message="Display Menu"        enabled="true"/>
-                <command action="channelup"          funcparamname=""        message="Channel Up"          enabled="true"/>
-                <command action="channeldown"        funcparamname=""        message="Channel Down"        enabled="true"/>
-                <command action="mute-toggle"        funcparamname="toggle"  message="Mute-Toggle"         enabled="true"/>
-                <command action="mute"               funcparamname="mute"    message="Mute"                enabled="true"/>
-                <command action="unmute"             funcparamname="unmute"  message="Unute"               enabled="true"/>
-                <command action="currentvolume"      funcparamname=""        message="Current Volume"      enabled="true"/>
-                <command action="volumeup"           funcparamname=""        message="Volume Up"           enabled="true"/>
-                <command action="volumedown"         funcparamname=""        message="Volume Down"         enabled="true"/>
-                <command action="listserverchannels" funcparamname=""        message="List Channels"       enabled="true"/>
-                <command action="starttransmitting"  funcparamname=""        message="Start Transmitting"  enabled="true"/>
-                <command action="stoptransmitting"   funcparamname=""        message="Stop Transmitting"   enabled="true"/>
-                <command action="listonlineusers"    funcparamname=""        message="List Users"          enabled="true"/>
-                <command action="playback"           funcparamname=""        message="Playback"            enabled="true"/>
-                <command action="gpsposition"        funcparamname=""        message="GPS Position"        enabled="true"/>
-                <command action="sendemail"          funcparamname=""        message="Send Email"          enabled="true"/>
-                <command action="previousserver"     funcparamname=""        message="Previous Server"     enabled="true"/>
-                <command action="connnextserver"     funcparamname=""        message="Next Server"         enabled="true"/>
-                <command action="clearscreen"        funcparamname=""        message="Clear Screen"        enabled="true"/>
-                <command action="pingservers"        funcparamname=""        message="Ping Servers"        enabled="true"/>
-                <command action="panicsimulation"    funcparamname=""        message="Panic Simulation"    enabled="true"/>
-                <command action="repeattxloop"       funcparamname=""        message="Repeat TX Loop"      enabled="true"/>
-                <command action="scanchannels"       funcparamname=""        message="Scan Channels"       enabled="true"/>
-                <command action="thanks"             funcparamname=""        message="Thanks"              enabled="true"/>
-                <command action="showuptime"         funcparamname=""        message="Show UpTime"         enabled="true"/>
-                <command action="showversion"        funcparamname=""        message="Show Version"        enabled="true"/>
-                <command action="dumpxmlconfig"      funcparamname=""        message="Dump XML Config"     enabled="true"/>
-                <command action="ttsannouncement"    funcparamname="value"   message="TTS Announcement"    enabled="true"/>
-                <command action="voicetargetset"     funcparamname="value"   message="Set Voice Target"    enabled="true"/>
-                <command action="listapi"            funcparamname=""        message="List API"            enabled="true"/>
+          <command action="displaymenu" funcparamname="" message="Display Menu" enabled="true"/>
+          <command action="channelup" funcparamname="" message="Channel Up" enabled="true"/>
+          <command action="channeldown" funcparamname="" message="Channel Down" enabled="true"/>
+          <command action="mute-toggle" funcparamname="toggle" message="Mute-Toggle" enabled="true"/>
+          <command action="mute" funcparamname="mute" message="Mute" enabled="true"/>
+          <command action="unmute" funcparamname="unmute" message="Unute" enabled="true"/>
+          <command action="currentvolume" funcparamname="" message="Current Volume" enabled="true"/>
+          <command action="volumeup" funcparamname="" message="Volume Up" enabled="true"/>
+          <command action="volumedown" funcparamname="" message="Volume Down" enabled="true"/>
+          <command action="listserverchannels" funcparamname="" message="List Channels" enabled="true"/>
+          <command action="starttransmitting" funcparamname="" message="Start Transmitting" enabled="true"/>
+          <command action="stoptransmitting" funcparamname="" message="Stop Transmitting" enabled="true"/>
+          <command action="listonlineusers" funcparamname="" message="List Users" enabled="true"/>
+          <command action="playback" funcparamname="" message="Playback" enabled="true"/>
+          <command action="gpsposition" funcparamname="" message="GPS Position" enabled="true"/>
+          <command action="sendemail" funcparamname="" message="Send Email" enabled="true"/>
+          <command action="previousserver" funcparamname="" message="Previous Server" enabled="true"/>
+          <command action="connnextserver" funcparamname="" message="Next Server" enabled="true"/>
+          <command action="clearscreen" funcparamname="" message="Clear Screen" enabled="true"/>
+          <command action="pingservers" funcparamname="" message="Ping Servers" enabled="true"/>
+          <command action="panicsimulation" funcparamname="" message="Panic Simulation" enabled="true"/>
+          <command action="repeattxloop" funcparamname="" message="Repeat TX Loop" enabled="true"/>
+          <command action="scanchannels" funcparamname="" message="Scan Channels" enabled="true"/>
+          <command action="thanks" funcparamname="" message="Thanks" enabled="true"/>
+          <command action="showuptime" funcparamname="" message="Show UpTime" enabled="true"/>
+          <command action="showversion" funcparamname="" message="Show Version" enabled="true"/>
+          <command action="dumpxmlconfig" funcparamname="" message="Dump XML Config" enabled="true"/>
+          <command action="ttsannouncement" funcparamname="value" message="TTS Announcement" enabled="true"/>
+          <command action="voicetargetset" funcparamname="value" message="Set Voice Target" enabled="true"/>
+          <command action="listapi" funcparamname="" message="List API" enabled="true"/>
         </http>
         <mqtt enabled="false">
           <settings>
@@ -213,43 +213,42 @@
             <attentionblinkmsecs>300</attentionblinkmsecs>
           </settings>
           <commands>
-          <command action="displaymenu"        message="Display Menu"        enabled="true"/>
-          <command action="channelup"          message="Channel Up"          enabled="true"/>
-          <command action="channeldown"        message="Channel Down"        enabled="true"/>
-          <command action="mute-toggle"        message="Mute-Toggle"         enabled="true"/>
-          <command action="mute"               message="Mute"                enabled="true"/>
-          <command action="unmute"             message="Unute"               enabled="true"/>
-          <command action="currentvolume"      message="Current Volume"      enabled="true"/>
-          <command action="volumeup"           message="Volume Up"           enabled="true"/>
-          <command action="volumedown"         message="Volume Down"         enabled="true"/>
-          <command action="listserverchannels" message="List Channels"       enabled="true"/>
-          <command action="starttransmitting"  message="Start Transmitting"  enabled="true"/>
-          <command action="stoptransmitting"   message="Stop Transmitting"   enabled="true"/>
-          <command action="listonlineusers"    message="List Users"          enabled="true"/>
-          <command action="playback"           message="Playback"            enabled="true"/>
-          <command action="gpsposition"        message="GPS Position"        enabled="true"/>
-          <command action="sendemail"          message="Send Email"          enabled="true"/>
-          <command action="previousserver"     message="Previous Server"     enabled="true"/>
-          <command action="connnextserver"     message="Next Server"         enabled="true"/>
-          <command action="clearscreen"        message="Clear Screen"        enabled="true"/>
-          <command action="pingservers"        message="Ping Servers"        enabled="true"/>
-          <command action="panicsimulation"    message="Panic Simulation"    enabled="true"/>
-          <command action="repeattxloop"       message="Repeat TX Loop"      enabled="true"/>
-          <command action="scanchannels"       message="Scan Channels"       enabled="true"/>
-          <command action="thanks"             message="Thanks"              enabled="true"/>
-          <command action="showuptime"         message="Show UpTime"         enabled="true"/>
-          <command action="dumpxmlconfig"      message="Dump XML Config"     enabled="true"/>
-          <command action="ttsannouncement"    message="TTS Announcement"    enabled="true"/>
-          <command action="voicetargetset"     message="Set Voice Target"    enabled="true"/>
-          <command action="attention"          message="Attention LED"       enabled="true"/>
-          <command action="relay"              message="RelayControl"        enabled="true"/>
-        </commands>
+            <command action="displaymenu" message="Display Menu" enabled="true"/>
+            <command action="channelup" message="Channel Up" enabled="true"/>
+            <command action="channeldown" message="Channel Down" enabled="true"/>
+            <command action="mute-toggle" message="Mute-Toggle" enabled="true"/>
+            <command action="mute" message="Mute" enabled="true"/>
+            <command action="unmute" message="Unute" enabled="true"/>
+            <command action="currentvolume" message="Current Volume" enabled="true"/>
+            <command action="volumeup" message="Volume Up" enabled="true"/>
+            <command action="volumedown" message="Volume Down" enabled="true"/>
+            <command action="listserverchannels" message="List Channels" enabled="true"/>
+            <command action="starttransmitting" message="Start Transmitting" enabled="true"/>
+            <command action="stoptransmitting" message="Stop Transmitting" enabled="true"/>
+            <command action="listonlineusers" message="List Users" enabled="true"/>
+            <command action="playback" message="Playback" enabled="true"/>
+            <command action="gpsposition" message="GPS Position" enabled="true"/>
+            <command action="sendemail" message="Send Email" enabled="true"/>
+            <command action="previousserver" message="Previous Server" enabled="true"/>
+            <command action="connnextserver" message="Next Server" enabled="true"/>
+            <command action="clearscreen" message="Clear Screen" enabled="true"/>
+            <command action="pingservers" message="Ping Servers" enabled="true"/>
+            <command action="panicsimulation" message="Panic Simulation" enabled="true"/>
+            <command action="repeattxloop" message="Repeat TX Loop" enabled="true"/>
+            <command action="scanchannels" message="Scan Channels" enabled="true"/>
+            <command action="thanks" message="Thanks" enabled="true"/>
+            <command action="showuptime" message="Show UpTime" enabled="true"/>
+            <command action="dumpxmlconfig" message="Dump XML Config" enabled="true"/>
+            <command action="ttsannouncement" message="TTS Announcement" enabled="true"/>
+            <command action="voicetargetset" message="Set Voice Target" enabled="true"/>
+            <command action="attention" message="Attention LED" enabled="true"/>
+            <command action="relay" message="RelayControl" enabled="true"/>
+          </commands>
         </mqtt>
       </remotecontrol>
-
       <printvariables>
         <printaccount>false</printaccount>
-        <printsystemsettings>true</printsystemsettings>
+        <printsystemsettings>false</printsystemsettings>
         <printprovisioning>false</printprovisioning>
         <printbeacon>false</printbeacon>
         <printtts>false</printtts>
@@ -257,65 +256,80 @@
         <printsounds>false</printsounds>
         <printtxtimeout>false</printtxtimeout>
         <printhttpapi>false</printhttpapi>
-        <printtargetboard>false</printtargetboard>
-        <printleds>false</printleds>
+        <printmqtt>false</printmqtt>
+        <printttsmessages>false</printttsmessages>
+        <printignoreuser>false</printignoreuser>
+        <printhardware>false</printhardware>
+        <printgpioexpander>false</printgpioexpander>
+        <printmax7219>false</printmax7219>
+        <printpins>false</printpins>
+        <printpulse>false</printpulse>
+        <printvolumebuttonstep>false</printvolumebuttonstep>
         <printheartbeat>false</printheartbeat>
-        <printgpio>false</printgpio>
-        <printbuttons>false</printbuttons>
         <printcomment>false</printcomment>
         <printlcd>false</printlcd>
         <printoled>false</printoled>
         <printgps>false</printgps>
+        <printtraccar>false</printtraccar>
         <printpanic>false</printpanic>
-        <printaudiorecord>false</printaudiorecord>
-        <printmqtt>false</printmqtt>
-        <printttsmessages>false</printttsmessages>
-        <printkeyboardmap>false</printkeyboardmap>
         <printusbkeyboard>false</printusbkeyboard>
+        <printaudiorecord>false</printaudiorecord>
+        <printkeyboardmap>false</printkeyboardmap>
         <printmultimedia>false</printmultimedia>
       </printvariables>
-      <ttsmessages enabled="true">
+      <ttsmessages enabled="false">
         <ttslanguage>en</ttslanguage>
         <ttsmessagefromtag>false</ttsmessagefromtag>
         <ttstone file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/announcements/announcement-01.wav" volume="10" enabled="true"/>
+        <blocking>false</blocking>
         <ttssounddirectory>audio</ttssounddirectory>
         <localplay>true</localplay>
-        <localvolume>50</localvolume>
-        <localblocking>true</localblocking>
         <playintostream>false</playintostream>
         <speakvolumeintostream>50</speakvolumeintostream>
         <playvolumeintostream>50</playvolumeintostream>
         <gpio name="transmit" enabled="true"/>
         <predelay value="1" enabled="true"/>
         <postdelay value="1" enabled="true"/>
-        <blocking>false</blocking>
       </ttsmessages>
-      <ignoreuser enabled="true">
+      <ignoreuser enabled="false">
         <ignoreuserregex>^(suvirsony)$</ignoreuserregex>
       </ignoreuser>
     </software>
     <hardware targetboard="rpi">
       <ledstripenabled>true</ledstripenabled>
+      <voiceactivitytimermsecs>200</voiceactivitytimermsecs>
       <io>
+        <gpioexpander enabled="false">
+          <chip id="0" i2cbus="1" mcpdevice="0" enabled="false"/>
+        </gpioexpander>
+        <max7219 max7219cascaded="1" spibus="0" spidevice="0" brightness="7" enabled="false"/>
         <pins>
-          <pin direction="output" device="led/relay"    name="voiceactivity" pinno="2"  type="gpio" chipid="0" enabled="false"/>
-          <pin direction="output" device="led/relay"    name="participants"  pinno="3"  type="gpio" chipid="0" enabled="false"/>
-          <pin direction="output" device="led/relay"    name="transmit"      pinno="4"  type="gpio" chipid="0" enabled="false"/>
-          <pin direction="output" device="led/relay"    name="online"        pinno="5"  type="gpio" chipid="0" enabled="false"/>
-          <pin direction="output" device="led/relay"    name="attention"     pinno="2"  type="gpio" chipid="0" enabled="false"/>
-          <pin direction="output" device="led/relay"    name="voicetarget"   pinno="2"  type="gpio" chipid="0" enabled="false"/>
-          <pin direction="output" device="led/relay"    name="heartbeat"     pinno="2"  type="gpio" chipid="0" enabled="false"/>
-          <pin direction="output" device="lcd"          name="backlight"     pinno="6"  type="gpio" chipid="0" enabled="false"/>
-          <pin direction="output" device="led/relay"    name="relay0"        pinno="6"  type="gpio" chipid="0" enabled="false"/>
-          <pin direction="input"  device="pushbutton"   name="txptt"         pinno="17" type="gpio" chipid="0" enabled="true"/>
-          <pin direction="input"  device="pushbutton"   name="txtoggle"      pinno="11" type="gpio" chipid="0" enabled="false"/>
-          <pin direction="input"  device="pushbutton"   name="channelup"     pinno="19" type="gpio" chipid="0" enabled="false"/>
-          <pin direction="input"  device="pushbutton"   name="channeldown"   pinno="13" type="gpio" chipid="0" enabled="false"/>
-          <pin direction="input"  device="pushbutton"   name="panic"         pinno="14" type="gpio" chipid="0" enabled="false"/>
-          <pin direction="input"  device="pushbutton"   name="streamtoggle"  pinno="14" type="gpio" chipid="0" enabled="false"/>
-          <pin direction="input"  device="toggleswitch" name="comment"       pinno="14" type="gpio" chipid="0" enabled="false"/>
+          <pin direction="output" device="led/relay" name="voiceactivity" pinno="22" type="gpio" chipid="0" enabled="false"/>
+          <pin direction="output" device="led/relay" name="participants" pinno="27" type="gpio" chipid="0" enabled="false"/>
+          <pin direction="output" device="led/relay" name="transmit" pinno="17" type="gpio" chipid="0" enabled="false"/>
+          <pin direction="output" device="led/relay" name="online" pinno="5" type="gpio" chipid="0" enabled="false"/>
+          <pin direction="output" device="led/relay" name="attention" pinno="2" type="gpio" chipid="0" enabled="false"/>
+          <pin direction="output" device="led/relay" name="voicetarget" pinno="2" type="gpio" chipid="0" enabled="false"/>
+          <pin direction="output" device="led/relay" name="heartbeat" pinno="2" type="gpio" chipid="0" enabled="false"/>
+          <pin direction="output" device="lcd" name="backlight" pinno="6" type="gpio" chipid="0" enabled="false"/>
+          <pin direction="output" device="led/relay" name="relay0" pinno="6" type="gpio" chipid="0" enabled="false"/>
+          <pin direction="input" device="pushbutton" name="txptt" pinno="17" type="gpio" chipid="0" enabled="true"/>
+          <pin direction="input" device="pushbutton" name="txtoggle" pinno="11" type="gpio" chipid="0" enabled="false"/>
+          <pin direction="input" device="pushbutton" name="channelup" pinno="19" type="gpio" chipid="0" enabled="false"/>
+          <pin direction="input" device="pushbutton" name="channeldown" pinno="13" type="gpio" chipid="0" enabled="false"/>
+          <pin direction="input" device="pushbutton" name="panic" pinno="14" type="gpio" chipid="0" enabled="false"/>
+          <pin direction="input" device="pushbutton" name="streamtoggle" pinno="14" type="gpio" chipid="0" enabled="false"/>
+          <pin direction="input" device="toggleswitch" name="comment" pinno="14" type="gpio" chipid="0" enabled="false"/>
+          <pin direction="input" device="rotaryencoder" name="rotarya" pinno="17" type="gpio" chipid="0" enabled="false"/>
+          <pin direction="input" device="rotaryencoder" name="rotaryb" pinno="18" type="gpio" chipid="0" enabled="false"/>
+          <pin direction="input" device="pushbutton" name="volup" pinno="19" type="gpio" chipid="0" enabled="false"/>
+          <pin direction="input" device="pushbutton" name="voldown" pinno="13" type="gpio" chipid="0" enabled="false"/>
         </pins>
         <pulse leadingmsecs="1000" pulsemsecs="1000" trailingmsecs="1000"/>
+        <volumebuttonstep>
+          <volupstep>+2</volupstep>
+          <voldownstep>-2</voldownstep>
+        </volumebuttonstep>
       </io>
       <heartbeat enabled="false">
         <heartbeatledpin/>
@@ -355,7 +369,7 @@
         <oledstartcolumn>0</oledstartcolumn>
       </oled>
       <gps enabled="false">
-        <port>/dev/ttyAMA0</port>
+        <port>/dev/ttyACM0</port>
         <baud>115200</baud>
         <txdata/>
         <even>false</even>
@@ -370,22 +384,22 @@
         <rx>true</rx>
         <gpsinfoverbose>true</gpsinfoverbose>
       </gps>
-      <traccar enabled="true">
-      <track>true</track>
-      <clientid>suvir</clientid>
-      <devicescreenenabled>true</devicescreenenabled>
-      <protocol name="osmand">
-      <osmand port="5055">
-        <serverurl>http://1.2.3.4</serverurl>
-      </osmand>
-      <t55 port="5005">
-        <serverip>1.2.3.4</serverip>
-      </t55>
-      <opengts port="5159">
-        <serverurl>http://1.2.3.4</serverurl>
-      </opengts>
-      </protocol>
-    </traccar>
+      <traccar enabled="false">
+        <track>true</track>
+        <clientid>suvir</clientid>
+        <devicescreenenabled>true</devicescreenenabled>
+        <protocol name="osmand">
+          <osmand port="5055">
+            <serverurl>http://1.2.3.4</serverurl>
+          </osmand>
+          <t55 port="5005">
+            <serverip>1.2.3.4</serverip>
+          </t55>
+          <opengts port="5159">
+            <serverurl>http://1.2.3.4</serverurl>
+          </opengts>
+        </protocol>
+      </traccar>
       <panicfunction enabled="false">
         <filenameandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/alerts/alert.wav</filenameandpath>
         <volume>10</volume>
@@ -474,7 +488,7 @@
       </keyboard>
     </hardware>
     <multimedia>
-      <id value="0" enabled="true">
+      <id value="0" enabled="false">
         <params>
           <announcementtone file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/announcements/announcement-01.wav" volume="10" blocking="false" enabled="true"/>
           <localplay>true</localplay>
@@ -489,7 +503,7 @@
           <source name="2nd-song" file="/root/song1.mp3" volume="10" duration="0" offset="0" loop="1" blocking="false" enabled="false"/>
         </media>
       </id>
-      <id value="1" enabled="true">
+      <id value="1" enabled="false">
         <params>
           <announcementtone file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/announcements/announcement-01.wav" enabled="true"/>
           <localplay>true</localplay>
@@ -501,8 +515,8 @@
           <voicetarget/>
         </params>
         <media>
-          <source name="1st-song" file="/root/song2.mp3" volume="10" duration="0" offset="0" loop="1" blocking="false" enabled="false"/>
-          <source name="2nd-song" file="/root/song3.mp3" volume="10" duration="0" offset="0" loop="1" blocking="false" enabled="true"/>
+          <source name="1st-song" file="/root/song1.mp3" volume="10" duration="0" offset="0" loop="1" blocking="false" enabled="false"/>
+          <source name="2nd-song" file="/root/song2.mp3" volume="10" duration="0" offset="0" loop="1" blocking="false" enabled="true"/>
         </media>
       </id>
     </multimedia>

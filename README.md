@@ -171,7 +171,7 @@ Instead of the onboard sound card or USB Sound Card, you can also use a ReSpeake
 * This image is the initial release created a while ago and is not yet updated.
 * [Click Here to Download Pre-Configured SD Card Image for Talkkonnect Version 2 for Raspberry 3/4/Pi with IM69D130 Mems Microphone](https://drive.google.com/file/d/1s7Qjtj8XAfQmdr766WBvYZq4vjaQ7CZ3/view?usp=sharing) 
 * This image uses the standard 32 Bit Sampling and will work properly with all mumble clients on windows, android and iphone with good quality sound.
-* This image has a custom kernel and used Instructions was found at https://github.com/Infineon/GetStarted_IM69D130_With_RaspberryPi(for MEMS support)
+* This image has a custom kernel and used Instructions was found at https://github.com/Infineon/GetStarted_IM69D130_With_RaspberryPi
 * This image has been configured to work with a IM69D130 Mems Microphone and the onboard raspberry pi sound card (3.5mm Jack) out of the box.
 * The XML file is configured to run in rpi mode so GPIO will initalized, this is so that the Pin 11 XML tag value 17 when shorted to ground will act as the PTT button. 
 * This mems microphone will enable you to have a small build with excellent sound quality whilst using the internal provided sound card in the raspberry pi.

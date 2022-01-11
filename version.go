@@ -36,5 +36,6 @@ const (
 )
 
 /* Release Notes
-1. Added Error Handling Structure to GPS.go
+1. Combined http traccar protocols into one function
+2. Added sound events for user to know traccar status
 */

@@ -505,11 +505,11 @@ func (b *Talkkonnect) ClientStart() {
 	}
 
 	if Config.Global.Hardware.Traccar.Enabled && Config.Global.Hardware.Traccar.Track && Config.Global.Hardware.Traccar.Protocol.Name == "osmand" {
-		go httpSendTraccarOsmand()
+		go httpSendTraccar("osmand")
 	}
 
 	if Config.Global.Hardware.Traccar.Enabled && Config.Global.Hardware.Traccar.Track && Config.Global.Hardware.Traccar.Protocol.Name == "opengts" {
-		go httpSendTraccarOpenGTS()
+		go httpSendTraccar("opengts")
 	}
 
 	if Config.Global.Hardware.Traccar.Enabled && Config.Global.Hardware.Traccar.Track && Config.Global.Hardware.Traccar.Protocol.Name == "t55" {

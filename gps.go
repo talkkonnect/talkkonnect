@@ -39,6 +39,7 @@ import (
 	"net"
 	"net/http"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -84,6 +85,13 @@ var (
 	GGASentenceValid bool
 	GSVSentenceValid bool
 	goodGPSRead      bool
+)
+
+var (
+	TCPErrorCount      int
+	HTTPErrorCount     int
+	TCPErrorThreshold  int = 5
+	HTTPErrorThreshold int = 5
 )
 
 func getGpsPosition(verbosity int) (bool, error) {
@@ -234,24 +242,30 @@ func getGpsPosition(verbosity int) (bool, error) {
 	return false, errors.New("gnss not enabled")
 }
 
-func httpSendTraccarOsmand() {
+func httpSendTraccar(tprotocol string) {
 
 	GPSDataChannelReceivers++
-	TCPErrorCount := 0
-	HTTPErrorCount := 0
-	TCPErrorThreshold := 5
-	HTTPErrorThreshold := 5
 
 	for {
 		GNSSDataTraccar := <-GNSSDataPublic
-		TraccarDateTime := GNSSDataTraccar.DateTime.Format("2006-01-02") + "%20" + GNSSDataTraccar.DateTime.Format("15:04:05")
-		TraccarServerFullURLOsman := (fmt.Sprint(Config.Global.Hardware.Traccar.Protocol.Osmand.ServerURL) + ":" + fmt.Sprint(Config.Global.Hardware.Traccar.Protocol.Osmand.Port) + "/?" + "id=" + Config.Global.Hardware.Traccar.ClientId + "&" +
-			"timestamp=" + TraccarDateTime + "&" + "lat=" + fmt.Sprintf("%f", GNSSDataTraccar.Lattitude) +
-			"&" + "lon=" + fmt.Sprintf("%f", GNSSDataTraccar.Longitude) + "&" + "speed=" + fmt.Sprintf("%f", GNSSDataTraccar.Speed) + "&" + "course=" +
-			fmt.Sprintf("%f", GNSSDataTraccar.Course) + "&" + "variation=" + fmt.Sprintf("%f", GNSSDataTraccar.Variation) + "&" + "hdop=" + fmt.Sprintf("%f", GNSSData.HDOP) + "&" + "altitude=" + fmt.Sprintf("%f", GNSSData.Altitude))
+
+		var TraccarServerFullURL string
+
+		if tprotocol == "osmand" {
+			TraccarDateTime := GNSSDataTraccar.DateTime.Format("2006-01-02") + "%20" + GNSSDataTraccar.DateTime.Format("15:04:05")
+			TraccarServerFullURL = (fmt.Sprint(Config.Global.Hardware.Traccar.Protocol.Osmand.ServerURL) + ":" + fmt.Sprint(Config.Global.Hardware.Traccar.Protocol.Osmand.Port) + "/?" + "id=" + Config.Global.Hardware.Traccar.ClientId + "&" +
+				"timestamp=" + TraccarDateTime + "&" + "lat=" + fmt.Sprintf("%f", GNSSDataTraccar.Lattitude) +
+				"&" + "lon=" + fmt.Sprintf("%f", GNSSDataTraccar.Longitude) + "&" + "speed=" + fmt.Sprintf("%f", GNSSDataTraccar.Speed) + "&" + "course=" +
+				fmt.Sprintf("%f", GNSSDataTraccar.Course) + "&" + "variation=" + fmt.Sprintf("%f", GNSSDataTraccar.Variation) + "&" + "hdop=" + fmt.Sprintf("%f", GNSSData.HDOP) + "&" + "altitude=" + fmt.Sprintf("%f", GNSSData.Altitude))
+
+		}
+
+		if tprotocol == "opengts" {
+			TraccarServerFullURL = (fmt.Sprint(Config.Global.Hardware.Traccar.Protocol.Opengts.ServerURL) + ":" + fmt.Sprint(Config.Global.Hardware.Traccar.Protocol.Opengts.Port) + "/?id=" + Config.Global.Hardware.Traccar.ClientId + "&gprmc=" + GNSSDataTraccar.RMCRaw)
+		}
 
 		client := http.Client{Timeout: 5 * time.Second}
-		response, err := client.Get(TraccarServerFullURLOsman)
+		response, err := client.Get(TraccarServerFullURL)
 		if err != nil {
 			tcpErrorsTrap := "(refused|reset)" // add tcp errors here as they are found
 			re := regexp.MustCompile(tcpErrorsTrap)
@@ -260,38 +274,77 @@ func httpSendTraccarOsmand() {
 			if matched {
 				TCPErrorCount++
 				log.Println("error: TCP/IP Error Communicating with Traccar Server")
-				//alert user with sound or screen of tcp error
+				eventSound := findEventSound("traccarTCPError")
+				if eventSound.Enabled {
+					if v, err := strconv.Atoi(eventSound.Volume); err == nil {
+						localMediaPlayer(eventSound.FileName, v, eventSound.Blocking, 0, 1)
+					}
+				}
 				continue
 			}
 		}
 		//handle http status codes and errors here
 		if response.StatusCode >= 200 && response.StatusCode <= 299 {
 			HTTPErrorCount = 0
-			log.Printf("debug: OSMand Protocol Traccar Server HTTP Response Code %v With Status %v\n", response.StatusCode, http.StatusText(response.StatusCode))
-			//alert user with sound or screen of http error
+			log.Printf("debug: %v Protocol Traccar Server HTTP Response Code %v With Status %v\n", tprotocol, response.StatusCode, http.StatusText(response.StatusCode))
+			eventSound := findEventSound("traccarHTTP2XXResponse")
+			if eventSound.Enabled {
+				if v, err := strconv.Atoi(eventSound.Volume); err == nil {
+					localMediaPlayer(eventSound.FileName, v, eventSound.Blocking, 0, 1)
+				}
+			}
 		}
 		if response.StatusCode >= 300 && response.StatusCode <= 399 {
 			HTTPErrorCount++
-			log.Printf("debug: OSMand Protocol Traccar Server HTTP Response Code %v With Status %v\n", response.StatusCode, http.StatusText(response.StatusCode))
-			//alert user with sound or screen of http error
+			log.Printf("debug: %v Protocol Traccar Server HTTP Response Code %v With Status %v\n", tprotocol, response.StatusCode, http.StatusText(response.StatusCode))
+			eventSound := findEventSound("traccarHTTP3XXResponse")
+			if eventSound.Enabled {
+				if v, err := strconv.Atoi(eventSound.Volume); err == nil {
+					localMediaPlayer(eventSound.FileName, v, eventSound.Blocking, 0, 1)
+				}
+			}
 		}
 		if response.StatusCode >= 400 && response.StatusCode <= 499 {
 			HTTPErrorCount++
-			log.Printf("debug: OSMand Protocol Traccar Server HTTP Response Code %v With Status %v\n", response.StatusCode, http.StatusText(response.StatusCode))
-			//alert user with sound or screen of http error
+			log.Printf("debug: %v Protocol Traccar Server HTTP Response Code %v With Status %v\n", tprotocol, response.StatusCode, http.StatusText(response.StatusCode))
+			eventSound := findEventSound("traccarHTTP4XXResponse")
+			if eventSound.Enabled {
+				if v, err := strconv.Atoi(eventSound.Volume); err == nil {
+					localMediaPlayer(eventSound.FileName, v, eventSound.Blocking, 0, 1)
+				}
+			}
 		}
 		if response.StatusCode >= 500 && response.StatusCode <= 599 {
 			HTTPErrorCount++
-			log.Printf("debug: OSMand Protocol Traccar Server HTTP Response Code %v With Status %v\n", response.StatusCode, http.StatusText(response.StatusCode))
-			//alert user with sound or screen of http error
+			log.Printf("debug: %v Protocol Traccar Server HTTP Response Code %v With Status %v\n", tprotocol, response.StatusCode, http.StatusText(response.StatusCode))
+			eventSound := findEventSound("traccarHTTP5XXResponse")
+			if eventSound.Enabled {
+				if v, err := strconv.Atoi(eventSound.Volume); err == nil {
+					localMediaPlayer(eventSound.FileName, v, eventSound.Blocking, 0, 1)
+				}
+			}
 		}
 		response.Body.Close()
 
 		if TCPErrorCount >= TCPErrorThreshold {
 			Config.Global.Hardware.Traccar.Enabled = false
+			eventSound := findEventSound("traccarTooManyErrors")
+			if eventSound.Enabled {
+				if v, err := strconv.Atoi(eventSound.Volume); err == nil {
+					localMediaPlayer(eventSound.FileName, v, eventSound.Blocking, 0, 1)
+				}
+			}
+			return
 		}
 		if HTTPErrorCount >= HTTPErrorThreshold {
 			Config.Global.Hardware.Traccar.Enabled = false
+			eventSound := findEventSound("traccarTooManyErrors")
+			if eventSound.Enabled {
+				if v, err := strconv.Atoi(eventSound.Volume); err == nil {
+					localMediaPlayer(eventSound.FileName, v, eventSound.Blocking, 0, 1)
+				}
+			}
+			return
 		}
 	}
 }
@@ -372,64 +425,6 @@ func tcpSendT55Traccar() {
 			case <-time.After(time.Second * 60):
 				log.Println("debug: Traccar Server Connection Timeout 60. Still Alive")
 			}
-		}
-	}
-}
-
-func httpSendTraccarOpenGTS() {
-
-	GPSDataChannelReceivers++
-	TCPErrorCount := 0
-	HTTPErrorCount := 0
-	TCPErrorThreshold := 5
-	HTTPErrorThreshold := 5
-
-	for {
-		GNSSDataTraccar := <-GNSSDataPublic
-		TraccarServerFullURLOpenGTS := (fmt.Sprint(Config.Global.Hardware.Traccar.Protocol.Opengts.ServerURL) + ":" + fmt.Sprint(Config.Global.Hardware.Traccar.Protocol.Opengts.Port) + "/?id=" + Config.Global.Hardware.Traccar.ClientId + "&gprmc=" + GNSSDataTraccar.RMCRaw)
-
-		client := http.Client{Timeout: 5 * time.Second}
-		response, err := client.Get(TraccarServerFullURLOpenGTS)
-		if err != nil {
-			tcpErrorsTrap := "(refused|reset)" // add tcp errors here as they are found
-			re := regexp.MustCompile(tcpErrorsTrap)
-			matched := re.MatchString(err.Error())
-			log.Println("error: Failed Communication with Traccar Server ", err)
-			if matched {
-				TCPErrorCount++
-				log.Println("error: TCP/IP Error Communicating with Traccar Server")
-				//alert user with sound or screen of tcp error
-				continue
-			}
-		}
-		//handle http status codes and errors here
-		if response.StatusCode >= 200 && response.StatusCode <= 299 {
-			HTTPErrorCount = 0
-			log.Printf("debug: OpenGTS Protocol Traccar Server HTTP Response Code %v With Status %v\n", response.StatusCode, http.StatusText(response.StatusCode))
-			//alert user with sound or screen of http error
-		}
-		if response.StatusCode >= 300 && response.StatusCode <= 399 {
-			HTTPErrorCount++
-			log.Printf("debug: OpenGTS Protocol Traccar Server HTTP Response Code %v With Status %v\n", response.StatusCode, http.StatusText(response.StatusCode))
-			//alert user with sound or screen of http error
-		}
-		if response.StatusCode >= 400 && response.StatusCode <= 499 {
-			HTTPErrorCount++
-			log.Printf("debug: OpenGTS Protocol Traccar Server HTTP Response Code %v With Status %v\n", response.StatusCode, http.StatusText(response.StatusCode))
-			//alert user with sound or screen of http error
-		}
-		if response.StatusCode >= 500 && response.StatusCode <= 599 {
-			HTTPErrorCount++
-			log.Printf("debug: OpenGTS Protocol Traccar Server HTTP Response Code %v With Status %v\n", response.StatusCode, http.StatusText(response.StatusCode))
-			//alert user with sound or screen of http error
-		}
-		response.Body.Close()
-
-		if TCPErrorCount >= TCPErrorThreshold {
-			Config.Global.Hardware.Traccar.Enabled = false
-		}
-		if HTTPErrorCount >= HTTPErrorThreshold {
-			Config.Global.Hardware.Traccar.Enabled = false
 		}
 	}
 }

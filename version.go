@@ -36,5 +36,5 @@ const (
 )
 
 /* Release Notes
-1. Updated Printing of Variables to match current xml structure
+1. Added Error Handling Structure to GPS.go
 */

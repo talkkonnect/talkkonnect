@@ -337,19 +337,25 @@ func (b *Talkkonnect) OnPermissionDenied(e *gumble.PermissionDeniedEvent) {
 }
 
 func (b *Talkkonnect) OnChannelChange(e *gumble.ChannelChangeEvent) {
+	log.Println("debug: Channel Change Event Detected")
 }
 
 func (b *Talkkonnect) OnUserList(e *gumble.UserListEvent) {
+	log.Println("debug: On User List Event Detected")
 }
 
 func (b *Talkkonnect) OnACL(e *gumble.ACLEvent) {
+	log.Println("debug: On ACL Event Detected")
 }
 
 func (b *Talkkonnect) OnBanList(e *gumble.BanListEvent) {
+	log.Println("debug: OnBanList Event Detected")
 }
 
 func (b *Talkkonnect) OnContextActionChange(e *gumble.ContextActionChangeEvent) {
+	log.Println("debug: OnContextActionChange Event Detected")
 }
 
 func (b *Talkkonnect) OnServerConfig(e *gumble.ServerConfigEvent) {
+	log.Println("debug: OnServerConfigs Event Detected")
 }

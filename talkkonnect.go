@@ -55,7 +55,7 @@ func talkkonnectBanner(backgroundcolor string) {
 	log.Println("info: " + backgroundcolor + "└────────────────────────────────────────────────────────────────┘" + backgroundreset)
 	releasedVersion := checkGitHubVersion()
 	if talkkonnectVersion != releasedVersion {
-		log.Printf("warn: Ver %v Rel %v (Newer Ver %v Available!)\n", talkkonnectVersion, talkkonnectReleased, releasedVersion)
+		log.Printf("warn: Ver %v Rel %v (Different Ver %v Available!)\n", talkkonnectVersion, talkkonnectReleased, releasedVersion)
 	} else {
 		log.Printf("info: Ver %v Rel %v (Latest Release)\n", talkkonnectVersion, talkkonnectReleased)
 	}

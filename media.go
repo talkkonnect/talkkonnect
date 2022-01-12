@@ -43,15 +43,17 @@ import (
 func aplayLocal(fileNameWithPath string) {
 	var player string
 
+	CmdArguments := []string{}
+
 	if path, err := exec.LookPath("aplay"); err == nil {
+		CmdArguments = []string{fileNameWithPath, "-q", "-N"}
 		player = path
 	} else if path, err := exec.LookPath("paplay"); err == nil {
+		CmdArguments = []string{fileNameWithPath}
 		player = path
 	} else {
 		return
 	}
-
-	CmdArguments := []string{fileNameWithPath, "-q", "-N"}
 
 	log.Printf("debug: player %v CmdArguments %v", player, CmdArguments)
 

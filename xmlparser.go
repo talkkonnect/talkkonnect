@@ -509,15 +509,7 @@ type VTStruct struct {
 	}
 }
 
-type TTYKBStruct struct {
-	Enabled    bool
-	KeyLabel   uint32
-	Command    string
-	ParamName  string
-	ParamValue string
-}
-
-type USBKBStruct struct {
+type KBStruct struct {
 	Enabled    bool
 	KeyLabel   uint32
 	Command    string
@@ -530,13 +522,6 @@ type EventSoundStruct struct {
 	FileName string
 	Volume   string
 	Blocking bool
-}
-
-type InputEventSoundStruct struct {
-	Enabled       bool
-	InputEvent    string
-	ToneFrequency int
-	ToneDuration  float32
 }
 
 type InputEventSoundFileStruct struct {
@@ -597,8 +582,8 @@ var (
 var (
 	LcdText    = [4]string{"nil", "nil", "nil", "nil"}
 	MyLedStrip *LedStrip
-	TTYKeyMap  = make(map[rune]TTYKBStruct)
-	USBKeyMap  = make(map[rune]USBKBStruct)
+	TTYKeyMap  = make(map[rune]KBStruct)
+	USBKeyMap  = make(map[rune]KBStruct)
 )
 
 //Mumble Account Settings Global Variables
@@ -707,10 +692,10 @@ func readxmlconfig(file string, reloadxml bool) error {
 	for _, kMainCommands := range Config.Global.Hardware.Keyboard.Command {
 		if kMainCommands.Enabled {
 			if kMainCommands.Ttykeyboard.Enabled {
-				TTYKeyMap[kMainCommands.Ttykeyboard.Scanid] = TTYKBStruct{kMainCommands.Ttykeyboard.Enabled, kMainCommands.Ttykeyboard.Keylabel, kMainCommands.Action, kMainCommands.ParamName, kMainCommands.Paramvalue}
+				TTYKeyMap[kMainCommands.Ttykeyboard.Scanid] = KBStruct{kMainCommands.Ttykeyboard.Enabled, kMainCommands.Ttykeyboard.Keylabel, kMainCommands.Action, kMainCommands.ParamName, kMainCommands.Paramvalue}
 			}
 			if kMainCommands.Usbkeyboard.Enabled {
-				USBKeyMap[kMainCommands.Usbkeyboard.Scanid] = USBKBStruct{kMainCommands.Usbkeyboard.Enabled, kMainCommands.Usbkeyboard.Keylabel, kMainCommands.Action, kMainCommands.ParamName, kMainCommands.Paramvalue}
+				USBKeyMap[kMainCommands.Usbkeyboard.Scanid] = KBStruct{kMainCommands.Usbkeyboard.Enabled, kMainCommands.Usbkeyboard.Keylabel, kMainCommands.Action, kMainCommands.ParamName, kMainCommands.Paramvalue}
 			}
 
 		}
@@ -1390,6 +1375,12 @@ func CheckConfigSanity(reloadxml bool) {
 		}
 	}
 
+	if Config.Global.Hardware.VoiceActivityTimermsecs < 200 {
+		log.Print("warn: Config Error [Section Hardware] VoiceActivityTimersecs < 200 setting to 200")
+		Config.Global.Hardware.VoiceActivityTimermsecs = 200
+		Warnings++
+	}
+
 	for index, gpio := range Config.Global.Hardware.IO.Pins.Pin {
 		if gpio.Enabled {
 			if !(gpio.Direction == "input" || gpio.Direction == "output") {
@@ -1414,9 +1405,19 @@ func CheckConfigSanity(reloadxml bool) {
 				Warnings++
 			}
 
-			if gpio.PinNo > 30 {
+			if gpio.PinNo < 2 || gpio.PinNo > 27 {
 				log.Printf("warn: Config Error [Section GPIO] Enabled GPIO Name %v Pin Number %v Invalid GPIO Number\n", gpio.Name, gpio.PinNo)
 				Config.Global.Hardware.IO.Pins.Pin[index].Enabled = false
+				Warnings++
+			}
+
+			if (Config.Global.Hardware.OLED.Enabled || Config.Global.Hardware.IO.GPIOExpander.Enabled || Config.Global.Hardware.LCD.InterfaceType == "i2c") && (gpio.PinNo == 2 || gpio.PinNo == 3) {
+				log.Printf("warn: Config Possible Pins Clash with I2C Interface [Section GPIO] Enabled GPIO Name %v Pin Number %v Invalid GPIO Number\n", gpio.Name, gpio.PinNo)
+				Warnings++
+			}
+
+			if (Config.Global.Hardware.LedStripEnabled) && (gpio.PinNo == 7 || gpio.PinNo == 8 || gpio.PinNo == 9 || gpio.PinNo == 10 || gpio.PinNo == 11) {
+				log.Printf("warn: Config Possible Pins Clash with SPI Interface [Section GPIO] Enabled GPIO Name %v Pin Number %v Invalid GPIO Number\n", gpio.Name, gpio.PinNo)
 				Warnings++
 			}
 

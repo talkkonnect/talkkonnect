@@ -31,11 +31,18 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.07.20"
-	talkkonnectReleased string = "Jan 11 2022"
+	talkkonnectVersion  string = "2.07.21"
+	talkkonnectReleased string = "Jan 12 2022"
 )
 
 /* Release Notes
-1. Combined http traccar protocols into one function
-2. Added sound events for user to know traccar status
+1. Sanity Check for voiceactivitytimersecs if less that 200 msecs set to 200 msecs
+2. Removed redundant definition of ttyKBStruct and usbStruct and combined into one struct
+3. Removed unused definition of InputEventSoundStruct
+4. Added Tighter GPIO Checks for Pins 2,3 If I2C Device enabled these pins should be avoided warning
+5. Added Tighter GPIO Checks for Pins 7,8,9,10,11 if SPI Device Enabled these pins should be avoided warning
+6. Added Tighter GPIO Checks for Pins in the rage 2-27 only
+7. Added Debugging Verbosity to currently unhandled mumble events
+8. Fixed Command Arguements for PaPlay
+9. Changed version checking function instead of saying newer version available say different version available
 */

@@ -3,7 +3,7 @@ module github.com/talkkonnect/talkkonnect
 go 1.17
 
 require (
-	github.com/adrianmo/go-nmea v1.5.0
+	github.com/adrianmo/go-nmea v1.6.0
 	github.com/allan-simon/go-singleinstance v0.0.0-20210120080615-d0997106ab37
 	github.com/comail/colog v0.0.0-20160416085026-fba8e7b1f46c
 	github.com/eclipse/paho.mqtt.golang v1.3.5
@@ -22,7 +22,7 @@ require (
 	github.com/talkkonnect/termbox-go v0.0.0-20181013101158-0ee46dd7ddac
 	github.com/talkkonnect/volume-go v0.0.0-20211228072535-46572b5722fc
 	github.com/xackery/gomail v0.0.0-20150929200936-cc84600edc17
-	golang.org/x/sys v0.0.0-20211216021012-1d35b9e2eb4e
+	golang.org/x/sys v0.0.0-20220111092808-5a964db01320
 	periph.io/x/periph v3.6.8+incompatible
 )
 

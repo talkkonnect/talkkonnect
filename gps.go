@@ -264,13 +264,91 @@ func httpSendTraccar(tprotocol string) {
 			TraccarServerFullURL = (fmt.Sprint(Config.Global.Hardware.Traccar.Protocol.Opengts.ServerURL) + ":" + fmt.Sprint(Config.Global.Hardware.Traccar.Protocol.Opengts.Port) + "/?id=" + Config.Global.Hardware.Traccar.ClientId + "&gprmc=" + GNSSDataTraccar.RMCRaw)
 		}
 
-		client := http.Client{Timeout: 5 * time.Second}
-		response, err := client.Get(TraccarServerFullURL)
-		if err != nil {
-			tcpErrorsTrap := "(refused|reset)" // add tcp errors here as they are found
+		client := &http.Client{
+			Transport: &http.Transport{
+				Dial: (&net.Dialer{
+					Timeout:   1 * time.Second,
+					KeepAlive: 0,
+				}).Dial,
+				DisableKeepAlives:     true,
+				DisableCompression:    true,
+				MaxIdleConnsPerHost:   1,
+				ResponseHeaderTimeout: 1 * time.Second,
+			},
+		}
+
+		response, _ := http.NewRequest("GET", TraccarServerFullURL, nil)
+		response.Header.Add("Connection", "close")
+		response.Header.Add("Accept-Encoding", "none")
+
+		if response, err := client.Do(response); err == nil {
+			if response.StatusCode >= 200 && response.StatusCode <= 299 {
+				HTTPErrorCount = 0
+				log.Printf("debug: %v Protocol Traccar Server HTTP Response Code %v With Status %v\n", tprotocol, response.StatusCode, http.StatusText(response.StatusCode))
+				eventSound := findEventSound("traccarHTTP2XXResponse")
+				if eventSound.Enabled {
+					if v, err := strconv.Atoi(eventSound.Volume); err == nil {
+						localMediaPlayer(eventSound.FileName, v, eventSound.Blocking, 0, 1)
+					}
+				}
+			}
+			if response.StatusCode >= 300 && response.StatusCode <= 399 {
+				HTTPErrorCount++
+				log.Printf("debug: %v Protocol Traccar Server HTTP Response Code %v With Status %v\n", tprotocol, response.StatusCode, http.StatusText(response.StatusCode))
+				eventSound := findEventSound("traccarHTTP3XXResponse")
+				if eventSound.Enabled {
+					if v, err := strconv.Atoi(eventSound.Volume); err == nil {
+						localMediaPlayer(eventSound.FileName, v, eventSound.Blocking, 0, 1)
+					}
+				}
+			}
+			if response.StatusCode >= 400 && response.StatusCode <= 499 {
+				HTTPErrorCount++
+				log.Printf("debug: %v Protocol Traccar Server HTTP Response Code %v With Status %v\n", tprotocol, response.StatusCode, http.StatusText(response.StatusCode))
+				eventSound := findEventSound("traccarHTTP4XXResponse")
+				if eventSound.Enabled {
+					if v, err := strconv.Atoi(eventSound.Volume); err == nil {
+						localMediaPlayer(eventSound.FileName, v, eventSound.Blocking, 0, 1)
+					}
+				}
+			}
+			if response.StatusCode >= 500 && response.StatusCode <= 599 {
+				HTTPErrorCount++
+				log.Printf("debug: %v Protocol Traccar Server HTTP Response Code %v With Status %v\n", tprotocol, response.StatusCode, http.StatusText(response.StatusCode))
+				eventSound := findEventSound("traccarHTTP5XXResponse")
+				if eventSound.Enabled {
+					if v, err := strconv.Atoi(eventSound.Volume); err == nil {
+						localMediaPlayer(eventSound.FileName, v, eventSound.Blocking, 0, 1)
+					}
+				}
+			}
+			response.Body.Close()
+
+			if TCPErrorCount >= TCPErrorThreshold {
+				Config.Global.Hardware.Traccar.Enabled = false
+				eventSound := findEventSound("traccarTooManyErrors")
+				if eventSound.Enabled {
+					if v, err := strconv.Atoi(eventSound.Volume); err == nil {
+						localMediaPlayer(eventSound.FileName, v, eventSound.Blocking, 0, 1)
+					}
+				}
+				return
+			}
+			if HTTPErrorCount >= HTTPErrorThreshold {
+				Config.Global.Hardware.Traccar.Enabled = false
+				eventSound := findEventSound("traccarTooManyErrors")
+				if eventSound.Enabled {
+					if v, err := strconv.Atoi(eventSound.Volume); err == nil {
+						localMediaPlayer(eventSound.FileName, v, eventSound.Blocking, 0, 1)
+					}
+				}
+				return
+			}
+		} else {
+			tcpErrorsTrap := "(refused|reset|timeout)" // add tcp errors here as they are found
 			re := regexp.MustCompile(tcpErrorsTrap)
 			matched := re.MatchString(err.Error())
-			log.Println("error: Failed Communication with Traccar Server ", err)
+			log.Println("error: Failed Communication with Traccar Server with error ", err)
 			if matched {
 				TCPErrorCount++
 				log.Println("error: TCP/IP Error Communicating with Traccar Server")
@@ -282,69 +360,6 @@ func httpSendTraccar(tprotocol string) {
 				}
 				continue
 			}
-		}
-		//handle http status codes and errors here
-		if response.StatusCode >= 200 && response.StatusCode <= 299 {
-			HTTPErrorCount = 0
-			log.Printf("debug: %v Protocol Traccar Server HTTP Response Code %v With Status %v\n", tprotocol, response.StatusCode, http.StatusText(response.StatusCode))
-			eventSound := findEventSound("traccarHTTP2XXResponse")
-			if eventSound.Enabled {
-				if v, err := strconv.Atoi(eventSound.Volume); err == nil {
-					localMediaPlayer(eventSound.FileName, v, eventSound.Blocking, 0, 1)
-				}
-			}
-		}
-		if response.StatusCode >= 300 && response.StatusCode <= 399 {
-			HTTPErrorCount++
-			log.Printf("debug: %v Protocol Traccar Server HTTP Response Code %v With Status %v\n", tprotocol, response.StatusCode, http.StatusText(response.StatusCode))
-			eventSound := findEventSound("traccarHTTP3XXResponse")
-			if eventSound.Enabled {
-				if v, err := strconv.Atoi(eventSound.Volume); err == nil {
-					localMediaPlayer(eventSound.FileName, v, eventSound.Blocking, 0, 1)
-				}
-			}
-		}
-		if response.StatusCode >= 400 && response.StatusCode <= 499 {
-			HTTPErrorCount++
-			log.Printf("debug: %v Protocol Traccar Server HTTP Response Code %v With Status %v\n", tprotocol, response.StatusCode, http.StatusText(response.StatusCode))
-			eventSound := findEventSound("traccarHTTP4XXResponse")
-			if eventSound.Enabled {
-				if v, err := strconv.Atoi(eventSound.Volume); err == nil {
-					localMediaPlayer(eventSound.FileName, v, eventSound.Blocking, 0, 1)
-				}
-			}
-		}
-		if response.StatusCode >= 500 && response.StatusCode <= 599 {
-			HTTPErrorCount++
-			log.Printf("debug: %v Protocol Traccar Server HTTP Response Code %v With Status %v\n", tprotocol, response.StatusCode, http.StatusText(response.StatusCode))
-			eventSound := findEventSound("traccarHTTP5XXResponse")
-			if eventSound.Enabled {
-				if v, err := strconv.Atoi(eventSound.Volume); err == nil {
-					localMediaPlayer(eventSound.FileName, v, eventSound.Blocking, 0, 1)
-				}
-			}
-		}
-		response.Body.Close()
-
-		if TCPErrorCount >= TCPErrorThreshold {
-			Config.Global.Hardware.Traccar.Enabled = false
-			eventSound := findEventSound("traccarTooManyErrors")
-			if eventSound.Enabled {
-				if v, err := strconv.Atoi(eventSound.Volume); err == nil {
-					localMediaPlayer(eventSound.FileName, v, eventSound.Blocking, 0, 1)
-				}
-			}
-			return
-		}
-		if HTTPErrorCount >= HTTPErrorThreshold {
-			Config.Global.Hardware.Traccar.Enabled = false
-			eventSound := findEventSound("traccarTooManyErrors")
-			if eventSound.Enabled {
-				if v, err := strconv.Atoi(eventSound.Volume); err == nil {
-					localMediaPlayer(eventSound.FileName, v, eventSound.Blocking, 0, 1)
-				}
-			}
-			return
 		}
 	}
 }

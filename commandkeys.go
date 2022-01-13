@@ -179,9 +179,11 @@ func (b *Talkkonnect) cmdCurrentVolume() {
 }
 
 func (b *Talkkonnect) cmdVolumeUp() {
+	log.Println("debug: F5 pressed Volume UP (+)")
 	origVolume, err := volume.GetVolume(Config.Global.Software.Settings.OutputVolControlDevice)
 	if err != nil {
-		log.Printf("warn: unable to get original volume: %+v\n", err)
+		log.Printf("warn: unable to get original volume: %+v volume control will not work!\n", err)
+		return
 	}
 
 	if origVolume < 100 {
@@ -189,8 +191,7 @@ func (b *Talkkonnect) cmdVolumeUp() {
 		if err != nil {
 			log.Println("warn: F5 Increase Volume Failed! ", err)
 		}
-
-		log.Println("debug: F5 pressed Volume UP (+)")
+		origVolume, _ := volume.GetVolume(Config.Global.Software.Settings.OutputVolControlDevice)
 		log.Println("info: Volume UP (+) Now At ", origVolume, "%")
 		if Config.Global.Hardware.TargetBoard == "rpi" {
 			if LCDEnabled {
@@ -214,24 +215,23 @@ func (b *Talkkonnect) cmdVolumeUp() {
 			}
 		}
 	}
-
 	TTSEvent("digitalvolumeup")
 }
 
 func (b *Talkkonnect) cmdVolumeDown() {
+	log.Println("info: F6 pressed Volume Down (-)")
 	origVolume, err := volume.GetVolume(Config.Global.Software.Settings.OutputVolControlDevice)
 	if err != nil {
-		log.Printf("error: unable to get original volume: %+v\n", err)
+		log.Printf("warn: unable to get original volume: %+v volume control will not work!\n", err)
+		return
 	}
 
 	if origVolume > 0 {
-		origVolume--
 		err := volume.IncreaseVolume(Config.Global.Hardware.IO.VolumeButtonStep.VolDownStep, Config.Global.Software.Settings.OutputVolControlDevice)
 		if err != nil {
 			log.Println("error: F6 Decrease Volume Failed! ", err)
 		}
-
-		log.Println("info: F6 pressed Volume Down (-)")
+		origVolume, _ := volume.GetVolume(Config.Global.Software.Settings.OutputVolControlDevice)
 		log.Println("info: Volume Down (-) Now At ", origVolume, "%")
 		if Config.Global.Hardware.TargetBoard == "rpi" {
 			if LCDEnabled {

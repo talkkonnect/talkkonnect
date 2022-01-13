@@ -31,10 +31,10 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.07.22"
+	talkkonnectVersion  string = "2.07.23"
 	talkkonnectReleased string = "Jan 13 2022"
 )
 
 /* Release Notes
-1. Improved error handling causing crash upon non-existent http traccar server call
+1. Fixed not working cancellable stream bug in stream.go
 */

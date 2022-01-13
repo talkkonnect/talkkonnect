@@ -183,6 +183,11 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 					}
 				}
 			}
+
+			if Config.Global.Software.Settings.CancellableStream && NowStreaming {
+				pstream.Stop()
+			}
+
 			Talking <- talkingStruct{true, e.User.Name}
 			samples := len(packet.AudioBuffer)
 			if samples > cap(raw) {

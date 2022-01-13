@@ -91,6 +91,26 @@ var (
 	VolDownButton      gpio.Pin
 	VolDownButtonPin   uint
 	VolDownButtonState uint
+
+	TrackingUsed        bool
+	TrackingButton      gpio.Pin
+	TrackingButtonPin   uint
+	TrackingButtonState uint
+
+	MQTT0ButtonUsed  bool
+	MQTT0Button      gpio.Pin
+	MQTT0ButtonPin   uint
+	MQTT0ButtonState uint
+
+	MQTT1ButtonUsed  bool
+	MQTT1Button      gpio.Pin
+	MQTT1ButtonPin   uint
+	MQTT1ButtonState uint
+
+	NextServerButtonUsed  bool
+	NextServerButton      gpio.Pin
+	NextServerButtonPin   uint
+	NextServerButtonState uint
 )
 
 var D [8]*mcp23017.Device
@@ -219,10 +239,38 @@ func (b *Talkkonnect) initGPIO() {
 				VolDownButtonUsed = true
 				VolDownButtonPin = io.PinNo
 			}
+			if io.Name == "tracking" && io.PinNo > 0 {
+				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
+				TrackingPinPullUp := rpio.Pin(io.PinNo)
+				TrackingPinPullUp.PullUp()
+				TrackingUsed = true
+				TrackingButtonPin = io.PinNo
+			}
+			if io.Name == "mqtt0" && io.PinNo > 0 {
+				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
+				MQTT0PinPullUp := rpio.Pin(io.PinNo)
+				MQTT0PinPullUp.PullUp()
+				MQTT0ButtonUsed = true
+				MQTT0ButtonPin = io.PinNo
+			}
+			if io.Name == "mqtt1" && io.PinNo > 0 {
+				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
+				MQTT1PinPullUp := rpio.Pin(io.PinNo)
+				MQTT1PinPullUp.PullUp()
+				MQTT1ButtonUsed = true
+				MQTT1ButtonPin = io.PinNo
+			}
+			if io.Name == "nextserver" && io.PinNo > 0 {
+				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
+				NextServerPinPullUp := rpio.Pin(io.PinNo)
+				NextServerPinPullUp.PullUp()
+				NextServerButtonUsed = true
+				NextServerButtonPin = io.PinNo
+			}
 		}
 	}
 
-	if TxButtonUsed || TxToggleUsed || UpButtonUsed || DownButtonUsed || PanicUsed || StreamToggleUsed || CommentUsed || RotaryUsed || VolUpButtonUsed || VolDownButtonUsed {
+	if TxButtonUsed || TxToggleUsed || UpButtonUsed || DownButtonUsed || PanicUsed || StreamToggleUsed || CommentUsed || RotaryUsed || VolUpButtonUsed || VolDownButtonUsed || TrackingUsed || MQTT0ButtonUsed || MQTT1ButtonUsed || NextServerButtonUsed {
 		rpio.Close()
 	}
 
@@ -523,6 +571,108 @@ func (b *Talkkonnect) initGPIO() {
 							log.Println("debug: Vol Down Button is pressed")
 							playIOMedia("iovoldown")
 							b.cmdVolumeDown()
+						}
+					}
+				} else {
+					time.Sleep(1 * time.Second)
+				}
+			}
+		}()
+	}
+
+	if TrackingUsed {
+		TrackingButton = gpio.NewInput(TrackingButtonPin)
+		go func() {
+			for {
+				if IsConnected {
+					currentState, err := TrackingButton.Read()
+					time.Sleep(150 * time.Millisecond)
+					if currentState != TrackingButtonState && err == nil {
+						TrackingButtonState = currentState
+						if TrackingButtonState == 1 {
+							playIOMedia("iotrackingon")
+							log.Println("debug: Tracking Button State 1 setting comment to on  ")
+							// place holder to start tracking timer
+						} else {
+							playIOMedia("iotrackingoff")
+							log.Println("debug: Tracking Button State 1 setting comment to off ")
+							// place holder to start tracking timer
+							time.Sleep(150 * time.Millisecond)
+						}
+					}
+				} else {
+					time.Sleep(1 * time.Second)
+				}
+			}
+		}()
+	}
+
+	if MQTT0ButtonUsed {
+		MQTT0Button = gpio.NewInput(MQTT0ButtonPin)
+		go func() {
+			for {
+				if IsConnected {
+					currentState, err := MQTT0Button.Read()
+					time.Sleep(150 * time.Millisecond)
+					if currentState != MQTT0ButtonState && err == nil {
+						MQTT0ButtonState = currentState
+						if MQTT0ButtonState == 1 {
+							log.Println("debug: MQTT0 Button is released")
+						} else {
+							log.Println("debug: MQTT0 Button is pressed")
+							playIOMedia("iomqtt0")
+							//mqtt button0 send command placeholder
+							time.Sleep(150 * time.Millisecond)
+						}
+					}
+				} else {
+					time.Sleep(1 * time.Second)
+				}
+			}
+		}()
+	}
+
+	if MQTT1ButtonUsed {
+		MQTT1Button = gpio.NewInput(MQTT1ButtonPin)
+		go func() {
+			for {
+				if IsConnected {
+					currentState, err := MQTT1Button.Read()
+					time.Sleep(150 * time.Millisecond)
+					if currentState != MQTT1ButtonState && err == nil {
+						MQTT1ButtonState = currentState
+						if MQTT1ButtonState == 1 {
+							log.Println("debug: MQTT1 Button is released")
+						} else {
+							log.Println("debug: MQTT1 Button is pressed")
+							playIOMedia("iomqtt1")
+							//mqtt button1 send command placeholder
+							time.Sleep(150 * time.Millisecond)
+						}
+					}
+				} else {
+					time.Sleep(1 * time.Second)
+				}
+			}
+		}()
+	}
+
+	if NextServerButtonUsed {
+		NextServerButton = gpio.NewInput(NextServerButtonPin)
+		go func() {
+			for {
+				if IsConnected {
+					currentState, err := NextServerButton.Read()
+					time.Sleep(150 * time.Millisecond)
+					if currentState != NextServerButtonState && err == nil {
+						NextServerButtonState = currentState
+						if NextServerButtonState == 1 {
+							log.Println("debug: NextServer Button is released")
+						} else {
+							log.Println("debug: NextServer Button is pressed")
+							playIOMedia("iocnextserver")
+							b.ChannelUp()
+							time.Sleep(150 * time.Millisecond)
 						}
 					}
 				} else {

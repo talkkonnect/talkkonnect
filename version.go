@@ -31,10 +31,13 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.07.24"
+	talkkonnectVersion  string = "2.07.25"
 	talkkonnectReleased string = "Jan 13 2022"
 )
 
 /* Release Notes
-1. Fixed bug in volume displayed
+1. Added GPIO Next Server Button
+2. Added GPIO MQTT0 Remote Controller Button
+3. Added GPIO MQTT1 Remote Controller Button
+4. Added GPIO Tracking toggle switch
 */

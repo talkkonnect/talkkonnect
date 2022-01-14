@@ -134,23 +134,26 @@ func (b *Talkkonnect) onMessageReceived(client MQTT.Client, message MQTT.Message
 	PayLoad = strings.ToLower(string(message.Payload()))
 	log.Printf("info: Received MQTT message on topic: %s Payload: %s\n", message.Topic(), PayLoad)
 
+	byteCommand := strings.Split(strings.ToLower(PayLoad), ":")
+	stringCommand := strings.Join(byteCommand[:], "")
+	Command := strings.Split(stringCommand, " ")
+
 	for _, mqttcommand := range Config.Global.Software.RemoteControl.MQTT.Commands.Command {
-		if strings.Contains(PayLoad, strings.ToLower(mqttcommand.Action)) {
+		if Command[0] == strings.ToLower(mqttcommand.Action) {
 			CommandDefined = true
+			break
 		}
 	}
 
 	if !CommandDefined {
-		log.Printf("error: MQTT Command %v Not Defined\n", PayLoad)
+		log.Printf("error: MQTT Command %v Not Defined\n", Command[0])
 		return
 	}
-
-	Command := []string{}
-	Command = strings.Split(strings.ToLower(PayLoad), ":")
 
 	for _, mqttcommand := range Config.Global.Software.RemoteControl.MQTT.Commands.Command {
 		if strings.Contains(Command[0], mqttcommand.Action) {
 			if mqttcommand.Enabled {
+				log.Print("alert : mqttcommand ", mqttcommand)
 				var Err error
 				switch Command[0] {
 				case "muteunmute":

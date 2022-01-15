@@ -31,10 +31,11 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.08.01"
+	talkkonnectVersion  string = "2.08.02"
 	talkkonnectReleased string = "Jan 15 2022"
 )
 
 /* Release Notes
-1. Added Functionality to Send MQTT Payloads
+1. Added Functionality & Configurability to have seperate topics for publish and subscribe
+2. Added Functionality & Configurability for MQTT Pub Retains boolean control
 */

@@ -186,7 +186,8 @@ type ConfigStruct struct {
 					Enabled  bool `xml:"enabled,attr"`
 					Settings struct {
 						MQTTEnabled             bool   `xml:"enabled,attr"`
-						MQTTTopic               string `xml:"mqtttopic"`
+						MQTTSubTopic            string `xml:"mqttsubtopic"`
+						MQTTPubTopic            string `xml:"mqttpubtopic"`
 						MQTTBroker              string `xml:"mqttbroker"`
 						MQTTPassword            string `xml:"mqttpassword"`
 						MQTTUser                string `xml:"mqttuser"`
@@ -197,6 +198,7 @@ type ConfigStruct struct {
 						MQTTPayload             string `xml:"payload"`
 						MQTTAction              string `xml:"action"`
 						MQTTStore               string `xml:"store"`
+						MQTTRetained            bool   `xml:"retained"`
 						MQTTAttentionBlinkTimes int    `xml:"attentionblinktimes"`
 						MQTTAttentionBlinkmsecs int    `xml:"attentionblinkmsecs"`
 					} `xml:"settings"`
@@ -995,7 +997,8 @@ func printxmlconfig() {
 	if Config.Global.Software.PrintVariables.PrintMQTT {
 		log.Println("info: ------------ MQTT Function -------------- ")
 		log.Println("info: Enabled             " + fmt.Sprintf("%v", Config.Global.Software.RemoteControl.MQTT.Enabled))
-		log.Println("info: Topic               " + fmt.Sprintf("%v", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTTopic))
+		log.Println("info: Subscibe Topic      " + fmt.Sprintf("%v", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTSubTopic))
+		log.Println("info: Publish  Topic      " + fmt.Sprintf("%v", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTPubTopic))
 		log.Println("info: Broker              " + fmt.Sprintf("%v", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTBroker))
 		log.Println("info: Password            " + fmt.Sprintf("%v", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTPassword))
 		log.Println("info: Id                  " + fmt.Sprintf("%v", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTId))
@@ -1535,8 +1538,13 @@ func CheckConfigSanity(reloadxml bool) {
 
 	if Config.Global.Software.RemoteControl.MQTT.Enabled {
 
-		if len(Config.Global.Software.RemoteControl.MQTT.Settings.MQTTTopic) == 0 {
-			log.Println("warn: Config Error [Section MQTT] Enabled MQTT With Empty Topic")
+		if len(Config.Global.Software.RemoteControl.MQTT.Settings.MQTTSubTopic) == 0 {
+			log.Println("warn: Config Error [Section MQTT] Enabled MQTT With Empty Sub Topic")
+			Config.Global.Software.RemoteControl.MQTT.Enabled = false
+			Warnings++
+		}
+		if len(Config.Global.Software.RemoteControl.MQTT.Settings.MQTTPubTopic) == 0 {
+			log.Println("warn: Config Error [Section MQTT] Enabled MQTT With Empty Pub Topic")
 			Config.Global.Software.RemoteControl.MQTT.Enabled = false
 			Warnings++
 		}

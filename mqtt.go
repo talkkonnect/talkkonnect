@@ -65,7 +65,7 @@ func (b *Talkkonnect) mqttsubscribe() {
 		log.Printf("debug: MQTT clientid    : %s\n", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTId)
 		log.Printf("debug: MQTT user        : %s\n", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTUser)
 		log.Printf("debug: MQTT password    : %s\n", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTPassword)
-		log.Printf("info: Subscribed topic : %s\n", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTTopic)
+		log.Printf("info: Subscribed topic : %s\n", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTSubTopic)
 
 		connOpts := MQTT.NewClientOptions().AddBroker(Config.Global.Software.RemoteControl.MQTT.Settings.MQTTBroker).SetClientID(Config.Global.Software.RemoteControl.MQTT.Settings.MQTTId).SetCleanSession(true)
 		if Config.Global.Software.RemoteControl.MQTT.Settings.MQTTUser != "" {
@@ -78,7 +78,7 @@ func (b *Talkkonnect) mqttsubscribe() {
 		connOpts.SetTLSConfig(tlsConfig)
 
 		connOpts.OnConnect = func(c MQTT.Client) {
-			if token := c.Subscribe(Config.Global.Software.RemoteControl.MQTT.Settings.MQTTTopic, byte(Config.Global.Software.RemoteControl.MQTT.Settings.MQTTQos), b.onMessageReceived); token.Wait() && token.Error() != nil {
+			if token := c.Subscribe(Config.Global.Software.RemoteControl.MQTT.Settings.MQTTSubTopic, byte(Config.Global.Software.RemoteControl.MQTT.Settings.MQTTQos), b.onMessageReceived); token.Wait() && token.Error() != nil {
 				log.Println("error: MQTT Token Error!")
 				return
 			}
@@ -95,13 +95,13 @@ func (b *Talkkonnect) mqttsubscribe() {
 }
 
 func MQTTPublish(mqttPayload string) {
-	MQTTPublishPayload = MQTTClient.Publish(Config.Global.Software.RemoteControl.MQTT.Settings.MQTTTopic, Config.Global.Software.RemoteControl.MQTT.Settings.MQTTQos, false, mqttPayload)
+	MQTTPublishPayload = MQTTClient.Publish(Config.Global.Software.RemoteControl.MQTT.Settings.MQTTPubTopic, Config.Global.Software.RemoteControl.MQTT.Settings.MQTTQos, Config.Global.Software.RemoteControl.MQTT.Settings.MQTTRetained, mqttPayload)
 	go func() {
 		<-MQTTPublishPayload.Done()
 		if MQTTPublishPayload.Error() != nil {
 			log.Println("error: ", MQTTPublishPayload.Error())
 		} else {
-			log.Printf("info: Successfully Published MQTT Topic %v Payload %v\n", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTTopic, mqttPayload)
+			log.Printf("info: Successfully Published MQTT Topic %v Payload %v\n", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTPubTopic, mqttPayload)
 			return
 		}
 	}()

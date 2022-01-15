@@ -192,7 +192,7 @@ type ConfigStruct struct {
 						MQTTUser                string `xml:"mqttuser"`
 						MQTTId                  string `xml:"mqttid"`
 						MQTTCleansess           bool   `xml:"cleansess"`
-						MQTTQos                 int    `xml:"qos"`
+						MQTTQos                 byte   `xml:"qos"`
 						MQTTNum                 int    `xml:"num"`
 						MQTTPayload             string `xml:"payload"`
 						MQTTAction              string `xml:"action"`

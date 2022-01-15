@@ -48,51 +48,63 @@ package talkkonnect
 import (
 	"crypto/tls"
 	"log"
-	"os"
-	"os/signal"
 	"strconv"
 	"strings"
-	"syscall"
 	"time"
 
 	MQTT "github.com/eclipse/paho.mqtt.golang"
 )
 
+var MQTTPublishPayload MQTT.Token
+var MQTTClient MQTT.Client
+
 func (b *Talkkonnect) mqttsubscribe() {
+	if Config.Global.Software.RemoteControl.MQTT.Enabled {
+		log.Printf("info: MQTT Subscription Information")
+		log.Printf("info: MQTT Broker      : %s\n", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTBroker)
+		log.Printf("debug: MQTT clientid    : %s\n", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTId)
+		log.Printf("debug: MQTT user        : %s\n", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTUser)
+		log.Printf("debug: MQTT password    : %s\n", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTPassword)
+		log.Printf("info: Subscribed topic : %s\n", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTTopic)
 
-	log.Printf("info: MQTT Subscription Information")
-	log.Printf("info: MQTT Broker      : %s\n", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTBroker)
-	log.Printf("debug: MQTT clientid    : %s\n", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTId)
-	log.Printf("debug: MQTT user        : %s\n", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTUser)
-	log.Printf("debug: MQTT password    : %s\n", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTPassword)
-	log.Printf("info: Subscribed topic : %s\n", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTTopic)
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+		connOpts := MQTT.NewClientOptions().AddBroker(Config.Global.Software.RemoteControl.MQTT.Settings.MQTTBroker).SetClientID(Config.Global.Software.RemoteControl.MQTT.Settings.MQTTId).SetCleanSession(true)
+		if Config.Global.Software.RemoteControl.MQTT.Settings.MQTTUser != "" {
+			connOpts.SetUsername(Config.Global.Software.RemoteControl.MQTT.Settings.MQTTUser)
+			if Config.Global.Software.RemoteControl.MQTT.Settings.MQTTPassword != "" {
+				connOpts.SetPassword(Config.Global.Software.RemoteControl.MQTT.Settings.MQTTPassword)
+			}
+		}
+		tlsConfig := &tls.Config{InsecureSkipVerify: true, ClientAuth: tls.NoClientCert}
+		connOpts.SetTLSConfig(tlsConfig)
 
-	connOpts := MQTT.NewClientOptions().AddBroker(Config.Global.Software.RemoteControl.MQTT.Settings.MQTTBroker).SetClientID(Config.Global.Software.RemoteControl.MQTT.Settings.MQTTId).SetCleanSession(true)
-	if Config.Global.Software.RemoteControl.MQTT.Settings.MQTTUser != "" {
-		connOpts.SetUsername(Config.Global.Software.RemoteControl.MQTT.Settings.MQTTUser)
-		if Config.Global.Software.RemoteControl.MQTT.Settings.MQTTPassword != "" {
-			connOpts.SetPassword(Config.Global.Software.RemoteControl.MQTT.Settings.MQTTPassword)
+		connOpts.OnConnect = func(c MQTT.Client) {
+			if token := c.Subscribe(Config.Global.Software.RemoteControl.MQTT.Settings.MQTTTopic, byte(Config.Global.Software.RemoteControl.MQTT.Settings.MQTTQos), b.onMessageReceived); token.Wait() && token.Error() != nil {
+				log.Println("error: MQTT Token Error!")
+				return
+			}
+		}
+
+		MQTTClient = MQTT.NewClient(connOpts)
+		if token := MQTTClient.Connect(); token.Wait() && token.Error() != nil {
+			log.Println("error: MQTT Token Error!")
+			return
+		} else {
+			log.Printf("info: Connected to     : %s\n", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTBroker)
 		}
 	}
-	tlsConfig := &tls.Config{InsecureSkipVerify: true, ClientAuth: tls.NoClientCert}
-	connOpts.SetTLSConfig(tlsConfig)
+}
 
-	connOpts.OnConnect = func(c MQTT.Client) {
-		if token := c.Subscribe(Config.Global.Software.RemoteControl.MQTT.Settings.MQTTTopic, byte(Config.Global.Software.RemoteControl.MQTT.Settings.MQTTQos), b.onMessageReceived); token.Wait() && token.Error() != nil {
-			panic(token.Error())
+func MQTTPublish(mqttPayload string) {
+	MQTTPublishPayload = MQTTClient.Publish(Config.Global.Software.RemoteControl.MQTT.Settings.MQTTTopic, Config.Global.Software.RemoteControl.MQTT.Settings.MQTTQos, false, mqttPayload)
+	go func() {
+		<-MQTTPublishPayload.Done()
+		if MQTTPublishPayload.Error() != nil {
+			log.Println("error: ", MQTTPublishPayload.Error())
+		} else {
+			log.Printf("info: Successfully Published MQTT Topic %v Payload %v\n", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTTopic, mqttPayload)
+			return
 		}
-	}
-
-	client := MQTT.NewClient(connOpts)
-	if token := client.Connect(); token.Wait() && token.Error() != nil {
-		panic(token.Error())
-	} else {
-		log.Printf("info: Connected to     : %s\n", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTBroker)
-	}
-
-	<-c
+	}()
 }
 
 func (b *Talkkonnect) onMessageReceived(client MQTT.Client, message MQTT.Message) {

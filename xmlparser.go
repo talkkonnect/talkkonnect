@@ -201,6 +201,13 @@ type ConfigStruct struct {
 						MQTTRetained            bool   `xml:"retained"`
 						MQTTAttentionBlinkTimes int    `xml:"attentionblinktimes"`
 						MQTTAttentionBlinkmsecs int    `xml:"attentionblinkmsecs"`
+						Pubpayload              struct {
+							Mqtt []struct {
+								Item    string `xml:"item,attr"`
+								Payload string `xml:"payload,attr"`
+								Enabled bool   `xml:"enabled,attr"`
+							} `xml:"mqtt"`
+						} `xml:"pubpayload"`
 					} `xml:"settings"`
 					Commands struct {
 						Command []struct {
@@ -542,6 +549,12 @@ type streamTrackerStruct struct {
 type talkingStruct struct {
 	IsTalking  bool
 	WhoTalking string
+}
+
+type mqttPubButtonStruct struct {
+	Item    string
+	Payload string
+	Enabled bool
 }
 
 // Generic Global Config Variables
@@ -1575,7 +1588,7 @@ func CheckConfigSanity(reloadxml bool) {
 
 	for index, keyboard := range Config.Global.Hardware.Keyboard.Command {
 		if keyboard.Enabled {
-			if !(keyboard.Action == "channelup" || keyboard.Action == "channeldown" || keyboard.Action == "serverup" || keyboard.Action == "serverdown" || keyboard.Action == "mute" || keyboard.Action == "unmute" || keyboard.Action == "mute-toggle" || keyboard.Action == "stream-toggle" || keyboard.Action == "volumeup" || keyboard.Action == "volumedown" || keyboard.Action == "setcomment" || keyboard.Action == "transmitstart" || keyboard.Action == "transmitstop" || keyboard.Action == "record" || keyboard.Action == "voicetargetset") || keyboard.Action == "volup" || keyboard.Action == "voldown" {
+			if !(keyboard.Action == "channelup" || keyboard.Action == "channeldown" || keyboard.Action == "serverup" || keyboard.Action == "serverdown" || keyboard.Action == "mute" || keyboard.Action == "unmute" || keyboard.Action == "mute-toggle" || keyboard.Action == "stream-toggle" || keyboard.Action == "volumeup" || keyboard.Action == "volumedown" || keyboard.Action == "setcomment" || keyboard.Action == "transmitstart" || keyboard.Action == "transmitstop" || keyboard.Action == "record" || keyboard.Action == "voicetargetset" || keyboard.Action == "volup" || keyboard.Action == "voldown" || keyboard.Action == "mqttpubpayloadset") {
 				log.Printf("warn: Config Error [Section Keyboard] Enabled Keyboard Action %v Invalid\n", keyboard.Action)
 				Config.Global.Hardware.Keyboard.Command[index].Enabled = false
 				Warnings++

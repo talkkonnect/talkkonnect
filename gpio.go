@@ -621,7 +621,10 @@ func (b *Talkkonnect) initGPIO() {
 						} else {
 							log.Println("debug: MQTT0 Button is pressed")
 							playIOMedia("iomqtt0")
-							//mqtt button0 send command placeholder
+							MQTTButtonCommand := findMQTTButton("0")
+							if MQTTButtonCommand.Enabled {
+								MQTTPublish(MQTTButtonCommand.Payload)
+							}
 							time.Sleep(150 * time.Millisecond)
 						}
 					}
@@ -646,7 +649,10 @@ func (b *Talkkonnect) initGPIO() {
 						} else {
 							log.Println("debug: MQTT1 Button is pressed")
 							playIOMedia("iomqtt1")
-							//mqtt button1 send command placeholder
+							MQTTButtonCommand := findMQTTButton("1")
+							if MQTTButtonCommand.Enabled {
+								MQTTPublish(MQTTButtonCommand.Payload)
+							}
 							time.Sleep(150 * time.Millisecond)
 						}
 					}

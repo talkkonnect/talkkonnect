@@ -119,6 +119,11 @@ func (b *Talkkonnect) USBKeyboard() {
 							playIOMedia("usbvoicetarget")
 							b.cmdSendVoiceTargets(uint32(voicetarget))
 						}
+					case "mqttpubpayloadset":
+						if USBKeyMap[rune(ke.Scancode)].ParamName == "payloadvalue" {
+							playIOMedia("usbmqttpubpayloadset")
+							MQTTPublish(USBKeyMap[rune(ke.Scancode)].ParamValue)
+						}
 					default:
 						log.Println("error: Command Not Defined ", strings.ToLower(USBKeyMap[rune(ke.Scancode)].Command))
 					}

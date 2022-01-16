@@ -466,3 +466,12 @@ func checkSBCVersion() string {
 
 	return string(fileContent[:])
 }
+
+func findMQTTButton(findMQTTButton string) mqttPubButtonStruct {
+	for _, button := range Config.Global.Software.RemoteControl.MQTT.Settings.Pubpayload.Mqtt {
+		if button.Item == findMQTTButton && button.Enabled {
+			return mqttPubButtonStruct{button.Item, button.Payload, button.Enabled}
+		}
+	}
+	return mqttPubButtonStruct{"", "", false}
+}

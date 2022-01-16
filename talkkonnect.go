@@ -55,11 +55,16 @@ func talkkonnectBanner(backgroundcolor string) {
 	log.Println("info: " + backgroundcolor + "└────────────────────────────────────────────────────────────────┘" + backgroundreset)
 	releasedVersion := checkGitHubVersion()
 	if talkkonnectVersion != releasedVersion {
-		log.Printf("warn: Ver %v Rel %v (Different Ver %v Available!)\n", talkkonnectVersion, talkkonnectReleased, releasedVersion)
+		log.Printf("warn: Software Ver %v Rel %v (Different Ver %v Available!)\n", talkkonnectVersion, talkkonnectReleased, releasedVersion)
 	} else {
-		log.Printf("info: Ver %v Rel %v (Latest Release)\n", talkkonnectVersion, talkkonnectReleased)
+		log.Printf("info: Software Ver %v Rel %v (Latest Release)\n", talkkonnectVersion, talkkonnectReleased)
 	}
-	log.Printf("info: ")
+	boardVersion := checkSBCVersion()
+	if boardVersion != "unknown" {
+		log.Printf("info: Hardware Detected As %v\n", boardVersion)
+	} else {
+		log.Println("info: ")
+	}
 }
 
 func talkkonnectAcknowledgements(backgroundcolor string) {

@@ -46,7 +46,6 @@ var (
 	errState     = errors.New("gumbleopenal: invalid state")
 	lcdtext      = [4]string{"nil", "nil", "nil", ""}
 	now          = time.Now()
-	debuglevel   = 2
 	TotalStreams int
 	NeedToKill   int
 )
@@ -85,9 +84,6 @@ func (b *Talkkonnect) New(client *gumble.Client) (*Stream, error) {
 }
 
 func (b *Talkkonnect) Destroy() {
-	if debuglevel >= 3 {
-		log.Println("debug: Destroy Stream Source")
-	}
 	b.Stream.link.Detach()
 	if b.Stream.deviceSource != nil {
 		b.Stream.deviceSource.CaptureStop()
@@ -103,14 +99,6 @@ func (b *Talkkonnect) Destroy() {
 }
 
 func (b *Talkkonnect) StartSource() error {
-	if debuglevel >= 3 {
-		log.Println("debug: Start Stream Source")
-	}
-
-	// if b.Stream.sourceStop == nil {
-	// 	return errState
-	// }
-
 	var eventSound EventSoundStruct = findEventSound("incommingbeep")
 	if eventSound.Enabled {
 		if v, err := strconv.ParseFloat(eventSound.Volume, 32); err == nil {
@@ -126,9 +114,6 @@ func (b *Talkkonnect) StartSource() error {
 }
 
 func (b *Talkkonnect) StopSource() error {
-	if debuglevel >= 3 {
-		log.Println("debug: Stop Source File")
-	}
 	if b.Stream.sourceStop == nil {
 		return errState
 	}
@@ -185,6 +170,8 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 			}
 
 			if Config.Global.Software.Settings.CancellableStream && NowStreaming {
+				IsPlayStream = !IsPlayStream
+				NowStreaming = IsPlayStream
 				pstream.Stop()
 			}
 
@@ -237,9 +224,6 @@ func (b *Talkkonnect) sourceRoutine() {
 	for {
 		select {
 		case <-stop:
-			if debuglevel >= 3 {
-				log.Println("debug: Ticker Stop!")
-			}
 			return
 		case <-ticker.C:
 			//this is for encoding (transmitting)

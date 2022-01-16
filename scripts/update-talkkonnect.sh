@@ -25,7 +25,6 @@
 
 
 ## Installation BASH Script for talkkonnect on fresh install of raspbian
-## Copy this file to /root folder and run it from there!
 ## Please RUN this Script as root user
 
 SERVICE="talkkonnect"
@@ -54,23 +53,21 @@ then
 	echo "copying talkkonnect.xml for safe keeping to /root/talkkonnect.xml"
 	cp /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/talkkonnect.xml /root/
 fi
-if [[ -f "/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/mumble.pem" ]]
-then
-	echo "copying talkkonnect.xml for safe keeping to /root/mumble.pem"
-	cp /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/mumble.pem /root/
-fi
 
 rm -rf /home/talkkonnect/gocode/src/github.old
 rm -rf /home/talkkonnect/gocode/src/google.golang.org
 rm -rf /home/talkkonnect/gocode/src/golang.org
 cp -R /home/talkkonnect/gocode/src/github.com /home/talkkonnect/gocode/src/github.old
 rm -rf  /home/talkkonnect/gocode/src/github.com
-rm -rf  /home/talkkonnect/bin
+rm -rf  /home/talkkonnect/bin/talkkonnect
 
 
-## Create the necessary directory structure under /home/talkkonnect/
+## Create the necessary directoy structure under /home/talkkonnect/
 mkdir -p /home/talkkonnect/gocode
-mkdir -p /home/talkkonnect/bin
+#mkdir -p /home/talkkonnect/bin
+mkdir -p /home/talkkonnect/gocode/src
+mkdir -p /home/talkkonnect/gocode/src/github.com
+
 
 ## Set up GOENVIRONMENT
 export PATH=$PATH:/usr/local/go/bin
@@ -78,8 +75,11 @@ export GOPATH=/home/talkkonnect/gocode
 export GOBIN=/home/talkkonnect/bin
 export GO111MODULE="auto"
 
-## Get the latest source code of talkkonnect from githu.com
+## Get the latest source code of talkkonnect from github.com
+echo "getting talkkonnect with go get"
+cd $GOPATH 
 go get -v github.com/talkkonnect/talkkonnect
+cp /root/mumble.pem /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/
 
 ## Build talkkonnect as binary
 cd $GOPATH/src/github.com/talkkonnect/talkkonnect
@@ -90,7 +90,6 @@ then
 	echo "copying original talkkonnect.xml back to /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/talkkonnect.xml"
 	rm /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/talkkonnect.xml
 	cp /home/talkkonnect/gocode/src/github.old/talkkonnect/talkkonnect/talkkonnect.xml  /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/talkkonnect.xml
-	cp /home/talkkonnect/gocode/src/github.old/talkkonnect/talkkonnect/mumble.pem  /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/mumble.pem
 fi
 
 

@@ -447,16 +447,6 @@ func (b *Talkkonnect) ClientStart() {
 
 	}
 
-	if Config.Global.Software.Settings.StreamOnStart {
-		time.Sleep(Config.Global.Software.Settings.StreamOnStartAfter * time.Second)
-		b.cmdPlayback()
-	}
-
-	if Config.Global.Software.Settings.TXOnStart {
-		time.Sleep(Config.Global.Software.Settings.TXOnStartAfter * time.Second)
-		b.cmdStartTransmitting()
-	}
-
 	go func() {
 		var RXLEDStatus bool
 		for {
@@ -496,24 +486,38 @@ func (b *Talkkonnect) ClientStart() {
 		}
 	}()
 
-	if Config.Global.Hardware.GPS.GpsInfoVerbose {
-		go consoleScreenLogging()
+	if Config.Global.Hardware.GPS.Enabled {
+		if Config.Global.Hardware.GPS.GpsInfoVerbose {
+			go consoleScreenLogging()
+		}
+
+		if Config.Global.Hardware.TargetBoard == "rpi" && Config.Global.Hardware.Traccar.DeviceScreenEnabled && (Config.Global.Hardware.LCD.Enabled || Config.Global.Hardware.OLED.Enabled) {
+			go localScreenLogging()
+		}
+
+		if Config.Global.Hardware.Traccar.Enabled {
+			if Config.Global.Hardware.Traccar.Track && Config.Global.Hardware.Traccar.Protocol.Name == "osmand" {
+				go httpSendTraccar("osmand")
+			}
+
+			if Config.Global.Hardware.Traccar.Track && Config.Global.Hardware.Traccar.Protocol.Name == "opengts" {
+				go httpSendTraccar("opengts")
+			}
+
+			if Config.Global.Hardware.Traccar.Track && Config.Global.Hardware.Traccar.Protocol.Name == "t55" {
+				go tcpSendT55Traccar()
+			}
+		}
 	}
 
-	if Config.Global.Hardware.TargetBoard == "rpi" && Config.Global.Hardware.Traccar.DeviceScreenEnabled {
-		go localScreenLogging()
+	if Config.Global.Software.Settings.StreamOnStart {
+		time.Sleep(Config.Global.Software.Settings.StreamOnStartAfter * time.Second)
+		b.cmdPlayback()
 	}
 
-	if Config.Global.Hardware.Traccar.Enabled && Config.Global.Hardware.Traccar.Track && Config.Global.Hardware.Traccar.Protocol.Name == "osmand" {
-		go httpSendTraccar("osmand")
-	}
-
-	if Config.Global.Hardware.Traccar.Enabled && Config.Global.Hardware.Traccar.Track && Config.Global.Hardware.Traccar.Protocol.Name == "opengts" {
-		go httpSendTraccar("opengts")
-	}
-
-	if Config.Global.Hardware.Traccar.Enabled && Config.Global.Hardware.Traccar.Track && Config.Global.Hardware.Traccar.Protocol.Name == "t55" {
-		go tcpSendT55Traccar()
+	if Config.Global.Software.Settings.TXOnStart {
+		time.Sleep(Config.Global.Software.Settings.TXOnStartAfter * time.Second)
+		b.cmdStartTransmitting()
 	}
 
 keyPressListenerLoop:

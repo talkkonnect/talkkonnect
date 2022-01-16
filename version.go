@@ -31,11 +31,14 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.08.02"
-	talkkonnectReleased string = "Jan 15 2022"
+	talkkonnectVersion  string = "2.08.03"
+	talkkonnectReleased string = "Jan 16 2022"
 )
 
 /* Release Notes
-1. Added Functionality & Configurability to have seperate topics for publish and subscribe
-2. Added Functionality & Configurability for MQTT Pub Retains boolean control
+1. In Client.go moved the stream on start and tx on start with possible delay to the last item to run before keylistener
+2. Now we can check board type and version and show in the talkkonnect banner screen
+3. Fixed State Tracking of Cancellable Stream
+4. Client.go stricter checking of gps enabled and traccar enabled before firing off go routines for handling gpstracking and traccar
+5. Fix the update-talkkonnect.sh script to delete only the talkkonnect binary and not whole binary folder for faster use with vs code
 */

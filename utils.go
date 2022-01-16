@@ -452,3 +452,17 @@ func checkGitHubVersion() string {
 
 	return talkkonnectVersion
 }
+
+func checkSBCVersion() string {
+	if Config.Global.Hardware.TargetBoard != "rpi" {
+		return "unknown"
+	}
+
+	fileContent, err := ioutil.ReadFile("/proc/device-tree/model")
+	if err != nil {
+		log.Println("error: Cannot Check Raspberry Pi Board Version")
+		return "unknown"
+	}
+
+	return string(fileContent[:])
+}

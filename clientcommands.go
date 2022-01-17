@@ -127,7 +127,6 @@ func (b *Talkkonnect) TransmitStart() {
 	}
 
 	b.BackLightTimer()
-	t := time.Now()
 	LastSpeaker = ""
 	if Config.Global.Software.Settings.SimplexWithMute {
 		err := volume.Mute(Config.Global.Software.Settings.OutputDevice)
@@ -141,7 +140,6 @@ func (b *Talkkonnect) TransmitStart() {
 	if IsPlayStream {
 		IsPlayStream = false
 		NowStreaming = false
-		time.Sleep(100 * time.Millisecond)
 
 		for _, sound := range Config.Global.Software.Sounds.Sound {
 			if sound.Enabled {
@@ -155,21 +153,10 @@ func (b *Talkkonnect) TransmitStart() {
 	}
 
 	if Config.Global.Hardware.TargetBoard == "rpi" {
-		GPIOOutPin("transmit", "on")
-		MyLedStripTransmitLEDOn()
-		if LCDEnabled {
-			LcdText[0] = "Online/TX"
-			LcdText[3] = "TX at " + t.Format("15:04:05")
-			LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
-		}
-		if OLEDEnabled {
-			Oled.DisplayOn()
-			LCDIsDark = false
-			oledDisplay(false, 0, 1, "Online/TX")
-			oledDisplay(false, 3, 1, "TX at "+t.Format("15:04:05"))
-			oledDisplay(false, 6, 1, "Please Visit       ")
-			oledDisplay(false, 7, 1, "www.talkkonnect.com")
-		}
+		// use groutine so no need to wait for local screen cause it causes delay
+		go GPIOOutPin("transmit", "on")
+		go MyLedStripTransmitLEDOn()
+		go txScreen()
 	}
 
 	b.IsTransmitting = true

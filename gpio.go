@@ -111,6 +111,11 @@ var (
 	NextServerButton      gpio.Pin
 	NextServerButtonPin   uint
 	NextServerButtonState uint
+
+	RepeaterToneButtonUsed  bool
+	RepeaterToneButton      gpio.Pin
+	RepeaterToneButtonPin   uint
+	RepeaterToneButtonState uint
 )
 
 var D [8]*mcp23017.Device
@@ -267,10 +272,17 @@ func (b *Talkkonnect) initGPIO() {
 				NextServerButtonUsed = true
 				NextServerButtonPin = io.PinNo
 			}
+			if io.Name == "repeatertone" && io.PinNo > 0 {
+				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
+				RepeaterToneButtonPinPullUp := rpio.Pin(io.PinNo)
+				RepeaterToneButtonPinPullUp.PullUp()
+				RepeaterToneButtonUsed = true
+				RepeaterToneButtonPin = io.PinNo
+			}
 		}
 	}
 
-	if TxButtonUsed || TxToggleUsed || UpButtonUsed || DownButtonUsed || PanicUsed || StreamToggleUsed || CommentUsed || RotaryUsed || VolUpButtonUsed || VolDownButtonUsed || TrackingUsed || MQTT0ButtonUsed || MQTT1ButtonUsed || NextServerButtonUsed {
+	if TxButtonUsed || TxToggleUsed || UpButtonUsed || DownButtonUsed || PanicUsed || StreamToggleUsed || CommentUsed || RotaryUsed || VolUpButtonUsed || VolDownButtonUsed || TrackingUsed || MQTT0ButtonUsed || MQTT1ButtonUsed || NextServerButtonUsed || RepeaterToneButtonUsed {
 		rpio.Close()
 	}
 
@@ -437,7 +449,7 @@ func (b *Talkkonnect) initGPIO() {
 						} else {
 							log.Println("debug: Panic Button is pressed")
 							playIOMedia("iopanic")
-							b.cmdPanicSimulation()
+							b.cmdPanicSimulation("gpio button")
 							time.Sleep(150 * time.Millisecond)
 						}
 					}
@@ -490,7 +502,7 @@ func (b *Talkkonnect) initGPIO() {
 						} else {
 							playIOMedia("iostreamtoggle")
 							log.Println("debug: Stream Button is pressed")
-							b.cmdPlayback()
+							b.cmdPlayback("gpio button")
 							time.Sleep(150 * time.Millisecond)
 						}
 					}
@@ -515,11 +527,11 @@ func (b *Talkkonnect) initGPIO() {
 						if currentStateB != currentStateA && err1 == nil {
 							playIOMedia("iorotarycw")
 							log.Println("debug: Rotating Clockwise")
-							b.cmdChannelUp()
+							b.cmdChannelUp("rotary encoder")
 						} else {
 							log.Println("debug: Rotating CounterClockwise")
 							playIOMedia("iorotaryccw")
-							b.cmdChannelDown()
+							b.cmdChannelDown("rotary encoder")
 						}
 					}
 					LastStateA = currentStateA
@@ -546,7 +558,7 @@ func (b *Talkkonnect) initGPIO() {
 						} else {
 							log.Println("debug: Vol UP Button is pressed")
 							playIOMedia("iovolup")
-							b.cmdVolumeUp()
+							b.cmdVolumeUp("gpio button")
 						}
 					}
 				} else {
@@ -570,7 +582,7 @@ func (b *Talkkonnect) initGPIO() {
 						} else {
 							log.Println("debug: Vol Down Button is pressed")
 							playIOMedia("iovoldown")
-							b.cmdVolumeDown()
+							b.cmdVolumeDown("gpio button")
 						}
 					}
 				} else {
@@ -677,7 +689,33 @@ func (b *Talkkonnect) initGPIO() {
 						} else {
 							log.Println("debug: NextServer Button is pressed")
 							playIOMedia("iocnextserver")
-							b.ChannelUp()
+							b.cmdConnNextServer("gpio button")
+							time.Sleep(150 * time.Millisecond)
+						}
+					}
+				} else {
+					time.Sleep(1 * time.Second)
+				}
+			}
+		}()
+	}
+
+	if RepeaterToneButtonUsed {
+		RepeaterToneButton = gpio.NewInput(RepeaterToneButtonPin)
+		go func() {
+			for {
+				if IsConnected {
+					currentState, err := RepeaterToneButton.Read()
+					time.Sleep(150 * time.Millisecond)
+					if currentState != RepeaterToneButtonState && err == nil {
+						RepeaterToneButtonState = currentState
+
+						if RepeaterToneButtonState == 1 {
+							log.Println("debug: Repeater Tone Button is released")
+						} else {
+							log.Println("debug: Repeater Tone Button is pressed")
+							playIOMedia("iorepeatertone")
+							b.cmdPlayRepeaterTone("gpio button")
 							time.Sleep(150 * time.Millisecond)
 						}
 					}

@@ -66,35 +66,35 @@ func (b *Talkkonnect) USBKeyboard() {
 					switch strings.ToLower(USBKeyMap[rune(ke.Scancode)].Command) {
 					case "channelup":
 						playIOMedia("usbchannelup")
-						b.cmdChannelUp()
+						b.cmdChannelUp("usb keyboard")
 					case "channeldown":
 						playIOMedia("usbchanneldown")
-						b.cmdChannelDown()
+						b.cmdChannelDown("usb keyboard")
 					case "serverup":
 						playIOMedia("usbserverup")
-						b.cmdConnNextServer()
+						b.cmdConnNextServer("usb keyboard")
 					case "serverdown":
 						playIOMedia("usbpreviousserver")
-						b.cmdConnPreviousServer()
+						b.cmdConnPreviousServer("usb keyboard")
 					case "mute":
 						playIOMedia("usbmute")
-						b.cmdMuteUnmute("mute")
+						b.cmdMuteUnmute("mute", "usb keyboard")
 					case "unmute":
-						b.cmdMuteUnmute("unmute")
+						b.cmdMuteUnmute("unmute", "usb keyboard")
 						playIOMedia("usbunmute")
 					case "mute-toggle":
 						playIOMedia("usbmutetoggle")
-						b.cmdMuteUnmute("toggle")
+						b.cmdMuteUnmute("toggle", "usb keyboard")
 						playIOMedia("usbmutetoggle")
 					case "stream-toggle":
 						playIOMedia("usbstreamtoggle")
-						b.cmdPlayback()
+						b.cmdPlayback("usb keyboard")
 					case "volumeup":
 						playIOMedia("usbvolup")
-						b.cmdVolumeUp()
+						b.cmdVolumeUp("usb keyboard")
 					case "volumedown":
 						playIOMedia("usbvoldown")
-						b.cmdVolumeDown()
+						b.cmdVolumeDown("usbvoldown")
 					case "setcomment":
 						if USBKeyMap[rune(ke.Scancode)].ParamName == "setcomment" {
 							log.Println("info: Set Commment ", USBKeyMap[rune(ke.Scancode)].ParamValue)
@@ -103,14 +103,14 @@ func (b *Talkkonnect) USBKeyboard() {
 						}
 					case "transmitstart":
 						playIOMedia("usbstarttx")
-						b.cmdStartTransmitting()
+						b.cmdStartTransmitting("usb keyboard")
 					case "transmitstop":
 						playIOMedia("usbstoptx")
-						b.cmdStopTransmitting()
+						b.cmdStopTransmitting("usb keyboard")
 					case "record":
 						playIOMedia("usbrecord")
-						b.cmdAudioTrafficRecord()
-						b.cmdAudioMicRecord()
+						b.cmdAudioTrafficRecord("usb keyboard")
+						b.cmdAudioMicRecord("usb keyboard")
 					case "voicetargetset":
 						voicetarget, err := strconv.Atoi(USBKeyMap[rune(ke.Scancode)].ParamValue)
 						if err != nil {
@@ -124,6 +124,9 @@ func (b *Talkkonnect) USBKeyboard() {
 							playIOMedia("usbmqttpubpayloadset")
 							MQTTPublish(USBKeyMap[rune(ke.Scancode)].ParamValue)
 						}
+					case "repeatertoneplay":
+						playIOMedia("iorepeatertone")
+						b.cmdPlayRepeaterTone("usb keyboard")
 					default:
 						log.Println("error: Command Not Defined ", strings.ToLower(USBKeyMap[rune(ke.Scancode)].Command))
 					}

@@ -475,3 +475,20 @@ func findMQTTButton(findMQTTButton string) mqttPubButtonStruct {
 	}
 	return mqttPubButtonStruct{"", "", false}
 }
+
+func txScreen() {
+	t := time.Now()
+	if LCDEnabled {
+		LcdText[0] = "Online/TX"
+		LcdText[3] = "TX at " + t.Format("15:04:05")
+		LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+	}
+	if OLEDEnabled {
+		Oled.DisplayOn()
+		LCDIsDark = false
+		oledDisplay(false, 0, 1, "Online/TX")
+		oledDisplay(false, 3, 1, "TX at "+t.Format("15:04:05"))
+		oledDisplay(false, 6, 1, "Please Visit       ")
+		oledDisplay(false, 7, 1, "www.talkkonnect.com")
+	}
+}

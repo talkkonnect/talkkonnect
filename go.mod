@@ -20,7 +20,7 @@ require (
 	github.com/talkkonnect/gumble v0.0.0-20211002133403-8965a63155bf
 	github.com/talkkonnect/max7219 v0.0.0-20211028104259-8b131029f2b7
 	github.com/talkkonnect/termbox-go v0.0.0-20181013101158-0ee46dd7ddac
-	github.com/talkkonnect/volume-go v0.0.0-20220118060712-5d893e4580ef
+	github.com/talkkonnect/volume-go v0.0.0-20220118071337-b8ff83c4eacc
 	github.com/xackery/gomail v0.0.0-20150929200936-cc84600edc17
 	golang.org/x/sys v0.0.0-20220114195835-da31bd327af9
 	periph.io/x/periph v3.6.8+incompatible

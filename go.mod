@@ -20,16 +20,16 @@ require (
 	github.com/talkkonnect/gumble v0.0.0-20211002133403-8965a63155bf
 	github.com/talkkonnect/max7219 v0.0.0-20211028104259-8b131029f2b7
 	github.com/talkkonnect/termbox-go v0.0.0-20181013101158-0ee46dd7ddac
-	github.com/talkkonnect/volume-go v0.0.0-20220113085306-b200b9568e27
+	github.com/talkkonnect/volume-go v0.0.0-20220118060712-5d893e4580ef
 	github.com/xackery/gomail v0.0.0-20150929200936-cc84600edc17
-	golang.org/x/sys v0.0.0-20220111092808-5a964db01320
+	golang.org/x/sys v0.0.0-20220114195835-da31bd327af9
 	periph.io/x/periph v3.6.8+incompatible
 )
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fulr/spidev v0.0.0-20150210165549-524e13e3fac2 // indirect
-	github.com/go-ole/go-ole v1.2.4 // indirect
+	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/golang/glog v1.0.0 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/gorilla/websocket v1.4.2 // indirect

@@ -383,16 +383,16 @@
       </lcd>
       <oled enabled="false">
         <oledinterfacetype>i2c</oledinterfacetype>
-        <oleddisplayrows>6</oleddisplayrows>
-        <oleddisplaycolumns>21</oleddisplaycolumns>
+        <oleddisplayrows>8</oleddisplayrows>
+        <oleddisplaycolumns>19</oleddisplaycolumns>
         <oleddefaulti2cbus>1</oleddefaulti2cbus>
         <oleddefaulti2caddress>60</oleddefaulti2caddress>
-        <oledscreenwidth>128</oledscreenwidth>
+        <oledscreenwidth>131</oledscreenwidth>
         <oledscreenheight>64</oledscreenheight>
         <oledcommandcolumnaddressing>33</oledcommandcolumnaddressing>
         <oledaddressbasepagestart>176</oledaddressbasepagestart>
-        <oledcharlength>9</oledcharlength>
-        <oledstartcolumn>0</oledstartcolumn>
+        <oledcharlength>8</oledcharlength>
+        <oledstartcolumn>1</oledstartcolumn>
       </oled>
       <gps enabled="false">
         <port>/dev/ttyACM0</port>

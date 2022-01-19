@@ -20,6 +20,7 @@
  * Contributor(s):
  *
  * Suvir Kumar <suvir@talkkonnect.com>
+ * Zoran Dimitrijevic
  *
  * My Blog is at www.talkkonnect.com
  * The source code is hosted at github.com/talkkonnect
@@ -34,7 +35,6 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"io"
 	"log"
 	"net"
 	"net/http"
@@ -75,11 +75,11 @@ type GNSSDataStruct struct {
 
 //global variables for gps
 var (
-	GNSSData       GNSSDataStruct
-	GNSSDataPublic = make(chan GNSSDataStruct, GPSDataChannelReceivers+1)
+	GNSSData          GNSSDataStruct
+	GNSSDataPublic         = make(chan GNSSDataStruct, GPSDataChannelReceivers+1)
+	TraccarDiagSounds bool = true
 )
 
-//local variables for gps
 var (
 	RMCSentenceValid bool
 	GGASentenceValid bool
@@ -90,8 +90,8 @@ var (
 var (
 	TCPErrorCount      int
 	HTTPErrorCount     int
-	TCPErrorThreshold  int = 5
-	HTTPErrorThreshold int = 5
+	TCPErrorThreshold  int = 17280
+	HTTPErrorThreshold int = 17280
 )
 
 func getGpsPosition(verbosity int) (bool, error) {
@@ -285,63 +285,90 @@ func httpSendTraccar(tprotocol string) {
 			if response.StatusCode >= 200 && response.StatusCode <= 299 {
 				HTTPErrorCount = 0
 				log.Printf("debug: %v Protocol Traccar Server HTTP Response Code %v With Status %v\n", tprotocol, response.StatusCode, http.StatusText(response.StatusCode))
-				eventSound := findEventSound("traccarHTTP2XXResponse")
-				if eventSound.Enabled {
-					if v, err := strconv.Atoi(eventSound.Volume); err == nil {
-						localMediaPlayer(eventSound.FileName, v, eventSound.Blocking, 0, 1)
+
+				if TraccarDiagSounds {
+					eventSound := findEventSound("traccarHTTP2XXResponse")
+					if eventSound.Enabled {
+						if v, err := strconv.Atoi(eventSound.Volume); err == nil {
+							localMediaPlayer(eventSound.FileName, v, eventSound.Blocking, 0, 1)
+							log.Printf("debug: Playing a Traccar diagnostic sound")
+						}
 					}
+
+				}
+
+				//NEW. Print "TRACK OK" to display for 200 server status message.
+				tnow := time.Now().Format("15:04:05")
+				if Config.Global.Hardware.LCD.Enabled && Config.Global.Hardware.Traccar.DeviceScreenEnabled {
+					LcdText = [4]string{"nil", "TRACK OK " + tnow, "lat:" + fmt.Sprintf("%f", GNSSDataTraccar.Lattitude) + " c:" + fmt.Sprintf("%f", GNSSDataTraccar.Course), "lon:" + fmt.Sprintf("%f", GNSSDataTraccar.Longitude) + " s:" + fmt.Sprintf("%.2f", GNSSDataTraccar.Speed*1.852)}
+					go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+				}
+				if Config.Global.Hardware.OLED.Enabled {
+					oledDisplay(false, 4, 1, "TRACK OK "+GNSSDataTraccar.DateTime.Format("15:04:05"))
+					oledDisplay(false, 5, 1, "lat: "+fmt.Sprintf("%f", GNSSDataTraccar.Lattitude))
+					oledDisplay(false, 6, 1, "lon: "+fmt.Sprintf("%f", GNSSDataTraccar.Longitude))
+					oledDisplay(false, 7, 1, "s:"+fmt.Sprintf("%.2f", (GNSSDataTraccar.Speed*1.852))+" c:"+fmt.Sprintf("%f", GNSSDataTraccar.Course))
 				}
 			}
-			if response.StatusCode >= 300 && response.StatusCode <= 399 {
-				HTTPErrorCount++
-				log.Printf("debug: %v Protocol Traccar Server HTTP Response Code %v With Status %v\n", tprotocol, response.StatusCode, http.StatusText(response.StatusCode))
-				eventSound := findEventSound("traccarHTTP3XXResponse")
-				if eventSound.Enabled {
-					if v, err := strconv.Atoi(eventSound.Volume); err == nil {
-						localMediaPlayer(eventSound.FileName, v, eventSound.Blocking, 0, 1)
-					}
-				}
-			}
+
 			if response.StatusCode >= 400 && response.StatusCode <= 499 {
 				HTTPErrorCount++
 				log.Printf("debug: %v Protocol Traccar Server HTTP Response Code %v With Status %v\n", tprotocol, response.StatusCode, http.StatusText(response.StatusCode))
-				eventSound := findEventSound("traccarHTTP4XXResponse")
-				if eventSound.Enabled {
-					if v, err := strconv.Atoi(eventSound.Volume); err == nil {
-						localMediaPlayer(eventSound.FileName, v, eventSound.Blocking, 0, 1)
+
+				if TraccarDiagSounds {
+					eventSound := findEventSound("traccarHTTP4XXResponse")
+					if eventSound.Enabled {
+						if v, err := strconv.Atoi(eventSound.Volume); err == nil {
+							localMediaPlayer(eventSound.FileName, v, eventSound.Blocking, 0, 1)
+							log.Printf("debug: Playing a Traccar diagnostic sound")
+						}
 					}
 				}
-			}
-			if response.StatusCode >= 500 && response.StatusCode <= 599 {
-				HTTPErrorCount++
-				log.Printf("debug: %v Protocol Traccar Server HTTP Response Code %v With Status %v\n", tprotocol, response.StatusCode, http.StatusText(response.StatusCode))
-				eventSound := findEventSound("traccarHTTP5XXResponse")
-				if eventSound.Enabled {
-					if v, err := strconv.Atoi(eventSound.Volume); err == nil {
-						localMediaPlayer(eventSound.FileName, v, eventSound.Blocking, 0, 1)
-					}
+
+				tnow := time.Now().Format("15:04:05")
+				if Config.Global.Hardware.LCD.Enabled && Config.Global.Hardware.Traccar.DeviceScreenEnabled {
+					LcdText = [4]string{"nil", "TRACK ERR2 " + tnow, "lat:" + fmt.Sprintf("%f", GNSSDataTraccar.Lattitude) + " c:" + fmt.Sprintf("%f", GNSSDataTraccar.Course), "lon:" + fmt.Sprintf("%f", GNSSDataTraccar.Longitude) + " s:" + fmt.Sprintf("%.2f", GNSSDataTraccar.Speed*1.852)}
+					go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 				}
+
+				if Config.Global.Hardware.OLED.Enabled {
+					oledDisplay(false, 4, 1, "TRACK ERR2 "+GNSSDataTraccar.DateTime.Format("15:04:05"))
+					oledDisplay(false, 5, 1, "lat: "+fmt.Sprintf("%f", GNSSDataTraccar.Lattitude))
+					oledDisplay(false, 6, 1, "lon: "+fmt.Sprintf("%f", GNSSDataTraccar.Longitude))
+					oledDisplay(false, 7, 1, "s:"+fmt.Sprintf("%.2f", (GNSSDataTraccar.Speed*1.852))+" c:"+fmt.Sprintf("%f", GNSSDataTraccar.Course))
+				}
+				//
+
 			}
+
 			response.Body.Close()
 
 			if TCPErrorCount >= TCPErrorThreshold {
 				Config.Global.Hardware.Traccar.Enabled = false
-				eventSound := findEventSound("traccarTooManyErrors")
-				if eventSound.Enabled {
-					if v, err := strconv.Atoi(eventSound.Volume); err == nil {
-						localMediaPlayer(eventSound.FileName, v, eventSound.Blocking, 0, 1)
+				if TraccarDiagSounds {
+					eventSound := findEventSound("traccarTooManyErrors")
+					if eventSound.Enabled {
+						if v, err := strconv.Atoi(eventSound.Volume); err == nil {
+							localMediaPlayer(eventSound.FileName, v, eventSound.Blocking, 0, 1)
+							log.Printf("debug: Playing a Traccar diagnostic sound")
+						}
 					}
 				}
+
 				return
 			}
 			if HTTPErrorCount >= HTTPErrorThreshold {
 				Config.Global.Hardware.Traccar.Enabled = false
-				eventSound := findEventSound("traccarTooManyErrors")
-				if eventSound.Enabled {
-					if v, err := strconv.Atoi(eventSound.Volume); err == nil {
-						localMediaPlayer(eventSound.FileName, v, eventSound.Blocking, 0, 1)
+				if TraccarDiagSounds {
+					eventSound := findEventSound("traccarTooManyErrors")
+					if eventSound.Enabled {
+						if v, err := strconv.Atoi(eventSound.Volume); err == nil {
+							localMediaPlayer(eventSound.FileName, v, eventSound.Blocking, 0, 1)
+							log.Printf("debug: Playing a Traccar diagnostic sound")
+						}
 					}
 				}
+
 				return
 			}
 		} else {
@@ -352,12 +379,29 @@ func httpSendTraccar(tprotocol string) {
 			if matched {
 				TCPErrorCount++
 				log.Println("error: TCP/IP Error Communicating with Traccar Server")
-				eventSound := findEventSound("traccarTCPError")
-				if eventSound.Enabled {
-					if v, err := strconv.Atoi(eventSound.Volume); err == nil {
-						localMediaPlayer(eventSound.FileName, v, eventSound.Blocking, 0, 1)
+
+				if TraccarDiagSounds {
+					eventSound := findEventSound("traccarTCPConnError")
+					if eventSound.Enabled {
+						if v, err := strconv.Atoi(eventSound.Volume); err == nil {
+							localMediaPlayer(eventSound.FileName, v, eventSound.Blocking, 0, 1)
+							log.Printf("debug: Playing a Traccar diagnostic sound")
+						}
 					}
 				}
+
+				tnow := time.Now().Format("15:04:05")
+				if Config.Global.Hardware.LCD.Enabled && Config.Global.Hardware.Traccar.DeviceScreenEnabled {
+					LcdText = [4]string{"nil", "TRACK ERR1 " + tnow, "lat:" + fmt.Sprintf("%f", GNSSDataTraccar.Lattitude) + " c:" + fmt.Sprintf("%f", GNSSDataTraccar.Course), "lon:" + fmt.Sprintf("%f", GNSSDataTraccar.Longitude) + " s:" + fmt.Sprintf("%.2f", GNSSDataTraccar.Speed*1.852)}
+					go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+				}
+				if Config.Global.Hardware.OLED.Enabled {
+					oledDisplay(false, 4, 1, "TRACK ERR1 "+GNSSDataTraccar.DateTime.Format("15:04:05"))
+					oledDisplay(false, 5, 1, "lat: "+fmt.Sprintf("%f", GNSSDataTraccar.Lattitude))
+					oledDisplay(false, 6, 1, "lon: "+fmt.Sprintf("%f", GNSSDataTraccar.Longitude))
+					oledDisplay(false, 7, 1, "s:"+fmt.Sprintf("%.2f", (GNSSDataTraccar.Speed*1.852))+" c:"+fmt.Sprintf("%f", GNSSDataTraccar.Course))
+				}
+
 				continue
 			}
 		}
@@ -369,19 +413,49 @@ func tcpSendT55Traccar() {
 	GPSDataChannelReceivers++
 
 	for {
+
 		GNSSDataTraccar := <-GNSSDataPublic
 
 		PGID := "$PGID" + "," + Config.Global.Hardware.Traccar.ClientId + "*0F" + "\r" + "\n"
 		GPRMC := GNSSDataTraccar.RMCRaw + "\r" + "\n"
 		log.Println("debug: $GPRMC to send is: " + GNSSDataTraccar.RMCRaw)
 
-		CONN, _ := net.Dial("tcp", Config.Global.Hardware.Traccar.Protocol.T55.ServerIP+":"+fmt.Sprint(Config.Global.Hardware.Traccar.Protocol.T55.Port)) // Use port 5005 for T55. Keep-alive.
-		err := CONN.(*net.TCPConn).SetKeepAlive(true)
+		CONN, err := net.Dial("tcp", Config.Global.Hardware.Traccar.Protocol.T55.ServerIP+":"+fmt.Sprint(Config.Global.Hardware.Traccar.Protocol.T55.Port)) // Use port 5005 for T55. Keep-alive.
+
+		if err != nil {
+			fmt.Println(err)
+
+			if TraccarDiagSounds {
+				eventSound := findEventSound("traccarTCPConnRefused")
+				if eventSound.Enabled {
+					if v, err := strconv.Atoi(eventSound.Volume); err == nil {
+						localMediaPlayer(eventSound.FileName, v, eventSound.Blocking, 0, 1)
+						log.Printf("debug: Playing a Traccar diagnostic sound")
+					}
+				}
+			}
+
+			tnow := time.Now().Format("15:04:05")
+			if Config.Global.Hardware.LCD.Enabled && Config.Global.Hardware.Traccar.DeviceScreenEnabled {
+				LcdText = [4]string{"nil", "TRACK ERR3 " + tnow, "lat:" + fmt.Sprintf("%f", GNSSDataTraccar.Lattitude) + " c:" + fmt.Sprintf("%f", GNSSDataTraccar.Course), "lon:" + fmt.Sprintf("%f", GNSSDataTraccar.Longitude) + " s:" + fmt.Sprintf("%.2f", GNSSDataTraccar.Speed*1.852)}
+				go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+			}
+			if Config.Global.Hardware.OLED.Enabled {
+				oledDisplay(false, 4, 1, "Track ERR3 "+GNSSDataTraccar.DateTime.Format("15:04:05"))
+				oledDisplay(false, 5, 1, "lat: "+fmt.Sprintf("%f", GNSSDataTraccar.Lattitude))
+				oledDisplay(false, 6, 1, "lon: "+fmt.Sprintf("%f", GNSSDataTraccar.Longitude))
+				oledDisplay(false, 7, 1, "s:"+fmt.Sprintf("%.2f", (GNSSDataTraccar.Speed*1.852))+" c:"+fmt.Sprintf("%f", GNSSDataTraccar.Course))
+			}
+			continue
+		}
+
+		err = CONN.(*net.TCPConn).SetKeepAlive(true)
 		if err != nil {
 			fmt.Println(err)
 			//pending to close the keepalive connection here
 			continue
 		}
+
 		err = CONN.(*net.TCPConn).SetKeepAlivePeriod(60 * time.Second)
 		if err != nil {
 			fmt.Println(err)
@@ -408,38 +482,26 @@ func tcpSendT55Traccar() {
 		fmt.Fprint(CONN, GPRMC) // send $GPRMC
 		log.Println("debug: Sending position message to Traccar over Protocol: " + strings.Title(strings.ToLower(Config.Global.Hardware.Traccar.Protocol.Name)))
 
-		notify := make(chan error)
-
-		go func() {
-			buf := make([]byte, 1024)
-			for {
-				n, err := CONN.Read(buf)
-				if err != nil {
-					notify <- err
-					if io.EOF == err {
-						close(notify)
-						return
-					}
-				}
-
-				if n > 0 {
-					log.Printf("alert: Unexpected Data: %s", buf[:n])
+		if TraccarDiagSounds {
+			eventSound := findEventSound("traccarTCPConnOK")
+			if eventSound.Enabled {
+				if v, err := strconv.Atoi(eventSound.Volume); err == nil {
+					localMediaPlayer(eventSound.FileName, v, eventSound.Blocking, 0, 1)
+					log.Printf("debug: Playing a Traccar diagnostic sound")
 				}
 			}
-		}()
+		}
 
-		for {
-			select {
-			case err := <-notify:
-				log.Println("alert: Traccar Server Connection dropped message", err)
-
-				if err == io.EOF {
-					log.Println("alert: Connection to Traccar Server was closed")
-					continue
-				}
-			case <-time.After(time.Second * 60):
-				log.Println("debug: Traccar Server Connection Timeout 60. Still Alive")
-			}
+		tnow := time.Now().Format("15:04:05")
+		if Config.Global.Hardware.LCD.Enabled && Config.Global.Hardware.Traccar.DeviceScreenEnabled {
+			LcdText = [4]string{"nil", "TRACK OK* " + tnow, "lat:" + fmt.Sprintf("%f", GNSSDataTraccar.Lattitude) + " c:" + fmt.Sprintf("%f", GNSSDataTraccar.Course), "lon:" + fmt.Sprintf("%f", GNSSDataTraccar.Longitude) + " s:" + fmt.Sprintf("%.2f", GNSSDataTraccar.Speed*1.852)}
+			go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+		}
+		if Config.Global.Hardware.OLED.Enabled {
+			oledDisplay(false, 4, 1, "TRACK OK* "+GNSSDataTraccar.DateTime.Format("15:04:05"))
+			oledDisplay(false, 5, 1, "lat: "+fmt.Sprintf("%f", GNSSDataTraccar.Lattitude))
+			oledDisplay(false, 6, 1, "lon: "+fmt.Sprintf("%f", GNSSDataTraccar.Longitude))
+			oledDisplay(false, 7, 1, "s:"+fmt.Sprintf("%.2f", (GNSSDataTraccar.Speed*1.852))+" c:"+fmt.Sprintf("%f", GNSSDataTraccar.Course))
 		}
 	}
 }
@@ -461,20 +523,32 @@ func consoleScreenLogging() {
 	}
 }
 
-func localScreenLogging() {
+func gpsDisplayShow() {
 	GPSDataChannelReceivers++
 	for {
 		GNSSDataTraccar := <-GNSSDataPublic
 		log.Printf("debug: Device Screen Latitude : %f Longitude : %f\n", GNSSDataTraccar.Lattitude, GNSSDataTraccar.Longitude)
-		if Config.Global.Hardware.LCD.Enabled {
-			LcdText = [4]string{"nil", "GPS OK " + GNSSDataTraccar.DateTime.Format("15:04:05"), "lat:" + fmt.Sprintf("%f", GNSSDataTraccar.Lattitude), "lon:" + fmt.Sprintf("%f", GNSSDataTraccar.Longitude) + " s:" + fmt.Sprintf("%.2f", GNSSDataTraccar.Speed*1.852)}
+
+		if Config.Global.Hardware.GPS.Enabled && Config.Global.Hardware.GPS.GpsDiagSounds {
+			eventSound := findEventSound("gpsOK")
+			if eventSound.Enabled {
+				if v, err := strconv.Atoi(eventSound.Volume); err == nil {
+					localMediaPlayer(eventSound.FileName, v, eventSound.Blocking, 0, 1)
+					log.Printf("debug: Playing a Traccar diagnostic sound")
+				}
+			}
+		}
+
+		tnow := time.Now().Format("15:04:05")
+		if Config.Global.Hardware.GPS.Enabled && Config.Global.Hardware.LCD.Enabled && Config.Global.Hardware.GPS.GpsDisplayShow && !Config.Global.Hardware.Traccar.DeviceScreenEnabled {
+			LcdText = [4]string{"nil", "GPS OK " + tnow, "lat:" + fmt.Sprintf("%f", GNSSDataTraccar.Lattitude) + " c:" + fmt.Sprintf("%f", GNSSDataTraccar.Course), "lon:" + fmt.Sprintf("%f", GNSSDataTraccar.Longitude) + " s:" + fmt.Sprintf("%.2f", GNSSDataTraccar.Speed*1.852)}
 			go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 		}
 		if Config.Global.Hardware.OLED.Enabled {
 			oledDisplay(false, 4, 1, "GPS OK "+GNSSDataTraccar.DateTime.Format("15:04:05"))
 			oledDisplay(false, 5, 1, "lat: "+fmt.Sprintf("%f", GNSSDataTraccar.Lattitude))
 			oledDisplay(false, 6, 1, "lon: "+fmt.Sprintf("%f", GNSSDataTraccar.Longitude))
-			oledDisplay(false, 7, 1, "sp: "+fmt.Sprintf("%.2f", (GNSSDataTraccar.Speed*1.852)))
+			oledDisplay(false, 7, 1, "s:"+fmt.Sprintf("%.2f", (GNSSDataTraccar.Speed*1.852))+" c:"+fmt.Sprintf("%f", GNSSDataTraccar.Course))
 		}
 	}
 }

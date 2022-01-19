@@ -492,7 +492,7 @@ func (b *Talkkonnect) ClientStart() {
 		}
 
 		if Config.Global.Hardware.TargetBoard == "rpi" && Config.Global.Hardware.Traccar.DeviceScreenEnabled && (Config.Global.Hardware.LCD.Enabled || Config.Global.Hardware.OLED.Enabled) {
-			go localScreenLogging()
+			go gpsDisplayShow()
 		}
 
 		if Config.Global.Hardware.Traccar.Enabled {

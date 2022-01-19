@@ -603,11 +603,11 @@ func (b *Talkkonnect) initGPIO() {
 						TrackingButtonState = currentState
 						if TrackingButtonState == 1 {
 							playIOMedia("iotrackingon")
-							log.Println("debug: Tracking Button State 1 setting comment to on  ")
+							log.Println("debug: Tracking Button State 1 setting GPS Tracking on  ")
 							// place holder to start tracking timer
 						} else {
 							playIOMedia("iotrackingoff")
-							log.Println("debug: Tracking Button State 1 setting comment to off ")
+							log.Println("debug: Tracking Button State 1 setting GPS Tracking off ")
 							// place holder to start tracking timer
 							time.Sleep(150 * time.Millisecond)
 						}

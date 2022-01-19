@@ -31,13 +31,12 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.08.05"
-	talkkonnectReleased string = "Jan 17 2022"
+	talkkonnectVersion  string = "2.08.06"
+	talkkonnectReleased string = "Jan 19 2022"
 )
 
 /* Release Notes
-1. Next Server by GPIO
-2. Next Server by USB Keyboard
-3. Optimize LCD, OLED on TX for minimize delay on TX
-4. Command Keys Show source of Calling Command
+1. Commit Changs in GPS gps.gp from zoran
+2. Add setting variables to xmlparser
+3. Added new sample config for usbkeybopard and ttykeyboard and goio repeatertonebutton
 */

@@ -380,12 +380,16 @@ type ConfigStruct struct {
 				MinRead             uint   `xml:"minread"`
 				Rx                  bool   `xml:"rx"`
 				GpsInfoVerbose      bool   `xml:"gpsinfoverbose"`
+				GpsDiagSounds       bool   `xml:"gpsdiagsounds"`
+				GpsDisplayShow      bool   `xml:"gpsdisplayshow"`
 			} `xml:"gps"`
 			Traccar struct {
 				Enabled             bool   `xml:"enabled,attr"`
 				Track               bool   `xml:"track"`
 				ClientId            string `xml:"clientid"`
 				DeviceScreenEnabled bool   `xml:"devicescreenenabled"`
+				TraccarDiagSounds   bool   `xml:"traccardiagsounds"`
+				TraccarDisplayShow  bool   `xml:"traccardispayshow"`
 				Protocol            struct {
 					Name   string `xml:"name,attr"`
 					Osmand struct {

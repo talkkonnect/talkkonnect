@@ -39,6 +39,7 @@ import (
 	"strconv"
 	"time"
 
+	hd44780 "github.com/talkkonnect/go-hd44780"
 	"github.com/talkkonnect/volume-go"
 )
 
@@ -366,25 +367,74 @@ func (b *Talkkonnect) cmdGPSPosition(source string) {
 
 	var i int = 0
 	var tries int = 10
-
 	for i = 0; i < tries; i++ {
 		goodGPSRead, err := getGpsPosition(3)
-
 		if err != nil {
 			log.Println("error: GPS Function Returned Error Message", err)
+
+			if Config.Global.Hardware.GPS.Enabled {
+				if Config.Global.Hardware.GPS.GpsDiagSounds {
+					eventSound := findEventSound("gpsDeviceError")
+					if eventSound.Enabled {
+						if v, err := strconv.Atoi(eventSound.Volume); err == nil {
+							localMediaPlayer(eventSound.FileName, v, eventSound.Blocking, 0, 1)
+							log.Printf("debug: Playing a GPS diagnostic sound")
+						}
+					}
+				}
+			}
+
+			tnow := fmt.Sprintf(time.Now().Format("15:04:05"))
+			if Config.Global.Hardware.GPS.Enabled {
+				if Config.Global.Hardware.LCD.Enabled && (Config.Global.Hardware.GPS.GpsDisplayShow || Config.Global.Hardware.Traccar.DeviceScreenEnabled) {
+					LcdText = [4]string{"nil", "GPS ERR1", "GPS Device Error", ""}
+					go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+				}
+				if Config.Global.Hardware.OLED.Enabled {
+					oledDisplay(false, 4, 1, "GPS ERR1"+tnow)
+					oledDisplay(false, 5, 1, "GPS Device Error")
+					oledDisplay(false, 6, 1, "")
+					oledDisplay(false, 7, 1, "")
+				}
+			}
 			break
 		}
 
 		if goodGPSRead {
 			break
 		}
-
 	}
 
 	if i == tries {
 		log.Println("warn: Could Not Get a Good GPS Read")
-	}
 
+		if Config.Global.Hardware.GPS.Enabled {
+			if Config.Global.Hardware.GPS.GpsDiagSounds {
+				eventSound := findEventSound("gpsNoGoodRead")
+				if eventSound.Enabled {
+					if v, err := strconv.Atoi(eventSound.Volume); err == nil {
+						localMediaPlayer(eventSound.FileName, v, eventSound.Blocking, 0, 1)
+						log.Printf("debug: Playing a GPS diagnostic sound")
+					}
+				}
+			}
+		}
+		//
+
+		tnow := fmt.Sprintf(time.Now().Format("15:04:05"))
+		if Config.Global.Hardware.GPS.Enabled {
+			if Config.Global.Hardware.LCD.Enabled && (Config.Global.Hardware.GPS.GpsDisplayShow || Config.Global.Hardware.Traccar.DeviceScreenEnabled) {
+				LcdText = [4]string{"nil", "GPS ERR2", "No Good GPS Reading", ""}
+				go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+			}
+			if Config.Global.Hardware.OLED.Enabled {
+				oledDisplay(false, 4, 1, "GPS ERR2"+tnow)
+				oledDisplay(false, 5, 1, "No Good GPS Reading")
+				oledDisplay(false, 6, 1, "")
+				oledDisplay(false, 7, 1, "")
+			}
+		}
+	}
 }
 
 func (b *Talkkonnect) cmdQuitTalkkonnect(source string) {

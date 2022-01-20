@@ -281,12 +281,12 @@ func (b *Talkkonnect) ParticipantLEDUpdate(verbose bool) {
 			if Config.Global.Hardware.TargetBoard == "rpi" {
 				if LCDEnabled {
 					LcdText[0] = b.Name //b.Address
-					LcdText[1] = b.Client.Self.Channel.Name + " (" + strconv.Itoa(participantCount) + " Users)"
+					LcdText[1] = "(" + strconv.Itoa(participantCount) + ")" + b.Client.Self.Channel.Name
 					LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 				}
 				if OLEDEnabled {
 					oledDisplay(false, 0, 1, b.Name) //b.Address
-					oledDisplay(false, 1, 1, b.Client.Self.Channel.Name+" ("+strconv.Itoa(participantCount)+" Users)")
+					oledDisplay(false, 1, 1, "("+strconv.Itoa(participantCount)+")"+b.Client.Self.Channel.Name)
 					oledDisplay(false, 6, 1, "Please Visit")
 					oledDisplay(false, 7, 1, "www.talkkonnect.com")
 				}
@@ -317,12 +317,12 @@ func (b *Talkkonnect) ParticipantLEDUpdate(verbose bool) {
 			if Config.Global.Hardware.TargetBoard == "rpi" {
 				GPIOOutPin("participants", "off")
 				if LCDEnabled {
-					LcdText = [4]string{b.Name, "Alone in " + b.Client.Self.Channel.Name, "", "nil"} //b.Address
+					LcdText = [4]string{b.Name, "(0)" + b.Client.Self.Channel.Name, "", "nil"} //b.Address
 					LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 				}
 				if OLEDEnabled {
 					oledDisplay(false, 0, 1, b.Name) //b.Address
-					oledDisplay(false, 1, 1, "Alone in "+b.Client.Self.Channel.Name)
+					oledDisplay(false, 1, 1, "(0)"+b.Client.Self.Channel.Name)
 				}
 			}
 		}

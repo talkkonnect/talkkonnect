@@ -477,18 +477,37 @@ func findMQTTButton(findMQTTButton string) mqttPubButtonStruct {
 }
 
 func txScreen() {
-	t := time.Now()
 	if LCDEnabled {
 		LcdText[0] = "Online/TX"
-		LcdText[3] = "TX at " + t.Format("15:04:05")
+		LcdText[3] = "TX at " + time.Now().Format("15:04:05")
 		LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 	}
 	if OLEDEnabled {
 		Oled.DisplayOn()
 		LCDIsDark = false
 		oledDisplay(false, 0, 1, "Online/TX")
-		oledDisplay(false, 3, 1, "TX at "+t.Format("15:04:05"))
+		oledDisplay(false, 3, 1, "TX at "+time.Now().Format("15:04:05"))
+		oledDisplay(false, 4, 1, "")
+		oledDisplay(false, 5, 1, "")
 		oledDisplay(false, 6, 1, "Please Visit       ")
 		oledDisplay(false, 7, 1, "www.talkkonnect.com")
+	}
+}
+
+func rxScreen(LastSpeaker string) {
+	if LCDEnabled && Config.Global.Hardware.TargetBoard == "rpi" {
+		GPIOOutPin("backlight", "on")
+		lcdtext = [4]string{"nil", "", "", LastSpeaker + " " + time.Now().Format("15:04:05")}
+		LcdDisplay(lcdtext, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+		BackLightTime.Reset(time.Duration(LCDBackLightTimeout) * time.Second)
+	}
+	if OLEDEnabled && Config.Global.Hardware.TargetBoard == "rpi" {
+		Oled.DisplayOn()
+		oledDisplay(false, 3, 1, LastSpeaker+" "+time.Now().Format("15:04:05"))
+		oledDisplay(false, 4, 1, "")
+		oledDisplay(false, 5, 1, "")
+		oledDisplay(false, 6, 1, "Please Visit       ")
+		oledDisplay(false, 7, 1, "www.talkkonnect.com")
+		BackLightTime.Reset(time.Duration(LCDBackLightTimeout) * time.Second)
 	}
 }

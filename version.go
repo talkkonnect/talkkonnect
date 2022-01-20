@@ -31,12 +31,11 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.08.07"
+	talkkonnectVersion  string = "2.08.08"
 	talkkonnectReleased string = "Jan 20 2022"
 )
 
 /* Release Notes
-1. Removed ability to show where command function was called from this was creating havoc with httapi and mqtt calls
-2. httpapi working
-3. mqtt working
+1. Cleaned Up OLED Screen Display for GPS Messages and Show Users in Channel
+2. Created Seperate function for goroutine call to rxScreen to speed things up and clean GPS screen
 */

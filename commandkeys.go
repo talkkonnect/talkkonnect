@@ -51,19 +51,19 @@ func (b *Talkkonnect) cmdDisplayMenu() {
 	b.ParticipantLEDUpdate(true)
 }
 
-func (b *Talkkonnect) cmdChannelUp(source string) {
-	log.Printf("debug: F1 pressed Channel Up (+) Requested from %v\n", source)
+func (b *Talkkonnect) cmdChannelUp() {
+	log.Printf("debug: F1 pressed Channel Up (+) Requested\n")
 	b.ChannelUp()
 }
 
-func (b *Talkkonnect) cmdChannelDown(source string) {
-	log.Printf("debug: F2 pressed Channel Down (-) Requested from %v\n", source)
+func (b *Talkkonnect) cmdChannelDown() {
+	log.Printf("debug: F2 pressed Channel Down (-) Requested \n")
 	b.ChannelDown()
 }
 
-func (b *Talkkonnect) cmdMuteUnmute(subCommand, source string) {
+func (b *Talkkonnect) cmdMuteUnmute(subCommand string) {
 
-	log.Printf("debug: F3 pressed %v Speaker Requested from %v\n", subCommand, source)
+	log.Printf("debug: F3 pressed %v Speaker Requested \n", subCommand)
 	OrigMuted, err := volume.GetMuted(Config.Global.Software.Settings.OutputMuteControlDevice)
 
 	if err != nil {
@@ -157,13 +157,13 @@ func (b *Talkkonnect) cmdMuteUnmute(subCommand, source string) {
 		return
 	}
 }
-func (b *Talkkonnect) cmdCurrentVolume(source string) {
+func (b *Talkkonnect) cmdCurrentVolume() {
 	OrigVolume, err := volume.GetVolume(Config.Global.Software.Settings.OutputVolControlDevice)
 	if err != nil {
 		log.Printf("error: Unable to get current volume: %+v\n", err)
 	}
 
-	log.Printf("debug: F4 pressed Volume Level Requested From =%v\n", source)
+	log.Printf("debug: F4 pressed Volume Level Requested\n")
 	log.Println("info: Volume Level is at", OrigVolume, "%")
 
 	TTSEvent("currentvolumelevel")
@@ -179,8 +179,8 @@ func (b *Talkkonnect) cmdCurrentVolume(source string) {
 	}
 }
 
-func (b *Talkkonnect) cmdVolumeUp(source string) {
-	log.Printf("debug: F5 pressed Volume UP (+) from %v\n", source)
+func (b *Talkkonnect) cmdVolumeUp() {
+	log.Printf("debug: F5 pressed Volume UP (+) \n")
 	origVolume, err := volume.GetVolume(Config.Global.Software.Settings.OutputVolControlDevice)
 	if err != nil {
 		log.Printf("warn: unable to get original volume: %+v volume control will not work!\n", err)
@@ -219,8 +219,8 @@ func (b *Talkkonnect) cmdVolumeUp(source string) {
 	TTSEvent("digitalvolumeup")
 }
 
-func (b *Talkkonnect) cmdVolumeDown(source string) {
-	log.Printf("info: F6 pressed Volume Down (-) from %v\n", source)
+func (b *Talkkonnect) cmdVolumeDown() {
+	log.Printf("info: F6 pressed Volume Down (-) \n")
 	origVolume, err := volume.GetVolume(Config.Global.Software.Settings.OutputVolControlDevice)
 	if err != nil {
 		log.Printf("warn: unable to get original volume: %+v volume control will not work!\n", err)
@@ -260,16 +260,16 @@ func (b *Talkkonnect) cmdVolumeDown(source string) {
 	TTSEvent("digitalvolumedown")
 }
 
-func (b *Talkkonnect) cmdListServerChannels(source string) {
-	log.Printf("debug: F7 pressed Channel List Requested %v\n", source)
+func (b *Talkkonnect) cmdListServerChannels() {
+	log.Printf("debug: F7 pressed Channel List Requested \n")
 
 	TTSEvent("listserverchannels")
 	b.ListChannels(true)
 	b.ParticipantLEDUpdate(true)
 }
 
-func (b *Talkkonnect) cmdStartTransmitting(source string) {
-	log.Printf("debug: F8 pressed TX Mode Requested (Start Transmitting) from %v\n", source)
+func (b *Talkkonnect) cmdStartTransmitting() {
+	log.Printf("debug: F8 pressed TX Mode Requested (Start Transmitting) \n")
 	log.Println("info: Start Transmitting")
 
 	TTSEvent("starttransmitting")
@@ -294,8 +294,8 @@ func (b *Talkkonnect) cmdStartTransmitting(source string) {
 	}
 }
 
-func (b *Talkkonnect) cmdStopTransmitting(source string) {
-	log.Printf("debug: F9 pressed RX Mode Request (Stop Transmitting) from %v\n", source)
+func (b *Talkkonnect) cmdStopTransmitting() {
+	log.Printf("debug: F9 pressed RX Mode Request (Stop Transmitting) \n")
 	log.Println("info: Stop Transmitting")
 
 	TTSEvent("stoptransmitting")
@@ -320,8 +320,8 @@ func (b *Talkkonnect) cmdStopTransmitting(source string) {
 	}
 }
 
-func (b *Talkkonnect) cmdListOnlineUsers(source string) {
-	log.Printf("debug: F10 pressed Online User(s) in Current Channel Requested from %v\n", source)
+func (b *Talkkonnect) cmdListOnlineUsers() {
+	log.Printf("debug: F10 pressed Online User(s) in Current Channel Requested \n")
 	log.Println("info: F10 Online User(s) in Current Channel")
 
 	TTSEvent("listonlineusers")
@@ -331,8 +331,8 @@ func (b *Talkkonnect) cmdListOnlineUsers(source string) {
 	b.ParticipantLEDUpdate(true)
 }
 
-func (b *Talkkonnect) cmdPlayback(source string) {
-	log.Printf("debug: F11 pressed Start/Stop Stream Stream into Current Channel Requested from %v", source)
+func (b *Talkkonnect) cmdPlayback() {
+	log.Printf("debug: F11 pressed Start/Stop Stream Stream into Current Channel Requested \n")
 	log.Println("info: Stream into Current Channel")
 
 	b.BackLightTimer()
@@ -359,8 +359,8 @@ func (b *Talkkonnect) cmdPlayback(source string) {
 	}
 }
 
-func (b *Talkkonnect) cmdGPSPosition(source string) {
-	log.Printf("debug: F12 pressed from %v\n", source)
+func (b *Talkkonnect) cmdGPSPosition() {
+	log.Printf("debug: F12 pressed \n")
 	log.Println("info: GPS details requested")
 
 	TTSEvent("requestgpsposition")
@@ -384,14 +384,13 @@ func (b *Talkkonnect) cmdGPSPosition(source string) {
 				}
 			}
 
-			tnow := fmt.Sprintf(time.Now().Format("15:04:05"))
 			if Config.Global.Hardware.GPS.Enabled {
 				if Config.Global.Hardware.LCD.Enabled && (Config.Global.Hardware.GPS.GpsDisplayShow || Config.Global.Hardware.Traccar.DeviceScreenEnabled) {
 					LcdText = [4]string{"nil", "GPS ERR1", "GPS Device Error", ""}
 					go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 				}
 				if Config.Global.Hardware.OLED.Enabled {
-					oledDisplay(false, 4, 1, "GPS ERR1"+tnow)
+					oledDisplay(false, 4, 1, "GPS ERR1 "+time.Now().Format("15:04:05"))
 					oledDisplay(false, 5, 1, "GPS Device Error")
 					oledDisplay(false, 6, 1, "")
 					oledDisplay(false, 7, 1, "")
@@ -421,14 +420,13 @@ func (b *Talkkonnect) cmdGPSPosition(source string) {
 		}
 		//
 
-		tnow := fmt.Sprintf(time.Now().Format("15:04:05"))
 		if Config.Global.Hardware.GPS.Enabled {
 			if Config.Global.Hardware.LCD.Enabled && (Config.Global.Hardware.GPS.GpsDisplayShow || Config.Global.Hardware.Traccar.DeviceScreenEnabled) {
 				LcdText = [4]string{"nil", "GPS ERR2", "No Good GPS Reading", ""}
 				go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 			}
 			if Config.Global.Hardware.OLED.Enabled {
-				oledDisplay(false, 4, 1, "GPS ERR2"+tnow)
+				oledDisplay(false, 4, 1, "GPS ERR2 "+time.Now().Format("15:04:05"))
 				oledDisplay(false, 5, 1, "No Good GPS Reading")
 				oledDisplay(false, 6, 1, "")
 				oledDisplay(false, 7, 1, "")
@@ -437,8 +435,8 @@ func (b *Talkkonnect) cmdGPSPosition(source string) {
 	}
 }
 
-func (b *Talkkonnect) cmdQuitTalkkonnect(source string) {
-	log.Printf("debug: Ctrl-C Terminate Program Requested from %v\n", source)
+func (b *Talkkonnect) cmdQuitTalkkonnect() {
+	log.Printf("debug: Ctrl-C Terminate Program Requested \n")
 	duration := time.Since(StartTime)
 	log.Printf("info: Talkkonnect Now Running For %v \n", secondsToHuman(int(duration.Seconds())))
 	TTSEvent("quittalkkonnect")
@@ -461,8 +459,8 @@ func (b *Talkkonnect) cmdDebugStacktrace() {
 	goStreamStats()
 }
 
-func (b *Talkkonnect) cmdSendEmail(source string) {
-	log.Printf("debug: Ctrl-E Pressed from %v\n", source)
+func (b *Talkkonnect) cmdSendEmail() {
+	log.Printf("debug: Ctrl-E Pressed \n")
 	log.Println("info: Send Email Requested")
 
 	var i int = 0
@@ -516,8 +514,8 @@ func (b *Talkkonnect) cmdSendEmail(source string) {
 	}
 }
 
-func (b *Talkkonnect) cmdConnPreviousServer(source string) {
-	log.Printf("debug: Ctrl-F Pressed from %v", source)
+func (b *Talkkonnect) cmdConnPreviousServer() {
+	log.Printf("debug: Ctrl-F Pressed \n")
 	log.Println("info: Previous Server Requested")
 
 	TTSEvent("previousserver")
@@ -532,9 +530,9 @@ func (b *Talkkonnect) cmdConnPreviousServer(source string) {
 	}
 }
 
-func (b *Talkkonnect) cmdClearScreen(source string) {
+func (b *Talkkonnect) cmdClearScreen() {
 	reset()
-	log.Printf("debug: Ctrl-L Pressed Cleared Screen from %v\n", source)
+	log.Printf("debug: Ctrl-L Pressed Cleared Screen \n")
 	if Config.Global.Hardware.TargetBoard == "rpi" {
 		if LCDEnabled {
 			LcdText = [4]string{"nil", "nil", "nil", "nil"}
@@ -549,15 +547,15 @@ func (b *Talkkonnect) cmdClearScreen(source string) {
 	}
 }
 
-func (b *Talkkonnect) cmdPingServers(source string) {
-	log.Printf("debug: Ctrl-O Pressed %v\n", source)
+func (b *Talkkonnect) cmdPingServers() {
+	log.Printf("debug: Ctrl-O Pressed \n")
 	log.Println("info: Ping Servers")
 	TTSEvent("pingservers")
 	b.pingServers()
 }
 
-func (b *Talkkonnect) cmdConnNextServer(source string) {
-	log.Printf("debug: Ctrl-N Pressed from %v\n", source)
+func (b *Talkkonnect) cmdConnNextServer() {
+	log.Printf("debug: Ctrl-N Pressed \n")
 	log.Println("info: Next Server Requested Killing This Session, talkkonnect should be restarted by systemd")
 
 	TTSEvent("nextserver")
@@ -573,8 +571,8 @@ func (b *Talkkonnect) cmdConnNextServer(source string) {
 
 }
 
-func (b *Talkkonnect) cmdAudioTrafficRecord(source string) {
-	log.Printf("debug: Ctrl-I Pressed from %v\n", source)
+func (b *Talkkonnect) cmdAudioTrafficRecord() {
+	log.Printf("debug: Ctrl-I Pressed \n")
 	log.Println("info: Traffic Recording Requested")
 	if !Config.Global.Hardware.AudioRecordFunction.Enabled {
 		log.Println("warn: Audio Recording Function Not Enabled")
@@ -605,8 +603,8 @@ func (b *Talkkonnect) cmdAudioTrafficRecord(source string) {
 	}
 }
 
-func (b *Talkkonnect) cmdAudioMicRecord(source string) {
-	log.Printf("debug: Ctrl-J Pressed from %v\n", source)
+func (b *Talkkonnect) cmdAudioMicRecord() {
+	log.Printf("debug: Ctrl-J Pressed \n")
 	log.Println("info: Ambient (Mic) Recording Requested")
 	if !Config.Global.Hardware.AudioRecordFunction.Enabled {
 		log.Println("warn: Audio Recording Function Not Enabled")
@@ -637,8 +635,8 @@ func (b *Talkkonnect) cmdAudioMicRecord(source string) {
 	}
 }
 
-func (b *Talkkonnect) cmdAudioMicTrafficRecord(source string) {
-	log.Printf("debug: Ctrl-K Pressed from %v\n", source)
+func (b *Talkkonnect) cmdAudioMicTrafficRecord() {
+	log.Printf("debug: Ctrl-K Pressed \n")
 	log.Println("info: Recording (Traffic and Mic) Requested")
 	if !Config.Global.Hardware.AudioRecordFunction.Enabled {
 		log.Println("warn: Audio Recording Function Not Enabled")
@@ -669,12 +667,12 @@ func (b *Talkkonnect) cmdAudioMicTrafficRecord(source string) {
 	}
 }
 
-func (b *Talkkonnect) cmdPanicSimulation(source string) {
+func (b *Talkkonnect) cmdPanicSimulation() {
 	if !(IsConnected) {
 		return
 	}
 	b.BackLightTimer()
-	log.Printf("debug: Ctrl-P Pressed from %v\n", source)
+	log.Printf("debug: Ctrl-P Pressed \n")
 	log.Println("info: Panic Button Start/Stop Simulation Requested")
 
 	TTSEvent("panicsimulation")
@@ -738,7 +736,7 @@ func (b *Talkkonnect) cmdPanicSimulation(source string) {
 
 			// New. Send email after Panic Event //
 			if Config.Global.Hardware.PanicFunction.PMailEnabled {
-				b.cmdSendEmail("from panic")
+				b.cmdSendEmail()
 				log.Println("info: Sending Panic Alert Email To Predefined Email Address")
 			}
 			//
@@ -771,36 +769,36 @@ func (b *Talkkonnect) cmdPanicSimulation(source string) {
 	}
 }
 
-func (b *Talkkonnect) cmdRepeatTxLoop(source string) {
-	log.Printf("debug: Ctrl-R Pressed from %v\n", source)
+func (b *Talkkonnect) cmdRepeatTxLoop() {
+	log.Printf("debug: Ctrl-R Pressed \n")
 	log.Println("info: Repeat TX Test Requested")
 	isrepeattx = !isrepeattx
 	go b.repeatTx()
 }
 
-func (b *Talkkonnect) cmdScanChannels(source string) {
-	log.Printf("debug: Ctrl-S Pressed fgrom %v\n", source)
+func (b *Talkkonnect) cmdScanChannels() {
+	log.Printf("debug: Ctrl-S Pressed fgrom \n")
 	log.Println("info: Scanning Channels")
 
 	TTSEvent("startscanning")
 	b.Scan()
 }
 
-func cmdThanks(source string) {
-	log.Printf("debug: Ctrl-T Pressed from %v\n", source)
+func cmdThanks() {
+	log.Printf("debug: Ctrl-T Pressed \n")
 	log.Println("info: Thanks and Acknowledgements Screen Request ")
 	talkkonnectAcknowledgements("\u001b[44;1m") // add blue background to banner reference https://www.lihaoyi.com/post/BuildyourownCommandLinewithANSIescapecodes.html#background-colors
 }
 
-func (b *Talkkonnect) cmdShowUptime(source string) {
-	log.Printf("debug: Ctrl-U Pressed from %v\n", source)
+func (b *Talkkonnect) cmdShowUptime() {
+	log.Printf("debug: Ctrl-U Pressed \n")
 	log.Println("info: Talkkonnect Uptime Request ")
 	duration := time.Since(StartTime)
 	log.Printf("info: Talkkonnect Now Running For %v \n", secondsToHuman(int(duration.Seconds())))
 }
 
-func (b *Talkkonnect) cmdDisplayVersion(source string) {
-	log.Printf("debug: Ctrl-V Pressed from %v\n", source)
+func (b *Talkkonnect) cmdDisplayVersion() {
+	log.Printf("debug: Ctrl-V Pressed \n")
 	log.Println("info: Talkkonnect Version Request ")
 	releasedVersion := checkGitHubVersion()
 	if talkkonnectVersion != releasedVersion {
@@ -810,15 +808,15 @@ func (b *Talkkonnect) cmdDisplayVersion(source string) {
 	}
 }
 
-func (b *Talkkonnect) cmdDumpXMLConfig(source string) {
-	log.Printf("debug: Ctrl-X Pressed from %v\n", source)
+func (b *Talkkonnect) cmdDumpXMLConfig() {
+	log.Printf("debug: Ctrl-X Pressed \n")
 	log.Println("info: Print XML Config " + ConfigXMLFile)
 	TTSEvent("printxmlconfig")
 	printxmlconfig()
 }
 
-func (b *Talkkonnect) cmdPlayRepeaterTone(source string) {
-	log.Printf("debug: Ctrl-G Pressed from %v\n", source)
+func (b *Talkkonnect) cmdPlayRepeaterTone() {
+	log.Printf("debug: Ctrl-G Pressed \n")
 	log.Println("info: Play Repeater Tone on Speaker and Simulate RX Signal")
 
 	b.BackLightTimer()
@@ -831,8 +829,8 @@ func (b *Talkkonnect) cmdPlayRepeaterTone(source string) {
 
 }
 
-func (b *Talkkonnect) cmdLiveReload(source string) {
-	log.Printf("debug: Ctrl-B Pressed from %v\n", source)
+func (b *Talkkonnect) cmdLiveReload() {
+	log.Printf("debug: Ctrl-B Pressed \n")
 	log.Println("info: XML Config Live Reload")
 	err := readxmlconfig(ConfigXMLFile, true)
 	if err != nil {
@@ -841,8 +839,8 @@ func (b *Talkkonnect) cmdLiveReload(source string) {
 	}
 }
 
-func cmdSanityCheck(source string) {
-	log.Printf("debug: Ctrl-H Pressed from %v\n", source)
+func cmdSanityCheck() {
+	log.Printf("debug: Ctrl-H Pressed \n")
 	log.Println("info: XML Sanity Checker")
 	CheckConfigSanity(false)
 }

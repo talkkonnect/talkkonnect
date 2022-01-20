@@ -37,13 +37,11 @@ import (
 	"log"
 	"os/exec"
 	"strconv"
-	"time"
 )
 
 func aplayLocal(fileNameWithPath string) {
 	var player string
-
-	CmdArguments := []string{}
+	var CmdArguments = []string{}
 
 	if path, err := exec.LookPath("aplay"); err == nil {
 		CmdArguments = []string{fileNameWithPath, "-q", "-N"}
@@ -121,6 +119,7 @@ func (b *Talkkonnect) PlayTone(toneFreq int, toneDuration float32, destination s
 	}
 }
 
+/*
 func playAnnouncementMedia(id int) {
 
 	for _, multimedia := range Config.Global.Multimedia.ID {
@@ -150,15 +149,16 @@ func playAnnouncementMedia(id int) {
 				}
 			}
 			if multimedia.Params.Playintostream {
-				log.Println("alert: todo play into stream")
+				log.Println("alert: todo play into stream not implemented yet")
+			}
+
+			if multimedia.Params.Voicetarget {
+				log.Println("alert: todo play to voice targets not implemented yet")
 			}
 		}
 	}
-
-	// Config.Global.Multimedia.Params.Playintostream
-	// Config.Global.Multimedia.Params.Voicetarget
-
 }
+*/
 
 func findEventSound(findEventSound string) EventSoundStruct {
 	for _, sound := range Config.Global.Software.Sounds.Sound {

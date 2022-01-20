@@ -449,7 +449,7 @@ func (b *Talkkonnect) initGPIO() {
 						} else {
 							log.Println("debug: Panic Button is pressed")
 							playIOMedia("iopanic")
-							b.cmdPanicSimulation("gpio button")
+							b.cmdPanicSimulation()
 							time.Sleep(150 * time.Millisecond)
 						}
 					}
@@ -502,7 +502,7 @@ func (b *Talkkonnect) initGPIO() {
 						} else {
 							playIOMedia("iostreamtoggle")
 							log.Println("debug: Stream Button is pressed")
-							b.cmdPlayback("gpio button")
+							b.cmdPlayback()
 							time.Sleep(150 * time.Millisecond)
 						}
 					}
@@ -527,11 +527,11 @@ func (b *Talkkonnect) initGPIO() {
 						if currentStateB != currentStateA && err1 == nil {
 							playIOMedia("iorotarycw")
 							log.Println("debug: Rotating Clockwise")
-							b.cmdChannelUp("rotary encoder")
+							b.cmdChannelUp()
 						} else {
 							log.Println("debug: Rotating CounterClockwise")
 							playIOMedia("iorotaryccw")
-							b.cmdChannelDown("rotary encoder")
+							b.cmdChannelDown()
 						}
 					}
 					LastStateA = currentStateA
@@ -558,7 +558,7 @@ func (b *Talkkonnect) initGPIO() {
 						} else {
 							log.Println("debug: Vol UP Button is pressed")
 							playIOMedia("iovolup")
-							b.cmdVolumeUp("gpio button")
+							b.cmdVolumeUp()
 						}
 					}
 				} else {
@@ -582,7 +582,7 @@ func (b *Talkkonnect) initGPIO() {
 						} else {
 							log.Println("debug: Vol Down Button is pressed")
 							playIOMedia("iovoldown")
-							b.cmdVolumeDown("gpio button")
+							b.cmdVolumeDown()
 						}
 					}
 				} else {
@@ -689,7 +689,7 @@ func (b *Talkkonnect) initGPIO() {
 						} else {
 							log.Println("debug: NextServer Button is pressed")
 							playIOMedia("iocnextserver")
-							b.cmdConnNextServer("gpio button")
+							b.cmdConnNextServer()
 							time.Sleep(150 * time.Millisecond)
 						}
 					}
@@ -715,7 +715,7 @@ func (b *Talkkonnect) initGPIO() {
 						} else {
 							log.Println("debug: Repeater Tone Button is pressed")
 							playIOMedia("iorepeatertone")
-							b.cmdPlayRepeaterTone("gpio button")
+							b.cmdPlayRepeaterTone()
 							time.Sleep(150 * time.Millisecond)
 						}
 					}

@@ -485,8 +485,8 @@ type ConfigStruct struct {
 						Value   time.Duration `xml:"value,attr"`
 						Enabled bool          `xml:"enabled,attr"`
 					} `xml:"postdelay"`
-					Playintostream bool   `xml:"playintostream"`
-					Voicetarget    string `xml:"voicetarget"`
+					Playintostream bool `xml:"playintostream"`
+					Voicetarget    bool `xml:"voicetarget"`
 				} `xml:"params"`
 				Media struct {
 					Source []struct {

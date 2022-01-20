@@ -31,12 +31,12 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.08.06"
-	talkkonnectReleased string = "Jan 19 2022"
+	talkkonnectVersion  string = "2.08.07"
+	talkkonnectReleased string = "Jan 20 2022"
 )
 
 /* Release Notes
-1. Commit Changs in GPS gps.gp from zoran
-2. Add setting variables to xmlparser
-3. Added new sample config for usbkeybopard and ttykeyboard and goio repeatertonebutton
+1. Removed ability to show where command function was called from this was creating havoc with httapi and mqtt calls
+2. httpapi working
+3. mqtt working
 */

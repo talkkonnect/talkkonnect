@@ -512,12 +512,12 @@ func (b *Talkkonnect) ClientStart() {
 
 	if Config.Global.Software.Settings.StreamOnStart {
 		time.Sleep(Config.Global.Software.Settings.StreamOnStartAfter * time.Second)
-		b.cmdPlayback("xml settings")
+		b.cmdPlayback()
 	}
 
 	if Config.Global.Software.Settings.TXOnStart {
 		time.Sleep(Config.Global.Software.Settings.TXOnStartAfter * time.Second)
-		b.cmdStartTransmitting("xml settings")
+		b.cmdStartTransmitting()
 	}
 
 keyPressListenerLoop:
@@ -532,105 +532,105 @@ keyPressListenerLoop:
 			case term.KeyDelete:
 				b.cmdDisplayMenu()
 			case term.KeyF1:
-				b.cmdChannelUp("tty keyboard")
+				b.cmdChannelUp()
 			case term.KeyF2:
-				b.cmdChannelDown("tty keyboard")
+				b.cmdChannelDown()
 			case term.KeyF3:
-				b.cmdMuteUnmute("toggle", "tty keyboard")
+				b.cmdMuteUnmute("toggle")
 			case term.KeyF4:
-				b.cmdCurrentVolume("tty keyboard")
+				b.cmdCurrentVolume()
 			case term.KeyF5:
-				b.cmdVolumeUp("tty keyboard")
+				b.cmdVolumeUp()
 			case term.KeyF6:
-				b.cmdVolumeDown("tty keyboard")
+				b.cmdVolumeDown()
 			case term.KeyF7:
-				b.cmdListServerChannels("tty keyboard")
+				b.cmdListServerChannels()
 			case term.KeyF8:
-				b.cmdStartTransmitting("tty keyboard")
+				b.cmdStartTransmitting()
 			case term.KeyF9:
-				b.cmdStopTransmitting("tty keyboard")
+				b.cmdStopTransmitting()
 			case term.KeyF10:
-				b.cmdListOnlineUsers("tty keyboard")
+				b.cmdListOnlineUsers()
 			case term.KeyF11:
-				b.cmdPlayback("tty keyboard")
+				b.cmdPlayback()
 			case term.KeyF12:
-				go b.cmdGPSPosition("tty keyboard")
+				go b.cmdGPSPosition()
 			case term.KeyCtrlB:
-				b.cmdLiveReload("tty keyboard")
+				b.cmdLiveReload()
 			case term.KeyCtrlC:
 				talkkonnectAcknowledgements("\u001b[44;1m") // add blue background to banner reference https://www.lihaoyi.com/post/BuildyourownCommandLinewithANSIescapecodes.html#background-colors
-				b.cmdQuitTalkkonnect("tty keyboard")
+				b.cmdQuitTalkkonnect()
 			case term.KeyCtrlD:
 				b.cmdDebugStacktrace()
 			case term.KeyCtrlE:
-				b.cmdSendEmail("tty keyboard")
+				b.cmdSendEmail()
 			case term.KeyCtrlF:
-				b.cmdConnPreviousServer("tty keyboard")
+				b.cmdConnPreviousServer()
 			case term.KeyCtrlH:
-				cmdSanityCheck("tty keyboard")
+				cmdSanityCheck()
 			case term.KeyCtrlI: // New. Audio Recording. Traffic
-				b.cmdAudioTrafficRecord("tty keyboard")
+				b.cmdAudioTrafficRecord()
 			case term.KeyCtrlJ: // New. Audio Recording. Mic
-				b.cmdAudioMicRecord("tty keyboard")
+				b.cmdAudioMicRecord()
 			case term.KeyCtrlK: // New/ Audio Recording. Combo
-				b.cmdAudioMicTrafficRecord("tty keyboard")
+				b.cmdAudioMicTrafficRecord()
 			case term.KeyCtrlL:
-				b.cmdClearScreen("tty keyboard")
+				b.cmdClearScreen()
 			case term.KeyCtrlO:
-				b.cmdPingServers("tty keyboard")
+				b.cmdPingServers()
 			case term.KeyCtrlN:
-				b.cmdConnNextServer("tty keyboard")
+				b.cmdConnNextServer()
 			case term.KeyCtrlP:
-				b.cmdPanicSimulation("tty keyboard")
+				b.cmdPanicSimulation()
 			case term.KeyCtrlG:
-				b.cmdPlayRepeaterTone("tty keyboard")
+				b.cmdPlayRepeaterTone()
 			case term.KeyCtrlR:
-				b.cmdRepeatTxLoop("tty keyboard")
+				b.cmdRepeatTxLoop()
 			case term.KeyCtrlS:
-				b.cmdScanChannels("tty keyboard")
+				b.cmdScanChannels()
 			case term.KeyCtrlT:
-				cmdThanks("tty keyboard")
+				cmdThanks()
 			case term.KeyCtrlU:
-				b.cmdShowUptime("tty keyboard")
+				b.cmdShowUptime()
 			case term.KeyCtrlV:
-				b.cmdDisplayVersion("tty keyboard")
+				b.cmdDisplayVersion()
 			case term.KeyCtrlX:
-				b.cmdDumpXMLConfig("tty keyboard")
+				b.cmdDumpXMLConfig()
 			default:
 				if _, ok := TTYKeyMap[ev.Ch]; ok {
 					switch strings.ToLower(TTYKeyMap[ev.Ch].Command) {
 					case "channelup":
-						b.cmdChannelUp("tty keyboard")
+						b.cmdChannelUp()
 					case "channeldown":
-						b.cmdChannelDown("tty keyboard")
+						b.cmdChannelDown()
 					case "serverup":
-						b.cmdConnNextServer("tty keyboard")
+						b.cmdConnNextServer()
 					case "serverdown":
-						b.cmdConnPreviousServer("tty keyboard")
+						b.cmdConnPreviousServer()
 					case "mute":
-						b.cmdMuteUnmute("mute", "tty keyboard")
+						b.cmdMuteUnmute("mute")
 					case "unmute":
-						b.cmdMuteUnmute("unmute", "tty keyboard")
+						b.cmdMuteUnmute("unmute")
 					case "mute-toggle":
-						b.cmdMuteUnmute("toggle", "tty keyboard")
+						b.cmdMuteUnmute("toggle")
 					case "stream-toggle":
-						b.cmdPlayback("tty keyboard")
+						b.cmdPlayback()
 					case "volumeup":
-						b.cmdVolumeUp("tty keyboard")
+						b.cmdVolumeUp()
 					case "volumedown":
-						b.cmdVolumeDown("tty keyboard")
+						b.cmdVolumeDown()
 					case "setcomment":
 						if TTYKeyMap[ev.Ch].ParamValue == "setcomment" {
 							log.Println("info: Set Commment ", TTYKeyMap[ev.Ch].ParamValue)
 							b.Client.Self.SetComment(TTYKeyMap[ev.Ch].ParamValue)
 						}
 					case "transmitstart":
-						b.cmdStartTransmitting("tty keyboard")
+						b.cmdStartTransmitting()
 					case "transmitstop":
-						b.cmdStopTransmitting("tty keyboard")
+						b.cmdStopTransmitting()
 					case "record":
-						b.cmdAudioTrafficRecord("tty keyboard")
-						b.cmdAudioMicRecord("tty keyboard")
+						b.cmdAudioTrafficRecord()
+						b.cmdAudioMicRecord()
 					case "voicetargetset":
 						Paramvalue, err := strconv.Atoi(TTYKeyMap[ev.Ch].ParamValue)
 						if err != nil {

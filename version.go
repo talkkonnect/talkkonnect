@@ -31,11 +31,10 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.08.08"
-	talkkonnectReleased string = "Jan 20 2022"
+	talkkonnectVersion  string = "2.09.01"
+	talkkonnectReleased string = "Jan 26 2022"
 )
 
 /* Release Notes
-1. Cleaned Up OLED Screen Display for GPS Messages and Show Users in Channel
-2. Created Seperate function for goroutine call to rxScreen to speed things up and clean GPS screen
+1. Starting SA818 Radio Module Integration
 */

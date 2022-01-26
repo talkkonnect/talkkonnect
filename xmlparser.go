@@ -247,6 +247,7 @@ type ConfigStruct struct {
 				PrintUSBKeyboard      bool `xml:"printusbkeyboard"`
 				PrintAudioRecord      bool `xml:"printaudiorecord"`
 				PrintKeyboardMap      bool `xml:"printkeyboardmap"`
+				PrintRadioModule      bool `xml:"printradiomodule"`
 				PrintMultimedia       bool `xml:"printmultimedia"`
 			} `xml:"printvariables"`
 			TTSMessages struct {
@@ -460,6 +461,37 @@ type ConfigStruct struct {
 					} `xml:"usbkeyboard"`
 				} `xml:"command"`
 			} `xml:"keyboard"`
+			Radio struct {
+				XMLName xml.Name `xml:"radio"`
+				Enabled bool     `xml:"enabled,attr"`
+				Sa818   struct {
+					Enabled bool `xml:"enabled,attr"`
+					Serial  struct {
+						Enabled  bool   `xml:"enabled,attr"`
+						Port     string `xml:"port"`
+						Baud     uint   `xml:"baud"`
+						Stopbits uint   `xml:"stopbits"`
+						Databits uint   `xml:"databits"`
+					} `xml:"serial"`
+					Channels struct {
+						Channel []struct {
+							ID        string  `xml:"id,attr"`
+							Name      string  `xml:"name,attr"`
+							Enabled   bool    `xml:"enabled,attr"`
+							Bandwidth int     `xml:"bandwidth"`
+							Rxfreq    float32 `xml:"rxfreq"`
+							Txfreq    float32 `xml:"txfreq"`
+							Squelch   int     `xml:"squelch"`
+							Ctcsstone int     `xml:"ctcsstone"`
+							Dcstone   int     `xml:"dcstone"`
+							Predeemph int     `xml:"predeemph"`
+							Highpass  int     `xml:"highpass"`
+							Lowpass   int     `xml:"lowpass"`
+							Volume    int     `xml:"volume"`
+						} `xml:"channel"`
+					} `xml:"channels"`
+				} `xml:"sa818"`
+			}
 		} `xml:"hardware"`
 		Multimedia struct {
 			ID []struct {
@@ -1260,6 +1292,26 @@ func printxmlconfig() {
 			}
 			if value.Usbkeyboard.Enabled {
 				log.Println("info: USBKeyboard " + fmt.Sprintf("%+v", value.Usbkeyboard))
+			}
+		}
+	} else {
+		log.Println("info: ------------ KeyboardMap Function ------ SKIPPED ")
+	}
+
+	if Config.Global.Software.PrintVariables.PrintRadioModule {
+		log.Println("info: ------------ RadioModule Function -------------- ")
+		log.Println("info: Radio  Enabled  " + fmt.Sprintf("%v", Config.Global.Hardware.Radio.Enabled))
+		log.Println("info: SA818  Enabled  " + fmt.Sprintf("%v", Config.Global.Hardware.Radio.Sa818.Enabled))
+		log.Println("info: Serial Enabled  " + fmt.Sprintf("%v", Config.Global.Hardware.Radio.Sa818.Serial.Enabled))
+		log.Println("info: Serial Port     " + fmt.Sprintf("%v", Config.Global.Hardware.Radio.Sa818.Serial.Port))
+		log.Println("info: Serial Baud     " + fmt.Sprintf("%v", Config.Global.Hardware.Radio.Sa818.Serial.Baud))
+		log.Println("info: Serial DataBits " + fmt.Sprintf("%v", Config.Global.Hardware.Radio.Sa818.Serial.Databits))
+		log.Println("info: Serial StopBits " + fmt.Sprintf("%v", Config.Global.Hardware.Radio.Sa818.Serial.Stopbits))
+		counter := 1
+		for _, channel := range Config.Global.Hardware.Radio.Sa818.Channels.Channel {
+			if channel.Enabled {
+				log.Printf("info: counter %v Bandwidth %v RXFreq %vMhz, TXFreq %vMhz Squelch %v CTSS Tone %v DCS Tone %v Pre/DeEmph %v Highpass %v Lowpass %v Volume %v\n", counter, channel.Bandwidth, channel.Rxfreq, channel.Txfreq, channel.Squelch, channel.Ctcsstone, channel.Dcstone, channel.Predeemph, channel.Highpass, channel.Lowpass, channel.Volume)
+				counter++
 			}
 		}
 	} else {

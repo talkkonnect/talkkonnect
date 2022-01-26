@@ -296,6 +296,7 @@
         <printusbkeyboard>false</printusbkeyboard>
         <printaudiorecord>false</printaudiorecord>
         <printkeyboardmap>false</printkeyboardmap>
+        <printradiomodule>false</printradiomodule>
         <printmultimedia>false</printmultimedia>
       </printvariables>
       <ttsmessages enabled="true">
@@ -334,6 +335,8 @@
           <pin direction="output" device="led/relay"     name="heartbeat" pinno="2" type="gpio" chipid="0" enabled="false"/>
           <pin direction="output" device="lcd"           name="backlight" pinno="6" type="gpio" chipid="0" enabled="false"/>
           <pin direction="output" device="led/relay"     name="relay0" pinno="6" type="gpio" chipid="0" enabled="false"/>
+          <pin direction="output" device="radiomodule"   name="powerdown" pinno="6" type="gpio" chipid="0" enabled="false"/>
+          <pin direction="output" device="radiomodule"   name="txpower" pinno="6" type="gpio" chipid="0" enabled="false"/>
           <pin direction="input"  device="pushbutton"    name="txptt" pinno="26" type="gpio" chipid="0" enabled="true"/>
           <pin direction="input"  device="pushbutton"    name="txtoggle" pinno="11" type="gpio" chipid="0" enabled="false"/>
           <pin direction="input"  device="pushbutton"    name="channelup" pinno="19" type="gpio" chipid="0" enabled="false"/>
@@ -514,6 +517,42 @@
           <usbkeyboard scanid="73" keylabel="9" enabled="true"/>
         </command>
       </keyboard>
+    	<radio enabled="true">
+        <sa818 enabled="true">
+          <serial enabled="true">
+            <port>/dev/ttyAMA0</port>
+            <baud>9600</baud>
+            <stopbits>1</stopbits>
+            <databits>8</databits>
+          </serial>
+          <channels>
+            <channel id="01" name="soon-pranakhorn" enabled="true">
+              <bandwidth>0</bandwidth>
+              <rxfreq>168.7750</rxfreq>
+              <txfreq>168.7750</txfreq>
+              <squelch>0</squelch>
+              <ctcsstone>0</ctcsstone>
+              <dcstone>0</dcstone>
+              <predeemph>0</predeemph>
+              <highpass>0</highpass>
+              <lowpass>0</lowpass>
+              <volume>4</volume>
+            </channel>
+            <channel id="02" name="soon-charlie" enabled="true">
+              <bandwidth>0</bandwidth>
+              <rxfreq>168.4450</rxfreq>
+              <txfreq>168.4450</txfreq>
+              <squelch>0</squelch>
+              <ctcsstone>0</ctcsstone>
+              <dcstone>0</dcstone>
+              <predeemph>0</predeemph>
+              <highpass>0</highpass>
+              <lowpass>0</lowpass>
+              <volume>4</volume>
+            </channel>
+          </channels>
+        </sa818>
+    	</radio>
     </hardware>
     <multimedia>
       <id value="0" enabled="true">

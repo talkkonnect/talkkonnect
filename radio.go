@@ -36,14 +36,7 @@ import (
 	"github.com/talkkonnect/sa818"
 )
 
-var DMOSetup sa818.DMOSetupStruct
-
 func RadioModuleSA818Channel(useChannelID string) {
-
-	DMOSetup.PortName = Config.Global.Hardware.Radio.Sa818.Serial.Port
-	DMOSetup.BaudRate = Config.Global.Hardware.Radio.Sa818.Serial.Baud
-	DMOSetup.DataBits = Config.Global.Hardware.Radio.Sa818.Serial.Databits
-	DMOSetup.StopBits = Config.Global.Hardware.Radio.Sa818.Serial.Stopbits
 
 	found, name := findChannelByID(useChannelID)
 	if found {
@@ -73,7 +66,7 @@ func findChannelByID(findChannelID string) (bool, string) {
 	return false, "not found channel"
 }
 
-func RadioModuleSA818InitComm() (bool, string) {
+func RadioModuleSA818InitComm(DMOSetup sa818.DMOSetupStruct) (bool, string) {
 	message, err := sa818.Callsa818("InitComm", "(DMOCONNECT:0)", DMOSetup)
 	if err != nil {
 		return false, "sa818 communication error"

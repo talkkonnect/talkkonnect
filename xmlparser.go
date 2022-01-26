@@ -46,6 +46,7 @@ import (
 	goled "github.com/talkkonnect/go-oled-i2c"
 	"github.com/talkkonnect/gumble/gumble"
 	"github.com/talkkonnect/gumble/gumbleffmpeg"
+	"github.com/talkkonnect/sa818"
 	"golang.org/x/sys/unix"
 )
 
@@ -696,6 +697,7 @@ var (
 )
 
 var StreamTracker = map[uint32]streamTrackerStruct{}
+var DMOSetup sa818.DMOSetupStruct
 
 func readxmlconfig(file string, reloadxml bool) error {
 	var ReConfig ConfigStruct

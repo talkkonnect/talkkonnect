@@ -31,10 +31,10 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.09.01"
+	talkkonnectVersion  string = "2.09.02"
 	talkkonnectReleased string = "Jan 26 2022"
 )
 
 /* Release Notes
-1. Starting SA818 Radio Module Integration
+1. Fixed  Radio muodules bugs
 */

@@ -502,25 +502,7 @@ func (b *Talkkonnect) ClientStart() {
 		if !(Config.Global.Hardware.Radio.Sa818.Enabled && Config.Global.Hardware.Radio.Sa818.Serial.Enabled) {
 			log.Println("error: Radio Module Not Configured Properly")
 		} else {
-			DMOSetup.PortName = Config.Global.Hardware.Radio.Sa818.Serial.Port
-			DMOSetup.BaudRate = Config.Global.Hardware.Radio.Sa818.Serial.Baud
-			DMOSetup.DataBits = Config.Global.Hardware.Radio.Sa818.Serial.Databits
-			DMOSetup.StopBits = Config.Global.Hardware.Radio.Sa818.Serial.Stopbits
-			moduleResponding, message := RadioModuleSA818InitComm(DMOSetup)
-			if !moduleResponding {
-				log.Println("error: ", message)
-			} else {
-				radioChannelID := "01"
-				found, name := findChannelByID(radioChannelID)
-				if found {
-					log.Printf("info: Found Channel ID %v Name %v\n", radioChannelID, name)
-					//RadioModuleSA818InitCheckVersion()
-					//RadioModuleSA818InitCheckRSSI()
-					RadioModuleSA818SetDMOGroup()
-					RadioModuleSA818SetDMOFilter()
-					RadioModuleSA818SetVolume()
-				}
-			}
+			go radioSetup()
 		}
 	}
 

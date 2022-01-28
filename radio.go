@@ -37,34 +37,20 @@ import (
 )
 
 func radioSetup() {
-	DMOSetup.PortName = Config.Global.Hardware.Radio.Sa818.Serial.Port
-	DMOSetup.BaudRate = Config.Global.Hardware.Radio.Sa818.Serial.Baud
-	DMOSetup.DataBits = Config.Global.Hardware.Radio.Sa818.Serial.Databits
-	DMOSetup.StopBits = Config.Global.Hardware.Radio.Sa818.Serial.Stopbits
-	moduleResponding, message := RadioModuleSA818InitComm(DMOSetup)
-	if !moduleResponding {
-		log.Println("error: ", message)
-	} else {
-		radioChannelID := "01"
-		found, name := findChannelByID(radioChannelID)
-		if found {
-			log.Printf("info: Found Channel ID %v Name %v\n", radioChannelID, name)
-			//RadioModuleSA818InitCheckVersion()
-			//RadioModuleSA818InitCheckRSSI()
-			RadioModuleSA818SetDMOGroup()
-			RadioModuleSA818SetDMOFilter()
-			RadioModuleSA818SetVolume()
-		}
-	}
-
+	DMOSetup.SerialOptions.PortName = Config.Global.Hardware.Radio.Sa818.Serial.Port
+	DMOSetup.SerialOptions.BaudRate = Config.Global.Hardware.Radio.Sa818.Serial.Baud
+	DMOSetup.SerialOptions.DataBits = Config.Global.Hardware.Radio.Sa818.Serial.Databits
+	DMOSetup.SerialOptions.StopBits = Config.Global.Hardware.Radio.Sa818.Serial.Stopbits
+	DMOSetup.SerialOptions.MinimumReadSize = 2
+	DMOSetup.SerialOptions.InterCharacterTimeout = 200
+	RadioModuleSA818Channel(Config.Global.Hardware.Radio.ConnectChannelID)
 }
 
 func RadioModuleSA818Channel(useChannelID string) {
-
 	found, name := findChannelByID(useChannelID)
 	if found {
 		log.Printf("info: Found Channel ID %v Name %v\n", useChannelID, name)
-
+		setFrequency()
 	} else {
 		log.Printf("error: Not Found Channel ID %v\n", useChannelID)
 	}
@@ -89,57 +75,39 @@ func findChannelByID(findChannelID string) (bool, string) {
 	return false, "not found channel"
 }
 
-func RadioModuleSA818InitComm(DMOSetup sa818.DMOSetupStruct) (bool, string) {
-	message, err := sa818.Callsa818("InitComm", "(DMOCONNECT:0)", DMOSetup)
+func checkVersion() {
+	err := sa818.Callsa818("CheckVersion", DMOSetup)
+	log.Println("info: CheckVersion ", err)
+}
+
+func checkRSSI() {
+	err := sa818.Callsa818("CheckRSSI", DMOSetup)
+	log.Println("info: Check RSSI ", err)
+}
+
+func setFrequency() {
+	err := sa818.Callsa818("DMOSetupGroup", DMOSetup)
 	if err != nil {
-		return false, "sa818 communication error"
+		log.Println("info: SAModule Set Frequecy Error ", err)
 	} else {
-		return true, message
+		log.Println("info: SAModule Set Frequecy OK ")
 	}
 }
 
-func RadioModuleSA818InitCheckVersion() {
-	message, err := sa818.Callsa818("CheckVersion", "(VERSION:)", DMOSetup)
+func setFilter() {
+	err := sa818.Callsa818("DMOSetupFilter", DMOSetup)
 	if err != nil {
-		log.Println("error: From Module ", err)
+		log.Println("info: SAModule Setup Filter Error ", err)
 	} else {
-		log.Println("info: sa818 says ", message)
+		log.Println("info: SAModule Setup Filter OK ")
 	}
 }
 
-func RadioModuleSA818InitCheckRSSI() {
-	message, err := sa818.Callsa818("CheckRSSI", "(RSSI)", DMOSetup)
+func setVolume() {
+	err := sa818.Callsa818("SetVolume", DMOSetup)
 	if err != nil {
-		log.Println("error: From Module ", err)
+		log.Println("info: SAModule Set Volume Error ", err)
 	} else {
-		log.Println("info: sa818 says ", message)
+		log.Println("info: SAModule Set Volume OK ")
 	}
-}
-
-func RadioModuleSA818SetVolume() {
-	message, err := sa818.Callsa818("SetVolume", "(DMOSETVOLUME:0)", DMOSetup)
-	if err != nil {
-		log.Println("error: From Module ", err)
-	} else {
-		log.Println("info: sa818 says ", message)
-	}
-}
-
-func RadioModuleSA818SetDMOFilter() {
-	message, err := sa818.Callsa818("DMOSetupFilter", "(DMOSETFILTER:0)", DMOSetup)
-	if err != nil {
-		log.Println("error: From Module ", err)
-	} else {
-		log.Println("info: sa818 says ", message)
-	}
-}
-
-func RadioModuleSA818SetDMOGroup() {
-	message, err := sa818.Callsa818("DMOSetupGroup", "(DMOSETGROUP:0)", DMOSetup)
-	if err != nil {
-		log.Println("error: From Module ", err)
-	} else {
-		log.Println("info: sa818 says ", message)
-	}
-
 }

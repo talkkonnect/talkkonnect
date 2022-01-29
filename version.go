@@ -31,10 +31,10 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.09.04"
-	talkkonnectReleased string = "Jan 28 2022"
+	talkkonnectVersion  string = "2.09.05"
+	talkkonnectReleased string = "Jan 29 2022"
 )
 
 /* Release Notes
-1. Fixed Broken Implementation of SA818 Causing talkkonnect not to compile
+1. Added Channel Up and Down to SA818 from talkkonnect
 */

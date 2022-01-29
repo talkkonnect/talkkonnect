@@ -502,6 +502,7 @@ func (b *Talkkonnect) ClientStart() {
 		if !(Config.Global.Hardware.Radio.Sa818.Enabled && Config.Global.Hardware.Radio.Sa818.Serial.Enabled) {
 			log.Println("error: Radio Module Not Configured Properly")
 		} else {
+			createEnabledRadioChannels()
 			go radioSetup()
 		}
 	}
@@ -572,10 +573,12 @@ keyPressListenerLoop:
 				b.cmdAudioMicTrafficRecord()
 			case term.KeyCtrlL:
 				b.cmdClearScreen()
+			case term.KeyCtrlM:
+				b.cmdRadioChannelMove("Up")
+			case term.KeyCtrlN:
+				b.cmdRadioChannelMove("Down")
 			case term.KeyCtrlO:
 				b.cmdPingServers()
-			case term.KeyCtrlN:
-				b.cmdConnNextServer()
 			case term.KeyCtrlP:
 				b.cmdPanicSimulation()
 			case term.KeyCtrlG:
@@ -592,6 +595,8 @@ keyPressListenerLoop:
 				b.cmdDisplayVersion()
 			case term.KeyCtrlX:
 				b.cmdDumpXMLConfig()
+			case term.KeyCtrlZ:
+				b.cmdConnNextServer()
 			default:
 				if _, ok := TTYKeyMap[ev.Ch]; ok {
 					switch strings.ToLower(TTYKeyMap[ev.Ch].Command) {

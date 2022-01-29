@@ -477,19 +477,20 @@ type ConfigStruct struct {
 					} `xml:"serial"`
 					Channels struct {
 						Channel []struct {
-							ID        string  `xml:"id,attr"`
-							Name      string  `xml:"name,attr"`
-							Enabled   bool    `xml:"enabled,attr"`
-							Bandwidth int     `xml:"bandwidth"`
-							Rxfreq    float32 `xml:"rxfreq"`
-							Txfreq    float32 `xml:"txfreq"`
-							Squelch   int     `xml:"squelch"`
-							Ctcsstone int     `xml:"ctcsstone"`
-							Dcstone   int     `xml:"dcstone"`
-							Predeemph int     `xml:"predeemph"`
-							Highpass  int     `xml:"highpass"`
-							Lowpass   int     `xml:"lowpass"`
-							Volume    int     `xml:"volume"`
+							ID         string  `xml:"id,attr"`
+							Name       string  `xml:"name,attr"`
+							Enabled    bool    `xml:"enabled,attr"`
+							ItemInList int     `xml:""`
+							Bandwidth  int     `xml:"bandwidth"`
+							Rxfreq     float32 `xml:"rxfreq"`
+							Txfreq     float32 `xml:"txfreq"`
+							Squelch    int     `xml:"squelch"`
+							Ctcsstone  int     `xml:"ctcsstone"`
+							Dcstone    int     `xml:"dcstone"`
+							Predeemph  int     `xml:"predeemph"`
+							Highpass   int     `xml:"highpass"`
+							Lowpass    int     `xml:"lowpass"`
+							Volume     int     `xml:"volume"`
 						} `xml:"channel"`
 					} `xml:"channels"`
 				} `xml:"sa818"`
@@ -595,9 +596,26 @@ type mqttPubButtonStruct struct {
 	Enabled bool
 }
 
+type radioChannelsStruct struct {
+	ID         string
+	Name       string
+	ItemInList int
+	Bandwidth  int
+	Rxfreq     float32
+	Txfreq     float32
+	Squelch    int
+	Ctcsstone  int
+	Dcstone    int
+	Predeemph  int
+	Highpass   int
+	Lowpass    int
+	Volume     int
+}
+
 // Generic Global Config Variables
 var Config ConfigStruct
 var ConfigXMLFile string
+var radioChannels []radioChannelsStruct
 
 // Generic Global State Variables
 var (

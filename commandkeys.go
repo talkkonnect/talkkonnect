@@ -547,6 +547,24 @@ func (b *Talkkonnect) cmdClearScreen() {
 	}
 }
 
+func (b *Talkkonnect) cmdRadioChannelMove(command string) {
+	log.Printf("debug: Ctrl-M Radio Channel %v\n", command)
+	if Config.Global.Hardware.TargetBoard == "rpi" {
+		if Config.Global.Hardware.Radio.Enabled {
+			if !(Config.Global.Hardware.Radio.Sa818.Enabled && Config.Global.Hardware.Radio.Sa818.Serial.Enabled) {
+				log.Println("error: Radio Module Not Configured Properly")
+			} else {
+				if command == "Up" {
+					go radioChannelChange("up")
+				}
+				if command == "Down" {
+					go radioChannelChange("down")
+				}
+			}
+		}
+	}
+}
+
 func (b *Talkkonnect) cmdPingServers() {
 	log.Printf("debug: Ctrl-O Pressed \n")
 	log.Println("info: Ping Servers")

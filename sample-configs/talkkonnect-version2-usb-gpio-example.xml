@@ -269,7 +269,7 @@
       </remotecontrol>
       <printvariables>
         <printaccount>false</printaccount>
-        <printsystemsettings>true</printsystemsettings>
+        <printsystemsettings>false</printsystemsettings>
         <printprovisioning>false</printprovisioning>
         <printbeacon>false</printbeacon>
         <printtts>false</printtts>
@@ -296,7 +296,7 @@
         <printusbkeyboard>false</printusbkeyboard>
         <printaudiorecord>false</printaudiorecord>
         <printkeyboardmap>false</printkeyboardmap>
-        <printradiomodule>false</printradiomodule>
+        <printradiomodule>true</printradiomodule>
         <printmultimedia>false</printmultimedia>
       </printvariables>
       <ttsmessages enabled="true">
@@ -517,28 +517,29 @@
           <usbkeyboard scanid="73" keylabel="9" enabled="true"/>
         </command>
       </keyboard>
-    	<radio enabled="true">
-        <sa818 enabled="true">
-          <serial enabled="true">
+    	<radio enabled="false">
+        <connectchannelid>01</connectchannelid>
+        <sa818 enabled="false">
+          <serial enabled="false">
             <port>/dev/ttyAMA0</port>
             <baud>9600</baud>
             <stopbits>1</stopbits>
             <databits>8</databits>
           </serial>
           <channels>
-            <channel id="01" name="soon-pranakhorn" enabled="true">
-              <bandwidth>0</bandwidth>
+            <channel id="01" name="soon-pranakhorn" enabled="false">
+              <bandwidth>1</bandwidth>
               <rxfreq>168.7750</rxfreq>
               <txfreq>168.7750</txfreq>
-              <squelch>0</squelch>
+              <squelch>1</squelch>
               <ctcsstone>0</ctcsstone>
               <dcstone>0</dcstone>
               <predeemph>0</predeemph>
               <highpass>0</highpass>
               <lowpass>0</lowpass>
-              <volume>4</volume>
+              <volume>8</volume>
             </channel>
-            <channel id="02" name="soon-charlie" enabled="true">
+            <channel id="02" name="soon-charlie" enabled="false">
               <bandwidth>0</bandwidth>
               <rxfreq>168.4450</rxfreq>
               <txfreq>168.4450</txfreq>
@@ -548,7 +549,19 @@
               <predeemph>0</predeemph>
               <highpass>0</highpass>
               <lowpass>0</lowpass>
-              <volume>4</volume>
+              <volume>8</volume>
+            </channel>
+            <channel id="03" name="ham-2ml" enabled="false">
+              <bandwidth>0</bandwidth>
+              <rxfreq>144.7250</rxfreq>
+              <txfreq>144.7250</txfreq>
+              <squelch>1</squelch>
+              <ctcsstone>0</ctcsstone>
+              <dcstone>0</dcstone>
+              <predeemph>0</predeemph>
+              <highpass>0</highpass>
+              <lowpass>0</lowpass>
+              <volume>8</volume>
             </channel>
           </channels>
         </sa818>

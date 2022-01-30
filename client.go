@@ -503,7 +503,7 @@ func (b *Talkkonnect) ClientStart() {
 			log.Println("error: Radio Module Not Configured Properly")
 		} else {
 			createEnabledRadioChannels()
-			go radioSetup()
+			go radioSetChannel(Config.Global.Hardware.Radio.ConnectChannelID)
 		}
 	}
 

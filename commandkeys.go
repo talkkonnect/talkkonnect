@@ -555,10 +555,10 @@ func (b *Talkkonnect) cmdRadioChannelMove(command string) {
 				log.Println("error: Radio Module Not Configured Properly")
 			} else {
 				if command == "Up" {
-					go radioChannelChange("up")
+					go radioChannelIncrement("up")
 				}
 				if command == "Down" {
-					go radioChannelChange("down")
+					go radioChannelIncrement("down")
 				}
 			}
 		}

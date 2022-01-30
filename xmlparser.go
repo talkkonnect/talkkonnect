@@ -467,8 +467,9 @@ type ConfigStruct struct {
 				Enabled          bool     `xml:"enabled,attr"`
 				ConnectChannelID string   `xml:"connectchannelid"`
 				Sa818            struct {
-					Enabled bool `xml:"enabled,attr"`
-					Serial  struct {
+					Enabled   bool `xml:"enabled,attr"`
+					PDEnabled bool `xml:"enabled"`
+					Serial    struct {
 						Enabled  bool   `xml:"enabled,attr"`
 						Port     string `xml:"port"`
 						Baud     uint   `xml:"baud"`
@@ -491,6 +492,7 @@ type ConfigStruct struct {
 							Highpass   int     `xml:"highpass"`
 							Lowpass    int     `xml:"lowpass"`
 							Volume     int     `xml:"volume"`
+							TXPower    string  `xml:"txpower"`
 						} `xml:"channel"`
 					} `xml:"channels"`
 				} `xml:"sa818"`
@@ -1323,6 +1325,7 @@ func printxmlconfig() {
 		log.Println("info: ------------ RadioModule Function -------------- ")
 		log.Println("info: Radio  Enabled     " + fmt.Sprintf("%v", Config.Global.Hardware.Radio.Enabled))
 		log.Println("info: SA818  Enabled     " + fmt.Sprintf("%v", Config.Global.Hardware.Radio.Sa818.Enabled))
+		log.Println("info: SA818  PD Enabled  " + fmt.Sprintf("%v", Config.Global.Hardware.Radio.Sa818.PDEnabled))
 		log.Println("info: Connect Channel ID " + fmt.Sprintf("%v", Config.Global.Hardware.Radio.ConnectChannelID))
 		log.Println("info: Serial Enabled  " + fmt.Sprintf("%v", Config.Global.Hardware.Radio.Sa818.Serial.Enabled))
 		log.Println("info: Serial Port     " + fmt.Sprintf("%v", Config.Global.Hardware.Radio.Sa818.Serial.Port))
@@ -1336,7 +1339,7 @@ func printxmlconfig() {
 				if channel.ID == Config.Global.Hardware.Radio.ConnectChannelID {
 					ChannelIsCurrent = "✓"
 				}
-				log.Printf("info: %v %v. Bandwidth %v RXFreq %vMhz, TXFreq %vMhz Squelch %v CTSS Tone %v DCS Tone %v Pre/DeEmph %v Highpass %v Lowpass %v Volume %v\n", ChannelIsCurrent, counter, channel.Bandwidth, channel.Rxfreq, channel.Txfreq, channel.Squelch, channel.Ctcsstone, channel.Dcstone, channel.Predeemph, channel.Highpass, channel.Lowpass, channel.Volume)
+				log.Printf("info: %v %v. Bandwidth %v RXFreq %vMhz, TXFreq %vMhz Squelch %v CTSS Tone %v DCS Tone %v Pre/DeEmph %v Highpass %v Lowpass %v Volume %v TXPower %v\n", ChannelIsCurrent, counter, channel.Bandwidth, channel.Rxfreq, channel.Txfreq, channel.Squelch, channel.Ctcsstone, channel.Dcstone, channel.Predeemph, channel.Highpass, channel.Lowpass, channel.Volume, channel.TXPower)
 				counter++
 			}
 		}

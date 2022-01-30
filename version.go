@@ -31,10 +31,12 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.09.05"
-	talkkonnectReleased string = "Jan 29 2022"
+	talkkonnectVersion  string = "2.09.06"
+	talkkonnectReleased string = "Jan 30 2022"
 )
 
 /* Release Notes
-1. Added Channel Up and Down to SA818 from talkkonnect
+1. Renamed the functions in radio.go to make it more readable
+2. Got Volume and Filter Commands Working
+3. Added Future Provision for PD and TXPower for SA818 Module
 */

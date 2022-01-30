@@ -32,6 +32,7 @@ package talkkonnect
 
 import (
 	"log"
+	"time"
 
 	"github.com/talkkonnect/sa818"
 )
@@ -40,17 +41,17 @@ var CurrentChannelIndex = 0
 var MoveChannelIndex = 0
 var EnabledChannelCounter = 0
 
-func radioSetup() {
+func radioSetChannel(channelID string) {
 	DMOSetup.SerialOptions.PortName = Config.Global.Hardware.Radio.Sa818.Serial.Port
 	DMOSetup.SerialOptions.BaudRate = Config.Global.Hardware.Radio.Sa818.Serial.Baud
 	DMOSetup.SerialOptions.DataBits = Config.Global.Hardware.Radio.Sa818.Serial.Databits
 	DMOSetup.SerialOptions.StopBits = Config.Global.Hardware.Radio.Sa818.Serial.Stopbits
 	DMOSetup.SerialOptions.MinimumReadSize = 2
 	DMOSetup.SerialOptions.InterCharacterTimeout = 200
-	RadioModuleSA818Channel(Config.Global.Hardware.Radio.ConnectChannelID)
+	RadioModuleSA818Channel(channelID, true, true)
 }
 
-func radioChannelChange(command string) {
+func radioChannelIncrement(command string) {
 	DMOSetup.SerialOptions.PortName = Config.Global.Hardware.Radio.Sa818.Serial.Port
 	DMOSetup.SerialOptions.BaudRate = Config.Global.Hardware.Radio.Sa818.Serial.Baud
 	DMOSetup.SerialOptions.DataBits = Config.Global.Hardware.Radio.Sa818.Serial.Databits
@@ -63,14 +64,14 @@ func radioChannelChange(command string) {
 			MoveChannelIndex = 0
 			CurrentChannelIndex = 0
 			log.Printf("info: Moving %v To Channel ID %v Name %v\n", command, radioChannels[MoveChannelIndex].ID, radioChannels[MoveChannelIndex].Name)
-			RadioModuleSA818Channel(radioChannels[MoveChannelIndex].ID)
+			RadioModuleSA818Channel(radioChannels[MoveChannelIndex].ID, true, true)
 			return
 		}
 		if len(radioChannels)-1 >= CurrentChannelIndex+1 {
 			MoveChannelIndex = CurrentChannelIndex + 1
 			CurrentChannelIndex++
 			log.Printf("info: Moving %v To Channel ID %v Name %v\n", command, radioChannels[MoveChannelIndex].ID, radioChannels[MoveChannelIndex].Name)
-			RadioModuleSA818Channel(radioChannels[MoveChannelIndex].ID)
+			RadioModuleSA818Channel(radioChannels[MoveChannelIndex].ID, true, true)
 			return
 		}
 	}
@@ -80,14 +81,14 @@ func radioChannelChange(command string) {
 			MoveChannelIndex = len(radioChannels) - 1
 			CurrentChannelIndex = len(radioChannels) - 1
 			log.Printf("info: Moving %v To Channel ID %v Name %v\n", command, radioChannels[MoveChannelIndex].ID, radioChannels[MoveChannelIndex].Name)
-			RadioModuleSA818Channel(radioChannels[MoveChannelIndex].ID)
+			RadioModuleSA818Channel(radioChannels[MoveChannelIndex].ID, true, true)
 			return
 		}
 		if CurrentChannelIndex-1 >= 0 {
 			MoveChannelIndex = CurrentChannelIndex - 1
 			CurrentChannelIndex--
 			log.Printf("info: Moving %v To Channel ID %v Name %v\n", command, radioChannels[MoveChannelIndex].ID, radioChannels[MoveChannelIndex].Name)
-			RadioModuleSA818Channel(radioChannels[MoveChannelIndex].ID)
+			RadioModuleSA818Channel(radioChannels[MoveChannelIndex].ID, true, true)
 			return
 		}
 	}
@@ -105,11 +106,19 @@ func createEnabledRadioChannels() {
 	}
 }
 
-func RadioModuleSA818Channel(useChannelID string) {
+func RadioModuleSA818Channel(useChannelID string, setVolumeToo bool, setFilterToo bool) {
 	found, name := findChannelNameByID(useChannelID)
 	if found {
 		log.Printf("info: Found Channel ID %v Name %v\n", useChannelID, name)
 		setFrequency()
+		if setVolumeToo {
+			time.Sleep(500 * time.Millisecond)
+			setVolume()
+		}
+		if setFilterToo {
+			time.Sleep(700 * time.Millisecond)
+			setFilter()
+		}
 	} else {
 		log.Printf("error: Not Found Channel ID %v\n", useChannelID)
 	}
@@ -151,7 +160,7 @@ func checkRSSI() {
 
 func setFrequency() {
 	err := sa818.Callsa818("DMOSetupGroup", DMOSetup)
-	log.Printf("debug: actual data sent to module %#v", DMOSetup)
+	//log.Printf("debug: actual data sent to module %#v", DMOSetup)
 	if err != nil {
 		log.Println("info: SAModule Set Frequecy Error ", err)
 	} else {

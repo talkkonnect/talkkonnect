@@ -517,6 +517,18 @@ func (b *Talkkonnect) ClientStart() {
 		b.cmdStartTransmitting()
 	}
 
+	if Config.Global.Hardware.IO.RotaryEncoder.Enabled {
+		createEnabledRotaryEncoderFunctions()
+		if len(RotaryFunctions) > 0 {
+			RotaryFunction.Item = RotaryFunctions[0].Item
+			RotaryFunction.Function = RotaryFunctions[0].Function
+		} else {
+			RotaryFunction.Item = 0
+			RotaryFunction.Function = "undefined"
+		}
+		log.Printf("info: Current Rotary Item %v Function %v\n", RotaryFunction.Item, RotaryFunction.Function)
+	}
+
 keyPressListenerLoop:
 	for {
 		switch ev := term.PollEvent(); ev.Type {
@@ -596,7 +608,8 @@ keyPressListenerLoop:
 			case term.KeyCtrlX:
 				b.cmdDumpXMLConfig()
 			case term.KeyCtrlZ:
-				b.cmdConnNextServer()
+				nextEnabledRotaryEncoderFunction()
+				//b.cmdConnNextServer()
 			default:
 				if _, ok := TTYKeyMap[ev.Ch]; ok {
 					switch strings.ToLower(TTYKeyMap[ev.Ch].Command) {

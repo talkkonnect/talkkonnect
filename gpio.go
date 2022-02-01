@@ -84,6 +84,11 @@ var (
 	RotaryAPin uint
 	RotaryBPin uint
 
+	RotaryButtonUsed  bool
+	RotaryButton      gpio.Pin
+	RotaryButtonPin   uint
+	RotaryButtonState uint
+
 	VolUpButtonUsed  bool
 	VolUpButton      gpio.Pin
 	VolUpButtonPin   uint
@@ -232,6 +237,13 @@ func (b *Talkkonnect) initGPIO() {
 				RotaryUsed = true
 				RotaryBPin = io.PinNo
 			}
+			if io.Name == "rotarybutton" && io.PinNo > 0 {
+				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
+				RotaryButtonPullUp := rpio.Pin(io.PinNo)
+				RotaryButtonPullUp.PullUp()
+				RotaryButtonUsed = true
+				RotaryButtonPin = io.PinNo
+			}
 			if io.Name == "volup" && io.PinNo > 0 {
 				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
 				VolUpPinPullUp := rpio.Pin(io.PinNo)
@@ -284,7 +296,7 @@ func (b *Talkkonnect) initGPIO() {
 		}
 	}
 
-	if TxButtonUsed || TxToggleUsed || UpButtonUsed || DownButtonUsed || PanicUsed || StreamToggleUsed || CommentUsed || RotaryUsed || VolUpButtonUsed || VolDownButtonUsed || TrackingUsed || MQTT0ButtonUsed || MQTT1ButtonUsed || NextServerButtonUsed || RepeaterToneButtonUsed {
+	if TxButtonUsed || TxToggleUsed || UpButtonUsed || DownButtonUsed || PanicUsed || StreamToggleUsed || CommentUsed || RotaryUsed || RotaryButtonUsed || VolUpButtonUsed || VolDownButtonUsed || TrackingUsed || MQTT0ButtonUsed || MQTT1ButtonUsed || NextServerButtonUsed || RepeaterToneButtonUsed {
 		rpio.Close()
 	}
 
@@ -572,6 +584,32 @@ func (b *Talkkonnect) initGPIO() {
 						if currentStateA == 1 && currentStateB == 1 {
 							b.rotaryAction("cw")
 							continue
+						}
+					}
+				} else {
+					time.Sleep(1 * time.Second)
+				}
+			}
+		}()
+	}
+
+	if RotaryButtonUsed {
+		RotaryButton = gpio.NewInput(RotaryButtonPin)
+		go func() {
+			for {
+				if IsConnected {
+					currentState, err := RotaryButton.Read()
+					time.Sleep(150 * time.Millisecond)
+
+					if currentState != RotaryButtonState && err == nil {
+						RotaryButtonState = currentState
+
+						if RotaryButtonState == 1 {
+							log.Println("debug: Rotary Button is released")
+						} else {
+							log.Println("debug: Rotary Button is pressed")
+							playIOMedia("iorotarybutton")
+							nextEnabledRotaryEncoderFunction()
 						}
 					}
 				} else {
@@ -957,12 +995,58 @@ func Max7219(max7219Cascaded int, spiBus int, spiDevice int, brightness byte, to
 func (b *Talkkonnect) rotaryAction(direction string) {
 	if direction == "cw" {
 		log.Println("debug: Rotating Clockwise")
-		b.ChannelUp()
+		switch RotaryFunction.Function {
+		case "mumblechannel":
+			if Config.Global.Hardware.IO.RotaryEncoder.Enabled && Config.Global.Hardware.IO.RotaryEncoder.Control[0].Enabled {
+				b.ChannelUp()
+			}
+		case "localvolume":
+			b.cmdVolumeUp()
+		case "radiochannel":
+			go radioChannelIncrement("up")
+		default:
+			log.Println("error: No Rotary Function Enabled in Config")
+			return
+		}
 		playIOMedia("iorotarycw")
 	}
 	if direction == "ccw" {
 		log.Println("debug: Rotating CounterClockwise")
-		b.ChannelDown()
+		switch RotaryFunction.Function {
+		case "mumblechannel":
+			b.ChannelDown()
+		case "localvolume":
+			b.cmdVolumeDown()
+		case "radiochannel":
+			go radioChannelIncrement("down")
+		default:
+			log.Println("error: No Rotary Function Enabled in Config")
+			return
+		}
 		playIOMedia("iorotaryccw")
+	}
+}
+
+func createEnabledRotaryEncoderFunctions() {
+	for item, control := range Config.Global.Hardware.IO.RotaryEncoder.Control {
+		if control.Enabled {
+			RotaryFunctions = append(RotaryFunctions, rotaryFunctionsStruct{item, control.Function})
+		}
+	}
+}
+
+func nextEnabledRotaryEncoderFunction() {
+	if len(RotaryFunctions) > RotaryFunction.Item+1 {
+		RotaryFunction.Item++
+		RotaryFunction.Function = RotaryFunctions[RotaryFunction.Item].Function
+		log.Printf("info: Current Rotary Item %v Function %v\n", RotaryFunction.Item, RotaryFunction.Function)
+		return
+	}
+
+	if len(RotaryFunctions) == RotaryFunction.Item+1 {
+		RotaryFunction.Item = 0
+		RotaryFunction.Function = RotaryFunctions[0].Function
+		log.Printf("info: Current Rotary Item %v Function %v\n", RotaryFunction.Item, RotaryFunction.Function)
+		return
 	}
 }

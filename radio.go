@@ -60,35 +60,45 @@ func radioChannelIncrement(command string) {
 	DMOSetup.SerialOptions.InterCharacterTimeout = 200
 
 	if command == "up" {
-		if len(radioChannels)-1 < CurrentChannelIndex+1 {
-			MoveChannelIndex = 0
-			CurrentChannelIndex = 0
-			log.Printf("info: Moving %v To Channel ID %v Name %v\n", command, radioChannels[MoveChannelIndex].ID, radioChannels[MoveChannelIndex].Name)
-			RadioModuleSA818Channel(radioChannels[MoveChannelIndex].ID, true, true)
-			return
-		}
-		if len(radioChannels)-1 >= CurrentChannelIndex+1 {
-			MoveChannelIndex = CurrentChannelIndex + 1
-			CurrentChannelIndex++
-			log.Printf("info: Moving %v To Channel ID %v Name %v\n", command, radioChannels[MoveChannelIndex].ID, radioChannels[MoveChannelIndex].Name)
-			RadioModuleSA818Channel(radioChannels[MoveChannelIndex].ID, true, true)
+		if Config.Global.Hardware.Radio.Enabled {
+			if len(radioChannels)-1 < CurrentChannelIndex+1 {
+				MoveChannelIndex = 0
+				CurrentChannelIndex = 0
+				log.Printf("info: Moving %v To Channel ID %v Name %v\n", command, radioChannels[MoveChannelIndex].ID, radioChannels[MoveChannelIndex].Name)
+				RadioModuleSA818Channel(radioChannels[MoveChannelIndex].ID, true, true)
+				return
+			}
+			if len(radioChannels)-1 >= CurrentChannelIndex+1 {
+				MoveChannelIndex = CurrentChannelIndex + 1
+				CurrentChannelIndex++
+				log.Printf("info: Moving %v To Channel ID %v Name %v\n", command, radioChannels[MoveChannelIndex].ID, radioChannels[MoveChannelIndex].Name)
+				RadioModuleSA818Channel(radioChannels[MoveChannelIndex].ID, true, true)
+				return
+			}
+		} else {
+			log.Println("error: Radio Channel ID Up Requested But Radio Disabled in Config")
 			return
 		}
 	}
 
 	if command == "down" {
-		if CurrentChannelIndex-1 < 0 {
-			MoveChannelIndex = len(radioChannels) - 1
-			CurrentChannelIndex = len(radioChannels) - 1
-			log.Printf("info: Moving %v To Channel ID %v Name %v\n", command, radioChannels[MoveChannelIndex].ID, radioChannels[MoveChannelIndex].Name)
-			RadioModuleSA818Channel(radioChannels[MoveChannelIndex].ID, true, true)
-			return
-		}
-		if CurrentChannelIndex-1 >= 0 {
-			MoveChannelIndex = CurrentChannelIndex - 1
-			CurrentChannelIndex--
-			log.Printf("info: Moving %v To Channel ID %v Name %v\n", command, radioChannels[MoveChannelIndex].ID, radioChannels[MoveChannelIndex].Name)
-			RadioModuleSA818Channel(radioChannels[MoveChannelIndex].ID, true, true)
+		if Config.Global.Hardware.Radio.Enabled {
+			if CurrentChannelIndex-1 < 0 {
+				MoveChannelIndex = len(radioChannels) - 1
+				CurrentChannelIndex = len(radioChannels) - 1
+				log.Printf("info: Moving %v To Channel ID %v Name %v\n", command, radioChannels[MoveChannelIndex].ID, radioChannels[MoveChannelIndex].Name)
+				RadioModuleSA818Channel(radioChannels[MoveChannelIndex].ID, true, true)
+				return
+			}
+			if CurrentChannelIndex-1 >= 0 {
+				MoveChannelIndex = CurrentChannelIndex - 1
+				CurrentChannelIndex--
+				log.Printf("info: Moving %v To Channel ID %v Name %v\n", command, radioChannels[MoveChannelIndex].ID, radioChannels[MoveChannelIndex].Name)
+				RadioModuleSA818Channel(radioChannels[MoveChannelIndex].ID, true, true)
+				return
+			}
+		} else {
+			log.Println("error: Radio Channel ID Down Requested But Radio Disabled in Config")
 			return
 		}
 	}

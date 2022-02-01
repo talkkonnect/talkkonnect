@@ -31,10 +31,12 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.10.02"
+	talkkonnectVersion  string = "2.10.03"
 	talkkonnectReleased string = "Feb 01 2022"
 )
 
 /* Release Notes
-1. Fixed Quirky Max/Min Channel Rollover Logic
+1. Added Rotary Encoder Function Toggle Selection
+2. Added Configurability in XML of functions mode to set when press rotary button
+3. Added Configurability in XML of GPIO to accept commands from rotary button
 */

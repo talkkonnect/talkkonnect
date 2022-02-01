@@ -316,6 +316,13 @@ type ConfigStruct struct {
 						Enabled   bool   `xml:"enabled,attr"`
 					} `xml:"pin"`
 				} `xml:"pins"`
+				RotaryEncoder struct {
+					Enabled bool `xml:"enabled,attr"`
+					Control []struct {
+						Function string `xml:"function,attr"`
+						Enabled  bool   `xml:"enabled,attr"`
+					} `xml:"control"`
+				} `xml:"rotaryencoder"`
 				Pulse struct {
 					Leading  time.Duration `xml:"leadingmsecs,attr"`
 					Pulse    time.Duration `xml:"pulsemsecs,attr"`
@@ -614,10 +621,16 @@ type radioChannelsStruct struct {
 	Volume     int
 }
 
+type rotaryFunctionsStruct struct {
+	Item     int
+	Function string
+}
+
 // Generic Global Config Variables
 var Config ConfigStruct
 var ConfigXMLFile string
 var radioChannels []radioChannelsStruct
+var RotaryFunctions []rotaryFunctionsStruct
 
 // Generic Global State Variables
 var (
@@ -711,10 +724,11 @@ var (
 
 // Generic Local Variables
 var (
-	txcounter   int
-	isTx        bool
-	pstream     *gumbleffmpeg.Stream
-	LastSpeaker string = ""
+	txcounter      int
+	isTx           bool
+	pstream        *gumbleffmpeg.Stream
+	LastSpeaker    string = ""
+	RotaryFunction rotaryFunctionsStruct
 )
 
 var StreamTracker = map[uint32]streamTrackerStruct{}

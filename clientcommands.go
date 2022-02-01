@@ -420,9 +420,7 @@ func (b *Talkkonnect) ChannelUp() {
 		return
 	}
 
-	if prevChannelID == 0 {
-		prevChannelID = b.Client.Self.Channel.ID
-	}
+	prevChannelID = b.Client.Self.Channel.ID
 
 	TTSEvent("channelup")
 
@@ -435,7 +433,7 @@ func (b *Talkkonnect) ChannelUp() {
 		log.Println("alert: Max Channel Reached Rolling Back to Root Channel")
 		channel := b.Client.Channels.Find()
 		b.Client.Self.Move(channel)
-		prevChannelID = 0
+		//		prevChannelID = maxchannelid
 		return
 	}
 
@@ -476,9 +474,7 @@ func (b *Talkkonnect) ChannelDown() {
 		return
 	}
 
-	if prevChannelID == 0 {
-		prevChannelID = b.Client.Self.Channel.ID
-	}
+	prevChannelID = b.Client.Self.Channel.ID
 
 	TTSEvent("channeldown")
 
@@ -489,7 +485,7 @@ func (b *Talkkonnect) ChannelDown() {
 	if int(b.Client.Self.Channel.ID) == 0 {
 		log.Println("error: Can't Decrement Channel Root Channel Reached Rolling Back to Highest Channel ID")
 		b.Client.Self.Move(b.Client.Channels[maxchannelid])
-		prevChannelID = maxchannelid
+		//		prevChannelID = maxchannelid
 		if Config.Global.Hardware.TargetBoard == "rpi" {
 
 			if len(b.Client.Self.Channel.Users) == 1 {

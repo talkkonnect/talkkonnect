@@ -31,11 +31,10 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.10.01"
+	talkkonnectVersion  string = "2.10.02"
 	talkkonnectReleased string = "Feb 01 2022"
 )
 
 /* Release Notes
-1. Fixed Rotary Encoder Algorithm as state machine
-2. Removed Unnessary Delays from ChannelUp/ChannelDown
+1. Fixed Quirky Max/Min Channel Rollover Logic
 */

@@ -404,18 +404,15 @@ func (b *Talkkonnect) ListChannels(verbose bool) {
 		counter++
 	}
 
-	for i := 0; i < int(records); i++ {
-		if channelsList[i].chanID == 0 || channelsList[i].chanParent.ID == 0 {
-			if verbose {
+	if verbose {
+		for i := 0; i < int(records); i++ {
+			if channelsList[i].chanID == 0 || channelsList[i].chanParent.ID == 0 {
 				log.Println(fmt.Sprintf("info: Parent -> ID=%2d | Name=%-12v (%v) Users | ", channelsList[i].chanID, channelsList[i].chanName, channelsList[i].chanUsers))
-			}
-		} else {
-			if verbose {
+			} else {
 				log.Println(fmt.Sprintf("info: Child  -> ID=%2d | Name=%-12v (%v) Users | PID =%2d | PName=%-12s", channelsList[i].chanID, channelsList[i].chanName, channelsList[i].chanUsers, channelsList[i].chanParent.ID, channelsList[i].chanParent.Name))
 			}
 		}
 	}
-
 }
 
 func (b *Talkkonnect) ChannelUp() {
@@ -453,8 +450,6 @@ func (b *Talkkonnect) ChannelUp() {
 
 			if channel != nil {
 				b.Client.Self.Move(channel)
-				//displaychannel
-				time.Sleep(500 * time.Millisecond)
 				if Config.Global.Hardware.TargetBoard == "rpi" {
 
 					if len(b.Client.Self.Channel.Users) == 1 {
@@ -523,8 +518,6 @@ func (b *Talkkonnect) ChannelDown() {
 			channel := b.Client.Channels[i]
 			if channel != nil {
 				b.Client.Self.Move(channel)
-				//displaychannel
-				time.Sleep(500 * time.Millisecond)
 				if Config.Global.Hardware.TargetBoard == "rpi" {
 
 					if len(b.Client.Self.Channel.Users) == 1 {

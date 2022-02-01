@@ -17,6 +17,8 @@
  * Suvir Kumar <suvir@talkkonnect.com>
  * Portions created by the Initial Developer are Copyright (C) Suvir Kumar. All Rights Reserved.
  *
+ * Rotary Encoder Alogrithm Inpired By https://www.brainy-bits.com/post/best-code-to-use-with-a-ky-040-rotary-encoder-let-s-find-out
+ *
  * Contributor(s):
  *
  * Suvir Kumar <suvir@talkkonnect.com>
@@ -517,24 +519,61 @@ func (b *Talkkonnect) initGPIO() {
 		RotaryA = gpio.NewInput(RotaryAPin)
 		RotaryB = gpio.NewInput(RotaryBPin)
 		go func() {
-			var LastStateA uint = 0
+			var currentStateA uint
+			var currentStateB uint
+			var lastStateA uint
+			var lastStateB uint
 			for {
 				if IsConnected {
-					time.Sleep(5 * time.Millisecond)
-					currentStateA, err0 := RotaryA.Read()
-					if currentStateA != LastStateA && err0 == nil {
-						currentStateB, err1 := RotaryB.Read()
-						if currentStateB != currentStateA && err1 == nil {
-							playIOMedia("iorotarycw")
-							log.Println("debug: Rotating Clockwise")
-							b.cmdChannelUp()
-						} else {
-							log.Println("debug: Rotating CounterClockwise")
-							playIOMedia("iorotaryccw")
-							b.cmdChannelDown()
+					currentStateA, _ = RotaryA.Read()
+					currentStateB, _ = RotaryB.Read()
+					time.Sleep(2 * time.Millisecond)
+					lastStateA, _ = RotaryA.Read()
+					lastStateB, _ = RotaryB.Read()
+
+					if lastStateA == 0 && lastStateB == 1 {
+						if currentStateA == 1 && currentStateB == 0 {
+							b.rotaryAction("ccw")
+							continue
+						}
+						if currentStateA == 1 && currentStateB == 1 {
+							b.rotaryAction("cw")
+							continue
 						}
 					}
-					LastStateA = currentStateA
+
+					if lastStateA == 1 && lastStateB == 0 {
+						if currentStateA == 0 && currentStateB == 1 {
+							b.rotaryAction("ccw")
+							continue
+						}
+						if currentStateA == 0 && currentStateB == 0 {
+							b.rotaryAction("cw")
+							continue
+						}
+					}
+
+					if lastStateA == 1 && lastStateB == 1 {
+						if currentStateA == 0 && currentStateB == 1 {
+							b.rotaryAction("ccw")
+							continue
+						}
+						if currentStateA == 0 && currentStateB == 0 {
+							b.rotaryAction("cw")
+							continue
+						}
+					}
+
+					if lastStateA == 0 && lastStateB == 0 {
+						if currentStateA == 1 && currentStateB == 0 {
+							b.rotaryAction("ccw")
+							continue
+						}
+						if currentStateA == 1 && currentStateB == 1 {
+							b.rotaryAction("cw")
+							continue
+						}
+					}
 				} else {
 					time.Sleep(1 * time.Second)
 				}
@@ -912,5 +951,18 @@ func Max7219(max7219Cascaded int, spiBus int, spiDevice int, brightness byte, to
 		}
 		mtx.Device.SevenSegmentDisplay(toDisplay)
 		defer mtx.Close()
+	}
+}
+
+func (b *Talkkonnect) rotaryAction(direction string) {
+	if direction == "cw" {
+		log.Println("debug: Rotating Clockwise")
+		b.ChannelUp()
+		playIOMedia("iorotarycw")
+	}
+	if direction == "ccw" {
+		log.Println("debug: Rotating CounterClockwise")
+		b.ChannelDown()
+		playIOMedia("iorotaryccw")
 	}
 }

@@ -993,37 +993,49 @@ func Max7219(max7219Cascaded int, spiBus int, spiDevice int, brightness byte, to
 }
 
 func (b *Talkkonnect) rotaryAction(direction string) {
-	if direction == "cw" {
-		log.Println("debug: Rotating Clockwise")
-		switch RotaryFunction.Function {
-		case "mumblechannel":
-			if Config.Global.Hardware.IO.RotaryEncoder.Enabled && Config.Global.Hardware.IO.RotaryEncoder.Control[0].Enabled {
-				b.ChannelUp()
+	if Config.Global.Hardware.IO.RotaryEncoder.Enabled {
+		if direction == "cw" {
+			log.Println("debug: Rotating Clockwise")
+			switch RotaryFunction.Function {
+			case "mumblechannel":
+				if findEnabledRotaryEncoderFunction("mumblechannel") {
+					b.ChannelUp()
+				}
+			case "localvolume":
+				if findEnabledRotaryEncoderFunction("localvolume") {
+					b.cmdVolumeUp()
+				}
+			case "radiochannel":
+				if findEnabledRotaryEncoderFunction("radiochannel") {
+					go radioChannelIncrement("up")
+				}
+			default:
+				log.Println("error: No Rotary Function Enabled in Config")
+				return
 			}
-		case "localvolume":
-			b.cmdVolumeUp()
-		case "radiochannel":
-			go radioChannelIncrement("up")
-		default:
-			log.Println("error: No Rotary Function Enabled in Config")
-			return
+			playIOMedia("iorotarycw")
 		}
-		playIOMedia("iorotarycw")
-	}
-	if direction == "ccw" {
-		log.Println("debug: Rotating CounterClockwise")
-		switch RotaryFunction.Function {
-		case "mumblechannel":
-			b.ChannelDown()
-		case "localvolume":
-			b.cmdVolumeDown()
-		case "radiochannel":
-			go radioChannelIncrement("down")
-		default:
-			log.Println("error: No Rotary Function Enabled in Config")
-			return
+		if direction == "ccw" {
+			log.Println("debug: Rotating CounterClockwise")
+			switch RotaryFunction.Function {
+			case "mumblechannel":
+				if findEnabledRotaryEncoderFunction("mumblechannel") {
+					b.ChannelDown()
+				}
+			case "localvolume":
+				if findEnabledRotaryEncoderFunction("localvolume") {
+					b.cmdVolumeDown()
+				}
+			case "radiochannel":
+				if findEnabledRotaryEncoderFunction("radiochannel") {
+					go radioChannelIncrement("down")
+				}
+			default:
+				log.Println("error: No Rotary Function Enabled in Config")
+				return
+			}
+			playIOMedia("iorotaryccw")
 		}
-		playIOMedia("iorotaryccw")
 	}
 }
 
@@ -1049,4 +1061,13 @@ func nextEnabledRotaryEncoderFunction() {
 		log.Printf("info: Current Rotary Item %v Function %v\n", RotaryFunction.Item, RotaryFunction.Function)
 		return
 	}
+}
+
+func findEnabledRotaryEncoderFunction(findFunction string) bool {
+	for _, functionName := range Config.Global.Hardware.IO.RotaryEncoder.Control {
+		if findFunction == functionName.Function {
+			return functionName.Enabled
+		}
+	}
+	return false
 }

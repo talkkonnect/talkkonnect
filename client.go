@@ -529,6 +529,8 @@ func (b *Talkkonnect) ClientStart() {
 		log.Printf("info: Current Rotary Item %v Function %v\n", RotaryFunction.Item, RotaryFunction.Function)
 	}
 
+	voiceTargetCreateMap()
+
 keyPressListenerLoop:
 	for {
 		switch ev := term.PollEvent(); ev.Type {
@@ -609,7 +611,7 @@ keyPressListenerLoop:
 				b.cmdDumpXMLConfig()
 			case term.KeyCtrlZ:
 				nextEnabledRotaryEncoderFunction()
-				//b.cmdConnNextServer()
+				b.cmdConnNextServer()
 			default:
 				if _, ok := TTYKeyMap[ev.Ch]; ok {
 					switch strings.ToLower(TTYKeyMap[ev.Ch].Command) {

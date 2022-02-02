@@ -236,6 +236,7 @@ type ConfigStruct struct {
 				PrintGPIOExpander     bool `xml:"printgpioexpander"`
 				PrintMax7219          bool `xml:"printmax7219"`
 				PrintPins             bool `xml:"printpins"`
+				PrintRotary           bool `xml:"printrotary"`
 				PrintPulse            bool `xml:"printpulse"`
 				PrintVolumeButtonStep bool `xml:"printvolumebuttonstep"`
 				PrintHeartBeat        bool `xml:"printheartbeat"`
@@ -653,6 +654,8 @@ var (
 	AccountIndex    int
 	GenericCounter  int
 	ChannelIndex    int
+	VTIndexMap          = make(map[int]uint32)
+	CurrentVTIndex  int = -1
 )
 
 // Generic Global Timer Variables
@@ -1165,6 +1168,15 @@ func printxmlconfig() {
 		log.Println("info: ------------  PINS -------------- ")
 		for _, pins := range Config.Global.Hardware.IO.Pins.Pin {
 			log.Printf("info: Direction=%v Device%v Name=%v PinNo=%v Type=%v ID=%v Enabled=%v\n", pins.Direction, pins.Device, pins.Name, pins.PinNo, pins.Type, pins.ID, pins.Enabled)
+		}
+	} else {
+		log.Println("info: ------------  PINS -------------- SKIPPED")
+	}
+
+	if Config.Global.Software.PrintVariables.PrintRotary {
+		log.Println("info: ------------  Rotary -------------- ")
+		for _, control := range Config.Global.Hardware.IO.RotaryEncoder.Control {
+			log.Printf("info: Enabled=%v Fuction=%v\n", control.Enabled, control.Function)
 		}
 	} else {
 		log.Println("info: ------------  PINS -------------- SKIPPED")

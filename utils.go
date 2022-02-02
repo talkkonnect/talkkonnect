@@ -511,3 +511,9 @@ func rxScreen(LastSpeaker string) {
 		BackLightTime.Reset(time.Duration(LCDBackLightTimeout) * time.Second)
 	}
 }
+
+func voiceTargetCreateMap() {
+	for item, vtID := range Config.Accounts.Account[AccountIndex].Voicetargets.ID {
+		VTIndexMap[item] = vtID.Value
+	}
+}

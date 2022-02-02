@@ -36,7 +36,5 @@ const (
 )
 
 /* Release Notes
-1. Added Rotary Encoder Function Toggle Selection
-2. Added Configurability in XML of functions mode to set when press rotary button
-3. Added Configurability in XML of GPIO to accept commands from rotary button
+1. Added Rotary Encoder Function checks
 */

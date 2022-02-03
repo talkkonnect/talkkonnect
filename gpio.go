@@ -1009,6 +1009,10 @@ func (b *Talkkonnect) rotaryAction(direction string) {
 				if findEnabledRotaryEncoderFunction("radiochannel") {
 					go radioChannelIncrement("up")
 				}
+			case "voicetarget":
+				if findEnabledRotaryEncoderFunction("voicetarget") {
+					b.VTMove("up")
+				}
 			default:
 				log.Println("error: No Rotary Function Enabled in Config")
 				return
@@ -1029,6 +1033,10 @@ func (b *Talkkonnect) rotaryAction(direction string) {
 			case "radiochannel":
 				if findEnabledRotaryEncoderFunction("radiochannel") {
 					go radioChannelIncrement("down")
+				}
+			case "voicetarget":
+				if findEnabledRotaryEncoderFunction("voicetarget") {
+					b.VTMove("down")
 				}
 			default:
 				log.Println("error: No Rotary Function Enabled in Config")

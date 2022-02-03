@@ -512,8 +512,42 @@ func rxScreen(LastSpeaker string) {
 	}
 }
 
-func voiceTargetCreateMap() {
-	for item, vtID := range Config.Accounts.Account[AccountIndex].Voicetargets.ID {
-		VTIndexMap[item] = vtID.Value
+func (b *Talkkonnect) VTMove(command string) {
+	var TargetID uint32
+	for Index := range Config.Accounts.Account[AccountIndex].Voicetargets.ID {
+		targetCount := len(Config.Accounts.Account[AccountIndex].Voicetargets.ID) - 1
+		if command == "up" {
+			if Index <= targetCount {
+				if Config.Accounts.Account[AccountIndex].Voicetargets.ID[Index].IsCurrent {
+					Config.Accounts.Account[AccountIndex].Voicetargets.ID[CurrentIndex].IsCurrent = false
+					if Index < targetCount {
+						CurrentIndex = Index + 1
+					}
+					if Index == targetCount {
+						CurrentIndex = 0
+					}
+					Config.Accounts.Account[AccountIndex].Voicetargets.ID[CurrentIndex].IsCurrent = true
+					TargetID = Config.Accounts.Account[AccountIndex].Voicetargets.ID[CurrentIndex].Value
+					break
+				}
+			}
+		}
+		if command == "down" {
+			if Index >= 0 {
+				if Config.Accounts.Account[AccountIndex].Voicetargets.ID[Index].IsCurrent {
+					Config.Accounts.Account[AccountIndex].Voicetargets.ID[CurrentIndex].IsCurrent = false
+					if Index > 0 {
+						CurrentIndex = Index - 1
+					}
+					if Index == 0 {
+						CurrentIndex = targetCount
+					}
+					Config.Accounts.Account[AccountIndex].Voicetargets.ID[CurrentIndex].IsCurrent = true
+					TargetID = Config.Accounts.Account[AccountIndex].Voicetargets.ID[CurrentIndex].Value
+					break
+				}
+			}
+		}
 	}
+	b.cmdSendVoiceTargets(TargetID)
 }

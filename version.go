@@ -31,10 +31,11 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.10.04"
-	talkkonnectReleased string = "Feb 02 2022"
+	talkkonnectVersion  string = "2.10.05"
+	talkkonnectReleased string = "Feb 03 2022"
 )
 
 /* Release Notes
-1. Added Rotary Encoder Function checks
+1. Added VTMove Function Enabling the User to Command Up/Down Seek Style for Desired Voice Target
+Can be used with rotary encoder or up down buttons for voice target selection
 */

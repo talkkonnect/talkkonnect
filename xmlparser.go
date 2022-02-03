@@ -70,8 +70,9 @@ type ConfigStruct struct {
 			} `xml:"tokens"`
 			Voicetargets struct {
 				ID []struct {
-					Value uint32 `xml:"value,attr"`
-					Users struct {
+					Value     uint32 `xml:"value,attr"`
+					IsCurrent bool   `xml:"iscurrent"`
+					Users     struct {
 						User []string `xml:"user"`
 					} `xml:"users"`
 					Channels struct {
@@ -552,8 +553,9 @@ type ConfigStruct struct {
 
 type VTStruct struct {
 	ID []struct {
-		Value uint32
-		Users struct {
+		Value     uint32
+		IsCurrent bool
+		Users     struct {
 			User []string
 		}
 		Channels struct {
@@ -654,8 +656,7 @@ var (
 	AccountIndex    int
 	GenericCounter  int
 	ChannelIndex    int
-	VTIndexMap          = make(map[int]uint32)
-	CurrentVTIndex  int = -1
+	CurrentIndex    int
 )
 
 // Generic Global Timer Variables

@@ -529,7 +529,8 @@ func (b *Talkkonnect) ClientStart() {
 		log.Printf("info: Current Rotary Item %v Function %v\n", RotaryFunction.Item, RotaryFunction.Function)
 	}
 
-	voiceTargetCreateMap()
+	// Set VT index to Zero
+	Config.Accounts.Account[AccountIndex].Voicetargets.ID[0].IsCurrent = true
 
 keyPressListenerLoop:
 	for {
@@ -610,7 +611,7 @@ keyPressListenerLoop:
 			case term.KeyCtrlX:
 				b.cmdDumpXMLConfig()
 			case term.KeyCtrlZ:
-				nextEnabledRotaryEncoderFunction()
+				//nextEnabledRotaryEncoderFunction()
 				b.cmdConnNextServer()
 			default:
 				if _, ok := TTYKeyMap[ev.Ch]; ok {

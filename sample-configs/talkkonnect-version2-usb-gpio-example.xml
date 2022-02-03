@@ -17,7 +17,6 @@
       <voicetargets>
         <id value="0">
           <users>
-            <user>suvir-laptop</user>
           </users>
         </id>
         <id value="1">
@@ -27,8 +26,7 @@
         </id>
         <id value="2">
           <users>
-            <user>user3</user>
-            <user>user4</user>
+            <user>suvir-laptop</user>
           </users>
         </id>
         <id value="3">
@@ -48,10 +46,10 @@
     <software>
       <settings>
         <singleinstance>true</singleinstance>
-        <outputdevice>Speaker</outputdevice>
-        <outputdeviceshort>Speaker</outputdeviceshort>
-        <outputvolcontroldevice>Speaker</outputvolcontroldevice>
-        <outputmutecontroldevice>Speaker</outputmutecontroldevice>
+        <outputdevice>PCM</outputdevice>
+        <outputdeviceshort>PCM</outputdeviceshort>
+        <outputvolcontroldevice>PCM</outputvolcontroldevice>
+        <outputmutecontroldevice>PCM</outputmutecontroldevice>
         <logfilenameandpath>/var/log/talkkonnect.log</logfilenameandpath>
         <logging>screenwithlineno</logging>
         <loglevel>debug</loglevel>
@@ -324,11 +322,11 @@
         <gpioexpander enabled="false">
           <chip id="0" i2cbus="1" mcpdevice="0" enabled="false"/>
         </gpioexpander>
-        <max7219 max7219cascaded="1" spibus="0" spidevice="0" brightness="7" enabled="true"/>
+        <max7219 max7219cascaded="1" spibus="0" spidevice="0" brightness="7" enabled="false"/>
         <pins>
-          <pin direction="output" device="led/relay"     name="voiceactivity" pinno="22" type="gpio" chipid="0" enabled="true"/>
-          <pin direction="output" device="led/relay"     name="participants" pinno="27" type="gpio" chipid="0" enabled="true"/>
-          <pin direction="output" device="led/relay"     name="transmit" pinno="17" type="gpio" chipid="0" enabled="true"/>
+          <pin direction="output" device="led/relay"     name="voiceactivity" pinno="22" type="gpio" chipid="0" enabled="false"/>
+          <pin direction="output" device="led/relay"     name="participants" pinno="27" type="gpio" chipid="0" enabled="false"/>
+          <pin direction="output" device="led/relay"     name="transmit" pinno="17" type="gpio" chipid="0" enabled="false"/>
           <pin direction="output" device="led/relay"     name="online" pinno="5" type="gpio" chipid="0" enabled="false"/>
           <pin direction="output" device="led/relay"     name="attention" pinno="2" type="gpio" chipid="0" enabled="false"/>
           <pin direction="output" device="led/relay"     name="voicetarget" pinno="2" type="gpio" chipid="0" enabled="false"/>
@@ -346,19 +344,20 @@
           <pin direction="input"  device="toggleswitch"  name="comment" pinno="14" type="gpio" chipid="0" enabled="false"/>
           <pin direction="input"  device="rotaryencoder" name="rotarya" pinno="17" type="gpio" chipid="0" enabled="true"/>
           <pin direction="input"  device="rotaryencoder" name="rotaryb" pinno="18" type="gpio" chipid="0" enabled="true"/>
-          <pin direction="input"  device="rotaryencoder" name="button" pinno="18" type="gpio" chipid="0" enabled="false"/>
+          <pin direction="input"  device="rotaryencoder" name="rotarybutton" pinno="26" type="gpio" chipid="0" enabled="false"/>
           <pin direction="input"  device="pushbutton" name="volup" pinno="19" type="gpio" chipid="0" enabled="false"/>
           <pin direction="input"  device="pushbutton" name="voldown" pinno="13" type="gpio" chipid="0" enabled="false"/>
           <pin direction="input"  device="toggleswitch" name="tracking" pinno="13" type="gpio" chipid="0" enabled="false"/>
           <pin direction="input"  device="pushbutton" name="mqtt0" pinno="13" type="gpio" chipid="0" enabled="false"/>
           <pin direction="input"  device="pushbutton" name="mqtt1" pinno="13" type="gpio" chipid="0" enabled="false"/>
-          <pin direction="input"  device="pushbutton" name="nextserver" pinno="13" type="gpio" chipid="0" enabled="false"/>
+          <pin direction="input"  device="pushbutton" name="nextserver" pinno="26" type="gpio" chipid="0" enabled="false"/>
           <pin direction="input"  device="repeatertone" name="nextserver" pinno="13" type="gpio" chipid="0" enabled="false"/>
         </pins>
-        <rotaryencoder enabled="false">
-          <control function="mumblechannel" enabled="false"/>
-          <control function="localvolume" enabled="false"/>
-          <control function="radiochannel" enabled="false"/>
+        <rotaryencoder enabled="true">
+          <control function="mumblechannel" enabled="true"/>
+          <control function="localvolume" enabled="true"/>
+          <control function="radiochannel" enabled="true"/>
+          <control function="voicetarget" enabled="true"/>
         </rotaryencoder>
         <pulse leadingmsecs="1000" pulsemsecs="1000" trailingmsecs="1000"/>
         <volumebuttonstep>

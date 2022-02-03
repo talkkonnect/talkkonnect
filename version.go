@@ -31,10 +31,10 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.10.06"
+	talkkonnectVersion  string = "2.10.07"
 	talkkonnectReleased string = "Feb 03 2022"
 )
 
 /* Release Notes
-1. Added voicetarget to function of rotary encoder
+1. Fixed Bug with Rotary Encoder Button as GPIO
 */

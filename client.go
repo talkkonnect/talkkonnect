@@ -611,8 +611,8 @@ keyPressListenerLoop:
 			case term.KeyCtrlX:
 				b.cmdDumpXMLConfig()
 			case term.KeyCtrlZ:
-				//nextEnabledRotaryEncoderFunction()
-				b.cmdConnNextServer()
+				nextEnabledRotaryEncoderFunction()
+				//b.cmdConnNextServer()
 			default:
 				if _, ok := TTYKeyMap[ev.Ch]; ok {
 					switch strings.ToLower(TTYKeyMap[ev.Ch].Command) {

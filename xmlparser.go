@@ -1527,7 +1527,7 @@ func CheckConfigSanity(reloadxml bool) {
 				Warnings++
 			}
 
-			if !(gpio.Name == "voiceactivity" || gpio.Name == "participants" || gpio.Name == "transmit" || gpio.Name == "online" || gpio.Name == "attention" || gpio.Name == "voicetarget" || gpio.Name == "heartbeat" || gpio.Name == "backlight" || gpio.Name == "relay0" || gpio.Name == "txptt" || gpio.Name == "txtoggle" || gpio.Name == "channelup" || gpio.Name == "channeldown" || gpio.Name == "panic" || gpio.Name == "streamtoggle" || gpio.Name == "comment" || gpio.Name == "rotarya" || gpio.Name == "rotaryb" || gpio.Name == "volup" || gpio.Name == "voldown") {
+			if !(gpio.Name == "voiceactivity" || gpio.Name == "participants" || gpio.Name == "transmit" || gpio.Name == "online" || gpio.Name == "attention" || gpio.Name == "voicetarget" || gpio.Name == "heartbeat" || gpio.Name == "backlight" || gpio.Name == "relay0" || gpio.Name == "txptt" || gpio.Name == "txtoggle" || gpio.Name == "channelup" || gpio.Name == "channeldown" || gpio.Name == "panic" || gpio.Name == "streamtoggle" || gpio.Name == "comment" || gpio.Name == "rotarya" || gpio.Name == "rotaryb" || gpio.Name == "rotarybutton" || gpio.Name == "volup" || gpio.Name == "voldown") {
 				log.Printf("warn: Config Error [Section GPIO] Enabled GPIO Name %v Pin Number %v Invalid Name\n", gpio.Name, gpio.PinNo)
 				Config.Global.Hardware.IO.Pins.Pin[index].Enabled = false
 				Warnings++

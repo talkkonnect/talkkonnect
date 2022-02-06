@@ -31,10 +31,12 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.10.08"
+	talkkonnectVersion  string = "2.10.09"
 	talkkonnectReleased string = "Feb 06 2022"
 )
 
 /* Release Notes
-1. Fixed Crash on Received Message OLED Display
+1. Fixed TTS Sloppy Coding in htgotts
+2. Fixed bug in ttsinto stream
+3. Improved TTS debug verbosity
 */

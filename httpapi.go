@@ -138,7 +138,7 @@ func (b *Talkkonnect) httpAPI(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		if strings.ToLower(key) == "playintostream" {
+		if strings.ToLower(key) == "ttsplayintostream" {
 			var temp string = values[0]
 			if strings.ToLower(temp) == "true" {
 				APITTSPlayIntoStream = true

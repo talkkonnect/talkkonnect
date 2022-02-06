@@ -381,19 +381,28 @@ func downloadIfNotExists(fileName string, text string, language string) {
 		url := fmt.Sprintf("http://translate.google.com/translate_tts?ie=UTF-8&total=1&idx=0&textlen=32&client=tw-ob&q=%s&tl=%s", url.QueryEscape(text), language)
 		response, err := http.Get(url)
 		if err != nil {
+			log.Println("error: TTS Module URL Error ", err)
 			return
 		}
 		defer response.Body.Close()
 
 		output, err := os.Create(fileName)
 		if err != nil {
+			log.Println("error: TTS Module Create File Error ", err)
 			return
 		}
+		defer output.Close()
 
-		_, _ = io.Copy(output, response.Body)
+		_, err = io.Copy(output, response.Body)
+		if err != nil {
+			log.Println("error: TTS Module IO Copy Error ", err)
+			return
+		}
+		log.Printf("debug: TTS Module Created File %v From TTS Message=%v\n", fileName, text)
+	} else {
+		log.Printf("debug: TTS Module Used Existing File %v From TTS Message=%v\n", fileName, text)
 	}
-
-	f.Close()
+	defer f.Close()
 }
 
 func generateHashName(name string) string {

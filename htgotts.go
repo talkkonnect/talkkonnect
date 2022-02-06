@@ -38,14 +38,15 @@ func (b *Talkkonnect) Speak(text string, destination string, playBackVolume int,
 	createFolderIfNotExists(Config.Global.Software.TTSMessages.TTSSoundDirectory)
 	downloadIfNotExists(fileNameWithPath, text, language)
 
+	log.Printf("alert: text=%v, destination=%v playBackVolume=%v duration=%v loop=%v language=%v\n", text, destination, playBackVolume, duration, loop, language)
+
 	if destination == "local" {
-		if Config.Global.Software.TTSMessages.Enabled && FileExists(Config.Global.Software.TTSMessages.TTSTone.ToneFile) {
-			localMediaPlayer(Config.Global.Software.TTSMessages.TTSTone.ToneFile, Config.Global.Software.TTSMessages.TTSTone.ToneVolume, Config.Global.Software.TTSMessages.Blocking, 0, 1)
-		}
+		log.Println("debug: Playing TTS Media Locally")
 		localMediaPlayer(fileNameWithPath, playBackVolume, true, duration, loop)
 	}
 
 	if destination == "intostream" {
+		log.Println("debug: Playing TTS Media Into Stream")
 		b.BackLightTimer()
 
 		if b.IsTransmitting {

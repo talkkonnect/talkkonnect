@@ -176,30 +176,39 @@ func (b *Talkkonnect) OnTextMessage(e *gumble.TextMessageEvent) {
 				oledDisplay(false, 5, 1, "")
 				oledDisplay(false, 6, 1, "")
 				oledDisplay(false, 7, 1, "")
-			} else if len(tmessage) <= 42 {
+				return
+			}
+			if len(tmessage) <= 42 {
 				oledDisplay(false, 3, 1, tmessage[0:21])
-				oledDisplay(false, 4, 1, tmessage[21:41])
+				oledDisplay(false, 4, 1, tmessage[21:])
 				oledDisplay(false, 5, 1, "")
 				oledDisplay(false, 6, 1, "")
 				oledDisplay(false, 7, 1, "")
-			} else if len(tmessage) <= 63 {
+				return
+			}
+			if len(tmessage) <= 63 {
 				oledDisplay(false, 3, 1, tmessage[0:21])
 				oledDisplay(false, 4, 1, tmessage[21:42])
 				oledDisplay(false, 5, 1, tmessage[42:])
 				oledDisplay(false, 6, 1, "")
 				oledDisplay(false, 7, 1, "")
-			} else if len(tmessage) <= 84 {
+				return
+			}
+			if len(tmessage) <= 84 {
 				oledDisplay(false, 3, 1, tmessage[0:21])
 				oledDisplay(false, 4, 1, tmessage[21:42])
 				oledDisplay(false, 5, 1, tmessage[42:63])
 				oledDisplay(false, 6, 1, tmessage[63:])
 				oledDisplay(false, 7, 1, "")
-			} else if len(tmessage) <= 105 {
+				return
+			}
+			if len(tmessage) <= 105 {
 				oledDisplay(false, 3, 1, tmessage[0:20])
 				oledDisplay(false, 4, 1, tmessage[21:44])
 				oledDisplay(false, 5, 1, tmessage[42:63])
 				oledDisplay(false, 6, 1, tmessage[63:84])
-				oledDisplay(false, 7, 1, tmessage[84:105])
+				oledDisplay(false, 7, 1, tmessage[84:])
+				return
 			}
 		}
 	}

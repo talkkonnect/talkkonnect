@@ -31,10 +31,10 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.10.07"
-	talkkonnectReleased string = "Feb 03 2022"
+	talkkonnectVersion  string = "2.10.08"
+	talkkonnectReleased string = "Feb 06 2022"
 )
 
 /* Release Notes
-1. Fixed Bug with Rotary Encoder Button as GPIO
+1. Fixed Crash on Received Message OLED Display
 */

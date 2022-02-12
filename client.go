@@ -460,14 +460,14 @@ func (b *Talkkonnect) ClientStart() {
 					log.Println("info: Speaking->", v.WhoTalking)
 					RXLEDStatus = true
 					go GPIOOutPin("voiceactivity", "on")
-					//MyLedStripVoiceActivityLEDOn()
+					MyLedStripVoiceActivityLEDOn()
 					go rxScreen(LastSpeaker)
 				}
 			case <-TalkedTicker.C:
 				if RXLEDStatus {
 					RXLEDStatus = false
 					go GPIOOutPin("voiceactivity", "off")
-					//MyLedStripVoiceActivityLEDOff()
+					MyLedStripVoiceActivityLEDOff()
 					//TalkedTicker.Stop()
 				}
 			}

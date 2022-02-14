@@ -3,7 +3,7 @@
 ### A Headless Mumble Client/Transceiver/Walkie Talkie/Intercom/Gateway for Single Board Computers, PCs or Virtual Environments (IP Radio/IP PTT <push-to-talk>)
 
 ---
-### if you like and use talkkonnect please let us know, please star talkkonnect/talkkonnect repo on github.com.
+### If you like and use talkkonnect please let us know, please star talkkonnect/talkkonnect repo on github.com!
 	
 ### talKKonnect Version 2 Release Notice!
 * Version 2 breaks backward compatability with version 1 configs!! So make sure you use the correct version of the config file to make it work
@@ -13,7 +13,7 @@
 #### New Features in Version 2
 * GPIO expander you can now have up to 16 x 8 = 128 GPIO using The MCP23017 Chip over I2c
 * Seven Segment Support For Showing Channel like CB Rado using MAX7219 Chip with Seven Segment Displays 
-* Rotary Encoder Support for Channel Up/Down
+* Rotary Encoder Support for Channel Up/Down, Volume Up/Down, SA818 Radio Module Frequency Change, Voice Target Change
 * Shout and Whisper Support
 * Channel Token Support
 * Configurable Voice Target and Shortcut Support over USB Keypad

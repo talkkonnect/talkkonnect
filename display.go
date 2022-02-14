@@ -86,3 +86,42 @@ func oledDisplay(OledClear bool, OledRow int, OledColumn int, OledText string) {
 func LcdDisplay(lcdtextshow [4]string, PRSPin int, PEPin int, PD4Pin int, PD5Pin int, PD6Pin int, PD7Pin int, LCDInterfaceType string, LCDI2CAddress byte) {
 	go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 }
+
+func (b *Talkkonnect) sevenSegment(function string, value string) {
+	if Config.Global.Hardware.IO.Max7219.Enabled {
+		if function == "mumblechannel" {
+			prefix := "c"
+			if b.findEnabledRotaryEncoderFunction("mumblechannel") {
+				Max7219(Config.Global.Hardware.IO.Max7219.Max7219Cascaded, Config.Global.Hardware.IO.Max7219.SPIBus, Config.Global.Hardware.IO.Max7219.SPIDevice, Config.Global.Hardware.IO.Max7219.Brightness, prefix+value)
+			}
+		}
+		if function == "localvolume" {
+			prefix := "u"
+			if b.findEnabledRotaryEncoderFunction("localvolume") {
+				Max7219(Config.Global.Hardware.IO.Max7219.Max7219Cascaded, Config.Global.Hardware.IO.Max7219.SPIBus, Config.Global.Hardware.IO.Max7219.SPIDevice, Config.Global.Hardware.IO.Max7219.Brightness, prefix+value)
+			}
+		}
+		if function == "radiochannel" {
+			prefix := "r"
+			if b.findEnabledRotaryEncoderFunction("radiochannel") {
+				Max7219(Config.Global.Hardware.IO.Max7219.Max7219Cascaded, Config.Global.Hardware.IO.Max7219.SPIBus, Config.Global.Hardware.IO.Max7219.SPIDevice, Config.Global.Hardware.IO.Max7219.Brightness, prefix+value)
+			}
+		}
+		if function == "voicetarget" {
+			prefix := "t"
+			if b.findEnabledRotaryEncoderFunction("voicetarget") {
+				Max7219(Config.Global.Hardware.IO.Max7219.Max7219Cascaded, Config.Global.Hardware.IO.Max7219.SPIBus, Config.Global.Hardware.IO.Max7219.SPIDevice, Config.Global.Hardware.IO.Max7219.Brightness, prefix+value)
+			}
+		}
+		if function == "hello" {
+			prefix := "hello"
+			Max7219(Config.Global.Hardware.IO.Max7219.Max7219Cascaded, Config.Global.Hardware.IO.Max7219.SPIBus, Config.Global.Hardware.IO.Max7219.SPIDevice, Config.Global.Hardware.IO.Max7219.Brightness, prefix)
+		}
+		if function == "bye" {
+			prefix := "bye"
+			Max7219(Config.Global.Hardware.IO.Max7219.Max7219Cascaded, Config.Global.Hardware.IO.Max7219.SPIBus, Config.Global.Hardware.IO.Max7219.SPIDevice, Config.Global.Hardware.IO.Max7219.Brightness, prefix)
+		}
+	} else {
+		log.Println("debug: Max7219 Seven Segment Not Enabled")
+	}
+}

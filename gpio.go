@@ -33,6 +33,7 @@ package talkkonnect
 
 import (
 	"log"
+	"strconv"
 	"time"
 
 	"github.com/stianeikeland/go-rpio"
@@ -609,7 +610,7 @@ func (b *Talkkonnect) initGPIO() {
 						} else {
 							log.Println("debug: Rotary Button is pressed")
 							playIOMedia("iorotarybutton")
-							nextEnabledRotaryEncoderFunction()
+							b.nextEnabledRotaryEncoderFunction()
 						}
 					}
 				} else {
@@ -998,19 +999,19 @@ func (b *Talkkonnect) rotaryAction(direction string) {
 			log.Println("debug: Rotating Clockwise")
 			switch RotaryFunction.Function {
 			case "mumblechannel":
-				if findEnabledRotaryEncoderFunction("mumblechannel") {
+				if b.findEnabledRotaryEncoderFunction("mumblechannel") {
 					b.ChannelUp()
 				}
 			case "localvolume":
-				if findEnabledRotaryEncoderFunction("localvolume") {
+				if b.findEnabledRotaryEncoderFunction("localvolume") {
 					b.cmdVolumeUp()
 				}
 			case "radiochannel":
-				if findEnabledRotaryEncoderFunction("radiochannel") {
+				if b.findEnabledRotaryEncoderFunction("radiochannel") {
 					go radioChannelIncrement("up")
 				}
 			case "voicetarget":
-				if findEnabledRotaryEncoderFunction("voicetarget") {
+				if b.findEnabledRotaryEncoderFunction("voicetarget") {
 					b.VTMove("up")
 				}
 			default:
@@ -1023,19 +1024,19 @@ func (b *Talkkonnect) rotaryAction(direction string) {
 			log.Println("debug: Rotating CounterClockwise")
 			switch RotaryFunction.Function {
 			case "mumblechannel":
-				if findEnabledRotaryEncoderFunction("mumblechannel") {
+				if b.findEnabledRotaryEncoderFunction("mumblechannel") {
 					b.ChannelDown()
 				}
 			case "localvolume":
-				if findEnabledRotaryEncoderFunction("localvolume") {
+				if b.findEnabledRotaryEncoderFunction("localvolume") {
 					b.cmdVolumeDown()
 				}
 			case "radiochannel":
-				if findEnabledRotaryEncoderFunction("radiochannel") {
+				if b.findEnabledRotaryEncoderFunction("radiochannel") {
 					go radioChannelIncrement("down")
 				}
 			case "voicetarget":
-				if findEnabledRotaryEncoderFunction("voicetarget") {
+				if b.findEnabledRotaryEncoderFunction("voicetarget") {
 					b.VTMove("down")
 				}
 			default:
@@ -1055,11 +1056,23 @@ func createEnabledRotaryEncoderFunctions() {
 	}
 }
 
-func nextEnabledRotaryEncoderFunction() {
+func (b *Talkkonnect) nextEnabledRotaryEncoderFunction() {
 	if len(RotaryFunctions) > RotaryFunction.Item+1 {
 		RotaryFunction.Item++
 		RotaryFunction.Function = RotaryFunctions[RotaryFunction.Item].Function
 		log.Printf("info: Current Rotary Item %v Function %v\n", RotaryFunction.Item, RotaryFunction.Function)
+		if RotaryFunction.Function == "mumblechannel" {
+			b.sevenSegment("mumblechannel", strconv.Itoa(int(b.Client.Self.Channel.ID)))
+		}
+		if RotaryFunction.Function == "localvolume" {
+			b.cmdCurrentVolume()
+		}
+		if RotaryFunction.Function == "radiochannel" {
+			b.sevenSegment("radiochannel", "")
+		}
+		if RotaryFunction.Function == "voicetarget" {
+			b.sevenSegment("voicetarget", "")
+		}
 		return
 	}
 
@@ -1067,11 +1080,23 @@ func nextEnabledRotaryEncoderFunction() {
 		RotaryFunction.Item = 0
 		RotaryFunction.Function = RotaryFunctions[0].Function
 		log.Printf("info: Current Rotary Item %v Function %v\n", RotaryFunction.Item, RotaryFunction.Function)
+		if RotaryFunction.Function == "mumblechannel" {
+			b.sevenSegment("mumblechannel", strconv.Itoa(int(b.Client.Self.Channel.ID)))
+		}
+		if RotaryFunction.Function == "localvolume" {
+			b.cmdCurrentVolume()
+		}
+		if RotaryFunction.Function == "radiochannel" {
+			b.sevenSegment("radiochannel", "")
+		}
+		if RotaryFunction.Function == "voicetarget" {
+			b.sevenSegment("voicetarget", "")
+		}
 		return
 	}
 }
 
-func findEnabledRotaryEncoderFunction(findFunction string) bool {
+func (b *Talkkonnect) findEnabledRotaryEncoderFunction(findFunction string) bool {
 	for _, functionName := range Config.Global.Hardware.IO.RotaryEncoder.Control {
 		if findFunction == functionName.Function {
 			return functionName.Enabled

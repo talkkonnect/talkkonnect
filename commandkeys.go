@@ -175,7 +175,7 @@ func (b *Talkkonnect) cmdCurrentVolume() {
 		if OLEDEnabled {
 			oledDisplay(false, 6, 1, "Volume "+strconv.Itoa(OrigVolume))
 		}
-
+		b.sevenSegment("localvolume", strconv.Itoa(OrigVolume))
 	}
 }
 
@@ -202,6 +202,7 @@ func (b *Talkkonnect) cmdVolumeUp() {
 			if OLEDEnabled {
 				oledDisplay(false, 6, 1, "Volume "+strconv.Itoa(origVolume))
 			}
+			b.sevenSegment("localvolume", strconv.Itoa(origVolume))
 		}
 	} else {
 		log.Println("debug: F5 Increase Volume")
@@ -214,6 +215,7 @@ func (b *Talkkonnect) cmdVolumeUp() {
 			if OLEDEnabled {
 				oledDisplay(false, 6, 1, "Max Vol")
 			}
+			b.sevenSegment("localvolume", "100")
 		}
 	}
 	TTSEvent("digitalvolumeup")
@@ -242,7 +244,7 @@ func (b *Talkkonnect) cmdVolumeDown() {
 			if OLEDEnabled {
 				oledDisplay(false, 6, 1, "Volume "+strconv.Itoa(origVolume))
 			}
-
+			b.sevenSegment("localvolume", strconv.Itoa(origVolume))
 		}
 	} else {
 		log.Println("debug: F6 Increase Volume Already")
@@ -255,6 +257,7 @@ func (b *Talkkonnect) cmdVolumeDown() {
 			if OLEDEnabled {
 				oledDisplay(false, 6, 1, "Min Vol")
 			}
+			b.sevenSegment("localvolume", "0")
 		}
 	}
 	TTSEvent("digitalvolumedown")
@@ -439,6 +442,7 @@ func (b *Talkkonnect) cmdQuitTalkkonnect() {
 	log.Printf("debug: Ctrl-C Terminate Program Requested \n")
 	duration := time.Since(StartTime)
 	log.Printf("info: Talkkonnect Now Running For %v \n", secondsToHuman(int(duration.Seconds())))
+	b.sevenSegment("bye", "")
 	TTSEvent("quittalkkonnect")
 	CleanUp()
 }

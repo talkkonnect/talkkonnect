@@ -531,6 +531,7 @@ func (b *Talkkonnect) ClientStart() {
 
 	// Set VT index to Zero
 	Config.Accounts.Account[AccountIndex].Voicetargets.ID[0].IsCurrent = true
+	b.sevenSegment("mumblechannel", strconv.Itoa(int(b.Client.Self.Channel.ID)))
 
 keyPressListenerLoop:
 	for {
@@ -611,7 +612,7 @@ keyPressListenerLoop:
 			case term.KeyCtrlX:
 				b.cmdDumpXMLConfig()
 			case term.KeyCtrlZ:
-				nextEnabledRotaryEncoderFunction()
+				b.nextEnabledRotaryEncoderFunction()
 				//b.cmdConnNextServer()
 			default:
 				if _, ok := TTYKeyMap[ev.Ch]; ok {

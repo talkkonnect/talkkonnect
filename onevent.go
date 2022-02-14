@@ -240,9 +240,7 @@ func (b *Talkkonnect) OnUserChange(e *gumble.UserChangeEvent) {
 		log.Println("info:", cleanstring(e.User.Name), " Changed Channel to ", e.User.Channel.Name)
 		LcdText[2] = cleanstring(e.User.Name) + "->" + e.User.Channel.Name
 		LcdText[3] = ""
-		if Config.Global.Hardware.IO.Max7219.Enabled {
-			Max7219(Config.Global.Hardware.IO.Max7219.Max7219Cascaded, Config.Global.Hardware.IO.Max7219.SPIBus, Config.Global.Hardware.IO.Max7219.SPIDevice, Config.Global.Hardware.IO.Max7219.Brightness, strconv.Itoa(int(b.Client.Self.Channel.ID)))
-		}
+		b.sevenSegment("mumblechannel", strconv.Itoa(int(b.Client.Self.Channel.ID)))
 	case gumble.UserChangeComment:
 		info = "chg comment"
 	case gumble.UserChangeAudio:
@@ -253,8 +251,8 @@ func (b *Talkkonnect) OnUserChange(e *gumble.UserChangeEvent) {
 		info = "chg rec status"
 	case gumble.UserChangeStats:
 		info = "chg stats"
-
 		if info != "chg channel" {
+
 			if info != "" {
 				log.Println("info: User ", cleanstring(e.User.Name), " ", info, "Event type=", e.Type, " channel=", e.User.Channel.Name)
 

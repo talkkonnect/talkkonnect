@@ -31,10 +31,10 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.10.12"
-	talkkonnectReleased string = "Feb 14 2022"
+	talkkonnectVersion  string = "2.10.13"
+	talkkonnectReleased string = "Feb 15 2022"
 )
 
 /* Release Notes
-1. Fixed RXLED Bug for Respeaker bug reported by chaiych maker
+1. Added AutoRepeat for USB Keyboard for Some Selected Functions
 */

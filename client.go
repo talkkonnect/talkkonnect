@@ -55,10 +55,8 @@ import (
 )
 
 var (
-	currentChannelID     uint32
 	prevChannelID        uint32
-	prevParticipantCount int    = 0
-	prevButtonPress      string = "none"
+	prevParticipantCount int = 0
 	maxchannelid         uint32
 	tmessage             string
 	isrepeattx           bool = true
@@ -86,6 +84,7 @@ type ChannelsListStruct struct {
 	chanName   string
 	chanParent *gumble.Channel
 	chanUsers  int
+	//permissions here
 }
 
 func Init(file string, ServerIndex string) {

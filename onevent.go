@@ -217,16 +217,17 @@ func (b *Talkkonnect) OnTextMessage(e *gumble.TextMessageEvent) {
 
 func (b *Talkkonnect) OnUserChange(e *gumble.UserChangeEvent) {
 	b.BackLightTimer()
-
 	var info string
-
 	switch e.Type {
 	case gumble.UserChangeConnected:
 		info = "conn"
+		b.ParticipantLEDUpdate(true)
 	case gumble.UserChangeDisconnected:
 		info = "disconnected!"
+		b.ParticipantLEDUpdate(true)
 	case gumble.UserChangeKicked:
 		info = "kicked"
+		b.ParticipantLEDUpdate(true)
 	case gumble.UserChangeBanned:
 		info = "banned"
 	case gumble.UserChangeRegistered:
@@ -237,10 +238,12 @@ func (b *Talkkonnect) OnUserChange(e *gumble.UserChangeEvent) {
 		info = "chg name"
 	case gumble.UserChangeChannel:
 		info = "chg channel"
-		log.Println("info:", cleanstring(e.User.Name), " Changed Channel to ", e.User.Channel.Name)
-		LcdText[2] = cleanstring(e.User.Name) + "->" + e.User.Channel.Name
-		LcdText[3] = ""
-		b.sevenSegment("mumblechannel", strconv.Itoa(int(b.Client.Self.Channel.ID)))
+		if e.User.Name == b.Client.Self.Name {
+			log.Println("info: You Changed Channel to ", e.User.Channel.Name)
+		} else {
+			log.Println("info:", cleanstring(e.User.Name), " Changed Channel to ", e.User.Channel.Name)
+		}
+		b.ParticipantLEDUpdate(true)
 	case gumble.UserChangeComment:
 		info = "chg comment"
 	case gumble.UserChangeAudio:
@@ -251,100 +254,41 @@ func (b *Talkkonnect) OnUserChange(e *gumble.UserChangeEvent) {
 		info = "chg rec status"
 	case gumble.UserChangeStats:
 		info = "chg stats"
-		if info != "chg channel" {
-
-			if info != "" {
-				log.Println("info: User ", cleanstring(e.User.Name), " ", info, "Event type=", e.Type, " channel=", e.User.Channel.Name)
-
-				for _, tts := range Config.Global.Software.TTS.Sound {
-					if tts.Action == "participants" {
-						if tts.Enabled {
-							b.Speak("User "+cleanstring(e.User.Name)+info+"Has Changed to "+e.User.Channel.Name, "local", 1, 0, 1, Config.Global.Software.TTSMessages.TTSLanguage)
-						}
-					}
-				}
-			}
-
-		} else {
-			log.Println("info: User ", cleanstring(e.User.Name), " Event type=", e.Type, " channel=", e.User.Channel.Name)
-		}
-
-		LcdText[2] = cleanstring(e.User.Name) + " " + info //+strconv.Atoi(string(e.Type))
-
 	}
-
-	b.ParticipantLEDUpdate(true)
+	if len(info) > 0 {
+		log.Println("info: On User Change ", info)
+	} else {
+		b.ParticipantLEDUpdate(true)
+	}
 }
 
 func (b *Talkkonnect) OnPermissionDenied(e *gumble.PermissionDeniedEvent) {
-	var info string
-
 	switch e.Type {
-	case gumble.PermissionDeniedOther:
-		info = e.String
 	case gumble.PermissionDeniedPermission:
-		info = "insufficient permissions"
-		LcdText[2] = "insufficient perms"
-
-		// Set Upper Boundary
-		if prevButtonPress == "ChannelUp" && b.Client.Self.Channel.ID == maxchannelid {
-			log.Println("error: Can't Increment Channel Maximum Channel Reached")
-		}
-
-		// Set Lower Boundary
-		if prevButtonPress == "ChannelDown" && currentChannelID == 0 {
-			log.Println("error: Can't Increment Channel Minimum Channel Reached")
-		}
-
-		// Implement Seek Up Until Permissions are Sufficient for User to Join Channel whilst avoiding all null channels
-		if prevButtonPress == "ChannelUp" && b.Client.Self.Channel.ID+1 < maxchannelid {
-			prevChannelID++
-			b.ChannelUp()
-			LcdText[1] = b.Client.Self.Channel.Name + " (" + strconv.Itoa(len(b.Client.Self.Channel.Users)) + " Users)"
-		}
-
-		// Implement Seek Dwn Until Permissions are Sufficient for User to Join Channel whilst avoiding all null channels
-		if prevButtonPress == "ChannelDown" && int(b.Client.Self.Channel.ID) > 0 {
-			prevChannelID--
-			b.ChannelDown()
-			LcdText[1] = b.Client.Self.Channel.Name + " (" + strconv.Itoa(len(b.Client.Self.Channel.Users)) + " Users)"
-		}
-
-		if Config.Global.Hardware.TargetBoard == "rpi" {
-			if LCDEnabled {
-				LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
-			}
-			if OLEDEnabled {
-				oledDisplay(false, 1, 1, LcdText[1])
-				oledDisplay(false, 2, 1, LcdText[2])
-			}
-		}
-
+		log.Println("error: Permission Denied")
 	case gumble.PermissionDeniedSuperUser:
-		info = "cannot modify SuperUser"
+		log.Println("cannot modify SuperUser")
 	case gumble.PermissionDeniedInvalidChannelName:
-		info = "invalid channel name"
+		log.Println("invalid channel name")
 	case gumble.PermissionDeniedTextTooLong:
-		info = "text too long"
+		log.Println("text too long")
 	case gumble.PermissionDeniedTemporaryChannel:
-		info = "temporary channel"
+		log.Println("temporary channel")
 	case gumble.PermissionDeniedMissingCertificate:
-		info = "missing certificate"
+		log.Println("missing certificate")
 	case gumble.PermissionDeniedInvalidUserName:
-		info = "invalid user name"
+		log.Println("invalid user name")
 	case gumble.PermissionDeniedChannelFull:
-		info = "channel full"
+		log.Println("channel full")
 	case gumble.PermissionDeniedNestingLimit:
-		info = "nesting limit"
+		log.Println("nesting limit")
+	case gumble.PermissionDeniedOther:
+		log.Println("other")
 	}
-
-	LcdText[2] = info
-
-	log.Printf("error: Permission denied %v to Join Channel %v\n", info, e.Channel.Name)
 }
 
 func (b *Talkkonnect) OnChannelChange(e *gumble.ChannelChangeEvent) {
-	log.Println("debug: Channel Change Event Detected")
+	log.Println("alert: Channel Change Event Detected")
 }
 
 func (b *Talkkonnect) OnUserList(e *gumble.UserListEvent) {

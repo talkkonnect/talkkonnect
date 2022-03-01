@@ -31,10 +31,11 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.10.13"
-	talkkonnectReleased string = "Feb 15 2022"
+	talkkonnectVersion  string = "2.11.01"
+	talkkonnectReleased string = "Mar 1 2022"
 )
 
 /* Release Notes
-1. Added AutoRepeat for USB Keyboard for Some Selected Functions
+1. Cleaning up Channel Up/Down & Display and Participants Logic
+2. Still Pending to Check Channel Stuck with Tokens
 */

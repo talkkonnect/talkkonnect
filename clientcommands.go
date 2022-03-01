@@ -260,8 +260,7 @@ func (b *Talkkonnect) ParticipantLEDUpdate(verbose bool) {
 			}
 		}
 	}
-	if participantCount > 1 && participantCount != prevParticipantCount {
-
+	if participantCount > 1 {
 		for _, tts := range Config.Global.Software.TTS.Sound {
 			if tts.Action == "participants" {
 				if tts.Enabled {
@@ -273,7 +272,7 @@ func (b *Talkkonnect) ParticipantLEDUpdate(verbose bool) {
 			}
 		}
 
-		prevParticipantCount = participantCount
+		prevParticipantCount = len(b.Client.Self.Channel.Users)
 
 		if verbose {
 			log.Println("info: Current Channel ", b.Client.Self.Channel.Name, " has (", participantCount, ") participants")
@@ -421,48 +420,28 @@ func (b *Talkkonnect) ChannelUp() {
 	}
 
 	prevChannelID = b.Client.Self.Channel.ID
-
 	TTSEvent("channelup")
-
-	prevButtonPress = "ChannelUp"
-
 	b.ListChannels(false)
 
-	// Set Upper Boundary
+	// Set Upper Boundary Rollback to Root
 	if b.Client.Self.Channel.ID == maxchannelid {
 		log.Println("alert: Max Channel Reached Rolling Back to Root Channel")
-		channel := b.Client.Channels.Find()
-		b.Client.Self.Move(channel)
-		//		prevChannelID = maxchannelid
+		channel := b.Client.Channels.Find() //this command finds root channel
+		if channel != nil {
+			b.Client.Self.Move(channel)
+			//check here if move success
+		}
 		return
 	}
 
-	// Implement Seek Up Avoiding any null channels
+	// Implement Channel Up When Not Upper Boundary
 	if prevChannelID < maxchannelid {
-
 		prevChannelID++
-
 		for i := prevChannelID; uint32(i) < maxchannelid+1; i++ {
-
 			channel := b.Client.Channels[i]
-
 			if channel != nil {
 				b.Client.Self.Move(channel)
-				if Config.Global.Hardware.TargetBoard == "rpi" {
-
-					if len(b.Client.Self.Channel.Users) == 1 {
-						LcdText[1] = "Alone in " + b.Client.Self.Channel.Name
-					} else {
-						LcdText[1] = b.Client.Self.Channel.Name + " (" + strconv.Itoa(len(b.Client.Self.Channel.Users)) + " Users)"
-					}
-
-					if LCDEnabled {
-						LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
-					}
-					if OLEDEnabled {
-						oledDisplay(false, 1, 1, LcdText[1])
-					}
-				}
+				//check here if move success
 				break
 			}
 		}
@@ -475,61 +454,25 @@ func (b *Talkkonnect) ChannelDown() {
 	}
 
 	prevChannelID = b.Client.Self.Channel.ID
-
 	TTSEvent("channeldown")
-
-	prevButtonPress = "ChannelDown"
 	b.ListChannels(false)
 
-	// Set Lower Boundary
+	// Set Lower Boundary RollBack to Max Channel
 	if int(b.Client.Self.Channel.ID) == 0 {
-		log.Println("error: Can't Decrement Channel Root Channel Reached Rolling Back to Highest Channel ID")
+		log.Println("alert: Can't Decrement Channel Root Channel Reached Rolling Back to Highest Channel ID")
 		b.Client.Self.Move(b.Client.Channels[maxchannelid])
-		//		prevChannelID = maxchannelid
-		if Config.Global.Hardware.TargetBoard == "rpi" {
-
-			if len(b.Client.Self.Channel.Users) == 1 {
-				LcdText[1] = "Alone in " + b.Client.Self.Channel.Name
-			} else {
-				LcdText[1] = b.Client.Self.Channel.Name + " (" + strconv.Itoa(len(b.Client.Self.Channel.Users)) + " Users)"
-			}
-
-			if LCDEnabled {
-				LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
-			}
-			if OLEDEnabled {
-				oledDisplay(false, 1, 1, LcdText[1])
-			}
-		}
-
+		//check here if move success
 		return
 	}
 
-	// Implement Seek Down Avoiding any null channels
+	// Implement Channel Down Avoiding any null channels
 	if int(prevChannelID) > 0 {
-
 		prevChannelID--
-
 		for i := uint32(prevChannelID); uint32(i) < maxchannelid; i-- {
 			channel := b.Client.Channels[i]
 			if channel != nil {
 				b.Client.Self.Move(channel)
-				if Config.Global.Hardware.TargetBoard == "rpi" {
-
-					if len(b.Client.Self.Channel.Users) == 1 {
-						LcdText[1] = "Alone in " + b.Client.Self.Channel.Name
-					} else {
-						LcdText[1] = b.Client.Self.Channel.Name + " (" + strconv.Itoa(len(b.Client.Self.Channel.Users)) + " Users)"
-					}
-
-					if LCDEnabled {
-						LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
-					}
-					if OLEDEnabled {
-						oledDisplay(false, 1, 1, LcdText[1])
-					}
-				}
-
+				//check here if move success
 				break
 			}
 		}

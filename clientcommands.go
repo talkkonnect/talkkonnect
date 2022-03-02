@@ -349,14 +349,15 @@ func (b *Talkkonnect) ListChannels(verbose bool) {
 	}
 
 	var records = int(len(b.Client.Channels))
-	channelsList := make([]ChannelsListStruct, len(b.Client.Channels))
+	ChannelsList = make([]ChannelsListStruct, len(b.Client.Channels))
 	counter := 0
 
 	for _, ch := range b.Client.Channels {
-		channelsList[counter].chanID = ch.ID
-		channelsList[counter].chanName = ch.Name
-		channelsList[counter].chanParent = ch.Parent
-		channelsList[counter].chanUsers = len(ch.Users)
+		ChannelsList[counter].chanID = ch.ID
+		ChannelsList[counter].chanName = ch.Name
+		ChannelsList[counter].chanParent = ch.Parent
+		ChannelsList[counter].chanUsers = len(ch.Users)
+		ChannelsList[counter].chanenterPermissions = true
 		if verbose {
 			if ch.Permission() != nil {
 				if (*ch.Permission() & gumble.PermissionWrite) > 0 {
@@ -405,10 +406,10 @@ func (b *Talkkonnect) ListChannels(verbose bool) {
 
 	if verbose {
 		for i := 0; i < int(records); i++ {
-			if channelsList[i].chanID == 0 || channelsList[i].chanParent.ID == 0 {
-				log.Println(fmt.Sprintf("info: Parent -> ID=%2d | Name=%-12v (%v) Users | ", channelsList[i].chanID, channelsList[i].chanName, channelsList[i].chanUsers))
+			if ChannelsList[i].chanID == 0 || ChannelsList[i].chanParent.ID == 0 {
+				log.Println(fmt.Sprintf("info: Parent -> ID=%2d | Name=%-12v (%v) Users | ", ChannelsList[i].chanID, ChannelsList[i].chanName, ChannelsList[i].chanUsers))
 			} else {
-				log.Println(fmt.Sprintf("info: Child  -> ID=%2d | Name=%-12v (%v) Users | PID =%2d | PName=%-12s", channelsList[i].chanID, channelsList[i].chanName, channelsList[i].chanUsers, channelsList[i].chanParent.ID, channelsList[i].chanParent.Name))
+				log.Println(fmt.Sprintf("info: Child  -> ID=%2d | Name=%-12v (%v) Users | PID =%2d | PName=%-12s", ChannelsList[i].chanID, ChannelsList[i].chanName, ChannelsList[i].chanUsers, ChannelsList[i].chanParent.ID, ChannelsList[i].chanParent.Name))
 			}
 		}
 	}
@@ -421,7 +422,7 @@ func (b *Talkkonnect) ChannelUp() {
 
 	prevChannelID = b.Client.Self.Channel.ID
 	TTSEvent("channelup")
-	b.ListChannels(false)
+	//	b.ListChannels(false)
 
 	// Set Upper Boundary Rollback to Root
 	if b.Client.Self.Channel.ID == maxchannelid {
@@ -429,7 +430,6 @@ func (b *Talkkonnect) ChannelUp() {
 		channel := b.Client.Channels.Find() //this command finds root channel
 		if channel != nil {
 			b.Client.Self.Move(channel)
-			//check here if move success
 		}
 		return
 	}
@@ -441,7 +441,6 @@ func (b *Talkkonnect) ChannelUp() {
 			channel := b.Client.Channels[i]
 			if channel != nil {
 				b.Client.Self.Move(channel)
-				//check here if move success
 				break
 			}
 		}
@@ -455,7 +454,7 @@ func (b *Talkkonnect) ChannelDown() {
 
 	prevChannelID = b.Client.Self.Channel.ID
 	TTSEvent("channeldown")
-	b.ListChannels(false)
+	//	b.ListChannels(false)
 
 	// Set Lower Boundary RollBack to Max Channel
 	if int(b.Client.Self.Channel.ID) == 0 {
@@ -484,7 +483,7 @@ func (b *Talkkonnect) Scan() {
 		return
 	}
 
-	b.ListChannels(false)
+	//	b.ListChannels(false)
 
 	if b.Client.Self.Channel.ID+1 > maxchannelid {
 		prevChannelID = 0

@@ -31,11 +31,10 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.11.01"
-	talkkonnectReleased string = "Mar 1 2022"
+	talkkonnectVersion  string = "2.11.02"
+	talkkonnectReleased string = "Mar 2 2022"
 )
 
 /* Release Notes
-1. Cleaning up Channel Up/Down & Display and Participants Logic
-2. Still Pending to Check Channel Stuck with Tokens
+1. Marking Channel Enter Permissions into Struct
 */

@@ -692,6 +692,7 @@ var (
 	VT                  []VTStruct
 	Accounts            int
 	MaxTokensInAccounts int
+	ChannelsList        []ChannelsListStruct
 )
 
 //HD44780 LCD Screen Settings Golbal Variables

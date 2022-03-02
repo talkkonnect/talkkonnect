@@ -267,7 +267,7 @@ func (b *Talkkonnect) cmdListServerChannels() {
 	log.Printf("debug: F7 pressed Channel List Requested \n")
 
 	TTSEvent("listserverchannels")
-	b.ListChannels(true)
+	//List Server Channels from ChannelsList[]
 	b.ParticipantLEDUpdate(true)
 }
 

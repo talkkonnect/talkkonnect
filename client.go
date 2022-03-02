@@ -80,11 +80,11 @@ type Talkkonnect struct {
 }
 
 type ChannelsListStruct struct {
-	chanID     uint32
-	chanName   string
-	chanParent *gumble.Channel
-	chanUsers  int
-	//permissions here
+	chanID               uint32
+	chanName             string
+	chanParent           *gumble.Channel
+	chanUsers            int
+	chanenterPermissions bool
 }
 
 func Init(file string, ServerIndex string) {
@@ -527,6 +527,8 @@ func (b *Talkkonnect) ClientStart() {
 		}
 		log.Printf("info: Current Rotary Item %v Function %v\n", RotaryFunction.Item, RotaryFunction.Function)
 	}
+
+	b.ListChannels(false)
 
 	// Set VT index to Zero
 	Config.Accounts.Account[AccountIndex].Voicetargets.ID[0].IsCurrent = true

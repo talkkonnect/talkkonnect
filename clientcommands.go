@@ -457,32 +457,7 @@ func (b *Talkkonnect) Scan() {
 		return
 	}
 
-	if b.Client.Self.Channel.ID+1 > maxchannelid {
-		prevChannelID = 0
-		channel := b.Client.Channels[prevChannelID]
-		b.Client.Self.Move(channel)
-		return
-	}
-
-	if prevChannelID < maxchannelid {
-		prevChannelID++
-
-		for i := prevChannelID; uint32(i) < maxchannelid+1; i++ {
-			channel := b.Client.Channels[i]
-			if channel != nil {
-				b.Client.Self.Move(channel)
-				time.Sleep(1000 * time.Millisecond)
-				if len(b.Client.Self.Channel.Users) == 1 {
-					b.Scan()
-					break
-				} else {
-
-					log.Println("info: Found Someone Online Stopped Scan on Channel ", b.Client.Self.Channel.Name)
-					return
-				}
-			}
-		}
-	}
+	log.Println("alert: New Scan Not Implemented Yet")
 }
 
 func (b *Talkkonnect) SendMessage(textmessage string, PRecursive bool) {

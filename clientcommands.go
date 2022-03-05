@@ -367,9 +367,10 @@ func (b *Talkkonnect) ListChannels(verbose bool) {
 		b.findChannelDetailsByID(uint32(cid), counter)
 		counter++
 	}
-
-	for i := 0; i < len(b.Client.Channels); i++ {
-		log.Println(ChannelsList[i])
+	if verbose {
+		for i := 0; i < len(b.Client.Channels); i++ {
+			log.Println("debug: ", ChannelsList[i])
+		}
 	}
 }
 
@@ -422,8 +423,6 @@ func (b *Talkkonnect) Scan() {
 	if !(IsConnected) {
 		return
 	}
-
-	//	b.ListChannels(false)
 
 	if b.Client.Self.Channel.ID+1 > maxchannelid {
 		prevChannelID = 0

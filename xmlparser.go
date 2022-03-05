@@ -655,8 +655,8 @@ var (
 	ConnectAttempts int
 	AccountIndex    int
 	GenericCounter  int
-	ChannelIndex    int
 	CurrentIndex    int
+	ChannelAction   string
 )
 
 // Generic Global Timer Variables
@@ -678,22 +678,20 @@ var (
 
 //Mumble Account Settings Global Variables
 var (
-	Default             []bool
-	Name                []string
-	Server              []string
-	Username            []string
-	Password            []string
-	Insecure            []bool
-	Register            []bool
-	Certificate         []string
-	Channel             []string
-	Ident               []string
-	Tokens              []gumble.AccessTokens
-	VT                  []VTStruct
-	Accounts            int
-	MaxTokensInAccounts int
-	ChannelsIndexMax    int
-	ChannelsList        []ChannelsListStruct
+	Default      []bool
+	Name         []string
+	Server       []string
+	Username     []string
+	Password     []string
+	Insecure     []bool
+	Register     []bool
+	Certificate  []string
+	Channel      []string
+	Ident        []string
+	Tokens       []gumble.AccessTokens
+	VT           []VTStruct
+	Accounts     int
+	ChannelsList []ChannelsListStruct
 )
 
 //HD44780 LCD Screen Settings Golbal Variables

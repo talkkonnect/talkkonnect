@@ -36,5 +36,6 @@ const (
 )
 
 /* Release Notes
-1. Marking Channel Enter Permissions into Struct
+1. Fixed Channel Up Logic With Skipping Channels With No Permissions
+2. Channel Down Skipping Channels with no Permissions Pending
 */

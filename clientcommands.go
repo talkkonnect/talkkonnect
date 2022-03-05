@@ -394,9 +394,15 @@ func (b *Talkkonnect) ChannelUp() {
 			b.Client.Self.Move(Channel)
 		}
 	} else {
-		for i := NextIndex + 1; i < len(b.Client.Channels); i++ {
-			log.Println("info: Skipping Channel")
-			Channel = b.Client.Channels.Find(ChannelsList[i].chanName)
+		for i := NextIndex + 1; i <= len(b.Client.Channels); i++ {
+			//special handling for when highest channel has no token
+			if i == len(b.Client.Channels) {
+				Channel = b.Client.Channels.Find()
+				b.Client.Self.Move(Channel)
+				return
+			} else {
+				Channel = b.Client.Channels.Find(ChannelsList[i].chanName)
+			}
 			if ChannelsList[i].chanenterPermissions {
 				b.Client.Self.Move(Channel)
 				break
@@ -415,13 +421,19 @@ func (b *Talkkonnect) ChannelDown() {
 	currentIndex := b.findChannelIndex(b.Client.Self.Channel.ID)
 	NextIndex := currentIndex
 
-	if currentIndex > 0 {
-		Channel = b.Client.Channels.Find(ChannelsList[currentIndex-1].chanName)
-		NextIndex = currentIndex - 1
+	if currentIndex == 0 {
+		//special handling of max channel without token
+		Channel = b.Client.Channels.Find(ChannelsList[len(b.Client.Channels)-1].chanName)
+		NextIndex = len(b.Client.Channels) - 1
 	}
 
 	if currentIndex == 1 {
 		Channel = b.Client.Channels.Find()
+		NextIndex = currentIndex - 1
+	}
+
+	if currentIndex > 1 {
+		Channel = b.Client.Channels.Find(ChannelsList[currentIndex-1].chanName)
 		NextIndex = currentIndex - 1
 	}
 
@@ -430,8 +442,7 @@ func (b *Talkkonnect) ChannelDown() {
 			b.Client.Self.Move(Channel)
 		}
 	} else {
-		for i := NextIndex - 1; i > 0; i-- {
-			log.Println("info: Skipping Channel")
+		for i := NextIndex - 1; i >= 0; i-- {
 			Channel = b.Client.Channels.Find(ChannelsList[i].chanName)
 			if ChannelsList[i].chanenterPermissions {
 				b.Client.Self.Move(Channel)

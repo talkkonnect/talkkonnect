@@ -268,6 +268,7 @@ func (b *Talkkonnect) OnPermissionDenied(e *gumble.PermissionDeniedEvent) {
 		log.Printf("warn: Permission Denied For Channel ID %v Channel Name %v\n", e.Channel.ID, e.Channel.Name)
 		for index, ch := range ChannelsList {
 			if ch.chanID == int(e.Channel.ID) {
+				log.Printf("warn: Setting Channel Index %v Channel ID %v Channel Name %v Channel Enter to False\n", index, e.Channel.ID, e.Channel.Name)
 				ChannelsList[index].chanenterPermissions = false
 				if ChannelAction == "channelup" {
 					b.ChannelUp()

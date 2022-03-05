@@ -413,18 +413,31 @@ func (b *Talkkonnect) ChannelDown() {
 	TTSEvent("channeldown")
 	Channel := b.Client.Channels.Find(ChannelsList[len(b.Client.Channels)-1].chanName)
 	currentIndex := b.findChannelIndex(b.Client.Self.Channel.ID)
-	log.Println("alert: Current Index in Channel Down Func ", currentIndex)
+	NextIndex := currentIndex
 
 	if currentIndex > 0 {
 		Channel = b.Client.Channels.Find(ChannelsList[currentIndex-1].chanName)
+		NextIndex = currentIndex - 1
 	}
 
 	if currentIndex == 1 {
 		Channel = b.Client.Channels.Find()
+		NextIndex = currentIndex - 1
 	}
 
-	if Channel != nil {
-		b.Client.Self.Move(Channel)
+	if ChannelsList[NextIndex].chanenterPermissions {
+		if Channel != nil {
+			b.Client.Self.Move(Channel)
+		}
+	} else {
+		for i := NextIndex - 1; i > 0; i-- {
+			log.Println("info: Skipping Channel")
+			Channel = b.Client.Channels.Find(ChannelsList[i].chanName)
+			if ChannelsList[i].chanenterPermissions {
+				b.Client.Self.Move(Channel)
+				break
+			}
+		}
 	}
 }
 

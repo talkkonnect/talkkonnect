@@ -272,6 +272,9 @@ func (b *Talkkonnect) OnPermissionDenied(e *gumble.PermissionDeniedEvent) {
 				if ChannelAction == "channelup" {
 					b.ChannelUp()
 				}
+				if ChannelAction == "channeldown" {
+					b.ChannelDown()
+				}
 				break
 			}
 		}

@@ -80,10 +80,11 @@ type Talkkonnect struct {
 }
 
 type ChannelsListStruct struct {
-	chanID               uint32
+	chanIndex            int
+	chanID               int
 	chanName             string
 	chanParent           *gumble.Channel
-	chanUsers            int
+	chanUsers            gumble.Users
 	chanenterPermissions bool
 }
 
@@ -528,7 +529,7 @@ func (b *Talkkonnect) ClientStart() {
 		log.Printf("info: Current Rotary Item %v Function %v\n", RotaryFunction.Item, RotaryFunction.Function)
 	}
 
-	b.ListChannels(false)
+	b.ListChannels(true)
 
 	// Set VT index to Zero
 	Config.Accounts.Account[AccountIndex].Voicetargets.ID[0].IsCurrent = true
@@ -536,135 +537,137 @@ func (b *Talkkonnect) ClientStart() {
 
 keyPressListenerLoop:
 	for {
-		switch ev := term.PollEvent(); ev.Type {
-		case term.EventKey:
-			switch ev.Key {
-			case term.KeyEsc:
-				log.Println("error: ESC Key is Invalid")
-				reset()
-				break keyPressListenerLoop
-			case term.KeyDelete:
-				b.cmdDisplayMenu()
-			case term.KeyF1:
-				b.cmdChannelUp()
-			case term.KeyF2:
-				b.cmdChannelDown()
-			case term.KeyF3:
-				b.cmdMuteUnmute("toggle")
-			case term.KeyF4:
-				b.cmdCurrentVolume()
-			case term.KeyF5:
-				b.cmdVolumeUp()
-			case term.KeyF6:
-				b.cmdVolumeDown()
-			case term.KeyF7:
-				b.cmdListServerChannels()
-			case term.KeyF8:
-				b.cmdStartTransmitting()
-			case term.KeyF9:
-				b.cmdStopTransmitting()
-			case term.KeyF10:
-				b.cmdListOnlineUsers()
-			case term.KeyF11:
-				b.cmdPlayback()
-			case term.KeyF12:
-				go b.cmdGPSPosition()
-			case term.KeyCtrlB:
-				b.cmdLiveReload()
-			case term.KeyCtrlC:
-				talkkonnectAcknowledgements("\u001b[44;1m") // add blue background to banner reference https://www.lihaoyi.com/post/BuildyourownCommandLinewithANSIescapecodes.html#background-colors
-				b.cmdQuitTalkkonnect()
-			case term.KeyCtrlD:
-				b.cmdDebugStacktrace()
-			case term.KeyCtrlE:
-				b.cmdSendEmail()
-			case term.KeyCtrlF:
-				b.cmdConnPreviousServer()
-			case term.KeyCtrlH:
-				cmdSanityCheck()
-			case term.KeyCtrlI: // New. Audio Recording. Traffic
-				b.cmdAudioTrafficRecord()
-			case term.KeyCtrlJ: // New. Audio Recording. Mic
-				b.cmdAudioMicRecord()
-			case term.KeyCtrlK: // New/ Audio Recording. Combo
-				b.cmdAudioMicTrafficRecord()
-			case term.KeyCtrlL:
-				b.cmdClearScreen()
-			case term.KeyCtrlM:
-				b.cmdRadioChannelMove("Up")
-			case term.KeyCtrlN:
-				b.cmdRadioChannelMove("Down")
-			case term.KeyCtrlO:
-				b.cmdPingServers()
-			case term.KeyCtrlP:
-				b.cmdPanicSimulation()
-			case term.KeyCtrlG:
-				b.cmdPlayRepeaterTone()
-			case term.KeyCtrlR:
-				b.cmdRepeatTxLoop()
-			case term.KeyCtrlS:
-				b.cmdScanChannels()
-			case term.KeyCtrlT:
-				cmdThanks()
-			case term.KeyCtrlU:
-				b.cmdShowUptime()
-			case term.KeyCtrlV:
-				b.cmdDisplayVersion()
-			case term.KeyCtrlX:
-				b.cmdDumpXMLConfig()
-			case term.KeyCtrlZ:
-				b.nextEnabledRotaryEncoderFunction()
-				//b.cmdConnNextServer()
-			default:
-				if _, ok := TTYKeyMap[ev.Ch]; ok {
-					switch strings.ToLower(TTYKeyMap[ev.Ch].Command) {
-					case "channelup":
-						b.cmdChannelUp()
-					case "channeldown":
-						b.cmdChannelDown()
-					case "serverup":
-						b.cmdConnNextServer()
-					case "serverdown":
-						b.cmdConnPreviousServer()
-					case "mute":
-						b.cmdMuteUnmute("mute")
-					case "unmute":
-						b.cmdMuteUnmute("unmute")
-					case "mute-toggle":
-						b.cmdMuteUnmute("toggle")
-					case "stream-toggle":
-						b.cmdPlayback()
-					case "volumeup":
-						b.cmdVolumeUp()
-					case "volumedown":
-						b.cmdVolumeDown()
-					case "setcomment":
-						if TTYKeyMap[ev.Ch].ParamValue == "setcomment" {
-							log.Println("info: Set Commment ", TTYKeyMap[ev.Ch].ParamValue)
-							b.Client.Self.SetComment(TTYKeyMap[ev.Ch].ParamValue)
+		if IsConnected {
+			switch ev := term.PollEvent(); ev.Type {
+			case term.EventKey:
+				switch ev.Key {
+				case term.KeyEsc:
+					log.Println("error: ESC Key is Invalid")
+					reset()
+					break keyPressListenerLoop
+				case term.KeyDelete:
+					b.cmdDisplayMenu()
+				case term.KeyF1:
+					b.cmdChannelUp()
+				case term.KeyF2:
+					b.cmdChannelDown()
+				case term.KeyF3:
+					b.cmdMuteUnmute("toggle")
+				case term.KeyF4:
+					b.cmdCurrentVolume()
+				case term.KeyF5:
+					b.cmdVolumeUp()
+				case term.KeyF6:
+					b.cmdVolumeDown()
+				case term.KeyF7:
+					b.cmdListServerChannels()
+				case term.KeyF8:
+					b.cmdStartTransmitting()
+				case term.KeyF9:
+					b.cmdStopTransmitting()
+				case term.KeyF10:
+					b.cmdListOnlineUsers()
+				case term.KeyF11:
+					b.cmdPlayback()
+				case term.KeyF12:
+					go b.cmdGPSPosition()
+				case term.KeyCtrlB:
+					b.cmdLiveReload()
+				case term.KeyCtrlC:
+					talkkonnectAcknowledgements("\u001b[44;1m") // add blue background to banner reference https://www.lihaoyi.com/post/BuildyourownCommandLinewithANSIescapecodes.html#background-colors
+					b.cmdQuitTalkkonnect()
+				case term.KeyCtrlD:
+					b.cmdDebugStacktrace()
+				case term.KeyCtrlE:
+					b.cmdSendEmail()
+				case term.KeyCtrlF:
+					b.cmdConnPreviousServer()
+				case term.KeyCtrlH:
+					cmdSanityCheck()
+				case term.KeyCtrlI: // New. Audio Recording. Traffic
+					b.cmdAudioTrafficRecord()
+				case term.KeyCtrlJ: // New. Audio Recording. Mic
+					b.cmdAudioMicRecord()
+				case term.KeyCtrlK: // New/ Audio Recording. Combo
+					b.cmdAudioMicTrafficRecord()
+				case term.KeyCtrlL:
+					b.cmdClearScreen()
+				case term.KeyCtrlM:
+					b.cmdRadioChannelMove("Up")
+				case term.KeyCtrlN:
+					b.cmdRadioChannelMove("Down")
+				case term.KeyCtrlO:
+					b.cmdPingServers()
+				case term.KeyCtrlP:
+					b.cmdPanicSimulation()
+				case term.KeyCtrlG:
+					b.cmdPlayRepeaterTone()
+				case term.KeyCtrlR:
+					b.cmdRepeatTxLoop()
+				case term.KeyCtrlS:
+					b.cmdScanChannels()
+				case term.KeyCtrlT:
+					cmdThanks()
+				case term.KeyCtrlU:
+					b.cmdShowUptime()
+				case term.KeyCtrlV:
+					b.cmdDisplayVersion()
+				case term.KeyCtrlX:
+					b.cmdDumpXMLConfig()
+				case term.KeyCtrlZ:
+					b.nextEnabledRotaryEncoderFunction()
+					//b.cmdConnNextServer()
+				default:
+					if _, ok := TTYKeyMap[ev.Ch]; ok {
+						switch strings.ToLower(TTYKeyMap[ev.Ch].Command) {
+						case "channelup":
+							b.cmdChannelUp()
+						case "channeldown":
+							b.cmdChannelDown()
+						case "serverup":
+							b.cmdConnNextServer()
+						case "serverdown":
+							b.cmdConnPreviousServer()
+						case "mute":
+							b.cmdMuteUnmute("mute")
+						case "unmute":
+							b.cmdMuteUnmute("unmute")
+						case "mute-toggle":
+							b.cmdMuteUnmute("toggle")
+						case "stream-toggle":
+							b.cmdPlayback()
+						case "volumeup":
+							b.cmdVolumeUp()
+						case "volumedown":
+							b.cmdVolumeDown()
+						case "setcomment":
+							if TTYKeyMap[ev.Ch].ParamValue == "setcomment" {
+								log.Println("info: Set Commment ", TTYKeyMap[ev.Ch].ParamValue)
+								b.Client.Self.SetComment(TTYKeyMap[ev.Ch].ParamValue)
+							}
+						case "transmitstart":
+							b.cmdStartTransmitting()
+						case "transmitstop":
+							b.cmdStopTransmitting()
+						case "record":
+							b.cmdAudioTrafficRecord()
+							b.cmdAudioMicRecord()
+						case "voicetargetset":
+							Paramvalue, err := strconv.Atoi(TTYKeyMap[ev.Ch].ParamValue)
+							if err != nil {
+								log.Printf("error: Error Message %v, %v Is Not A Number", err, Paramvalue)
+							}
+							b.cmdSendVoiceTargets(uint32(Paramvalue))
+						default:
+							log.Println("error: Command Not Defined ", strings.ToLower(TTYKeyMap[ev.Ch].Command))
 						}
-					case "transmitstart":
-						b.cmdStartTransmitting()
-					case "transmitstop":
-						b.cmdStopTransmitting()
-					case "record":
-						b.cmdAudioTrafficRecord()
-						b.cmdAudioMicRecord()
-					case "voicetargetset":
-						Paramvalue, err := strconv.Atoi(TTYKeyMap[ev.Ch].ParamValue)
-						if err != nil {
-							log.Printf("error: Error Message %v, %v Is Not A Number", err, Paramvalue)
-						}
-						b.cmdSendVoiceTargets(uint32(Paramvalue))
-					default:
-						log.Println("error: Command Not Defined ", strings.ToLower(TTYKeyMap[ev.Ch].Command))
+					} else {
+						log.Println("error: Key Not Mapped ASC ", ev.Ch)
 					}
-				} else {
-					log.Println("error: Key Not Mapped ASC ", ev.Ch)
 				}
+			case term.EventError:
+				FatalCleanUp("Terminal Error " + err.Error())
 			}
-		case term.EventError:
-			FatalCleanUp("Terminal Error " + err.Error())
 		}
 	}
 }

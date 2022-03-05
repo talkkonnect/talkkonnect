@@ -267,7 +267,7 @@ func (b *Talkkonnect) OnPermissionDenied(e *gumble.PermissionDeniedEvent) {
 	case gumble.PermissionDeniedPermission:
 		log.Printf("warn: Permission Denied For Channel ID %v Channel Name %v\n", e.Channel.ID, e.Channel.Name)
 		for index, ch := range ChannelsList {
-			if ch.chanID == e.Channel.ID {
+			if ch.chanID == int(e.Channel.ID) {
 				ChannelsList[index].chanenterPermissions = false
 				break
 			}

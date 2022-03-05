@@ -34,6 +34,7 @@ import (
 	"log"
 	"net"
 	"os"
+	"sort"
 	"strconv"
 	"time"
 
@@ -340,78 +341,35 @@ func (b *Talkkonnect) ListUsers() {
 			log.Println(fmt.Sprintf("info: %d. User %#v is online. [%v]", item, usr.Name, usr.Comment))
 		}
 	}
-
 }
 
 func (b *Talkkonnect) ListChannels(verbose bool) {
+
 	if !(IsConnected) {
 		return
 	}
 
-	var records = int(len(b.Client.Channels))
 	ChannelsList = make([]ChannelsListStruct, len(b.Client.Channels))
 	counter := 0
+	ChannelIDs := []int{}
 
 	for _, ch := range b.Client.Channels {
-		ChannelsList[counter].chanID = ch.ID
-		ChannelsList[counter].chanName = ch.Name
-		ChannelsList[counter].chanParent = ch.Parent
-		ChannelsList[counter].chanUsers = len(ch.Users)
-		ChannelsList[counter].chanenterPermissions = true
-		if verbose {
-			if ch.Permission() != nil {
-				if (*ch.Permission() & gumble.PermissionWrite) > 0 {
-					log.Printf("info: Channel %v Write Permissions\n", ch.Name)
-				}
-				if (*ch.Permission() & gumble.PermissionTraverse) > 0 {
-					log.Printf("info: Channel %v Transverse Permissions\n", ch.Name)
-				}
-				if (*ch.Permission() & gumble.PermissionEnter) > 0 {
-					log.Printf("info: Channel %v Enter Permissions\n", ch.Name)
-				}
-				if (*ch.Permission() & gumble.PermissionSpeak) > 0 {
-					log.Printf("info: Channel %v Speak Permissions\n", ch.Name)
-				}
-				if (*ch.Permission() & gumble.PermissionMuteDeafen) > 0 {
-					log.Printf("info: Channel %v MuteDefen Permissions\n", ch.Name)
-				}
-				if (*ch.Permission() & gumble.PermissionMove) > 0 {
-					log.Printf("info: Channel %v Move Permissions\n", ch.Name)
-				}
-				if (*ch.Permission() & gumble.PermissionMakeChannel) > 0 {
-					log.Printf("info: Channel %v Make Permissions\n", ch.Name)
-				}
-				if (*ch.Permission() & gumble.PermissionLinkChannel) > 0 {
-					log.Printf("info: Channel %v Link Permissions\n", ch.Name)
-				}
-				if (*ch.Permission() & gumble.PermissionWhisper) > 0 {
-					log.Printf("info: Channel %v Whisper Permissions\n", ch.Name)
-				}
-				if (*ch.Permission() & gumble.PermissionTextMessage) > 0 {
-					log.Printf("info: Channel %v Message Permissions\n", ch.Name)
-				}
-				if (*ch.Permission() & gumble.PermissionMakeTemporaryChannel) > 0 {
-					log.Printf("info: Channel %v Make Temp Channel Permissions\n", ch.Name)
-				}
-			} else {
-				log.Printf("info: Channel %v Nil Permissions\n", ch.Name)
-			}
-		}
-		if ch.ID > maxchannelid {
-			maxchannelid = ch.ID
-		}
-
+		ChannelIDs = append(ChannelIDs, int(ch.ID))
 		counter++
 	}
 
-	if verbose {
-		for i := 0; i < int(records); i++ {
-			if ChannelsList[i].chanID == 0 || ChannelsList[i].chanParent.ID == 0 {
-				log.Println(fmt.Sprintf("info: Parent -> ID=%2d | Name=%-12v (%v) Users | ", ChannelsList[i].chanID, ChannelsList[i].chanName, ChannelsList[i].chanUsers))
-			} else {
-				log.Println(fmt.Sprintf("info: Child  -> ID=%2d | Name=%-12v (%v) Users | PID =%2d | PName=%-12s", ChannelsList[i].chanID, ChannelsList[i].chanName, ChannelsList[i].chanUsers, ChannelsList[i].chanParent.ID, ChannelsList[i].chanParent.Name))
-			}
-		}
+	sort.Ints(ChannelIDs)
+
+	counter = 0
+	for _, cid := range ChannelIDs {
+		ChannelsList[counter].chanIndex = counter
+		ChannelsList[counter].chanID = cid
+		b.findChannelDetailsByID(uint32(cid), counter)
+		counter++
+	}
+
+	for i := 0; i < len(b.Client.Channels); i++ {
+		log.Println(ChannelsList[i])
 	}
 }
 
@@ -420,30 +378,16 @@ func (b *Talkkonnect) ChannelUp() {
 		return
 	}
 
-	prevChannelID = b.Client.Self.Channel.ID
 	TTSEvent("channelup")
-	//	b.ListChannels(false)
+	Channel := b.Client.Channels.Find()
+	currentIndex := b.findChannelIndex(b.Client.Self.Channel.ID)
 
-	// Set Upper Boundary Rollback to Root
-	if b.Client.Self.Channel.ID == maxchannelid {
-		log.Println("alert: Max Channel Reached Rolling Back to Root Channel")
-		channel := b.Client.Channels.Find() //this command finds root channel
-		if channel != nil {
-			b.Client.Self.Move(channel)
-		}
-		return
+	if currentIndex+1 < len(b.Client.Channels) {
+		Channel = b.Client.Channels.Find(ChannelsList[currentIndex+1].chanName)
 	}
 
-	// Implement Channel Up When Not Upper Boundary
-	if prevChannelID < maxchannelid {
-		prevChannelID++
-		for i := prevChannelID; uint32(i) < maxchannelid+1; i++ {
-			channel := b.Client.Channels[i]
-			if channel != nil {
-				b.Client.Self.Move(channel)
-				break
-			}
-		}
+	if Channel != nil {
+		b.Client.Self.Move(Channel)
 	}
 }
 
@@ -452,29 +396,25 @@ func (b *Talkkonnect) ChannelDown() {
 		return
 	}
 
-	prevChannelID = b.Client.Self.Channel.ID
 	TTSEvent("channeldown")
-	//	b.ListChannels(false)
+	Channel := b.Client.Channels.Find()
+	currentIndex := b.findChannelIndex(b.Client.Self.Channel.ID)
+	log.Println("alert: Current Index in Channel Down Func ", currentIndex)
 
-	// Set Lower Boundary RollBack to Max Channel
-	if int(b.Client.Self.Channel.ID) == 0 {
-		log.Println("alert: Can't Decrement Channel Root Channel Reached Rolling Back to Highest Channel ID")
-		b.Client.Self.Move(b.Client.Channels[maxchannelid])
-		//check here if move success
-		return
+	if currentIndex > 0 {
+		Channel = b.Client.Channels.Find(ChannelsList[currentIndex-1].chanName)
 	}
 
-	// Implement Channel Down Avoiding any null channels
-	if int(prevChannelID) > 0 {
-		prevChannelID--
-		for i := uint32(prevChannelID); uint32(i) < maxchannelid; i-- {
-			channel := b.Client.Channels[i]
-			if channel != nil {
-				b.Client.Self.Move(channel)
-				//check here if move success
-				break
-			}
-		}
+	if currentIndex == 0 {
+		Channel = b.Client.Channels.Find(ChannelsList[len(b.Client.Channels)-1].chanName)
+	}
+
+	if currentIndex == 1 {
+		Channel = b.Client.Channels.Find()
+	}
+
+	if Channel != nil {
+		b.Client.Self.Move(Channel)
 	}
 }
 
@@ -723,5 +663,27 @@ func (b *Talkkonnect) VoiceTargetChannelSet(targetID uint32, targetChannelName s
 	b.sevenSegment("voicetarget", strconv.Itoa(int(targetID)))
 	if targetID > 0 {
 		GPIOOutPin("voicetarget", "on")
+	}
+}
+
+func (b *Talkkonnect) findChannelIndex(currentChannelID uint32) int {
+	index := 0
+	for _, ch := range ChannelsList {
+		if ch.chanID == int(currentChannelID) {
+			return index
+		}
+		index++
+	}
+	return 0
+}
+
+func (b *Talkkonnect) findChannelDetailsByID(ChannelID uint32, index int) {
+	for _, ch := range b.Client.Channels {
+		if ch.ID == ChannelID {
+			ChannelsList[index].chanName = ch.Name
+			ChannelsList[index].chanParent = ch.Parent
+			ChannelsList[index].chanUsers = ch.Users
+			ChannelsList[index].chanenterPermissions = true
+		}
 	}
 }

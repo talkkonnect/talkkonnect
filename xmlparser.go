@@ -692,6 +692,7 @@ var (
 	VT                  []VTStruct
 	Accounts            int
 	MaxTokensInAccounts int
+	ChannelsIndexMax    int
 	ChannelsList        []ChannelsListStruct
 )
 

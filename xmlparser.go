@@ -109,6 +109,7 @@ type ConfigStruct struct {
 				SimplexWithMute         bool          `xml:"simplexwithmute"`
 				TxCounter               bool          `xml:"txcounter"`
 				NextServerIndex         int           `xml:"nextserverindex"`
+				TXLockOut               bool          `xml:"txlockout"`
 			} `xml:"settings"`
 			AutoProvisioning struct {
 				Enabled      bool   `xml:"enabled,attr"`
@@ -647,6 +648,7 @@ var (
 	InStreamSource          bool
 	LCDIsDark               bool
 	GPSDataChannelReceivers int
+	TXLockOut               bool
 )
 
 // Generic Global Counter Variables
@@ -996,6 +998,7 @@ func printxmlconfig() {
 		log.Println("info: SimplexWithMute                  ", fmt.Sprintf("%t", Config.Global.Software.Settings.SimplexWithMute))
 		log.Println("info: TxCounter                        ", fmt.Sprintf("%t", Config.Global.Software.Settings.TxCounter))
 		log.Println("info: NextServerIndex                  ", fmt.Sprintf("%v", Config.Global.Software.Settings.NextServerIndex))
+		log.Println("info: TXLockOut                        ", fmt.Sprintf("%t", Config.Global.Software.Settings.TXLockOut))
 	} else {
 		log.Println("info: -------- System Settings -------- SKIPPED ")
 	}

@@ -329,7 +329,21 @@ func (b *Talkkonnect) initGPIO() {
 								} else {
 									time.Sleep(150 * time.Millisecond)
 								}
-								b.TransmitStart()
+								txlockout := &TXLockOut
+								if Config.Global.Software.Settings.TXLockOut && *txlockout {
+									log.Println("warn: TX Lockout Stopping Transmission")
+									eventSound := findEventSound("txlockout")
+									log.Println("alert: BP0 ", eventSound)
+									if eventSound.Enabled {
+										if v, err := strconv.Atoi(eventSound.Volume); err == nil {
+											localMediaPlayer(eventSound.FileName, v, eventSound.Blocking, 0, 1)
+											log.Printf("debug: Playing txlockout Sound")
+										}
+									}
+								} else {
+									b.TransmitStart()
+								}
+
 							}
 						}
 					}

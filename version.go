@@ -31,10 +31,10 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.12.05"
-	talkkonnectReleased string = "Mar 5 2022"
+	talkkonnectVersion  string = "2.13.01"
+	talkkonnectReleased string = "Mar 6 2022"
 )
 
 /* Release Notes
-1. Removed Old Scanning Function
+1. Added TX Lock Out Functionality
 */

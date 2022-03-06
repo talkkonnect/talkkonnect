@@ -459,6 +459,8 @@ func (b *Talkkonnect) ClientStart() {
 				if !RXLEDStatus {
 					log.Println("info: Speaking->", v.WhoTalking)
 					RXLEDStatus = true
+					txlockout := &TXLockOut
+					*txlockout = true
 					go GPIOOutPin("voiceactivity", "on")
 					MyLedStripVoiceActivityLEDOn()
 					go rxScreen(LastSpeaker)
@@ -466,6 +468,8 @@ func (b *Talkkonnect) ClientStart() {
 			case <-TalkedTicker.C:
 				if RXLEDStatus {
 					RXLEDStatus = false
+					txlockout := &TXLockOut
+					*txlockout = false
 					go GPIOOutPin("voiceactivity", "off")
 					MyLedStripVoiceActivityLEDOff()
 					//TalkedTicker.Stop()

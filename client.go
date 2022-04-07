@@ -320,7 +320,7 @@ func (b *Talkkonnect) ClientStart() {
 		log.Println("debug: Backlight Timer Disabled by Config")
 	}
 
-	talkkonnectBanner("\u001b[44;1m") // add blue background to banner reference https://www.lihaoyi.com/post/BuildyourownCommandLinewithANSIescapecodes.html#background-colors
+	talkkonnectBanner("\x1b[0;44m") // add blue background to banner reference https://www.lihaoyi.com/post/BuildyourownCommandLinewithANSIescapecodes.html#background-colors
 
 	err = volume.Unmute(Config.Global.Software.Settings.OutputDevice)
 
@@ -578,7 +578,7 @@ keyPressListenerLoop:
 				case term.KeyCtrlB:
 					b.cmdLiveReload()
 				case term.KeyCtrlC:
-					talkkonnectAcknowledgements("\u001b[44;1m") // add blue background to banner reference https://www.lihaoyi.com/post/BuildyourownCommandLinewithANSIescapecodes.html#background-colors
+					talkkonnectAcknowledgements("\x1b[0;44m") // add blue background to banner reference https://www.lihaoyi.com/post/BuildyourownCommandLinewithANSIescapecodes.html#background-colors
 					b.cmdQuitTalkkonnect()
 				case term.KeyCtrlD:
 					b.cmdDebugStacktrace()

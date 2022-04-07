@@ -47,7 +47,7 @@ func (b *Talkkonnect) cmdDisplayMenu() {
 	log.Println("debug: Delete Key Pressed Menu and Session Information Requested")
 
 	TTSEvent("displaymenu")
-	b.talkkonnectMenu("\u001b[44;1m") // add blue background to banner reference https://www.lihaoyi.com/post/BuildyourownCommandLinewithANSIescapecodes.html#background-colors
+	b.talkkonnectMenu("\x1b[0;44m") // add blue background to banner reference https://www.lihaoyi.com/post/BuildyourownCommandLinewithANSIescapecodes.html#background-colors
 	b.ParticipantLEDUpdate(true)
 }
 
@@ -809,7 +809,7 @@ func (b *Talkkonnect) cmdScanChannels() {
 func cmdThanks() {
 	log.Printf("debug: Ctrl-T Pressed \n")
 	log.Println("info: Thanks and Acknowledgements Screen Request ")
-	talkkonnectAcknowledgements("\u001b[44;1m") // add blue background to banner reference https://www.lihaoyi.com/post/BuildyourownCommandLinewithANSIescapecodes.html#background-colors
+	talkkonnectAcknowledgements("\x1b[0;44m") // add blue background to banner reference https://www.lihaoyi.com/post/BuildyourownCommandLinewithANSIescapecodes.html#background-colors
 }
 
 func (b *Talkkonnect) cmdShowUptime() {

@@ -31,10 +31,10 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.13.02"
+	talkkonnectVersion  string = "2.13.03"
 	talkkonnectReleased string = "Apr 7 2022"
 )
 
 /* Release Notes
-1. Fixed prevparticipant count logial error causing a lot of audible alerts fur no real reason
+1. Modified full line color for logs
 */

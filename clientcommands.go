@@ -312,7 +312,7 @@ func (b *Talkkonnect) ParticipantLEDUpdate(verbose bool) {
 
 			log.Println("info: Channel ", b.Client.Self.Channel.Name, " has no other participants")
 
-			prevParticipantCount = 0
+			prevParticipantCount = len(b.Client.Self.Channel.Users)
 
 			if Config.Global.Hardware.TargetBoard == "rpi" {
 				GPIOOutPin("participants", "off")

@@ -31,10 +31,10 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.13.01"
-	talkkonnectReleased string = "Mar 6 2022"
+	talkkonnectVersion  string = "2.13.02"
+	talkkonnectReleased string = "Apr 7 2022"
 )
 
 /* Release Notes
-1. Added TX Lock Out Functionality
+1. Fixed prevparticipant count logial error causing a lot of audible alerts fur no real reason
 */

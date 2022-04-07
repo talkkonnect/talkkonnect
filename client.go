@@ -666,7 +666,7 @@ keyPressListenerLoop:
 							log.Println("error: Command Not Defined ", strings.ToLower(TTYKeyMap[ev.Ch].Command))
 						}
 					} else {
-						log.Println("error: Key Not Mapped ASC ", ev.Ch)
+						log.Println("warn: Key Not Mapped ASC ", ev.Ch)
 					}
 				}
 			case term.EventError:

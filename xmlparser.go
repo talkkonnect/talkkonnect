@@ -42,7 +42,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/comail/colog"
+	"github.com/talkkonnect/colog"
 	goled "github.com/talkkonnect/go-oled-i2c"
 	"github.com/talkkonnect/gumble/gumble"
 	"github.com/talkkonnect/gumble/gumbleffmpeg"

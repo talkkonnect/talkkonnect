@@ -44,7 +44,7 @@ import (
 	"time"
 
 	"github.com/allan-simon/go-singleinstance"
-	"github.com/comail/colog"
+	"github.com/talkkonnect/colog"
 	hd44780 "github.com/talkkonnect/go-hd44780"
 	"github.com/talkkonnect/gumble/gumble"
 	"github.com/talkkonnect/gumble/gumbleffmpeg"

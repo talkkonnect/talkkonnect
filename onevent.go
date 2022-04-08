@@ -63,12 +63,11 @@ func (b *Talkkonnect) OnConnect(e *gumble.ConnectEvent) {
 		b.Client.Send(ATokens)
 	}
 
-	log.Printf("debug: Connected to %s Address %s on attempt %d index [%d]\n ", b.Name, b.Client.Conn.RemoteAddr(), b.ConnectAttempts, AccountIndex)
+	log.Printf("info: Connected to %s Address %s on attempt %d index [%d] ", b.Name, b.Client.Conn.RemoteAddr(), b.ConnectAttempts, AccountIndex)
 	if e.WelcomeMessage != nil {
 		var tmessage string = fmt.Sprintf("%v", esc(*e.WelcomeMessage))
-		log.Println("info: Welcome message: ")
-		for _, line := range strings.Split(strings.TrimSuffix(tmessage, "\n"), "\n") {
-			log.Println("info: ", line)
+		for _, line := range strings.Split(strings.TrimSpace(tmessage), "\n") {
+			log.Println("info: ", strings.TrimSpace(line))
 		}
 	}
 

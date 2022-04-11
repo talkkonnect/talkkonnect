@@ -188,59 +188,24 @@ Instead of the onboard sound card or USB Sound Card, you can also use a ReSpeake
 * This image uses the standard 32 Bit Sampling and will work properly with all mumble clients on windows, android and iphone with good quality sound.
 * This Image should work out of the box it also has serial console on the usb port for easy access to ssh thorough com port on windows and macOS
 * This image will work with LAN Cabled Ethernet connection out of the box
+
+### Installation Instructions For Raspberry Pi Boards (from Bash Script) ###
+* Log in as root to your device via SSH
+* cd to /root directory (if you are logged in as root you should already be in this directory)
+* wget 	https://raw.githubusercontent.com/talkkonnect/talkkonnect/main/scripts/tkbuild.sh
+* you will have downloaded the shell script tkbuild.sh
+* chmod +x tkbuild.sh to make it executable
+* run ./tkbuild.sh and wait for golang to install and talkkonnect to download along with all libraries automatically
+* you may need to modify this script a little bit as versions of golang change	
 	
-## talKKonnect Version 1 Images	
-
-### talkkonnect Version 1 Image for Use with Raspberry pi 2/3 and USB Sound Card ###
-* [Click Here to Download Pre-Configured SD Card Image for USB Sound Card](https://drive.google.com/file/d/1hbMFtKvlEYX-akqf976aVjHP4TcYFXgL/view?usp=sharing)
-* You will need a CM-108 or equavilent sound card plugged in before booting for this image to work otherwise it will connect and disconnect to the server in an endless loop.	
-* This image uses the standard 32 Bit Sampling and will work properly with all mumble clients on windows, android and iphone with good quality sound.
-* Since 32 Bit Sampling is used this will only work reliably on Raspberry 2 Series, 3 Series and NOT on Raspberry PI Zero. 
-* This image has been configured to work with a external USB sound card (Works with CM-108 Chipsets) out of the box
-* The on board sound card for RPI is disabled so you will not get any output from the onboard sound card
-* The audio out on the USB Sound Card is low and needs to be amplified with and external Amplifier (for testing you can increase the volume and use a 3.5mm Jack Headphone)
-* This image is a good starting point if you already have all the components at home or if you want to use talkkonnect as a Transceiver interface. 
-* Should you want to connect a screen and a physical PTT Button using GPIO you can set the tag 
-* After you intall the image you can copy the bash script tk-update.sh in the scripts folder to your /root home and run it in the root user's folder to update to the lastest version.
-* Notice!!! On this particular build wireless is disabled you will need to run the command rfkill list to see and you will see it hard blocked you will then need to run rfkill unblock 0 for wireless to work again.	
-
-### talkkonnect Version 1 Quick Download Link for Pre-Made SD Card Image for Use with Raspberry pi 2/3  and RESPEAKER Compatable HAT ###
-* [Click Here to Download Pre-Configured SD Card Image for Respeaker Hat](https://drive.google.com/file/d/1nwdorhtPgFv2IfRaLubsn9aAtGJBSp3A/view?usp=sharing) 
-* This image uses the standard 32 Bit Sampling and will work properly with all mumble clients on windows, android and iphone with good quality sound.
-* Since 32 Bit Sampling is used this will only work reliably on Raspberry 2 Series, 3 Series and NOT on Raspberry PI Zero. 
-* This image has been configured to work with a Respeaker HAT out of the box so I2S, I2C and all required modules are installed and running. 
-* The XML file is configured to run in rpi mode so GPIO will initalized, this is so that the respeaker will work with output sound on the headphone jack, led strip working and push button 
-  microswitch on the hat can be used for transmitting.    
-* This image is a good starting point if you already have all the components at home or if you want to use talkkonnect as a push to talk headless device to talk directly to other mumble clients.
-* After you intall the image you can copy the bash script tk-update.sh in the scripts folder to your /root home and run it in the root user's folder to update to the lastest version.
-
-### talkkonnect Version 1 Quick Download Link for Pre-Made SD Card Image for Use with Raspberry pi 2/3  and IM69D130 Mems Microphone ### 
-* [Click Here to Download Pre-Configured SD Card Image for talkkonnect with IM69D130 Mems Microphone](https://drive.google.com/file/d/1lutT3rNk5-zLz6M7FdLNJ47FIvDNCmNC/view?usp=sharing) 
-* This image uses the standard 32 Bit Sampling and will work properly with all mumble clients on windows, android and iphone with good quality sound.
-* Since 32 Bit Sampling is used this will only work reliably on Raspberry 2 Series, 3 Series and NOT on Raspberry PI Zero. 
-* This image has a custom kernel and used Instructions was found at https://github.com/Infineon/GetStarted_IM69D130_With_RaspberryPi
-* This image has been configured to work with a IM69D130 Mems Microphone and the onboard raspberry pi sound card (3.5mm Jack) out of the box.
-* The XML file is configured to run in rpi mode so GPIO will initalized, this is so that the Pin 11 XML tag value 17 when shorted to ground will act as the PTT button. 
-  This mems microphone will enable you to have a small build with excellent sound quality whilst using the internal provided sound card in the raspberry pi.
-* For the wiring of the microphone to Raspberry Pi See This [inmp411 wiring diagram](https://makersportal.com/shop/i2s-mems-microphone-for-raspberry-pi-inmp441)
-* After you intall the image you can copy the bash script tk-update.sh in the scripts folder to your /root home and run it in the root user's folder to update to the lastest version.
-
-### talkkonnect Version 1 Quick Download Link for Pre-Made SD Card Image for Use with Old Raspberry pi ZERO (Version 1) With RESPEAKER Compatable HAT ### 
-* [Click Here to Download Pre-Configured SD Card Image for talkkonnect for Raspberry PI Zero with Respeaker](https://drive.google.com/file/d/15EJ84oFKAFWkdF4191Xi_kPz3E8MC1J0/view?usp=sharing)
-* This image uses NON-STANDARD 16 Bit Sampling and will NOT work properly with all standard mumble clients!!
-* This image is good for those who want to make a small portable device and are serious about form factor.
-* Since Raspberry Pi Zero has a low powered single core CPU and no Neon Support this image was created specially for Raspberry Pi Zero. It is recommended only for       communication with other talKKonnect clients or Gumble forks,  regardless of their "flavor". There could be audio issues when communicating to Plumble/ Mumla and     official Mumble client.  Issues are not caused by talKKonnect or Gumble design. If users would still prefer to use this type of a build for communication to Plumble/Mumla and offical Mumble, we can not provide support for solving audio quality issues as they do not have root cause in talKKonnect / Gumble.
-* Use this image if you want to create a group of users all using the Raspberry Pi ZERO it wont work reliably with other standard mumble clients. You have been         Warned!
-* This image has serial console support so you can connect via serial port or plug the raspberry pi Zero into your windows laptop and access it over Putty. 
-  You can follow instructions [from Adafruit here](https://learn.adafruit.com/raspberry-pi-zero-creation/give-it-life) to connect over serial from windows. 
-* Do not attempt to update the version of talkkonnect with this image otherwise it will break talkkonnect and your volume level and muting on transmit!
-* This image is provided for those who insist they want to use Raspberry Pi zero despite our recommendations to use minimum RPI 3. 
-
 ### Installation Instructions For Raspberry Pi Boards (from Source code) ###
 
-Download the latest version of [Raspberry Pi OS Lite](https://downloads.raspberrypi.org/raspios_lite_armhf/images/raspios_lite_armhf-2021-11-08/2021-10-30-raspios-bullseye-armhf-lite.zip). 
-At the time of making/updating this document latest image release date was 30/10/2021 (Kernel Version 5.10). 
-Download the 463MB ZIP file and extract IMG file to some temporary directory.
+You have the choice of using a 32 bit or 64 bit os, the example below is for 32 bits.
+	
+Download the latest version of [Raspberry Pi OS Lite](https://downloads.raspberrypi.org/raspios_lite_armhf/images/raspios_lite_armhf-2022-04-07/2022-04-04-raspios-bullseye-armhf-lite.img.xz). 
+	
+At the time of making/updating this document latest image release date was 04/04/2022 (Kernel Version 5.15). 
+Download the 297MB file and extract IMG file to some temporary directory.
 
 It is recommended that you use the raspberry Pi Imager for Windows or any USB / SD card imaging software for Windows or your other OS. 
 The best current option for windows is :
@@ -248,7 +213,7 @@ The best current option for windows is :
 
 After downloading a standard image and using the imaging tool, insert the SD card into your Raspberry Pi, connect the screen, keyboard and power supply and boot into the OS. 
 
-Log in as user “pi” with password “raspberry” (this is the default username and password for a fresh install of Raspbian)
+As of the new release the pi user is removed please us a user you specified in the raspberry pi imager instead of the pi user.	
 
 ##### Set the new root password with #####
 
@@ -297,18 +262,18 @@ Now you should be able to log in remotely via ssh using the root account and con
 To get the newer versions of golang used for this project I suggest installing a precompiled binary of golang. If you use apt-get to install golang at this moment you will get an older incompatible version of golang.
 
 To install GO as required for this project on the raspberry pi. First with your browser look on the website https://golang.org/dl/ on your browser and choose the latest version for the 
-arm archecture. At the time of this writing the version can be found at https://golang.org/dl/go1.17.3.linux-armv6l.tar.gz
+arm archecture. At the time of this writing the version can be found at https://go.dev/dl/go1.18.linux-armv6l.tar.gz
 
-Please Note that if you use apt-get to install golang instead of follow the recommended instructions in this blog you will get the following error when compiling 
-BackLightTime.Reset undefined (type * time.Ticker has no field or method Reset) 
+Please Note that if you use apt-get to install golang instead of follow the recommended instructions in this blog you may get some errors like the following error when compiling 
+BackLightTime.Reset undefined (type * time.Ticker has no field or method Reset) . This is just an example of how changes in the language break old code that was perhaps not written properly. For best results stick to the latest version of golang.
 
 As root user Get the link and use wget to download the binary to your talkkonnect
 
 ` cd /usr/local `
 
-` wget https://golang.org/dl/go1.17.3.linux-armv6l.tar.gz `
+` wget https://golang.org/dl/go1.18.linux-armv6l.tar.gz `
 
-` tar -zxvf go1.17.3.linux-armv6l.tar.gz `
+` tar -zxvf go1.18.linux-armv6l.tar.gz `
 
 ` nano ~/.bashrc `
 
@@ -401,22 +366,23 @@ sleep 2
 ##### talKKonnect welcome screen #####
 
 ````
- ┌────────────────────────────────────────────────────────────────┐
- │  _        _ _    _                               _             │
- │ | |_ __ _| | | _| | _____  _ __  _ __   ___  ___| |_           │
- │ | __/ _` | | |/ / |/ / _ \| '_ \| '_ \ / _ \/ __|  __|         │
- │ | || (_| | |   <|   < (_) | | | | | | |  __/ (__| |_           │
- │  \__\__,_|_|_|\_\_|\_\___/|_| |_|_| |_|\___|\_ _|\__|          │
- ├────────────────────────────────────────────────────────────────┤
- │A Flexible Headless Mumble Transceiver/Gateway for RPi/PC/VM    │
- ├────────────────────────────────────────────────────────────────┤
- │Created By : Suvir Kumar  <suvir@talkkonnect.com>               │
- ├────────────────────────────────────────────────────────────────┤
- │Press the <Del> key for Menu or <Ctrl-c> to Quit talkkonnect    │
- │Additional Modifications Released under MPL 2.0 License         │
- │Blog at www.talkkonnect.com, source at github.com/talkkonnect   │
- └────────────────────────────────────────────────────────────────┘
- Talkkonnect Version 2.03.03 Released Oct 29 2021
+┌────────────────────────────────────────────────────────────────┐
+│  _        _ _    _                               _             │
+│ | |_ __ _| | | _| | _____  _ __  _ __   ___  ___| |_           │
+│ | __/ _` | | |/ / |/ / _ \| '_ \| '_ \ / _ \/ __|  __|         │
+│ | || (_| | |   <|   < (_) | | | | | | |  __/ (__| |_           │
+│  \__\__,_|_|_|\_\_|\_\___/|_| |_|_| |_|\___|\_ _|\__|          │
+├────────────────────────────────────────────────────────────────┤
+│A Flexible Headless Mumble Transceiver/Gateway for RPi/PC/VM    │
+├────────────────────────────────────────────────────────────────┤
+│Created By : Suvir Kumar  <suvir@talkkonnect.com>               │
+├────────────────────────────────────────────────────────────────┤
+│Press the <Del> key for Menu or <Ctrl-c> to Quit talkkonnect    │
+│Additional Modifications Released under MPL 2.0 License         │
+│Blog at www.talkkonnect.com, source at github.com/talkkonnect   │
+└────────────────────────────────────────────────────────────────┘
+Software Ver 2.13.06 Rel Apr 11 2022 (Latest Release)
+	
 ````
 
 ##### I2C OLED Screen Installation #####
@@ -550,28 +516,25 @@ For a speaker muting to work when pressing a PTT, you need to enter the exact na
 │ <F9>  Stop Transmitting     │ <F10> List Online Users        │
 │ <F11> Playback/Stop Stream  │ <F12> For GPS Position         │
 ├─────────────────────────────┼────────────────────────────────┤
-│<Ctrl-B> Reload XML Config   │ <Ctrl-D> Debug Stacktrace      │
-│<Ctrl-H> Check XML Config    │                                │
+│<Ctrl-B> Reload XML Config   │ <Ctrl-C> Stop Talkkonnect      │
+│<Ctrl-D> Debug Stacktrace    │ <Ctrl-E> Send Email            │
 ├─────────────────────────────┼────────────────────────────────┤
-│<Ctrl-E> Send Email          │<Ctrl-N> Conn Next Server       │
-│<Ctrl-F> Conn Previous Server│<Ctrl-P> Panic Simulation       │
-│<Ctrl-G> Send Repeater Tone  │<Ctrl-S> Scan Channels          │
-│<Ctrl-V> Display Version     │<Ctrl-T> Thanks/Acknowledgements│
-├─────────────────────────────┼────────────────────────────────┤
-│<Ctrl-L> Clear Screen        │<Ctrl-O> Ping Servers           │
-│<Ctrl-R> Repeat TX Loop Test │<Ctrl-X> Dump XML Config        │
-├─────────────────────────────┼────────────────────────────────┤
-│<Ctrl-I> Traffic Record      │<Ctrl-J> Mic Record             │
-│<Ctrl-K> Traffic & Mic Record│<Ctrl-U> Show Uptime            │
+│<Ctrl-F> Conn Previous Server│<Ctrl-G> Send Repeater Tone     │
+│<Ctrl-H> XML Config Checker  │<Ctrl-I> Traffic Record         │
+│<Ctrl-J> Mic Record          │<Ctrl-K> Traffic & Mic Record   │
+│<Ctrl-L> Clear Screen        │<Ctrl-M> Radio Channel (+)      │
+│<Ctrl-N> Next Server         │<Ctrl-O> Ping Servers           │
+│<Ctrl-P> Panic Simulation    │<Ctrl-R> Repeat TX Loop Test    │
+│<Ctrl-S> Scan Channels       │<Ctrl-T> Thanks/Acknowledgements│
+│<Ctrl-U> Show Uptime         │<Ctrl-V> Display Version        │
+│<Ctrl-X> Dump XML Config     │                                │
 ├─────────────────────────────┼────────────────────────────────┤
 │  Visit us at www.talkkonnect.com and github.com/talkkonnect  │
 │  Thanks to Global Coders Co., Ltd. for their sponsorship     │
 └──────────────────────────────────────────────────────────────┘
 ````
-
-
-### Explanation of older talkkonnect.xml configuration files sections and tags (version 1 of talkkonnect) 
-[youtube-video](https://www.youtube.com/watch?v=-Dy96FXw0gA&ab_channel=SuvirKumar) is a video made for explaining the xml tags
+### Explanation of the history and reasons for creating talkkonnect 
+[youtube-video](https://youtu.be/nLmHM48SqFs)
 
 #### The Accounts Section
 * The account section can have multiple accounts, talkkonnect will look for the first account with the xml tag default = "true" and attempt to connect to that server 
@@ -809,4 +772,4 @@ Thank you all for your kind feedback sent along with some pictures and use cases
 ## License 
 [talKKonnect](http://www.talkkonnect.com) is open source and available under the MPL V2.00 license.
 
-<suvir@talkkonnect.com> Updated 15/11/2021 talkkonnect version 2.03.03u is the latest release as of this writing.
+<suvir@talkkonnect.com> Updated 11/04/2022 talkkonnect version 2/13/06 is the latest release as of this writing.

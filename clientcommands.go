@@ -261,6 +261,7 @@ func (b *Talkkonnect) ParticipantLEDUpdate(verbose bool) {
 			}
 		}
 	}
+
 	if participantCount > 1 {
 		for _, tts := range Config.Global.Software.TTS.Sound {
 			if tts.Action == "participants" {
@@ -272,26 +273,25 @@ func (b *Talkkonnect) ParticipantLEDUpdate(verbose bool) {
 				}
 			}
 		}
+	}
+	prevParticipantCount = len(b.Client.Self.Channel.Users)
 
-		prevParticipantCount = len(b.Client.Self.Channel.Users)
-
-		if verbose {
-			log.Println("info: Current Channel ", b.Client.Self.Channel.Name, " has (", participantCount, ") participants")
-			b.ListUsers()
-			if Config.Global.Hardware.TargetBoard == "rpi" {
-				if LCDEnabled {
-					LcdText[0] = b.Name //b.Address
-					LcdText[1] = "(" + strconv.Itoa(participantCount) + ")" + b.Client.Self.Channel.Name
-					LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
-				}
-				if OLEDEnabled {
-					oledDisplay(false, 0, 1, b.Name) //b.Address
-					oledDisplay(false, 1, 1, "("+strconv.Itoa(participantCount)+")"+b.Client.Self.Channel.Name)
-					oledDisplay(false, 6, 1, "Please Visit")
-					oledDisplay(false, 7, 1, "www.talkkonnect.com")
-				}
-
+	if verbose {
+		log.Println("info: Current Channel ", b.Client.Self.Channel.Name, " has (", participantCount, ") participants")
+		b.ListUsers()
+		if Config.Global.Hardware.TargetBoard == "rpi" {
+			if LCDEnabled {
+				LcdText[0] = b.Name //b.Address
+				LcdText[1] = "(" + strconv.Itoa(participantCount) + ")" + b.Client.Self.Channel.Name
+				LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 			}
+			if OLEDEnabled {
+				oledDisplay(false, 0, 1, b.Name) //b.Address
+				oledDisplay(false, 1, 1, "("+strconv.Itoa(participantCount)+")"+b.Client.Self.Channel.Name)
+				oledDisplay(false, 6, 1, "Please Visit")
+				oledDisplay(false, 7, 1, "www.talkkonnect.com")
+			}
+
 		}
 	}
 
@@ -311,19 +311,19 @@ func (b *Talkkonnect) ParticipantLEDUpdate(verbose bool) {
 			}
 
 			log.Println("info: Channel ", b.Client.Self.Channel.Name, " has no other participants")
+		}
 
-			prevParticipantCount = len(b.Client.Self.Channel.Users)
+		prevParticipantCount = len(b.Client.Self.Channel.Users)
 
-			if Config.Global.Hardware.TargetBoard == "rpi" {
-				GPIOOutPin("participants", "off")
-				if LCDEnabled {
-					LcdText = [4]string{b.Name, "(0)" + b.Client.Self.Channel.Name, "", "nil"} //b.Address
-					LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
-				}
-				if OLEDEnabled {
-					oledDisplay(false, 0, 1, b.Name) //b.Address
-					oledDisplay(false, 1, 1, "(0)"+b.Client.Self.Channel.Name)
-				}
+		if Config.Global.Hardware.TargetBoard == "rpi" {
+			GPIOOutPin("participants", "off")
+			if LCDEnabled && verbose {
+				LcdText = [4]string{b.Name, "(0)" + b.Client.Self.Channel.Name, "", "nil"} //b.Address
+				LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+			}
+			if OLEDEnabled && verbose {
+				oledDisplay(false, 0, 1, b.Name) //b.Address
+				oledDisplay(false, 1, 1, "(0)"+b.Client.Self.Channel.Name)
 			}
 		}
 	}

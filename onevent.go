@@ -219,10 +219,10 @@ func (b *Talkkonnect) OnUserChange(e *gumble.UserChangeEvent) {
 	var info string
 	switch e.Type {
 	case gumble.UserChangeConnected:
-		info = "conn"
+		info = "connected"
 		b.ParticipantLEDUpdate(true)
 	case gumble.UserChangeDisconnected:
-		info = "disconnected!"
+		info = "disconnected"
 		b.ParticipantLEDUpdate(true)
 	case gumble.UserChangeKicked:
 		info = "kicked"
@@ -234,15 +234,9 @@ func (b *Talkkonnect) OnUserChange(e *gumble.UserChangeEvent) {
 	case gumble.UserChangeUnregistered:
 		info = "unregistered"
 	case gumble.UserChangeName:
-		info = "chg name"
+		info = "changed name"
 	case gumble.UserChangeChannel:
-		info = "chg channel"
-		if e.User.Name == b.Client.Self.Name {
-			log.Println("info: You Changed Channel to ", e.User.Channel.Name)
-		} else {
-			log.Println("info:", cleanstring(e.User.Name), " Changed Channel to ", e.User.Channel.Name)
-		}
-		b.ParticipantLEDUpdate(true)
+		info = "changed channel"
 	case gumble.UserChangeComment:
 		info = "chg comment"
 	case gumble.UserChangeAudio:
@@ -255,7 +249,10 @@ func (b *Talkkonnect) OnUserChange(e *gumble.UserChangeEvent) {
 		info = "chg stats"
 	}
 	if len(info) > 0 {
-		log.Println("info: On User Change ", info)
+		if info == "changed channel" {
+			b.ParticipantLEDUpdate(false)
+		}
+		log.Printf("info: User %vs %v\n", cleanstring(e.User.Name), info)
 	} else {
 		b.ParticipantLEDUpdate(true)
 	}

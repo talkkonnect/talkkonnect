@@ -11,7 +11,7 @@ apt install -y net-tools wget
 cd /usr/src
 git clone https://github.com/Kitware/CMake
 
-cd /usr/srcCMake
+cd /usr/src/CMake
 ./bootstrap
 make
 make install

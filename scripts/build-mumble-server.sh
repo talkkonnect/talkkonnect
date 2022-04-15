@@ -1,4 +1,5 @@
 #!/bin/bash
+# Bash Script to Build murmur server from source on debian 11 minimal OS 
 
 apt install -y build-essential pkg-config qttools5-dev qttools5-dev-tools libqt5svg5-dev libboost-dev libssl-dev libprotobuf-dev protobuf-compiler 
 apt install -y libprotoc-dev libcap-dev libxi-dev libasound2-dev libogg-dev

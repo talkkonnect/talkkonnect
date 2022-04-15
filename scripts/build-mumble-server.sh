@@ -1,6 +1,7 @@
 #!/bin/bash
 
-apt install -y build-essential pkg-config qttools5-dev qttools5-dev-tools libqt5svg5-dev libboost-dev libssl-dev libprotobuf-dev protobuf-compiler libprotoc-dev libcap-dev libxi-dev libasound2-dev libogg-dev
+apt install -y build-essential pkg-config qttools5-dev qttools5-dev-tools libqt5svg5-dev libboost-dev libssl-dev libprotobuf-dev protobuf-compiler 
+apt install -y libprotoc-dev libcap-dev libxi-dev libasound2-dev libogg-dev
 apt install -y libsndfile1-dev libspeechd-dev libavahi-compat-libdnssd-dev libxcb-xinerama0 libzeroc-ice-dev libpoco-dev git
 apt install -y qtcreator
 apt install -y libcurl4-openssl-dev libavahi-compat-libdnssd-dev libssl-dev libzeroc-ice-dev

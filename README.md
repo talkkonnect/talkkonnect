@@ -132,6 +132,14 @@ Instead of the onboard sound card or USB Sound Card, you can also use a ReSpeake
 * To update to the lastest version release of talkkonnect in the image you can cd to the root directory and issue wget https://raw.githubusercontent.com/talkkonnect/talkkonnect/main/scripts/update-talkkonnect.sh then chmod +x ./update-talkkonnect.sh after that you can use the command /root/update-talkkonnect.sh to update to the latest version.	
 
 ## talKKonnect Version 2 Images	
+
+### talkkonnect Version 2 Quick Download Link for Pre-Made SD Card Image for Use with Raspberry PI tested on Pi (4 series) and USB Sound Card ###
+* This Image Was Created On 17/April/2022 and Runs Bullseye Release along with talkkonnect version 2.13.06 Released 11/April/2022
+* [Click Here to Download Pre-Configured SD Card Image for Talkkonnect Version 2 for Raspberry Pi 4 and USB Sound Card](https://drive.google.com/file/d/1s7Nh1sU2UcdT6xiXto8X8-cCnGJnlt8j/view?usp=sharing) 
+* You will need a CM-108 or equavilent sound card plugged in before booting for this image to work otherwise it will connect and disconnect to the server in an endless loop. Vention Cards are recommended as cm108 card has a lot of noise.	
+* This image uses the standard 32 Bit Sampling and will work properly with all mumble clients on windows, android and iphone with good quality sound.
+* This image has been configured to work with a USB CM108 Sound Card and GPIO will work out of the box for PTT and LEDs. 
+* This image will work with LAN Cabled Ethernet connection out of the box
 	
 ### talkkonnect Version 2 Quick Download Link for Pre-Made SD Card Image for Use with Raspberry PI tested on Pi (2/3 series) and USB Sound Card ###
 * This Image Was Created On 09/January/2022 and Runs Bullseye Release along with talkkonnect version 2.09.19 Released 08/January/2022

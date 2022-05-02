@@ -316,6 +316,7 @@ type ConfigStruct struct {
 						PinNo     uint   `xml:"pinno,attr"`
 						Type      string `xml:"type,attr"`
 						ID        int    `xml:"chipid,attr"`
+						Inverted  bool   `xml:"inverted,attr"`
 						Enabled   bool   `xml:"enabled,attr"`
 					} `xml:"pin"`
 				} `xml:"pins"`
@@ -1171,7 +1172,7 @@ func printxmlconfig() {
 	if Config.Global.Software.PrintVariables.PrintPins {
 		log.Println("info: ------------  PINS -------------- ")
 		for _, pins := range Config.Global.Hardware.IO.Pins.Pin {
-			log.Printf("info: Direction=%v Device%v Name=%v PinNo=%v Type=%v ID=%v Enabled=%v\n", pins.Direction, pins.Device, pins.Name, pins.PinNo, pins.Type, pins.ID, pins.Enabled)
+			log.Printf("info: Direction=%v Device%v Name=%v PinNo=%v Type=%v ID=%v Inverted=%v Enabled=%v\n", pins.Direction, pins.Device, pins.Name, pins.PinNo, pins.Type, pins.ID, pins.Inverted, pins.Enabled)
 		}
 	} else {
 		log.Println("info: ------------  PINS -------------- SKIPPED")

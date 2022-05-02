@@ -31,11 +31,10 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.13.06"
-	talkkonnectReleased string = "Apr 11 2022"
+	talkkonnectVersion  string = "2.14.01"
+	talkkonnectReleased string = "May 02 2022"
 )
 
 /* Release Notes
-1. User Event Shown with User Responsible for Event in Log
-2. Participant LED logical Bug Fixed
+1. Support Inverting in GPIO Outputs For Convinience (Configurable by XML)
 */

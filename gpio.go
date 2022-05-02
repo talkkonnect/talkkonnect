@@ -829,13 +829,26 @@ func GPIOOutPin(name string, command string) {
 			if command == "on" {
 				switch io.Type {
 				case "gpio":
-					log.Printf("debug: Turning On %v at pin %v Output GPIO\n", io.Name, io.PinNo)
-					gpio.NewOutput(io.PinNo, true)
+					if !io.Inverted {
+						log.Printf("debug: Turning On %v at pin %v Output GPIO (Non-Inverting)\n", io.Name, io.PinNo)
+						gpio.NewOutput(io.PinNo, true)
+					} else {
+						log.Printf("debug: Turning On %v at pin %v Output GPIO (Inverting)\n", io.Name, io.PinNo)
+						gpio.NewOutput(io.PinNo, false)
+					}
 				case "mcp23017":
-					log.Printf("debug: Turning On %v at pin %v Output mcp23017\n", io.Name, io.PinNo)
-					err := D[io.ID].DigitalWrite(uint8(io.PinNo), mcp23017.LOW)
-					if err != nil {
-						log.Printf("error: Error Turning On %v at pin %v Output mcp23017 with error %v\n", io.Name, io.PinNo, err)
+					if !io.Inverted {
+						log.Printf("debug: Turning On %v at pin %v Output mcp23017 (Inverted)\n", io.Name, io.PinNo)
+						err := D[io.ID].DigitalWrite(uint8(io.PinNo), mcp23017.HIGH)
+						if err != nil {
+							log.Printf("error: Error Turning On %v at pin %v Output mcp23017 with error %v\n", io.Name, io.PinNo, err)
+						}
+					} else {
+						log.Printf("debug: Turning On %v at pin %v Output mcp23017 (Non-Inverted)\n", io.Name, io.PinNo)
+						err := D[io.ID].DigitalWrite(uint8(io.PinNo), mcp23017.LOW)
+						if err != nil {
+							log.Printf("error: Error Turning On %v at pin %v Output mcp23017 with error %v\n", io.Name, io.PinNo, err)
+						}
 					}
 				default:
 					log.Println("error: GPIO Types Currently Supported are gpio or mcp23017 only!")
@@ -846,13 +859,26 @@ func GPIOOutPin(name string, command string) {
 			if command == "off" {
 				switch io.Type {
 				case "gpio":
-					log.Printf("debug: Turning Off %v at pin %v Output GPIO\n", io.Name, io.PinNo)
-					gpio.NewOutput(io.PinNo, false)
+					if !io.Inverted {
+						log.Printf("debug: Turning Off %v at pin %v Output GPIO (Non-Inverting)\n", io.Name, io.PinNo)
+						gpio.NewOutput(io.PinNo, false)
+					} else {
+						log.Printf("debug: Turning Off %v at pin %v Output GPIO (Inverting)\n", io.Name, io.PinNo)
+						gpio.NewOutput(io.PinNo, true)
+					}
 				case "mcp23017":
-					log.Printf("debug: Turning Off %v at pin %v Output mcp23017\n", io.Name, io.PinNo)
-					err := D[io.ID].DigitalWrite(uint8(io.PinNo), mcp23017.HIGH)
-					if err != nil {
-						log.Printf("error: Error Turning Off %v at pin %v Output mcp23017 with error %v\n", io.Name, io.PinNo, err)
+					if !io.Inverted {
+						log.Printf("debug: Turning Off %v at pin %v Output mcp23017 (Inverted)\n", io.Name, io.PinNo)
+						err := D[io.ID].DigitalWrite(uint8(io.PinNo), mcp23017.LOW)
+						if err != nil {
+							log.Printf("error: Error Turning On %v at pin %v Output mcp23017 with error %v\n", io.Name, io.PinNo, err)
+						}
+					} else {
+						log.Printf("debug: Turning Off %v at pin %v Output mcp23017 (Non-Inverted)\n", io.Name, io.PinNo)
+						err := D[io.ID].DigitalWrite(uint8(io.PinNo), mcp23017.HIGH)
+						if err != nil {
+							log.Printf("error: Error Turning On %v at pin %v Output mcp23017 with error %v\n", io.Name, io.PinNo, err)
+						}
 					}
 				default:
 					log.Println("error: GPIO Types Currently Supported are gpio or mcp23017 only!")
@@ -906,29 +932,55 @@ func GPIOOutAll(name string, command string) {
 			switch io.Type {
 			case "gpio":
 				if command == "on" {
-					log.Printf("debug: Turning On %v Output GPIO\n", io.Name)
-					gpio.NewOutput(io.PinNo, true)
+					if io.Inverted {
+						log.Printf("debug: Turning On %v Output GPIO (Inverted)\n", io.Name)
+						gpio.NewOutput(io.PinNo, false)
+					} else {
+						log.Printf("debug: Turning On %v Output GPIO (Not-Inverted)\n", io.Name)
+						gpio.NewOutput(io.PinNo, true)
+					}
 				}
 				if command == "off" {
-					log.Printf("debug: Turning Off %v Output GPIO\n", io.Name)
-					gpio.NewOutput(io.PinNo, false)
+					if io.Inverted {
+						log.Printf("debug: Turning Off %v Output GPIO (Inverted)\n", io.Name)
+						gpio.NewOutput(io.PinNo, true)
+					} else {
+						log.Printf("debug: Turning Off %v Output GPIO (Not-Inverted)\n", io.Name)
+						gpio.NewOutput(io.PinNo, false)
+					}
 				}
 			case "mcp23017":
 				if command == "on" {
-					log.Printf("debug: Turning On %v Output mcp23017\n", io.Name)
 					if D[io.ID] != nil {
-						err := D[io.ID].DigitalWrite(uint8(io.PinNo), mcp23017.LOW)
-						if err != nil {
-							log.Printf("error: Error Turning On %v at pin %v Output mcp23017\n", io.Name, io.PinNo)
+						if io.Inverted {
+							log.Printf("debug: Turning On %v Output mcp23017 (Inverted)\n", io.Name)
+							err := D[io.ID].DigitalWrite(uint8(io.PinNo), mcp23017.HIGH)
+							if err != nil {
+								log.Printf("error: Error Turning On %v at pin %v Output mcp23017 (Inverted)\n", io.Name, io.PinNo)
+							}
+						} else {
+							log.Printf("debug: Turning On %v Output mcp23017 (Not Inverted)\n", io.Name)
+							err := D[io.ID].DigitalWrite(uint8(io.PinNo), mcp23017.LOW)
+							if err != nil {
+								log.Printf("error: Error Turning On %v at pin %v Output mcp23017 (Inverted)\n", io.Name, io.PinNo)
+							}
 						}
 					}
 				}
 				if command == "off" {
-					log.Printf("debug: Turning Off %v Output mcp23017\n", io.Name)
 					if D[io.ID] != nil {
-						err := D[io.ID].DigitalWrite(uint8(io.PinNo), mcp23017.HIGH)
-						if err != nil {
-							log.Printf("error: Error Turning Off %v at pin %v Output mcp23017\n", io.Name, io.PinNo)
+						if io.Inverted {
+							log.Printf("debug: Turning Off %v Output mcp23017 (Inverted)\n", io.Name)
+							err := D[io.ID].DigitalWrite(uint8(io.PinNo), mcp23017.LOW)
+							if err != nil {
+								log.Printf("error: Error Turning Off %v at pin %v Output mcp23017 (Inverted)\n", io.Name, io.PinNo)
+							}
+						} else {
+							log.Printf("debug: Turning Off %v Output mcp23017 (Not Inverted)\n", io.Name)
+							err := D[io.ID].DigitalWrite(uint8(io.PinNo), mcp23017.HIGH)
+							if err != nil {
+								log.Printf("error: Error Turning Off %v at pin %v Output mcp23017 (Inverted)\n", io.Name, io.PinNo)
+							}
 						}
 					}
 				}

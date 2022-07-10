@@ -35,11 +35,11 @@ import (
 	"log"
 	"strconv"
 
-	"periph.io/x/periph/conn/physic"
-	"periph.io/x/periph/conn/spi"
-	"periph.io/x/periph/conn/spi/spireg"
-	"periph.io/x/periph/devices/apa102"
-	"periph.io/x/periph/host"
+	"github.com/talkkonnect/periph.io/x/periph/conn/physic"
+	"github.com/talkkonnect/periph.io/x/periph/conn/spi"
+	"github.com/talkkonnect/periph.io/x/periph/conn/spi/spireg"
+	"github.com/talkkonnect/periph.io/x/periph/devices/apa102"
+	"github.com/talkkonnect/periph.io/x/periph/host"
 )
 
 const (

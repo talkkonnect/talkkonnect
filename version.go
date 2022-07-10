@@ -31,10 +31,10 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.14.01"
-	talkkonnectReleased string = "May 02 2022"
+	talkkonnectVersion  string = "2.15.01"
+	talkkonnectReleased string = "Jul 10 2022"
 )
 
 /* Release Notes
-1. Support Inverting in GPIO Outputs For Convinience (Configurable by XML)
+1. Vendored periph.io library
 */

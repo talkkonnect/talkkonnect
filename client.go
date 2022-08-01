@@ -56,7 +56,7 @@ import (
 
 var (
 	prevChannelID        uint32
-	prevParticipantCount int = 0
+	prevParticipantCount int = 1
 	maxchannelid         uint32
 	tmessage             string
 	isrepeattx           bool = true

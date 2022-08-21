@@ -467,6 +467,18 @@ func (b *Talkkonnect) SendMessage(textmessage string, PRecursive bool) {
 	b.Client.Self.Channel.Send(textmessage, PRecursive)
 }
 
+func (b *Talkkonnect) AddListeningChannelID(channelid []uint32) {
+	if IsConnected {
+		b.Client.Self.AddListeningChannel(channelid)
+	}
+}
+
+func (b *Talkkonnect) RemoveListeningChannelID(channelid []uint32) {
+	if IsConnected {
+		b.Client.Self.RemoveListeningChannel(channelid)
+	}
+}
+
 func (b *Talkkonnect) SetComment(comment string) {
 	if IsConnected {
 		b.BackLightTimer()

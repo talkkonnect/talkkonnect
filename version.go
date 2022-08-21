@@ -31,10 +31,11 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.15.01"
-	talkkonnectReleased string = "Jul 10 2022"
+	talkkonnectVersion  string = "2.16.01"
+	talkkonnectReleased string = "Aug 21 2022"
 )
 
 /* Release Notes
-1. Vendored periph.io library
+1. Added AddListeningChannelID New Feature of Mumble
+2. Added RemoveListeningChannelID New Feature of Mumble
 */

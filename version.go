@@ -31,11 +31,10 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.16.01"
-	talkkonnectReleased string = "Aug 21 2022"
+	talkkonnectVersion  string = "2.16.02"
+	talkkonnectReleased string = "Aug 28 2022"
 )
 
 /* Release Notes
-1. Added AddListeningChannelID New Feature of Mumble
-2. Added RemoveListeningChannelID New Feature of Mumble
+1. Added AddListeningChannelID New Feature of Mumble to client.go need to harcode for now until further devleopment
 */

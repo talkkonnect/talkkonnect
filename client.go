@@ -539,6 +539,10 @@ func (b *Talkkonnect) ClientStart() {
 	Config.Accounts.Account[AccountIndex].Voicetargets.ID[0].IsCurrent = true
 	b.sevenSegment("mumblechannel", strconv.Itoa(int(b.Client.Self.Channel.ID)))
 
+	//Channel LIstening Feature Working xample with Channel ID TODO Make if configurable Suvir Kumar 28/08/2022
+	//listeningadd := []uint32{26}
+	//b.AddListeningChannelID(listeningadd)
+
 keyPressListenerLoop:
 	for {
 		if IsConnected {

@@ -56,13 +56,9 @@ func (b *Talkkonnect) OnConnect(e *gumble.ConnectEvent) {
 	//serialize tokens send one by one from slice to server
 	if len(Tokens[AccountIndex]) > 0 {
 		ATokens := make(gumble.AccessTokens, len(Tokens[AccountIndex]))
-		for i, value := range Tokens[AccountIndex] {
-			ATokens[i] = value
-		}
-
+		copy(ATokens[:], Tokens[AccountIndex])
 		b.Client.Send(ATokens)
 	}
-
 	log.Printf("info: Connected to %s Address %s on attempt %d index [%d] ", b.Name, b.Client.Conn.RemoteAddr(), b.ConnectAttempts, AccountIndex)
 	if e.WelcomeMessage != nil {
 		var tmessage string = fmt.Sprintf("%v", esc(*e.WelcomeMessage))
@@ -146,7 +142,7 @@ func (b *Talkkonnect) OnTextMessage(e *gumble.TextMessageEvent) {
 		sender = ""
 	}
 
-	log.Println(fmt.Sprintf("info: Message ("+strconv.Itoa(len(tmessage))+") from %v %v\n", sender, tmessage))
+	log.Printf("info: Message ("+strconv.Itoa(len(tmessage))+") from %v %v\n", sender, tmessage)
 
 	for _, tts := range Config.Global.Software.TTS.Sound {
 		if tts.Action == "message" {

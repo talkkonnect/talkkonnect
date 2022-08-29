@@ -44,6 +44,11 @@ import (
 	"github.com/talkkonnect/volume-go"
 )
 
+var (
+	prevChannelID uint32
+	maxchannelid  uint32
+)
+
 func FatalCleanUp(message string) {
 	term.Close()
 	fmt.Println(message)
@@ -87,7 +92,7 @@ func (b *Talkkonnect) Connect() {
 	_, err = gumble.DialWithDialer(new(net.Dialer), b.Address, b.Config, &b.TLSConfig)
 
 	if err != nil {
-		log.Printf("error: Connection Error %v  connecting to %v failed, attempting again...", err, b.Address)
+		log.Printf("error: Connection Error %v  connecting to %v failed, attempting again...\n", err, b.Address)
 		log.Println("debug: In the Connect Function & Trying With Username ", Username)
 		b.ReConnect()
 	} else {
@@ -338,7 +343,7 @@ func (b *Talkkonnect) ListUsers() {
 	for _, usr := range b.Client.Users {
 		if usr.Channel.ID == b.Client.Self.Channel.ID {
 			item++
-			log.Println(fmt.Sprintf("info: %d. User %#v is online. [%v]", item, usr.Name, usr.Comment))
+			log.Printf("info: %d. User %#v is online. [%v]\n", item, usr.Name, usr.Comment)
 		}
 	}
 }
@@ -546,7 +551,7 @@ func (b *Talkkonnect) pingServers() {
 		log.Println("info: Server # ", i+1, "["+Name[i]+"]"+currentconn)
 
 		if err != nil {
-			log.Println(fmt.Sprintf("error: Ping Error %q", err))
+			log.Printf("error: Ping Error %q\n", err)
 			continue
 		}
 
@@ -704,5 +709,33 @@ func (b *Talkkonnect) findChannelDetailsByID(ChannelID uint32, index int) {
 			ChannelsList[index].chanUsers = ch.Users
 			ChannelsList[index].chanenterPermissions = true
 		}
+	}
+}
+
+func (b *Talkkonnect) listeningToChannels(command string) {
+	if !(IsConnected) {
+		return
+	}
+
+	ListeningChannelNames := []string{}
+	ListeningChannelIDs := []uint32{}
+
+	for _, ChannelNames := range Config.Accounts.Account[AccountIndex].Listentochannels.ChannelNames {
+		channel := b.Client.Channels.Find(ChannelNames)
+		if channel != nil {
+			ListeningChannelNames = append(ListeningChannelNames, channel.Name)
+			ListeningChannelIDs = append(ListeningChannelIDs, channel.ID)
+		}
+	}
+
+	if command == "start" {
+		log.Printf("debug: Adding Channels %v With IDs %v For Listening\n", ListeningChannelNames, ListeningChannelIDs)
+		b.AddListeningChannelID(ListeningChannelIDs)
+		return
+	}
+
+	if command == "stop" {
+		log.Printf("debug: Removing Channels %v With IDs %v For Listening\n", ListeningChannelNames, ListeningChannelIDs)
+		b.RemoveListeningChannelID(ListeningChannelIDs)
 	}
 }

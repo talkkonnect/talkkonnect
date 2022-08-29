@@ -55,9 +55,7 @@ import (
 )
 
 var (
-	prevChannelID        uint32
 	prevParticipantCount int = 1
-	maxchannelid         uint32
 	tmessage             string
 	isrepeattx           bool = true
 )
@@ -539,9 +537,10 @@ func (b *Talkkonnect) ClientStart() {
 	Config.Accounts.Account[AccountIndex].Voicetargets.ID[0].IsCurrent = true
 	b.sevenSegment("mumblechannel", strconv.Itoa(int(b.Client.Self.Channel.ID)))
 
-	//Channel LIstening Feature Working xample with Channel ID TODO Make if configurable Suvir Kumar 28/08/2022
-	//listeningadd := []uint32{26}
-	//b.AddListeningChannelID(listeningadd)
+	//Channel Listening on Startup
+	if Config.Global.Software.Settings.ListenToChannelsOnStart {
+		b.listeningToChannels("start")
+	}
 
 keyPressListenerLoop:
 	for {
@@ -666,6 +665,10 @@ keyPressListenerLoop:
 								log.Printf("error: Error Message %v, %v Is Not A Number", err, Paramvalue)
 							}
 							b.cmdSendVoiceTargets(uint32(Paramvalue))
+						case "listentochannelon":
+							b.listeningToChannels("start")
+						case "listentochanneloff":
+							b.listeningToChannels("stop")
 						default:
 							log.Println("error: Command Not Defined ", strings.ToLower(TTYKeyMap[ev.Ch].Command))
 						}

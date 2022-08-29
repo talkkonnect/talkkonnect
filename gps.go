@@ -40,12 +40,13 @@ import (
 	"net/http"
 	"regexp"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/adrianmo/go-nmea"
 	"github.com/jacobsa/go-serial/serial"
 	hd44780 "github.com/talkkonnect/go-hd44780"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 type GSVDataStruct struct {
@@ -73,7 +74,7 @@ type GNSSDataStruct struct {
 	GSVData    [4]GSVDataStruct
 }
 
-//global variables for gps
+// global variables for gps
 var (
 	GNSSData          GNSSDataStruct
 	GNSSDataPublic         = make(chan GNSSDataStruct, GPSDataChannelReceivers+1)
@@ -480,7 +481,7 @@ func tcpSendT55Traccar() {
 		fmt.Fprint(CONN, PGID) // Send ID
 		time.Sleep(5 * time.Second)
 		fmt.Fprint(CONN, GPRMC) // send $GPRMC
-		log.Println("debug: Sending position message to Traccar over Protocol: " + strings.Title(strings.ToLower(Config.Global.Hardware.Traccar.Protocol.Name)))
+		log.Println("debug: Sending position message to Traccar over Protocol: ", cases.Lower(language.Und).String(Config.Global.Hardware.Traccar.Protocol.Name))
 
 		if TraccarDiagSounds {
 			eventSound := findEventSound("traccarTCPConnOK")

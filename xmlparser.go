@@ -33,7 +33,7 @@ package talkkonnect
 import (
 	"encoding/xml"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"os"
 	"os/exec"
@@ -54,17 +54,20 @@ type ConfigStruct struct {
 	XMLName  xml.Name `xml:"document"`
 	Accounts struct {
 		Account []struct {
-			Name          string `xml:"name,attr"`
-			Default       bool   `xml:"default,attr"`
-			ServerAndPort string `xml:"serverandport"`
-			UserName      string `xml:"username"`
-			Password      string `xml:"password"`
-			Insecure      bool   `xml:"insecure"`
-			Register      bool   `xml:"register"`
-			Certificate   string `xml:"certificate"`
-			Channel       string `xml:"channel"`
-			Ident         string `xml:"ident"`
-			TokensEnabled bool   `xml:"enabled,attr"`
+			Name             string `xml:"name,attr"`
+			Default          bool   `xml:"default,attr"`
+			ServerAndPort    string `xml:"serverandport"`
+			UserName         string `xml:"username"`
+			Password         string `xml:"password"`
+			Insecure         bool   `xml:"insecure"`
+			Register         bool   `xml:"register"`
+			Certificate      string `xml:"certificate"`
+			Channel          string `xml:"channel"`
+			Ident            string `xml:"ident"`
+			Listentochannels struct {
+				ChannelNames []string `xml:"channel"`
+			} `xml:"listentochannels"`
+			TokensEnabled bool `xml:"enabled,attr"`
 			Tokens        struct {
 				Token []string `xml:"token"`
 			} `xml:"tokens"`
@@ -110,6 +113,7 @@ type ConfigStruct struct {
 				TxCounter               bool          `xml:"txcounter"`
 				NextServerIndex         int           `xml:"nextserverindex"`
 				TXLockOut               bool          `xml:"txlockout"`
+				ListenToChannelsOnStart bool          `xml:"listentochannelsonstart"`
 			} `xml:"settings"`
 			AutoProvisioning struct {
 				Enabled      bool   `xml:"enabled,attr"`
@@ -222,37 +226,38 @@ type ConfigStruct struct {
 				} `xml:"mqtt"`
 			}
 			PrintVariables struct {
-				PrintAccount          bool `xml:"printaccount"`
-				PrintSystemSettings   bool `xml:"printsystemsettings"`
-				PrintProvisioning     bool `xml:"printprovisioning"`
-				PrintBeacon           bool `xml:"printbeacon"`
-				PrintTTS              bool `xml:"printtts"`
-				PrintSMTP             bool `xml:"printsmtp"`
-				PrintSounds           bool `xml:"printsounds"`
-				PrintTxTimeout        bool `xml:"printtxtimeout"`
-				PrintHTTPAPI          bool `xml:"printhttpapi"`
-				PrintMQTT             bool `xml:"printmqtt"`
-				PrintTTSMessages      bool `xml:"printttsmessages"`
-				PrintIgnoreUser       bool `xml:"printignoreuser"`
-				PrintHardware         bool `xml:"printhardware"`
-				PrintGPIOExpander     bool `xml:"printgpioexpander"`
-				PrintMax7219          bool `xml:"printmax7219"`
-				PrintPins             bool `xml:"printpins"`
-				PrintRotary           bool `xml:"printrotary"`
-				PrintPulse            bool `xml:"printpulse"`
-				PrintVolumeButtonStep bool `xml:"printvolumebuttonstep"`
-				PrintHeartBeat        bool `xml:"printheartbeat"`
-				PrintComment          bool `xml:"printcomment"`
-				PrintLCD              bool `xml:"printlcd"`
-				PrintOLED             bool `xml:"printoled"`
-				PrintGPS              bool `xml:"printgps"`
-				PrintTraccar          bool `xml:"printtraccar"`
-				PrintPanic            bool `xml:"printpanic"`
-				PrintUSBKeyboard      bool `xml:"printusbkeyboard"`
-				PrintAudioRecord      bool `xml:"printaudiorecord"`
-				PrintKeyboardMap      bool `xml:"printkeyboardmap"`
-				PrintRadioModule      bool `xml:"printradiomodule"`
-				PrintMultimedia       bool `xml:"printmultimedia"`
+				PrintAccount          bool   `xml:"printaccount"`
+				PrintSystemSettings   bool   `xml:"printsystemsettings"`
+				PrintProvisioning     bool   `xml:"printprovisioning"`
+				PrintBeacon           bool   `xml:"printbeacon"`
+				PrintTTS              bool   `xml:"printtts"`
+				PrintSMTP             bool   `xml:"printsmtp"`
+				PrintSounds           bool   `xml:"printsounds"`
+				PrintTxTimeout        bool   `xml:"printtxtimeout"`
+				PrintHTTPAPI          bool   `xml:"printhttpapi"`
+				PrintMQTT             bool   `xml:"printmqtt"`
+				PrintTTSMessages      bool   `xml:"printttsmessages"`
+				PrintIgnoreUser       bool   `xml:"printignoreuser"`
+				PrintHardware         bool   `xml:"printhardware"`
+				PrintGPIOExpander     bool   `xml:"printgpioexpander"`
+				PrintMax7219          bool   `xml:"printmax7219"`
+				PrintPins             bool   `xml:"printpins"`
+				PrintRotary           bool   `xml:"printrotary"`
+				PrintPulse            bool   `xml:"printpulse"`
+				PrintVolumeButtonStep bool   `xml:"printvolumebuttonstep"`
+				PrintHeartBeat        bool   `xml:"printheartbeat"`
+				PrintComment          bool   `xml:"printcomment"`
+				PrintLCD              bool   `xml:"printlcd"`
+				PrintOLED             bool   `xml:"printoled"`
+				PrintGPS              bool   `xml:"printgps"`
+				PrintTraccar          bool   `xml:"printtraccar"`
+				PrintPanic            bool   `xml:"printpanic"`
+				PrintUSBKeyboard      bool   `xml:"printusbkeyboard"`
+				PrintAudioRecord      bool   `xml:"printaudiorecord"`
+				PrintKeyboardMap      bool   `xml:"printkeyboardmap"`
+				PrintRadioModule      bool   `xml:"printradiomodule"`
+				PrintMultimedia       bool   `xml:"printmultimedia"`
+				Printlistentochannels string `xml:"printlistentochannels"`
 			} `xml:"printvariables"`
 			TTSMessages struct {
 				Enabled           bool   `xml:"enabled,attr"`
@@ -679,25 +684,26 @@ var (
 	USBKeyMap  = make(map[rune]KBStruct)
 )
 
-//Mumble Account Settings Global Variables
+// Mumble Account Settings Global Variables
 var (
-	Default      []bool
-	Name         []string
-	Server       []string
-	Username     []string
-	Password     []string
-	Insecure     []bool
-	Register     []bool
-	Certificate  []string
-	Channel      []string
-	Ident        []string
-	Tokens       []gumble.AccessTokens
-	VT           []VTStruct
-	Accounts     int
-	ChannelsList []ChannelsListStruct
+	Default               []bool
+	Name                  []string
+	Server                []string
+	Username              []string
+	Password              []string
+	Insecure              []bool
+	Register              []bool
+	Certificate           []string
+	Channel               []string
+	Ident                 []string
+	Tokens                []gumble.AccessTokens
+	VT                    []VTStruct
+	ChannelsList          []ChannelsListStruct
+	ListenChannelNameList []string
+	Accounts              int
 )
 
-//HD44780 LCD Screen Settings Golbal Variables
+// HD44780 LCD Screen Settings Golbal Variables
 var (
 	LCDEnabled               bool
 	LCDInterfaceType         string
@@ -712,7 +718,7 @@ var (
 	LCDD7Pin                 int
 )
 
-//OLED Screen Settings Golbal Variables
+// OLED Screen Settings Golbal Variables
 var (
 	OLEDEnabled                 bool
 	OLEDInterfacetype           string
@@ -751,7 +757,7 @@ func readxmlconfig(file string, reloadxml bool) error {
 	log.Println("info: Successfully Read file " + filepath.Base(file))
 	defer xmlFile.Close()
 
-	byteValue, _ := ioutil.ReadAll(xmlFile)
+	byteValue, _ := io.ReadAll(xmlFile)
 
 	if !reloadxml {
 		err = xml.Unmarshal(byteValue, &Config)
@@ -780,6 +786,7 @@ func readxmlconfig(file string, reloadxml bool) error {
 				Ident = append(Ident, account.Ident)
 				Tokens = append(Tokens, account.Tokens.Token)
 				VT = append(VT, VTStruct(account.Voicetargets))
+				//ListenChannelNameList = append(ListenChannelNameList, account.Listentochannels.ChannelNames...)
 				AccountCount++
 			}
 		}
@@ -949,6 +956,7 @@ func readxmlconfig(file string, reloadxml bool) error {
 		Config.Global.Hardware.PanicFunction = ReConfig.Global.Hardware.PanicFunction
 		Config.Global.Hardware.Keyboard.Command = ReConfig.Global.Hardware.Keyboard.Command
 		Config.Global.Multimedia = ReConfig.Global.Multimedia
+		//ReConfig.Accounts.Account[0].Listentochannels
 
 	}
 	return nil
@@ -971,6 +979,7 @@ func printxmlconfig() {
 				log.Printf("info: %v Certificate      %v \n", AcctIsDefault, account.Certificate)
 				log.Printf("info: %v Channel          %v \n", AcctIsDefault, account.Channel)
 				log.Printf("info: %v Ident            %v \n", AcctIsDefault, account.Ident)
+				log.Printf("info: %v ListentoChannels %v \n", AcctIsDefault, account.Listentochannels)
 				log.Printf("info: %v Tokens           %v \n", AcctIsDefault, account.Tokens)
 				log.Printf("info: %v VoiceTargets     %v \n", AcctIsDefault, account.Voicetargets)
 			}
@@ -1000,6 +1009,7 @@ func printxmlconfig() {
 		log.Println("info: TxCounter                        ", fmt.Sprintf("%t", Config.Global.Software.Settings.TxCounter))
 		log.Println("info: NextServerIndex                  ", fmt.Sprintf("%v", Config.Global.Software.Settings.NextServerIndex))
 		log.Println("info: TXLockOut                        ", fmt.Sprintf("%t", Config.Global.Software.Settings.TXLockOut))
+		log.Println("info: ListenToChannelOnStart           ", fmt.Sprintf("%t", Config.Global.Software.Settings.ListenToChannelsOnStart))
 	} else {
 		log.Println("info: -------- System Settings -------- SKIPPED ")
 	}
@@ -1455,9 +1465,13 @@ func CheckConfigSanity(reloadxml bool) {
 	}
 
 	if Config.Global.Software.Settings.NextServerIndex > Counter {
-		log.Print("warn: Config Error [Section Settings] Next Server Index Invalid Defaulting back to 0")
-		Config.Global.Software.Settings.NextServerIndex = 0
-		Warnings++
+		if Counter > 0 {
+			log.Print("warn: Config Error [Section Settings] Next Server Index Invalid Defaulting back to 0")
+			Config.Global.Software.Settings.NextServerIndex = 0
+			Warnings++
+		} else {
+			FatalCleanUp("alert: NextServerIndex is Not Correct Check NextServerIndex in Accounts Section of XML config file!, talkkonnect stopping now!")
+		}
 	}
 
 	if Config.Global.Software.AutoProvisioning.Enabled {
@@ -1704,7 +1718,7 @@ func CheckConfigSanity(reloadxml bool) {
 
 	for index, keyboard := range Config.Global.Hardware.Keyboard.Command {
 		if keyboard.Enabled {
-			if !(keyboard.Action == "channelup" || keyboard.Action == "channeldown" || keyboard.Action == "serverup" || keyboard.Action == "serverdown" || keyboard.Action == "mute" || keyboard.Action == "unmute" || keyboard.Action == "mute-toggle" || keyboard.Action == "stream-toggle" || keyboard.Action == "volumeup" || keyboard.Action == "volumedown" || keyboard.Action == "setcomment" || keyboard.Action == "transmitstart" || keyboard.Action == "transmitstop" || keyboard.Action == "record" || keyboard.Action == "voicetargetset" || keyboard.Action == "volup" || keyboard.Action == "voldown" || keyboard.Action == "mqttpubpayloadset") {
+			if !(keyboard.Action == "channelup" || keyboard.Action == "channeldown" || keyboard.Action == "serverup" || keyboard.Action == "serverdown" || keyboard.Action == "mute" || keyboard.Action == "unmute" || keyboard.Action == "mute-toggle" || keyboard.Action == "stream-toggle" || keyboard.Action == "volumeup" || keyboard.Action == "volumedown" || keyboard.Action == "setcomment" || keyboard.Action == "transmitstart" || keyboard.Action == "transmitstop" || keyboard.Action == "record" || keyboard.Action == "voicetargetset" || keyboard.Action == "volup" || keyboard.Action == "voldown" || keyboard.Action == "mqttpubpayloadset" || keyboard.Action == "listentochannelon" || keyboard.Action == "listentochanneloff") {
 				log.Printf("warn: Config Error [Section Keyboard] Enabled Keyboard Action %v Invalid\n", keyboard.Action)
 				Config.Global.Hardware.Keyboard.Command[index].Enabled = false
 				Warnings++

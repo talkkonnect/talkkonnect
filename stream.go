@@ -32,7 +32,6 @@ package talkkonnect
 import (
 	"encoding/binary"
 	"errors"
-	"fmt"
 	"log"
 	"strconv"
 	"time"
@@ -242,7 +241,7 @@ func (b *Talkkonnect) sourceRoutine() {
 
 func (b *Talkkonnect) playIntoStream(filepath string, vol float32) {
 	if !IsPlayStream {
-		log.Println(fmt.Sprintf("info: File %s Stopped!", filepath))
+		log.Printf("info: File %s Stopped!", filepath)
 		pstream.Stop()
 		GPIOOutPin("transmit", "off")
 		MyLedStripTransmitLEDOff()
@@ -262,9 +261,9 @@ func (b *Talkkonnect) playIntoStream(filepath string, vol float32) {
 		IsPlayStream = true
 		pstream = gumbleffmpeg.New(b.Client, gumbleffmpeg.SourceFile(filepath), vol/100)
 		if err := pstream.Play(); err != nil {
-			log.Println(fmt.Sprintf("error: Can't play %s error %s", filepath, err))
+			log.Printf("error: Can't play %s error %s", filepath, err)
 		} else {
-			log.Println(fmt.Sprintf("info: File %s Playing!", filepath))
+			log.Printf("info: File %s Playing!", filepath)
 			pstream.Wait()
 			pstream.Stop()
 			GPIOOutPin("transmit", "off")
@@ -278,9 +277,9 @@ func (b *Talkkonnect) playIntoStream(filepath string, vol float32) {
 func (b *Talkkonnect) splayIntoStream(filepath string, vol float32) {
 	pstream = gumbleffmpeg.New(b.Stream.client, gumbleffmpeg.SourceFile(filepath), vol/100)
 	if err := pstream.Play(); err != nil {
-		log.Println(fmt.Sprintf("error: Can't play %s error %s", filepath, err))
+		log.Printf("error: Can't play %s error %s", filepath, err)
 	} else {
-		log.Println(fmt.Sprintf("info: File %s Playing!", filepath))
+		log.Printf("info: File %s Playing!\n", filepath)
 		pstream.Wait()
 		pstream.Stop()
 	}

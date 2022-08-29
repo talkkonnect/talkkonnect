@@ -158,15 +158,15 @@ func findChannelNameByID(findChannelID string) (bool, string) {
 	return false, "not found channel"
 }
 
-func checkVersion() {
-	err := sa818.Callsa818("CheckVersion", DMOSetup)
-	log.Println("info: CheckVersion ", err)
-}
+//func checkVersion() {
+//	err := sa818.Callsa818("CheckVersion", DMOSetup)
+//	log.Println("info: CheckVersion ", err)
+//}
 
-func checkRSSI() {
-	err := sa818.Callsa818("CheckRSSI", DMOSetup)
-	log.Println("info: Check RSSI ", err)
-}
+//func checkRSSI() {
+//	err := sa818.Callsa818("CheckRSSI", DMOSetup)
+//	log.Println("info: Check RSSI ", err)
+//}
 
 func setFrequency() {
 	err := sa818.Callsa818("DMOSetupGroup", DMOSetup)

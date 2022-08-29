@@ -329,7 +329,7 @@ func (b *Talkkonnect) cmdListOnlineUsers() {
 
 	TTSEvent("listonlineusers")
 
-	log.Println(fmt.Sprintf("info: Channel %#v Has %d Online User(s)", b.Client.Self.Channel.Name, len(b.Client.Self.Channel.Users)))
+	log.Printf("info: Channel %#v Has %d Online User(s)", b.Client.Self.Channel.Name, len(b.Client.Self.Channel.Users))
 	b.ListUsers()
 	b.ParticipantLEDUpdate(true)
 }

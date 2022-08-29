@@ -37,7 +37,6 @@ import (
 	"encoding/hex"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"math"
 	"net"
@@ -115,7 +114,7 @@ func secondsToHuman(input int) (result string) {
 func localAddresses() {
 	ifaces, err := net.Interfaces()
 	if err != nil {
-		log.Print(fmt.Sprintf("error: localAddresses %v", err.Error()))
+		log.Printf("error: localAddresses %v\n", err.Error())
 		return
 	}
 
@@ -123,7 +122,7 @@ func localAddresses() {
 		addrs, err := i.Addrs()
 
 		if err != nil {
-			log.Print(fmt.Sprintf("error: localAddresses %v", err.Error()))
+			log.Printf("error: localAddresses %v\n", err.Error())
 			continue
 		}
 
@@ -140,7 +139,7 @@ func (b *Talkkonnect) pingconnectedserver() {
 	resp, err := gumble.Ping(b.Address, time.Second*1, time.Second*5)
 
 	if err != nil {
-		log.Println(fmt.Sprintf("error: Ping Error %s", err))
+		log.Printf("error: Ping Error %s", err)
 		return
 	}
 
@@ -443,7 +442,7 @@ func checkGitHubVersion() string {
 		_, _ = io.Copy(output, response.Body)
 	}
 
-	fileContent, err := ioutil.ReadFile(tmpfileName)
+	fileContent, err := os.ReadFile(tmpfileName)
 	if err != nil {
 		log.Println("error: Cannot Read Temporary File for Version Checking")
 		return talkkonnectVersion
@@ -467,7 +466,7 @@ func checkSBCVersion() string {
 		return "unknown"
 	}
 
-	fileContent, err := ioutil.ReadFile("/proc/device-tree/model")
+	fileContent, err := os.ReadFile("/proc/device-tree/model")
 	if err != nil {
 		log.Println("error: Cannot Check Raspberry Pi Board Version")
 		return "unknown"

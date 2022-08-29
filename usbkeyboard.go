@@ -158,6 +158,12 @@ func (b *Talkkonnect) USBKeyboard() {
 						case "repeatertoneplay":
 							playIOMedia("iorepeatertone")
 							b.cmdPlayRepeaterTone()
+						case "listentochannelon":
+							playIOMedia("usbstartlisten")
+							b.listeningToChannels("start")
+						case "listentochanneloff":
+							playIOMedia("usbstopliosten")
+							b.listeningToChannels("stop")
 						default:
 							log.Println("error: Command Not Defined ", strings.ToLower(USBKeyMap[rune(ke.Scancode)].Command))
 						}

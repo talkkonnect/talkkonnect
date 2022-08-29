@@ -31,10 +31,14 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.16.02"
-	talkkonnectReleased string = "Aug 28 2022"
+	talkkonnectVersion  string = "2.16.03"
+	talkkonnectReleased string = "Aug 29 2022"
 )
 
 /* Release Notes
-1. Added AddListeningChannelID New Feature of Mumble to client.go need to harcode for now until further devleopment
+1. Added AddListeningChannelID Now working in XML on Startup
+2. Added AddListeningChannelID Now working in XML on Keyboard tty and USB mapping
+3. Pending Map GPIO with listenchannel on and off ing gpio.go (Use On Off Rocker Switch)
+4. Pending Map API for listenchannel on and off httpapi.go
+5. Pending Map MQTT for listenchannel on and off mqtt.go
 */

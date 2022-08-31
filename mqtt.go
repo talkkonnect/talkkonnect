@@ -140,6 +140,8 @@ func (b *Talkkonnect) onMessageReceived(client MQTT.Client, message MQTT.Message
 		"showuptime":         b.cmdShowUptime,
 		"dumpxmlconfig":      b.cmdDumpXMLConfig,
 		"voicetargetset":     b.cmdSendVoiceTargets,
+    	        "listeningstart":     b.cmdListeningStart,
+                "listeningstop":      b.cmdListeningStop,
 		"attention":          attention,
 		"relay":              relay}
 

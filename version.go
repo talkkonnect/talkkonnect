@@ -31,11 +31,10 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.16.06"
+	talkkonnectVersion  string = "2.16.07"
 	talkkonnectReleased string = "Aug 31 2022"
 )
 
 /* Release Notes
-2. Caomleted Map API for listenchannel on and off httpapi.go
-3. Pending Map MQTT for listenchannel on and off mqtt.go
+1. Completed Map MQTT for listenchannel on and off mqtt.go
 */

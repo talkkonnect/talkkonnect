@@ -1,7 +1,7 @@
 # talKKonnect sample xml configuration files
 
 ### This Readme file describes the various tested hardware scenarios and provides a corresponding sample configuration xml template
-
+### Always look to the file talkkonnect-version2-usb-gpio-example.xml for the latest xml tags
 ---
 ### talkkonnect is tested and works on the following patforms
 

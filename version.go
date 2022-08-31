@@ -31,13 +31,13 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.16.03"
-	talkkonnectReleased string = "Aug 29 2022"
+	talkkonnectVersion  string = "2.16.04"
+	talkkonnectReleased string = "Aug 31 2022"
 )
 
 /* Release Notes
-1. Added AddListeningChannelID Now working in XML on Startup
-2. Added AddListeningChannelID Now working in XML on Keyboard tty and USB mapping
+1. Added On Console Logging if User Speaking on same channel as connected show speaking
+2. Added On Console Logging if User Speaking on different channel as connect show listening with red color of channel name that user is speakig
 3. Pending Map GPIO with listenchannel on and off ing gpio.go (Use On Off Rocker Switch)
 4. Pending Map API for listenchannel on and off httpapi.go
 5. Pending Map MQTT for listenchannel on and off mqtt.go

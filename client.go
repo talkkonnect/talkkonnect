@@ -453,9 +453,12 @@ func (b *Talkkonnect) ClientStart() {
 				if LastSpeaker != v.WhoTalking {
 					LastSpeaker = v.WhoTalking
 				}
-
 				if !RXLEDStatus {
-					log.Println("info: Speaking->", v.WhoTalking)
+					if b.Client.Self.Channel.Name == v.OnChannel {
+						log.Printf("info: Speaking -> %v\n", v.WhoTalking)
+					} else {
+						log.Printf("info: Listening-> %v \033[31m[%v]\033[0m\n", v.WhoTalking, v.OnChannel)
+					}
 					RXLEDStatus = true
 					txlockout := &TXLockOut
 					*txlockout = true

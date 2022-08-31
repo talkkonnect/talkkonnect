@@ -607,6 +607,7 @@ type streamTrackerStruct struct {
 type talkingStruct struct {
 	IsTalking  bool
 	WhoTalking string
+	OnChannel  string
 }
 
 type mqttPubButtonStruct struct {

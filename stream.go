@@ -173,8 +173,7 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 				NowStreaming = IsPlayStream
 				pstream.Stop()
 			}
-
-			Talking <- talkingStruct{true, e.User.Name}
+			Talking <- talkingStruct{true, e.User.Name, e.User.Channel.Name}
 			samples := len(packet.AudioBuffer)
 			if samples > cap(raw) {
 				continue
@@ -194,7 +193,7 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 			if source.State() != openal.Playing {
 				source.Play()
 			}
-			Talking <- talkingStruct{false, e.User.Name}
+			Talking <- talkingStruct{false, e.User.Name, e.User.Channel.Name}
 		}
 		reclaim()
 		emptyBufs.Delete()

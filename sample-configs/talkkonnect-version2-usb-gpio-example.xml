@@ -2,9 +2,9 @@
 <document type="talkkonnect/xml">
   <accounts>
     <account name="community" default="true">
-      <serverandport>mumble.talkkonnect.com:64738</serverandport>
+      <serverandport>mtechlink.talkkonnect.com:64738</serverandport>
       <username></username>
-      <password>talkkonnect</password>
+      <password></password>
       <insecure>true</insecure>
       <register>false</register>
       <certificate></certificate>

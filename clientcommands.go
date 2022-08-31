@@ -739,3 +739,17 @@ func (b *Talkkonnect) listeningToChannels(command string) {
 		b.RemoveListeningChannelID(ListeningChannelIDs)
 	}
 }
+
+func (b *Talkkonnect) cmdListeningStart() {
+	if !(IsConnected) {
+		return
+	}
+	b.listeningToChannels("start")
+}
+
+func (b *Talkkonnect) cmdListeningStop() {
+	if !(IsConnected) {
+		return
+	}
+	b.listeningToChannels("stop")
+}

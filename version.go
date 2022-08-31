@@ -31,12 +31,11 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.16.05"
+	talkkonnectVersion  string = "2.16.06"
 	talkkonnectReleased string = "Aug 31 2022"
 )
 
 /* Release Notes
-1. Completed Map GPIO with listenchannel on and off gpio.go (Use On Off Rocker Switch)
-2. Pending Map API for listenchannel on and off httpapi.go
+2. Caomleted Map API for listenchannel on and off httpapi.go
 3. Pending Map MQTT for listenchannel on and off mqtt.go
 */

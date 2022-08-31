@@ -72,6 +72,8 @@ func (b *Talkkonnect) httpAPI(w http.ResponseWriter, r *http.Request) {
 		"dumpxmlconfig":      b.cmdDumpXMLConfig,
 		"ttsannouncement":    b.TTSPlayerAPI,
 		"voicetargetset":     b.cmdSendVoiceTargets,
+		"listeningstart":     b.cmdListeningStart,
+		"listeningstop":      b.cmdListeningStop,
 		"listapi":            listAPI}
 
 	APICommands, ok := r.URL.Query()["command"]

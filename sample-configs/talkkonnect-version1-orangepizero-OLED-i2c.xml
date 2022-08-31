@@ -28,9 +28,9 @@
   <!-- This example connects to our community server, after you install talkkonnect chat with us here! -->
   <accounts>
     <account name="talkkonnect-community-server" default="true">   <!-- Server identifier and enabler -->
-      <serverandport>mumble.talkkonnect.com:64738</serverandport> <!-- server:port of mumble server to connect to -->
+      <serverandport>mtechlink.talkkonnect.com:64738</serverandport> <!-- server:port of mumble server to connect to -->
       <username></username> <!-- Mumble Username that will be used to authenticate on the mumble server -->
-      <password>talkkonnect</password> <!-- Mumble Password that will be used along with the username to authenticate on the mumble server -->
+      <password></password> <!-- Mumble Password that will be used along with the username to authenticate on the mumble server -->
       <insecure>true</insecure>   <!-- Set to true of your server does not require a certificate-->
       <certificate></certificate> <!-- Full Path to Certificate if Certificate is needed by Server -->
       <channel></channel>   <!-- Initial Channel on The Server to Move to after successful connection -->

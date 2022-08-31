@@ -42,7 +42,7 @@ import (
 	"github.com/talkkonnect/max7219"
 )
 
-//Variables for Input Buttons/Switches
+// Variables for Input Buttons/Switches
 var (
 	TxButtonUsed  bool
 	TxButton      gpio.Pin
@@ -78,6 +78,11 @@ var (
 	CommentButton      gpio.Pin
 	CommentButtonPin   uint
 	CommentButtonState uint
+
+	ListeningUsed        bool
+	ListeningButton      gpio.Pin
+	ListeningButtonPin   uint
+	ListeningButtonState uint
 
 	RotaryUsed bool
 	RotaryA    gpio.Pin
@@ -224,6 +229,13 @@ func (b *Talkkonnect) initGPIO() {
 				CommentUsed = true
 				CommentButtonPin = io.PinNo
 			}
+			if io.Name == "listening" && io.PinNo > 0 {
+				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
+				ListeningPinPullUp := rpio.Pin(io.PinNo)
+				ListeningPinPullUp.PullUp()
+				ListeningUsed = true
+				ListeningButtonPin = io.PinNo
+			}
 			if io.Name == "rotarya" && io.PinNo > 0 {
 				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
 				RotaryAPinPullUp := rpio.Pin(io.PinNo)
@@ -297,7 +309,7 @@ func (b *Talkkonnect) initGPIO() {
 		}
 	}
 
-	if TxButtonUsed || TxToggleUsed || UpButtonUsed || DownButtonUsed || PanicUsed || StreamToggleUsed || CommentUsed || RotaryUsed || RotaryButtonUsed || VolUpButtonUsed || VolDownButtonUsed || TrackingUsed || MQTT0ButtonUsed || MQTT1ButtonUsed || NextServerButtonUsed || RepeaterToneButtonUsed {
+	if TxButtonUsed || TxToggleUsed || UpButtonUsed || DownButtonUsed || PanicUsed || StreamToggleUsed || CommentUsed || RotaryUsed || RotaryButtonUsed || VolUpButtonUsed || VolDownButtonUsed || TrackingUsed || MQTT0ButtonUsed || MQTT1ButtonUsed || NextServerButtonUsed || RepeaterToneButtonUsed || ListeningUsed {
 		rpio.Close()
 	}
 
@@ -506,6 +518,32 @@ func (b *Talkkonnect) initGPIO() {
 							log.Println("debug: Comment Button State 2 setting comment to State 2 Message ", Config.Global.Hardware.Comment.CommentMessageOn)
 							b.SetComment(Config.Global.Hardware.Comment.CommentMessageOn)
 							time.Sleep(150 * time.Millisecond)
+						}
+					}
+				} else {
+					time.Sleep(1 * time.Second)
+				}
+			}
+		}()
+
+	}
+
+	if ListeningUsed {
+		ListeningButton = gpio.NewInput(ListeningButtonPin)
+		go func() {
+			for {
+				if IsConnected {
+					currentState, err := ListeningButton.Read()
+					time.Sleep(150 * time.Millisecond)
+					if currentState != ListeningButtonState && err == nil {
+						ListeningButtonState = currentState
+						if ListeningButtonState == 1 {
+							playIOMedia("iolisteningon")
+							log.Println("debug: Listening Button State 1 Listening Stop")
+							b.listeningToChannels("stop")
+						} else {
+							b.listeningToChannels("start")
+							log.Println("debug: Listening Button State 0 Listening Start")
 						}
 					}
 				} else {

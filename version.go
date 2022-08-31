@@ -31,14 +31,12 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.16.04"
+	talkkonnectVersion  string = "2.16.05"
 	talkkonnectReleased string = "Aug 31 2022"
 )
 
 /* Release Notes
-1. Added On Console Logging if User Speaking on same channel as connected show speaking
-2. Added On Console Logging if User Speaking on different channel as connect show listening with red color of channel name that user is speakig
-3. Pending Map GPIO with listenchannel on and off ing gpio.go (Use On Off Rocker Switch)
-4. Pending Map API for listenchannel on and off httpapi.go
-5. Pending Map MQTT for listenchannel on and off mqtt.go
+1. Completed Map GPIO with listenchannel on and off gpio.go (Use On Off Rocker Switch)
+2. Pending Map API for listenchannel on and off httpapi.go
+3. Pending Map MQTT for listenchannel on and off mqtt.go
 */

@@ -354,6 +354,10 @@ type ConfigStruct struct {
 				CommentMessageOff string `xml:"commentmessageoff"`
 				CommentMessageOn  string `xml:"commentmessageon"`
 			} `xml:"comment"`
+			Listening struct {
+				Enabled            bool   `xml:"enabled,attr"`
+				ListeningButtonPin string `xml:"listeningbuttonpin"`
+			} `xml:"listening"`
 			LCD struct {
 				Enabled               bool   `xml:"enabled,attr"`
 				InterfaceType         string `xml:"lcdinterfacetype"`

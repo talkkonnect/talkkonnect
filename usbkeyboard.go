@@ -158,10 +158,10 @@ func (b *Talkkonnect) USBKeyboard() {
 						case "repeatertoneplay":
 							playIOMedia("iorepeatertone")
 							b.cmdPlayRepeaterTone()
-						case "listentochannelon":
+						case "listentochannelstart":
 							playIOMedia("usbstartlisten")
 							b.listeningToChannels("start")
-						case "listentochanneloff":
+						case "listentochannelstop":
 							playIOMedia("usbstopliosten")
 							b.listeningToChannels("stop")
 						default:

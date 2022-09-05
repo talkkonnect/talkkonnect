@@ -538,6 +538,14 @@
           <ttykeyboard scanid="57" keylabel="9" enabled="true"/>
           <usbkeyboard scanid="73" keylabel="9" enabled="true"/>
         </command>
+        <command action="listentochannelstart" paramname="listentochannelstart" paramvalue="8" enabled="false">
+          <ttykeyboard scanid="56" keylabel="8" enabled="false"/>
+          <usbkeyboard scanid="72" keylabel="8" enabled="false"/>
+        </command>
+        <command action="listentochannelstop" paramname="listentochannelstop" paramvalue="8" enabled="false">
+          <ttykeyboard scanid="57" keylabel="9" enabled="false"/>
+          <usbkeyboard scanid="73" keylabel="9" enabled="false"/>
+        </command>
       </keyboard>
     	<radio enabled="false">
         <connectchannelid>01</connectchannelid>

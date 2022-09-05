@@ -31,10 +31,11 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.16.07"
-	talkkonnectReleased string = "Aug 31 2022"
+	talkkonnectVersion  string = "2.16.08"
+	talkkonnectReleased string = "Sep 05 2022"
 )
 
 /* Release Notes
-1. Completed Map MQTT for listenchannel on and off mqtt.go
+1. added sounds for listener events
+2. modificed /sample-configs/talkkonnect-version2-usb-gpio-example.xml to add all relevent up to date tags
 */

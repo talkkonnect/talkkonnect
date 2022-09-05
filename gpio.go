@@ -538,10 +538,11 @@ func (b *Talkkonnect) initGPIO() {
 					if currentState != ListeningButtonState && err == nil {
 						ListeningButtonState = currentState
 						if ListeningButtonState == 1 {
-							playIOMedia("iolisteningon")
+							playIOMedia("iolisteningstop")
 							log.Println("debug: Listening Button State 1 Listening Stop")
 							b.listeningToChannels("stop")
 						} else {
+							playIOMedia("iolisteningstart")
 							b.listeningToChannels("start")
 							log.Println("debug: Listening Button State 0 Listening Start")
 						}

@@ -48,8 +48,8 @@ mkdir -p /home/talkkonnect/bin
 touch /var/log/talkkonnect.log
 
 cd /usr/local
-wget https://go.dev/dl/go1.18.4.linux-arm64.tar.gz
-tar -zxvf go1.18.4.linux-arm64.tar.gz
+wget https://go.dev/dl/go1.19.linux-arm64.tar.gz
+tar -zxvf go1.19.linux-arm64.tar.gz
 
 echo export PATH=$PATH:/usr/local/go/bin >>  ~/.bashrc
 echo export GOPATH=/home/talkkonnect/gocode >>  ~/.bashrc

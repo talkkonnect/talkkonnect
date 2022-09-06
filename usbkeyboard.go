@@ -162,7 +162,7 @@ func (b *Talkkonnect) USBKeyboard() {
 							playIOMedia("usbstartlisten")
 							b.listeningToChannels("start")
 						case "listentochannelstop":
-							playIOMedia("usbstopliosten")
+							playIOMedia("usbstoplisten")
 							b.listeningToChannels("stop")
 						default:
 							log.Println("error: Command Not Defined ", strings.ToLower(USBKeyMap[rune(ke.Scancode)].Command))

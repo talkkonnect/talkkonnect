@@ -293,7 +293,7 @@ func (b *Talkkonnect) OnPermissionDenied(e *gumble.PermissionDeniedEvent) {
 }
 
 func (b *Talkkonnect) OnChannelChange(e *gumble.ChannelChangeEvent) {
-	log.Println("alert: Channel Change Event Detected")
+	log.Println("debug: Channel Change Event Detected")
 }
 
 func (b *Talkkonnect) OnUserList(e *gumble.UserListEvent) {

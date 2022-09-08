@@ -8,7 +8,7 @@
       <insecure>true</insecure>
       <register>false</register>
       <certificate></certificate>
-      <channel/>
+      <channel>HAM-CB</channel>
       <ident>Name Surname</ident>
 	  <listentochannels>
 		<channel>talKKonnect</channel>
@@ -54,7 +54,7 @@
         <outputmutecontroldevice>Speaker</outputmutecontroldevice>
         <logfilenameandpath>/var/log/talkkonnect.log</logfilenameandpath>
         <logging>screenwithlineno</logging>
-        <loglevel>debug</loglevel>
+        <loglevel>info</loglevel>
         <cancellablestream>true</cancellablestream>
         <streamonstart>false</streamonstart>
         <streamafterstart>5</streamafterstart>
@@ -67,7 +67,7 @@
         <txcounter>false</txcounter>
         <nextserverindex>0</nextserverindex>
         <txlockout>true</txlockout>
-		<listentochannelsonstart>false</listentochannelsonstart>
+	<listentochannelsonstart>true</listentochannelsonstart>
       </settings>
       <autoprovisioning enabled="false">
         <tkid/>
@@ -339,13 +339,13 @@
         </gpioexpander>
         <max7219 max7219cascaded="1" spibus="0" spidevice="0" brightness="7" enabled="false"/>
         <pins>
-          <pin direction="output" device="led/relay"     name="voiceactivity" pinno="22" type="gpio" chipid="0" inverted="false" enabled="true"/>
-          <pin direction="output" device="led/relay"     name="participants" pinno="27" type="gpio" chipid="0" inverted="false" enabled="true"/>
-          <pin direction="output" device="led/relay"     name="transmit" pinno="17" type="gpio" chipid="0" inverted="false" enabled="true"/>
-          <pin direction="output" device="led/relay"     name="online" pinno="5" type="gpio" chipid="0" inverted="false" enabled="false"/>
+          <pin direction="output" device="led/relay"     name="voiceactivity" pinno="2" type="gpio" chipid="0" inverted="false" enabled="true"/>
+          <pin direction="output" device="led/relay"     name="participants" pinno="3" type="gpio" chipid="0" inverted="false" enabled="true"/>
+          <pin direction="output" device="led/relay"     name="transmit" pinno="4" type="gpio" chipid="0" inverted="false" enabled="true"/>
+          <pin direction="output" device="led/relay"     name="online" pinno="5" type="gpio" chipid="0" inverted="false" enabled="true"/>
           <pin direction="output" device="led/relay"     name="attention" pinno="2" type="gpio" chipid="0" inverted="false" enabled="false"/>
           <pin direction="output" device="led/relay"     name="voicetarget" pinno="2" type="gpio" chipid="0" inverted="false" enabled="false"/>
-          <pin direction="output" device="led/relay"     name="heartbeat" pinno="2" type="gpio" chipid="0" inverted="false" enabled="false"/>
+          <pin direction="output" device="led/relay"     name="heartbeat" pinno="2" type="gpio" chipid="0" inverted="false" enabled="true"/>
           <pin direction="output" device="lcd"           name="backlight" pinno="6" type="gpio" chipid="0" inverted="false" enabled="false"/>
           <pin direction="output" device="led/relay"     name="relay0" pinno="6" type="gpio" chipid="0" inverted="false" enabled="false"/>
           <pin direction="output" device="radiomodule"   name="powerdown" pinno="6" type="gpio" chipid="0" inverted="false" enabled="false"/>
@@ -367,8 +367,7 @@
           <pin direction="input"  device="pushbutton" name="mqtt0" pinno="13" type="gpio" chipid="0" enabled="false"/>
           <pin direction="input"  device="pushbutton" name="mqtt1" pinno="13" type="gpio" chipid="0" enabled="false"/>
           <pin direction="input"  device="pushbutton" name="nextserver" pinno="13" type="gpio" chipid="0" enabled="false"/>
-          <pin direction="input"  device="repeatertone" name="nextserver" pinno="13" type="gpio" chipid="0" enabled="false"/>
-		  
+          <pin direction="input"  device="repeatertone" name="repeatertone" pinno="13" type="gpio" chipid="0" enabled="false"/>
         </pins>
         <rotaryencoder enabled="false">
           <control function="mumblechannel" enabled="false"/>
@@ -381,7 +380,7 @@
           <voldownstep>-1</voldownstep>
         </volumebuttonstep>
       </io>
-      <heartbeat enabled="false">
+      <heartbeat enabled="true">
         <heartbeatledpin/>
         <periodmsecs>2000</periodmsecs>
         <ledonmsecs>1000</ledonmsecs>
@@ -533,10 +532,6 @@
         <command action="mqttpubpayloadset" paramname="payloadvalue" paramvalue="channeldown" enabled="false">
           <ttykeyboard scanid="56" keylabel="8" enabled="true"/>
           <usbkeyboard scanid="72" keylabel="8" enabled="true"/>
-        </command>
-        <command action="repeatertoneplay" paramname="repeatertoneplay" paramvalue="9" enabled="true">
-          <ttykeyboard scanid="57" keylabel="9" enabled="true"/>
-          <usbkeyboard scanid="73" keylabel="9" enabled="true"/>
         </command>
         <command action="listentochannelstart" paramname="listentochannelstart" paramvalue="8" enabled="false">
           <ttykeyboard scanid="56" keylabel="8" enabled="false"/>

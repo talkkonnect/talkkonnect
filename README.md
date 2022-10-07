@@ -5,20 +5,7 @@
 ---
 ### If you like and use talkkonnect PLEASE let us know, please STAR talkkonnect/talkkonnect repo on github.com!
 	
-### talKKonnect Version 2 Release Notice!
-* Version 1 is not updated and not maintained please use only Version 2
-* Version 2 breaks backward compatability with version 1 configs!! So make sure you use the correct version of the config file to make it work
-* The sample configs can be found in the sample-configs directory (they are marked as version 2 and version 1 respectively)
-* These Image Was Created On 09/January/2022 and Runs Bullseye Release along with talkkonnect version 2.09.19 Released 08/January/2022
-
-#### Some Interesting Features 
-#### Mumble Features
-* Shout and Whisper Support
-* Channel Token Support
-* Configurable Voice targeting via USB Numpad keyboard, TTT Keyboard, API, MQTT (Shouting and Whispering)
-* Configurable Voice Target and Shortcut Support over USB Keypad
-* Listening on Multiple Channels Support
-* Multiple Server Configurations with channel control, channel scanning and server hopping
+#### Some Interesting Features of talkkonnect
 
 #### Configurablilty
 * XML Granular configurability for many uses cases.
@@ -34,21 +21,30 @@
 * Panic button, when pressed, talKKonnect will send an alert message with GPS coordinates, followed by an email indication current location in google maps. 
 
 #### Remote Control Features
-* Local or Remote Control via a USB keyboard/terminal or SSH terminal, remote control over http api and/or MQTT.
-* API/MQTT Granular Configurable Support for remote control for commands, LED Control, Button Control, Relay Control
+Local or Remote Control via 
+* Locally attached USB keyboard
+* SSH terminal
+* Console terminal
+* Remote control over http api and/or MQTT with Granular Configurable remote control commands, LED Control, Button Control, Relay Control
 
-#### As a Radio Gateway Interface
+#### Using talkkonnect As a Radio Gateway Interface
 * Communications bridge to interface external (otherwise not compatible) radio systems both over the air and over IP networks.
 * Interface to portable or base station radios (Beefing portable radios or UART radio boards). 
 * Tone Based Repeater Opening Function with the ability to specify the tone frequency and duration in configuration.
 
-#### Extra Multimedia Features
+#### Extra Multimedia Features (IP-Speaker)
 * Full Duplex Support (No Audio Stuttering on Multiple people talking over each other)
 * Sound Files can be tied with events/actions in config (Support both blocking and non-blocking modes)
 * Streaming Audio into the channel from locally stored media file or from internet stream by local or API Call
-* Announciator Support using Google TTS with Multi Language Support)
+* Announciator Support using Google TTS with Multi Language Support
 
-#### And other features 
+#### Mumble And other Features 
+* Shout and Whisper Support
+* Channel Token Support
+* Configurable Voice targeting via USB Numpad keyboard, TTT Keyboard, API, MQTT (Shouting and Whispering)
+* Configurable Voice Target and Shortcut Support over USB Keypad
+* Listening on Multiple Channels Support
+* Multiple Server Configurations with channel control, channel scanning and server hopping
 * Many Other features as per suggested or requested by the community too many to mention here
 
 ### So What then is talKKonnect, and why should I be Interested?
@@ -56,14 +52,15 @@
 [talKKonnect](http://www.talkkonnect.com) is a headless self contained mumble Push to Talk (PTT) client complete with LCD, Channel and Volume control.
 
 The Potential Uses of talKKonnect
-* IP Intercom/Door Intercom or Intercom between remote places (Germans Love this for some unknown reason)
+* IP Intercom or Door Intercom or Intercom between remote places
 * Mobile Radio Transceiver Desktop unit for communication between workgroups stationary or mobile without distance limiting the quality of communications
 * Device to Bridge Between the World of PTT Communications over IP/Internet with the world of RF/Radio
 * Open Source Replacement for Camera Crew Communication for Live Production Events
-* Dispatch Communicatins between Dispatcher and Mobile Responders
+* Dispatch Communications between Dispatcher and Mobile Responders for emergency responders
 * Ad-Hoc Group Communications where talkkonnect is used as the base station and Android Phones/IPhones or other rugged Android Devices used in the field.
 * Use for IP Based Public Announcements (IP-Speaker Type) (Recorded and Live) with targeting to specific devices or groups 
 * A Text to Speech Alert Announcement by API/MQTT to either play locally or to remote clients
+* Remote IP-Speaker Announciator controlled remotely for public and office areas
 * A toy for our big adults like amateur radio enthusiasts (like me and many of you). 
 * A toy for your kids (so that they can feel how it was like to be a kid in the 80s with a CB radio Now With 7-Segment and Rotary Encoder Channel Changing)
 * A customized version of your particular PTT Communication unique usecase as this project is an open souce platform whereby people can build on quickly
@@ -73,7 +70,8 @@ talKKonnect was developed using [golang](https://golang.org/) and based on [gumb
 Most Libraries are however heavily vendored (modified from original). You will need to get the vendored libraries from this repo. Talkkonnect has implemented
 the later specs the mumble protocol so please use the talkkonnect vendored libraries (gumble) for building talkkonnect.
 
-Perip.io is another library that was and is still causing issues during complation of some other SBC boards other than raspberry pi and orange pi.
+Perip.io is another library that was and is still causing issues during complation of some other SBC boards other than raspberry pi and orange pi please
+use the vendored version for talkkonnect to work when compiling from scratch.
 
 [talKKonnect](http://www.talkkonnect.com) was developed initially to run on SBCs. The latest version can be scaled to run all the way from ARM SBCs to full fledged X86 servers.
 To compile on X86 archectures you would need to revert back to Tim Cooper's version of GOOPUS (Opus).
@@ -88,22 +86,20 @@ those amazing people who taught me so much.
 
 Living in an apartment in the age of the internet with the itch to innovate drove me to create talKKonnect. I did it to learn programming so in no way am I a professional programmer, however talkkonnect is very stable and production ready. So brace yourself for some code from a self taught amateur programmer.
 
-I have tried to make the talKKonnect source code readable and stable to the best of my ability. Time permitting I will continue to work and learn from all those people who give feedback 
-and show interest in using talkkonnect. 
+I have tried to make the talKKonnect source code readable and stable to the best of my ability. Time permitting I will continue to work and learn from all those people who give feedback and show interest in using talkkonnect. 
 
 [talKKonnect](http://www.talkkonnect.com) was originally created to have the form factor and functionality of a desktop transceiver. With community feedback we started to push the envelope to make it more versatile and scalable as you can see from the rich feature list.
 
-Pictures and more information of my builds can be found on my blog here [www.talkkonnect.com](https://www.talkkonnect.com)
+Pictures and detailed information of my builds can be found on my [blog](https://www.talkkonnect.com) and on [facebook](https://www.facebook.com/talkkonnect)
 
 ### Building talkkonnect Additional Optional Hardware and Precautions ###
 
 You can use an external microphone with push buttons (up/down) for Channel navigation for a mobile transceiver like experience. 
-Currently talKKonnect works with 4×20 Hitachi [HD44780](https://www.sparkfun.com/datasheets/LCD/HD44780.pdf) LCD screen in parallel mode.  Other screens like 0.96" and 1.3" [OLED](https://learn.adafruit.com/adafruit-oled-displays-for-raspberry-pi)
-with I2C interface is also currently supported. Currently SPI interfaced screens are not yet supported.
+Currently talKKonnect works with 4×20 Hitachi [HD44780](https://www.sparkfun.com/datasheets/LCD/HD44780.pdf) LCD screen in parallel mode.  Other screens like 0.96" and 1.3" [OLED](https://learn.adafruit.com/adafruit-oled-displays-for-raspberry-pi) with I2C interface is also currently supported. Currently for SPI only seven segment displays are supported.
 
 Low cost Class-D audio amplifiers like [PAM8403](https://www.instructables.com/id/PAM8403-6W-STEREO-AMPLIFIER-TUTORIAL/) or similar “D” class amplifiers, are recommended for talKKonnect builds.
 
-A good shileded cable for microphone is recommended to keep the noise picked up to a minimum. I am currently experimenting with mems microphones for better audio.
+A good shileded cable for microphone is recommended to keep the noise picked up to a minimum. Talkkonnect also supports mems microphones with very good quality audio.
 
 Instead of the onboard sound card or USB Sound Card, you can also use a ReSpeaker compatiable HAT, or a ReSpeaker USB Sound Card with built in Amplifier and achieve great audio quality results in a compact form factor.
 	
@@ -115,10 +111,9 @@ Instead of the onboard sound card or USB Sound Card, you can also use a ReSpeake
 * Heart Beat to indicate that talKKonnect is running (heartbeat LED)
 * Currently in Voicetarget mode or Speaking in Normal mode for all clients on the channel to hear (voicetarget LED)
 
-
 ### Software Configurable Features ###
 
-* *Colorized LOGs* are shown on the debugging terminal for events as they happen in real time. Logging with line number, logging to file or screen or both. 
+* Colorized Logs are shown on the debugging terminal for events as they happen in real time. Logging with line number, logging to file or screen or both. 
 * Playing of configurable *alert sounds* as different events happen, such as a different sound when someone "joins" the channel and another sound for someone "leaving" the channel.
 * *TTS prompts* to announce different events for those use special use cases where it is required.  
 * *Roger Beep* sounds that are played at the end of each transmission. 
@@ -127,6 +122,7 @@ Instead of the onboard sound card or USB Sound Card, you can also use a ReSpeake
 * Thes options can be enabled, disabled and customized in the configuration talkkonnect.xml file.
 
 ### Common Information for the all the Pre-Made Images For Various Hardware Configurations ###
+* All images are made using version 2 of talkkonnect so please use version 2 configs from the configs folder only
 * We have for your convinience created a few different images that you can download and burn to your SD card so that you can get up and running quickly with a generic instance of talkkonnect working out of the box. Choose the image based on your hardware and use case. Using one of these images you will not need to follow all the complicated steps of installing and compiling everything from scratch if that seems daunting and overwhelming to you at first. 
 * This is an easy way to start experimenting with talkkonnect in a matter of minutes. The ability to shorten the time and lessen the barrier of entry will allow you to see if talkkonnect suits your needs.
 * The network settings are set as DHCP Client so your device should get an IP Address when by cabled LAN you connect it to your DHCP enabled network.
@@ -226,7 +222,6 @@ use the appropriate script to build depening on your hardware. Replace the scrip
 ### Installation Instructions For Raspberry Pi Boards (from Source code by hand) ###
 
 You have the choice of using a 32 bit or 64 bit os, the example below is for 32 bits.
-	
 Download the latest version of Raspberry Pi OS List from https://www.raspberrypi.com/software/operating-systems/
 
 It is recommended that you use the raspberry Pi Imager for Windows or any USB / SD card imaging software for Windows or your other OS. 

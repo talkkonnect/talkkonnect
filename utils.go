@@ -561,7 +561,7 @@ func (b *Talkkonnect) VTMove(command string) {
 }
 
 func stripRegex(in string) string {
-    reg, _ := regexp.Compile("[^a-zA-Z0-9 ]+")
+    reg, _ := regexp.Compile("[^a-zA-Z0-9- ]+")
     return reg.ReplaceAllString(in, "")
 }
 

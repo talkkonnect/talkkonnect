@@ -31,10 +31,10 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.18.01"
+	talkkonnectVersion  string = "2.18.02"
 	talkkonnectReleased string = "Nov 26 2022"
 )
 
 /* Release Notes
-1. clean unprintable characters using regex to oled
+1. fixed txptt function on usb keyboard to work properly
 */

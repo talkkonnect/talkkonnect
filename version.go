@@ -31,10 +31,10 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.17.01"
-	talkkonnectReleased string = "Nov 20 2022"
+	talkkonnectVersion  string = "2.18.01"
+	talkkonnectReleased string = "Nov 26 2022"
 )
 
 /* Release Notes
-1. supports pttkey from cm108 and cmedia chips for mtech boxes
+1. clean unprintable characters using regex to oled
 */

@@ -451,7 +451,7 @@ func (b *Talkkonnect) ClientStart() {
 			select {
 			case v := <-Talking:
 				if LastSpeaker != v.WhoTalking {
-					LastSpeaker = v.WhoTalking
+					LastSpeaker =  stripRegex(v.WhoTalking)
 				}
 				if !RXLEDStatus {
 					if b.Client.Self.Channel.Name == v.OnChannel {

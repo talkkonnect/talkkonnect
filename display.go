@@ -38,7 +38,8 @@ import (
 
 //var mutex = &sync.Mutex{}
 
-func oledDisplay(OledClear bool, OledRow int, OledColumn int, OledText string) {
+func oledDisplay(OledClear bool, OledRow int, OledColumn int, OledOriginalText string) {
+	OledText := stripRegex(OledOriginalText)
 	//mutex.Lock()
 	//defer mutex.Unlock()
 

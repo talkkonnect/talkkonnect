@@ -62,6 +62,12 @@ func (b *Talkkonnect) USBKeyboard() {
 
 				if ke.State == evdev.KeyDown {
 					keyPrevStateDown = true
+				if _, ok := USBKeyMap[rune(ke.Scancode)]; ok {
+						switch strings.ToLower(USBKeyMap[rune(ke.Scancode)].Command) {
+						case "soundinterfacepttkey":
+							b.TransmitStart()
+						}
+					}
 				}
 
 				// Functions that we allow Repeating Keys Defined Here
@@ -176,6 +182,8 @@ func (b *Talkkonnect) USBKeyboard() {
 						case "listentochanneloff":
 							playIOMedia("usbstopliosten")
 							b.listeningToChannels("stop")
+						case "soundinterfacepttkey":
+							b.TransmitStop(false)
 						default:
 							log.Println("error: Command Not Defined ", strings.ToLower(USBKeyMap[rune(ke.Scancode)].Command))
 						}

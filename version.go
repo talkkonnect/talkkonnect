@@ -31,11 +31,10 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.18.03"
-	talkkonnectReleased string = "Nov 28 2022"
+	talkkonnectVersion  string = "2.18.04"
+	talkkonnectReleased string = "Dec 08 2022"
 )
 
 /* Release Notes
-1. fixed txptt function on usb keyboard to work properly
-2. fixed soundinterfacetxptt to work properly from usb sound card gpio
+1. added keyboard command to change channel as mtech requested
 */

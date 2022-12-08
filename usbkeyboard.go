@@ -173,6 +173,11 @@ func (b *Talkkonnect) USBKeyboard() {
 								playIOMedia("usbmqttpubpayloadset")
 								MQTTPublish(USBKeyMap[rune(ke.Scancode)].ParamValue)
 							}
+						case "changechannel":
+							if USBKeyMap[rune(ke.Scancode)].ParamName == "channelname" {
+								playIOMedia("changechannel")
+								b.ChangeChannel(USBKeyMap[rune(ke.Scancode)].ParamValue)
+							}
 						case "repeatertoneplay":
 							playIOMedia("iorepeatertone")
 							b.cmdPlayRepeaterTone()

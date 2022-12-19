@@ -343,6 +343,11 @@ cd $GOPATH/src/github.com/talkkonnect/talkkonnect
 
 ` /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/talkkonnect.xml`
 
+##### Sample XML files can be found from sample-configs folder: #####
+
+https://github.com/talkkonnect/talkkonnect/tree/main/sample-configs
+
+
 ##### Build talKKonnect and test connection to your Mumble server. #####
 
 ` go build -o /home/talkkonnect/bin/talkkonnect cmd/talkkonnect/main.go `

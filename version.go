@@ -31,10 +31,10 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.18.04"
-	talkkonnectReleased string = "Dec 08 2022"
+	talkkonnectVersion  string = "2.18.05"
+	talkkonnectReleased string = "Feb 24  2022"
 )
 
 /* Release Notes
-1. added keyboard command to change channel as mtech requested
+1. added allow brackets to show on OLED
 */

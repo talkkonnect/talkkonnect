@@ -70,8 +70,7 @@ talKKonnect was developed using [golang](https://golang.org/) and based on [gumb
 Most Libraries are however heavily vendored (modified from original). You will need to get the vendored libraries from this repo. Talkkonnect has implemented
 the later specs the mumble protocol so please use the talkkonnect vendored libraries (gumble) for building talkkonnect.
 
-Perip.io is another library that was and is still causing issues during complation of some other SBC boards other than raspberry pi and orange pi please
-use the vendored version for talkkonnect to work when compiling from scratch.
+Perip.io has been removed from talkkonnect so this means the respeaker LEDS will not work, however it will now behave and compile on most single board computers without issues. For those who really need the LEDS on the respeaker hat you can uncomment out the code re-enabling the SPI LEDS. 
 
 [talKKonnect](http://www.talkkonnect.com) was developed initially to run on SBCs. The latest version can be scaled to run all the way from ARM SBCs to full fledged X86 servers.
 To compile on X86 archectures you would need to revert back to Tim Cooper's version of GOOPUS (Opus).
@@ -903,5 +902,5 @@ Thank you all for your kind feedback sent along with some pictures and use cases
 ## License 
 [talKKonnect](http://www.talkkonnect.com) is open source and available under the MPL V2.00 license.
 
-<suvir@talkkonnect.com> Updated 05/04/2022 talkkonnect version 2.16.09 is the latest release as of this writing.
+<suvir@talkkonnect.com> Updated 03/03/2023 talkkonnect version 2.19.01 is the latest release as of this writing.
 

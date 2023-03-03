@@ -684,7 +684,7 @@ var (
 
 var (
 	LcdText    = [4]string{"nil", "nil", "nil", "nil"}
-	MyLedStrip *LedStrip
+//	MyLedStrip *LedStrip
 	TTYKeyMap  = make(map[rune]KBStruct)
 	USBKeyMap  = make(map[rune]KBStruct)
 )

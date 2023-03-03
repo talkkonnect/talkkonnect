@@ -31,10 +31,10 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.18.05"
-	talkkonnectReleased string = "Feb 24  2022"
+	talkkonnectVersion  string = "2.19.01"
+	talkkonnectReleased string = "Mar 3  2023"
 )
 
 /* Release Notes
-1. added allow brackets to show on OLED
+1. Commented out LEDSTRIP that was causing nightmares all over the internet
 */

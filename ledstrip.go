@@ -28,7 +28,10 @@
  * ledstrip.go -> function in talkkonnect to control the led strip on respeaker hat
  */
 
+
 package talkkonnect
+/*
+// uncomment code for working leds on spi leds on respeaker, its a mine field you have been warned!
 
 import (
 	"errors"
@@ -37,7 +40,7 @@ import (
 
 	"github.com/talkkonnect/periph/x/periph/conn/physic"
 	"github.com/talkkonnect/periph/x/periph/conn/spi"
-	"github.com/talkkonnect/periph/x/periph/conn/spi/spireg"
+ 	"github.com/talkkonnect/periph/x/periph/conn/spi/spireg"
 	"github.com/talkkonnect/periph/x/periph/devices/apa102"
 	"github.com/talkkonnect/periph/x/periph/host"
 )
@@ -53,11 +56,13 @@ const (
 	OffCol            string = "000000" //Off
 )
 
+
 type LedStrip struct {
 	buf          []byte
 	display      *apa102.Dev
 	spiInterface spi.PortCloser
 }
+
 
 func NewLedStrip() (*LedStrip, error) {
 	var spiID string = "SPI0.0"   //SPI port to use
@@ -123,3 +128,4 @@ func (ls *LedStrip) ledCtrl(num int, color string) error {
 
 	return err
 }
+*/

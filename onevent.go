@@ -42,13 +42,13 @@ import (
 func (b *Talkkonnect) OnConnect(e *gumble.ConnectEvent) {
 	if IsConnected {
 		GPIOOutPin("online", "on")
-		MyLedStripOnlineLEDOn()
+//		MyLedStripOnlineLEDOn()
 		return
 	}
 
 	IsConnected = true
 	GPIOOutPin("online", "on")
-	MyLedStripOnlineLEDOn()
+	//MyLedStripOnlineLEDOn()
 	b.BackLightTimer()
 	b.Client = e.Client
 	ConnectAttempts = 1
@@ -102,10 +102,10 @@ func (b *Talkkonnect) OnDisconnect(e *gumble.DisconnectEvent) {
 
 	IsConnected = false
 	GPIOOutPin("online", "off")
-	MyLedStripOnlineLEDOff()
+	//MyLedStripOnlineLEDOff()
 	if Config.Global.Hardware.TargetBoard == "rpi" {
 		GPIOOutAll("led/relay", "off")
-		MyLedStripGPIOOffAll()
+		//MyLedStripGPIOOffAll()
 	}
 
 	log.Println("alert: Attempting Reconnect in 5 seconds...")

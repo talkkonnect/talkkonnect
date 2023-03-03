@@ -1030,6 +1030,7 @@ func GPIOOutAll(name string, command string) {
 	}
 }
 
+/*
 func MyLedStripGPIOOffAll() {
 	if Config.Global.Hardware.LedStripEnabled {
 		log.Println("debug: Turning Off All LEDStrip LEDs")
@@ -1083,7 +1084,7 @@ func MyLedStripTransmitLEDOff() {
 
 	}
 }
-
+*/
 func Max7219(max7219Cascaded int, spiBus int, spiDevice int, brightness byte, toDisplay string) {
 	if Config.Global.Hardware.IO.Max7219.Enabled {
 		mtx := max7219.NewMatrix(max7219Cascaded)

@@ -74,7 +74,7 @@ func CleanUp() {
 			oledDisplay(false, 7, 1, "www.talkkonnect.com")
 		}
 		GPIOOutAll("led/relay", "off")
-		MyLedStripGPIOOffAll()
+//		MyLedStripGPIOOffAll()
 	}
 
 	term.Close()
@@ -161,7 +161,7 @@ func (b *Talkkonnect) TransmitStart() {
 	if Config.Global.Hardware.TargetBoard == "rpi" {
 		// use groutine so no need to wait for local screen cause it causes delay
 		go GPIOOutPin("transmit", "on")
-		go MyLedStripTransmitLEDOn()
+		//go MyLedStripTransmitLEDOn()
 		go txScreen()
 	}
 
@@ -184,7 +184,7 @@ func (b *Talkkonnect) TransmitStop(withBeep bool) {
 
 	if Config.Global.Hardware.TargetBoard == "rpi" {
 		GPIOOutPin("transmit", "off")
-		MyLedStripTransmitLEDOff()
+		//MyLedStripTransmitLEDOff()
 		if LCDEnabled {
 			LcdText[0] = b.Name // b.Address
 			LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)

@@ -279,8 +279,8 @@ func (b *Talkkonnect) ClientStart() {
 		log.Println("info: Target Board Set as RPI (gpio enabled) ")
 		b.initGPIO()
 		if Config.Global.Hardware.LedStripEnabled {
-			MyLedStrip, _ = NewLedStrip()
-			log.Printf("info: Led Strip %v %s\n", MyLedStrip.buf, MyLedStrip.display)
+//			MyLedStrip, _ = NewLedStrip()
+//			log.Printf("info: Led Strip %v %s\n", MyLedStrip.buf, MyLedStrip.display)
 		}
 	} else {
 		log.Println("info: Target Board Set as PC (gpio disabled) ")
@@ -463,7 +463,7 @@ func (b *Talkkonnect) ClientStart() {
 					txlockout := &TXLockOut
 					*txlockout = true
 					go GPIOOutPin("voiceactivity", "on")
-					MyLedStripVoiceActivityLEDOn()
+//					MyLedStripVoiceActivityLEDOn()
 					go rxScreen(LastSpeaker)
 				}
 			case <-TalkedTicker.C:
@@ -472,7 +472,7 @@ func (b *Talkkonnect) ClientStart() {
 					txlockout := &TXLockOut
 					*txlockout = false
 					go GPIOOutPin("voiceactivity", "off")
-					MyLedStripVoiceActivityLEDOff()
+					//MyLedStripVoiceActivityLEDOff()
 					//TalkedTicker.Stop()
 				}
 			}

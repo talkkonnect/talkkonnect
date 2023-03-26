@@ -57,7 +57,7 @@ fi
 rm -rf /home/talkkonnect/gocode/src/github.old
 rm -rf /home/talkkonnect/gocode/src/google.golang.org
 rm -rf /home/talkkonnect/gocode/src/golang.org
-cp -R /home/talkkonnect/gocode/src/github.com /home/talkkonnect/gocode/src/github.old
+cp -R /home/talkkonnect/gocode/src/github.com /root/github.backup
 rm -rf  /home/talkkonnect/gocode/src/github.com
 rm -rf  /home/talkkonnect/bin/talkkonnect
 
@@ -69,6 +69,13 @@ mkdir -p /home/talkkonnect/gocode/src
 mkdir -p /home/talkkonnect/gocode/src/github.com
 
 
+## Added this block to update to the latest version of golang so the update doesnt break talkkonnect
+rm -rf /usr/local/go
+cd /usr/local
+cd /usr/local
+wget https://go.dev/dl/go1.20.2.linux-arm64.tar.gz
+tar -zxvf go1.20.2.linux-arm64.tar.gz
+
 ## Set up GOENVIRONMENT
 export PATH=$PATH:/usr/local/go/bin
 export GOPATH=/home/talkkonnect/gocode
@@ -77,7 +84,7 @@ export GO111MODULE="auto"
 
 ## Get the latest source code of talkkonnect from github.com
 echo "getting talkkonnect with go get"
-cd $GOPATH 
+cd $GOPATH
 go get -v github.com/talkkonnect/talkkonnect
 cp /root/mumble.pem /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/
 

@@ -291,6 +291,13 @@ type ConfigStruct struct {
 				IgnoreUserEnabled bool   `xml:"enabled,attr"`
 				IgnoreUserRegex   string `xml:"ignoreuserregex"`
 			} `xml:"ignoreuser"`
+			MemoryChannels struct {
+				Channel []struct {
+					GPIOName    string `xml:"gpioname,attr"`
+					ChannelName string `xml:"channelname,attr"`
+					Enabled     bool   `xml:"enabled,attr"`
+				} `xml:"channel"`
+			} `xml:"memorychannels"`
 		} `xml:"software"`
 		Hardware struct {
 			TargetBoard             string        `xml:"targetboard,attr"`
@@ -580,6 +587,11 @@ type VTStruct struct {
 	}
 }
 
+type MemoryChannelStruct struct {
+	Enabled     bool
+	ChannelName string
+}
+
 type KBStruct struct {
 	Enabled    bool
 	KeyLabel   uint32
@@ -683,10 +695,11 @@ var (
 )
 
 var (
-	LcdText    = [4]string{"nil", "nil", "nil", "nil"}
-//	MyLedStrip *LedStrip
-	TTYKeyMap  = make(map[rune]KBStruct)
-	USBKeyMap  = make(map[rune]KBStruct)
+	LcdText = [4]string{"nil", "nil", "nil", "nil"}
+	//	MyLedStrip *LedStrip
+	TTYKeyMap     = make(map[rune]KBStruct)
+	USBKeyMap     = make(map[rune]KBStruct)
+	GPIOMemoryMap = make(map[string]MemoryChannelStruct)
 )
 
 // Mumble Account Settings Global Variables
@@ -805,6 +818,13 @@ func readxmlconfig(file string, reloadxml bool) error {
 				USBKeyMap[kMainCommands.Usbkeyboard.Scanid] = KBStruct{kMainCommands.Usbkeyboard.Enabled, kMainCommands.Usbkeyboard.Keylabel, kMainCommands.Action, kMainCommands.ParamName, kMainCommands.Paramvalue}
 			}
 
+		}
+	}
+
+	for _, memoryButtonCommands := range Config.Global.Software.MemoryChannels.Channel {
+		if memoryButtonCommands.Enabled {
+			log.Printf("alert: Populating %v \n", memoryButtonCommands.GPIOName)
+			GPIOMemoryMap[memoryButtonCommands.GPIOName] = MemoryChannelStruct{memoryButtonCommands.Enabled, memoryButtonCommands.ChannelName}
 		}
 	}
 
@@ -1550,7 +1570,7 @@ func CheckConfigSanity(reloadxml bool) {
 				Warnings++
 			}
 
-			if !(gpio.Name == "voiceactivity" || gpio.Name == "participants" || gpio.Name == "transmit" || gpio.Name == "online" || gpio.Name == "attention" || gpio.Name == "voicetarget" || gpio.Name == "heartbeat" || gpio.Name == "backlight" || gpio.Name == "relay0" || gpio.Name == "txptt" || gpio.Name == "txtoggle" || gpio.Name == "channelup" || gpio.Name == "channeldown" || gpio.Name == "panic" || gpio.Name == "streamtoggle" || gpio.Name == "comment" || gpio.Name == "rotarya" || gpio.Name == "rotaryb" || gpio.Name == "rotarybutton" || gpio.Name == "volup" || gpio.Name == "voldown") {
+			if !(gpio.Name == "voiceactivity" || gpio.Name == "participants" || gpio.Name == "transmit" || gpio.Name == "online" || gpio.Name == "attention" || gpio.Name == "voicetarget" || gpio.Name == "heartbeat" || gpio.Name == "backlight" || gpio.Name == "relay0" || gpio.Name == "txptt" || gpio.Name == "txtoggle" || gpio.Name == "channelup" || gpio.Name == "channeldown" || gpio.Name == "panic" || gpio.Name == "streamtoggle" || gpio.Name == "comment" || gpio.Name == "rotarya" || gpio.Name == "rotaryb" || gpio.Name == "rotarybutton" || gpio.Name == "volup" || gpio.Name == "voldown" || gpio.Name == "memorychannel1" || gpio.Name == "memorychannel2" || gpio.Name == "memorychannel3" || gpio.Name == "memorychannel4") {
 				log.Printf("warn: Config Error [Section GPIO] Enabled GPIO Name %v Pin Number %v Invalid Name\n", gpio.Name, gpio.PinNo)
 				Config.Global.Hardware.IO.Pins.Pin[index].Enabled = false
 				Warnings++

@@ -129,6 +129,26 @@ var (
 	RepeaterToneButton      gpio.Pin
 	RepeaterToneButtonPin   uint
 	RepeaterToneButtonState uint
+
+	MemoryChannelButton1Used  bool
+	MemoryChannelButton1      gpio.Pin
+	MemoryChannelButton1Pin   uint
+	MemoryChannelButton1State uint
+
+	MemoryChannelButton2Used  bool
+	MemoryChannelButton2      gpio.Pin
+	MemoryChannelButton2Pin   uint
+	MemoryChannelButton2State uint
+
+	MemoryChannelButton3Used  bool
+	MemoryChannelButton3      gpio.Pin
+	MemoryChannelButton3Pin   uint
+	MemoryChannelButton3State uint
+
+	MemoryChannelButton4Used  bool
+	MemoryChannelButton4      gpio.Pin
+	MemoryChannelButton4Pin   uint
+	MemoryChannelButton4State uint
 )
 
 var D [8]*mcp23017.Device
@@ -299,6 +319,35 @@ func (b *Talkkonnect) initGPIO() {
 				NextServerButtonUsed = true
 				NextServerButtonPin = io.PinNo
 			}
+			if io.Name == "memorychannel1" && io.PinNo > 0 {
+				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
+				MemoryChannelButton1PinPullUp := rpio.Pin(io.PinNo)
+				MemoryChannelButton1PinPullUp.PullUp()
+				MemoryChannelButton1Used = true
+				MemoryChannelButton1Pin = io.PinNo
+			}
+			if io.Name == "memorychannel2" && io.PinNo > 0 {
+				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
+				MemoryChannelButton2PinPullUp := rpio.Pin(io.PinNo)
+				MemoryChannelButton2PinPullUp.PullUp()
+				MemoryChannelButton2Used = true
+				MemoryChannelButton2Pin = io.PinNo
+			}
+			if io.Name == "memorychannel3" && io.PinNo > 0 {
+				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
+				MemoryChannelButton3PinPullUp := rpio.Pin(io.PinNo)
+				MemoryChannelButton3PinPullUp.PullUp()
+				MemoryChannelButton3Used = true
+				MemoryChannelButton3Pin = io.PinNo
+			}
+			if io.Name == "memorychannel1" && io.PinNo > 0 {
+				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
+				MemoryChannelButton4PinPullUp := rpio.Pin(io.PinNo)
+				MemoryChannelButton4PinPullUp.PullUp()
+				MemoryChannelButton4Used = true
+				MemoryChannelButton4Pin = io.PinNo
+			}
+
 			if io.Name == "repeatertone" && io.PinNo > 0 {
 				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
 				RepeaterToneButtonPinPullUp := rpio.Pin(io.PinNo)
@@ -309,7 +358,7 @@ func (b *Talkkonnect) initGPIO() {
 		}
 	}
 
-	if TxButtonUsed || TxToggleUsed || UpButtonUsed || DownButtonUsed || PanicUsed || StreamToggleUsed || CommentUsed || RotaryUsed || RotaryButtonUsed || VolUpButtonUsed || VolDownButtonUsed || TrackingUsed || MQTT0ButtonUsed || MQTT1ButtonUsed || NextServerButtonUsed || RepeaterToneButtonUsed || ListeningUsed {
+	if TxButtonUsed || TxToggleUsed || UpButtonUsed || DownButtonUsed || PanicUsed || StreamToggleUsed || CommentUsed || RotaryUsed || RotaryButtonUsed || VolUpButtonUsed || VolDownButtonUsed || TrackingUsed || MQTT0ButtonUsed || MQTT1ButtonUsed || NextServerButtonUsed || MemoryChannelButton1Used || MemoryChannelButton2Used || MemoryChannelButton3Used || MemoryChannelButton4Used || RepeaterToneButtonUsed || ListeningUsed {
 		rpio.Close()
 	}
 
@@ -830,6 +879,130 @@ func (b *Talkkonnect) initGPIO() {
 		}()
 	}
 
+	if MemoryChannelButton1Used {
+		MemoryChannelButton1 = gpio.NewInput(MemoryChannelButton1Pin)
+		go func() {
+			for {
+				if IsConnected {
+					currentState, err := MemoryChannelButton1.Read()
+					time.Sleep(150 * time.Millisecond)
+					if currentState != MemoryChannelButton1State && err == nil {
+						MemoryChannelButton1State = currentState
+						if MemoryChannelButton1State == 1 {
+							log.Println("debug: MemoryChannelButton1 Button is released")
+						} else {
+							log.Println("debug: MemoryChannelButton1 Button is pressed")
+							playIOMedia("memorychannel")
+							v, found := GPIOMemoryMap["memorychannel1"]
+							if found {
+								b.ChangeChannel(v.ChannelName)
+							} else {
+								log.Printf("error: Channel %v Not Found Channel Change Failed\n", v)
+							}
+
+							time.Sleep(150 * time.Millisecond)
+						}
+					}
+				} else {
+					time.Sleep(1 * time.Second)
+				}
+			}
+		}()
+	}
+
+	if MemoryChannelButton2Used {
+		MemoryChannelButton2 = gpio.NewInput(MemoryChannelButton2Pin)
+		go func() {
+			for {
+				if IsConnected {
+					currentState, err := MemoryChannelButton2.Read()
+					time.Sleep(150 * time.Millisecond)
+					if currentState != MemoryChannelButton2State && err == nil {
+						MemoryChannelButton2State = currentState
+						if MemoryChannelButton2State == 1 {
+							log.Println("debug: MemoryChannelButton2 Button is released")
+						} else {
+							log.Println("debug: MemoryChannelButton2 Button is pressed")
+							playIOMedia("memorychannel")
+							v, found := GPIOMemoryMap["memorychannel2"]
+							if found {
+								b.ChangeChannel(v.ChannelName)
+							} else {
+								log.Printf("error: Channel %v Not Found Channel Change Failed\n", v)
+							}
+
+							time.Sleep(150 * time.Millisecond)
+						}
+					}
+				} else {
+					time.Sleep(1 * time.Second)
+				}
+			}
+		}()
+	}
+
+	if MemoryChannelButton3Used {
+		MemoryChannelButton3 = gpio.NewInput(MemoryChannelButton3Pin)
+		go func() {
+			for {
+				if IsConnected {
+					currentState, err := MemoryChannelButton3.Read()
+					time.Sleep(150 * time.Millisecond)
+					if currentState != MemoryChannelButton3State && err == nil {
+						MemoryChannelButton3State = currentState
+						if MemoryChannelButton3State == 1 {
+							log.Println("debug: MemoryChannelButton3 Button is released")
+						} else {
+							log.Println("debug: MemoryChannelButton3 Button is pressed")
+							playIOMedia("memorychannel")
+							v, found := GPIOMemoryMap["memorychannel3"]
+							if found {
+								b.ChangeChannel(v.ChannelName)
+							} else {
+								log.Printf("error: Channel %v Not Found Channel Change Failed\n", v)
+							}
+
+							time.Sleep(150 * time.Millisecond)
+						}
+					}
+				} else {
+					time.Sleep(1 * time.Second)
+				}
+			}
+		}()
+	}
+
+	if MemoryChannelButton4Used {
+		MemoryChannelButton4 = gpio.NewInput(MemoryChannelButton4Pin)
+		go func() {
+			for {
+				if IsConnected {
+					currentState, err := MemoryChannelButton4.Read()
+					time.Sleep(150 * time.Millisecond)
+					if currentState != MemoryChannelButton4State && err == nil {
+						MemoryChannelButton4State = currentState
+						if MemoryChannelButton4State == 1 {
+							log.Println("debug: MemoryChannelButton4 Button is released")
+						} else {
+							log.Println("debug: MemoryChannelButton4 Button is pressed")
+							playIOMedia("memorychannel")
+							v, found := GPIOMemoryMap["memorychannel4"]
+							if found {
+								b.ChangeChannel(v.ChannelName)
+							} else {
+								log.Printf("error: Channel %v Not Found Channel Change Failed\n", v)
+							}
+
+							time.Sleep(150 * time.Millisecond)
+						}
+					}
+				} else {
+					time.Sleep(1 * time.Second)
+				}
+			}
+		}()
+	}
+
 	if RepeaterToneButtonUsed {
 		RepeaterToneButton = gpio.NewInput(RepeaterToneButtonPin)
 		go func() {
@@ -1031,59 +1204,60 @@ func GPIOOutAll(name string, command string) {
 }
 
 /*
-func MyLedStripGPIOOffAll() {
-	if Config.Global.Hardware.LedStripEnabled {
-		log.Println("debug: Turning Off All LEDStrip LEDs")
-		MyLedStrip.ledCtrl(SOnlineLED, OffCol)
-		MyLedStrip.ledCtrl(SVoiceActivityLED, OffCol)
-		MyLedStrip.ledCtrl(STransmitLED, OffCol)
+	func MyLedStripGPIOOffAll() {
+		if Config.Global.Hardware.LedStripEnabled {
+			log.Println("debug: Turning Off All LEDStrip LEDs")
+			MyLedStrip.ledCtrl(SOnlineLED, OffCol)
+			MyLedStrip.ledCtrl(SVoiceActivityLED, OffCol)
+			MyLedStrip.ledCtrl(STransmitLED, OffCol)
+		}
 	}
-}
 
-func MyLedStripOnlineLEDOn() {
-	if Config.Global.Hardware.LedStripEnabled {
-		log.Println("debug: Turning On LEDStrip Online LED")
-		MyLedStrip.ledCtrl(SOnlineLED, OnlineCol)
+	func MyLedStripOnlineLEDOn() {
+		if Config.Global.Hardware.LedStripEnabled {
+			log.Println("debug: Turning On LEDStrip Online LED")
+			MyLedStrip.ledCtrl(SOnlineLED, OnlineCol)
+		}
 	}
-}
 
-func MyLedStripOnlineLEDOff() {
-	if Config.Global.Hardware.LedStripEnabled {
-		log.Println("debug: Turning Off LEDStrip Online LED")
-		MyLedStrip.ledCtrl(SOnlineLED, OffCol)
+	func MyLedStripOnlineLEDOff() {
+		if Config.Global.Hardware.LedStripEnabled {
+			log.Println("debug: Turning Off LEDStrip Online LED")
+			MyLedStrip.ledCtrl(SOnlineLED, OffCol)
 
+		}
 	}
-}
 
-func MyLedStripVoiceActivityLEDOn() {
-	if Config.Global.Hardware.LedStripEnabled {
-		log.Println("debug: Turning On LEDStrip VoiceActivity LED")
-		MyLedStrip.ledCtrl(SVoiceActivityLED, VoiceActivityCol)
+	func MyLedStripVoiceActivityLEDOn() {
+		if Config.Global.Hardware.LedStripEnabled {
+			log.Println("debug: Turning On LEDStrip VoiceActivity LED")
+			MyLedStrip.ledCtrl(SVoiceActivityLED, VoiceActivityCol)
+		}
 	}
-}
 
-func MyLedStripVoiceActivityLEDOff() {
-	if Config.Global.Hardware.LedStripEnabled {
-		log.Println("debug: Turning Off LEDStrip VoiceActivity LED")
-		MyLedStrip.ledCtrl(SVoiceActivityLED, OffCol)
+	func MyLedStripVoiceActivityLEDOff() {
+		if Config.Global.Hardware.LedStripEnabled {
+			log.Println("debug: Turning Off LEDStrip VoiceActivity LED")
+			MyLedStrip.ledCtrl(SVoiceActivityLED, OffCol)
 
+		}
 	}
-}
 
-func MyLedStripTransmitLEDOn() {
-	if Config.Global.Hardware.LedStripEnabled {
-		log.Println("debug: Turning On LEDStrip Transmit LED")
-		MyLedStrip.ledCtrl(STransmitLED, TransmitCol)
+	func MyLedStripTransmitLEDOn() {
+		if Config.Global.Hardware.LedStripEnabled {
+			log.Println("debug: Turning On LEDStrip Transmit LED")
+			MyLedStrip.ledCtrl(STransmitLED, TransmitCol)
 
+		}
 	}
-}
-func MyLedStripTransmitLEDOff() {
-	if Config.Global.Hardware.LedStripEnabled {
-		log.Println("debug: Turning Off LEDStrip Transmit LED")
-		MyLedStrip.ledCtrl(STransmitLED, OffCol)
 
+	func MyLedStripTransmitLEDOff() {
+		if Config.Global.Hardware.LedStripEnabled {
+			log.Println("debug: Turning Off LEDStrip Transmit LED")
+			MyLedStrip.ledCtrl(STransmitLED, OffCol)
+
+		}
 	}
-}
 */
 func Max7219(max7219Cascaded int, spiBus int, spiDevice int, brightness byte, toDisplay string) {
 	if Config.Global.Hardware.IO.Max7219.Enabled {

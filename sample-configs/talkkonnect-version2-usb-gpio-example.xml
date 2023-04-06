@@ -329,6 +329,12 @@
       <ignoreuser enabled="true">
         <ignoreuserregex>^(suvirsony)$</ignoreuserregex>
       </ignoreuser>
+     <memorychannels>
+        <channel gpioname="memorychannel1" channelname="Test-Channel" enabled="true"/>
+        <channel gpioname="memorychannel2" channelname="HAM-CB" enabled="true"/>
+        <channel gpioname="memorychannel3" channelname="talKKonnect" enabled="true"/>
+        <channel gpioname="memorychannel4" channelname="Mtech-talkkonnect" enabled="true"/>
+      </memorychannels>
     </software>
     <hardware targetboard="rpi">
       <ledstripenabled>false</ledstripenabled>

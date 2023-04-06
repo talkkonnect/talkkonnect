@@ -74,7 +74,7 @@ func CleanUp() {
 			oledDisplay(false, 7, 1, "www.talkkonnect.com")
 		}
 		GPIOOutAll("led/relay", "off")
-//		MyLedStripGPIOOffAll()
+		//		MyLedStripGPIOOffAll()
 	}
 
 	term.Close()
@@ -267,58 +267,49 @@ func (b *Talkkonnect) ParticipantLEDUpdate(verbose bool) {
 		}
 	}
 
-	if participantCount > 1 {
+	if participantCount == 1 && (participantCount != prevParticipantCount) {
 		for _, tts := range Config.Global.Software.TTS.Sound {
 			if tts.Action == "participants" {
 				if tts.Enabled {
-					tempStatus := Config.Global.Software.TTSMessages.TTSTone.ToneEnabled
-					Config.Global.Software.TTSMessages.TTSTone.ToneEnabled = false
-					b.Speak("There Are Currently "+strconv.Itoa(participantCount)+" Users in The Channel "+b.Client.Self.Channel.Name, "local", 1, 0, 1, Config.Global.Software.TTSMessages.TTSLanguage)
-					Config.Global.Software.TTSMessages.TTSTone.ToneEnabled = tempStatus
+					b.Speak("You are Currently Alone in The Channel "+b.Client.Self.Channel.Name, "local", Config.Global.Software.TTS.Volumelevel, 0, 1, Config.Global.Software.TTSMessages.TTSLanguage)
 				}
 			}
 		}
+		log.Println("info: Channel ", b.Client.Self.Channel.Name, " has no other participants")
 	}
-	prevParticipantCount = len(b.Client.Self.Channel.Users)
 
-	if verbose {
-		log.Println("info: Current Channel ", b.Client.Self.Channel.Name, " has (", participantCount, ") participants")
-		b.ListUsers()
-		if Config.Global.Hardware.TargetBoard == "rpi" {
-			if LCDEnabled {
-				LcdText[0] = b.Name //b.Address
-				LcdText[1] = "(" + strconv.Itoa(participantCount) + ")" + b.Client.Self.Channel.Name
-				LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
-			}
-			if OLEDEnabled {
-				oledDisplay(false, 0, 1, b.Name) //b.Address
-				oledDisplay(false, 1, 1, "("+strconv.Itoa(participantCount)+")"+b.Client.Self.Channel.Name)
-				oledDisplay(false, 6, 1, "Please Visit")
-				oledDisplay(false, 7, 1, "www.talkkonnect.com")
-			}
-
+	log.Println("info: Current Channel ", b.Client.Self.Channel.Name, " has (", participantCount, ") participants")
+	b.ListUsers()
+	if Config.Global.Hardware.TargetBoard == "rpi" {
+		if LCDEnabled {
+			LcdText[0] = b.Name //b.Address
+			LcdText[1] = "(" + strconv.Itoa(participantCount) + ")" + b.Client.Self.Channel.Name
+			LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 		}
+		if OLEDEnabled {
+			oledDisplay(false, 0, 1, b.Name) //b.Address
+			oledDisplay(false, 1, 1, "("+strconv.Itoa(participantCount)+")"+b.Client.Self.Channel.Name)
+			oledDisplay(false, 6, 1, "Please Visit")
+			oledDisplay(false, 7, 1, "www.talkkonnect.com")
+		}
+
 	}
 
 	if participantCount > 1 {
 		if Config.Global.Hardware.TargetBoard == "rpi" {
 			GPIOOutPin("participants", "on")
 		}
-	} else {
-
-		if verbose {
-			for _, tts := range Config.Global.Software.TTS.Sound {
-				if tts.Action == "participants" {
-					if tts.Enabled {
-						b.Speak("You are Currently Alone in The Channel "+b.Client.Self.Channel.Name, "local", 1, 0, 1, Config.Global.Software.TTSMessages.TTSLanguage)
-					}
+		for _, tts := range Config.Global.Software.TTS.Sound {
+			if tts.Action == "participants" {
+				if tts.Enabled && (participantCount != prevParticipantCount) {
+					tempStatus := Config.Global.Software.TTSMessages.TTSTone.ToneEnabled
+					Config.Global.Software.TTSMessages.TTSTone.ToneEnabled = false
+					b.Speak("There Are Currently "+strconv.Itoa(participantCount)+" Users in The Channel "+b.Client.Self.Channel.Name, "local", Config.Global.Software.TTS.Volumelevel, 0, 1, Config.Global.Software.TTSMessages.TTSLanguage)
+					Config.Global.Software.TTSMessages.TTSTone.ToneEnabled = tempStatus
 				}
 			}
-
-			log.Println("info: Channel ", b.Client.Self.Channel.Name, " has no other participants")
 		}
-
-		prevParticipantCount = len(b.Client.Self.Channel.Users)
+	} else {
 
 		if Config.Global.Hardware.TargetBoard == "rpi" {
 			GPIOOutPin("participants", "off")
@@ -332,6 +323,8 @@ func (b *Talkkonnect) ParticipantLEDUpdate(verbose bool) {
 			}
 		}
 	}
+
+	prevParticipantCount = participantCount
 }
 
 func (b *Talkkonnect) ListUsers() {

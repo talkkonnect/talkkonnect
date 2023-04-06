@@ -823,7 +823,7 @@ func readxmlconfig(file string, reloadxml bool) error {
 
 	for _, memoryButtonCommands := range Config.Global.Software.MemoryChannels.Channel {
 		if memoryButtonCommands.Enabled {
-			log.Printf("alert: Populating %v \n", memoryButtonCommands.GPIOName)
+			log.Printf("debug: Populating %v \n", memoryButtonCommands.GPIOName)
 			GPIOMemoryMap[memoryButtonCommands.GPIOName] = MemoryChannelStruct{memoryButtonCommands.Enabled, memoryButtonCommands.ChannelName}
 		}
 	}

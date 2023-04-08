@@ -31,10 +31,10 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.21.01"
-	talkkonnectReleased string = "Apr 6  2023"
+	talkkonnectVersion  string = "2.22.01"
+	talkkonnectReleased string = "Apr 8  2023"
 )
 
 /* Release Notes
-1. Added GPIO Press Button For Direct Memory Channel Mapping
+1. Added the ability to shutoff toggle the working of voiceactivity led and txptt button for channel moderation
 */

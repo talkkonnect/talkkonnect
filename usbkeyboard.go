@@ -62,7 +62,7 @@ func (b *Talkkonnect) USBKeyboard() {
 
 				if ke.State == evdev.KeyDown {
 					keyPrevStateDown = true
-				if _, ok := USBKeyMap[rune(ke.Scancode)]; ok {
+					if _, ok := USBKeyMap[rune(ke.Scancode)]; ok {
 						switch strings.ToLower(USBKeyMap[rune(ke.Scancode)].Command) {
 						case "soundinterfacepttkey":
 							b.TransmitStart()
@@ -87,7 +87,7 @@ func (b *Talkkonnect) USBKeyboard() {
 						case "volumedown":
 							playIOMedia("usbvoldown")
 							b.cmdVolumeDown()
- 						case "pttkey":
+						case "pttkey":
 							if !b.IsTransmitting {
 								b.TransmitStart()
 							}
@@ -189,6 +189,13 @@ func (b *Talkkonnect) USBKeyboard() {
 							b.listeningToChannels("stop")
 						case "soundinterfacepttkey":
 							b.TransmitStop(false)
+						case "toggletx":
+							playIOMedia("toggletx")
+							TxButtonUsed = !TxButtonUsed
+							log.Printf("toggletx enabled is %v", TxButtonUsed)
+						case "togglerx":
+							playIOMedia("togglerx")
+							GPIOOutPinToggle("voiceactivity")
 						default:
 							log.Println("error: Command Not Defined ", strings.ToLower(USBKeyMap[rune(ke.Scancode)].Command))
 						}

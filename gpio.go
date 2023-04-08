@@ -366,7 +366,7 @@ func (b *Talkkonnect) initGPIO() {
 		TxButton = gpio.NewInput(TxButtonPin)
 		go func() {
 			for {
-				if IsConnected {
+				if IsConnected && TxButtonUsed {
 					time.Sleep(150 * time.Millisecond)
 					currentState, err := TxButton.Read()
 					if currentState != TxButtonState && err == nil {
@@ -419,7 +419,7 @@ func (b *Talkkonnect) initGPIO() {
 		go func() {
 			var prevState uint = 1
 			for {
-				if IsConnected {
+				if IsConnected && TxToggleUsed {
 					currentState, err := TxToggle.Read()
 					time.Sleep(150 * time.Millisecond)
 					if err != nil {
@@ -474,7 +474,7 @@ func (b *Talkkonnect) initGPIO() {
 		UpButton = gpio.NewInput(UpButtonPin)
 		go func() {
 			for {
-				if IsConnected {
+				if IsConnected && UpButtonUsed {
 					currentState, err := UpButton.Read()
 					time.Sleep(150 * time.Millisecond)
 					if currentState != UpButtonState && err == nil {
@@ -499,7 +499,7 @@ func (b *Talkkonnect) initGPIO() {
 		DownButton = gpio.NewInput(DownButtonPin)
 		go func() {
 			for {
-				if IsConnected {
+				if IsConnected && DownButtonUsed {
 
 					currentState, err := DownButton.Read()
 					time.Sleep(150 * time.Millisecond)
@@ -527,7 +527,7 @@ func (b *Talkkonnect) initGPIO() {
 		PanicButton = gpio.NewInput(PanicButtonPin)
 		go func() {
 			for {
-				if IsConnected {
+				if IsConnected && PanicUsed {
 					currentState, err := PanicButton.Read()
 					time.Sleep(150 * time.Millisecond)
 					if currentState != PanicButtonState && err == nil {
@@ -553,7 +553,7 @@ func (b *Talkkonnect) initGPIO() {
 		CommentButton = gpio.NewInput(CommentButtonPin)
 		go func() {
 			for {
-				if IsConnected {
+				if IsConnected && CommentUsed {
 					currentState, err := CommentButton.Read()
 					time.Sleep(150 * time.Millisecond)
 					if currentState != CommentButtonState && err == nil {
@@ -581,7 +581,7 @@ func (b *Talkkonnect) initGPIO() {
 		ListeningButton = gpio.NewInput(ListeningButtonPin)
 		go func() {
 			for {
-				if IsConnected {
+				if IsConnected && ListeningUsed {
 					currentState, err := ListeningButton.Read()
 					time.Sleep(150 * time.Millisecond)
 					if currentState != ListeningButtonState && err == nil {
@@ -608,7 +608,7 @@ func (b *Talkkonnect) initGPIO() {
 		StreamButton = gpio.NewInput(StreamButtonPin)
 		go func() {
 			for {
-				if IsConnected {
+				if IsConnected && StreamToggleUsed {
 					currentState, err := StreamButton.Read()
 					time.Sleep(150 * time.Millisecond)
 					if currentState != StreamButtonState && err == nil {
@@ -638,7 +638,7 @@ func (b *Talkkonnect) initGPIO() {
 			var lastStateA uint
 			var lastStateB uint
 			for {
-				if IsConnected {
+				if IsConnected && RotaryUsed {
 					currentStateA, _ = RotaryA.Read()
 					currentStateB, _ = RotaryB.Read()
 					time.Sleep(2 * time.Millisecond)
@@ -699,7 +699,7 @@ func (b *Talkkonnect) initGPIO() {
 		RotaryButton = gpio.NewInput(RotaryButtonPin)
 		go func() {
 			for {
-				if IsConnected {
+				if IsConnected && RotaryButtonUsed {
 					currentState, err := RotaryButton.Read()
 					time.Sleep(150 * time.Millisecond)
 
@@ -725,7 +725,7 @@ func (b *Talkkonnect) initGPIO() {
 		VolUpButton = gpio.NewInput(VolUpButtonPin)
 		go func() {
 			for {
-				if IsConnected {
+				if IsConnected && VolUpButtonUsed {
 					currentState, err := VolUpButton.Read()
 					time.Sleep(150 * time.Millisecond)
 
@@ -751,7 +751,7 @@ func (b *Talkkonnect) initGPIO() {
 		VolDownButton = gpio.NewInput(VolDownButtonPin)
 		go func() {
 			for {
-				if IsConnected {
+				if IsConnected && VolDownButtonUsed {
 					currentState, err := VolDownButton.Read()
 					time.Sleep(150 * time.Millisecond)
 					if currentState != VolDownButtonState && err == nil {
@@ -775,7 +775,7 @@ func (b *Talkkonnect) initGPIO() {
 		TrackingButton = gpio.NewInput(TrackingButtonPin)
 		go func() {
 			for {
-				if IsConnected {
+				if IsConnected && TrackingUsed {
 					currentState, err := TrackingButton.Read()
 					time.Sleep(150 * time.Millisecond)
 					if currentState != TrackingButtonState && err == nil {
@@ -802,7 +802,7 @@ func (b *Talkkonnect) initGPIO() {
 		MQTT0Button = gpio.NewInput(MQTT0ButtonPin)
 		go func() {
 			for {
-				if IsConnected {
+				if IsConnected && MQTT0ButtonUsed {
 					currentState, err := MQTT0Button.Read()
 					time.Sleep(150 * time.Millisecond)
 					if currentState != MQTT0ButtonState && err == nil {
@@ -830,7 +830,7 @@ func (b *Talkkonnect) initGPIO() {
 		MQTT1Button = gpio.NewInput(MQTT1ButtonPin)
 		go func() {
 			for {
-				if IsConnected {
+				if IsConnected && MQTT1ButtonUsed {
 					currentState, err := MQTT1Button.Read()
 					time.Sleep(150 * time.Millisecond)
 					if currentState != MQTT1ButtonState && err == nil {
@@ -858,7 +858,7 @@ func (b *Talkkonnect) initGPIO() {
 		NextServerButton = gpio.NewInput(NextServerButtonPin)
 		go func() {
 			for {
-				if IsConnected {
+				if IsConnected && NextServerButtonUsed {
 					currentState, err := NextServerButton.Read()
 					time.Sleep(150 * time.Millisecond)
 					if currentState != NextServerButtonState && err == nil {
@@ -883,7 +883,7 @@ func (b *Talkkonnect) initGPIO() {
 		MemoryChannelButton1 = gpio.NewInput(MemoryChannelButton1Pin)
 		go func() {
 			for {
-				if IsConnected {
+				if IsConnected && MemoryChannelButton1Used {
 					currentState, err := MemoryChannelButton1.Read()
 					time.Sleep(150 * time.Millisecond)
 					if currentState != MemoryChannelButton1State && err == nil {
@@ -914,7 +914,7 @@ func (b *Talkkonnect) initGPIO() {
 		MemoryChannelButton2 = gpio.NewInput(MemoryChannelButton2Pin)
 		go func() {
 			for {
-				if IsConnected {
+				if IsConnected && MemoryChannelButton2Used {
 					currentState, err := MemoryChannelButton2.Read()
 					time.Sleep(150 * time.Millisecond)
 					if currentState != MemoryChannelButton2State && err == nil {
@@ -945,7 +945,7 @@ func (b *Talkkonnect) initGPIO() {
 		MemoryChannelButton3 = gpio.NewInput(MemoryChannelButton3Pin)
 		go func() {
 			for {
-				if IsConnected {
+				if IsConnected && MemoryChannelButton3Used {
 					currentState, err := MemoryChannelButton3.Read()
 					time.Sleep(150 * time.Millisecond)
 					if currentState != MemoryChannelButton3State && err == nil {
@@ -976,7 +976,7 @@ func (b *Talkkonnect) initGPIO() {
 		MemoryChannelButton4 = gpio.NewInput(MemoryChannelButton4Pin)
 		go func() {
 			for {
-				if IsConnected {
+				if IsConnected && MemoryChannelButton4Used {
 					currentState, err := MemoryChannelButton4.Read()
 					time.Sleep(150 * time.Millisecond)
 					if currentState != MemoryChannelButton4State && err == nil {
@@ -1007,7 +1007,7 @@ func (b *Talkkonnect) initGPIO() {
 		RepeaterToneButton = gpio.NewInput(RepeaterToneButtonPin)
 		go func() {
 			for {
-				if IsConnected {
+				if IsConnected && RepeaterToneButtonUsed {
 					currentState, err := RepeaterToneButton.Read()
 					time.Sleep(150 * time.Millisecond)
 					if currentState != RepeaterToneButtonState && err == nil {
@@ -1382,4 +1382,17 @@ func (b *Talkkonnect) findEnabledRotaryEncoderFunction(findFunction string) bool
 		}
 	}
 	return false
+}
+
+func GPIOOutPinToggle(name string) {
+	if Config.Global.Hardware.TargetBoard != "rpi" {
+		return
+	}
+
+	for i, io := range Config.Global.Hardware.IO.Pins.Pin {
+		if io.Direction == "output" && io.Name == name {
+			Config.Global.Hardware.IO.Pins.Pin[i].Enabled = !Config.Global.Hardware.IO.Pins.Pin[i].Enabled
+			log.Printf("GPIO Enabled For Pin %v is Now Set To %v\n", io.Name, Config.Global.Hardware.IO.Pins.Pin[i].Enabled)
+		}
+	}
 }

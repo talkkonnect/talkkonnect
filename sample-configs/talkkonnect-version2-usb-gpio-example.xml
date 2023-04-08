@@ -504,6 +504,14 @@
           <ttykeyboard scanid="51" keylabel="3" enabled="true"/>
           <usbkeyboard scanid="81" keylabel="3" enabled="true"/>
         </command>
+       <command action="toggletx" paramname="" paramvalue="" enabled="true">
+          <ttykeyboard scanid="97" keylabel="1" enabled="true"/>
+          <usbkeyboard scanid="97" keylabel="1" enabled="true"/>
+        </command>
+        <command action="togglerx" paramname="" paramvalue="" enabled="true">
+          <ttykeyboard scanid="98" keylabel="2" enabled="true"/>
+          <usbkeyboard scanid="98" keylabel="2" enabled="true"/>
+        </command>
         <command action="serverup" paramname="" paramvalue="" enabled="false"/>
         <command action="serverdown" paramname="" paramvalue="" enabled="false"/>
         <command action="mute" paramname="" paramvalue="" enabled="false"/>

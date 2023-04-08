@@ -189,13 +189,10 @@ func (b *Talkkonnect) USBKeyboard() {
 							b.listeningToChannels("stop")
 						case "soundinterfacepttkey":
 							b.TransmitStop(false)
-						case "toggletx":
-							playIOMedia("toggletx")
-							TxButtonUsed = !TxButtonUsed
-							log.Printf("toggletx enabled is %v", TxButtonUsed)
-						case "togglerx":
-							playIOMedia("togglerx")
-							GPIOOutPinToggle("voiceactivity")
+						case "gpioinput":
+							GPIOInputPinControl(USBKeyMap[rune(ke.Scancode)].ParamName, USBKeyMap[rune(ke.Scancode)].ParamValue)
+						case "gpiooutput":
+							GPIOOutputPinControl(USBKeyMap[rune(ke.Scancode)].ParamName, USBKeyMap[rune(ke.Scancode)].ParamValue)
 						default:
 							log.Println("error: Command Not Defined ", strings.ToLower(USBKeyMap[rune(ke.Scancode)].Command))
 						}

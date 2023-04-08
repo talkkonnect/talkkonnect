@@ -31,10 +31,10 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.22.01"
+	talkkonnectVersion  string = "2.22.02"
 	talkkonnectReleased string = "Apr 8  2023"
 )
 
 /* Release Notes
-1. Added the ability to shutoff toggle the working of voiceactivity led and txptt button for channel moderation
+1. Keyboard Fully Programmable for GPIO In/Out Online Live Enable/Disable By User Without Needing to restart talkkonnect
 */

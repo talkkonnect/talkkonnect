@@ -672,11 +672,10 @@ keyPressListenerLoop:
 							b.listeningToChannels("start")
 						case "listentochanneloff":
 							b.listeningToChannels("stop")
-						case "toggletx":
-							TxButtonUsed = !TxButtonUsed
-							log.Printf("toggletx enabled is %v", TxButtonUsed)
-						case "togglerx":
-							GPIOOutPinToggle("voiceactivity")
+						case "gpioinput":
+							GPIOInputPinControl(TTYKeyMap[ev.Ch].ParamName, TTYKeyMap[ev.Ch].ParamValue)
+						case "gpiooutput":
+							GPIOOutputPinControl(TTYKeyMap[ev.Ch].ParamName, TTYKeyMap[ev.Ch].ParamValue)
 						default:
 							log.Println("error: Command Not Defined ", strings.ToLower(TTYKeyMap[ev.Ch].Command))
 						}

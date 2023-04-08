@@ -1384,15 +1384,252 @@ func (b *Talkkonnect) findEnabledRotaryEncoderFunction(findFunction string) bool
 	return false
 }
 
-func GPIOOutPinToggle(name string) {
+func GPIOOutputPinControl(name string, command string) {
+	if Config.Global.Hardware.TargetBoard != "rpi" {
+		return
+	}
+	for i, io := range Config.Global.Hardware.IO.Pins.Pin {
+		if io.Direction == "output" && io.Name == name {
+			switch command {
+			case "off":
+				Config.Global.Hardware.IO.Pins.Pin[i].Enabled = false
+			case "on":
+				Config.Global.Hardware.IO.Pins.Pin[i].Enabled = true
+			case "toggle":
+				Config.Global.Hardware.IO.Pins.Pin[i].Enabled = !Config.Global.Hardware.IO.Pins.Pin[i].Enabled
+			}
+			log.Printf("GPIO Enabled For Pin %v is Now Set To %v\n", io.Name, Config.Global.Hardware.IO.Pins.Pin[i].Enabled)
+		}
+	}
+}
+
+func GPIOInputPinControl(name string, command string) {
 	if Config.Global.Hardware.TargetBoard != "rpi" {
 		return
 	}
 
-	for i, io := range Config.Global.Hardware.IO.Pins.Pin {
-		if io.Direction == "output" && io.Name == name {
-			Config.Global.Hardware.IO.Pins.Pin[i].Enabled = !Config.Global.Hardware.IO.Pins.Pin[i].Enabled
-			log.Printf("GPIO Enabled For Pin %v is Now Set To %v\n", io.Name, Config.Global.Hardware.IO.Pins.Pin[i].Enabled)
+	for _, io := range Config.Global.Hardware.IO.Pins.Pin {
+		if io.Direction == "input" {
+			if io.Name == "txptt" && io.Name == name {
+				switch command {
+				case "off":
+					TxButtonUsed = false
+				case "on":
+					TxButtonUsed = true
+				case "toggle":
+					TxButtonUsed = !TxButtonUsed
+				}
+				log.Printf("%v Enabled is Now Set To %v\n", io.Name, TxButtonUsed)
+			}
+			if io.Name == "txtoggle" && io.Name == name {
+				switch command {
+				case "off":
+					TxToggleUsed = false
+				case "on":
+					TxToggleUsed = true
+				case "toggle":
+					TxToggleUsed = !TxToggleUsed
+				}
+				log.Printf("%v Enabled is Now Set To %v\n", io.Name, TxToggleUsed)
+			}
+			if io.Name == "channelup" && io.Name == name {
+				switch command {
+				case "off":
+					UpButtonUsed = false
+				case "on":
+					UpButtonUsed = true
+				case "toggle":
+					UpButtonUsed = !UpButtonUsed
+				}
+				log.Printf("%v Enabled is Now Set To %v\n", io.Name, UpButtonUsed)
+			}
+			if io.Name == "channeldown" && io.Name == name {
+				switch command {
+				case "off":
+					DownButtonUsed = false
+				case "on":
+					DownButtonUsed = true
+				case "toggle":
+					DownButtonUsed = !DownButtonUsed
+				}
+				log.Printf("%v Enabled is Now Set To %v\n", io.Name, DownButtonUsed)
+			}
+			if io.Name == "panic" && io.Name == name {
+				switch command {
+				case "off":
+					PanicUsed = false
+				case "on":
+					PanicUsed = true
+				case "toggle":
+					PanicUsed = !PanicUsed
+				}
+				log.Printf("%v Enabled is Now Set To %v\n", io.Name, PanicUsed)
+			}
+			if io.Name == "streamtoggle" && io.Name == name {
+				switch command {
+				case "off":
+					StreamToggleUsed = false
+				case "on":
+					StreamToggleUsed = true
+				case "toggle":
+					StreamToggleUsed = !StreamToggleUsed
+				}
+				log.Printf("%v Enabled is Now Set To %v\n", io.Name, StreamToggleUsed)
+			}
+			if io.Name == "comment" && io.Name == name {
+				switch command {
+				case "off":
+					CommentUsed = false
+				case "on":
+					CommentUsed = true
+				case "toggle":
+					CommentUsed = !CommentUsed
+				}
+				log.Printf("%v Enabled is Now Set To %v\n", io.Name, CommentUsed)
+			}
+			if io.Name == "listening" && io.Name == name {
+				switch command {
+				case "off":
+					ListeningUsed = false
+				case "on":
+					ListeningUsed = true
+				case "toggle":
+					ListeningUsed = !ListeningUsed
+				}
+				log.Printf("%v Enabled is Now Set To %v\n", io.Name, ListeningUsed)
+			}
+			if io.Name == "rotarybutton" && io.Name == name {
+				switch command {
+				case "off":
+					RotaryButtonUsed = false
+				case "on":
+					RotaryButtonUsed = true
+				case "toggle":
+					RotaryButtonUsed = !RotaryButtonUsed
+				}
+				log.Printf("%v Enabled is Now Set To %v\n", io.Name, RotaryButtonUsed)
+			}
+			if io.Name == "volup" && io.Name == name {
+				switch command {
+				case "off":
+					VolUpButtonUsed = false
+				case "on":
+					VolUpButtonUsed = true
+				case "toggle":
+					VolUpButtonUsed = !VolUpButtonUsed
+				}
+				log.Printf("%v Enabled is Now Set To %v\n", io.Name, VolUpButtonUsed)
+			}
+			if io.Name == "voldown" && io.Name == name {
+				switch command {
+				case "off":
+					VolDownButtonUsed = false
+				case "on":
+					VolDownButtonUsed = true
+				case "toggle":
+					VolDownButtonUsed = !VolDownButtonUsed
+				}
+				log.Printf("%v Enabled is Now Set To %v\n", io.Name, VolDownButtonUsed)
+			}
+			if io.Name == "tracking" && io.Name == name {
+				switch command {
+				case "off":
+					TrackingUsed = false
+				case "on":
+					TrackingUsed = true
+				case "toggle":
+					TrackingUsed = !TrackingUsed
+				}
+				log.Printf("%v Enabled is Now Set To %v\n", io.Name, TrackingUsed)
+			}
+			if io.Name == "mqtt0" && io.Name == name {
+				switch command {
+				case "off":
+					MQTT0ButtonUsed = false
+				case "on":
+					MQTT0ButtonUsed = true
+				case "toggle":
+					MQTT0ButtonUsed = !MQTT0ButtonUsed
+				}
+				log.Printf("%v Enabled is Now Set To %v\n", io.Name, MQTT0ButtonUsed)
+			}
+			if io.Name == "mqtt1" && io.Name == name {
+				switch command {
+				case "off":
+					MQTT1ButtonUsed = false
+				case "on":
+					MQTT1ButtonUsed = true
+				case "toggle":
+					MQTT1ButtonUsed = !MQTT0ButtonUsed
+				}
+				log.Printf("%v Enabled is Now Set To %v\n", io.Name, MQTT1ButtonUsed)
+			}
+			if io.Name == "nextserver" && io.Name == name {
+				switch command {
+				case "off":
+					NextServerButtonUsed = false
+				case "on":
+					NextServerButtonUsed = true
+				case "toggle":
+					NextServerButtonUsed = !NextServerButtonUsed
+				}
+				log.Printf("%v Enabled is Now Set To %v\n", io.Name, NextServerButtonUsed)
+			}
+			if io.Name == "repeatertone" && io.Name == name {
+				switch command {
+				case "off":
+					RepeaterToneButtonUsed = false
+				case "on":
+					RepeaterToneButtonUsed = true
+				case "toggle":
+					RepeaterToneButtonUsed = !RepeaterToneButtonUsed
+				}
+				log.Printf("%v Enabled is Now Set To %v\n", io.Name, RepeaterToneButtonUsed)
+			}
+			if io.Name == "memorychannel1" && io.Name == name {
+				switch command {
+				case "off":
+					MemoryChannelButton1Used = false
+				case "on":
+					MemoryChannelButton1Used = true
+				case "toggle":
+					MemoryChannelButton1Used = !MemoryChannelButton1Used
+				}
+				log.Printf("%v Enabled is Now Set To %v\n", io.Name, MemoryChannelButton1Used)
+			}
+			if io.Name == "memorychannel2" && io.Name == name {
+				switch command {
+				case "off":
+					MemoryChannelButton2Used = false
+				case "on":
+					MemoryChannelButton2Used = true
+				case "toggle":
+					MemoryChannelButton2Used = !MemoryChannelButton2Used
+				}
+				log.Printf("%v Enabled is Now Set To %v\n", io.Name, MemoryChannelButton2Used)
+			}
+			if io.Name == "memorychannel3" && io.Name == name {
+				switch command {
+				case "off":
+					MemoryChannelButton3Used = false
+				case "on":
+					MemoryChannelButton3Used = true
+				case "toggle":
+					MemoryChannelButton3Used = !MemoryChannelButton3Used
+				}
+				log.Printf("%v Enabled is Now Set To %v\n", io.Name, MemoryChannelButton3Used)
+			}
+			if io.Name == "memorychannel4" && io.Name == name {
+				switch command {
+				case "off":
+					MemoryChannelButton4Used = false
+				case "on":
+					MemoryChannelButton4Used = true
+				case "toggle":
+					MemoryChannelButton4Used = !MemoryChannelButton4Used
+				}
+				log.Printf("%v Enabled is Now Set To %v\n", io.Name, MemoryChannelButton4Used)
+			}
 		}
 	}
 }

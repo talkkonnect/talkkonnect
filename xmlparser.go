@@ -653,6 +653,12 @@ type rotaryFunctionsStruct struct {
 	Function string
 }
 
+
+type analogZoneStruct struct {
+        oneShot     bool
+        lastChannel string
+}
+
 // Generic Global Config Variables
 var Config ConfigStruct
 var ConfigXMLFile string
@@ -700,6 +706,7 @@ var (
 	TTYKeyMap     = make(map[rune]KBStruct)
 	USBKeyMap     = make(map[rune]KBStruct)
 	GPIOMemoryMap = make(map[string]MemoryChannelStruct)
+        RelayControlMap = make(map[string]analogZoneStruct)
 )
 
 // Mumble Account Settings Global Variables

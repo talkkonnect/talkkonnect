@@ -545,6 +545,10 @@ func (b *Talkkonnect) ClientStart() {
 		b.listeningToChannels("start")
 	}
 
+	//add relay cone support initalization and configuration here
+//	analogZone("talKKonnect", "relayzone1")
+//      analogZone("HAM-CB", "relayzone2")
+
 keyPressListenerLoop:
 	for {
 		if IsConnected {

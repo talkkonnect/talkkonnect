@@ -1633,3 +1633,29 @@ func GPIOInputPinControl(name string, command string) {
 		}
 	}
 }
+
+
+func analogZone(announcementChannel string, relayName string) {
+        go func() {
+                for {
+                        select {
+                        case f := <-Talking:
+                                if f.OnChannel == announcementChannel {
+                                        if RelayControlMap[f.OnChannel].oneShot {
+                                                log.Printf("alert: Commanding Relay on For Channel %v", f.OnChannel)
+                                                go GPIOOutPin(relayName, "on")
+                                                RelayControlMap[f.OnChannel] = analogZoneStruct{false, f.OnChannel}
+                                        }
+                                }
+                        case <-TalkedTicker.C:
+                                if RelayControlMap[announcementChannel].lastChannel == announcementChannel {
+                                        if !RelayControlMap[announcementChannel].oneShot {
+                                                log.Printf("alert: Commanding Relay off For Channel %v", announcementChannel)
+                                                go GPIOOutPin(relayName, "off")
+                                                RelayControlMap[announcementChannel] = analogZoneStruct{true, ""}
+                                        }
+                                }
+                        }
+                }
+        }()
+}

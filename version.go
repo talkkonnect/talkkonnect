@@ -31,10 +31,10 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.22.02"
-	talkkonnectReleased string = "Apr 8  2023"
+	talkkonnectVersion  string = "2.22.03"
+	talkkonnectReleased string = "Apr 9  2023"
 )
 
 /* Release Notes
-1. Keyboard Fully Programmable for GPIO In/Out Online Live Enable/Disable By User Without Needing to restart talkkonnect
+1. Starting devlopment for analog relays on listener channels for schools in rural india
 */

@@ -75,10 +75,15 @@
         <savefilepath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect</savefilepath>
         <savefilename>talkkonnect.xml</savefilename>
       </autoprovisioning>
-      <beacon enabled="false">
+     <beacon enabled="false">
         <beacontimersecs>10</beacontimersecs>
         <beaconfileandpath>/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/Beacon.wav</beaconfileandpath>
-        <volume>10</volume>
+        <localplay>true</localplay>
+        <localvolume>50</localvolume>
+        <gpioenabled>true</gpioenabled>
+        <gpioname>voiceactivity</gpioname>
+        <playintostream>false</playintostream>
+        <beaconvolumeintostream>50</beaconvolumeintostream>
       </beacon>
       <tts enabled="true">
         <volumelevel>10</volumelevel>

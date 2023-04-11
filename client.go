@@ -358,16 +358,7 @@ func (b *Talkkonnect) ClientStart() {
 	}
 
 	if Config.Global.Software.Beacon.Enabled {
-		BeaconTicker := time.NewTicker(time.Duration(Config.Global.Software.Beacon.BeaconTimerSecs) * time.Second)
-
-		go func() {
-			for range BeaconTicker.C {
-				IsPlayStream = true
-				b.playIntoStream(Config.Global.Software.Beacon.BeaconFileAndPath, Config.Global.Software.Beacon.Volume)
-				IsPlayStream = false
-				log.Println("info: Beacon Enabled and Timed Out Auto Played File ", Config.Global.Software.Beacon.BeaconFileAndPath, " Into Stream")
-			}
-		}()
+		b.beaconPlay()
 	}
 
 	b.BackLightTimer()

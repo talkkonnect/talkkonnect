@@ -31,10 +31,10 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.23.01"
+	talkkonnectVersion  string = "2.23.02"
 	talkkonnectReleased string = "Apr 11  2023"
 )
 
 /* Release Notes
-1. First Working Release of Analog Relay Control for Zone based PA Announcements
+1. Beacon Can Now Play into Mumble Stream or Also Do Local Play With GPIO to Play file on Local/RF Side
 */

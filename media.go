@@ -37,6 +37,7 @@ import (
 	"log"
 	"os/exec"
 	"strconv"
+	"time"
 )
 
 func aplayLocal(fileNameWithPath string) {
@@ -187,4 +188,27 @@ func playIOMedia(inputEvent string) {
 			go aplayLocal(inputEventSoundFile.File)
 		}
 	}
+}
+
+func (b *Talkkonnect) beaconPlay() {
+	BeaconTicker := time.NewTicker(time.Duration(Config.Global.Software.Beacon.BeaconTimerSecs) * time.Second)
+	go func() {
+		for range BeaconTicker.C {
+			if Config.Global.Software.Beacon.Playintostream {
+				IsPlayStream = true
+				b.playIntoStream(Config.Global.Software.Beacon.BeaconFileAndPath, Config.Global.Software.Beacon.BeaconVolumeIntoStream)
+				IsPlayStream = false
+				log.Println("info: Beacon Enabled and Timed Out Auto Played File ", Config.Global.Software.Beacon.BeaconFileAndPath, " Into Stream")
+			}
+			if Config.Global.Software.Beacon.LocalPlay {
+				if Config.Global.Software.Beacon.GPIOEnabled {
+					GPIOOutPin(Config.Global.Software.Beacon.GPIOName, "on")
+				}
+				localMediaPlayer(Config.Global.Software.Beacon.BeaconFileAndPath, Config.Global.Software.Beacon.LocalVolume, true, 0, 1)
+				if Config.Global.Software.Beacon.GPIOEnabled {
+					GPIOOutPin(Config.Global.Software.Beacon.GPIOName, "off")
+				}
+			}
+		}
+	}()
 }

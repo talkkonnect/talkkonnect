@@ -123,10 +123,15 @@ type ConfigStruct struct {
 				SaveFilename string `xml:"savefilename"`
 			} `xml:"autoprovisioning"`
 			Beacon struct {
-				Enabled           bool    `xml:"enabled,attr"`
-				BeaconTimerSecs   int     `xml:"beacontimersecs"`
-				BeaconFileAndPath string  `xml:"beaconfileandpath"`
-				Volume            float32 `xml:"volume"`
+				Enabled                bool    `xml:"enabled,attr"`
+				BeaconTimerSecs        int     `xml:"beacontimersecs"`
+				BeaconFileAndPath      string  `xml:"beaconfileandpath"`
+				LocalPlay              bool    `xml:"localplay"`
+				LocalVolume            int     `xml:"localvolume"`
+				GPIOEnabled            bool    `xml:"gpioenabled"`
+				GPIOName               string  `xml:"gpioname"`
+				Playintostream         bool    `xml:"playintostream"`
+				BeaconVolumeIntoStream float32 `xml:"beaconvolumeintostream"`
 			} `xml:"beacon"`
 			TTS struct {
 				Enabled     bool   `xml:"enabled,attr"`
@@ -1071,10 +1076,13 @@ func printxmlconfig() {
 
 	if Config.Global.Software.PrintVariables.PrintBeacon {
 		log.Println("info: --------  Beacon   --------- ")
-		log.Println("info: Beacon Enabled         " + fmt.Sprintf("%t", Config.Global.Software.Beacon.Enabled))
-		log.Println("info: Beacon Time (Secs)     " + fmt.Sprintf("%v", Config.Global.Software.Beacon.BeaconTimerSecs))
-		log.Println("info: Beacon Filename & Path " + Config.Global.Software.Beacon.BeaconFileAndPath)
-		log.Println("info: Beacon Playback Volume " + fmt.Sprintf("%v", Config.Global.Software.Beacon.Volume))
+		log.Println("info: Beacon Enabled            " + fmt.Sprintf("%t", Config.Global.Software.Beacon.Enabled))
+		log.Println("info: Beacon Filename & Path    " + Config.Global.Software.Beacon.BeaconFileAndPath)
+		log.Println("info: Beacon Time (Secs)        " + fmt.Sprintf("%v", Config.Global.Software.Beacon.BeaconTimerSecs))
+		log.Println("info: Beacon Volume Into Stream " + fmt.Sprintf("%v", Config.Global.Software.Beacon.BeaconVolumeIntoStream))
+		log.Println("info: Beacon GPIOName           " + fmt.Sprintf("%v", Config.Global.Software.Beacon.GPIOName))
+		log.Println("info: Local Volume              " + fmt.Sprintf("%v", Config.Global.Software.Beacon.LocalPlay))
+		log.Println("info: Beacon Play Into Stream   " + fmt.Sprintf("%v", Config.Global.Software.Beacon.Playintostream))
 	} else {
 		log.Println("info: --------   Beacon   --------- SKIPPED ")
 	}
@@ -1529,7 +1537,7 @@ func CheckConfigSanity(reloadxml bool) {
 	}
 
 	if Config.Global.Software.Beacon.Enabled {
-		if Config.Global.Software.Beacon.BeaconTimerSecs == 0 || len(Config.Global.Software.Beacon.BeaconFileAndPath) == 0 || Config.Global.Software.Beacon.Volume == 0 {
+		if len(Config.Global.Software.Beacon.BeaconFileAndPath) == 0 || Config.Global.Software.Beacon.BeaconTimerSecs == 0 || (!Config.Global.Software.Beacon.LocalPlay && !Config.Global.Software.Beacon.Playintostream) {
 			log.Print("warn: Config Error [Section Beacon] Some Parameters Not Defined Disabling Beacon")
 			Config.Global.Software.Beacon.Enabled = false
 			Warnings++

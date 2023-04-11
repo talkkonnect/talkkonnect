@@ -279,8 +279,8 @@ func (b *Talkkonnect) ClientStart() {
 		log.Println("info: Target Board Set as RPI (gpio enabled) ")
 		b.initGPIO()
 		if Config.Global.Hardware.LedStripEnabled {
-			//			MyLedStrip, _ = NewLedStrip()
-			//			log.Printf("info: Led Strip %v %s\n", MyLedStrip.buf, MyLedStrip.display)
+			//MyLedStrip, _ = NewLedStrip()
+			//log.Printf("info: Led Strip %v %s\n", MyLedStrip.buf, MyLedStrip.display)
 		}
 	} else {
 		log.Println("info: Target Board Set as PC (gpio disabled) ")
@@ -545,9 +545,7 @@ func (b *Talkkonnect) ClientStart() {
 		b.listeningToChannels("start")
 	}
 
-	//add relay cone support initalization and configuration here
-//	analogZone("talKKonnect", "relayzone1")
-//      analogZone("HAM-CB", "relayzone2")
+	analogCreateZones()
 
 keyPressListenerLoop:
 	for {

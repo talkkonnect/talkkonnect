@@ -31,10 +31,10 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.22.03"
-	talkkonnectReleased string = "Apr 9  2023"
+	talkkonnectVersion  string = "2.23.01"
+	talkkonnectReleased string = "Apr 11  2023"
 )
 
 /* Release Notes
-1. Starting devlopment for analog relays on listener channels for schools in rural india
+1. First Working Release of Analog Relay Control for Zone based PA Announcements
 */

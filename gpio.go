@@ -1628,34 +1628,47 @@ func GPIOInputPinControl(name string, command string) {
 				case "toggle":
 					MemoryChannelButton4Used = !MemoryChannelButton4Used
 				}
-				log.Printf("%v Enabled is Now Set To %v\n", io.Name, MemoryChannelButton4Used)
 			}
 		}
 	}
 }
 
+func analogZone(announcementChannel string, IOName string) {
+	go func() {
+		var lastChannel string = ""
+		for {
+			select {
+			case f := <-Talking:
+				if (f.OnChannel == announcementChannel) && (lastChannel != announcementChannel) {
+					go GPIOOutPin(IOName, "on")
+					lastChannel = f.OnChannel
+				}
+			case <-TalkedTicker.C:
+				if lastChannel == announcementChannel {
+					go GPIOOutPin(IOName, "off")
+					lastChannel = ""
+				}
+			}
+		}
+	}()
+}
 
-func analogZone(announcementChannel string, relayName string) {
-        go func() {
-                for {
-                        select {
-                        case f := <-Talking:
-                                if f.OnChannel == announcementChannel {
-                                        if RelayControlMap[f.OnChannel].oneShot {
-                                                log.Printf("alert: Commanding Relay on For Channel %v", f.OnChannel)
-                                                go GPIOOutPin(relayName, "on")
-                                                RelayControlMap[f.OnChannel] = analogZoneStruct{false, f.OnChannel}
-                                        }
-                                }
-                        case <-TalkedTicker.C:
-                                if RelayControlMap[announcementChannel].lastChannel == announcementChannel {
-                                        if !RelayControlMap[announcementChannel].oneShot {
-                                                log.Printf("alert: Commanding Relay off For Channel %v", announcementChannel)
-                                                go GPIOOutPin(relayName, "off")
-                                                RelayControlMap[announcementChannel] = analogZoneStruct{true, ""}
-                                        }
-                                }
-                        }
-                }
-        }()
+func analogCreateZones() {
+	if Config.Global.Hardware.TargetBoard != "rpi" {
+		return
+	}
+
+	if !Config.Global.Hardware.AnalogRelays.Enabled {
+		log.Printf("info: Skipping the Creation of Analog Zones\n")
+		return
+	}
+
+	for i, io := range Config.Global.Hardware.AnalogRelays.Zones.Zone {
+		if io.Enabled {
+			for _, ii := range Config.Global.Hardware.AnalogRelays.Zones.Zone[i].Pins.Name {
+				analogZone(io.ListenChannel, ii)
+				log.Printf("debug: Creating Analog Zones For Zone %v Relays %v\n", io.Name, ii)
+			}
+		}
+	}
 }

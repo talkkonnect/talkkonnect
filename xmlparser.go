@@ -524,6 +524,19 @@ type ConfigStruct struct {
 					} `xml:"channels"`
 				} `xml:"sa818"`
 			}
+			AnalogRelays struct {
+				Enabled bool `xml:"enabled,attr"`
+				Zones   struct {
+					Zone []struct {
+						Enabled       bool   `xml:"enabled,attr"`
+						Name          string `xml:"name,attr"`
+						ListenChannel string `xml:"listenchannel,attr"`
+						Pins          struct {
+							Name []string `xml:"name"`
+						} `xml:"pins"`
+					} `xml:"zone"`
+				} `xml:"zones"`
+			} `xml:"analogrelays"`
 		} `xml:"hardware"`
 		Multimedia struct {
 			ID []struct {
@@ -653,10 +666,9 @@ type rotaryFunctionsStruct struct {
 	Function string
 }
 
-
 type analogZoneStruct struct {
-        oneShot     bool
-        lastChannel string
+	oneShot     bool
+	lastChannel string
 }
 
 // Generic Global Config Variables
@@ -703,10 +715,10 @@ var (
 var (
 	LcdText = [4]string{"nil", "nil", "nil", "nil"}
 	//	MyLedStrip *LedStrip
-	TTYKeyMap     = make(map[rune]KBStruct)
-	USBKeyMap     = make(map[rune]KBStruct)
-	GPIOMemoryMap = make(map[string]MemoryChannelStruct)
-        RelayControlMap = make(map[string]analogZoneStruct)
+	TTYKeyMap       = make(map[rune]KBStruct)
+	USBKeyMap       = make(map[rune]KBStruct)
+	GPIOMemoryMap   = make(map[string]MemoryChannelStruct)
+	RelayControlMap = make(map[string]analogZoneStruct)
 )
 
 // Mumble Account Settings Global Variables
@@ -1577,7 +1589,7 @@ func CheckConfigSanity(reloadxml bool) {
 				Warnings++
 			}
 
-			if !(gpio.Name == "voiceactivity" || gpio.Name == "participants" || gpio.Name == "transmit" || gpio.Name == "online" || gpio.Name == "attention" || gpio.Name == "voicetarget" || gpio.Name == "heartbeat" || gpio.Name == "backlight" || gpio.Name == "relay0" || gpio.Name == "txptt" || gpio.Name == "txtoggle" || gpio.Name == "channelup" || gpio.Name == "channeldown" || gpio.Name == "panic" || gpio.Name == "streamtoggle" || gpio.Name == "comment" || gpio.Name == "rotarya" || gpio.Name == "rotaryb" || gpio.Name == "rotarybutton" || gpio.Name == "volup" || gpio.Name == "voldown" || gpio.Name == "memorychannel1" || gpio.Name == "memorychannel2" || gpio.Name == "memorychannel3" || gpio.Name == "memorychannel4") {
+			if !(gpio.Name == "voiceactivity" || gpio.Name == "participants" || gpio.Name == "transmit" || gpio.Name == "online" || gpio.Name == "attention" || gpio.Name == "voicetarget" || gpio.Name == "heartbeat" || gpio.Name == "backlight" || gpio.Name == "relay0" || gpio.Name == "txptt" || gpio.Name == "txtoggle" || gpio.Name == "channelup" || gpio.Name == "channeldown" || gpio.Name == "panic" || gpio.Name == "streamtoggle" || gpio.Name == "comment" || gpio.Name == "rotarya" || gpio.Name == "rotaryb" || gpio.Name == "rotarybutton" || gpio.Name == "volup" || gpio.Name == "voldown" || gpio.Name == "memorychannel1" || gpio.Name == "memorychannel2" || gpio.Name == "memorychannel3" || gpio.Name == "memorychannel4" || gpio.Name == "analogrelay1" || gpio.Name == "analogrelay2") {
 				log.Printf("warn: Config Error [Section GPIO] Enabled GPIO Name %v Pin Number %v Invalid Name\n", gpio.Name, gpio.PinNo)
 				Config.Global.Hardware.IO.Pins.Pin[index].Enabled = false
 				Warnings++

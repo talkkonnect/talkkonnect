@@ -345,6 +345,9 @@
         </gpioexpander>
         <max7219 max7219cascaded="1" spibus="0" spidevice="0" brightness="7" enabled="false"/>
         <pins>
+          <!--<pin direction="output" device="led/relay" name="analogrelay1" pinno="2" type="gpio" chipid="0" inverted="false" enabled="true"/>-->
+          <!--<pin direction="output" device="led/relay" name="analogrelay2" pinno="3" type="gpio" chipid="0" inverted="false" enabled="true"/>-->
+          <!--<pin direction="output" device="led/relay" name="analogrelay3" pinno="4" type="gpio" chipid="0" inverted="false" enabled="true"/>-->
           <pin direction="output" device="led/relay"     name="voiceactivity" pinno="2" type="gpio" chipid="0" inverted="false" enabled="true"/>
           <pin direction="output" device="led/relay"     name="participants" pinno="3" type="gpio" chipid="0" inverted="false" enabled="true"/>
           <pin direction="output" device="led/relay"     name="transmit" pinno="4" type="gpio" chipid="0" inverted="false" enabled="true"/>
@@ -605,6 +608,21 @@
           </channels>
         </sa818>
     	</radio>
+       <analogrelays enabled="false">
+        <zones>
+          <zone name="zone1" listenchannel="HAM-CB" enabled="false">
+            <pins>
+              <name>analogrelay1</name>
+              <name>analogrelay2</name>
+            </pins>
+          </zone>
+          <zone name="zone2" listenchannel="Test-Channel" enabled="false">
+            <pins>
+              <name>analogrelay3</name>
+            </pins>
+          </zone>
+        </zones>
+      </analogrelays>
     </hardware>
     <multimedia>
       <id value="0" enabled="true">

@@ -191,6 +191,9 @@ func playIOMedia(inputEvent string) {
 }
 
 func (b *Talkkonnect) beaconPlay() {
+	if !Config.Global.Software.Beacon.Enabled {
+		return
+	}
 	BeaconTicker := time.NewTicker(time.Duration(Config.Global.Software.Beacon.BeaconTimerSecs) * time.Second)
 	go func() {
 		for range BeaconTicker.C {

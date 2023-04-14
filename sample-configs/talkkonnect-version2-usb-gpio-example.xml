@@ -335,10 +335,10 @@
         <ignoreuserregex>^(suvirsony)$</ignoreuserregex>
       </ignoreuser>
      <memorychannels>
-        <channel gpioname="memorychannel1" channelname="Test-Channel" enabled="true"/>
-        <channel gpioname="memorychannel2" channelname="HAM-CB" enabled="true"/>
-        <channel gpioname="memorychannel3" channelname="talKKonnect" enabled="true"/>
-        <channel gpioname="memorychannel4" channelname="Mtech-talkkonnect" enabled="true"/>
+        <channel gpioname="memorychannel1" channelname="Test-Channel" enabled="false"/>
+        <channel gpioname="memorychannel2" channelname="HAM-CB" enabled="false"/>
+        <channel gpioname="memorychannel3" channelname="talKKonnect" enabled="false"/>
+        <channel gpioname="memorychannel4" channelname="Mtech-talkkonnect" enabled="false"/>
       </memorychannels>
     </software>
     <hardware targetboard="rpi">

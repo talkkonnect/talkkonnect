@@ -36,6 +36,7 @@ import (
 	"os"
 	"sort"
 	"strconv"
+	"syscall"
 	"time"
 
 	"github.com/talkkonnect/gumble/gumble"
@@ -57,7 +58,7 @@ func FatalCleanUp(message string) {
 	os.Exit(1)
 }
 
-func CleanUp() {
+func CleanUp(withShutdown bool) {
 
 	if Config.Global.Hardware.TargetBoard == "rpi" {
 		t := time.Now()
@@ -79,6 +80,10 @@ func CleanUp() {
 
 	term.Close()
 	fmt.Println("SIGHUP Termination of Program Requested by User...shutting down talkkonnect")
+	if withShutdown {
+		time.Sleep(3 * time.Second)
+		syscall.Reboot(syscall.LINUX_REBOOT_CMD_POWER_OFF)
+	}
 	os.Exit(0)
 }
 

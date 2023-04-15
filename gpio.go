@@ -149,6 +149,11 @@ var (
 	MemoryChannelButton4      gpio.Pin
 	MemoryChannelButton4Pin   uint
 	MemoryChannelButton4State uint
+
+	ShutdownButtonUsed  bool
+	ShutdownButton      gpio.Pin
+	ShutdownButtonPin   uint
+	ShutdownButtonState uint
 )
 
 var D [8]*mcp23017.Device
@@ -355,10 +360,18 @@ func (b *Talkkonnect) initGPIO() {
 				RepeaterToneButtonUsed = true
 				RepeaterToneButtonPin = io.PinNo
 			}
+			if io.Name == "shutdown" && io.PinNo > 0 {
+				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
+				ShutdownButtonPinPullUp := rpio.Pin(io.PinNo)
+				ShutdownButtonPinPullUp.PullUp()
+				ShutdownButtonUsed = true
+				ShutdownButtonPin = io.PinNo
+			}
+
 		}
 	}
 
-	if TxButtonUsed || TxToggleUsed || UpButtonUsed || DownButtonUsed || PanicUsed || StreamToggleUsed || CommentUsed || RotaryUsed || RotaryButtonUsed || VolUpButtonUsed || VolDownButtonUsed || TrackingUsed || MQTT0ButtonUsed || MQTT1ButtonUsed || NextServerButtonUsed || MemoryChannelButton1Used || MemoryChannelButton2Used || MemoryChannelButton3Used || MemoryChannelButton4Used || RepeaterToneButtonUsed || ListeningUsed {
+	if TxButtonUsed || TxToggleUsed || UpButtonUsed || DownButtonUsed || PanicUsed || StreamToggleUsed || CommentUsed || RotaryUsed || RotaryButtonUsed || VolUpButtonUsed || VolDownButtonUsed || TrackingUsed || MQTT0ButtonUsed || MQTT1ButtonUsed || NextServerButtonUsed || MemoryChannelButton1Used || MemoryChannelButton2Used || MemoryChannelButton3Used || MemoryChannelButton4Used || RepeaterToneButtonUsed || ListeningUsed || ShutdownButtonUsed {
 		rpio.Close()
 	}
 
@@ -1019,6 +1032,35 @@ func (b *Talkkonnect) initGPIO() {
 							log.Println("debug: Repeater Tone Button is pressed")
 							playIOMedia("iorepeatertone")
 							b.cmdPlayRepeaterTone()
+							time.Sleep(150 * time.Millisecond)
+						}
+					}
+				} else {
+					time.Sleep(1 * time.Second)
+				}
+			}
+		}()
+	}
+
+	if ShutdownButtonUsed {
+		ShutdownButton = gpio.NewInput(ShutdownButtonPin)
+		go func() {
+			for {
+				if IsConnected && ShutdownButtonUsed {
+					currentState, err := ShutdownButton.Read()
+					time.Sleep(150 * time.Millisecond)
+					if currentState != ShutdownButtonState && err == nil {
+						ShutdownButtonState = currentState
+						if ShutdownButtonState == 1 {
+							log.Println("debug: Shutdown is released")
+						} else {
+							log.Println("debug: Shutdown Button is pressed")
+							playIOMedia("shutdown")
+							duration := time.Since(StartTime)
+							log.Printf("info: Talkkonnect Now Running For %v \n", secondsToHuman(int(duration.Seconds())))
+							b.sevenSegment("bye", "")
+							TTSEvent("quittalkkonnect")
+							CleanUp(true)
 							time.Sleep(150 * time.Millisecond)
 						}
 					}

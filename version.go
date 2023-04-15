@@ -31,10 +31,10 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.23.03"
-	talkkonnectReleased string = "Apr 13  2023"
+	talkkonnectVersion  string = "2.23.04"
+	talkkonnectReleased string = "Apr 15  2023"
 )
 
 /* Release Notes
-1. If beacon not enabled do not create wasteful goroutine to handle beacon
+1. With GPIO System Shutdown Button
 */

@@ -444,7 +444,7 @@ func (b *Talkkonnect) cmdQuitTalkkonnect() {
 	log.Printf("info: Talkkonnect Now Running For %v \n", secondsToHuman(int(duration.Seconds())))
 	b.sevenSegment("bye", "")
 	TTSEvent("quittalkkonnect")
-	CleanUp()
+	CleanUp(false)
 }
 
 func (b *Talkkonnect) cmdDebugStacktrace() {

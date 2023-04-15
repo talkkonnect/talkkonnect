@@ -109,7 +109,7 @@ func Init(file string, ServerIndex string) {
 			log.Println("error: Another Instance of talkkonnect is already running!!, Killing this Instance")
 			time.Sleep(5 * time.Second)
 			TTSEvent("quittalkkonnect")
-			CleanUp()
+			CleanUp(false)
 		}
 		defer lockFile.Close()
 	}
@@ -241,7 +241,7 @@ func Init(file string, ServerIndex string) {
 	exitStatus := 0
 
 	<-sigs
-	CleanUp()
+	CleanUp(false)
 	os.Exit(exitStatus)
 }
 

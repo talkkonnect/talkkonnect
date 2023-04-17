@@ -164,39 +164,23 @@ Debian version: 11 (bullseye) along with talkkonnect version 2.19.01 Released 03
 * This image will work with LAN Cabled Ethernet connection out of the box
 
 	
-### (old) talkkonnect Version 2 Quick Download Link for Pre-Made SD Card Image for Use with Raspberry 2/3 and RESPEAKER Compatable HAT ###
-* This Image Was Created On 09/January/2022 and Runs Bullseye Release along with talkkonnect version 2.09.19 Released 08/January/2022	
-* [Click Here to Download Pre-Configured SD Card Image for Talkkonnect Version 2 for Raspberry 2/3 Respeaker Hat](https://drive.google.com/file/d/1c8f5EuKzgayuESFF3m35aPjC_26-4Gq9/view?usp=sharing) 
-* This image uses the standard 32 Bit Sampling and will work properly with all mumble clients on windows, android and iphone with good quality sound.
+### talkkonnect Version 2 Quick Download Link for Pre-Made SD Card Image for Use with Raspberry 2/3 and RESPEAKER Compatable HAT ###
+* This Image Was Created On 17/April/2023 and Runs Bullseye Release along with talkkonnect version 2.23.04 Released 15/April/2023
+* [Click Here to Download Pre-Configured SD Card Image for Talkkonnect Version 2 for Raspberry 2/3/Zero 2W Respeaker Hat](https://drive.google.com/file/d/1w14QuArhrYbefp51wrj_Cv-31ulwV2jX/view?usp=share_link) 
 * This image has been configured to work with a Respeaker HAT out of the box so I2S, I2C and all required modules are installed and running. 
 * The XML file is configured to run in rpi mode so GPIO will initalized, this is so that the respeaker will work with output sound on the headphone jack, led strip working and push button microswitch on the hat can be used for transmitting.    
-* Since this image was created on Raspberry 3B+ Board if you use Raspberry 4 please note that you will have to do the following apt install firmware-brcm80211
   then you will have to use raspi-config to set the wifi country for the wifi to work.	
 * For this image out of the box it will connect to a wifi with ssid network and password 1234567890 (if you are lazy you can do this)
 * To Connect to your WIFI you can also create the wpa_supplicant.conf file and put it in the /boot/ folder on windows before inserting the card into your raspberry pi.
 
-### (old) talkkonnect Version 2 Quick Download Link for Pre-Made SD Card Image for Use with Raspberry Pi Zero 2W and RESPEAKER Compatable HAT ###
-* This Image Was Created On 09/January/2022 and Runs Bullseye Release along with talkkonnect version 2.09.19 Released 08/January/2022	
-* [Click Here to Download Pre-Configured SD Card Image for Talkkonnect Version 2 for Raspberry Zero 2W Respeaker Hat](https://drive.google.com/file/d/12jbEhgvDCkisCvOB92yGwW1JLXzFaBEO/view?usp=sharing) 
-* This image uses the standard 32 Bit Sampling and will work properly with all mumble clients on windows, android and iphone with good quality sound.
-* This image has been configured to work with a Respeaker HAT out of the box so I2S, I2C and all required modules are installed and running. 
-* The XML file is configured to run in rpi mode so GPIO will initalized, this is so that the respeaker will work with output sound on the headphone jack, led strip working and push button 
-  microswitch on the hat can be used for transmitting.    
-* This Image should work out of the box it also has serial console on the usb port for easy access to ssh thorough com port on windows and macOS
-* For this image out of the box it will connect to a wifi with ssid network and password 1234567890 (if you are lazy you can do this)
-* You can also use the serial console to log in as root and change the /etc/wpa_supplicant/wpa_supplicant.conf file to change it to your network for this you will need a micro usb port cable and plug it into your windows machine and access it over a tool like putty over the serial port 
-* Alternativly you can also create the wpa_supplicant.conf file and put it in the /boot/ folder on windows before inserting the card into your raspberry pi.
-	
-### (old) talkkonnect Version 2 Quick Download Link for Pre-Made SD Card Image for Use with Raspberry pi 2/3  and IM69D130 Mems Microphone ### 
+### (old version) talkkonnect Version 2 Quick Download Link for Pre-Made SD Card Image for Use with Raspberry pi 2/3  and IM69D130 Mems Microphone ### 
 * This image is the initial release created a while ago and is not yet updated.
 * [Click Here to Download Pre-Configured SD Card Image for Talkkonnect Version 2 for Raspberry 3/4/Pi with IM69D130 Mems Microphone](https://drive.google.com/file/d/1s7Qjtj8XAfQmdr766WBvYZq4vjaQ7CZ3/view?usp=sharing) 
-* This image uses the standard 32 Bit Sampling and will work properly with all mumble clients on windows, android and iphone with good quality sound.
 * This image has a custom kernel and used Instructions was found at https://github.com/Infineon/GetStarted_IM69D130_With_RaspberryPi
 * This image has been configured to work with a IM69D130 Mems Microphone and the onboard raspberry pi sound card (3.5mm Jack) out of the box.
 * The XML file is configured to run in rpi mode so GPIO will initalized, this is so that the Pin 11 XML tag value 17 when shorted to ground will act as the PTT button. 
 * This mems microphone will enable you to have a small build with excellent sound quality whilst using the internal provided sound card in the raspberry pi.
 * For the wiring of the microphone to Raspberry Pi See This [inmp411 wiring diagram](https://makersportal.com/shop/i2s-mems-microphone-for-raspberry-pi-inmp441)
-* Since this image was created on Raspberry 3B+ Board if you use Raspberry 4 please note that you will have to do the following apt install firmware-brcm80211
   then you will have to use raspi-config to set the wifi country for the wifi to work.	
 * For this image out of the box it will connect to a wifi with ssid network and password 1234567890 (if you are lazy you can do this)
 * Alternativly you can also create the wpa_supplicant.conf file and put it in the /boot/ folder on windows before inserting the card into your raspberry pi

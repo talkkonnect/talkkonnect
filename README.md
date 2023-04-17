@@ -141,11 +141,10 @@ this is in an endless loop. Please check that you have plugged in the USB sound 
 
 ## talKKonnect Version 2 Images	
 
-### talkkonnect Version 2 Quick Download Link for Pre-Made SD Card Image for Use with Raspberry PI tested on Pi (4 series) and USB Sound Card ###
-* This Image Was Created On 17/April/2022 and Runs Bullseye Release along with talkkonnect version 2.13.06 Released 11/April/2022
-* [Click Here to Download Pre-Configured SD Card Image for Talkkonnect Version 2 for Raspberry Pi 4 and USB Sound Card](https://drive.google.com/file/d/1s7Nh1sU2UcdT6xiXto8X8-cCnGJnlt8j/view?usp=sharing) 
+### talkkonnect Version 2 (64 Bit) Quick Download Link for Pre-Made SD Card Image for Use with Raspberry PI tested on Pi 4 series and USB Sound Card ###
+* This Image Was Created On 17/April/2023 and Runs Bullseye Release along with talkkonnect version 2.23.04 Released 15/April/2023
+* [Click Here to Download Pre-Configured SD Card Image for Talkkonnect Version 2 for Raspberry Pi 4 and USB Sound Card](https://drive.google.com/file/d/17QDUGkoUBjqqqj6Dm_2l2JbclaSgJwfM/view?usp=share_link) 
 * You will need a CM-108 or equavilent sound card plugged in before booting for this image to work otherwise it will connect and disconnect to the server in an endless loop. Vention Cards are recommended as cm108 card has a lot of noise.	
-* This image uses the standard 32 Bit Sampling and will work properly with all mumble clients on windows, android and iphone with good quality sound.
 * This image has been configured to work with a USB CM108 Sound Card and GPIO will work out of the box for PTT and LEDs. 
 * This image will work with LAN Cabled Ethernet connection out of the box
 	
@@ -154,12 +153,11 @@ this is in an endless loop. Please check that you have plugged in the USB sound 
 Debian version: 11 (bullseye) along with talkkonnect version 2.19.01 Released 03/March/2023
 * [Click Here to Download Pre-Configured SD Card Image for Talkkonnect Version 2 for Raspberry Pi and USB Sound Card](https://drive.google.com/file/d/1w_900dLt3RNNhOoFNvW9RfzYXrP1iaRZ/view?usp=sharing) 
 * You will need a CM-108 or equavilent sound card plugged in before booting for this image to work otherwise it will connect and disconnect to the server in an endless loop.	
-* This image uses the standard 32 Bit Sampling and will work properly with all mumble clients on windows, android and iphone with good quality sound.
 * This image has been configured to work with a USB CM108 Sound Card and GPIO will work out of the box for PTT and LEDs. 
 * This Image should work out of the box it also has serial console on the usb port for easy access to ssh thorough com port on windows and macOS
 * This image will work with LAN Cabled Ethernet connection out of the box
 
-### talkkonnect Version 2 32BIT Quick Download Link for Pre-Made SD Card Image for Use with Raspberry PI tested on Pi (2/3 series) and USB Sound Card ###
+### (old) talkkonnect Version 2 32BIT Quick Download Link for Pre-Made SD Card Image for Use with Raspberry PI tested on Pi (2/3 series) and USB Sound Card ###
 * This Image Was Created On 09/January/2022 and Runs Bullseye Release along with talkkonnect version 2.09.19 Released 08/January/2022
 * [Click Here to Download Pre-Configured SD Card Image for Talkkonnect Version 2 for Raspberry Pi and USB Sound Card](https://drive.google.com/file/d/128P2f7esB1cvx7Ma9NniduUM-4atvxqU/view?usp=sharing) 
 * You will need a CM-108 or equavilent sound card plugged in before booting for this image to work otherwise it will connect and disconnect to the server in an endless loop.	
@@ -170,7 +168,7 @@ Debian version: 11 (bullseye) along with talkkonnect version 2.19.01 Released 03
 * Since this image was created on Raspberry 3B+ Board if you use Raspberry 4 please note that you will have to do the following apt install firmware-brcm80211
   then you will have to use raspi-config to set the wifi country for the wifi to work and not sure if anything else is broken on RBP V4.
 	
-### talkkonnect Version 2 Quick Download Link for Pre-Made SD Card Image for Use with Raspberry 2/3 and RESPEAKER Compatable HAT ###
+### (old) talkkonnect Version 2 Quick Download Link for Pre-Made SD Card Image for Use with Raspberry 2/3 and RESPEAKER Compatable HAT ###
 * This Image Was Created On 09/January/2022 and Runs Bullseye Release along with talkkonnect version 2.09.19 Released 08/January/2022	
 * [Click Here to Download Pre-Configured SD Card Image for Talkkonnect Version 2 for Raspberry 2/3 Respeaker Hat](https://drive.google.com/file/d/1c8f5EuKzgayuESFF3m35aPjC_26-4Gq9/view?usp=sharing) 
 * This image uses the standard 32 Bit Sampling and will work properly with all mumble clients on windows, android and iphone with good quality sound.
@@ -181,7 +179,7 @@ Debian version: 11 (bullseye) along with talkkonnect version 2.19.01 Released 03
 * For this image out of the box it will connect to a wifi with ssid network and password 1234567890 (if you are lazy you can do this)
 * To Connect to your WIFI you can also create the wpa_supplicant.conf file and put it in the /boot/ folder on windows before inserting the card into your raspberry pi.
 
-### talkkonnect Version 2 Quick Download Link for Pre-Made SD Card Image for Use with Raspberry Pi Zero 2W and RESPEAKER Compatable HAT ###
+### (old) talkkonnect Version 2 Quick Download Link for Pre-Made SD Card Image for Use with Raspberry Pi Zero 2W and RESPEAKER Compatable HAT ###
 * This Image Was Created On 09/January/2022 and Runs Bullseye Release along with talkkonnect version 2.09.19 Released 08/January/2022	
 * [Click Here to Download Pre-Configured SD Card Image for Talkkonnect Version 2 for Raspberry Zero 2W Respeaker Hat](https://drive.google.com/file/d/12jbEhgvDCkisCvOB92yGwW1JLXzFaBEO/view?usp=sharing) 
 * This image uses the standard 32 Bit Sampling and will work properly with all mumble clients on windows, android and iphone with good quality sound.
@@ -193,7 +191,7 @@ Debian version: 11 (bullseye) along with talkkonnect version 2.19.01 Released 03
 * You can also use the serial console to log in as root and change the /etc/wpa_supplicant/wpa_supplicant.conf file to change it to your network for this you will need a micro usb port cable and plug it into your windows machine and access it over a tool like putty over the serial port 
 * Alternativly you can also create the wpa_supplicant.conf file and put it in the /boot/ folder on windows before inserting the card into your raspberry pi.
 	
-### talkkonnect Version 2 Quick Download Link for Pre-Made SD Card Image for Use with Raspberry pi 2/3  and IM69D130 Mems Microphone ### 
+### (old) talkkonnect Version 2 Quick Download Link for Pre-Made SD Card Image for Use with Raspberry pi 2/3  and IM69D130 Mems Microphone ### 
 * This image is the initial release created a while ago and is not yet updated.
 * [Click Here to Download Pre-Configured SD Card Image for Talkkonnect Version 2 for Raspberry 3/4/Pi with IM69D130 Mems Microphone](https://drive.google.com/file/d/1s7Qjtj8XAfQmdr766WBvYZq4vjaQ7CZ3/view?usp=sharing) 
 * This image uses the standard 32 Bit Sampling and will work properly with all mumble clients on windows, android and iphone with good quality sound.
@@ -207,7 +205,7 @@ Debian version: 11 (bullseye) along with talkkonnect version 2.19.01 Released 03
 * For this image out of the box it will connect to a wifi with ssid network and password 1234567890 (if you are lazy you can do this)
 * Alternativly you can also create the wpa_supplicant.conf file and put it in the /boot/ folder on windows before inserting the card into your raspberry pi
 	
-### talkkonnect Version 2 Quick Download Link for Pre-Made SD Card Image 32GB for Use with Orange Pi Zero ###
+### (old) talkkonnect Version 2 Quick Download Link for Pre-Made SD Card Image 32GB for Use with Orange Pi Zero ###
 * This Image Was Created On 05/April/2022 and Runs Bullseye Release along with talkkonnect Version 2.13.01 Released Mar 6 2022
 * [Click Here to Download Pre-Configured SD Card Image for Talkkonnect Version 2 for Orange Pi Zero Onboard Sound](https://drive.google.com/file/d/19IZAi6zRIzWeS8i4eo8djSPOkNSF6C3v/view?usp=sharing) 
 * You will need a to connect a microphone using the same circuit as the orange pi zero microphone hat.	

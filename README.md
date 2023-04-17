@@ -75,7 +75,7 @@ Perip.io has been removed from talkkonnect so this means the respeaker LEDS will
 [talKKonnect](http://www.talkkonnect.com) was developed initially to run on SBCs. The latest version can be scaled to run all the way from ARM SBCs to full fledged X86 servers.
 To compile on X86 archectures you would need to revert back to Tim Cooper's version of GOOPUS (Opus).
 Raspberry Pi 2B,3B,3A+,3B+,4B Orange Pis, PCs and virtual environments (Oracle VirtualBox, KVM and Proxmox) targets have all been tested and work as expected. 
-Rasperry Pi Zero W and Pi Zero WH (Version 1) will work with a "watered down" version of talkkonnect that uses a lower sampling rate so as not to use up all of the little CPU power provided by the Zero. However the newly released Raspberry Pi Zero Version 2 W is a perfect candidate for talkkonnect, both small and compact.
+Rasperry Pi Zero W and Pi Zero WH (Version 1) is not recommended for use with talkkonnect as the CPU in that device is not powerful enough for any real practical use, avoid the Pi Zero W (Version 1) at all costs. However the newly released Raspberry Pi Zero Version 2 W is a perfect candidate for talkkonnect, both small and compact and it is highly recommended for those requiring smaller builds.
 
 
 ### Why Was talKKonnect created?
@@ -158,8 +158,6 @@ Debian version: 11 (bullseye) along with talkkonnect version 2.19.01 Released 03
 * This image has been configured to work with a USB CM108 Sound Card and GPIO will work out of the box for PTT and LEDs. 
 * This Image should work out of the box it also has serial console on the usb port for easy access to ssh thorough com port on windows and macOS
 * This image will work with LAN Cabled Ethernet connection out of the box
-* Since this image was created on Raspberry 3B+ Board if you use Raspberry 4 please note that you will have to do the following apt install firmware-brcm80211
-  then you will have to use raspi-config to set the wifi country for the wifi to work and not sure if anything else is broken on RBP V4.
 
 ### talkkonnect Version 2 32BIT Quick Download Link for Pre-Made SD Card Image for Use with Raspberry PI tested on Pi (2/3 series) and USB Sound Card ###
 * This Image Was Created On 09/January/2022 and Runs Bullseye Release along with talkkonnect version 2.09.19 Released 08/January/2022
@@ -902,5 +900,5 @@ Thank you all for your kind feedback sent along with some pictures and use cases
 ## License 
 [talKKonnect](http://www.talkkonnect.com) is open source and available under the MPL V2.00 license.
 
-<suvir@talkkonnect.com> Updated 03/03/2023 talkkonnect version 2.19.01 is the latest release as of this writing.
+<suvir@talkkonnect.com> Updated 17/04/2023 talkkonnect version 2.23.04 is the latest release as of this writing.
 

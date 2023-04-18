@@ -1,6 +1,6 @@
 # talKKonnect
 
-### A Headless Mumble Client/Transceiver/Walkie Talkie/Intercom/Gateway for Single Board Computers, PCs or Virtual Environments (IP Radio/IP PTT <push-to-talk>)
+### A Headless Mumble Linux Client/Transceiver/Walkie Talkie/Intercom/Gateway for Single Board Computers, PCs or Virtual Environments (IP Radio/IP PTT <push-to-talk>)
 
 ---
 ### If you like and use talkkonnect PLEASE let us know, please STAR talkkonnect/talkkonnect repo on github.com!
@@ -8,14 +8,14 @@
 #### Some Interesting Features of talkkonnect
 
 #### Configurablilty
-* XML Granular configurability for many uses cases.
-* Autoprovisioning for configuring multiple talkkonnects from a centralized http provisioning server using XML delivery via http download
-* Configurable choice of GPIO pins to use for each function on different SBC boards 
+* XML Granular configurability covering many flexible uses cases.
+* Centralized autoprovisioning for multiple talkkonnect devices from a centralized http provisioning server using XML delivery via http 
+* Configurable choice of GPIO pins for each function on a variety of commercially available SBC boards 
 
 #### GPIO and Hardware Support
-* GPIO Granular Configurable Support with Optional GPIO Expander you can now have up to 16 x 8 = 128 GPIO using The MCP23017 Chip over I2c
+* GPIO WIth Optional GPIO Expander (up to 16 x 8 = 128 GPIO using The MCP23017 Chip over I2c)
 * Rotary Encoder Support for Channel Up/Down, Volume Up/Down, SA818 Radio Module Frequency Change, Voice Target Change
-* LCD/OLED Screen (Parallel and I2c Interface) showing relevant real time information such as *server info, current channel, who is currently talking, etc.*
+* LCD/OLED Screen (Parallel and I2c Interface) showing relevant real time information such as *server info, current channel, who is currently talking, time, etc.*
 * Connecting to low cost USB GPS dongles (for instance “u-blox”) for GPS tracking, Panic Alerts integration with traccar GPS tracking software. 
 * Seven Segment Support For Showing Channel like CB Rado using MAX7219 Chip with Seven Segment Displays 
 * Panic button, when pressed, talKKonnect will send an alert message with GPS coordinates, followed by an email indication current location in google maps. 
@@ -23,8 +23,7 @@
 #### Remote Control Features
 Local or Remote Control via 
 * Locally attached USB keyboard
-* SSH terminal
-* Console terminal
+* SSH or Console terminal
 * Remote control over http api and/or MQTT with Granular Configurable remote control commands, LED Control, Button Control, Relay Control
 
 #### Using talkkonnect As a Radio Gateway Interface
@@ -37,19 +36,20 @@ Local or Remote Control via
 * Sound Files can be tied with events/actions in config (Support both blocking and non-blocking modes)
 * Streaming Audio into the channel from locally stored media file or from internet stream by local or API Call
 * Announciator Support using Google TTS with Multi Language Support
+* Analog Relay Control By Listening Channel for PA Announcements
 
 #### Mumble And other Features 
 * Shout and Whisper Support
 * Channel Token Support
-* Configurable Voice targeting via USB Numpad keyboard, TTT Keyboard, API, MQTT (Shouting and Whispering)
-* Configurable Voice Target and Shortcut Support over USB Keypad
+* Configurable Voice targeting via USB Numpad keyboard, TTY Keyboard, API, MQTT (Shouting and Whispering)
+* Configurable functions such as mute,unmute,channel,txptt available on USB Keypad
 * Listening on Multiple Channels Support
 * Multiple Server Configurations with channel control, channel scanning and server hopping
 * Many Other features as per suggested or requested by the community too many to mention here
 
 ### So What then is talKKonnect, and why should I be Interested?
 
-[talKKonnect](http://www.talkkonnect.com) is a headless self contained mumble Push to Talk (PTT) client complete with LCD, Channel and Volume control.
+[talKKonnect](http://www.talkkonnect.com) is a headless self contained mumble Push to Talk (PTT) linux client complete with LCD, Channel and Volume control.
 
 The Potential Uses of talKKonnect
 * IP Intercom or Door Intercom or Intercom between remote places
@@ -67,14 +67,13 @@ The Potential Uses of talKKonnect
 
 This project is a fork of [talkiepi](http://projectable.me/) by Daniel Chote which was in turn a fork of [barnard](https://github.com/layeh/barnard) a text basedmumble client. 
 talKKonnect was developed using [golang](https://golang.org/) and based on [gumble](https://github.com/layeh/gumble) library by Tim Cooper.
-Most Libraries are however heavily vendored (modified from original). You will need to get the vendored libraries from this repo. Talkkonnect has implemented
-the later specs the mumble protocol so please use the talkkonnect vendored libraries (gumble) for building talkkonnect.
+Most Libraries are however heavily vendored (modified from original). You will need to get the vendored libraries from this repo. Talkkonnect has implemented using the later specs the mumble protocol, so please use the talkkonnect vendored libraries (gumble) for building talkkonnect. Using original gumble library has does not have channel listening features and the build will fail because of missing functions mapped to the vendored version of the gumble library.
 
-Perip.io has been removed from talkkonnect so this means the respeaker LEDS will not work, however it will now behave and compile on most single board computers without issues. For those who really need the LEDS on the respeaker hat you can uncomment out the code re-enabling the SPI LEDS. 
+Perip.io has been removed from talkkonnect so this means the respeaker LEDS will not work, however it will now behave and compile on most single board computers without issues. For those who really need the LEDS on the respeaker hat you can uncomment out the code re-enabling the SPI LEDS. See the commit 6dc0856878c310ae8778bc19baa38153aa7cf5a0 dated March 3, 2023 for the changes commented out MyLEDStrip should you require to build talkkonnect with a respeaker hat with those SPI LEDS.
 
-[talKKonnect](http://www.talkkonnect.com) was developed initially to run on SBCs. The latest version can be scaled to run all the way from ARM SBCs to full fledged X86 servers.
+[talKKonnect](http://www.talkkonnect.com) was developed initially to run on Linux SBCs. The latest version can be scaled to run all the way from ARM SBCs to full fledged X86 servers.
 To compile on X86 archectures you would need to revert back to Tim Cooper's version of GOOPUS (Opus).
-Raspberry Pi 2B,3B,3A+,3B+,4B Orange Pis, PCs and virtual environments (Oracle VirtualBox, KVM and Proxmox) targets have all been tested and work as expected. 
+Raspberry Pi 2B,3B,3A+,3B+,4B,400,Zero 2W, Orange PIs, PCs and virtual environments (Oracle VirtualBox, KVM and Proxmox) targets have all been tested and work as expected. 
 Rasperry Pi Zero W and Pi Zero WH (Version 1) is not recommended for use with talkkonnect as the CPU in that device is not powerful enough for any real practical use, avoid the Pi Zero W (Version 1) at all costs. However the newly released Raspberry Pi Zero Version 2 W is a perfect candidate for talkkonnect, both small and compact and it is highly recommended for those requiring smaller builds.
 
 
@@ -87,7 +86,7 @@ Living in an apartment in the age of the internet with the itch to innovate drov
 
 I have tried to make the talKKonnect source code readable and stable to the best of my ability. Time permitting I will continue to work and learn from all those people who give feedback and show interest in using talkkonnect. 
 
-[talKKonnect](http://www.talkkonnect.com) was originally created to have the form factor and functionality of a desktop transceiver. With community feedback we started to push the envelope to make it more versatile and scalable as you can see from the rich feature list.
+[talKKonnect](http://www.talkkonnect.com) was originally created to have the form factor and functionality of a desktop transceiver. With community feedback we started to push the envelope to make it more versatile and scalable as you can see from the rich feature list. We also later added announcement and PA abilities to make talkkonnect support IP-Speaker functionality.
 
 Pictures and detailed information of my builds can be found on my [blog](https://www.talkkonnect.com) and on [facebook](https://www.facebook.com/talkkonnect)
 
@@ -98,7 +97,7 @@ Currently talKKonnect works with 4×20 Hitachi [HD44780](https://www.sparkfun.co
 
 Low cost Class-D audio amplifiers like [PAM8403](https://www.instructables.com/id/PAM8403-6W-STEREO-AMPLIFIER-TUTORIAL/) or similar “D” class amplifiers, are recommended for talKKonnect builds.
 
-A good shileded cable for microphone is recommended to keep the noise picked up to a minimum. Talkkonnect also supports mems microphones with very good quality audio.
+A good shileded cable for microphone is recommended to keep the noise picked up to a minimum. Talkkonnect also supports mems microphones with very good quality audio. However for MEMS microphones it is recommended that you compile the kernel module (driver) for the MEMs microphone of your choice. ADAFruit has a good guide to do this.
 
 Instead of the onboard sound card or USB Sound Card, you can also use a ReSpeaker compatiable HAT, or a ReSpeaker USB Sound Card with built in Amplifier and achieve great audio quality results in a compact form factor.
 	
@@ -109,9 +108,9 @@ Instead of the onboard sound card or USB Sound Card, you can also use a ReSpeake
 * Currently receiving an audio stream (someone is talking on the channel) (voiceactivity LED)
 * Heart Beat to indicate that talKKonnect is running (heartbeat LED)
 * Currently in Voicetarget mode or Speaking in Normal mode for all clients on the channel to hear (voicetarget LED)
+* Flashing Attention LED to get the attention of a talkkonnect operator in a noisy environment.
 
 ### Software Configurable Features ###
-
 * Colorized Logs are shown on the debugging terminal for events as they happen in real time. Logging with line number, logging to file or screen or both. 
 * Playing of configurable *alert sounds* as different events happen, such as a different sound when someone "joins" the channel and another sound for someone "leaving" the channel.
 * *TTS prompts* to announce different events for those use special use cases where it is required.  
@@ -121,23 +120,29 @@ Instead of the onboard sound card or USB Sound Card, you can also use a ReSpeake
 * Thes options can be enabled, disabled and customized in the configuration talkkonnect.xml file.
 
 ### Common Information for the all the Pre-Made Images For Various Hardware Configurations ###
-* All images are made using version 2 of talkkonnect so please use version 2 configs from the configs folder only
+* All images are made using version 2 of talkkonnect so please use version 2 configs samples
+* With all the updates I cannot possibly make all config sample files up to date so as a guideline please always look to the file 
+talkkonnect-version2-usb-gpio-example.xml  for the latest tags to copy and implement them in your builds.
 * We have for your convinience created a few different images that you can download and burn to your SD card so that you can get up and running quickly with a generic instance of talkkonnect working out of the box. Choose the image based on your hardware and use case. Using one of these images you will not need to follow all the complicated steps of installing and compiling everything from scratch if that seems daunting and overwhelming to you at first. 
 * This is an easy way to start experimenting with talkkonnect in a matter of minutes. The ability to shorten the time and lessen the barrier of entry will allow you to see if talkkonnect suits your needs.
 * The network settings are set as DHCP Client so your device should get an IP Address when by cabled LAN you connect it to your DHCP enabled network.
 * After you find the IP Address of your talkkonnect device from the DHCP leases section of your router you can log in over ssh using a tool like putty or equavilent on the standard ssh port 22 using the root user with password talkkonnect. 
-* NOTICE!! When using these images Talkkonnect will already by started by systemd upon boot and run in a screen instance when you boot this image. There is no reason to manually start talkkonnect. By default with no changes in settings talkkonnect will connect to our community server. If you try start up talkkonnect by hand there will be 2 instances of talkkonnect that will clash with each other and you will be connected and disconnected from the server in a endless loop.
-* NOTICE!! If you use talkkonnect and notice that the talkkonnect client is connecting to the server and then disconnecting after a few seconds and that 
-this is in an endless loop. Please check that you have plugged in the USB sound card and the sound card configurations match your sound card.
-* Since talkkonnect is already running in the background (in a screen) upon boot, you can access the running console of talkkonnect by ssh (as root) into the raspberry pi device and at the command prompt type the command screen -r to see the console of the running talkkonnect. Press the <del> key to see a menu of the options available to you.
-* We request that you to please edit the configuration file of talkkonnect.xml.  This file can be found in the directory /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/ Please change the XML tag <username>talkkonnect</username> to a name that describes you so that the members in the community channel can see who you are by name or callsign. If you do not change this setting your name in the channel will be shown as talkkonnect with some random numbers and letters so   as the keep the username unique by default. You cannot have more than 1 device per username connected to the server at the same time.
-* By default the images of talkkonnect will connect to our community server at mumble.talkkonnect.com port 64738 using any unique username and the password talkkonnect
-* You can join our channel(s) HAM-CB or talkkonnect and start chatting with us with voice and asking us questions or make suggestions we have a warm and welcomming group of enthusiastic individuals to help you with your questions. This is a good place to hang around and chat with like minded individuals.
+* NOTICE!! When using these images Talkkonnect will already by started by systemd upon boot and run in a screen instance when you boot this image. There is no reason to manually start talkkonnect. By default with no changes in settings talkkonnect will connect to our community mumble server. If you try start up talkkonnect manually there will be 2 instances of talkkonnect that will clash with each other and you will be connected and disconnected from the server in a endless loop.
+* NOTICE!! If you use talkkonnect and notice that the talkkonnect client is connecting to the server and then disconnecting after a few seconds and that this is in an endless loop. Please check that you have plugged in the USB sound card and the sound card configurations match your sound card.
+* Since talkkonnect is already running in the background (in a screen) upon boot, you can access the running console of talkkonnect by ssh (as root) into the raspberry pi device and at the command prompt type the command screen -r to see the console of the running talkkonnect. Press the del key to see a menu of the options available to you.
+* We request that you to please edit the configuration file of talkkonnect.xml.  This file can be found in the directory /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/ Please change the XML tag <username></username> to a name that describes you so that the members in the community channel can see who you are by name or callsign. If you do not change this setting your name in the channel will be shown as talkkonnect with your mac address to keep the username unique by default. You cannot have more than 1 device per username connected to the server at the same time.
+* By default the images of talkkonnect will connect to our community server at mumble.talkkonnect.com port 64738 using any unique username there is no need for a password to connect to the community mumble server
+* You can join our channel(s) HAM-CB on the community server and start chatting with us with voice and asking us questions or make suggestions we have a warm and welcomming group of enthusiastic individuals to help you with your questions. This is a good place to hang around and chat with like minded individuals.
 * The images are divided into 2 broad categories (the ones that use the respeaker hat, the ones that use onboard sound and the ones that use USB Sound cards)
-* For those Non-Respeaker Images (Usb Sound Card or MEMS Microphone Images) Out of the box the standard configutation XML file is set to run in PC mode so no GPIO will initalized. 
+* The images also are available in both 32 and 64 bit of the underlying operating systems written on to the SD card images.
+* For those Non-Respeaker Images (Usb Sound Card or MEMS Microphone Images) Out of the box the standard configutation XML file is set to run in PC mode so no GPIO will initalized.
+* The MEMS microphone image is not actively maintained so unless you have a specific use case stay away from this build.
 * For those Respeaker Images (Rpi Zero or RPI 2/3 Images with Respeaker) Out of the box the standard configutation XML file is set to run in GPIO Mode and GPIO will initalized, this means the PTT Button and the LEDS on the 2 Mic Respeaker Hat will work right away. You will need to connect an external speaker to the HAT for these images.
-* Feel Free to explore the various example talkkonnect.xml configurations that can be found in the directory /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/sample-configs here you can find various configurations that work with LCD, OLED, LEDS and PUSH Button Switches. The files are named descriptively.
-* To update to the lastest version release of talkkonnect in the image you can cd to the root directory and issue wget https://raw.githubusercontent.com/talkkonnect/talkkonnect/main/scripts/update-talkkonnect.sh then chmod +x ./update-talkkonnect.sh after that you can use the command /root/update-talkkonnect.sh to update to the latest version.	
+* Feel Free to explore the various example talkkonnect.xml configurations that can be found in the directory /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/sample-configs here you can find various configurations that work with LCD, OLED, LEDS and PUSH Button Switches. The files are named descriptively. See the talkkonnect-version2-usb-gpio-example.xml
+as an example. 
+* To update to the lastest version release of talkkonnect in the image you can cd to the root directory and issue wget https://raw.githubusercontent.com/talkkonnect/talkkonnect/main/scripts/update-talkkonnect-32bit.sh or 
+wget https://raw.githubusercontent.com/talkkonnect/talkkonnect/main/scripts/update-talkkonnect-64bit.sh  
+then chmod +x the downloaded bash script and run it. Make sure you choose 32 or 64 bit to match your Operating System otherwise this will break the update.
 
 ## talKKonnect Version 2 Images	
 
@@ -156,7 +161,7 @@ Debian version: 11 (bullseye) along with talkkonnect version 2.19.01 Released 03
 * This image has been configured to work with a USB CM108 Sound Card and GPIO will work out of the box for PTT and LEDs. 
 * This image will work with LAN Cabled Ethernet connection out of the box
 
-### talkkonnect Version 2 32BIT Quick Download Link for Pre-Made SD Card Image for Use with Raspberry PI tested on Pi (2/3 series) and USB Sound Card ###
+### talkkonnect Version 2 (32 BIT) Quick Download Link for Pre-Made SD Card Image for Use with Raspberry PI tested on Pi (2/3 series) and USB Sound Card ###
 * This Image Was Created On 17/April/2023 and Runs Bullseye Release along with talkkonnect version 2.23.04 Released 15/April/2023
 * [Click Here to Download Pre-Configured SD Card Image for Talkkonnect Version 2 for Raspberry Pi and USB Sound Card](https://drive.google.com/file/d/12RgGKnYpvC6Z8NWGSV_HVqA9VcbdatGn/view?usp=sharing) 
 * You will need a CM-108 or equavilent sound card plugged in before booting for this image to work otherwise it will connect and disconnect to the server in an endless loop.	
@@ -173,7 +178,7 @@ Debian version: 11 (bullseye) along with talkkonnect version 2.19.01 Released 03
 * For this image out of the box it will connect to a wifi with ssid network and password 1234567890 (if you are lazy you can do this)
 * To Connect to your WIFI you can also create the wpa_supplicant.conf file and put it in the /boot/ folder on windows before inserting the card into your raspberry pi.
 
-### (old version) talkkonnect Version 2 Quick Download Link for Pre-Made SD Card Image for Use with Raspberry pi 2/3  and IM69D130 Mems Microphone ### 
+### (Obsoleted Image) talkkonnect Version 2 Quick Download Link for Pre-Made SD Card Image for Use with Raspberry pi 2/3  and IM69D130 Mems Microphone ### 
 * This image is the initial release created a while ago and is not yet updated.
 * [Click Here to Download Pre-Configured SD Card Image for Talkkonnect Version 2 for Raspberry 3/4/Pi with IM69D130 Mems Microphone](https://drive.google.com/file/d/1s7Qjtj8XAfQmdr766WBvYZq4vjaQ7CZ3/view?usp=sharing) 
 * This image has a custom kernel and used Instructions was found at https://github.com/Infineon/GetStarted_IM69D130_With_RaspberryPi
@@ -185,7 +190,7 @@ Debian version: 11 (bullseye) along with talkkonnect version 2.19.01 Released 03
 * For this image out of the box it will connect to a wifi with ssid network and password 1234567890 (if you are lazy you can do this)
 * Alternativly you can also create the wpa_supplicant.conf file and put it in the /boot/ folder on windows before inserting the card into your raspberry pi
 	
-### (old) talkkonnect Version 2 Quick Download Link for Pre-Made SD Card Image 32GB for Use with Orange Pi Zero ###
+### (Obsoleted Image) talkkonnect Version 2 Quick Download Link for Pre-Made SD Card Image 32GB for Use with Orange Pi Zero ###
 * This Image Was Created On 05/April/2022 and Runs Bullseye Release along with talkkonnect Version 2.13.01 Released Mar 6 2022
 * [Click Here to Download Pre-Configured SD Card Image for Talkkonnect Version 2 for Orange Pi Zero Onboard Sound](https://drive.google.com/file/d/19IZAi6zRIzWeS8i4eo8djSPOkNSF6C3v/view?usp=sharing) 
 * You will need a to connect a microphone using the same circuit as the orange pi zero microphone hat.	
@@ -200,11 +205,12 @@ Debian version: 11 (bullseye) along with talkkonnect version 2.19.01 Released 03
 OS builds on raspberry pi using raspberry pi os 32 bit minimal, tkbuild-64bit.sh is the same build for 64 bit OS builds on raspberry pi 
 using raspberry pi os 64 bit minimal and tkbuild-orangepi.sh for building on the armbian 32 bit version for orange pi zero boards. Please
 use the appropriate script to build depening on your hardware. Replace the script name in the wget command below. 
-* wget 	https://raw.githubusercontent.com/talkkonnect/talkkonnect/main/scripts/tkbuild.sh
-* you will have downloaded the shell script tkbuild.sh
-* chmod +x tkbuild.sh to make it executable
-* run ./tkbuild.sh and wait for golang to install and talkkonnect to download along with all libraries automatically
-* you may need to modify this script a little bit as versions of golang change	
+
+* wget https://raw.githubusercontent.com/talkkonnect/talkkonnect/main/scripts/tkbuild-32bit.sh
+* wget https://raw.githubusercontent.com/talkkonnect/talkkonnect/main/scripts/tkbuild-64bit.sh
+* chmod +x tkbuild-32bit.sh or chmod +x tkbuild-64bit.sh to make it executable
+* run ./tkbuild-32bit.sh or ./tkbuild-64bit.sh and wait for golang to install and talkkonnect to download along with all libraries automatically
+* you may need to modify this script a little bit as versions of golang change check the latest compatable version of golang at https://go.dev/ 	
 	
 ### Installation Instructions For Raspberry Pi Boards (from Source code by hand) ###
 
@@ -267,17 +273,18 @@ Now you should be able to log in remotely via ssh using the root account and con
 
 To get the newer versions of golang used for this project I suggest installing a precompiled binary of golang. If you use apt-get to install golang at this moment you will get an older incompatible version of golang.
 
-To install GO as required for this project on the raspberry pi. First with your browser look on the website https://golang.org/dl/ on your browser and choose the latest version for the arm archecture. go1.xx.x.linux-arm64.tar.gz for 32 bit OS or 
+To install GO as required for this project on the raspberry pi. First with your browser look on the website https://golang.org/dl/ on your browser and choose the latest version for the arm archecture. go1.xx.x.linux-arm64.tar.gz for 32 bit OS or 64. 
 
 
-Please Note that if you use apt-get to install golang instead of follow the recommended instructions in this blog you may get some errors like the following error when compiling 
-BackLightTime.Reset undefined (type * time.Ticker has no field or method Reset) . This is just an example of how changes in the language break old code that was perhaps not written properly. For best results stick to the latest version of golang.
+Please Note that if you use apt-get to install golang instead of follow the recommended instructions in this blog you may get some errors while compiling. For best results stick to the latest version of golang.
 
-As root user Get the link and use wget to download the binary to your talkkonnect (For go version 1.19.1 at the time of this writing)
+These steps for manual install are based of a 32 bit install so please modify to suit your OS accordingly.  
+
+As root user Get the link and use wget to download the binary to your talkkonnect (For go version 1.20.3 at the time of this writing)
 
 ` cd /usr/local `
 
-` wget https://go.dev/dl/go1.19.1.linux-armv6l.tar.gz `
+` wget https://go.dev/dl/go1.20.3.linux-armv6l.tar.gz `
 
 ` tar -zxvf go1.19.1.linux-armv6l.tar.gz `
 
@@ -328,12 +335,13 @@ cd $GOPATH/src/github.com/talkkonnect/talkkonnect
 
 ##### Before building the binary, confirm all features which you want enabled, the GPIO pins used and talKKonnect program configuration by editing file: ##### 
 
-` /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/talkkonnect.xml`
+`nano /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/talkkonnect.xml`
 
 ##### Sample XML files can be found from sample-configs folder: #####
 
 https://github.com/talkkonnect/talkkonnect/tree/main/sample-configs
 
+See the file talkkonnect-version2-usb-gpio-example.xml as an example with all the latest XLS tags.
 
 ##### Build talKKonnect and test connection to your Mumble server. #####
 
@@ -552,15 +560,16 @@ For a speaker muting to work when pressing a PTT, you need to enter the exact na
 * When talkkonnected is connected to a server you can cycle through accounts in which enabled = "true" by pressing CTRL-N, talkkonnect will connect to the next enabled server in the list
 * Talkkonnect will not attempt to connect to a server that has the account tag set default = "false" 
 * The tag account name is just used to identify the server for logging purposes 
-* The serverandport tag is for the server FQDN or IP address followed by a (colon) and the port of mumble is running on for that particlar server.
+* The serverandport tag is for the server FQDN or IP address followed by a (colon) and the port of mumble is running on for that particlar server. Our community mumble server setting is currently mumble.talkkonnect.com:64738 
 * The username tag is used for identifying yourself on the mumble server and for authentication 
 * The password tag is used if the mumble server requires password authentication 
 * The insecure tag should be set as true if the server you are connecting to does not require a certificate 
-* The certificate tag should contain the full path to your previously generated certificate which is usually a file with the extension of pem  
+* The certificate tag should contain the full path to your previously generated certificate which is usually a file with the extension of pem 
 * The channel tag should only be populated want to connect to a specific channel other than the root channel on startup
+* The ident tag is used to identify the name of the person using talkkonnect for help request sent when using the panic function
+* The listentochannel has xml child tags of  channel in which you can setup channels you want to listen to using the channellisten feature of mumble
 * The tokens list for each account for autorization to token protected channels
 * The voicetargets IDs and their corresponding users and channels
-* The listentochannel has xml child tags of  channel in which you can setup channels you want to listen to using the channellisten feature of mumble
  
 ### The Global Section of talkkonnect.xml (Software & Hardware)
 
@@ -595,15 +604,23 @@ Autoprovisioning is provided so that you can remotely provision a talkkonnect ma
 * The savefileandpath tag are used to define the name and where the http fetched xml file will be stored locally. This is usually /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/talkkonnect.xml
 
 #### Beacon Section
-The beacon function was created to emulate a radio repeater beacon that will play certain wav files at defined periods to notify all users on a particular channel that the repeater is online nad functioning 
+The beacon function was created to emulate a radio repeater beacon that will play certain wav files at defined periods to notify all users on a particular channel that the repeater is online and functioning. You can now play the wav file into the mumble stream or you can also choose to play the announcement on the Speaker (RF Side if used as a repeater controller) 
 * The beacontimersecs is the interval time in seconds between the repleated messages 
-* The beaconfileandpath is the tag which defines the file and path to a wav file that to be played at regular intervals 
-* The volume tag can be set from 0.1 to 1 in intervals of 0.1 for setting up the volume the file playback into stream will be played
+* The beaconfileandpath is the tag which defines the file and path to a wav file that to be played at regular intervals
+* The localplay tag is set to true will play the sound on to the speaker (or RF side) 
+* The localvolume tag can be set from 1-100 for setting up the volume the file playback into speaker
+* The GPIO enabled features can be used to key up a transmitter when the message is on localplay (used for repeaters)
+* The gpioname is the name of the gpio pin defined that will go high/low when the message is played
+* The playintostream tag enables you to play the wav file into direction of the mumble stream
+* The beaconvolumeintostream can be set from 1-100 for setting up the volume the file playback into mumble stream
 
 #### The TTS Section
 This section was created for users that want an audible response to events that happen (Usually Users without LCD Screen) 
 * You can disable the whole section TTS functionality by the tag tts enabled = false 
 * You can choose to enable only certain events you are interested in by setting tag tts enabled = true and selecting the tag you want for your particular use case
+* You can also set the blocking tag to determine the nature of the tts playback
+* The volumelevel can be set from 1-100
+* the language default is en 
 
 #### The SMTP Section
 Talkkonnect currently can only connect to gmail's SMTP for sending emails 
@@ -752,6 +769,7 @@ functions by pressing the rotary encoder button. If the rotary encoder is respon
 trailing msecs tags.
 * To use the rotary encoder you will also have to define in the io section pins for rotarya,rotaryb and button, since they are inputs the chipid has to
 be 0 and the device has to be rotaryecoder.
+* The memory channel features enable you to define a GPIO name to a favourite channel. You can have up to 4 buttons for memory channels.
 
 #### The Volume Button Step Section
 * This setting allows you to define the increase or decrease step of volume adjustment. This setting will depend on your preference and sound card used.
@@ -878,5 +896,5 @@ Thank you all for your kind feedback sent along with some pictures and use cases
 ## License 
 [talKKonnect](http://www.talkkonnect.com) is open source and available under the MPL V2.00 license.
 
-<suvir@talkkonnect.com> Updated 17/04/2023 talkkonnect version 2.23.04 is the latest release as of this writing.
+<suvir@talkkonnect.com> Updated 18/04/2023 talkkonnect version 2.23.04 is the latest release as of this writing.
 

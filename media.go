@@ -207,7 +207,7 @@ func (b *Talkkonnect) beaconPlay() {
 				if Config.Global.Software.Beacon.GPIOEnabled {
 					GPIOOutPin(Config.Global.Software.Beacon.GPIOName, "on")
 				}
-				localMediaPlayer(Config.Global.Software.Beacon.BeaconFileAndPath, Config.Global.Software.Beacon.LocalVolume, true, 0, 1)
+				localMediaPlayer(Config.Global.Software.Beacon.BeaconFileAndPath, Config.Global.Software.Beacon.LocalVolume, false, 0, 1)
 				if Config.Global.Software.Beacon.GPIOEnabled {
 					GPIOOutPin(Config.Global.Software.Beacon.GPIOName, "off")
 				}

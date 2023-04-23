@@ -81,7 +81,7 @@ func CleanUp(withShutdown bool) {
 	term.Close()
 	fmt.Println("SIGHUP Termination of Program Requested by User...shutting down talkkonnect")
 	if withShutdown {
-		time.Sleep(3 * time.Second)
+		time.Sleep(5 * time.Second)
 		syscall.Reboot(syscall.LINUX_REBOOT_CMD_POWER_OFF)
 	}
 	os.Exit(0)
@@ -309,7 +309,7 @@ func (b *Talkkonnect) ParticipantLEDUpdate(verbose bool) {
 				if tts.Enabled && (participantCount != prevParticipantCount) {
 					tempStatus := Config.Global.Software.TTSMessages.TTSTone.ToneEnabled
 					Config.Global.Software.TTSMessages.TTSTone.ToneEnabled = false
-					b.Speak("There Are Currently "+strconv.Itoa(participantCount)+" Users in The Channel "+b.Client.Self.Channel.Name, "local", Config.Global.Software.TTS.Volumelevel, 0, 1, Config.Global.Software.TTSMessages.TTSLanguage)
+					b.Speak(strconv.Itoa(participantCount)+" Users in Channel "+b.Client.Self.Channel.Name, "local", Config.Global.Software.TTS.Volumelevel, 0, 1, Config.Global.Software.TTSMessages.TTSLanguage)
 					Config.Global.Software.TTSMessages.TTSTone.ToneEnabled = tempStatus
 				}
 			}

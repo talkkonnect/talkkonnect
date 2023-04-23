@@ -518,6 +518,9 @@ func rxScreen(LastSpeaker string) {
 		oledDisplay(false, 7, 1, "www.talkkonnect.com")
 		BackLightTime.Reset(time.Duration(LCDBackLightTimeout) * time.Second)
 	}
+	if Config.Global.Software.Beacon.Enabled {
+		BeaconTime.Reset(time.Duration(time.Duration(Config.Global.Software.Beacon.BeaconTimerSecs) * time.Second))
+	}
 }
 
 func (b *Talkkonnect) VTMove(command string) {
@@ -561,7 +564,6 @@ func (b *Talkkonnect) VTMove(command string) {
 }
 
 func stripRegex(in string) string {
-    reg, _ := regexp.Compile("[^a-zA-Z0-9- ()]+")
-    return reg.ReplaceAllString(in, "")
+	reg, _ := regexp.Compile("[^a-zA-Z0-9- ()]+")
+	return reg.ReplaceAllString(in, "")
 }
-

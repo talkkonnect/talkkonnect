@@ -191,12 +191,15 @@ func playIOMedia(inputEvent string) {
 }
 
 func (b *Talkkonnect) beaconPlay() {
+	BeaconTime = *BeaconTimePtr
 	if !Config.Global.Software.Beacon.Enabled {
+		BeaconTime.Stop()
 		return
 	}
-	BeaconTicker := time.NewTicker(time.Duration(Config.Global.Software.Beacon.BeaconTimerSecs) * time.Second)
+
 	go func() {
-		for range BeaconTicker.C {
+		BeaconTime = time.NewTicker(time.Duration(Config.Global.Software.Beacon.BeaconTimerSecs) * time.Second)
+		for range BeaconTime.C {
 			if Config.Global.Software.Beacon.Playintostream {
 				IsPlayStream = true
 				b.playIntoStream(Config.Global.Software.Beacon.BeaconFileAndPath, Config.Global.Software.Beacon.BeaconVolumeIntoStream)
@@ -207,7 +210,8 @@ func (b *Talkkonnect) beaconPlay() {
 				if Config.Global.Software.Beacon.GPIOEnabled {
 					GPIOOutPin(Config.Global.Software.Beacon.GPIOName, "on")
 				}
-				localMediaPlayer(Config.Global.Software.Beacon.BeaconFileAndPath, Config.Global.Software.Beacon.LocalVolume, false, 0, 1)
+				log.Printf("info: Local/RF Beacon Playing %v with volume %v", Config.Global.Software.Beacon.BeaconFileAndPath, Config.Global.Software.Beacon.LocalVolume)
+				localMediaPlayer(Config.Global.Software.Beacon.BeaconFileAndPath, Config.Global.Software.Beacon.LocalVolume, true, 0, 1)
 				if Config.Global.Software.Beacon.GPIOEnabled {
 					GPIOOutPin(Config.Global.Software.Beacon.GPIOName, "off")
 				}

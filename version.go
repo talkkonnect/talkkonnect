@@ -31,10 +31,10 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.23.04"
-	talkkonnectReleased string = "Apr 15  2023"
+	talkkonnectVersion  string = "2.23.05"
+	talkkonnectReleased string = "Apr 23  2023"
 )
 
 /* Release Notes
-1. With GPIO System Shutdown Button
+1. Fix Beacon Function With Delayed Backoff On Receive
 */

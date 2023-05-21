@@ -1,0 +1,1347 @@
+#!/bin/sh
+# Modified from https://github.com/RPi-Distro/raspi-config
+#
+# See LICENSE file for copyright and license details of raspberry pi foundation
+# modified to work with talkkonnect by suvir kumar to provide interactive screen for talkkonnect installation
+
+INTERACTIVE=True
+ASK_TO_REBOOT=0
+BLACKLIST=/etc/modprobe.d/raspi-blacklist.conf
+CONFIG=/boot/config.txt
+
+USER=${SUDO_USER:-$(who -m | awk '{ print $1 }')}
+INIT="$(ps --no-headers -o comm 1)"
+
+is_pi () {
+  ARCH=$(dpkg --print-architecture)
+  if [ "$ARCH" = "armhf" ] || [ "$ARCH" = "arm64" ] ; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+if is_pi ; then
+  if [ -e /proc/device-tree/chosen/os_prefix ]; then
+    PREFIX="$(cat /proc/device-tree/chosen/os_prefix)"
+  fi
+  CMDLINE="/boot/${PREFIX}cmdline.txt"
+else
+  CMDLINE=/proc/cmdline
+fi
+
+# tests for Pi 1, 2 and 0 all test for specific boards...
+
+is_pione() {
+  if grep -q "^Revision\s*:\s*00[0-9a-fA-F][0-9a-fA-F]$" /proc/cpuinfo; then
+    return 0
+  elif grep -q "^Revision\s*:\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]0[0-36][0-9a-fA-F]$" /proc/cpuinfo ; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+is_pitwo() {
+  grep -q "^Revision\s*:\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]04[0-9a-fA-F]$" /proc/cpuinfo
+  return $?
+}
+
+is_pizero() {
+  grep -q "^Revision\s*:\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]0[9cC][0-9a-fA-F]$" /proc/cpuinfo
+  return $?
+}
+
+# ...while tests for Pi 3 and 4 just test processor type, so will also find CM3, CM4, Zero 2 etc.
+
+is_pithree() {
+  grep -q "^Revision\s*:\s*[ 123][0-9a-fA-F][0-9a-fA-F]2[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]$" /proc/cpuinfo
+  return $?
+}
+
+is_pifour() {
+  grep -q "^Revision\s*:\s*[ 123][0-9a-fA-F][0-9a-fA-F]3[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]$" /proc/cpuinfo
+  return $?
+}
+
+get_pi_type() {
+  if is_pione; then
+    echo 1
+  elif is_pitwo; then
+    echo 2
+  elif is_pithree; then
+    echo 3
+  elif is_pifour; then
+    echo 4
+  elif is_pizero; then
+    echo 0
+  else
+    echo -1
+  fi
+}
+
+is_live() {
+  grep -q "boot=live" $CMDLINE
+  return $?
+}
+
+is_ssh() {
+  if pstree -p | egrep --quiet --extended-regexp ".*sshd.*\($$\)"; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+is_kms() {
+  if grep -s -q okay /proc/device-tree/soc/v3d@*/status \
+                     /proc/device-tree/soc/firmwarekms@*/status \
+                     /proc/device-tree/v3dbus/v3d@*/status; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+is_pulseaudio() {
+  PS=$(ps ax)
+  echo "$PS" | grep -q pulseaudio
+  return $?
+}
+
+has_analog() {
+  if [ $(get_leds) -eq -1 ] ; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+is_installed() {
+  if [ "$(dpkg -l "$1" 2> /dev/null | tail -n 1 | cut -d ' ' -f 1)" != "ii" ]; then
+    return 1
+  else
+    return 0
+  fi
+}
+
+deb_ver () {
+  ver=`cat /etc/debian_version | cut -d . -f 1`
+  echo $ver
+}
+
+calc_wt_size() {
+  # NOTE: it's tempting to redirect stderr to /dev/null, so supress error 
+  # output from tput. However in this case, tput detects neither stdout or 
+  # stderr is a tty and so only gives default 80, 24 values
+  WT_HEIGHT=18
+  WT_WIDTH=$(tput cols)
+
+  if [ -z "$WT_WIDTH" ] || [ "$WT_WIDTH" -lt 60 ]; then
+    WT_WIDTH=80
+  fi
+  if [ "$WT_WIDTH" -gt 178 ]; then
+    WT_WIDTH=120
+  fi
+  WT_MENU_HEIGHT=$(($WT_HEIGHT-7))
+}
+
+get_can_expand() {
+  ROOT_PART="$(findmnt / -o source -n)"
+  ROOT_DEV="/dev/$(lsblk -no pkname "$ROOT_PART")"
+
+  PART_NUM="$(echo "$ROOT_PART" | grep -o "[[:digit:]]*$")"
+
+  if [ "$PART_NUM" -ne 2 ]; then
+    echo 1
+    exit
+  fi
+
+  LAST_PART_NUM=$(parted "$ROOT_DEV" -ms unit s p | tail -n 1 | cut -f 1 -d:)
+  if [ "$LAST_PART_NUM" -ne "$PART_NUM" ]; then
+    echo 1
+    exit
+  fi
+  echo 0
+}
+
+set_config_var() {
+  lua - "$1" "$2" "$3" <<EOF > "$3.bak"
+local key=assert(arg[1])
+local value=assert(arg[2])
+local fn=assert(arg[3])
+local file=assert(io.open(fn))
+local made_change=false
+for line in file:lines() do
+  if line:match("^#?%s*"..key.."=.*$") then
+    line=key.."="..value
+    made_change=true
+  end
+  print(line)
+end
+
+if not made_change then
+  print(key.."="..value)
+end
+EOF
+mv "$3.bak" "$3"
+}
+
+clear_config_var() {
+  lua - "$1" "$2" <<EOF > "$2.bak"
+local key=assert(arg[1])
+local fn=assert(arg[2])
+local file=assert(io.open(fn))
+for line in file:lines() do
+  if line:match("^%s*"..key.."=.*$") then
+    line="#"..line
+  end
+  print(line)
+end
+EOF
+mv "$2.bak" "$2"
+}
+
+get_config_var() {
+  lua - "$1" "$2" <<EOF
+local key=assert(arg[1])
+local fn=assert(arg[2])
+local file=assert(io.open(fn))
+local found=false
+for line in file:lines() do
+  local val = line:match("^%s*"..key.."=(.*)$")
+  if (val ~= nil) then
+    print(val)
+    found=true
+    break
+  end
+end
+if not found then
+   print(0)
+end
+EOF
+}
+
+get_overscan() {
+  OVS=$(get_config_var disable_overscan $CONFIG)
+  if [ $OVS -eq 1 ]; then
+    echo 1
+  else
+    echo 0
+  fi
+}
+
+get_overscan_kms() {
+  RES=$(grep "HDMI-$1" /usr/share/ovscsetup.sh 2> /dev/null | grep margin | rev | cut -d ' ' -f 1 | rev)
+  if [ -z $RES ] ; then
+    echo 1
+  elif [ $RES -eq 0 ] ; then
+    echo 1
+  else
+    echo 0
+  fi
+}
+
+get_blanking() {
+  if ! [ -f "/etc/X11/xorg.conf.d/10-blanking.conf" ]; then
+    echo 0
+  else
+    echo 1
+  fi
+}
+
+get_pixdub() {
+  if is_pi && ! is_kms; then
+    FBW=$(get_config_var framebuffer_width $CONFIG)
+    if [ $FBW -eq 0 ]; then
+      echo 1
+    else
+      echo 0
+    fi
+  else
+    echo 1
+  fi
+}
+
+is_number() {
+  case $1 in
+    ''|*[!0-9]*) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
+do_change_pass() {
+  whiptail --msgbox "You will now be asked to enter a new password for the $USER user" 20 60 1
+  passwd $USER &&
+  whiptail --msgbox "Password changed successfully" 20 60 1
+}
+
+do_change_timezone() {
+  if [ "$INTERACTIVE" = True ]; then
+    dpkg-reconfigure tzdata
+  else
+    TIMEZONE="$1"
+    if [ ! -f "/usr/share/zoneinfo/$TIMEZONE" ]; then
+      return 1;
+    fi
+    rm /etc/localtime
+    echo "$TIMEZONE" > /etc/timezone
+    dpkg-reconfigure -f noninteractive tzdata 2> /dev/null
+  fi
+}
+
+get_wifi_country() {
+  CODE=${1:-0}
+  if [ -e /etc/default/crda ]; then
+    . /etc/default/crda
+  elif systemctl -q is-active dhcpcd; then
+    REGDOMAIN="$(wpa_cli get country | tail -n 1)"
+  else
+    REGDOMAIN="$(iw reg get | sed -n "0,/country/s/^country \(.\+\):.*$/\1/p")"
+  fi
+  if [ -z "$REGDOMAIN" ] \
+     || ! grep -q "^${REGDOMAIN}[[:space:]]" /usr/share/zoneinfo/iso3166.tab; then
+    return 1
+  fi
+  if [ "$CODE" = 0 ]; then
+    echo "$REGDOMAIN"
+  fi
+  return 0
+}
+
+do_wifi_country() {
+  if [ "$INTERACTIVE" = True ]; then
+    value=$(sed '/^#/d' /usr/share/zoneinfo/iso3166.tab | tr '\t\n' '/')
+    oIFS="$IFS"
+    IFS="/"
+    #shellcheck disable=2086
+    REGDOMAIN=$(whiptail --menu "Select the country in which the Pi is to be used" 20 60 10 ${value} 3>&1 1>&2 2>&3)
+    IFS="$oIFS"
+  else
+    REGDOMAIN=$1
+  fi
+  if ! grep -q "^${REGDOMAIN}[[:space:]]" /usr/share/zoneinfo/iso3166.tab; then
+    if [ "$INTERACTIVE" = True ]; then
+      whiptail --msgbox "$REGDOMAIN is not a valid ISO/IEC 3166-1 alpha2 code" 20 60
+    fi
+    return 1
+  fi
+  if [ -e /etc/default/crda ]; then
+    sed -i "s/^REGDOMAIN=.*$/REGDOMAIN=$REGDOMAIN/"  /etc/default/crda
+    if ! ischroot; then
+      iw reg set "$REGDOMAIN"
+    fi
+  fi
+
+  IFACE="$(list_wlan_interfaces | head -n 1)"
+  if [ "$INIT" = "systemd" ] && [ -n "$IFACE" ] && systemctl -q is-active dhcpcd; then
+    wpa_cli -i "$IFACE" set country "$REGDOMAIN" > /dev/null 2>&1
+    wpa_cli -i "$IFACE" save_config > /dev/null 2>&1
+  fi
+
+  if [ "$INIT" = "systemd" ] && ! ischroot && systemctl -q is-active NetworkManager; then
+    nmcli radio wifi on
+  elif hash rfkill 2> /dev/null; then
+    rfkill unblock wifi
+  fi
+  if is_pi; then
+    for filename in /var/lib/systemd/rfkill/*:wlan ; do
+      if ! [ -e "$filename" ]; then
+        continue
+      fi
+      echo 0 > "$filename"
+    done
+  fi
+  if [ "$INTERACTIVE" = True ]; then
+    whiptail --msgbox "Wireless LAN country set to $REGDOMAIN" 20 60 1
+  fi
+}
+
+get_hostname() {
+  tr -d " \t\n\r" < /etc/hostname
+}
+
+do_hostname() {
+  if [ "$INTERACTIVE" = True ]; then
+    whiptail --msgbox "\
+Please note: RFCs mandate that a hostname's labels \
+may contain only the ASCII letters 'a' through 'z' (case-insensitive), 
+the digits '0' through '9', and the hyphen.
+Hostname labels cannot begin or end with a hyphen. 
+No other symbols, punctuation characters, or blank spaces are permitted.\
+" 20 70 1
+  fi
+  CURRENT_HOSTNAME=$(get_hostname)
+  if [ "$INTERACTIVE" = True ]; then
+    NEW_HOSTNAME=$(whiptail --inputbox "Please enter a hostname" 20 60 "$CURRENT_HOSTNAME" 3>&1 1>&2 2>&3)
+  else
+    NEW_HOSTNAME="$1"
+    true
+  fi
+  if [ "$?" -eq 0 ]; then
+    if [ "$INIT" = "systemd" ] && systemctl -q is-active dbus && ! ischroot; then
+      hostnamectl set-hostname "$NEW_HOSTNAME" 2> /dev/null
+    else
+      echo "$NEW_HOSTNAME" > /etc/hostname
+    fi
+    sed -i "s/127\.0\.1\.1.*$CURRENT_HOSTNAME/127.0.1.1\t$NEW_HOSTNAME/g" /etc/hosts
+    ASK_TO_REBOOT=1
+  fi
+}
+
+get_ssh() {
+  if service ssh status | grep -q inactive; then
+    echo 1
+  else
+    echo 0
+  fi
+}
+
+do_ssh() {
+  if [ -e /var/log/regen_ssh_keys.log ] && ! grep -q "^finished" /var/log/regen_ssh_keys.log; then
+    whiptail --msgbox "Initial ssh key generation still running. Please wait and try again." 20 60 2
+    return 1
+  fi
+  DEFAULT=--defaultno
+  if [ $(get_ssh) -eq 0 ]; then
+    DEFAULT=
+  fi
+  if [ "$INTERACTIVE" = True ]; then
+    whiptail --yesno \
+      "Would you like the SSH server to be enabled?\n\nCaution: Default and weak passwords are a security risk when SSH is enabled!" \
+      $DEFAULT 20 60 2
+    RET=$?
+  else
+    RET=$1
+  fi
+  if [ $RET -eq 0 ]; then
+    ssh-keygen -A &&
+    update-rc.d ssh enable &&
+    invoke-rc.d ssh start &&
+    STATUS=enabled
+  elif [ $RET -eq 1 ]; then
+    update-rc.d ssh disable &&
+    invoke-rc.d ssh stop &&
+    STATUS=disabled
+  else
+    return $RET
+  fi
+  if [ "$INTERACTIVE" = True ]; then
+    whiptail --msgbox "The SSH server is $STATUS" 20 60 1
+  fi
+}
+
+get_spi() {
+  if grep -q -E "^(device_tree_param|dtparam)=([^,]*,)*spi(=(on|true|yes|1))?(,.*)?$" $CONFIG; then
+    echo 0
+  else
+    echo 1
+  fi
+}
+
+do_spi() {
+  DEFAULT=--defaultno
+  if [ $(get_spi) -eq 0 ]; then
+    DEFAULT=
+  fi
+  if [ "$INTERACTIVE" = True ]; then
+    whiptail --yesno "Would you like the SPI interface to be enabled?" $DEFAULT 20 60 2
+    RET=$?
+  else
+    RET=$1
+  fi
+  if [ $RET -eq 0 ]; then
+    SETTING=on
+    STATUS=enabled
+  elif [ $RET -eq 1 ]; then
+    SETTING=off
+    STATUS=disabled
+  else
+    return $RET
+  fi
+
+  set_config_var dtparam=spi $SETTING $CONFIG &&
+  if ! [ -e $BLACKLIST ]; then
+    touch $BLACKLIST
+  fi
+  sed $BLACKLIST -i -e "s/^\(blacklist[[:space:]]*spi[-_]bcm2708\)/#\1/"
+  dtparam spi=$SETTING
+
+  if [ "$INTERACTIVE" = True ]; then
+    whiptail --msgbox "The SPI interface is $STATUS" 20 60 1
+  fi
+}
+
+get_i2c() {
+  if grep -q -E "^(device_tree_param|dtparam)=([^,]*,)*i2c(_arm)?(=(on|true|yes|1))?(,.*)?$" $CONFIG; then
+    echo 0
+  else
+    echo 1
+  fi
+}
+
+do_i2c() {
+  DEFAULT=--defaultno
+  if [ $(get_i2c) -eq 0 ]; then
+    DEFAULT=
+  fi
+  if [ "$INTERACTIVE" = True ]; then
+    whiptail --yesno "Would you like the ARM I2C interface to be enabled?" $DEFAULT 20 60 2
+    RET=$?
+  else
+    RET=$1
+  fi
+  if [ $RET -eq 0 ]; then
+    SETTING=on
+    STATUS=enabled
+  elif [ $RET -eq 1 ]; then
+    SETTING=off
+    STATUS=disabled
+  else
+    return $RET
+  fi
+
+  set_config_var dtparam=i2c_arm $SETTING $CONFIG &&
+  if ! [ -e $BLACKLIST ]; then
+    touch $BLACKLIST
+  fi
+  sed $BLACKLIST -i -e "s/^\(blacklist[[:space:]]*i2c[-_]bcm2708\)/#\1/"
+  sed /etc/modules -i -e "s/^#[[:space:]]*\(i2c[-_]dev\)/\1/"
+  if ! grep -q "^i2c[-_]dev" /etc/modules; then
+    printf "i2c-dev\n" >> /etc/modules
+  fi
+  dtparam i2c_arm=$SETTING
+  modprobe i2c-dev
+
+  if [ "$INTERACTIVE" = True ]; then
+    whiptail --msgbox "The ARM I2C interface is $STATUS" 20 60 1
+  fi
+}
+
+get_serial() {
+  if grep -q -E "console=(serial0|ttyAMA0|ttyS0)" $CMDLINE ; then
+    echo 0
+  else
+    echo 1
+  fi
+}
+
+get_serial_hw() {
+  if grep -q -E "^enable_uart=1" $CONFIG ; then
+    echo 0
+  elif grep -q -E "^enable_uart=0" $CONFIG ; then
+    echo 1
+  elif [ -e /dev/serial0 ] ; then
+    echo 0
+  else
+    echo 1
+  fi
+}
+
+do_serial() {
+  DEFAULTS=--defaultno
+  DEFAULTH=--defaultno
+  CURRENTS=0
+  CURRENTH=0
+  if [ $(get_serial) -eq 0 ]; then
+    DEFAULTS=
+    CURRENTS=1
+  fi
+  if [ $(get_serial_hw) -eq 0 ]; then
+    DEFAULTH=
+    CURRENTH=1
+  fi
+  if [ "$INTERACTIVE" = True ]; then
+    whiptail --yesno "Would you like a login shell to be accessible over serial?" $DEFAULTS 20 60 2
+    RET=$?
+  else
+    RET=$1
+  fi
+  if [ $RET -eq $CURRENTS ]; then
+    ASK_TO_REBOOT=1
+  fi
+  if [ $RET -eq 0 ]; then
+    if grep -q "console=ttyAMA0" $CMDLINE ; then
+      if [ -e /proc/device-tree/aliases/serial0 ]; then
+        sed -i $CMDLINE -e "s/console=ttyAMA0/console=serial0/"
+      fi
+    elif ! grep -q "console=ttyAMA0" $CMDLINE && ! grep -q "console=serial0" $CMDLINE ; then
+      if [ -e /proc/device-tree/aliases/serial0 ]; then
+        sed -i $CMDLINE -e "s/root=/console=serial0,115200 root=/"
+      else
+        sed -i $CMDLINE -e "s/root=/console=ttyAMA0,115200 root=/"
+      fi
+    fi
+    set_config_var enable_uart 1 $CONFIG
+    SSTATUS=enabled
+    HSTATUS=enabled
+  elif [ $RET -eq 1 ] || [ $RET -eq 2 ]; then
+    sed -i $CMDLINE -e "s/console=ttyAMA0,[0-9]\+ //"
+    sed -i $CMDLINE -e "s/console=serial0,[0-9]\+ //"
+    SSTATUS=disabled
+    if [ "$INTERACTIVE" = True ]; then
+      whiptail --yesno "Would you like the serial port hardware to be enabled?" $DEFAULTH 20 60 2
+      RET=$?
+    else
+      RET=$((2-$RET))
+    fi
+    if [ $RET -eq $CURRENTH ]; then
+      ASK_TO_REBOOT=1
+    fi
+    if [ $RET -eq 0 ]; then
+      set_config_var enable_uart 1 $CONFIG
+      HSTATUS=enabled
+    elif [ $RET -eq 1 ]; then
+      set_config_var enable_uart 0 $CONFIG
+      HSTATUS=disabled
+    else
+      return $RET
+    fi
+  else
+    return $RET
+  fi
+  if [ "$INTERACTIVE" = True ]; then
+    whiptail --msgbox "The serial login shell is $SSTATUS\nThe serial interface is $HSTATUS" 20 60 1
+  fi
+}
+
+get_rgpio() {
+  if test -e /etc/systemd/system/pigpiod.service.d/public.conf; then
+    echo 0
+  else
+    echo 1
+  fi
+}
+
+do_rgpio() {
+  DEFAULT=--defaultno
+  if [ $(get_rgpio) -eq 0 ]; then
+    DEFAULT=
+  fi
+  if [ "$INTERACTIVE" = True ]; then
+    whiptail --yesno "Would you like the GPIO server to be accessible over the network?" $DEFAULT 20 60 2
+    RET=$?
+  else
+    RET=$1
+  fi
+  if [ $RET -eq 0 ]; then
+    mkdir -p /etc/systemd/system/pigpiod.service.d/
+    cat > /etc/systemd/system/pigpiod.service.d/public.conf << EOF
+[Service]
+ExecStart=
+ExecStart=/usr/bin/pigpiod
+EOF
+    STATUS=enabled
+  elif [ $RET -eq 1 ]; then
+    rm -f /etc/systemd/system/pigpiod.service.d/public.conf
+    STATUS=disabled
+  else
+    return $RET
+  fi
+  systemctl daemon-reload
+  if systemctl -q is-enabled pigpiod ; then
+    systemctl restart pigpiod
+  fi
+  if [ "$INTERACTIVE" = True ]; then
+    whiptail --msgbox "Remote access to the GPIO server is $STATUS" 20 60 1
+  fi
+}
+
+do_audio() {
+  if is_pulseaudio ; then
+    oIFS="$IFS"
+    if [ "$INTERACTIVE" = True ]; then
+      list=$(sudo -u $SUDO_USER XDG_RUNTIME_DIR=/run/user/$SUDO_UID pacmd list-sinks | grep -e index -e alsa.name | sed s/*//g | sed s/^[' '\\t]*//g | sed s/'index: '//g | sed s/'alsa.name = '//g | sed s/'bcm2835 '//g | sed s/\"//g | tr '\n' '/')
+      if ! [ -z "$list" ] ; then
+        IFS="/"
+        AUDIO_OUT=$(whiptail --menu "Choose the audio output" 20 60 10 ${list} 3>&1 1>&2 2>&3)
+      else
+        whiptail --msgbox "No internal audio devices found" 20 60 1
+        return 1
+      fi
+    else
+      AUDIO_OUT=$1
+      true
+    fi
+    if [ $? -eq 0 ]; then
+      sudo -u $SUDO_USER XDG_RUNTIME_DIR=/run/user/$SUDO_UID pactl set-default-sink $AUDIO_OUT
+    fi
+    IFS="$oIFS"
+  else
+    if aplay -l | grep -q "bcm2835 ALSA"; then
+      if [ "$INTERACTIVE" = True ]; then
+        AUDIO_OUT=$(whiptail --menu "Choose the audio output" 20 60 10 \
+          "0" "Auto" \
+          "1" "Force 3.5mm ('headphone') jack" \
+          "2" "Force HDMI" \
+          3>&1 1>&2 2>&3)
+      else
+        AUDIO_OUT=$1
+      fi
+      if [ $? -eq 0 ]; then
+        amixer cset numid=3 "$AUDIO_OUT"
+      fi
+    else
+      ASPATH=$(getent passwd $USER | cut -d : -f 6)/.asoundrc
+      if [ "$INTERACTIVE" = True ]; then
+        n=0
+        array=""
+        while [ $n -le 9 ]]
+        do
+          CARD=$(LC_ALL=C aplay -l | grep "card $n" | cut -d [ -f 2 | cut -d ] -f 1)
+          if [ -z "$CARD" ] ; then
+            break
+          else
+            if [ -z "$array" ] ; then
+              array=$n"/"$CARD
+            else
+              array=$array"/"$n"/"$CARD
+            fi
+          fi
+          n=$(( n+1 ))
+        done
+        if [ $n -eq 0 ] ; then
+          whiptail --msgbox "No audio devices found" 20 60 1
+          false
+        else
+          oIFS="$IFS"
+          IFS="/"
+          AUDIO_OUT=$(whiptail --menu "Choose the audio output" 20 60 10 ${array} 3>&1 1>&2 2>&3)
+          IFS="$oIFS"
+        fi
+      else
+        AUDIO_OUT=$1
+      fi
+      if [ $? -eq 0 ]; then
+        cat << EOF > $ASPATH
+pcm.!default {
+  type asym
+  playback.pcm {
+    type plug
+    slave.pcm "output"
+  }
+  capture.pcm {
+    type plug
+    slave.pcm "input"
+  }
+}
+
+pcm.output {
+  type hw
+  card $AUDIO_OUT
+}
+
+ctl.!default {
+  type hw
+  card $AUDIO_OUT
+}
+EOF
+      fi
+    fi
+  fi
+}
+
+list_wlan_interfaces() {
+  for dir in /sys/class/net/*/wireless; do
+    if [ -d "$dir" ]; then
+      IFACE="$(basename "$(dirname "$dir")")"
+      if wpa_cli -i "$IFACE" status > /dev/null 2>&1; then
+        echo "$IFACE"
+      fi
+    fi
+  done
+}
+
+do_wifi_ssid_passphrase() {
+  RET=0
+  if [ "$INTERACTIVE" = True ] && [ -z "$(get_wifi_country)" ]; then
+    do_wifi_country
+  fi
+
+  if systemctl -q is-active dhcpcd; then
+    IFACE="$(list_wlan_interfaces | head -n 1)"
+
+    if [ -z "$IFACE" ]; then
+      if [ "$INTERACTIVE" = True ]; then
+        whiptail --msgbox "No wireless interface found" 20 60
+      fi
+      return 1
+    fi
+
+    if ! wpa_cli -i "$IFACE" status > /dev/null 2>&1; then
+      if [ "$INTERACTIVE" = True ]; then
+        whiptail --msgbox "Could not communicate with wpa_supplicant" 20 60
+      fi
+      return 1
+    fi
+  elif ! systemctl -q is-active NetworkManager; then
+    if [ "$INTERACTIVE" = True ]; then
+        whiptail --msgbox "No supported network connection manager found" 20 60
+      fi
+      return 1
+  fi
+
+  SSID="$1"
+  while [ -z "$SSID" ] && [ "$INTERACTIVE" = True ]; do
+    if ! SSID=$(whiptail --inputbox "Please enter SSID" 20 60 3>&1 1>&2 2>&3); then
+      return 0
+    elif [ -z "$SSID" ]; then
+      whiptail --msgbox "SSID cannot be empty. Please try again." 20 60
+    fi
+  done
+
+  PASSPHRASE="$2"
+  while [ "$INTERACTIVE" = True ]; do
+    if ! PASSPHRASE=$(whiptail --passwordbox "Please enter passphrase. Leave it empty if none." 20 60 3>&1 1>&2 2>&3); then
+      return 0
+    else
+      break
+    fi
+  done
+
+  # Escape special characters for embedding in regex below
+  ssid="$(echo "$SSID" \
+   | sed 's;\\;\\\\;g' \
+   | sed -e 's;\.;\\\.;g' \
+         -e 's;\*;\\\*;g' \
+         -e 's;\+;\\\+;g' \
+         -e 's;\?;\\\?;g' \
+         -e 's;\^;\\\^;g' \
+         -e 's;\$;\\\$;g' \
+         -e 's;\/;\\\/;g' \
+         -e 's;\[;\\\[;g' \
+         -e 's;\];\\\];g' \
+         -e 's;{;\\{;g'   \
+         -e 's;};\\};g'   \
+         -e 's;(;\\(;g'   \
+         -e 's;);\\);g'   \
+         -e 's;";\\\\\";g')"
+
+  HIDDEN=${3:-0}
+  PLAIN=${4:-1}
+
+  if systemctl -q is-active dhcpcd; then
+    wpa_cli -i "$IFACE" list_networks \
+     | tail -n +2 | cut -f -2 | grep -P "\t$ssid$" | cut -f1 \
+     | while read -r ID; do
+      wpa_cli -i "$IFACE" remove_network "$ID" > /dev/null 2>&1
+    done
+
+    ID="$(wpa_cli -i "$IFACE" add_network)"
+    wpa_cli -i "$IFACE" set_network "$ID" ssid "\"$SSID\"" 2>&1 | grep -q "OK"
+    RET=$((RET + $?))
+
+    if [ -z "$PASSPHRASE" ]; then
+      wpa_cli -i "$IFACE" set_network "$ID" key_mgmt NONE 2>&1 | grep -q "OK"
+      RET=$((RET + $?))
+    else
+      if [ "$PLAIN" = 1 ]; then
+        PASSPHRASE="\"$PASSPHRASE\""
+      fi
+      wpa_cli -i "$IFACE" set_network "$ID" psk "$PASSPHRASE" 2>&1 | grep -q "OK"
+      RET=$((RET + $?))
+    fi
+    if [ "$HIDDEN" -ne 0 ]; then
+      wpa_cli -i "$IFACE" set_network "$ID" scan_ssid 1 2>&1 | grep -q "OK"
+      RET=$((RET + $?))
+    fi
+    if [ $RET -eq 0 ]; then
+      wpa_cli -i "$IFACE" enable_network "$ID" > /dev/null 2>&1
+    else
+      wpa_cli -i "$IFACE" remove_network "$ID" > /dev/null 2>&1
+      if [ "$INTERACTIVE" = True ]; then
+        whiptail --msgbox "Failed to set SSID or passphrase" 20 60
+      fi
+    fi
+    wpa_cli -i "$IFACE" save_config > /dev/null 2>&1
+    echo "$IFACE_LIST" | while read -r IFACE; do
+      wpa_cli -i "$IFACE" reconfigure > /dev/null 2>&1
+    done
+  else
+    if [ "$HIDDEN" -ne 0 ]; then
+      nmcli device wifi connect "$SSID"  password "$PASSPHRASE" hidden true | grep -q "activated"
+    else
+      nmcli device wifi connect "$SSID"  password "$PASSPHRASE" | grep -q "activated"
+    fi
+    RET=$((RET + $?))
+  fi
+
+  return "$RET"
+}
+
+do_finish() {
+  disable_raspi_config_at_boot
+  if [ $ASK_TO_REBOOT -eq 1 ]; then
+    whiptail --yesno "Would you like to reboot now?" 20 60 2
+    if [ $? -eq 0 ]; then # yes
+      sync
+      reboot
+    fi
+  fi
+  exit 0
+}
+
+# $1 = filename, $2 = key name
+get_json_string_val() {
+  sed -n -e "s/^[[:space:]]*\"$2\"[[:space:]]*:[[:space:]]*\"\(.*\)\"[[:space:]]*,$/\1/p" $1
+}
+
+nonint() {
+  "$@"
+}
+
+#
+# Command line options for non-interactive use
+#
+for i in $*
+do
+  case $i in
+  --memory-split)
+    OPT_MEMORY_SPLIT=GET
+    printf "Not currently supported\n"
+    exit 1
+    ;;
+  --memory-split=*)
+    OPT_MEMORY_SPLIT=`echo $i | sed 's/[-a-zA-Z0-9]*=//'`
+    printf "Not currently supported\n"
+    exit 1
+    ;;
+  --expand-rootfs)
+    INTERACTIVE=False
+    do_expand_rootfs
+    printf "Please reboot\n"
+    exit 0
+    ;;
+  --apply-os-config)
+    INTERACTIVE=False
+    do_apply_os_config
+    exit $?
+    ;;
+  nonint)
+    INTERACTIVE=False
+    "$@"
+    exit $?
+    ;;
+  *)
+    # unknown option
+    ;;
+  esac
+done
+
+#if [ "GET" = "${OPT_MEMORY_SPLIT:-}" ]; then
+#  set -u # Fail on unset variables
+#  get_current_memory_split
+#  echo $CURRENT_MEMSPLIT
+#  exit 0
+#fi
+
+# Everything else needs to be run as root
+if [ $(id -u) -ne 0 ]; then
+  printf "Script must be run as root. Try 'sudo raspi-config'\n"
+  exit 1
+fi
+
+if [ -n "${OPT_MEMORY_SPLIT:-}" ]; then
+  set -e # Fail when a command errors
+  set_memory_split "${OPT_MEMORY_SPLIT}"
+  exit 0
+fi
+
+do_system_menu() {
+  if is_pi ; then
+    FUN=$(whiptail --title "Raspberry Pi Software Configuration Tool (raspi-config)" --menu "System Options" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --cancel-button Back --ok-button Select \
+      "S1 Wireless LAN" "Enter SSID and passphrase" \
+      "S2 Audio" "Select audio out through HDMI or 3.5mm jack" \
+      "S3 Password" "Change password for the '$USER' user" \
+      "S4 Hostname" "Set name for this computer on a network" \
+      "S5 Boot / Auto Login" "Select boot into desktop or to command line" \
+      "S6 Network at Boot" "Select wait for network connection on boot" \
+      "S7 Splash Screen" "Choose graphical splash screen or text boot" \
+      "S8 Power LED" "Set behaviour of power LED" \
+      3>&1 1>&2 2>&3)
+  elif is_live ; then 
+    FUN=$(whiptail --title "Raspberry Pi Software Configuration Tool (raspi-config)" --menu "System Options" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --cancel-button Back --ok-button Select \
+      "S1 Wireless LAN" "Enter SSID and passphrase" \
+      "S3 Password" "Change password for the '$USER' user" \
+      "S4 Hostname" "Set name for this computer on a network" \
+      "S5 Boot / Auto Login" "Select boot into desktop or to command line" \
+      "S6 Network at Boot" "Select wait for network connection on boot" \
+      3>&1 1>&2 2>&3)
+  else
+    FUN=$(whiptail --title "Raspberry Pi Software Configuration Tool (raspi-config)" --menu "System Options" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --cancel-button Back --ok-button Select \
+      "S1 Wireless LAN" "Enter SSID and passphrase" \
+      "S3 Password" "Change password for the '$USER' user" \
+      "S4 Hostname" "Set name for this computer on a network" \
+      "S5 Boot / Auto Login" "Select boot into desktop or to command line" \
+      "S6 Network at Boot" "Select wait for network connection on boot" \
+      "S7 Splash Screen" "Choose graphical splash screen or text boot" \
+      3>&1 1>&2 2>&3)
+  fi
+  RET=$?
+  if [ $RET -eq 1 ]; then
+    return 0
+  elif [ $RET -eq 0 ]; then
+    case "$FUN" in
+      S1\ *) do_wifi_ssid_passphrase ;;
+      S2\ *) do_audio ;;
+      S3\ *) do_change_pass ;;
+      S4\ *) do_hostname ;;
+      S5\ *) do_boot_behaviour ;;
+      S6\ *) do_boot_wait ;;
+      S7\ *) do_boot_splash ;;
+      S8\ *) do_leds ;;
+      *) whiptail --msgbox "Programmer error: unrecognized option" 20 60 1 ;;
+    esac || whiptail --msgbox "There was an error running option $FUN" 20 60 1
+  fi
+}
+
+do_display_menu() {
+  if is_pi ; then
+    if is_kms; then
+    FUN=$(whiptail --title "Raspberry Pi Software Configuration Tool (raspi-config)" --menu "Display Options" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --cancel-button Back --ok-button Select \
+      "D2 Underscan" "Remove black border around screen" \
+      "D4 Screen Blanking" "Enable/disable screen blanking" \
+      "D5 VNC Resolution" "Set resolution for headless use" \
+      "D6 Composite" "Set options for composite output" \
+      3>&1 1>&2 2>&3)
+    else
+    FUN=$(whiptail --title "Raspberry Pi Software Configuration Tool (raspi-config)" --menu "Display Options" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --cancel-button Back --ok-button Select \
+      "D1 Resolution" "Set a specific screen resolution" \
+      "D2 Underscan" "Remove black border around screen" \
+      "D3 Pixel Doubling" "Enable/disable 2x2 pixel mapping" \
+      "D4 Screen Blanking" "Enable/disable screen blanking" \
+      "D5 VNC Resolution" "Set resolution for headless use" \
+      "D6 Composite" "Set options for composite output" \
+      3>&1 1>&2 2>&3)
+    fi
+  else
+    FUN=$(whiptail --title "Raspberry Pi Software Configuration Tool (raspi-config)" --menu "Display Options" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --cancel-button Back --ok-button Select \
+      "D2 Underscan" "Remove black border around screen" \
+      "D4 Screen Blanking" "Enable/disable screen blanking" \
+      3>&1 1>&2 2>&3)
+  fi
+  RET=$?
+  if [ $RET -eq 1 ]; then
+    return 0
+  elif [ $RET -eq 0 ]; then
+    case "$FUN" in
+      D1\ *) do_resolution ;;
+      D2\ *) if is_pi && ! is_kms;  then
+               do_overscan
+             else
+               do_overscan_kms
+             fi
+             ;;
+      D3\ *) do_pixdub ;;
+      D4\ *) do_blanking ;;
+      D5\ *) do_vnc_resolution ;;
+      D6\ *) if is_pifour ; then
+               do_pi4video
+             else
+               do_composite
+             fi
+             ;;
+      *) whiptail --msgbox "Programmer error: unrecognized option" 20 60 1 ;;
+    esac || whiptail --msgbox "There was an error running option $FUN" 20 60 1
+  fi
+}
+
+do_interface_menu() {
+  if is_pi ; then
+    FUN=$(whiptail --title "Raspberry Pi Software Configuration Tool (raspi-config)" --menu "Interfacing Options" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --cancel-button Back --ok-button Select \
+      "I1 Legacy Camera" "Enable/disable legacy camera support" \
+      "I2 SSH" "Enable/disable remote command line access using SSH" \
+      "I3 VNC" "Enable/disable graphical remote access using RealVNC" \
+      "I4 SPI" "Enable/disable automatic loading of SPI kernel module" \
+      "I5 I2C" "Enable/disable automatic loading of I2C kernel module" \
+      "I6 Serial Port" "Enable/disable shell messages on the serial connection" \
+      "I7 1-Wire" "Enable/disable one-wire interface" \
+      "I8 Remote GPIO" "Enable/disable remote access to GPIO pins" \
+      3>&1 1>&2 2>&3)
+  else
+    FUN=$(whiptail --title "Raspberry Pi Software Configuration Tool (raspi-config)" --menu "Interfacing Options" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --cancel-button Back --ok-button Select \
+      "I2 SSH" "Enable/disable remote command line access using SSH" \
+      3>&1 1>&2 2>&3)
+  fi
+  RET=$?
+  if [ $RET -eq 1 ]; then
+    return 0
+  elif [ $RET -eq 0 ]; then
+    case "$FUN" in
+      I1\ *) do_legacy ;;
+      I2\ *) do_ssh ;;
+      I3\ *) do_vnc ;;
+      I4\ *) do_spi ;;
+      I5\ *) do_i2c ;;
+      I6\ *) do_serial ;;
+      I7\ *) do_onewire ;;
+      I8\ *) do_rgpio ;;
+      *) whiptail --msgbox "Programmer error: unrecognized option" 20 60 1 ;;
+    esac || whiptail --msgbox "There was an error running option $FUN" 20 60 1
+  fi
+}
+
+do_performance_menu() {
+  FUN=$(whiptail --title "Raspberry Pi Software Configuration Tool (raspi-config)" --menu "Performance Options" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --cancel-button Back --ok-button Select \
+    "P1 Overclock" "Configure CPU overclocking" \
+    "P2 GPU Memory" "Change the amount of memory made available to the GPU" \
+    "P3 Overlay File System" "Enable/disable read-only file system" \
+    "P4 Fan" "Set behaviour of GPIO fan" \
+    3>&1 1>&2 2>&3)
+  RET=$?
+  if [ $RET -eq 1 ]; then
+    return 0
+  elif [ $RET -eq 0 ]; then
+    case "$FUN" in
+      P1\ *) do_overclock ;;
+      P2\ *) do_memory_split ;;
+      P3\ *) do_overlayfs ;;
+      P4\ *) do_fan ;;
+      *) whiptail --msgbox "Programmer error: unrecognized option" 20 60 1 ;;
+    esac || whiptail --msgbox "There was an error running option $FUN" 20 60 1
+  fi
+}
+
+do_internationalisation_menu() {
+  FUN=$(whiptail --title "Raspberry Pi Software Configuration Tool (raspi-config)" --menu "Localisation Options" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --cancel-button Back --ok-button Select \
+    "L1 Locale" "Configure language and regional settings" \
+    "L2 Timezone" "Configure time zone" \
+    "L3 Keyboard" "Set keyboard layout to match your keyboard" \
+    "L4 WLAN Country" "Set legal wireless channels for your country" \
+    3>&1 1>&2 2>&3)
+  RET=$?
+  if [ $RET -eq 1 ]; then
+    return 0
+  elif [ $RET -eq 0 ]; then
+    case "$FUN" in
+      L1\ *) do_change_locale ;;
+      L2\ *) do_change_timezone ;;
+      L3\ *) do_configure_keyboard ;;
+      L4\ *) do_wifi_country ;;
+      *) whiptail --msgbox "Programmer error: unrecognized option" 20 60 1 ;;
+    esac || whiptail --msgbox "There was an error running option $FUN" 20 60 1
+  fi
+}
+
+do_advanced_menu() {
+  if is_pifour ; then
+    FUN=$(whiptail --title "Raspberry Pi Software Configuration Tool (raspi-config)" --menu "Advanced Options" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --cancel-button Back --ok-button Select \
+      "A1 Expand Filesystem" "Ensures that all of the SD card is available" \
+      "A3 Compositor" "Enable/disable xcompmgr composition manager" \
+      "A4 Network Interface Names" "Enable/disable predictable network i/f names" \
+      "A5 Network Proxy Settings" "Configure network proxy settings" \
+      "A6 Boot Order" "Choose network or USB device boot" \
+      "A7 Bootloader Version" "Select latest or default boot ROM software" \
+      "A9 Wayland" "Enable experimental Wayland backend" \
+      "AA Network Config" "Set network configuration tool" \
+      3>&1 1>&2 2>&3)
+  elif is_pi ; then
+    if is_kms; then
+    FUN=$(whiptail --title "Raspberry Pi Software Configuration Tool (raspi-config)" --menu "Advanced Options" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --cancel-button Back --ok-button Select \
+      "A1 Expand Filesystem" "Ensures that all of the SD card is available" \
+      "A2 GL Driver" "Enable/disable experimental desktop GL driver" \
+      "A3 Compositor" "Enable/disable xcompmgr composition manager" \
+      "A4 Network Interface Names" "Enable/disable predictable network i/f names" \
+      "A5 Network Proxy Settings" "Configure network proxy settings" \
+      "A8 Glamor" "Enable/disable glamor graphics acceleration" \
+      "A9 Wayland" "Enable experimental Wayland backend" \
+      "AA Network Config" "Set network configuration tool" \
+      3>&1 1>&2 2>&3)
+    else
+    FUN=$(whiptail --title "Raspberry Pi Software Configuration Tool (raspi-config)" --menu "Advanced Options" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --cancel-button Back --ok-button Select \
+      "A1 Expand Filesystem" "Ensures that all of the SD card is available" \
+      "A2 GL Driver" "Enable/disable experimental desktop GL driver" \
+      "A4 Network Interface Names" "Enable/disable predictable network i/f names" \
+      "A5 Network Proxy Settings" "Configure network proxy settings" \
+      "A8 Glamor" "Enable/disable glamor graphics acceleration" \
+      "AA Network Config" "Set network configuration tool" \
+      3>&1 1>&2 2>&3)
+    fi
+  else
+    FUN=$(whiptail --title "Raspberry Pi Software Configuration Tool (raspi-config)" --menu "Advanced Options" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --cancel-button Back --ok-button Select \
+      "A4 Network Interface Names" "Enable/disable predictable network i/f names" \
+      "A5 Network Proxy Settings" "Configure network proxy settings" \
+      "AA Network Config" "Set network configuration tool" \
+      3>&1 1>&2 2>&3)
+  fi
+  RET=$?
+  if [ $RET -eq 1 ]; then
+    return 0
+  elif [ $RET -eq 0 ]; then
+    case "$FUN" in
+      A1\ *) do_expand_rootfs ;;
+      A2\ *) do_gldriver ;;
+      A3\ *) do_xcompmgr ;;
+      A4\ *) do_net_names ;;
+      A5\ *) do_proxy_menu ;;
+      A6\ *) do_boot_order ;;
+      A7\ *) do_boot_rom ;;
+      A8\ *) do_glamor ;;
+      A9\ *) do_wayland ;;
+      AA\ *) do_netconf ;;
+      *) whiptail --msgbox "Programmer error: unrecognized option" 20 60 1 ;;
+    esac || whiptail --msgbox "There was an error running option $FUN" 20 60 1
+  fi
+}
+
+do_proxy_menu() {
+  FUN=$(whiptail --title "Raspberry Pi Software Configuration Tool (raspi-config)" --menu "Network Proxy Settings" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --cancel-button Back --ok-button Select \
+    "P1 All" "Set the same proxy for all schemes" \
+    "P2 HTTP" "Set the HTTP proxy" \
+    "P3 HTTPS" "Set the HTTPS/SSL proxy" \
+    "P4 FTP" "Set the FTP proxy" \
+    "P5 RSYNC" "Set the RSYNC proxy" \
+    "P6 Exceptions" "Set addresses for which a proxy server should not be used" \
+    3>&1 1>&2 2>&3)
+  RET=$?
+  if [ $RET -eq 1 ]; then
+    return 0
+  elif [ $RET -eq 0 ]; then
+    case "$FUN" in
+      P1\ *) do_proxy all ;;
+      P2\ *) do_proxy http ;;
+      P3\ *) do_proxy https ;;
+      P4\ *) do_proxy ftp ;;
+      P5\ *) do_proxy rsync ;;
+      P6\ *) do_proxy no;;
+      *) whiptail --msgbox "Programmer error: unrecognized option" 20 60 1 ;;
+    esac || whiptail --msgbox "There was an error running option $FUN" 20 60 1
+  fi
+}
+
+
+do_user() {
+	## Add talkkonnect user to the system
+	adduser --disabled-password --disabled-login --gecos "" talkkonnect
+	usermod -a -G cdrom,audio,video,plugdev,users,dialout,dip,input,gpio talkkonnect
+
+	## Create the necessary directory structure under /home/talkkonnect/
+	cd /home/talkkonnect/
+	mkdir -p /home/talkkonnect/gocode
+	mkdir -p /home/talkkonnect/bin
+
+	## Create the log file
+	touch /var/log/talkkonnect.log
+
+	echo export PATH=$PATH:/usr/local/go/bin >>  ~/.bashrc
+	echo export GOPATH=/home/talkkonnect/gocode >>  ~/.bashrc
+	echo export GOBIN=/home/talkkonnect/bin >>  ~/.bashrc
+	echo export GO111MODULE="auto" >>  ~/.bashrc
+	echo "alias tk='cd /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/'" >>  ~/.bashrc
+}
+
+do_install_prerequisites() {
+	## Install the dependencies required for talkkonnect
+	apt-get update -y
+	apt-get -y install libopenal-dev libopus-dev libasound2-dev git ffmpeg mplayer screen pkg-config lscpu cpuinfo lshw i2c-tools
+}
+
+do_install_go() {
+GOLANG_LATEST_STABLE_VERSION=$(curl -s https://go.dev/VERSION?m=text)
+cputype=`lscpu | grep Architecture | cut -d ":" -f 2 | sed 's/ //g'`
+bitsize=`getconf LONG_BIT`
+
+
+if [ "$cputype" = "armv7l" ]; then
+        if [ "$bitsize" = "32" ]; then
+                echo "getting "$bitsize" version of golang for cpu type"$cputype
+		cd /usr/local
+                wget https://go.dev/dl/$GOLANG_LATEST_STABLE_VERSION.linux-arm6l.tar.gz
+		tar -zxvf $GOLANG_LATEST_STABLE_VERSION.linux-arm6l.tar.gz
+        fi
+        if [ "$bitsize" = "64" ]; then
+                echo "getting "$bitsize" version of golang for cpu type"$cputype
+                wget https://go.dev/dl/$GOLANG_LATEST_STABLE_VERSION.linux-arm64.tar.gz
+		tar -zxvf $GOLANG_LATEST_STABLE_VERSION.linux-arm64.tar.gz
+        fi
+fi
+}
+
+do_install_talkkonnect() {
+	## Set up GOENVIRONMENT
+	export PATH=$PATH:/usr/local/go/bin
+	export GOPATH=/home/talkkonnect/gocode
+	export GOBIN=/home/talkkonnect/bin
+	export GO111MODULE="auto"
+
+	## Get the latest source code of talkkonnect from githu.com
+	go get -v github.com/talkkonnect/talkkonnect
+
+	## Build talkkonnect as binary
+	cd $GOPATH/src/github.com/talkkonnect/talkkonnect
+	mv $GOPATH/src/github.com/talkkonnect/talkkonnect $GOPATH/src/github.com/talkkonnect/talkkonnect
+	/usr/local/go/bin/go build -o /home/talkkonnect/bin/talkkonnect cmd/talkkonnect/main.go
+}
+
+do_startup() {
+	cd /etc/systemd/system
+	echo [Unit] > /etc/systemd/system/talkkonnect.service
+	echo Description=TalKKonnect Radio Screen >> /etc/systemd/system/talkkonnect.service
+	echo Requires=systemd-user-sessions.service network.target sound.target dbus.socket >> /etc/systemd/system/talkkonnect.service
+	echo After=multi-user.target >> /etc/systemd/system/talkkonnect.service
+	echo AllowIsolate=true >> /etc/systemd/system/talkkonnect.service
+	echo >> /etc/systemd/system/talkkonnect.service
+	echo [Service] >> /etc/systemd/system/talkkonnect.service
+	echo RemainAfterExit=no >> /etc/systemd/system/talkkonnect.service
+	echo User= >> /etc/systemd/system/talkkonnect.service
+	echo Group= >> /etc/systemd/system/talkkonnect.service
+	echo Type=forking >> /etc/systemd/system/talkkonnect.service
+	echo WorkingDirectory= >> /etc/systemd/system/talkkonnect.service
+	echo ExecStartPre= >> /etc/systemd/system/talkkonnect.service
+	echo ExecStart=/usr/bin/screen -dmS tk /home/talkkonnect/bin/talkkonnect >> /etc/systemd/system/talkkonnect.service
+	echo ExecReload=/bin/kill -s HUP $MAINPID >> /etc/systemd/system/talkkonnect.service
+	echo ExecStop=/bin/kill -s SIGTERM $MAINPID >> /etc/systemd/system/talkkonnect.service
+	echo PrivateTmp=true >> /etc/systemd/system/talkkonnect.service
+	echo >> /etc/systemd/system/talkkonnect.service
+	echo Restart=always >> /etc/systemd/system/talkkonnect.service
+	echo RestartSec=10 >> /etc/systemd/system/talkkonnect.service
+	echo >> /etc/systemd/system/talkkonnect.service
+	echo [Install] >> /etc/systemd/system/talkkonnect.service
+	echo WantedBy=multi-user.target >> /etc/systemd/system/talkkonnect.service
+	echo Alias=talkkonnect.target >> /etc/systemd/system/talkkonnect.service
+	systemctl enable talkkonnect.service
+}
+
+do_setupsound() {
+	echo Pending todo
+}
+
+do_update() {
+	echo Pending todo
+}
+
+
+if [ "$INTERACTIVE" = True ]; then
+  [ -e $CONFIG ] || touch $CONFIG
+  calc_wt_size
+  while true; do
+      FUN=$(whiptail --title "Raspberry Pi talkkonnect Setup Menu)" --backtitle "$(cat /proc/device-tree/model)" --menu "Setup Options" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --cancel-button Finish --ok-button Select \
+        "1 User" "talkkonnect User Creation" \
+        "2 Pre-Requisites" "Install Pre-Requsistes required by talkkonnect" \
+        "3 Go" "GoLang required to compile talkkonnect" \
+        "4 Sound" "Configure sound device" \
+        "5 talkkonnect" "get and compile talkkonnect" \
+        "6 startup" "Configure Startup of talkkonnect" \
+        "7 update" "Update to latest version of talkkonnect" \
+        3>&1 1>&2 2>&3)
+    RET=$?
+    if [ $RET -eq 1 ]; then
+      do_finish
+    elif [ $RET -eq 0 ]; then
+      case "$FUN" in
+        1\ *) do_user ;;
+        2\ *) do_install_prerequisites ;;
+        3\ *) do_install_go ;;
+        4\ *) do_install_talkkonnect ;;
+        5\ *) do_setupsound ;;
+        6\ *) do_startup ;;
+        7\ *) do_update ;;
+
+        *) whiptail --msgbox "Programmer error: unrecognized option" 20 60 1 ;;
+      esac || whiptail --msgbox "There was an error running option $FUN" 20 60 1
+    else
+      exit 1
+    fi
+  done
+fi
+

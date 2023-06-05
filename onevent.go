@@ -42,7 +42,7 @@ import (
 func (b *Talkkonnect) OnConnect(e *gumble.ConnectEvent) {
 	if IsConnected {
 		GPIOOutPin("online", "on")
-//		MyLedStripOnlineLEDOn()
+		//		MyLedStripOnlineLEDOn()
 		return
 	}
 
@@ -248,7 +248,16 @@ func (b *Talkkonnect) OnUserChange(e *gumble.UserChangeEvent) {
 		if info == "changed channel" {
 			b.ParticipantLEDUpdate(false)
 		}
-		log.Printf("info: User %vs %v\n", cleanstring(e.User.Name), info)
+		log.Printf("info: User %vs %v from channel %#v\n", cleanstring(e.User.Name), info, e.User.Channel.Name)
+		if b.Client.Self.Channel.Name == e.User.Channel.Name && !(b.Client.Self.UserID == e.User.UserID) {
+			for _, tts := range Config.Global.Software.TTS.Sound {
+				if tts.Action == "leftchannel" {
+					if tts.Enabled {
+						b.Speak(cleanstring(e.User.Name)+"Has Left The Channel", "local", Config.Global.Software.TTS.Volumelevel, 0, 1, Config.Global.Software.TTSMessages.TTSLanguage)
+					}
+				}
+			}
+		}
 	} else {
 		b.ParticipantLEDUpdate(true)
 	}

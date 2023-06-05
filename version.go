@@ -31,10 +31,10 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.23.05"
-	talkkonnectReleased string = "Apr 23  2023"
+	talkkonnectVersion  string = "2.23.06"
+	talkkonnectReleased string = "5 June  2023"
 )
 
 /* Release Notes
-1. Fix Beacon Function With Delayed Backoff On Receive
+1. Add TTS Announcement of User leaving the Channel We are Currently On
 */

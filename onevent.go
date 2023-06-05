@@ -212,54 +212,118 @@ func (b *Talkkonnect) OnTextMessage(e *gumble.TextMessageEvent) {
 
 func (b *Talkkonnect) OnUserChange(e *gumble.UserChangeEvent) {
 	b.BackLightTimer()
-	var info string
-	switch e.Type {
-	case gumble.UserChangeConnected:
-		info = "connected"
-		b.ParticipantLEDUpdate(true)
-	case gumble.UserChangeDisconnected:
-		info = "disconnected"
-		b.ParticipantLEDUpdate(true)
-	case gumble.UserChangeKicked:
-		info = "kicked"
-		b.ParticipantLEDUpdate(true)
-	case gumble.UserChangeBanned:
-		info = "banned"
-	case gumble.UserChangeRegistered:
-		info = "registered"
-	case gumble.UserChangeUnregistered:
-		info = "unregistered"
-	case gumble.UserChangeName:
-		info = "changed name"
-	case gumble.UserChangeChannel:
-		info = "changed channel"
-	case gumble.UserChangeComment:
-		info = "chg comment"
-	case gumble.UserChangeAudio:
-		info = "chg audio"
-	case gumble.UserChangePrioritySpeaker:
-		info = "is priority"
-	case gumble.UserChangeRecording:
-		info = "chg rec status"
-	case gumble.UserChangeStats:
-		info = "chg stats"
-	}
-	if len(info) > 0 {
-		if info == "changed channel" {
-			b.ParticipantLEDUpdate(false)
+
+	var info string = ""
+	var thisChannel bool
+	//	var movedAway bool
+
+	//1 UserChangeConnected
+	if e.Type.Has(1) {
+		info = info + "[connected]"
+		if e.User.Channel.Name == b.Client.Self.Channel.Name {
+			thisChannel = true
 		}
-		log.Printf("info: User %vs %v from channel %#v\n", cleanstring(e.User.Name), info, e.User.Channel.Name)
-		if b.Client.Self.Channel.Name == e.User.Channel.Name && !(b.Client.Self.UserID == e.User.UserID) {
+	}
+
+	//2 UserChangeDisconnected
+	if e.Type.Has(2) {
+		info = info + "[disconnected]"
+		if e.User.Channel.Name == b.Client.Self.Channel.Name {
+			thisChannel = true
+		}
+	}
+
+	//4 UserChangeKicked
+	if e.Type.Has(4) {
+		info = info + "[kicked]"
+	}
+
+	//8 UserChangeBanned
+	if e.Type.Has(8) {
+		info = info + "[banned]"
+	}
+
+	//16 UserChangeRegistered
+	if e.Type.Has(16) {
+		info = info + "[registered]"
+	}
+
+	//32 UserChangeUnregistered
+	if e.Type.Has(32) {
+		info = info + "[unregistered]"
+	}
+
+	//64 UserChangeName
+	if e.Type.Has(64) {
+		info = info + "[changed name]"
+	}
+
+	//128 UserChangeChannel
+	if e.Type.Has(128) {
+		info = info + "[changed channel]"
+		if e.User.Channel.Name == b.Client.Self.Channel.Name {
+			thisChannel = true
+		}
+	}
+
+	//256 UserChangeComment
+	if e.Type.Has(256) {
+		info = info + "[changed comment]"
+	}
+
+	//512 UserChangeAudio
+	if e.Type.Has(512) {
+		info = info + "[changed audio]"
+	}
+
+	//1024 UserChangeTexture
+	if e.Type.Has(1024) {
+		info = info + "[changed texture]"
+	}
+
+	//2048 UserChangePrioritySpeaker
+	if e.Type.Has(2048) {
+		info = info + "[changed priority speaker]"
+	}
+
+	//4096 UserChangeRecording
+	if e.Type.Has(4096) {
+		info = info + "[change recording]"
+	}
+
+	//8184 UserChangeStats
+	if e.Type.Has(8184) {
+		info = info + "[change stats]"
+	}
+
+	if e.Type > 0 {
+		if thisChannel && !(b.Client.Self.UserID == e.User.UserID) {
+			b.BackLightTimer()
+			b.ParticipantLEDUpdate(true)
+			log.Printf("alert: Debug This Channel  User %v, type bin=%v, type char info=%v\n", cleanstring(e.User.Name), e.Type, info)
+			thisChannel = false
 			for _, tts := range Config.Global.Software.TTS.Sound {
-				if tts.Action == "leftchannel" {
+				if tts.Action == "leftjoinedchannel" {
 					if tts.Enabled {
-						b.Speak(cleanstring(e.User.Name)+"Has Left The Channel", "local", Config.Global.Software.TTS.Volumelevel, 0, 1, Config.Global.Software.TTSMessages.TTSLanguage)
+						var toSpeakEvent string = ""
+						if e.Type.Has(1) {
+							toSpeakEvent = " Has Connected and "
+						}
+						if e.Type.Has(2) {
+							toSpeakEvent = " Has Disconnected and "
+
+						}
+						if e.Type.Has(128) {
+							toSpeakEvent = toSpeakEvent + " Joined Channel "
+						}
+						b.Speak(cleanstring(e.User.Name)+toSpeakEvent, "local", Config.Global.Software.TTS.Volumelevel, 0, 1, Config.Global.Software.TTSMessages.TTSLanguage)
 					}
 				}
 			}
+		} else {
+			log.Printf("alert: Debug Other Channel User %v, type bin=%v, type char info=%v, to channel %#v\n", cleanstring(e.User.Name), e.Type, info, e.User.Channel.Name)
+			b.ParticipantLEDUpdate(true)
 		}
-	} else {
-		b.ParticipantLEDUpdate(true)
 	}
 }
 

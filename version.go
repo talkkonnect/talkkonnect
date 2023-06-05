@@ -31,10 +31,10 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.23.06"
+	talkkonnectVersion  string = "2.23.07"
 	talkkonnectReleased string = "5 June  2023"
 )
 
 /* Release Notes
-1. Add TTS Announcement of User leaving the Channel We are Currently On
+1. Overhaul Event Processing Logic
 */

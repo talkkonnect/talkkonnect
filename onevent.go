@@ -42,14 +42,12 @@ import (
 func (b *Talkkonnect) OnConnect(e *gumble.ConnectEvent) {
 	if IsConnected {
 		GPIOOutPin("online", "on")
-		//		MyLedStripOnlineLEDOn()
+		//MyLedStripOnlineLEDOn()
 		return
 	}
 
 	IsConnected = true
-	GPIOOutPin("online", "on")
 	//MyLedStripOnlineLEDOn()
-	b.BackLightTimer()
 	b.Client = e.Client
 	ConnectAttempts = 1
 
@@ -59,7 +57,9 @@ func (b *Talkkonnect) OnConnect(e *gumble.ConnectEvent) {
 		copy(ATokens[:], Tokens[AccountIndex])
 		b.Client.Send(ATokens)
 	}
+
 	log.Printf("info: Connected to %s Address %s on attempt %d index [%d] ", b.Name, b.Client.Conn.RemoteAddr(), b.ConnectAttempts, AccountIndex)
+
 	if e.WelcomeMessage != nil {
 		var tmessage string = fmt.Sprintf("%v", esc(*e.WelcomeMessage))
 		for _, line := range strings.Split(strings.TrimSpace(tmessage), "\n") {
@@ -68,8 +68,8 @@ func (b *Talkkonnect) OnConnect(e *gumble.ConnectEvent) {
 	}
 
 	if Config.Global.Hardware.TargetBoard == "rpi" {
-
 		GPIOOutPin("online", "on")
+		b.BackLightTimer()
 
 		if LCDEnabled {
 			LcdText = [4]string{"nil", "nil", "nil", "nil"}
@@ -91,22 +91,36 @@ func (b *Talkkonnect) OnConnect(e *gumble.ConnectEvent) {
 }
 
 func (b *Talkkonnect) OnDisconnect(e *gumble.DisconnectEvent) {
-	b.BackLightTimer()
-
 	var reason string
 
-	switch e.Type {
-	case gumble.DisconnectError:
-		reason = "connection error"
+	if Config.Global.Hardware.TargetBoard == "rpi" {
+		b.BackLightTimer()
+		GPIOOutPin("online", "off")
+		GPIOOutAll("led/relay", "off")
+	}
+
+	//1 DisconnectError DisconnectType = iota + 1
+	if e.Type.Has(1) {
+		reason = "[error]"
+	}
+
+	//2 DisconnectKicked
+	if e.Type.Has(2) {
+		reason = "[kicked]"
+	}
+
+	//4 DisconnectBanned
+	if e.Type.Has(3) {
+		reason = "[banned]"
+	}
+
+	//8 DisconnectUser
+	if e.Type.Has(4) {
+		reason = "[user]"
 	}
 
 	IsConnected = false
-	GPIOOutPin("online", "off")
 	//MyLedStripOnlineLEDOff()
-	if Config.Global.Hardware.TargetBoard == "rpi" {
-		GPIOOutAll("led/relay", "off")
-		//MyLedStripGPIOOffAll()
-	}
 
 	log.Println("alert: Attempting Reconnect in 5 seconds...")
 	log.Println("alert: Connection to ", b.Address, "disconnected")
@@ -117,7 +131,9 @@ func (b *Talkkonnect) OnDisconnect(e *gumble.DisconnectEvent) {
 }
 
 func (b *Talkkonnect) OnTextMessage(e *gumble.TextMessageEvent) {
-	b.BackLightTimer()
+	if Config.Global.Hardware.TargetBoard == "rpi" {
+		b.BackLightTimer()
+	}
 
 	var eventSound EventSoundStruct = findEventSound("message")
 	if eventSound.Enabled {
@@ -126,6 +142,7 @@ func (b *Talkkonnect) OnTextMessage(e *gumble.TextMessageEvent) {
 
 		}
 	}
+
 	if len(cleanstring(e.Message)) > 105 {
 		log.Println("warn: Message Too Long to Be Displayed on Screen")
 		tmessage = strings.TrimSpace(cleanstring(e.Message)[:105])
@@ -215,7 +232,6 @@ func (b *Talkkonnect) OnUserChange(e *gumble.UserChangeEvent) {
 
 	var info string = ""
 	var thisChannel bool
-	//	var movedAway bool
 
 	//1 UserChangeConnected
 	if e.Type.Has(1) {
@@ -300,7 +316,7 @@ func (b *Talkkonnect) OnUserChange(e *gumble.UserChangeEvent) {
 		if thisChannel && !(b.Client.Self.UserID == e.User.UserID) {
 			b.BackLightTimer()
 			b.ParticipantLEDUpdate(true)
-			log.Printf("alert: Debug This Channel  User %v, type bin=%v, type char info=%v\n", cleanstring(e.User.Name), e.Type, info)
+			log.Printf("info: This Channel  User %v, type bin=%v, type char info=%v\n", cleanstring(e.User.Name), e.Type, info)
 			thisChannel = false
 			for _, tts := range Config.Global.Software.TTS.Sound {
 				if tts.Action == "leftjoinedchannel" {
@@ -310,7 +326,7 @@ func (b *Talkkonnect) OnUserChange(e *gumble.UserChangeEvent) {
 							toSpeakEvent = " Has Connected and "
 						}
 						if e.Type.Has(2) {
-							toSpeakEvent = " Has Disconnected and "
+							toSpeakEvent = " Has Disconnected "
 
 						}
 						if e.Type.Has(128) {
@@ -321,13 +337,14 @@ func (b *Talkkonnect) OnUserChange(e *gumble.UserChangeEvent) {
 				}
 			}
 		} else {
-			log.Printf("alert: Debug Other Channel User %v, type bin=%v, type char info=%v, to channel %#v\n", cleanstring(e.User.Name), e.Type, info, e.User.Channel.Name)
+			log.Printf("info: User %v info=%v (Other channel) %v\n", cleanstring(e.User.Name), info, e.User.Channel.Name)
 			b.ParticipantLEDUpdate(true)
 		}
 	}
 }
 
 func (b *Talkkonnect) OnPermissionDenied(e *gumble.PermissionDeniedEvent) {
+
 	switch e.Type {
 	case gumble.PermissionDeniedPermission:
 		log.Printf("warn: Permission Denied For Channel ID %v Channel Name %v\n", e.Channel.ID, e.Channel.Name)
@@ -366,25 +383,25 @@ func (b *Talkkonnect) OnPermissionDenied(e *gumble.PermissionDeniedEvent) {
 }
 
 func (b *Talkkonnect) OnChannelChange(e *gumble.ChannelChangeEvent) {
-	log.Println("debug: Channel Change Event Detected")
+	log.Printf("debug: Channel Detected %v", e.Channel.Name)
 }
 
 func (b *Talkkonnect) OnUserList(e *gumble.UserListEvent) {
-	log.Println("debug: On User List Event Detected")
+	log.Println("alert: On User List Event Detected")
 }
 
 func (b *Talkkonnect) OnACL(e *gumble.ACLEvent) {
-	log.Println("debug: On ACL Event Detected")
+	log.Println("alert: On ACL Event Detected")
 }
 
 func (b *Talkkonnect) OnBanList(e *gumble.BanListEvent) {
-	log.Println("debug: OnBanList Event Detected")
+	log.Println("alert: OnBanList Event Detected")
 }
 
 func (b *Talkkonnect) OnContextActionChange(e *gumble.ContextActionChangeEvent) {
-	log.Println("debug: OnContextActionChange Event Detected")
+	log.Println("alert: OnContextActionChange Event Detected")
 }
 
 func (b *Talkkonnect) OnServerConfig(e *gumble.ServerConfigEvent) {
-	log.Println("debug: OnServerConfigs Event Detected")
+	//placeholder
 }

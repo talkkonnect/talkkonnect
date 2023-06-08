@@ -1232,8 +1232,8 @@ do_user() {
 
 do_install_prerequisites() {
 	## Install the dependencies required for talkkonnect
-	apt-get update -y
-	apt-get -y install libopenal-dev libopus-dev libasound2-dev git ffmpeg mplayer screen pkg-config lscpu cpuinfo lshw i2c-tools
+	apt update -y
+	apt -y install libopenal-dev libopus-dev libasound2-dev git ffmpeg mplayer screen pkg-config cpuinfo lshw i2c-tools
 }
 
 do_install_go() {
@@ -1242,18 +1242,21 @@ cputype=`lscpu | grep Architecture | cut -d ":" -f 2 | sed 's/ //g'`
 bitsize=`getconf LONG_BIT`
 
 
-if [ "$cputype" = "armv7l" ]; then
+if [ "$cputype" = "armv7l" ] | [ "$cputype" = "aarch64" ]; then
         if [ "$bitsize" = "32" ]; then
                 echo "getting "$bitsize" version of golang for cpu type"$cputype
-		cd /usr/local
+		cd /usr/local/
                 wget https://go.dev/dl/$GOLANG_LATEST_STABLE_VERSION.linux-arm6l.tar.gz
-		tar -zxvf $GOLANG_LATEST_STABLE_VERSION.linux-arm6l.tar.gz
+		tar -zxvf /usr/local/$GOLANG_LATEST_STABLE_VERSION.linux-arm6l.tar.gz
         fi
         if [ "$bitsize" = "64" ]; then
+		cd /usr/local/
                 echo "getting "$bitsize" version of golang for cpu type"$cputype
                 wget https://go.dev/dl/$GOLANG_LATEST_STABLE_VERSION.linux-arm64.tar.gz
-		tar -zxvf $GOLANG_LATEST_STABLE_VERSION.linux-arm64.tar.gz
+		tar -zxvf /usr/local/$GOLANG_LATEST_STABLE_VERSION.linux-arm64.tar.gz
         fi
+	ln -s /usr/local/go/bin/go /usr/local/bin
+	ln -s /usr/local/go/bin/gofmt /usr/local/bin
 fi
 }
 
@@ -1271,6 +1274,8 @@ do_install_talkkonnect() {
 	cd $GOPATH/src/github.com/talkkonnect/talkkonnect
 	mv $GOPATH/src/github.com/talkkonnect/talkkonnect $GOPATH/src/github.com/talkkonnect/talkkonnect
 	/usr/local/go/bin/go build -o /home/talkkonnect/bin/talkkonnect cmd/talkkonnect/main.go
+	cp /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/sample-configs/talkkonnect-version2-usb-gpio-example.xml /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/talkkonnect.xml
+
 }
 
 do_startup() {
@@ -1332,8 +1337,8 @@ if [ "$INTERACTIVE" = True ]; then
         1\ *) do_user ;;
         2\ *) do_install_prerequisites ;;
         3\ *) do_install_go ;;
-        4\ *) do_install_talkkonnect ;;
-        5\ *) do_setupsound ;;
+        4\ *) do_setupsound ;;
+        5\ *) do_install_talkkonnect ;;
         6\ *) do_startup ;;
         7\ *) do_update ;;
 

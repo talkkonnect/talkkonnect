@@ -1307,12 +1307,191 @@ do_startup() {
 	systemctl enable talkkonnect.service
 }
 
-do_setupsound() {
-	echo Pending todo
-}
-
 do_update() {
-	echo Pending todo
+cputype=`lscpu | grep Architecture | cut -d ":" -f 2 | sed 's/ //g'`
+bitsize=`getconf LONG_BIT`
+
+if [ "$cputype" = "armv7l" ] | [ "$cputype" = "aarch64" ]; then
+        if [ "$bitsize" = "32" ]; then
+                echo "updating "$bitsize" version of talkkonnect for cpu type"$cputype
+		SERVICE="talkkonnect"
+		if pgrep -x "$SERVICE" >/dev/null
+		then
+    			echo "$SERVICE is running"
+    			systemctl stop talkkonnect
+		else
+    			echo "$SERVICE stopped"
+		fi
+
+		if [[ -f "/root/talkkonnect.xml" ]]
+		then
+			echo "removingroot/talkkonnect.xml"
+			rm /root/talkkonnect.xml
+		fi
+
+		if [[ -f "/home/talkkonnect/bin/talkkonnect" ]]
+		then
+			echo "removing /home/talkkonnect/bin/talkkonnect binary"
+			rm /home/talkkonnect/bin/talkkonnect
+		fi
+
+		if [[ -f "/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/talkkonnect.xml" ]]
+		then
+			echo "copying talkkonnect.xml for safe keeping to /root/talkkonnect.xml"
+			cp /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/talkkonnect.xml /root/
+		fi
+
+		rm -rf /home/talkkonnect/gocode/src/github.old
+		rm -rf /home/talkkonnect/gocode/src/google.golang.org
+		rm -rf /home/talkkonnect/gocode/src/golang.org
+		cp -R /home/talkkonnect/gocode/src/github.com /root/github.backup
+		rm -rf  /home/talkkonnect/gocode/src/github.com
+		rm -rf  /home/talkkonnect/bin/talkkonnect
+
+
+		## Create the necessary directoy structure under /home/talkkonnect/
+		mkdir -p /home/talkkonnect/gocode
+		#mkdir -p /home/talkkonnect/bin
+		mkdir -p /home/talkkonnect/gocode/src
+		mkdir -p /home/talkkonnect/gocode/src/github.com
+
+
+		## Added this block to update to the latest version of golang so the update doesnt break talkkonnect
+		rm -rf /usr/local/go
+		cd /usr/local
+		wget https://go.dev/dl/go1.20.2.linux-armv6l.tar.gz
+		tar -zxvf go1.20.2.linux-armv6l.tar.gz
+
+		## Set up GOENVIRONMENT
+		export PATH=$PATH:/usr/local/go/bin
+		export GOPATH=/home/talkkonnect/gocode
+		export GOBIN=/home/talkkonnect/bin
+		export GO111MODULE="auto"
+
+		## Get the latest source code of talkkonnect from github.com
+		echo "getting talkkonnect with go get"
+		cd $GOPATH
+		go get -v github.com/talkkonnect/talkkonnect
+		cp /root/mumble.pem /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/
+
+		## Build talkkonnect as binary
+		cd $GOPATH/src/github.com/talkkonnect/talkkonnect
+		go build -o /home/talkkonnect/bin/talkkonnect cmd/talkkonnect/main.go
+
+		if [[ -f "/home/talkkonnect/gocode/src/github.old/talkkonnect/talkkonnect/talkkonnect.xml" ]]
+		then
+			echo "copying original talkkonnect.xml back to /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/talkkonnect.xml"
+			rm /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/talkkonnect.xml
+			cp /home/talkkonnect/gocode/src/github.old/talkkonnect/talkkonnect/talkkonnect.xml  /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/talkkonnect.xml
+		fi
+
+
+		if pgrep -x "$SERVICE" >/dev/null
+		then
+    			echo "$SERVICE is running I will stop it please start talkkonnect manually"
+    			systemctl stop talkkonnect
+		else
+    			echo "$SERVICE is stopped now restarting talkkonnect"
+    			systemctl start talkkonnect
+		fi
+
+		## Notify User
+		echo "=> Finished Updating TalKKonnect"
+		echo "=> Updated talkkonnect binary is in /home/talkkonect/bin"
+		echo "copied old talkkonnect.xml file and replaced in /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/"
+		echo "Happy talkkonnecting!!"
+        	fi
+        	if [ "$bitsize" = "64" ]; then
+                	echo "updating "$bitsize" version of talkkonnect for cpu type"$cputype
+			SERVICE="talkkonnect"
+			if pgrep -x "$SERVICE" >/dev/null
+			then
+    				echo "$SERVICE is running"
+    				systemctl stop talkkonnect
+			else
+    				echo "$SERVICE stopped"
+		fi
+
+		if [[ -f "/root/talkkonnect.xml" ]]
+		then
+			echo "removingroot/talkkonnect.xml"
+			rm /root/talkkonnect.xml
+		fi
+
+		if [[ -f "/home/talkkonnect/bin/talkkonnect" ]]
+		then
+			echo "removing /home/talkkonnect/bin/talkkonnect binary"
+			rm /home/talkkonnect/bin/talkkonnect
+		fi
+
+		if [[ -f "/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/talkkonnect.xml" ]]
+		then
+			echo "copying talkkonnect.xml for safe keeping to /root/talkkonnect.xml"
+			cp /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/talkkonnect.xml /root/
+		fi
+
+		rm -rf /home/talkkonnect/gocode/src/github.old
+		rm -rf /home/talkkonnect/gocode/src/google.golang.org
+		rm -rf /home/talkkonnect/gocode/src/golang.org
+		cp -R /home/talkkonnect/gocode/src/github.com /root/github.backup
+		rm -rf  /home/talkkonnect/gocode/src/github.com
+		rm -rf  /home/talkkonnect/bin/talkkonnect
+
+
+		## Create the necessary directoy structure under /home/talkkonnect/
+		mkdir -p /home/talkkonnect/gocode
+		#mkdir -p /home/talkkonnect/bin
+		mkdir -p /home/talkkonnect/gocode/src
+		mkdir -p /home/talkkonnect/gocode/src/github.com
+
+
+		## Added this block to update to the latest version of golang so the update doesnt break talkkonnect
+		rm -rf /usr/local/go
+		cd /usr/local
+		cd /usr/local
+		wget https://go.dev/dl/go1.20.2.linux-arm64.tar.gz
+		tar -zxvf go1.20.2.linux-arm64.tar.gz
+
+		## Set up GOENVIRONMENT
+		export PATH=$PATH:/usr/local/go/bin
+		export GOPATH=/home/talkkonnect/gocode
+		export GOBIN=/home/talkkonnect/bin
+		export GO111MODULE="auto"
+
+		## Get the latest source code of talkkonnect from github.com
+		echo "getting talkkonnect with go get"
+		cd $GOPATH
+		go get -v github.com/talkkonnect/talkkonnect
+		cp /root/mumble.pem /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/
+
+		## Build talkkonnect as binary
+		cd $GOPATH/src/github.com/talkkonnect/talkkonnect
+		go build -o /home/talkkonnect/bin/talkkonnect cmd/talkkonnect/main.go
+
+		if [[ -f "/home/talkkonnect/gocode/src/github.old/talkkonnect/talkkonnect/talkkonnect.xml" ]]
+		then
+			echo "copying original talkkonnect.xml back to /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/talkkonnect.xml"
+			rm /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/talkkonnect.xml
+			cp /home/talkkonnect/gocode/src/github.old/talkkonnect/talkkonnect/talkkonnect.xml  /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/talkkonnect.xml
+		fi
+
+
+		if pgrep -x "$SERVICE" >/dev/null
+		then
+    			echo "$SERVICE is running I will stop it please start talkkonnect manually"
+    			systemctl stop talkkonnect
+		else
+    			echo "$SERVICE is stopped now restarting talkkonnect"
+    			systemctl start talkkonnect
+		fi
+
+		## Notify User
+		echo "=> Finished Updating TalKKonnect"
+		echo "=> Updated talkkonnect binary is in /home/talkkonect/bin"
+		echo "copied old talkkonnect.xml file and replaced in /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/"
+		echo "Happy talkkonnecting!!"
+        fi
+fi
 }
 
 
@@ -1324,10 +1503,9 @@ if [ "$INTERACTIVE" = True ]; then
         "1 User" "talkkonnect User Creation" \
         "2 Pre-Requisites" "Install Pre-Requsistes required by talkkonnect" \
         "3 Go" "GoLang required to compile talkkonnect" \
-        "4 Sound" "Configure sound device" \
-        "5 talkkonnect" "get and compile talkkonnect" \
-        "6 startup" "Configure Startup of talkkonnect" \
-        "7 update" "Update to latest version of talkkonnect" \
+        "4 talkkonnect" "get and compile talkkonnect" \
+        "5 startup" "Configure Startup of talkkonnect" \
+        "6 update" "Update to latest version of talkkonnect" \
         3>&1 1>&2 2>&3)
     RET=$?
     if [ $RET -eq 1 ]; then
@@ -1337,10 +1515,9 @@ if [ "$INTERACTIVE" = True ]; then
         1\ *) do_user ;;
         2\ *) do_install_prerequisites ;;
         3\ *) do_install_go ;;
-        4\ *) do_setupsound ;;
-        5\ *) do_install_talkkonnect ;;
-        6\ *) do_startup ;;
-        7\ *) do_update ;;
+        4\ *) do_install_talkkonnect ;;
+        5\ *) do_startup ;;
+        6\ *) do_update ;;
 
         *) whiptail --msgbox "Programmer error: unrecognized option" 20 60 1 ;;
       esac || whiptail --msgbox "There was an error running option $FUN" 20 60 1

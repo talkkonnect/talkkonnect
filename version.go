@@ -31,10 +31,13 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.23.09"
-	talkkonnectReleased string = "5 June  2023"
+	talkkonnectVersion  string = "2.24.01"
+	talkkonnectReleased string = "9 June  2023"
 )
 
 /* Release Notes
-1. Overhaul Event Processing Logic
+1. Started to Add Voice Target GPOIO Buttons in xmlparser
+
+TODO
+1. Modify gpio.go to start accepting voice target buttons
 */

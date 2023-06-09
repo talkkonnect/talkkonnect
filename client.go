@@ -278,10 +278,10 @@ func (b *Talkkonnect) ClientStart() {
 	if Config.Global.Hardware.TargetBoard == "rpi" {
 		log.Println("info: Target Board Set as RPI (gpio enabled) ")
 		b.initGPIO()
-		if Config.Global.Hardware.LedStripEnabled {
-			//MyLedStrip, _ = NewLedStrip()
-			//log.Printf("info: Led Strip %v %s\n", MyLedStrip.buf, MyLedStrip.display)
-		}
+		// if Config.Global.Hardware.LedStripEnabled {
+		// 	MyLedStrip, _ = NewLedStrip()
+		// 	log.Printf("info: Led Strip %v %s\n", MyLedStrip.buf, MyLedStrip.display)
+		// }
 	} else {
 		log.Println("info: Target Board Set as PC (gpio disabled) ")
 	}

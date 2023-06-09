@@ -1494,6 +1494,17 @@ if [ "$cputype" = "armv7l" ] | [ "$cputype" = "aarch64" ]; then
 fi
 }
 
+do_createcompilescript() {
+	echo "Create Compile Script in /root/compile"
+	echo "export GOPATH=/home/talkkonnect/gocode" > /root/compile
+	echo "export GOBIN=/home/talkkonnect/bin" >> /root/compile
+	echo 'export GO111MODULE="auto"' >> /root/compile
+	echo "rm /home/talkkonnect/bin/talkkonnect" >> /root/compile
+	echo "cd $GOPATH" >> /root/compile
+	echo "cd $GOPATH/src/github.com/talkkonnect/talkkonnect" >> /root/compile
+	echo "/usr/local/go/bin/go build -o /home/talkkonnect/bin/talkkonnect cmd/talkkonnect/main.go" >> /root/compile
+	chmod +x /root/compile
+}
 
 if [ "$INTERACTIVE" = True ]; then
   [ -e $CONFIG ] || touch $CONFIG
@@ -1504,8 +1515,9 @@ if [ "$INTERACTIVE" = True ]; then
         "2 Pre-Requisites" "Install Pre-Requsistes required by talkkonnect" \
         "3 Go" "GoLang required to compile talkkonnect" \
         "4 talkkonnect" "get and compile talkkonnect" \
-        "5 startup" "Configure Startup of talkkonnect" \
-        "6 update" "Update to latest version of talkkonnect" \
+        "5 compilescript" "Create Compile Script" \
+        "6 startup" "Configure Startup of talkkonnect" \
+        "7 update" "Update to latest version of talkkonnect" \
         3>&1 1>&2 2>&3)
     RET=$?
     if [ $RET -eq 1 ]; then
@@ -1516,9 +1528,9 @@ if [ "$INTERACTIVE" = True ]; then
         2\ *) do_install_prerequisites ;;
         3\ *) do_install_go ;;
         4\ *) do_install_talkkonnect ;;
-        5\ *) do_startup ;;
-        6\ *) do_update ;;
-
+        5\ *) do_createcompilescript ;;
+        6\ *) do_startup ;;
+        7\ *) do_update ;;
         *) whiptail --msgbox "Programmer error: unrecognized option" 20 60 1 ;;
       esac || whiptail --msgbox "There was an error running option $FUN" 20 60 1
     else

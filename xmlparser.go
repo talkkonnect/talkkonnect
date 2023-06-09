@@ -231,38 +231,40 @@ type ConfigStruct struct {
 				} `xml:"mqtt"`
 			}
 			PrintVariables struct {
-				PrintAccount          bool   `xml:"printaccount"`
-				PrintSystemSettings   bool   `xml:"printsystemsettings"`
-				PrintProvisioning     bool   `xml:"printprovisioning"`
-				PrintBeacon           bool   `xml:"printbeacon"`
-				PrintTTS              bool   `xml:"printtts"`
-				PrintSMTP             bool   `xml:"printsmtp"`
-				PrintSounds           bool   `xml:"printsounds"`
-				PrintTxTimeout        bool   `xml:"printtxtimeout"`
-				PrintHTTPAPI          bool   `xml:"printhttpapi"`
-				PrintMQTT             bool   `xml:"printmqtt"`
-				PrintTTSMessages      bool   `xml:"printttsmessages"`
-				PrintIgnoreUser       bool   `xml:"printignoreuser"`
-				PrintHardware         bool   `xml:"printhardware"`
-				PrintGPIOExpander     bool   `xml:"printgpioexpander"`
-				PrintMax7219          bool   `xml:"printmax7219"`
-				PrintPins             bool   `xml:"printpins"`
-				PrintRotary           bool   `xml:"printrotary"`
-				PrintPulse            bool   `xml:"printpulse"`
-				PrintVolumeButtonStep bool   `xml:"printvolumebuttonstep"`
-				PrintHeartBeat        bool   `xml:"printheartbeat"`
-				PrintComment          bool   `xml:"printcomment"`
-				PrintLCD              bool   `xml:"printlcd"`
-				PrintOLED             bool   `xml:"printoled"`
-				PrintGPS              bool   `xml:"printgps"`
-				PrintTraccar          bool   `xml:"printtraccar"`
-				PrintPanic            bool   `xml:"printpanic"`
-				PrintUSBKeyboard      bool   `xml:"printusbkeyboard"`
-				PrintAudioRecord      bool   `xml:"printaudiorecord"`
-				PrintKeyboardMap      bool   `xml:"printkeyboardmap"`
-				PrintRadioModule      bool   `xml:"printradiomodule"`
-				PrintMultimedia       bool   `xml:"printmultimedia"`
-				Printlistentochannels string `xml:"printlistentochannels"`
+				PrintAccount            bool   `xml:"printaccount"`
+				PrintSystemSettings     bool   `xml:"printsystemsettings"`
+				PrintProvisioning       bool   `xml:"printprovisioning"`
+				PrintBeacon             bool   `xml:"printbeacon"`
+				PrintTTS                bool   `xml:"printtts"`
+				PrintSMTP               bool   `xml:"printsmtp"`
+				PrintSounds             bool   `xml:"printsounds"`
+				PrintTxTimeout          bool   `xml:"printtxtimeout"`
+				PrintHTTPAPI            bool   `xml:"printhttpapi"`
+				PrintMQTT               bool   `xml:"printmqtt"`
+				PrintTTSMessages        bool   `xml:"printttsmessages"`
+				PrintIgnoreUser         bool   `xml:"printignoreuser"`
+				PrintHardware           bool   `xml:"printhardware"`
+				PrintGPIOExpander       bool   `xml:"printgpioexpander"`
+				PrintMax7219            bool   `xml:"printmax7219"`
+				PrintPins               bool   `xml:"printpins"`
+				PrintRotary             bool   `xml:"printrotary"`
+				PrintPulse              bool   `xml:"printpulse"`
+				PrintVolumeButtonStep   bool   `xml:"printvolumebuttonstep"`
+				PrintHeartBeat          bool   `xml:"printheartbeat"`
+				PrintComment            bool   `xml:"printcomment"`
+				PrintLCD                bool   `xml:"printlcd"`
+				PrintOLED               bool   `xml:"printoled"`
+				PrintGPS                bool   `xml:"printgps"`
+				PrintTraccar            bool   `xml:"printtraccar"`
+				PrintPanic              bool   `xml:"printpanic"`
+				PrintUSBKeyboard        bool   `xml:"printusbkeyboard"`
+				PrintAudioRecord        bool   `xml:"printaudiorecord"`
+				PrintKeyboardMap        bool   `xml:"printkeyboardmap"`
+				PrintRadioModule        bool   `xml:"printradiomodule"`
+				PrintMultimedia         bool   `xml:"printmultimedia"`
+				Printlistentochannels   string `xml:"printlistentochannels"`
+				PrintMemoryChannels     bool   `xml:"printmemorychannels"`
+				PrintPresetVoiceTargets bool   `xml:"printpresetvoicetargets"`
 			} `xml:"printvariables"`
 			TTSMessages struct {
 				Enabled           bool   `xml:"enabled,attr"`
@@ -297,12 +299,21 @@ type ConfigStruct struct {
 				IgnoreUserRegex   string `xml:"ignoreuserregex"`
 			} `xml:"ignoreuser"`
 			MemoryChannels struct {
+				Enabled bool `xml:"enabled,attr"`
 				Channel []struct {
 					GPIOName    string `xml:"gpioname,attr"`
 					ChannelName string `xml:"channelname,attr"`
 					Enabled     bool   `xml:"enabled,attr"`
 				} `xml:"channel"`
 			} `xml:"memorychannels"`
+			PresetVoiceTargets struct {
+				Enabled        bool `xml:"enabled,attr"`
+				VoiceTargetSet []struct {
+					GPIOName string `xml:"gpioname,attr"`
+					ID       string `xml:"id,attr"`
+					Enabled  bool   `xml:"enabled,attr"`
+				} `xml:"voicetargetset"`
+			} `xml:"presetvoicetargets"`
 		} `xml:"software"`
 		Hardware struct {
 			TargetBoard             string        `xml:"targetboard,attr"`
@@ -610,6 +621,11 @@ type MemoryChannelStruct struct {
 	ChannelName string
 }
 
+type VoiceTargetStruct struct {
+	Enabled bool
+	ID      string
+}
+
 type KBStruct struct {
 	Enabled    bool
 	KeyLabel   uint32
@@ -671,10 +687,10 @@ type rotaryFunctionsStruct struct {
 	Function string
 }
 
-type analogZoneStruct struct {
-	oneShot     bool
-	lastChannel string
-}
+// type analogZoneStruct struct {
+// 	oneShot     bool
+// 	lastChannel string
+// }
 
 // Generic Global Config Variables
 var Config ConfigStruct
@@ -722,10 +738,11 @@ var (
 var (
 	LcdText = [4]string{"nil", "nil", "nil", "nil"}
 	//	MyLedStrip *LedStrip
-	TTYKeyMap       = make(map[rune]KBStruct)
-	USBKeyMap       = make(map[rune]KBStruct)
-	GPIOMemoryMap   = make(map[string]MemoryChannelStruct)
-	RelayControlMap = make(map[string]analogZoneStruct)
+	TTYKeyMap     = make(map[rune]KBStruct)
+	USBKeyMap     = make(map[rune]KBStruct)
+	GPIOMemoryMap = make(map[string]MemoryChannelStruct)
+	//	RelayControlMap = make(map[string]analogZoneStruct)
+	GPIOVoiceTargetMap = make(map[string]VoiceTargetStruct)
 )
 
 // Mumble Account Settings Global Variables
@@ -1015,7 +1032,9 @@ func readxmlconfig(file string, reloadxml bool) error {
 
 func printxmlconfig() {
 
-	if Config.Global.Software.PrintVariables.PrintAccount {
+	if !Config.Global.Software.PrintVariables.PrintAccount {
+		log.Println("info: ---------- Account Information -------- SKIPPED ")
+	} else {
 		log.Println("info: ---------- Account Info ---------- ")
 		for index, account := range Config.Accounts.Account {
 			if account.Default {
@@ -1035,11 +1054,11 @@ func printxmlconfig() {
 				log.Printf("info: %v VoiceTargets     %v \n", AcctIsDefault, account.Voicetargets)
 			}
 		}
-	} else {
-		log.Println("info: ---------- Account Information -------- SKIPPED ")
 	}
 
-	if Config.Global.Software.PrintVariables.PrintSystemSettings {
+	if !Config.Global.Software.PrintVariables.PrintSystemSettings {
+		log.Println("info: -------- System Settings -------- SKIPPED ")
+	} else {
 		log.Println("info: -------- System Settings -------- ")
 		log.Println("info: Single Instance                  ", Config.Global.Software.Settings.SingleInstance)
 		log.Println("info: Output Device                    ", Config.Global.Software.Settings.OutputDevice)
@@ -1061,22 +1080,22 @@ func printxmlconfig() {
 		log.Println("info: NextServerIndex                  ", fmt.Sprintf("%v", Config.Global.Software.Settings.NextServerIndex))
 		log.Println("info: TXLockOut                        ", fmt.Sprintf("%t", Config.Global.Software.Settings.TXLockOut))
 		log.Println("info: ListenToChannelOnStart           ", fmt.Sprintf("%t", Config.Global.Software.Settings.ListenToChannelsOnStart))
-	} else {
-		log.Println("info: -------- System Settings -------- SKIPPED ")
 	}
 
-	if Config.Global.Software.PrintVariables.PrintProvisioning {
+	if !Config.Global.Software.PrintVariables.PrintProvisioning {
+		log.Println("info: --------   AutoProvisioning   --------- SKIPPED ")
+	} else {
 		log.Println("info: --------   AutoProvisioning   --------- ")
 		log.Println("info: AutoProvisioning Enabled    " + fmt.Sprintf("%t", Config.Global.Software.AutoProvisioning.Enabled))
 		log.Println("info: Talkkonned ID (tkid)        " + Config.Global.Software.AutoProvisioning.TkID)
 		log.Println("info: AutoProvisioning Server URL " + Config.Global.Software.AutoProvisioning.URL)
 		log.Println("info: Config Local Path           " + Config.Global.Software.AutoProvisioning.SaveFilePath)
 		log.Println("info: Config Local Filename       " + Config.Global.Software.AutoProvisioning.SaveFilename)
-	} else {
-		log.Println("info: --------   AutoProvisioning   --------- SKIPPED ")
 	}
 
-	if Config.Global.Software.PrintVariables.PrintBeacon {
+	if !Config.Global.Software.PrintVariables.PrintBeacon {
+		log.Println("info: --------   Beacon   --------- SKIPPED ")
+	} else {
 		log.Println("info: --------  Beacon   --------- ")
 		log.Println("info: Beacon Enabled            " + fmt.Sprintf("%t", Config.Global.Software.Beacon.Enabled))
 		log.Println("info: Beacon Filename & Path    " + Config.Global.Software.Beacon.BeaconFileAndPath)
@@ -1085,11 +1104,11 @@ func printxmlconfig() {
 		log.Println("info: Beacon GPIOName           " + fmt.Sprintf("%v", Config.Global.Software.Beacon.GPIOName))
 		log.Println("info: Local Volume              " + fmt.Sprintf("%v", Config.Global.Software.Beacon.LocalPlay))
 		log.Println("info: Beacon Play Into Stream   " + fmt.Sprintf("%v", Config.Global.Software.Beacon.Playintostream))
-	} else {
-		log.Println("info: --------   Beacon   --------- SKIPPED ")
 	}
 
-	if Config.Global.Software.PrintVariables.PrintTTS {
+	if !Config.Global.Software.PrintVariables.PrintTTS {
+		log.Println("info: --------   TTS  -------- SKIPPED ")
+	} else {
 		log.Println("info: -------- TTS  -------- ")
 		log.Println("info: Enabled      " + fmt.Sprintf("%t", Config.Global.Software.TTS.Enabled))
 		log.Println("info: Volume Level ", Config.Global.Software.TTS.Volumelevel)
@@ -1097,11 +1116,11 @@ func printxmlconfig() {
 		for _, tts := range Config.Global.Software.TTS.Sound {
 			log.Printf("%+v\n", tts)
 		}
-	} else {
-		log.Println("info: --------   TTS  -------- SKIPPED ")
 	}
 
-	if Config.Global.Software.PrintVariables.PrintSMTP {
+	if !Config.Global.Software.PrintVariables.PrintSMTP {
+		log.Println("info: --------   Gmail SMTP Settings  -------- SKIPPED ")
+	} else {
 		log.Println("info: --------  Gmail SMTP Settings  -------- ")
 		log.Println("info: Email Enabled   " + fmt.Sprintf("%t", Config.Global.Software.SMTP.Enabled))
 		log.Println("info: Username        " + Config.Global.Software.SMTP.Username)
@@ -1112,11 +1131,12 @@ func printxmlconfig() {
 		log.Println("info: GPS Date/Time   " + fmt.Sprintf("%t", Config.Global.Software.SMTP.GpsDateTime))
 		log.Println("info: GPS Lat/Long    " + fmt.Sprintf("%t", Config.Global.Software.SMTP.GpsLatLong))
 		log.Println("info: Google Maps URL " + fmt.Sprintf("%t", Config.Global.Software.SMTP.GoogleMapsURL))
-	} else {
-		log.Println("info: --------   Gmail SMTP Settings  -------- SKIPPED ")
 	}
 
-	if Config.Global.Software.PrintVariables.PrintSounds {
+	if !Config.Global.Software.PrintVariables.PrintSounds {
+		log.Println("info: ------------ Sounds  ------------------ SKIPPED ")
+
+	} else {
 		log.Println("info: ------------- Sounds  ------------------ ")
 		for _, sounds := range Config.Global.Software.Sounds.Sound {
 			log.Printf("info: |Event=%v |File=%v |Volume=%v |Blocking=%v |Enabled=%v\n", sounds.Event, sounds.File, sounds.Volume, sounds.Blocking, sounds.Enabled)
@@ -1128,31 +1148,30 @@ func printxmlconfig() {
 		log.Println("info: Repeater Tone Enabled      " + fmt.Sprintf("%t", Config.Global.Software.Sounds.RepeaterTone.Enabled))
 		log.Println("info: Repeater Tone Freq (Hz)    ", Config.Global.Software.Sounds.RepeaterTone.ToneFrequencyHz)
 		log.Println("info: Repeater Tone Duration (s) ", Config.Global.Software.Sounds.RepeaterTone.ToneDurationSec)
-	} else {
-		log.Println("info: ------------ Sounds  ------------------ SKIPPED ")
-
 	}
 
-	if Config.Global.Software.PrintVariables.PrintTxTimeout {
+	if !Config.Global.Software.PrintVariables.PrintTxTimeout {
+		log.Println("info: ------------ TX Timeout ------------------ SKIPPED ")
+	} else {
 		log.Println("info: ------------ TX Timeout ------------------ ")
 		log.Println("info: Tx Timeout Enabled  " + fmt.Sprintf("%t", Config.Global.Software.TxTimeOut.Enabled))
 		log.Println("info: Tx Timeout Secs     " + fmt.Sprintf("%v", Config.Global.Software.TxTimeOut.TxTimeOutSecs))
-	} else {
-		log.Println("info: ------------ TX Timeout ------------------ SKIPPED ")
 	}
 
-	if Config.Global.Software.PrintVariables.PrintHTTPAPI {
+	if !Config.Global.Software.PrintVariables.PrintHTTPAPI {
+		log.Println("info: ------------ HTTP API  ----------------- SKIPPED ")
+	} else {
 		log.Println("info: ------------ HTTP API  ----------------- ")
 		log.Println("info: HTTP API Enabled ", Config.Global.Software.RemoteControl.HTTP.Enabled)
 		log.Println("info: HTTP API Listen Port ", Config.Global.Software.RemoteControl.HTTP.ListenPort)
 		for _, command := range Config.Global.Software.RemoteControl.HTTP.Command {
 			log.Printf("info: Enabled=%v Action=%v Name=%v Param=%v Message=%v\n", command.Enabled, command.Action, command.Funcname, command.Funcparamname, command.Message)
 		}
-	} else {
-		log.Println("info: ------------ HTTP API  ----------------- SKIPPED ")
 	}
 
-	if Config.Global.Software.PrintVariables.PrintMQTT {
+	if !Config.Global.Software.PrintVariables.PrintMQTT {
+		log.Println("info: ------------ MQTT Function ------- SKIPPED ")
+	} else {
 		log.Println("info: ------------ MQTT Function -------------- ")
 		log.Println("info: Enabled             " + fmt.Sprintf("%v", Config.Global.Software.RemoteControl.MQTT.Enabled))
 		log.Println("info: Subscibe Topic      " + fmt.Sprintf("%v", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTSubTopic))
@@ -1171,11 +1190,11 @@ func printxmlconfig() {
 		for _, command := range Config.Global.Software.RemoteControl.MQTT.Commands.Command {
 			log.Printf("info: Enabled=%v Action=%v Message=%v\n", command.Enabled, command.Action, command.Message)
 		}
-	} else {
-		log.Println("info: ------------ MQTT Function ------- SKIPPED ")
 	}
 
-	if Config.Global.Software.PrintVariables.PrintTTSMessages {
+	if !Config.Global.Software.PrintVariables.PrintTTSMessages {
+		log.Println("info: ------------ TTSMessages Function ------- SKIPPED ")
+	} else {
 		log.Println("info: ------------ TTSMessages Function -------------- ")
 		log.Println("info: Enabled                      " + fmt.Sprintf("%v", Config.Global.Software.TTSMessages.Enabled))
 		log.Println("info: LocalPlay                    " + fmt.Sprintf("%v", Config.Global.Software.TTSMessages.LocalPlay))
@@ -1191,84 +1210,86 @@ func printxmlconfig() {
 		log.Println("info: TTSGPIOName                  " + fmt.Sprintf("%v", Config.Global.Software.TTSMessages.GPIO.Name))
 		log.Println("info: TTSPreDelay                  " + fmt.Sprintf("%v", Config.Global.Software.TTSMessages.PreDelay))
 		log.Println("info: TTSPostDelay                 " + fmt.Sprintf("%v", Config.Global.Software.TTSMessages.PreDelay))
-	} else {
-		log.Println("info: ------------ TTSMessages Function ------- SKIPPED ")
 	}
 
-	if Config.Global.Software.PrintVariables.PrintIgnoreUser {
+	if !Config.Global.Software.PrintVariables.PrintIgnoreUser {
+		log.Println("info: ------------ IgnoreUserRegex Function ------- SKIPPED ")
+	} else {
 		log.Println("info: ------------ IgnoreUserRegex Function -------------- ")
 		log.Println("info: Enabled             " + fmt.Sprintf("%v", Config.Global.Software.IgnoreUser.IgnoreUserEnabled))
 		log.Println("info: IgnoreUserRegex     " + fmt.Sprintf("%v", Config.Global.Software.IgnoreUser.IgnoreUserRegex))
-	} else {
-		log.Println("info: ------------ IgnoreUserRegex Function ------- SKIPPED ")
 	}
 
-	if Config.Global.Software.PrintVariables.PrintHardware {
+	if !Config.Global.Software.PrintVariables.PrintHardware {
+		log.Println("info: ------------  Hardware Settings -------------- SKIPPED")
+	} else {
 		log.Println("info: ------------  Hardware Settings -------------- ")
 		log.Println("info: Target Board                 " + fmt.Sprintf("%v", Config.Global.Hardware.TargetBoard))
 		log.Println("info: LED Strip Enabled            " + fmt.Sprintf("%v", Config.Global.Hardware.LedStripEnabled))
 		log.Println("info: VoiceActivity LED Timer (ms) " + fmt.Sprintf("%v", Config.Global.Hardware.VoiceActivityTimermsecs))
-	} else {
-		log.Println("info: ------------  Hardware Settings -------------- SKIPPED")
 	}
 
-	if Config.Global.Software.PrintVariables.PrintGPIOExpander {
+	if !Config.Global.Software.PrintVariables.PrintGPIOExpander {
+		log.Println("info: ------------  GPIO Expander -------------- SKIPPED")
+	} else {
 		log.Println("info: ------------  GPIO Expander -------------- ")
 		log.Println("info: GPIO Expander Enabled        " + fmt.Sprintf("%v", Config.Global.Hardware.IO.GPIOExpander.Enabled))
-		for _, gpioexpander := range Config.Global.Hardware.IO.GPIOExpander.Chip {
-			log.Printf("info: ID=%v I2CBus=%v MCP23017Device=%v Enabled=%v\n", gpioexpander.ID, gpioexpander.I2Cbus, gpioexpander.MCP23017Device, gpioexpander.Enabled)
+		if Config.Global.Hardware.IO.GPIOExpander.Enabled {
+			for _, gpioexpander := range Config.Global.Hardware.IO.GPIOExpander.Chip {
+				log.Printf("info: ID=%v I2CBus=%v MCP23017Device=%v Enabled=%v\n", gpioexpander.ID, gpioexpander.I2Cbus, gpioexpander.MCP23017Device, gpioexpander.Enabled)
+			}
 		}
-	} else {
-		log.Println("info: ------------  GPIO Expander -------------- SKIPPED")
 	}
 
-	if Config.Global.Software.PrintVariables.PrintMax7219 {
+	if !Config.Global.Software.PrintVariables.PrintMax7219 {
+		log.Println("info: ------------  Max7219 -------------- SKIPPPED")
+	} else {
 		log.Println("info: ------------  Max7219 -------------- ")
 		log.Println("info: Enabled    " + fmt.Sprintf("%v", Config.Global.Hardware.IO.Max7219.Enabled))
 		log.Println("info: Cascaded   " + fmt.Sprintf("%v", Config.Global.Hardware.IO.Max7219.Max7219Cascaded))
 		log.Println("info: SPIBus     " + fmt.Sprintf("%v", Config.Global.Hardware.IO.Max7219.SPIBus))
 		log.Println("info: SPIDevice  " + fmt.Sprintf("%v", Config.Global.Hardware.IO.Max7219.SPIDevice))
 		log.Println("info: Brightness " + fmt.Sprintf("%v", Config.Global.Hardware.IO.Max7219.Brightness))
-	} else {
-		log.Println("info: ------------  Max7219 -------------- SKIPPPED")
 	}
 
-	if Config.Global.Software.PrintVariables.PrintPins {
+	if !Config.Global.Software.PrintVariables.PrintPins {
+		log.Println("info: ------------  PINS -------------- SKIPPED")
+	} else {
 		log.Println("info: ------------  PINS -------------- ")
 		for _, pins := range Config.Global.Hardware.IO.Pins.Pin {
 			log.Printf("info: Direction=%v Device%v Name=%v PinNo=%v Type=%v ID=%v Inverted=%v Enabled=%v\n", pins.Direction, pins.Device, pins.Name, pins.PinNo, pins.Type, pins.ID, pins.Inverted, pins.Enabled)
 		}
-	} else {
-		log.Println("info: ------------  PINS -------------- SKIPPED")
 	}
 
-	if Config.Global.Software.PrintVariables.PrintRotary {
+	if !Config.Global.Software.PrintVariables.PrintRotary {
+		log.Println("info: ------------  PINS -------------- SKIPPED")
+	} else {
 		log.Println("info: ------------  Rotary -------------- ")
 		for _, control := range Config.Global.Hardware.IO.RotaryEncoder.Control {
 			log.Printf("info: Enabled=%v Fuction=%v\n", control.Enabled, control.Function)
 		}
-	} else {
-		log.Println("info: ------------  PINS -------------- SKIPPED")
 	}
 
-	if Config.Global.Software.PrintVariables.PrintPulse {
+	if !Config.Global.Software.PrintVariables.PrintPulse {
+		log.Println("info: ------------  Pulse -------------- SKIPPED")
+	} else {
 		log.Println("info: ------------  Pulse -------------- ")
 		log.Println("info: Leading  (ms) " + fmt.Sprintf("%v", Config.Global.Hardware.IO.Pulse.Leading))
 		log.Println("info: Pulse    (ms) " + fmt.Sprintf("%v", Config.Global.Hardware.IO.Pulse.Pulse))
 		log.Println("info: Trailing (ms) " + fmt.Sprintf("%v", Config.Global.Hardware.IO.Pulse.Trailing))
-	} else {
-		log.Println("info: ------------  Pulse -------------- SKIPPED")
 	}
 
-	if Config.Global.Software.PrintVariables.PrintVolumeButtonStep {
+	if !Config.Global.Software.PrintVariables.PrintVolumeButtonStep {
+		log.Println("info: ------------  Volume Step -------------- SKIPPED")
+	} else {
 		log.Println("info: ------------  Volume Step -------------- ")
 		log.Println("info: Vol Up   Step " + fmt.Sprintf("%v", Config.Global.Hardware.IO.VolumeButtonStep.VolUpStep))
 		log.Println("info: Vol Down Step " + fmt.Sprintf("%v", Config.Global.Hardware.IO.VolumeButtonStep.VolDownStep))
-	} else {
-		log.Println("info: ------------  Volume Step -------------- SKIPPED")
 	}
 
-	if Config.Global.Software.PrintVariables.PrintHeartBeat {
+	if !Config.Global.Software.PrintVariables.PrintHeartBeat {
+		log.Println("info: ---------- HEARTBEAT -------------------- SKIPPED ")
+	} else {
 		log.Println("info: ---------- HEARTBEAT -------------------- ")
 		log.Println("info: HeartBeat Enabled " + fmt.Sprintf("%v", Config.Global.Hardware.HeartBeat.Enabled))
 		log.Println("info: Period  mSecs     " + fmt.Sprintf("%v", Config.Global.Hardware.HeartBeat.Periodmsecs))
@@ -1276,16 +1297,18 @@ func printxmlconfig() {
 		log.Println("info: Led Off mSecs     " + fmt.Sprintf("%v", Config.Global.Hardware.HeartBeat.LEDOffmsecs))
 	}
 
-	if Config.Global.Software.PrintVariables.PrintComment {
+	if !Config.Global.Software.PrintVariables.PrintComment {
+		log.Println("info: ------------ Comment  ------------------- SKIPPED ")
+	} else {
 		log.Println("info: ------------ Comment  ------------------- ")
 		log.Println("info: Comment Button Pin            " + fmt.Sprintf("%v", CommentButtonPin))
 		log.Println("info: Comment Message State 1 (off) " + fmt.Sprintf("%v", Config.Global.Hardware.Comment.CommentMessageOff))
 		log.Println("info: Comment Message State 2 (on)  " + fmt.Sprintf("%v", Config.Global.Hardware.Comment.CommentMessageOn))
-	} else {
-		log.Println("info: ------------ Comment  ------------------- SKIPPED ")
 	}
 
-	if Config.Global.Software.PrintVariables.PrintLCD {
+	if !Config.Global.Software.PrintVariables.PrintLCD {
+		log.Println("info: ------------ LCD  ----------------------- SKIPPED ")
+	} else {
 		log.Println("info: ------------ LCD HD44780 ----------------------- ")
 		log.Println("info: LCDEnabled               " + fmt.Sprintf("%v", LCDEnabled))
 		log.Println("info: LCDInterfaceType         " + fmt.Sprintf("%v", LCDInterfaceType))
@@ -1298,11 +1321,11 @@ func printxmlconfig() {
 		log.Println("info: D5 Pin " + fmt.Sprintf("%v", LCDD5Pin))
 		log.Println("info: D6 Pin " + fmt.Sprintf("%v", LCDD6Pin))
 		log.Println("info: D7 Pin " + fmt.Sprintf("%v", LCDD7Pin))
-	} else {
-		log.Println("info: ------------ LCD  ----------------------- SKIPPED ")
 	}
 
-	if Config.Global.Software.PrintVariables.PrintOLED {
+	if !Config.Global.Software.PrintVariables.PrintOLED {
+		log.Println("info: ------------ OLED ----------------------- SKIPPED ")
+	} else {
 		log.Println("info: ------------ OLED ----------------------- ")
 		log.Println("info: Enabled                 " + fmt.Sprintf("%v", OLEDEnabled))
 		log.Println("info: Interfacetype           " + fmt.Sprintf("%v", OLEDInterfacetype))
@@ -1316,11 +1339,11 @@ func printxmlconfig() {
 		log.Println("info: AddressBasePageStart    " + fmt.Sprintf("%v", OLEDAddressBasePageStart))
 		log.Println("info: CharLength              " + fmt.Sprintf("%v", OLEDCharLength))
 		log.Println("info: StartColumn             " + fmt.Sprintf("%v", OLEDStartColumn))
-	} else {
-		log.Println("info: ------------ OLED ----------------------- SKIPPED ")
 	}
 
-	if Config.Global.Software.PrintVariables.PrintGPS {
+	if !Config.Global.Software.PrintVariables.PrintGPS {
+		log.Println("info: ------------ GPS  ------------------------ SKIPPED ")
+	} else {
 		log.Println("info: ------------ GPS  ------------------------ ")
 		log.Println("info: Enabled                " + fmt.Sprintf("%t", Config.Global.Hardware.GPS.Enabled))
 		log.Println("info: Port                   ", Config.Global.Hardware.GPS.Port)
@@ -1336,22 +1359,22 @@ func printxmlconfig() {
 		log.Println("info: Char Time Out          " + fmt.Sprintf("%v", Config.Global.Hardware.GPS.CharTimeOut))
 		log.Println("info: Min Read               " + fmt.Sprintf("%v", Config.Global.Hardware.GPS.MinRead))
 		log.Println("info: Rx                     " + fmt.Sprintf("%t", Config.Global.Hardware.GPS.Rx))
-	} else {
-		log.Println("info: ------------ GPS  ------------------------ SKIPPED ")
 	}
 
-	if Config.Global.Software.PrintVariables.PrintTraccar {
+	if !Config.Global.Software.PrintVariables.PrintTraccar {
+		log.Println("info: ------------ Traccar  ------------------------ SKIPPED")
+
+	} else {
 		log.Println("info: ------------ Traccar  ------------------------ ")
 		log.Println("info: Enabled               " + fmt.Sprintf("%t", Config.Global.Hardware.Traccar.Enabled))
 		log.Println("info: Track                 ", Config.Global.Hardware.Traccar.Track)
 		log.Println("info: ClientID              ", Config.Global.Hardware.Traccar.ClientId)
 		log.Println("info: Device Screen Enabled " + fmt.Sprintf("%t", Config.Global.Hardware.Traccar.DeviceScreenEnabled))
-	} else {
-		log.Println("info: ------------ Traccar  ------------------------ SKIPPED")
-
 	}
 
-	if Config.Global.Software.PrintVariables.PrintPanic {
+	if !Config.Global.Software.PrintVariables.PrintPanic {
+		log.Println("info: ------------ PANIC Function -------------- SKIPPED ")
+	} else {
 		log.Println("info: ------------ PANIC Function -------------- ")
 		log.Println("info: Panic Function Enable          ", fmt.Sprintf("%t", Config.Global.Hardware.PanicFunction.Enabled))
 		log.Println("info: Panic Sound Filename and Path  ", Config.Global.Hardware.PanicFunction.FilenameAndPath)
@@ -1364,20 +1387,20 @@ func printxmlconfig() {
 		log.Println("info: Panic TX Lock Enabled          ", fmt.Sprintf("%t", Config.Global.Hardware.PanicFunction.TxLockEnabled))
 		log.Println("info: Panic TX Lock Timeout Secs     ", fmt.Sprintf("%v", Config.Global.Hardware.PanicFunction.TxLockEnabled))
 		log.Println("info: Panic Low Profile Lights Enable", fmt.Sprintf("%v", Config.Global.Hardware.PanicFunction.PLowProfile))
-	} else {
-		log.Println("info: ------------ PANIC Function -------------- SKIPPED ")
 	}
 
-	if Config.Global.Software.PrintVariables.PrintUSBKeyboard {
+	if !Config.Global.Software.PrintVariables.PrintUSBKeyboard {
+		log.Println("info: ------------ USBKeyboard Function ------ SKIPPED ")
+	} else {
 		log.Println("info: ------------ USBKeyboard Function -------------- ")
 		log.Println("info: USBKeyboardEnabled", Config.Global.Hardware.USBKeyboard.Enabled)
 		log.Println("info: USBKeyboardPath", Config.Global.Hardware.USBKeyboard.USBKeyboardPath)
 		log.Println("info: NumLockScanID", Config.Global.Hardware.USBKeyboard.NumlockScanID)
-	} else {
-		log.Println("info: ------------ USBKeyboard Function ------ SKIPPED ")
 	}
 
-	if Config.Global.Software.PrintVariables.PrintAudioRecord {
+	if !Config.Global.Software.PrintVariables.PrintAudioRecord {
+		log.Println("info: ------------ AUDIO RECORDING Function ------- SKIPPED ")
+	} else {
 		log.Println("info: ------------ AUDIO RECORDING Function -------------- ")
 		log.Println("info: Audio Recording Enabled " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.Enabled))
 		log.Println("info: Audio Recording On Start " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordOnStart))
@@ -1393,11 +1416,11 @@ func printxmlconfig() {
 		log.Println("info: Audio Recording Profile " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordProfile))
 		log.Println("info: Audio Recording File Format " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordFileFormat))
 		log.Println("info: Audio Recording Chunk Size " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordChunkSize))
-	} else {
-		log.Println("info: ------------ AUDIO RECORDING Function ------- SKIPPED ")
 	}
 
-	if Config.Global.Software.PrintVariables.PrintKeyboardMap {
+	if !Config.Global.Software.PrintVariables.PrintKeyboardMap {
+		log.Println("info: ------------ KeyboardMap Function ------ SKIPPED ")
+	} else {
 		log.Println("info: ------------ KeyboardMap Function -------------- ")
 		counter := 1
 		for _, value := range Config.Global.Hardware.Keyboard.Command {
@@ -1412,11 +1435,11 @@ func printxmlconfig() {
 				log.Println("info: USBKeyboard " + fmt.Sprintf("%+v", value.Usbkeyboard))
 			}
 		}
-	} else {
-		log.Println("info: ------------ KeyboardMap Function ------ SKIPPED ")
 	}
 
-	if Config.Global.Software.PrintVariables.PrintRadioModule {
+	if !Config.Global.Software.PrintVariables.PrintRadioModule {
+		log.Println("info: ------------ KeyboardMap Function ------ SKIPPED ")
+	} else {
 		log.Println("info: ------------ RadioModule Function -------------- ")
 		log.Println("info: Radio  Enabled     " + fmt.Sprintf("%v", Config.Global.Hardware.Radio.Enabled))
 		log.Println("info: SA818  Enabled     " + fmt.Sprintf("%v", Config.Global.Hardware.Radio.Sa818.Enabled))
@@ -1438,11 +1461,11 @@ func printxmlconfig() {
 				counter++
 			}
 		}
-	} else {
-		log.Println("info: ------------ KeyboardMap Function ------ SKIPPED ")
 	}
 
-	if Config.Global.Software.PrintVariables.PrintMultimedia {
+	if !Config.Global.Software.PrintVariables.PrintMultimedia {
+		log.Println("info: ------------ Multimedia Function ------ SKIPPED ")
+	} else {
 		log.Println("info: ------------ Multimedia Function -------------- ")
 		for _, value := range Config.Global.Multimedia.ID {
 			if value.Enabled {
@@ -1459,10 +1482,37 @@ func printxmlconfig() {
 				log.Printf("info: Media Souce %+v \n", value.Media.Source)
 			}
 		}
-	} else {
-		log.Println("info: ------------ Multimedia Function ------ SKIPPED ")
 	}
 
+	if !Config.Global.Software.PrintVariables.PrintMemoryChannels {
+		log.Println("info: ------------ Memory Channels -------------- SKIPPED ")
+	} else {
+		log.Println("info: ------------ Memory Channels -------------- ")
+		if Config.Global.Software.MemoryChannels.Enabled {
+			for _, value := range Config.Global.Software.MemoryChannels.Channel {
+				if value.Enabled {
+					log.Printf("info: Memory Channel Enabled %v \n", value.Enabled)
+					log.Printf("info: Memory Channel Name    %v \n", value.ChannelName)
+					log.Printf("info: GPIO Name    %v \n", value.GPIOName)
+				}
+			}
+		}
+	}
+
+	if !Config.Global.Software.PrintVariables.PrintPresetVoiceTargets {
+		log.Println("info: ------------ Preset VoiceTargets --------------  SKIPPED ")
+	} else {
+		log.Println("info: ------------ Preset VoiceTargets -------------- ")
+		if Config.Global.Software.PresetVoiceTargets.Enabled {
+			for _, value := range Config.Global.Software.PresetVoiceTargets.VoiceTargetSet {
+				if value.Enabled {
+					log.Printf("info: VoiceTarget Enabled %v \n", value.Enabled)
+					log.Printf("info: VoiceTarget ID      %v \n", value.ID)
+					log.Printf("info: GPIO Name           %v \n", value.GPIOName)
+				}
+			}
+		}
+	}
 }
 
 func modifyXMLTagServerHopping(inputXMLFile string, newserverindex int) {
@@ -1575,6 +1625,26 @@ func CheckConfigSanity(reloadxml bool) {
 		}
 	}
 
+	if Config.Global.Software.MemoryChannels.Enabled {
+		for _, memorychannel := range Config.Global.Software.MemoryChannels.Channel {
+			if !(memorychannel.GPIOName == "memorychannel1" || memorychannel.GPIOName == "memorychannel2" || memorychannel.GPIOName == "memorychannel3" || memorychannel.GPIOName == "memorychannel4") {
+				log.Print("warn: Config Error [Section MEMORYCHANNELS] Some Parameters Not Defined CorrectlyDisabling Memory Channels")
+				Config.Global.Software.MemoryChannels.Enabled = false
+				Warnings++
+			}
+		}
+	}
+
+	if Config.Global.Software.PresetVoiceTargets.Enabled {
+		for _, voicetarget := range Config.Global.Software.PresetVoiceTargets.VoiceTargetSet {
+			if !(voicetarget.GPIOName == "presetvoicetarget1" || voicetarget.GPIOName == "presetvoicetarget2" || voicetarget.GPIOName == "presetvoicetarget3" || voicetarget.GPIOName == "presetvoicetarget4" || voicetarget.GPIOName == "presetvoicetarget5") {
+				log.Print("warn: Config Error [Section MEMORYCHANNELS] Some Parameters Not Defined CorrectlyDisabling Memory Channels")
+				Config.Global.Software.PresetVoiceTargets.Enabled = false
+				Warnings++
+			}
+		}
+	}
+
 	if Config.Global.Hardware.VoiceActivityTimermsecs < 200 {
 		log.Print("warn: Config Error [Section Hardware] VoiceActivityTimersecs < 200 setting to 200")
 		Config.Global.Hardware.VoiceActivityTimermsecs = 200
@@ -1599,7 +1669,7 @@ func CheckConfigSanity(reloadxml bool) {
 				Warnings++
 			}
 
-			if !(gpio.Name == "voiceactivity" || gpio.Name == "participants" || gpio.Name == "transmit" || gpio.Name == "online" || gpio.Name == "attention" || gpio.Name == "voicetarget" || gpio.Name == "heartbeat" || gpio.Name == "backlight" || gpio.Name == "relay0" || gpio.Name == "txptt" || gpio.Name == "txtoggle" || gpio.Name == "channelup" || gpio.Name == "channeldown" || gpio.Name == "panic" || gpio.Name == "streamtoggle" || gpio.Name == "comment" || gpio.Name == "rotarya" || gpio.Name == "rotaryb" || gpio.Name == "rotarybutton" || gpio.Name == "volup" || gpio.Name == "voldown" || gpio.Name == "memorychannel1" || gpio.Name == "memorychannel2" || gpio.Name == "memorychannel3" || gpio.Name == "memorychannel4" || gpio.Name == "analogrelay1" || gpio.Name == "analogrelay2" || gpio.Name == "shutdown") {
+			if !(gpio.Name == "voiceactivity" || gpio.Name == "participants" || gpio.Name == "transmit" || gpio.Name == "online" || gpio.Name == "attention" || gpio.Name == "voicetarget" || gpio.Name == "heartbeat" || gpio.Name == "backlight" || gpio.Name == "relay0" || gpio.Name == "txptt" || gpio.Name == "txtoggle" || gpio.Name == "channelup" || gpio.Name == "channeldown" || gpio.Name == "panic" || gpio.Name == "streamtoggle" || gpio.Name == "comment" || gpio.Name == "rotarya" || gpio.Name == "rotaryb" || gpio.Name == "rotarybutton" || gpio.Name == "volup" || gpio.Name == "voldown" || gpio.Name == "memorychannel1" || gpio.Name == "memorychannel2" || gpio.Name == "memorychannel3" || gpio.Name == "memorychannel4" || gpio.Name == "analogrelay1" || gpio.Name == "analogrelay2" || gpio.Name == "shutdown" || gpio.Name == "presetvoicetarget1" || gpio.Name == "presetvoicetarget2" || gpio.Name == "presetvoicetarget3" || gpio.Name == "presetvoicetarget4" || gpio.Name == "presetvoicetarget5") {
 				log.Printf("warn: Config Error [Section GPIO] Enabled GPIO Name %v Pin Number %v Invalid Name\n", gpio.Name, gpio.PinNo)
 				Config.Global.Hardware.IO.Pins.Pin[index].Enabled = false
 				Warnings++

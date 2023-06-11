@@ -1412,19 +1412,19 @@ if [ "$cputype" = "armv7l" ] | [ "$cputype" = "aarch64" ]; then
     				echo "$SERVICE stopped"
 		fi
 
-		if [[ -f "/root/talkkonnect.xml" ]]
+		if [ -f "/root/talkkonnect.xml" ]
 		then
 			echo "removingroot/talkkonnect.xml"
 			rm /root/talkkonnect.xml
 		fi
 
-		if [[ -f "/home/talkkonnect/bin/talkkonnect" ]]
+		if [ -f "/home/talkkonnect/bin/talkkonnect" ]
 		then
 			echo "removing /home/talkkonnect/bin/talkkonnect binary"
 			rm /home/talkkonnect/bin/talkkonnect
 		fi
 
-		if [[ -f "/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/talkkonnect.xml" ]]
+		if [ -f "/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/talkkonnect.xml" ]
 		then
 			echo "copying talkkonnect.xml for safe keeping to /root/talkkonnect.xml"
 			cp /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/talkkonnect.xml /root/
@@ -1468,7 +1468,7 @@ if [ "$cputype" = "armv7l" ] | [ "$cputype" = "aarch64" ]; then
 		cd $GOPATH/src/github.com/talkkonnect/talkkonnect
 		go build -o /home/talkkonnect/bin/talkkonnect cmd/talkkonnect/main.go
 
-		if [[ -f "/home/talkkonnect/gocode/src/github.old/talkkonnect/talkkonnect/talkkonnect.xml" ]]
+		if [ -f "/home/talkkonnect/gocode/src/github.old/talkkonnect/talkkonnect/talkkonnect.xml" ]
 		then
 			echo "copying original talkkonnect.xml back to /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/talkkonnect.xml"
 			rm /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/talkkonnect.xml

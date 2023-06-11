@@ -1311,7 +1311,7 @@ do_update() {
 cputype=`lscpu | grep Architecture | cut -d ":" -f 2 | sed 's/ //g'`
 bitsize=`getconf LONG_BIT`
 
-if [ "$cputype" = "armv7l" ] | [ "$cputype" = "aarch64" ]; then
+if [ "$cputype" = "armv7l" ] || [ "$cputype" = "aarch64" ] ; then
         if [ "$bitsize" = "32" ]; then
                 echo "updating "$bitsize" version of talkkonnect for cpu type"$cputype
 		SERVICE="talkkonnect"
@@ -1323,20 +1323,17 @@ if [ "$cputype" = "armv7l" ] | [ "$cputype" = "aarch64" ]; then
     			echo "$SERVICE stopped"
 		fi
 
-		if [[ -f "/root/talkkonnect.xml" ]]
-		then
+		if [ -f "/root/talkkonnect.xml" ] ; then
 			echo "removingroot/talkkonnect.xml"
 			rm /root/talkkonnect.xml
 		fi
 
-		if [[ -f "/home/talkkonnect/bin/talkkonnect" ]]
-		then
+		if [ -f "/home/talkkonnect/bin/talkkonnect" ] ; then
 			echo "removing /home/talkkonnect/bin/talkkonnect binary"
 			rm /home/talkkonnect/bin/talkkonnect
 		fi
 
-		if [[ -f "/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/talkkonnect.xml" ]]
-		then
+		if [ -f "/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/talkkonnect.xml" ] ; then
 			echo "copying talkkonnect.xml for safe keeping to /root/talkkonnect.xml"
 			cp /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/talkkonnect.xml /root/
 		fi
@@ -1378,11 +1375,10 @@ if [ "$cputype" = "armv7l" ] | [ "$cputype" = "aarch64" ]; then
 		cd $GOPATH/src/github.com/talkkonnect/talkkonnect
 		go build -o /home/talkkonnect/bin/talkkonnect cmd/talkkonnect/main.go
 
-		if [[ -f "/home/talkkonnect/gocode/src/github.old/talkkonnect/talkkonnect/talkkonnect.xml" ]]
-		then
+		if [ -f "/root/talkkonnect.xml" ] ; then
 			echo "copying original talkkonnect.xml back to /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/talkkonnect.xml"
 			rm /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/talkkonnect.xml
-			cp /home/talkkonnect/gocode/src/github.old/talkkonnect/talkkonnect/talkkonnect.xml  /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/talkkonnect.xml
+			cp /root/talkkonnect.xml  /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/talkkonnect.xml
 		fi
 
 
@@ -1401,7 +1397,10 @@ if [ "$cputype" = "armv7l" ] | [ "$cputype" = "aarch64" ]; then
 		echo "copied old talkkonnect.xml file and replaced in /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/"
 		echo "Happy talkkonnecting!!"
         	fi
-        	if [ "$bitsize" = "64" ]; then
+
+
+
+       	if [ "$bitsize" = "64" ]; then
                 	echo "updating "$bitsize" version of talkkonnect for cpu type"$cputype
 			SERVICE="talkkonnect"
 			if pgrep -x "$SERVICE" >/dev/null
@@ -1468,13 +1467,11 @@ if [ "$cputype" = "armv7l" ] | [ "$cputype" = "aarch64" ]; then
 		cd $GOPATH/src/github.com/talkkonnect/talkkonnect
 		go build -o /home/talkkonnect/bin/talkkonnect cmd/talkkonnect/main.go
 
-		if [ -f "/home/talkkonnect/gocode/src/github.old/talkkonnect/talkkonnect/talkkonnect.xml" ]
-		then
+		if [ -f "/root/talkkonnect.xml" ] ; then
 			echo "copying original talkkonnect.xml back to /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/talkkonnect.xml"
 			rm /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/talkkonnect.xml
-			cp /home/talkkonnect/gocode/src/github.old/talkkonnect/talkkonnect/talkkonnect.xml  /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/talkkonnect.xml
+			cp /root/talkkonnect.xml  /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/talkkonnect.xml
 		fi
-
 
 		if pgrep -x "$SERVICE" >/dev/null
 		then

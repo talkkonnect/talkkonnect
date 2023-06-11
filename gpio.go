@@ -1168,7 +1168,6 @@ func (b *Talkkonnect) initGPIO() {
 		}()
 	}
 
-
 	if VoiceTargetButton4Used {
 		VoiceTargetButton4 = gpio.NewInput(VoiceTargetButton4Pin)
 		go func() {
@@ -1884,6 +1883,46 @@ func GPIOInputPinControl(name string, command string) {
 					MemoryChannelButton4Used = true
 				case "toggle":
 					MemoryChannelButton4Used = !MemoryChannelButton4Used
+				}
+			}
+			if io.Name == "presetvoicetarget2" && io.Name == name {
+				switch command {
+				case "off":
+					VoiceTargetButton2Used = false
+				case "on":
+					VoiceTargetButton2Used = true
+				case "toggle":
+					VoiceTargetButton2Used = !VoiceTargetButton2Used
+				}
+			}
+			if io.Name == "presetvoicetarget3" && io.Name == name {
+				switch command {
+				case "off":
+					VoiceTargetButton3Used = false
+				case "on":
+					VoiceTargetButton3Used = true
+				case "toggle":
+					VoiceTargetButton3Used = !VoiceTargetButton3Used
+				}
+			}
+			if io.Name == "presetvoicetarget4" && io.Name == name {
+				switch command {
+				case "off":
+					VoiceTargetButton4Used = false
+				case "on":
+					VoiceTargetButton4Used = true
+				case "toggle":
+					VoiceTargetButton4Used = !VoiceTargetButton4Used
+				}
+			}
+			if io.Name == "presetvoicetarget5" && io.Name == name {
+				switch command {
+				case "off":
+					VoiceTargetButton5Used = false
+				case "on":
+					VoiceTargetButton5Used = true
+				case "toggle":
+					VoiceTargetButton5Used = !VoiceTargetButton5Used
 				}
 			}
 		}

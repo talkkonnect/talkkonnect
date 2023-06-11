@@ -31,13 +31,54 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.24.01"
-	talkkonnectReleased string = "9 June  2023"
+	talkkonnectVersion  string = "2.25.01"
+	talkkonnectReleased string = "11 June  2023"
 )
 
 /* Release Notes
-1. Started to Add Voice Target GPOIO Buttons in xmlparser
+1. Voice Target for 5 GPIO Voice Target Buttons
 
-TODO
-1. Modify gpio.go to start accepting voice target buttons
+XML Config Added for this feature
+
+in accounts section Define Users that you want in the voice target ID can be one user or more user to each id
+  <voicetargets>
+        <id value="1">
+            <user>suvir-demo</user>
+        </id>
+        <id value="2">
+          <users>
+            <user>suvir-ubunbtu</user>
+          </users>
+        </id>
+        <id value="3">
+          <users>
+            <user>suvir-demo</user>
+          </users>
+        </id>
+  <voicetargets>
+
+added section in software just under memory channels to map the buttons to voicetarget id
+  <presetvoicetargets enabled="true">
+        <voicetargetset gpioname="presetvoicetarget1" id="0" enabled="true"/> <!-- ID = 0 Clears Voice Targets ->>
+        <voicetargetset gpioname="presetvoicetarget2" id="1" enabled="true"/>
+        <voicetargetset gpioname="presetvoicetarget3" id="2" enabled="true"/>
+        <voicetargetset gpioname="presetvoicetarget4" id="3" enabled="true"/>
+        <voicetargetset gpioname="presetvoicetarget5" id="4" enabled="true"/>
+     </presetvoicetargets>
+
+Added in GPIO
+   <hardware targetboard="rpi">
+      <io>
+        <gpioexpander enabled="false">
+        </gpioexpander>
+        <max7219 max7219cascaded="1" spibus="0" spidevice="0" brightness="7" enabled="false"/>
+        <pins>
+          <pin direction="input"  device="pushbutton"    name="presetvoicetarget1" pinno="xx" type="gpio" chipid="0" enabled="true"/>
+          <pin direction="input"  device="pushbutton"    name="presetvoicetarget2" pinno="xx" type="gpio" chipid="0" enabled="true"/>
+          <pin direction="input"  device="pushbutton"    name="presetvoicetarget3" pinno="xx" type="gpio" chipid="0" enabled="true"/>
+          <pin direction="input"  device="pushbutton"    name="presetvoicetarget4" pinno="xx" type="gpio" chipid="0" enabled="true"/>
+          <pin direction="input"  device="pushbutton"    name="presetvoicetarget5" pinno="xx" type="gpio" chipid="0" enabled="true"/>
+        </pins>
+
+
 */

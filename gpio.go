@@ -154,6 +154,31 @@ var (
 	ShutdownButton      gpio.Pin
 	ShutdownButtonPin   uint
 	ShutdownButtonState uint
+
+	VoiceTargetButton1Used  bool
+	VoiceTargetButton1      gpio.Pin
+	VoiceTargetButton1Pin   uint
+	VoiceTargetButton1State uint
+
+	VoiceTargetButton2Used  bool
+	VoiceTargetButton2      gpio.Pin
+	VoiceTargetButton2Pin   uint
+	VoiceTargetButton2State uint
+
+	VoiceTargetButton3Used  bool
+	VoiceTargetButton3      gpio.Pin
+	VoiceTargetButton3Pin   uint
+	VoiceTargetButton3State uint
+
+	VoiceTargetButton4Used  bool
+	VoiceTargetButton4      gpio.Pin
+	VoiceTargetButton4Pin   uint
+	VoiceTargetButton4State uint
+
+	VoiceTargetButton5Used  bool
+	VoiceTargetButton5      gpio.Pin
+	VoiceTargetButton5Pin   uint
+	VoiceTargetButton5State uint
 )
 
 var D [8]*mcp23017.Device
@@ -367,11 +392,45 @@ func (b *Talkkonnect) initGPIO() {
 				ShutdownButtonUsed = true
 				ShutdownButtonPin = io.PinNo
 			}
-
+			if io.Name == "presetvoicetarget1" && io.PinNo > 0 {
+				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
+				VoiceTargetButton1PinPullUp := rpio.Pin(io.PinNo)
+				VoiceTargetButton1PinPullUp.PullUp()
+				VoiceTargetButton1Used = true
+				VoiceTargetButton1Pin = io.PinNo
+			}
+			if io.Name == "presetvoicetarget2" && io.PinNo > 0 {
+				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
+				VoiceTargetButton2PinPullUp := rpio.Pin(io.PinNo)
+				VoiceTargetButton2PinPullUp.PullUp()
+				VoiceTargetButton2Used = true
+				VoiceTargetButton2Pin = io.PinNo
+			}
+			if io.Name == "presetvoicetarget3" && io.PinNo > 0 {
+				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
+				VoiceTargetButton3PinPullUp := rpio.Pin(io.PinNo)
+				VoiceTargetButton3PinPullUp.PullUp()
+				VoiceTargetButton3Used = true
+				VoiceTargetButton3Pin = io.PinNo
+			}
+			if io.Name == "presetvoicetarget4" && io.PinNo > 0 {
+				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
+				VoiceTargetButton4PinPullUp := rpio.Pin(io.PinNo)
+				VoiceTargetButton4PinPullUp.PullUp()
+				VoiceTargetButton4Used = true
+				VoiceTargetButton4Pin = io.PinNo
+			}
+			if io.Name == "presetvoicetarget5" && io.PinNo > 0 {
+				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
+				VoiceTargetButton5PinPullUp := rpio.Pin(io.PinNo)
+				VoiceTargetButton5PinPullUp.PullUp()
+				VoiceTargetButton5Used = true
+				VoiceTargetButton5Pin = io.PinNo
+			}
 		}
 	}
 
-	if TxButtonUsed || TxToggleUsed || UpButtonUsed || DownButtonUsed || PanicUsed || StreamToggleUsed || CommentUsed || RotaryUsed || RotaryButtonUsed || VolUpButtonUsed || VolDownButtonUsed || TrackingUsed || MQTT0ButtonUsed || MQTT1ButtonUsed || NextServerButtonUsed || MemoryChannelButton1Used || MemoryChannelButton2Used || MemoryChannelButton3Used || MemoryChannelButton4Used || RepeaterToneButtonUsed || ListeningUsed || ShutdownButtonUsed {
+	if TxButtonUsed || TxToggleUsed || UpButtonUsed || DownButtonUsed || PanicUsed || StreamToggleUsed || CommentUsed || RotaryUsed || RotaryButtonUsed || VolUpButtonUsed || VolDownButtonUsed || TrackingUsed || MQTT0ButtonUsed || MQTT1ButtonUsed || NextServerButtonUsed || MemoryChannelButton1Used || MemoryChannelButton2Used || MemoryChannelButton3Used || MemoryChannelButton4Used || RepeaterToneButtonUsed || ListeningUsed || ShutdownButtonUsed || VoiceTargetButton1Used || VoiceTargetButton2Used || VoiceTargetButton3Used || VoiceTargetButton4Used || VoiceTargetButton5Used {
 		rpio.Close()
 	}
 
@@ -1006,6 +1065,254 @@ func (b *Talkkonnect) initGPIO() {
 								log.Printf("error: Channel %v Not Found Channel Change Failed\n", v)
 							}
 
+							time.Sleep(150 * time.Millisecond)
+						}
+					}
+				} else {
+					time.Sleep(1 * time.Second)
+				}
+			}
+		}()
+	}
+
+	if VoiceTargetButton1Used {
+		VoiceTargetButton1 = gpio.NewInput(VoiceTargetButton1Pin)
+		go func() {
+			for {
+				if IsConnected && VoiceTargetButton1Used {
+					currentState, err := VoiceTargetButton1.Read()
+					time.Sleep(150 * time.Millisecond)
+					if currentState != VoiceTargetButton1State && err == nil {
+						VoiceTargetButton1State = currentState
+						if VoiceTargetButton1State == 1 {
+							log.Println("debug: VoiceTargetButton1 Button is released")
+						} else {
+							log.Println("debug: VoicetargetButton1 Button is pressed")
+							playIOMedia("voicetarget1")
+							vtid, found := GPIOVoiceTargetMap["presetvoicetarget1"]
+							if found {
+								b.cmdSendVoiceTargets(vtid.ID)
+								log.Printf("info: Setting Voice Target to ID %v\n", vtid.ID)
+							} else {
+								log.Printf("error: VoicetargetButton1 Mapped to ID %v Not Found VoiceTarget Set Failed\n", vtid.ID)
+							}
+							time.Sleep(150 * time.Millisecond)
+						}
+					}
+				} else {
+					time.Sleep(1 * time.Second)
+				}
+			}
+		}()
+	}
+
+	if VoiceTargetButton2Used {
+		VoiceTargetButton2 = gpio.NewInput(VoiceTargetButton2Pin)
+		go func() {
+			for {
+				if IsConnected && VoiceTargetButton2Used {
+					currentState, err := VoiceTargetButton2.Read()
+					time.Sleep(150 * time.Millisecond)
+					if currentState != VoiceTargetButton2State && err == nil {
+						VoiceTargetButton2State = currentState
+						if VoiceTargetButton2State == 1 {
+							log.Println("debug: VoiceTargetButton2 Button is released")
+						} else {
+							log.Println("debug: VoicetargetButton2 Button is pressed")
+							playIOMedia("voicetarget2")
+							vtid, found := GPIOVoiceTargetMap["presetvoicetarget2"]
+							if found {
+								b.cmdSendVoiceTargets(vtid.ID)
+								log.Printf("info: Setting Voice Target to ID %v\n", vtid.ID)
+							} else {
+								log.Printf("error: VoicetargetButton2 Mapped to ID %v Not Found VoiceTarget Set Failed\n", vtid.ID)
+							}
+							time.Sleep(150 * time.Millisecond)
+						}
+					}
+				} else {
+					time.Sleep(1 * time.Second)
+				}
+			}
+		}()
+	}
+
+	if VoiceTargetButton3Used {
+		VoiceTargetButton3 = gpio.NewInput(VoiceTargetButton3Pin)
+		go func() {
+			for {
+				if IsConnected && VoiceTargetButton3Used {
+					currentState, err := VoiceTargetButton3.Read()
+					time.Sleep(150 * time.Millisecond)
+					if currentState != VoiceTargetButton3State && err == nil {
+						VoiceTargetButton3State = currentState
+						if VoiceTargetButton3State == 1 {
+							log.Println("debug: VoiceTargetButton3 Button is released")
+						} else {
+							log.Println("debug: VoicetargetButton3 Button is pressed")
+							playIOMedia("voicetarget3")
+							vtid, found := GPIOVoiceTargetMap["presetvoicetarget3"]
+							if found {
+								b.cmdSendVoiceTargets(vtid.ID)
+								log.Printf("info: Setting Voice Target to ID %v\n", vtid.ID)
+							} else {
+								log.Printf("error: VoicetargetButton3 Mapped to ID %v Not Found VoiceTarget Set Failed\n", vtid.ID)
+							}
+							time.Sleep(150 * time.Millisecond)
+						}
+					}
+				} else {
+					time.Sleep(1 * time.Second)
+				}
+			}
+		}()
+	}
+
+	if VoiceTargetButton1Used {
+		VoiceTargetButton1 = gpio.NewInput(VoiceTargetButton1Pin)
+		go func() {
+			for {
+				if IsConnected && VoiceTargetButton1Used {
+					currentState, err := VoiceTargetButton1.Read()
+					time.Sleep(150 * time.Millisecond)
+					if currentState != VoiceTargetButton1State && err == nil {
+						VoiceTargetButton1State = currentState
+						if VoiceTargetButton1State == 1 {
+							log.Println("debug: VoiceTargetButton1 Button is released")
+						} else {
+							log.Println("debug: VoicetargetButton1 Button is pressed")
+							playIOMedia("voicetarget1")
+							vtid, found := GPIOVoiceTargetMap["presetvoicetarget1"]
+							if found {
+								b.cmdSendVoiceTargets(vtid.ID)
+								log.Printf("info: Setting Voice Target to ID %v\n", vtid.ID)
+							} else {
+								log.Printf("error: VoicetargetButton1 Mapped to ID %v Not Found VoiceTarget Set Failed\n", vtid.ID)
+							}
+							time.Sleep(150 * time.Millisecond)
+						}
+					}
+				} else {
+					time.Sleep(1 * time.Second)
+				}
+			}
+		}()
+	}
+
+	if VoiceTargetButton2Used {
+		VoiceTargetButton2 = gpio.NewInput(VoiceTargetButton2Pin)
+		go func() {
+			for {
+				if IsConnected && VoiceTargetButton2Used {
+					currentState, err := VoiceTargetButton2.Read()
+					time.Sleep(150 * time.Millisecond)
+					if currentState != VoiceTargetButton2State && err == nil {
+						VoiceTargetButton2State = currentState
+						if VoiceTargetButton2State == 1 {
+							log.Println("debug: VoiceTargetButton2 Button is released")
+						} else {
+							log.Println("debug: VoicetargetButton2 Button is pressed")
+							playIOMedia("voicetarget2")
+							vtid, found := GPIOVoiceTargetMap["presetvoicetarget2"]
+							if found {
+								b.cmdSendVoiceTargets(vtid.ID)
+								log.Printf("info: Setting Voice Target to ID %v\n", vtid.ID)
+							} else {
+								log.Printf("error: VoicetargetButton2 Mapped to ID %v Not Found VoiceTarget Set Failed\n", vtid.ID)
+							}
+							time.Sleep(150 * time.Millisecond)
+						}
+					}
+				} else {
+					time.Sleep(1 * time.Second)
+				}
+			}
+		}()
+	}
+
+	if VoiceTargetButton3Used {
+		VoiceTargetButton3 = gpio.NewInput(VoiceTargetButton3Pin)
+		go func() {
+			for {
+				if IsConnected && VoiceTargetButton3Used {
+					currentState, err := VoiceTargetButton3.Read()
+					time.Sleep(150 * time.Millisecond)
+					if currentState != VoiceTargetButton3State && err == nil {
+						VoiceTargetButton3State = currentState
+						if VoiceTargetButton3State == 1 {
+							log.Println("debug: VoiceTargetButton3 Button is released")
+						} else {
+							log.Println("debug: VoicetargetButton3 Button is pressed")
+							playIOMedia("voicetarget3")
+							vtid, found := GPIOVoiceTargetMap["presetvoicetarget3"]
+							if found {
+								b.cmdSendVoiceTargets(vtid.ID)
+								log.Printf("info: Setting Voice Target to ID %v\n", vtid.ID)
+							} else {
+								log.Printf("error: VoicetargetButton3 Mapped to ID %v Not Found VoiceTarget Set Failed\n", vtid.ID)
+							}
+							time.Sleep(150 * time.Millisecond)
+						}
+					}
+				} else {
+					time.Sleep(1 * time.Second)
+				}
+			}
+		}()
+	}
+
+	if VoiceTargetButton4Used {
+		VoiceTargetButton4 = gpio.NewInput(VoiceTargetButton4Pin)
+		go func() {
+			for {
+				if IsConnected && VoiceTargetButton4Used {
+					currentState, err := VoiceTargetButton4.Read()
+					time.Sleep(150 * time.Millisecond)
+					if currentState != VoiceTargetButton4State && err == nil {
+						VoiceTargetButton4State = currentState
+						if VoiceTargetButton4State == 1 {
+							log.Println("debug: VoiceTargetButton4 Button is released")
+						} else {
+							log.Println("debug: VoicetargetButton4 Button is pressed")
+							playIOMedia("voicetarget4")
+							vtid, found := GPIOVoiceTargetMap["presetvoicetarget4"]
+							if found {
+								b.cmdSendVoiceTargets(vtid.ID)
+								log.Printf("info: Setting Voice Target to ID %v\n", vtid.ID)
+							} else {
+								log.Printf("error: VoicetargetButton4 Mapped to ID %v Not Found VoiceTarget Set Failed\n", vtid.ID)
+							}
+							time.Sleep(150 * time.Millisecond)
+						}
+					}
+				} else {
+					time.Sleep(1 * time.Second)
+				}
+			}
+		}()
+	}
+
+	if VoiceTargetButton5Used {
+		VoiceTargetButton5 = gpio.NewInput(VoiceTargetButton5Pin)
+		go func() {
+			for {
+				if IsConnected && VoiceTargetButton5Used {
+					currentState, err := VoiceTargetButton5.Read()
+					time.Sleep(150 * time.Millisecond)
+					if currentState != VoiceTargetButton5State && err == nil {
+						VoiceTargetButton5State = currentState
+						if VoiceTargetButton5State == 1 {
+							log.Println("debug: VoiceTargetButton5 Button is released")
+						} else {
+							log.Println("debug: VoicetargetButton5 Button is pressed")
+							playIOMedia("voicetarget5")
+							vtid, found := GPIOVoiceTargetMap["presetvoicetarget5"]
+							if found {
+								b.cmdSendVoiceTargets(vtid.ID)
+								log.Printf("info: Setting Voice Target to ID %v\n", vtid.ID)
+							} else {
+								log.Printf("error: VoicetargetButton5 Mapped to ID %v Not Found VoiceTarget Set Failed\n", vtid.ID)
+							}
 							time.Sleep(150 * time.Millisecond)
 						}
 					}

@@ -310,7 +310,7 @@ type ConfigStruct struct {
 				Enabled        bool `xml:"enabled,attr"`
 				VoiceTargetSet []struct {
 					GPIOName string `xml:"gpioname,attr"`
-					ID       string `xml:"id,attr"`
+					ID       uint32 `xml:"id,attr"`
 					Enabled  bool   `xml:"enabled,attr"`
 				} `xml:"voicetargetset"`
 			} `xml:"presetvoicetargets"`
@@ -623,7 +623,7 @@ type MemoryChannelStruct struct {
 
 type VoiceTargetStruct struct {
 	Enabled bool
-	ID      string
+	ID      uint32
 }
 
 type KBStruct struct {
@@ -738,10 +738,9 @@ var (
 var (
 	LcdText = [4]string{"nil", "nil", "nil", "nil"}
 	//	MyLedStrip *LedStrip
-	TTYKeyMap     = make(map[rune]KBStruct)
-	USBKeyMap     = make(map[rune]KBStruct)
-	GPIOMemoryMap = make(map[string]MemoryChannelStruct)
-	//	RelayControlMap = make(map[string]analogZoneStruct)
+	TTYKeyMap          = make(map[rune]KBStruct)
+	USBKeyMap          = make(map[rune]KBStruct)
+	GPIOMemoryMap      = make(map[string]MemoryChannelStruct)
 	GPIOVoiceTargetMap = make(map[string]VoiceTargetStruct)
 )
 
@@ -866,8 +865,15 @@ func readxmlconfig(file string, reloadxml bool) error {
 
 	for _, memoryButtonCommands := range Config.Global.Software.MemoryChannels.Channel {
 		if memoryButtonCommands.Enabled {
-			log.Printf("debug: Populating %v \n", memoryButtonCommands.GPIOName)
+			log.Printf("debug: Populating %v With Channel %v\n", memoryButtonCommands.GPIOName, memoryButtonCommands.ChannelName)
 			GPIOMemoryMap[memoryButtonCommands.GPIOName] = MemoryChannelStruct{memoryButtonCommands.Enabled, memoryButtonCommands.ChannelName}
+		}
+	}
+
+	for _, voicetargetButtonCommands := range Config.Global.Software.PresetVoiceTargets.VoiceTargetSet {
+		if voicetargetButtonCommands.Enabled {
+			log.Printf("debug: Populating %v With VoiceTarget ID %v\n", voicetargetButtonCommands.GPIOName, voicetargetButtonCommands.ID)
+			GPIOVoiceTargetMap[voicetargetButtonCommands.GPIOName] = VoiceTargetStruct{voicetargetButtonCommands.Enabled, voicetargetButtonCommands.ID}
 		}
 	}
 

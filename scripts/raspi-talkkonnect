@@ -1242,7 +1242,7 @@ cputype=`lscpu | grep Architecture | cut -d ":" -f 2 | sed 's/ //g'`
 bitsize=`getconf LONG_BIT`
 
 
-if [ "$cputype" = "armv7l" ] | [ "$cputype" = "aarch64" ]; then
+if [ "$cputype" = "armv7l" ] || [ "$cputype" = "aarch64" ] ; then
         if [ "$bitsize" = "32" ]; then
                 echo "getting "$bitsize" version of golang for cpu type"$cputype
 		cd /usr/local/

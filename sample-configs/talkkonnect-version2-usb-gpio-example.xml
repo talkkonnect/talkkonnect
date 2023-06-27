@@ -190,9 +190,6 @@
           <sound event="repeatertone" tonefrequencyhz="1750" volume="50" tonedurationsec="10" blocking="false" enabled="true"/>
         </repeatertone>
       </sounds>
-      <txtimeout enabled="false">
-        <txtimeoutsecs>60</txtimeoutsecs>
-      </txtimeout>
       <remotecontrol>
         <http listenport="8080" enabled="true">
           <command action="displaymenu" funcparamname="" message="Display Menu" enabled="true"/>
@@ -292,7 +289,6 @@
         <printtts>false</printtts>
         <printsmtp>false</printsmtp>
         <printsounds>false</printsounds>
-        <printtxtimeout>false</printtxtimeout>
         <printhttpapi>false</printhttpapi>
         <printmqtt>false</printmqtt>
         <printttsmessages>false</printttsmessages>

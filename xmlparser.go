@@ -177,10 +177,6 @@ type ConfigStruct struct {
 					ToneDurationSec float32 `xml:"tonedurationsec"`
 				} `xml:"repeatertone"`
 			} `xml:"sounds"`
-			TxTimeOut struct {
-				Enabled       bool `xml:"enabled,attr"`
-				TxTimeOutSecs int  `xml:"txtimeoutsecs"`
-			} `xml:"txtimeout"`
 			RemoteControl struct {
 				XMLName xml.Name `xml:"remotecontrol"`
 				HTTP    struct {
@@ -238,7 +234,6 @@ type ConfigStruct struct {
 				PrintTTS                bool   `xml:"printtts"`
 				PrintSMTP               bool   `xml:"printsmtp"`
 				PrintSounds             bool   `xml:"printsounds"`
-				PrintTxTimeout          bool   `xml:"printtxtimeout"`
 				PrintHTTPAPI            bool   `xml:"printhttpapi"`
 				PrintMQTT               bool   `xml:"printmqtt"`
 				PrintTTSMessages        bool   `xml:"printttsmessages"`
@@ -1020,7 +1015,6 @@ func readxmlconfig(file string, reloadxml bool) error {
 		Config.Global.Software.Beacon = ReConfig.Global.Software.Beacon
 		Config.Global.Software.TTS = ReConfig.Global.Software.TTS
 		Config.Global.Software.Sounds = ReConfig.Global.Software.Sounds
-		Config.Global.Software.TxTimeOut = ReConfig.Global.Software.TxTimeOut
 		Config.Global.Software.RemoteControl.HTTP.Enabled = ReConfig.Global.Software.RemoteControl.HTTP.Enabled
 		Config.Global.Software.RemoteControl.HTTP.Command = ReConfig.Global.Software.RemoteControl.HTTP.Command
 		Config.Global.Software.RemoteControl.MQTT.Commands.Command = ReConfig.Global.Software.RemoteControl.MQTT.Commands.Command
@@ -1154,14 +1148,6 @@ func printxmlconfig() {
 		log.Println("info: Repeater Tone Enabled      " + fmt.Sprintf("%t", Config.Global.Software.Sounds.RepeaterTone.Enabled))
 		log.Println("info: Repeater Tone Freq (Hz)    ", Config.Global.Software.Sounds.RepeaterTone.ToneFrequencyHz)
 		log.Println("info: Repeater Tone Duration (s) ", Config.Global.Software.Sounds.RepeaterTone.ToneDurationSec)
-	}
-
-	if !Config.Global.Software.PrintVariables.PrintTxTimeout {
-		log.Println("info: ------------ TX Timeout ------------------ SKIPPED ")
-	} else {
-		log.Println("info: ------------ TX Timeout ------------------ ")
-		log.Println("info: Tx Timeout Enabled  " + fmt.Sprintf("%t", Config.Global.Software.TxTimeOut.Enabled))
-		log.Println("info: Tx Timeout Secs     " + fmt.Sprintf("%v", Config.Global.Software.TxTimeOut.TxTimeOutSecs))
 	}
 
 	if !Config.Global.Software.PrintVariables.PrintHTTPAPI {

@@ -55,9 +55,8 @@ import (
 )
 
 var (
-	prevParticipantCount int = 1
-	tmessage             string
-	isrepeattx           bool = true
+	tmessage   string
+	isrepeattx bool = true
 )
 
 type Talkkonnect struct {

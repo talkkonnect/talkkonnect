@@ -39,6 +39,8 @@ import (
 	"github.com/talkkonnect/gumble/gumble"
 )
 
+var prevParticipantCount = 1
+
 func (b *Talkkonnect) OnConnect(e *gumble.ConnectEvent) {
 	if IsConnected {
 		GPIOOutPin("online", "on")
@@ -81,7 +83,7 @@ func (b *Talkkonnect) OnConnect(e *gumble.ConnectEvent) {
 			oledDisplay(true, 0, 0, "") // clear the screen
 		}
 
-		b.ParticipantLEDUpdate(true)
+		//		b.ParticipantLEDUpdate(true)
 	}
 
 	if b.ChannelName != "" {
@@ -231,22 +233,15 @@ func (b *Talkkonnect) OnUserChange(e *gumble.UserChangeEvent) {
 	b.BackLightTimer()
 
 	var info string = ""
-	var thisChannel bool
 
 	//1 UserChangeConnected
 	if e.Type.Has(1) {
 		info = info + "[connected]"
-		if e.User.Channel.Name == b.Client.Self.Channel.Name {
-			thisChannel = true
-		}
 	}
 
 	//2 UserChangeDisconnected
 	if e.Type.Has(2) {
 		info = info + "[disconnected]"
-		if e.User.Channel.Name == b.Client.Self.Channel.Name {
-			thisChannel = true
-		}
 	}
 
 	//4 UserChangeKicked
@@ -277,9 +272,6 @@ func (b *Talkkonnect) OnUserChange(e *gumble.UserChangeEvent) {
 	//128 UserChangeChannel
 	if e.Type.Has(128) {
 		info = info + "[changed channel]"
-		if e.User.Channel.Name == b.Client.Self.Channel.Name {
-			thisChannel = true
-		}
 	}
 
 	//256 UserChangeComment
@@ -312,33 +304,84 @@ func (b *Talkkonnect) OnUserChange(e *gumble.UserChangeEvent) {
 		info = info + "[change stats]"
 	}
 
-	if e.Type > 0 {
-		if thisChannel && !(b.Client.Self.UserID == e.User.UserID) {
+	if e.Type.Has(2) || e.Type.Has(128) {
+		if len(b.Client.Self.Channel.Users) > 1 {
+			GPIOOutPin("participants", "on")
 			b.BackLightTimer()
-			b.ParticipantLEDUpdate(true)
-			log.Printf("info: This Channel  User %v, type bin=%v, type char info=%v\n", cleanstring(e.User.Name), e.Type, info)
-			thisChannel = false
+
+		} else {
+			GPIOOutPin("participants", "off")
+			b.BackLightTimer()
+		}
+
+		if len(b.Client.Self.Channel.Users) != prevParticipantCount {
+			var toSpeakEvent string = ""
+			var eventSound = EventSoundStruct{}
+
+			b.BackLightTimer()
+			if Config.Global.Hardware.TargetBoard == "rpi" {
+				if LCDEnabled {
+					LcdText[0] = b.Name //b.Address
+					LcdText[1] = "(" + strconv.Itoa(len(b.Client.Self.Channel.Users)) + ")" + b.Client.Self.Channel.Name
+					LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+				}
+				if OLEDEnabled {
+					oledDisplay(false, 0, 1, b.Name) //b.Address
+					oledDisplay(false, 1, 1, "("+strconv.Itoa(len(b.Client.Self.Channel.Users))+")"+b.Client.Self.Channel.Name)
+					oledDisplay(false, 6, 1, "Please Visit")
+					oledDisplay(false, 7, 1, "www.talkkonnect.com")
+				}
+			}
+
+			if e.Type.Has(2) {
+				eventSound = findEventSound("leftchannel")
+				toSpeakEvent = cleanstring(e.User.Name) + " Has Disconnected "
+			}
+
+			if e.Type.Has(128) {
+				if len(b.Client.Self.Channel.Users) < prevParticipantCount {
+					eventSound = findEventSound("leftchannel")
+					toSpeakEvent = cleanstring(e.User.Name) + " Has Left Channel "
+				} else {
+					eventSound = findEventSound("joinedchannel")
+					toSpeakEvent = cleanstring(e.User.Name) + " Has Joined Channel "
+				}
+			}
+
 			for _, tts := range Config.Global.Software.TTS.Sound {
 				if tts.Action == "leftjoinedchannel" {
 					if tts.Enabled {
-						var toSpeakEvent string = ""
-						if e.Type.Has(1) {
-							toSpeakEvent = " Has Connected and "
+						if v, err := strconv.Atoi(eventSound.Volume); err == nil {
+							localMediaPlayer(eventSound.FileName, v, eventSound.Blocking, 0, 1)
 						}
-						if e.Type.Has(2) {
-							toSpeakEvent = " Has Disconnected "
+					}
+				}
 
-						}
-						if e.Type.Has(128) {
-							toSpeakEvent = toSpeakEvent + " Joined Channel "
-						}
-						b.Speak(cleanstring(e.User.Name)+toSpeakEvent, "local", Config.Global.Software.TTS.Volumelevel, 0, 1, Config.Global.Software.TTSMessages.TTSLanguage)
+				if tts.Action == "participants" {
+					if tts.Enabled {
+						b.Speak(toSpeakEvent, "local", Config.Global.Software.TTS.Volumelevel, 0, 1, Config.Global.Software.TTSMessages.TTSLanguage)
 					}
 				}
 			}
-		} else {
-			log.Printf("info: User %v info=%v (Other channel) %v\n", cleanstring(e.User.Name), info, e.User.Channel.Name)
-			b.ParticipantLEDUpdate(true)
+			prevParticipantCount = len(b.Client.Self.Channel.Users)
+		}
+
+		if b.Client.Self.Channel.Name == e.User.Channel.Name {
+			b.BackLightTimer()
+			if Config.Global.Hardware.TargetBoard == "rpi" {
+				if LCDEnabled {
+					LcdText[0] = b.Name //b.Address
+					LcdText[1] = "(" + strconv.Itoa(len(b.Client.Self.Channel.Users)) + ")" + b.Client.Self.Channel.Name
+					LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+				}
+				if OLEDEnabled {
+					oledDisplay(false, 0, 1, b.Name) //b.Address
+					oledDisplay(false, 1, 1, "("+strconv.Itoa(len(b.Client.Self.Channel.Users))+")"+b.Client.Self.Channel.Name)
+					oledDisplay(false, 6, 1, "Please Visit")
+					oledDisplay(false, 7, 1, "www.talkkonnect.com")
+				}
+			}
+			log.Printf("info: This Channel  User %v, type bin=%v, type char info=%v\n", cleanstring(e.User.Name), e.Type, info)
 		}
 	}
 }

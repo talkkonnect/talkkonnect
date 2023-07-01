@@ -31,10 +31,10 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.25.03"
-	talkkonnectReleased string = "27 June  2023"
+	talkkonnectVersion  string = "2.26.01"
+	talkkonnectReleased string = "1 July  2023"
 )
 
 /* Release Notes
-Removed txtimout from the xml config and from talkkonnect cause its being confused with txlock
+Changed and Cleaned Up Participant LED, Even Sound and TTS Announcement Logic
 */

@@ -48,7 +48,7 @@ func (b *Talkkonnect) cmdDisplayMenu() {
 
 	TTSEvent("displaymenu")
 	b.talkkonnectMenu("\x1b[0;44m") // add blue background to banner reference https://www.lihaoyi.com/post/BuildyourownCommandLinewithANSIescapecodes.html#background-colors
-	b.ParticipantLEDUpdate(true)
+	// b.ParticipantLEDUpdate(true)
 }
 
 func (b *Talkkonnect) cmdChannelUp() {
@@ -268,7 +268,7 @@ func (b *Talkkonnect) cmdListServerChannels() {
 
 	TTSEvent("listserverchannels")
 	//List Server Channels from ChannelsList[]
-	b.ParticipantLEDUpdate(true)
+	//	b.ParticipantLEDUpdate(true)
 }
 
 func (b *Talkkonnect) cmdStartTransmitting() {
@@ -331,7 +331,7 @@ func (b *Talkkonnect) cmdListOnlineUsers() {
 
 	log.Printf("info: Channel %#v Has %d Online User(s)", b.Client.Self.Channel.Name, len(b.Client.Self.Channel.Users))
 	b.ListUsers()
-	b.ParticipantLEDUpdate(true)
+	// b.ParticipantLEDUpdate(true)
 }
 
 func (b *Talkkonnect) cmdPlayback() {

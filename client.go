@@ -35,6 +35,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -47,7 +48,6 @@ import (
 	"github.com/talkkonnect/colog"
 	hd44780 "github.com/talkkonnect/go-hd44780"
 	"github.com/talkkonnect/gumble/gumble"
-	"github.com/talkkonnect/gumble/gumbleffmpeg"
 	"github.com/talkkonnect/gumble/gumbleutil"
 	_ "github.com/talkkonnect/gumble/opus"
 	term "github.com/talkkonnect/termbox-go"
@@ -329,9 +329,35 @@ func (b *Talkkonnect) ClientStart() {
 
 	TTSEvent("talkkonnectloaded")
 
-	b.Connect()
+	//New Mumble Connection Routine
 
-	pstream = gumbleffmpeg.New(b.Client, gumbleffmpeg.SourceFile(""), 0)
+	IsConnected = false
+	IsPlayStream = false
+	NowStreaming = false
+	KillHeartBeat = false
+
+	var connectionTries int
+	for connectionTries = 1; connectionTries < 4; connectionTries++ {
+		_, err := gumble.Ping(b.Address, time.Second*1, time.Second*5)
+		if err != nil {
+			log.Printf("info: Ping Server Error %v try %v", err, connectionTries)
+			continue
+		}
+		_, err = gumble.DialWithDialer(new(net.Dialer), b.Address, b.Config, &b.TLSConfig)
+		if err != nil {
+			log.Printf("error: Dial Server Failed on try %v with message %v\n", connectionTries, err)
+			continue
+		}
+
+		log.Printf("info: Connected to Server Successfully\n")
+		b.OpenStream()
+		IsConnected = true
+		break
+	}
+
+	if connectionTries == 4 {
+		FatalCleanUp("Exceed Connection Threshold Reached! Giving Up trying to reach " + b.Address + "\n")
+	}
 
 	if (Config.Global.Hardware.HeartBeat.Enabled) && (Config.Global.Hardware.TargetBoard == "rpi") {
 		HeartBeat := time.NewTicker(time.Duration(Config.Global.Hardware.HeartBeat.Periodmsecs) * time.Millisecond)

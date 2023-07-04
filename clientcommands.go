@@ -32,7 +32,6 @@ package talkkonnect
 import (
 	"fmt"
 	"log"
-	"net"
 	"os"
 	"sort"
 	"strconv"
@@ -85,51 +84,6 @@ func CleanUp(withShutdown bool) {
 		syscall.Reboot(syscall.LINUX_REBOOT_CMD_POWER_OFF)
 	}
 	os.Exit(0)
-}
-
-func (b *Talkkonnect) Connect() {
-	IsConnected = false
-	IsPlayStream = false
-	NowStreaming = false
-	KillHeartBeat = false
-	var err error
-
-	_, err = gumble.DialWithDialer(new(net.Dialer), b.Address, b.Config, &b.TLSConfig)
-
-	if err != nil {
-		log.Printf("error: Connection Error %v  connecting to %v failed, attempting again...\n", err, b.Address)
-		log.Println("debug: In the Connect Function & Trying With Username ", Username)
-		b.ReConnect()
-	} else {
-		b.OpenStream()
-	}
-}
-
-func (b *Talkkonnect) ReConnect() {
-	IsConnected = false
-	IsPlayStream = false
-	NowStreaming = false
-
-	if b.Client != nil {
-		log.Println("info: Attempting Reconnection With Server")
-		b.Client.Disconnect()
-	}
-
-	if ConnectAttempts < 3 {
-		ConnectAttempts++
-		b.Connect()
-	} else {
-		if Config.Global.Hardware.TargetBoard == "rpi" {
-			if LCDEnabled {
-				LcdText = [4]string{"Failed to Connect!", "nil", "nil", "nil"}
-				LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
-			}
-			if OLEDEnabled {
-				oledDisplay(false, 2, 1, "Failed to Connect!")
-			}
-		}
-		FatalCleanUp("Unable to Connect to mumble server, Giving Up!")
-	}
 }
 
 func (b *Talkkonnect) TransmitStart() {

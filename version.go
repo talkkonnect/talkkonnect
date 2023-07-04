@@ -31,10 +31,10 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.26.01"
-	talkkonnectReleased string = "1 July  2023"
+	talkkonnectVersion  string = "2.27.01"
+	talkkonnectReleased string = "4 July  2023"
 )
 
 /* Release Notes
-Changed and Cleaned Up Participant LED, Even Sound and TTS Announcement Logic
+Changed and Cleaned Up Connection and Reconnection to Serve Logic (Rely on systemd to reconnect)
 */

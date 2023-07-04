@@ -53,7 +53,10 @@ func talkkonnectBanner(backgroundcolor string) {
 	log.Println("info: " + backgroundcolor + "│Additional Modifications Released under MPL 2.0 License         │" + backgroundreset)
 	log.Println("info: " + backgroundcolor + "│Blog at www.talkkonnect.com, source at github.com/talkkonnect   │" + backgroundreset)
 	log.Println("info: " + backgroundcolor + "└────────────────────────────────────────────────────────────────┘" + backgroundreset)
-	releasedVersion := checkGitHubVersion()
+	releasedVersion := talkkonnectVersion
+	if IsConnected {
+		releasedVersion = checkGitHubVersion()
+	}
 	if talkkonnectVersion != releasedVersion {
 		log.Printf("warn: Software Ver %v Rel %v (Different Ver %v Available!)\n", talkkonnectVersion, talkkonnectReleased, releasedVersion)
 	} else {

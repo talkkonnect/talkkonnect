@@ -34,7 +34,6 @@ import (
 	"log"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/talkkonnect/gumble/gumble"
 )
@@ -124,12 +123,8 @@ func (b *Talkkonnect) OnDisconnect(e *gumble.DisconnectEvent) {
 	IsConnected = false
 	//MyLedStripOnlineLEDOff()
 
-	log.Println("alert: Attempting Reconnect in 5 seconds...")
-	log.Println("alert: Connection to ", b.Address, "disconnected")
-	log.Println("alert: Disconnection Reason ", reason)
+	FatalCleanUp("Connection to Mumble Server " + b.Address + " Lost Reason " + reason)
 
-	time.Sleep(5 * time.Second)
-	b.ReConnect()
 }
 
 func (b *Talkkonnect) OnTextMessage(e *gumble.TextMessageEvent) {

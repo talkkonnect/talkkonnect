@@ -43,7 +43,7 @@ import (
 	"strings"
 	"syscall"
 	"time"
-
+	"github.com/talkkonnect/gumble/gumbleffmpeg"
 	"github.com/allan-simon/go-singleinstance"
 	"github.com/talkkonnect/colog"
 	hd44780 "github.com/talkkonnect/go-hd44780"
@@ -330,7 +330,7 @@ func (b *Talkkonnect) ClientStart() {
 	TTSEvent("talkkonnectloaded")
 
 	//New Mumble Connection Routine
-
+	pstream = gumbleffmpeg.New(b.Client, gumbleffmpeg.SourceFile(""), 0)
 	IsConnected = false
 	IsPlayStream = false
 	NowStreaming = false

@@ -31,10 +31,10 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.27.02"
-	talkkonnectReleased string = "5 July  2023"
+	talkkonnectVersion  string = "2.27.03"
+	talkkonnectReleased string = "8 July  2023"
 )
 
 /* Release Notes
-Fixed Crash on PTT Bug Introduced in 2.27.01
+Improved fatalcleanup messages
 */

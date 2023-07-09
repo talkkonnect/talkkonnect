@@ -43,11 +43,13 @@ import (
 	"strings"
 	"syscall"
 	"time"
-	"github.com/talkkonnect/gumble/gumbleffmpeg"
+
 	"github.com/allan-simon/go-singleinstance"
 	"github.com/talkkonnect/colog"
 	hd44780 "github.com/talkkonnect/go-hd44780"
+	"github.com/talkkonnect/gosshd"
 	"github.com/talkkonnect/gumble/gumble"
+	"github.com/talkkonnect/gumble/gumbleffmpeg"
 	"github.com/talkkonnect/gumble/gumbleutil"
 	_ "github.com/talkkonnect/gumble/opus"
 	term "github.com/talkkonnect/termbox-go"
@@ -562,6 +564,10 @@ func (b *Talkkonnect) ClientStart() {
 	}
 
 	analogCreateZones()
+
+	if Config.Global.Software.RemoteSSHConsole.Enabled {
+		go gosshd.SSHDaemon(Config.Global.Software.RemoteSSHConsole.Username, Config.Global.Software.RemoteSSHConsole.Password, Config.Global.Software.RemoteSSHConsole.IDRSAFile, Config.Global.Software.RemoteSSHConsole.Listen)
+	}
 
 keyPressListenerLoop:
 	for {

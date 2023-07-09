@@ -31,10 +31,19 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.27.03"
-	talkkonnectReleased string = "8 July  2023"
+	talkkonnectVersion  string = "2.28.01"
+	talkkonnectReleased string = "9 July  2023"
 )
 
 /* Release Notes
-Improved fatalcleanup messages
+New Feature Talkkonnect console available over network via ssh
+Connection details configurable in talkkonnect.xml file
+
+Under the <software> section you can add the remotesshconsole as below to support remote ssh console over talkkonnect
+<remotesshconsole enabled="true">
+	<username>console</username>
+    <password>letmein</password>
+    <idrsafile>/root/.ssh/id_rsa</idrsafile>
+    <listen>0.0.0.0:9999</listen>
+    </remotesshconsole>
 */

@@ -69,6 +69,12 @@
         <txlockout>true</txlockout>
 	<listentochannelsonstart>true</listentochannelsonstart>
       </settings>
+     <remotesshconsole enabled="true">
+        <username>console</username>
+        <password>letmein</password>
+        <idrsafile>/root/.ssh/id_rsa</idrsafile>
+        <listen>0.0.0.0:9999</listen>
+      </remotesshconsole>
       <autoprovisioning enabled="false">
         <tkid/>
         <url>http://provisioningserver.com</url>
@@ -283,6 +289,7 @@
       </remotecontrol>
       <printvariables>
         <printaccount>true</printaccount>
+        <printremotesshconsole>true</printremotesshconsole>
         <printsystemsettings>false</printsystemsettings>
         <printprovisioning>false</printprovisioning>
         <printbeacon>false</printbeacon>

@@ -115,6 +115,13 @@ type ConfigStruct struct {
 				TXLockOut               bool          `xml:"txlockout"`
 				ListenToChannelsOnStart bool          `xml:"listentochannelsonstart"`
 			} `xml:"settings"`
+			RemoteSSHConsole struct {
+				Enabled   bool   `xml:"enabled,attr"`
+				Username  string `xml:"username"`
+				Password  string `xml:"password"`
+				IDRSAFile string `xml:"idrsafile"`
+				Listen    string `xml:"listen"`
+			} `xml:"remotesshconsole"`
 			AutoProvisioning struct {
 				Enabled      bool   `xml:"enabled,attr"`
 				TkID         string `xml:"tkid"`
@@ -229,6 +236,7 @@ type ConfigStruct struct {
 			PrintVariables struct {
 				PrintAccount            bool   `xml:"printaccount"`
 				PrintSystemSettings     bool   `xml:"printsystemsettings"`
+				PrintRemoteSSHConsole   bool   `xml:"printremotesshconsole"`
 				PrintProvisioning       bool   `xml:"printprovisioning"`
 				PrintBeacon             bool   `xml:"printbeacon"`
 				PrintTTS                bool   `xml:"printtts"`
@@ -1082,6 +1090,17 @@ func printxmlconfig() {
 		log.Println("info: ListenToChannelOnStart           ", fmt.Sprintf("%t", Config.Global.Software.Settings.ListenToChannelsOnStart))
 	}
 
+	if !Config.Global.Software.PrintVariables.PrintRemoteSSHConsole {
+		log.Println("info: -------- Remote SSH Console Settings -------- SKIPPED ")
+	} else {
+		log.Println("info: -------- Remote SSH Console Settings -------- ")
+		log.Println("info: Enabled      ", Config.Global.Software.RemoteSSHConsole.Enabled)
+		log.Println("info: Username     ", Config.Global.Software.RemoteSSHConsole.Username)
+		log.Println("info: Password     ", Config.Global.Software.RemoteSSHConsole.Password)
+		log.Println("info: IDRSAFile    ", Config.Global.Software.RemoteSSHConsole.IDRSAFile)
+		log.Println("info: Listen       ", Config.Global.Software.RemoteSSHConsole.Listen)
+	}
+
 	if !Config.Global.Software.PrintVariables.PrintProvisioning {
 		log.Println("info: --------   AutoProvisioning   --------- SKIPPED ")
 	} else {
@@ -1609,6 +1628,13 @@ func CheckConfigSanity(reloadxml bool) {
 		}
 	}
 
+	if Config.Global.Software.RemoteSSHConsole.Enabled {
+		if len(Config.Global.Software.RemoteSSHConsole.Username) == 0 || len(Config.Global.Software.RemoteSSHConsole.Password) == 0 || len(Config.Global.Software.RemoteSSHConsole.IDRSAFile) == 0 || len(Config.Global.Software.RemoteSSHConsole.Listen) == 0 {
+			log.Print("warn: Config Error [Section RemoteConsole] Some Parameters Not Defined Disabling RemoteSSHConsole")
+			Config.Global.Software.RemoteSSHConsole.Enabled = false
+			Warnings++
+		}
+	}
 	if Config.Global.Software.SMTP.Enabled {
 		if len(Config.Global.Software.SMTP.Username) == 0 || len(Config.Global.Software.SMTP.Password) == 0 || len(Config.Global.Software.SMTP.Receiver) == 0 {
 			log.Print("warn: Config Error [Section SMTP] Some Parameters Not Defined Disabling SMTP")

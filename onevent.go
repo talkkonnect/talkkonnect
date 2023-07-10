@@ -69,20 +69,29 @@ func (b *Talkkonnect) OnConnect(e *gumble.ConnectEvent) {
 	}
 
 	if Config.Global.Hardware.TargetBoard == "rpi" {
-		GPIOOutPin("online", "on")
-		b.BackLightTimer()
-
 		if LCDEnabled {
 			LcdText = [4]string{"nil", "nil", "nil", "nil"}
+			LcdText[0] = b.Name //b.Address
+			LcdText[1] = "(" + strconv.Itoa(len(b.Client.Self.Channel.Users)) + ")" + b.Client.Self.Channel.Name
 			LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 		}
 		if OLEDEnabled {
-			Oled.DisplayOn()
 			LCDIsDark = false
-			oledDisplay(true, 0, 0, "") // clear the screen
+			oledDisplay(true, 0, 0, "")      // clear the screen
+			oledDisplay(false, 0, 1, b.Name) //b.Address
+			oledDisplay(false, 1, 1, "("+strconv.Itoa(len(b.Client.Self.Channel.Users))+")"+b.Client.Self.Channel.Name)
+			oledDisplay(false, 6, 1, "Please Visit")
+			oledDisplay(false, 7, 1, "www.talkkonnect.com")
 		}
+	}
 
-		//		b.ParticipantLEDUpdate(true)
+	if len(b.Client.Self.Channel.Users) > 1 {
+		GPIOOutPin("participants", "on")
+		b.BackLightTimer()
+
+	} else {
+		GPIOOutPin("participants", "off")
+		b.BackLightTimer()
 	}
 
 	if b.ChannelName != "" {

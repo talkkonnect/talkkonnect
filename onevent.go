@@ -44,7 +44,6 @@ func (b *Talkkonnect) OnConnect(e *gumble.ConnectEvent) {
 	if Config.Global.Hardware.TargetBoard == "rpi" {
 		GPIOOutPin("online", "on")
 		//MyLedStripOnlineLEDOn()
-		return
 	}
 
 	IsConnected = true

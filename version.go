@@ -31,11 +31,10 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.28.02"
+	talkkonnectVersion  string = "2.28.03"
 	talkkonnectReleased string = "10 July  2023"
 )
 
 /* Release Notes
-fixed participant led not working on initial connect
-fixed oled not displaying on initial disconnect
+fixed online led not working on initial connect
 */

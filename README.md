@@ -65,6 +65,8 @@ Local or Remote Control via
 * Multiple Server Configurations with channel control, channel scanning and server hopping
 * Many Other features as per suggested or requested by the community too many to mention here
 
+#### What is talkkonnect and What's the history behind it? 
+
 This project is a fork of [talkiepi](http://projectable.me/) by Daniel Chote which was in turn a fork of [barnard](https://github.com/layeh/barnard) a text basedmumble client. 
 talKKonnect was developed using [golang](https://golang.org/) and based on [gumble](https://github.com/layeh/gumble) library by Tim Cooper.
 Most Libraries are however heavily vendored (modified from original). You will need to get the vendored libraries from this repo. Talkkonnect has implemented using the later specs the mumble protocol, so please use the talkkonnect vendored libraries (gumble) for building talkkonnect. Using original gumble library has does not have channel listening features and the build will fail because of missing functions mapped to the vendored version of the gumble library.

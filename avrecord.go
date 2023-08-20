@@ -171,7 +171,7 @@ func audiorecordtraffic() {
 
 		audrecfile := time.Now().Format("20060102150405") + "." + Config.Global.Hardware.AudioRecordFunction.RecordFileFormat // mp3, wav
 
-		args := []string{"-t", Config.Global.Hardware.AudioRecordFunction.RecordSystem, Config.Global.Hardware.AudioRecordFunction.RecordFromOutput, "-t", "mp3", audrecfile, "silence", "-l", "1", "1", "2%", "-1", "0.5", "2%", "trim", "0", Config.Global.Hardware.AudioRecordFunction.RecordChunkSize, ":", "newfile", ":", "restart"}
+		args := []string{"-t", Config.Global.Hardware.AudioRecordFunction.RecordSystem, Config.Global.Hardware.AudioRecordFunction.RecordFromOutput, "-t", "mp3", audrecfile, "silence", "-l", "1", "1", `2%`, "-1", "0.5", "2%", "trim", "0", Config.Global.Hardware.AudioRecordFunction.RecordChunkSize, ":", "newfile", ":", "restart"}
 
 		cmd := exec.Command("/usr/bin/sox", args...)
 		cmd.Dir = Config.Global.Hardware.AudioRecordFunction.RecordSavePath

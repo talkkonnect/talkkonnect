@@ -481,19 +481,19 @@
       </panicfunction>
       <audiorecordfunction enabled="false">
         <recordonstart>false</recordonstart>
-        <recordsystem/>
-        <recordmode/>
+        <recordsystem>pulseaudio</recordsystem>
+        <recordmode>traffic</recordmode>
         <recordtimeout>0</recordtimeout>
-        <recordfromoutput/>
-        <recordfrominput/>
-        <recordmictimeout>0</recordmictimeout>
-        <recordsoft/>
-        <recordsavepath/>
-        <recordarchivepath/>
-        <recordprofile/>
-        <recordfileformat/>
-        <recordchunksize/>
-      </audiorecordfunction>
+        <recordfromoutput>alsa_output.usb-C-Media_Electronics_Inc._USB_PnP_Sound_Device-00.analog-stereo.monitor</recordfromoutput>
+        <recordfrominput></recordfrominput>
+        <recordmictimeout></recordmictimeout>
+        <recordsoft>sox</recordsoft>
+        <recordsavepath>/avrec/audio</recordsavepath>
+        <recordarchivepath>/avrec/archive/audio</recordarchivepath>
+        <recordprofile></recordprofile>
+        <recordfileformat>mp3</recordfileformat>
+        <recordchunksize>600</recordchunksize>
+       </audiorecordfunction>
       <usbkeyboard enabled="true">
         <usbkeyboarddevpath>/dev/input/event0</usbkeyboarddevpath>
         <numlockscanid>69</numlockscanid>

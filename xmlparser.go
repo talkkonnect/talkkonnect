@@ -1821,6 +1821,12 @@ func CheckConfigSanity(reloadxml bool) {
 		}
 	}
 
+	if Config.Global.Hardware.AudioRecordFunction.Enabled {
+		if !(Config.Global.Hardware.AudioRecordFunction.RecordSystem == "alsa" || Config.Global.Hardware.AudioRecordFunction.RecordSystem == "pulseaudio") {
+			Config.Global.Hardware.AudioRecordFunction.RecordSystem = "alsa"
+		}
+	}
+
 	if Config.Global.Software.RemoteControl.MQTT.Enabled {
 
 		if len(Config.Global.Software.RemoteControl.MQTT.Settings.MQTTSubTopic) == 0 {

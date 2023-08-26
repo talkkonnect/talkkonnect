@@ -31,11 +31,10 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.29.01"
-	talkkonnectReleased string = "20 Aug  2023"
+	talkkonnectVersion  string = "2.30.01"
+	talkkonnectReleased string = "26 Aug  2023"
 )
 
 /* Release Notes
-added sanity checking for alsa and pulseaudio for recordsystem tag in xml
-fixed avrecord.go from "%2" to `%2' as requested by Zoran
+added zorans update to avrecord.go
 */

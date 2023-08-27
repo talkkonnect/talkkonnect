@@ -31,10 +31,10 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.30.01"
-	talkkonnectReleased string = "26 Aug  2023"
+	talkkonnectVersion  string = "2.31.01"
+	talkkonnectReleased string = "27 Aug  2023"
 )
 
 /* Release Notes
-added zorans update to avrecord.go
+fixed next server
 */

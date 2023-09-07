@@ -69,7 +69,6 @@ go get -v github.com/talkkonnect/talkkonnect
 
 ## Build talkkonnect as binary
 cd $GOPATH/src/github.com/talkkonnect/talkkonnect
-mv $GOPATH/src/github.com/talkkonnect/talkkonnect $GOPATH/src/github.com/talkkonnect/talkkonnect
 /usr/local/go/bin/go build -o /home/talkkonnect/bin/talkkonnect cmd/talkkonnect/main.go
 
 ## Notify User

@@ -1237,7 +1237,7 @@ do_install_prerequisites() {
 }
 
 do_install_go() {
-GOLANG_LATEST_STABLE_VERSION=$(curl -s https://go.dev/VERSION?m=text)
+GOLANG_LATEST_STABLE_VERSION=$(curl -s https://go.dev/VERSION?m=text | grep go)
 cputype=`lscpu | grep Architecture | cut -d ":" -f 2 | sed 's/ //g'`
 bitsize=`getconf LONG_BIT`
 

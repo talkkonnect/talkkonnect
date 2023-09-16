@@ -31,10 +31,11 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.31.01"
-	talkkonnectReleased string = "27 Aug  2023"
+	talkkonnectVersion  string = "2.31.02"
+	talkkonnectReleased string = "16 Sep  2023"
 )
 
 /* Release Notes
-fixed next server
+if oled enabled in xml and cannot communicate we just disable it 
+prevent talkkonnect from crashing
 */

@@ -981,6 +981,7 @@ func readxmlconfig(file string, reloadxml bool) error {
 			Oled, err = goled.BeginOled(OLEDDefaultI2cAddress, OLEDDefaultI2cBus, OLEDScreenWidth, OLEDScreenHeight, OLEDDisplayRows, OLEDDisplayColumns, OLEDStartColumn, OLEDCharLength, OLEDCommandColumnAddressing, OLEDAddressBasePageStart)
 			if err != nil {
 				log.Println("error: Cannot Communicate with OLED")
+				OLEDEnabled = false
 			}
 		}
 	}

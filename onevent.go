@@ -144,7 +144,6 @@ func (b *Talkkonnect) OnTextMessage(e *gumble.TextMessageEvent) {
 	if eventSound.Enabled {
 		if v, err := strconv.Atoi(eventSound.Volume); err == nil {
 			localMediaPlayer(eventSound.FileName, v, eventSound.Blocking, 0, 1)
-
 		}
 	}
 
@@ -163,8 +162,6 @@ func (b *Talkkonnect) OnTextMessage(e *gumble.TextMessageEvent) {
 	} else {
 		sender = ""
 	}
-
-	log.Printf("info: Message ("+strconv.Itoa(len(tmessage))+") from %v %v\n", sender, tmessage)
 
 	for _, tts := range Config.Global.Software.TTS.Sound {
 		if tts.Action == "message" {
@@ -338,15 +335,33 @@ func (b *Talkkonnect) OnUserChange(e *gumble.UserChangeEvent) {
 
 			if e.Type.Has(2) {
 				eventSound = findEventSound("leftchannel")
+				if eventSound.Enabled {
+					if v, err := strconv.Atoi(eventSound.Volume); err == nil {
+						localMediaPlayer(eventSound.FileName, v, eventSound.Blocking, 0, 1)
+
+					}
+				}
 				toSpeakEvent = cleanstring(e.User.Name) + " Has Disconnected "
 			}
 
 			if e.Type.Has(128) {
 				if len(b.Client.Self.Channel.Users) < prevParticipantCount {
 					eventSound = findEventSound("leftchannel")
+					if eventSound.Enabled {
+						if v, err := strconv.Atoi(eventSound.Volume); err == nil {
+							localMediaPlayer(eventSound.FileName, v, eventSound.Blocking, 0, 1)
+
+						}
+					}
 					toSpeakEvent = cleanstring(e.User.Name) + " Has Left Channel "
 				} else {
 					eventSound = findEventSound("joinedchannel")
+					if eventSound.Enabled {
+						if v, err := strconv.Atoi(eventSound.Volume); err == nil {
+							localMediaPlayer(eventSound.FileName, v, eventSound.Blocking, 0, 1)
+
+						}
+					}
 					toSpeakEvent = cleanstring(e.User.Name) + " Has Joined Channel "
 				}
 			}

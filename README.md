@@ -200,6 +200,16 @@ Debian version: 11 (bullseye) along with talkkonnect version 2.19.01 Released 03
 * This Image should work out of the box it also has serial console on the usb port for easy access to ssh thorough com port on windows and macOS
 * This image will work with LAN Cabled Ethernet connection out of the box
 
+### Installation Instructions For Raspberry Pi Boards (from Menu Driven Script) ###
+* Log in as root to your device via SSH
+* cd to /root directory (if you are logged in as root you should already be in this directory)
+* apt install wget
+* wget https://raw.githubusercontent.com/talkkonnect/talkkonnect/main/scripts/raspi-talkkonnect
+* chmod +x /root/raspi-talkkonnect
+* /root/raspi-talkkonnect
+
+  Follow the menu for installation
+  
 ### Installation Instructions For Raspberry Pi Boards (from Bash Script) ###
 * Log in as root to your device via SSH
 * cd to /root directory (if you are logged in as root you should already be in this directory)

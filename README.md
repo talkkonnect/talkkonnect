@@ -204,6 +204,7 @@ Debian version: 11 (bullseye) along with talkkonnect version 2.19.01 Released 03
 * Log in as root to your device via SSH
 * cd to /root directory (if you are logged in as root you should already be in this directory)
 * apt install wget
+* apt install whiptail
 * wget https://raw.githubusercontent.com/talkkonnect/talkkonnect/main/scripts/raspi-talkkonnect
 * chmod +x /root/raspi-talkkonnect
 * /root/raspi-talkkonnect

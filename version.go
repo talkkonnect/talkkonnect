@@ -31,11 +31,10 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.31.03"
-	talkkonnectReleased string = "25 Sep  2023"
+	talkkonnectVersion  string = "2.31.04"
+	talkkonnectReleased string = "05 OCT 2023"
 )
 
 /* Release Notes
-if oled enabled in xml and cannot communicate we just disable it 
-prevent talkkonnect from crashing
+lcd and oled display joined and left channel with time
 */

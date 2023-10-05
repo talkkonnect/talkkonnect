@@ -34,6 +34,7 @@ import (
 	"log"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/talkkonnect/gumble/gumble"
 )
@@ -233,25 +234,30 @@ func (b *Talkkonnect) OnUserChange(e *gumble.UserChangeEvent) {
 	b.BackLightTimer()
 
 	var info string = ""
+	var shortInfo string = ""
 
 	//1 UserChangeConnected
 	if e.Type.Has(1) {
 		info = info + "[connected]"
+		shortInfo = "Connected " + time.Now().Format("15:04:05")
 	}
 
 	//2 UserChangeDisconnected
 	if e.Type.Has(2) {
 		info = info + "[disconnected]"
+		shortInfo = "Disconnected " + time.Now().Format("15:04:05")
 	}
 
 	//4 UserChangeKicked
 	if e.Type.Has(4) {
 		info = info + "[kicked]"
+		shortInfo = "Kicked " + time.Now().Format("15:04:05")
 	}
 
 	//8 UserChangeBanned
 	if e.Type.Has(8) {
 		info = info + "[banned]"
+		shortInfo = "Banned " + time.Now().Format("15:04:05")
 	}
 
 	//16 UserChangeRegistered
@@ -386,18 +392,8 @@ func (b *Talkkonnect) OnUserChange(e *gumble.UserChangeEvent) {
 
 		if b.Client.Self.Channel.Name == e.User.Channel.Name {
 			b.BackLightTimer()
-			if Config.Global.Hardware.TargetBoard == "rpi" {
-				if LCDEnabled {
-					LcdText[0] = b.Name //b.Address
-					LcdText[1] = "(" + strconv.Itoa(len(b.Client.Self.Channel.Users)) + ")" + b.Client.Self.Channel.Name
-					LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
-				}
-				if OLEDEnabled {
-					oledDisplay(false, 0, 1, b.Name) //b.Address
-					oledDisplay(false, 1, 1, "("+strconv.Itoa(len(b.Client.Self.Channel.Users))+")"+b.Client.Self.Channel.Name)
-					oledDisplay(false, 6, 1, "Please Visit")
-					oledDisplay(false, 7, 1, "www.talkkonnect.com")
-				}
+			if e.User.Name != b.Client.Self.Name {
+				go joinedLeftScreen(e.User.Name, shortInfo)
 			}
 			log.Printf("info: This Channel  User %v, type bin=%v, type char info=%v\n", cleanstring(e.User.Name), e.Type, info)
 		}

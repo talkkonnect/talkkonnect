@@ -523,6 +523,25 @@ func rxScreen(LastSpeaker string) {
 	}
 }
 
+func joinedLeftScreen(user string, info string) {
+	if LCDEnabled {
+		LcdText[0] = "Online/RX"
+		LcdText[2] = user
+		LcdText[3] = info
+		LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+	}
+	if OLEDEnabled {
+		Oled.DisplayOn()
+		LCDIsDark = false
+		oledDisplay(false, 0, 1, "Online/RX")
+		oledDisplay(false, 3, 1, user)
+		oledDisplay(false, 4, 1, info)
+		oledDisplay(false, 5, 1, "")
+		oledDisplay(false, 6, 1, "Please Visit       ")
+		oledDisplay(false, 7, 1, "www.talkkonnect.com")
+	}
+}
+
 func (b *Talkkonnect) VTMove(command string) {
 	var TargetID uint32
 	for Index := range Config.Accounts.Account[AccountIndex].Voicetargets.ID {

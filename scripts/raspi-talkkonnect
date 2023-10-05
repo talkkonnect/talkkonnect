@@ -1354,10 +1354,10 @@ if [ "$cputype" = "armv7l" ] || [ "$cputype" = "aarch64" ] ; then
 
 
 		## Added this block to update to the latest version of golang so the update doesnt break talkkonnect
-		rm -rf /usr/local/go
-		cd /usr/local
-		wget https://go.dev/dl/go1.20.2.linux-armv6l.tar.gz
-		tar -zxvf go1.20.2.linux-armv6l.tar.gz
+		#rm -rf /usr/local/go
+		#cd /usr/local
+		#wget https://go.dev/dl/go1.20.2.linux-armv6l.tar.gz
+		#tar -zxvf go1.20.2.linux-armv6l.tar.gz
 
 		## Set up GOENVIRONMENT
 		export PATH=$PATH:/usr/local/go/bin
@@ -1445,11 +1445,11 @@ if [ "$cputype" = "armv7l" ] || [ "$cputype" = "aarch64" ] ; then
 
 
 		## Added this block to update to the latest version of golang so the update doesnt break talkkonnect
-		rm -rf /usr/local/go
-		cd /usr/local
-		cd /usr/local
-		wget https://go.dev/dl/go1.20.2.linux-arm64.tar.gz
-		tar -zxvf go1.20.2.linux-arm64.tar.gz
+		#rm -rf /usr/local/go
+		#cd /usr/local
+		#cd /usr/local
+		#wget https://go.dev/dl/go1.20.2.linux-arm64.tar.gz
+		#tar -zxvf go1.20.2.linux-arm64.tar.gz
 
 		## Set up GOENVIRONMENT
 		export PATH=$PATH:/usr/local/go/bin

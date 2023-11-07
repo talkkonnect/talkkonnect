@@ -395,7 +395,24 @@ func (b *Talkkonnect) OnUserChange(e *gumble.UserChangeEvent) {
 			if e.User.Name != b.Client.Self.Name {
 				go joinedLeftScreen(e.User.Name, shortInfo)
 			}
-			log.Printf("info: This Channel  User %v, type bin=%v, type char info=%v\n", cleanstring(e.User.Name), e.Type, info)
+			log.Printf("info: This Channel %v User %v, type bin=%v, type char info=%v\n", e.User.Channel.Name, cleanstring(e.User.Name), e.Type, info)
+			if Config.Global.Hardware.TargetBoard == "rpi" {
+				if LCDEnabled {
+					LcdText = [4]string{"nil", "nil", "nil", "nil"}
+					LcdText[0] = b.Name //b.Address
+					LcdText[1] = "(" + strconv.Itoa(len(b.Client.Self.Channel.Users)) + ")" + b.Client.Self.Channel.Name
+					LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+				}
+				if OLEDEnabled {
+					LCDIsDark = false
+					oledDisplay(true, 0, 0, "")      // clear the screen
+					oledDisplay(false, 0, 1, b.Name) //b.Address
+					oledDisplay(false, 1, 1, "("+strconv.Itoa(len(b.Client.Self.Channel.Users))+")"+b.Client.Self.Channel.Name)
+					oledDisplay(false, 6, 1, "Please Visit")
+					oledDisplay(false, 7, 1, "www.talkkonnect.com")
+				}
+			}
+
 		}
 	}
 }

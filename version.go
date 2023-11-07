@@ -31,10 +31,10 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.31.04"
-	talkkonnectReleased string = "05 OCT 2023"
+	talkkonnectVersion  string = "2.32.01"
+	talkkonnectReleased string = "07 Nov 2023"
 )
 
 /* Release Notes
-lcd and oled display joined and left channel with time
+fixed screen not showing channel change on LCD/OLED
 */

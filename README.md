@@ -7,7 +7,7 @@
 	
 ### So What then is talKKonnect, and why should I be Interested?
 
-[talKKonnect](http://www.talkkonnect.com) is a headless self contained mumble Push to Talk (PTT) linux client complete with LCD, Channel and Volume control.
+[talKKonnect](http://www.talkkonnect.com) is a headless, self-contained Mumble Push to Talk (PTT) client designed for Raspberry Pi devices. It offers a transceiver-like form factor with an LCD display, channel and volume control, making it ideal for group communication scenarios. The software is open-source and can be customized for specific needs. Common use cases include amateur radio enthusiasts, ad-hoc group communications, and replacing expensive commercial intercom systems.
 
 The Potential Uses of talKKonnect
 * IP Intercom or Door Intercom or Intercom between remote places

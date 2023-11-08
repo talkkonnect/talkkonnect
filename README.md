@@ -82,7 +82,7 @@ Rasperry Pi Zero W and Pi Zero WH (Version 1) is not recommended for use with ta
 ### Why Was talKKonnect created?
 
 I [Suvir Kumar](https://www.linkedin.com/in/suvir-kumar-51a1333b) created talKKonnect for fun. I missed the younger days making homebrew CB, HAM radios and talking to all
-those amazing people who taught me so much. 
+those amazing people who taught me so much. My HAM Radio Call signs are E25OSW for Thailand and KK7HMK (extra class) for USA.
 
 Living in an apartment in the age of the internet with the itch to innovate drove me to create talKKonnect. I did it to learn programming so in no way am I a professional programmer, however talkkonnect is very stable and production ready. So brace yourself for some code from a self taught amateur programmer.
 

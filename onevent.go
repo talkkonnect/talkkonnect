@@ -312,9 +312,10 @@ func (b *Talkkonnect) OnUserChange(e *gumble.UserChangeEvent) {
 
 	if e.Type.Has(2) || e.Type.Has(128) {
 		if len(b.Client.Self.Channel.Users) > 1 {
-			GPIOOutPin("participants", "on")
-			b.BackLightTimer()
-
+			if len(b.Client.Self.Channel.Users) != prevParticipantCount {
+				GPIOOutPin("participants", "on")
+				b.BackLightTimer()
+			}
 		} else {
 			GPIOOutPin("participants", "off")
 			b.BackLightTimer()

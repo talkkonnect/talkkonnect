@@ -31,10 +31,10 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.32.02"
+	talkkonnectVersion  string = "2.32.03"
 	talkkonnectReleased string = "15 Nov 2023"
 )
 
 /* Release Notes
-allow showing of unicode on linux console
+fixed logic for participants LED
 */

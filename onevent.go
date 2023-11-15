@@ -395,7 +395,7 @@ func (b *Talkkonnect) OnUserChange(e *gumble.UserChangeEvent) {
 			if e.User.Name != b.Client.Self.Name {
 				go joinedLeftScreen(e.User.Name, shortInfo)
 			}
-			log.Printf("info: This Channel %v User %v, type bin=%v, type char info=%v\n", e.User.Channel.Name, cleanstring(e.User.Name), e.Type, info)
+			log.Printf("info: This Channel %v User %v, type bin=%v, type char info=%v\n", e.User.Channel.Name, e.User.Name, e.Type, info)
 			if Config.Global.Hardware.TargetBoard == "rpi" {
 				if LCDEnabled {
 					LcdText = [4]string{"nil", "nil", "nil", "nil"}

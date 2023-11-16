@@ -284,12 +284,12 @@ func (b *Talkkonnect) ClientStart() {
 		// 	log.Printf("info: Led Strip %v %s\n", MyLedStrip.buf, MyLedStrip.display)
 		// }
 	} else {
-		log.Println("info: Target Board Set as PC (gpio disabled) ")
+		log.Println("debug: Target Board Set as PC (gpio disabled) ")
 	}
 
 	if (Config.Global.Hardware.TargetBoard == "rpi" && Config.Global.Hardware.LCD.BacklightTimerEnabled) && (OLEDEnabled || Config.Global.Hardware.LCD.Enabled) {
 
-		log.Println("info: Backlight Timer Enabled by Config")
+		log.Println("debug: Backlight Timer Enabled by Config")
 		BackLightTime = *BackLightTimePtr
 		BackLightTime = time.NewTicker(time.Duration(Config.Global.Hardware.LCD.BackLightTimeoutSecs) * time.Second)
 

@@ -1955,7 +1955,7 @@ func analogCreateZones() {
 	}
 
 	if !Config.Global.Hardware.AnalogRelays.Enabled {
-		log.Printf("info: Skipping the Creation of Analog Zones\n")
+		log.Printf("debug: Skipping the Creation of Analog Zones\n")
 		return
 	}
 

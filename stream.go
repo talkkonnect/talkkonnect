@@ -141,7 +141,7 @@ func (b *Talkkonnect) StopSource() error {
 func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 	TotalStreams++
 	if _, userexists := StreamTracker[e.User.UserID]; userexists {
-		log.Printf("info: Stale GoRoutine Detected For UserID=%v UserName=%v Session=%v AudioStreamChannel=%v", e.User.UserID, e.User.Name, e.User.Session, e.C)
+		log.Printf("debug: Stale GoRoutine Detected For UserID=%v UserName=%v Session=%v AudioStreamChannel=%v", e.User.UserID, e.User.Name, e.User.Session, e.C)
 		NeedToKill++
 	}
 	StreamTracker[e.User.UserID] = streamTrackerStruct{UserID: e.User.UserID, UserName: e.User.Name, UserSession: e.User.Session, C: e.C}
@@ -310,9 +310,9 @@ func (b *Talkkonnect) ResetStream() {
 }
 
 func goStreamStats() {
-	log.Println("info: Active Streams")
+	log.Println("debug: Active Streams")
 	for item, value := range StreamTracker {
-		log.Printf("info: Item=%v UserID=%v UserName=%v Session=%v AudioStreamChannel=%v", item, value.UserID, value.UserName, value.UserSession, value.C)
+		log.Printf("debug: Item=%v UserID=%v UserName=%v Session=%v AudioStreamChannel=%v", item, value.UserID, value.UserName, value.UserSession, value.C)
 	}
-	log.Printf("Total GoRoutines Open=%v, Total GoRoutines Wasted=%v \n", TotalStreams, NeedToKill)
+	log.Printf("debug: Total GoRoutines Open=%v, Total GoRoutines Wasted=%v \n", TotalStreams, NeedToKill)
 }

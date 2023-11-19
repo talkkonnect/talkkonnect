@@ -146,11 +146,11 @@ func (b *Talkkonnect) TransmitStop(withBeep bool) {
 		GPIOOutPin("transmit", "off")
 		//MyLedStripTransmitLEDOff()
 		if LCDEnabled {
-			LcdText[0] = b.Name // b.Address
+			LcdText[0] = "Online/RX" // b.Name
 			LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 		}
 		if OLEDEnabled {
-			oledDisplay(false, 0, 1, b.Name) //b.Address
+			oledDisplay(false, 0, 1, "Online/RX") //b.Name
 		}
 	}
 

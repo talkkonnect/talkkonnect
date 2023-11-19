@@ -511,6 +511,7 @@ func rxScreen(LastSpeaker string) {
 	}
 	if OLEDEnabled && Config.Global.Hardware.TargetBoard == "rpi" {
 		Oled.DisplayOn()
+		oledDisplay(false, 0, 1, "Online/RX")
 		oledDisplay(false, 3, 1, LastSpeaker+" "+time.Now().Format("15:04:05"))
 		oledDisplay(false, 4, 1, "")
 		oledDisplay(false, 5, 1, "")
@@ -583,6 +584,6 @@ func (b *Talkkonnect) VTMove(command string) {
 }
 
 func stripRegex(in string) string {
-	reg, _ := regexp.Compile("[^a-zA-Z0-9- ()]+")
+	reg, _ := regexp.Compile("[^a-zA-Z0-9-.:/ ()]+")
 	return reg.ReplaceAllString(in, "")
 }

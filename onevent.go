@@ -239,25 +239,25 @@ func (b *Talkkonnect) OnUserChange(e *gumble.UserChangeEvent) {
 	//1 UserChangeConnected
 	if e.Type.Has(1) {
 		info = info + "[connected]"
-		shortInfo = "Connected " + time.Now().Format("15:04:05")
+		shortInfo = "Conn " + time.Now().Format("15:04:05")
 	}
 
 	//2 UserChangeDisconnected
 	if e.Type.Has(2) {
 		info = info + "[disconnected]"
-		shortInfo = "Disconnected " + time.Now().Format("15:04:05")
+		shortInfo = "Disconn " + time.Now().Format("15:04:05")
 	}
 
 	//4 UserChangeKicked
 	if e.Type.Has(4) {
 		info = info + "[kicked]"
-		shortInfo = "Kicked " + time.Now().Format("15:04:05")
+		shortInfo = "Kick " + time.Now().Format("15:04:05")
 	}
 
 	//8 UserChangeBanned
 	if e.Type.Has(8) {
 		info = info + "[banned]"
-		shortInfo = "Banned " + time.Now().Format("15:04:05")
+		shortInfo = "Ban " + time.Now().Format("15:04:05")
 	}
 
 	//16 UserChangeRegistered
@@ -278,6 +278,9 @@ func (b *Talkkonnect) OnUserChange(e *gumble.UserChangeEvent) {
 	//128 UserChangeChannel
 	if e.Type.Has(128) {
 		info = info + "[changed channel]"
+		if !e.Type.Has(1) {
+			shortInfo = "Chg Chan " + time.Now().Format("15:04:05")
+		}
 	}
 
 	//256 UserChangeComment
@@ -310,7 +313,7 @@ func (b *Talkkonnect) OnUserChange(e *gumble.UserChangeEvent) {
 		info = info + "[change stats]"
 	}
 
-	if e.Type.Has(2) || e.Type.Has(128) {
+	if e.Type.Has(1) || e.Type.Has(2) || e.Type.Has(128) {
 		if len(b.Client.Self.Channel.Users) > 1 {
 			if len(b.Client.Self.Channel.Users) != prevParticipantCount {
 				GPIOOutPin("participants", "on")
@@ -328,12 +331,12 @@ func (b *Talkkonnect) OnUserChange(e *gumble.UserChangeEvent) {
 			b.BackLightTimer()
 			if Config.Global.Hardware.TargetBoard == "rpi" {
 				if LCDEnabled {
-					LcdText[0] = b.Name //b.Address
+					LcdText[0] = "Online/RX" //b.Name
 					LcdText[1] = "(" + strconv.Itoa(len(b.Client.Self.Channel.Users)) + ")" + b.Client.Self.Channel.Name
 					LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 				}
 				if OLEDEnabled {
-					oledDisplay(false, 0, 1, b.Name) //b.Address
+					oledDisplay(false, 0, 1, "Online/RX") //b.Name
 					oledDisplay(false, 1, 1, "("+strconv.Itoa(len(b.Client.Self.Channel.Users))+")"+b.Client.Self.Channel.Name)
 					oledDisplay(false, 6, 1, "Please Visit")
 					oledDisplay(false, 7, 1, "www.talkkonnect.com")
@@ -394,26 +397,10 @@ func (b *Talkkonnect) OnUserChange(e *gumble.UserChangeEvent) {
 		if b.Client.Self.Channel.Name == e.User.Channel.Name {
 			b.BackLightTimer()
 			if e.User.Name != b.Client.Self.Name {
+				log.Printf("info: This Channel %v User %v, type bin=%v, type char info=%v\n", e.User.Channel.Name, e.User.Name, e.Type, info)
 				go joinedLeftScreen(e.User.Name, shortInfo)
+				return
 			}
-			log.Printf("info: This Channel %v User %v, type bin=%v, type char info=%v\n", e.User.Channel.Name, e.User.Name, e.Type, info)
-			if Config.Global.Hardware.TargetBoard == "rpi" {
-				if LCDEnabled {
-					LcdText = [4]string{"nil", "nil", "nil", "nil"}
-					LcdText[0] = b.Name //b.Address
-					LcdText[1] = "(" + strconv.Itoa(len(b.Client.Self.Channel.Users)) + ")" + b.Client.Self.Channel.Name
-					LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
-				}
-				if OLEDEnabled {
-					LCDIsDark = false
-					oledDisplay(true, 0, 0, "")      // clear the screen
-					oledDisplay(false, 0, 1, b.Name) //b.Address
-					oledDisplay(false, 1, 1, "("+strconv.Itoa(len(b.Client.Self.Channel.Users))+")"+b.Client.Self.Channel.Name)
-					oledDisplay(false, 6, 1, "Please Visit")
-					oledDisplay(false, 7, 1, "www.talkkonnect.com")
-				}
-			}
-
 		}
 	}
 }

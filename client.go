@@ -415,7 +415,7 @@ func (b *Talkkonnect) ClientStart() {
 							LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 						}
 						if OLEDEnabled {
-							oledDisplay(false, 6, 1, "Traffic Recording") // 6
+							oledDisplay(false, 6, OLEDStartColumn, "Traffic Recording") // 6
 						}
 					}
 				}
@@ -428,7 +428,7 @@ func (b *Talkkonnect) ClientStart() {
 							LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 						}
 						if OLEDEnabled {
-							oledDisplay(false, 6, 1, "Mic Recording") // 6
+							oledDisplay(false, 6, OLEDStartColumn, "Mic Recording") // 6
 						}
 					}
 				}
@@ -441,7 +441,7 @@ func (b *Talkkonnect) ClientStart() {
 							LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 						}
 						if OLEDEnabled {
-							oledDisplay(false, 6, 1, "Combo Recording") //6
+							oledDisplay(false, 6, OLEDStartColumn, "Combo Recording") //6
 						}
 					}
 				}

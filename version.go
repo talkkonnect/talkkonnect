@@ -31,10 +31,10 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.33.01"
-	talkkonnectReleased string = "19 Nov 2023"
+	talkkonnectVersion  string = "2.34.01"
+	talkkonnectReleased string = "21 Nov 2023"
 )
 
 /* Release Notes
-fixed lcd/oled screen events bugs
+clear out artifacts on OLED Screen
 */

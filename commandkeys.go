@@ -91,7 +91,7 @@ func (b *Talkkonnect) cmdMuteUnmute(subCommand string) {
 					LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 				}
 				if OLEDEnabled {
-					oledDisplay(false, 6, 1, "Unmuted")
+					oledDisplay(false, 6, OLEDStartColumn, "Unmuted")
 				}
 			}
 			return
@@ -108,7 +108,7 @@ func (b *Talkkonnect) cmdMuteUnmute(subCommand string) {
 					LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 				}
 				if OLEDEnabled {
-					oledDisplay(false, 6, 1, "Muted")
+					oledDisplay(false, 6, OLEDStartColumn, "Muted")
 				}
 			}
 			return
@@ -130,7 +130,7 @@ func (b *Talkkonnect) cmdMuteUnmute(subCommand string) {
 				LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 
 				if OLEDEnabled {
-					oledDisplay(false, 6, 1, "Muted")
+					oledDisplay(false, 6, OLEDStartColumn, "Muted")
 				}
 			}
 			return
@@ -151,7 +151,7 @@ func (b *Talkkonnect) cmdMuteUnmute(subCommand string) {
 				LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 			}
 			if OLEDEnabled {
-				oledDisplay(false, 6, 1, "Unmuted")
+				oledDisplay(false, 6, OLEDStartColumn, "Unmuted")
 			}
 		}
 		return
@@ -173,7 +173,7 @@ func (b *Talkkonnect) cmdCurrentVolume() {
 			LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 		}
 		if OLEDEnabled {
-			oledDisplay(false, 6, 1, "Volume "+strconv.Itoa(OrigVolume))
+			oledDisplay(false, 6, OLEDStartColumn, "Volume "+strconv.Itoa(OrigVolume))
 		}
 		b.sevenSegment("localvolume", strconv.Itoa(OrigVolume))
 	}
@@ -200,7 +200,7 @@ func (b *Talkkonnect) cmdVolumeUp() {
 				LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 			}
 			if OLEDEnabled {
-				oledDisplay(false, 6, 1, "Volume "+strconv.Itoa(origVolume))
+				oledDisplay(false, 6, OLEDStartColumn, "Volume "+strconv.Itoa(origVolume))
 			}
 			b.sevenSegment("localvolume", strconv.Itoa(origVolume))
 		}
@@ -213,7 +213,7 @@ func (b *Talkkonnect) cmdVolumeUp() {
 				LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 			}
 			if OLEDEnabled {
-				oledDisplay(false, 6, 1, "Max Vol")
+				oledDisplay(false, 6, OLEDStartColumn, "Max Vol")
 			}
 			b.sevenSegment("localvolume", "100")
 		}
@@ -242,7 +242,7 @@ func (b *Talkkonnect) cmdVolumeDown() {
 				LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 			}
 			if OLEDEnabled {
-				oledDisplay(false, 6, 1, "Volume "+strconv.Itoa(origVolume))
+				oledDisplay(false, 6, OLEDStartColumn, "Volume "+strconv.Itoa(origVolume))
 			}
 			b.sevenSegment("localvolume", strconv.Itoa(origVolume))
 		}
@@ -255,7 +255,7 @@ func (b *Talkkonnect) cmdVolumeDown() {
 				LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 			}
 			if OLEDEnabled {
-				oledDisplay(false, 6, 1, "Min Vol")
+				oledDisplay(false, 6, OLEDStartColumn, "Min Vol")
 			}
 			b.sevenSegment("localvolume", "0")
 		}
@@ -393,10 +393,10 @@ func (b *Talkkonnect) cmdGPSPosition() {
 					go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 				}
 				if Config.Global.Hardware.OLED.Enabled {
-					oledDisplay(false, 4, 1, "GPS ERR1 "+time.Now().Format("15:04:05"))
-					oledDisplay(false, 5, 1, "GPS Device Error")
-					oledDisplay(false, 6, 1, "")
-					oledDisplay(false, 7, 1, "")
+					oledDisplay(false, 4, OLEDStartColumn, "GPS ERR1 "+time.Now().Format("15:04:05"))
+					oledDisplay(false, 5, OLEDStartColumn, "GPS Device Error")
+					oledDisplay(false, 6, OLEDStartColumn, "")
+					oledDisplay(false, 7, OLEDStartColumn, "")
 				}
 			}
 			break
@@ -429,10 +429,10 @@ func (b *Talkkonnect) cmdGPSPosition() {
 				go hd44780.LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 			}
 			if Config.Global.Hardware.OLED.Enabled {
-				oledDisplay(false, 4, 1, "GPS ERR2 "+time.Now().Format("15:04:05"))
-				oledDisplay(false, 5, 1, "No Good GPS Reading")
-				oledDisplay(false, 6, 1, "")
-				oledDisplay(false, 7, 1, "")
+				oledDisplay(false, 4, OLEDStartColumn, "GPS ERR2 "+time.Now().Format("15:04:05"))
+				oledDisplay(false, 5, OLEDStartColumn, "No Good GPS Reading")
+				oledDisplay(false, 6, OLEDStartColumn, "")
+				oledDisplay(false, 7, OLEDStartColumn, "")
 			}
 		}
 	}
@@ -614,7 +614,7 @@ func (b *Talkkonnect) cmdAudioTrafficRecord() {
 							LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 						}
 						if OLEDEnabled {
-							oledDisplay(false, 5, 1, "Traffic Audio Rec ->") // 6 or 5
+							oledDisplay(false, 5, OLEDStartColumn, "Traffic Audio Rec ->") // 6 or 5
 						}
 					}
 				} else {
@@ -646,7 +646,7 @@ func (b *Talkkonnect) cmdAudioMicRecord() {
 							LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 						}
 						if OLEDEnabled {
-							oledDisplay(false, 5, 1, "Mic Audio Rec ->") // 6 or 5
+							oledDisplay(false, 5, OLEDStartColumn, "Mic Audio Rec ->") // 6 or 5
 						}
 					}
 				} else {
@@ -678,7 +678,7 @@ func (b *Talkkonnect) cmdAudioMicTrafficRecord() {
 							LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 						}
 						if OLEDEnabled {
-							oledDisplay(false, 5, 1, "Combo Audio Rec ->") // 6 or 5
+							oledDisplay(false, 5, OLEDStartColumn, "Combo Audio Rec ->") // 6 or 5
 						}
 					}
 				} else {
@@ -749,7 +749,7 @@ func (b *Talkkonnect) cmdPanicSimulation() {
 					LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 				}
 				if OLEDEnabled {
-					oledDisplay(false, 6, 1, "Panic Message Sent!")
+					oledDisplay(false, 6, OLEDStartColumn, "Panic Message Sent!")
 				}
 			}
 			if Config.Global.Hardware.PanicFunction.TxLockEnabled && Config.Global.Hardware.PanicFunction.TxLockTimeOutSecs > 0 {

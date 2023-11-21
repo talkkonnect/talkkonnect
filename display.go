@@ -32,17 +32,14 @@ package talkkonnect
 import (
 	"log"
 	"strings"
+	"sync"
 
 	hd44780 "github.com/talkkonnect/go-hd44780"
 )
 
-//var mutex = &sync.Mutex{}
+var mutex = &sync.Mutex{}
 
 func oledDisplay(OledClear bool, OledRow int, OledColumn int, OledOriginalText string) {
-	OledText := stripRegex(OledOriginalText)
-	//mutex.Lock()
-	//defer mutex.Unlock()
-
 	if !OLEDEnabled {
 		log.Println("error: OLED Function Called in Error!")
 		return
@@ -52,6 +49,8 @@ func oledDisplay(OledClear bool, OledRow int, OledColumn int, OledOriginalText s
 		log.Println("error: Only i2c OLED Screens Supported Now!")
 		return
 	}
+
+	OledText := stripRegex(OledOriginalText)
 
 	if !OledClear && len(OledText) > 0 && LCDIsDark {
 		Oled.DisplayOn()
@@ -65,8 +64,6 @@ func oledDisplay(OledClear bool, OledRow int, OledColumn int, OledOriginalText s
 		}
 	}
 
-	Oled.SetCursor(OledRow, 0)
-
 	var rpadding = int(OLEDDisplayColumns)
 
 	if len(OledText) <= int(OLEDDisplayColumns) {
@@ -75,13 +72,19 @@ func oledDisplay(OledClear bool, OledRow int, OledColumn int, OledOriginalText s
 
 	var text string = OledText + strings.Repeat(" ", rpadding)
 
+	mutex.Lock()
+
 	Oled.SetCursor(OledRow, OLEDStartColumn)
 
 	if len(OledText) >= int(OLEDDisplayColumns) {
 		Oled.Write(OledText[:OLEDDisplayColumns])
+		//log.Printf("alert: Over  Length=%v Text [%v ", len(OledText), OledText[:OLEDDisplayColumns]+"]")
 	} else {
 		Oled.Write(text)
+		//log.Printf("alert: Under Length=%v Text [%v", len(OledText), text+"]")
 	}
+
+	mutex.Unlock()
 }
 
 func LcdDisplay(lcdtextshow [4]string, PRSPin int, PEPin int, PD4Pin int, PD5Pin int, PD6Pin int, PD7Pin int, LCDInterfaceType string, LCDI2CAddress byte) {

@@ -166,7 +166,7 @@ func sendviagmail(username string, password string, receiver string, subject str
 			go LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 		}
 		if OLEDEnabled {
-			oledDisplay(false, 6, 1, "Sending Email")
+			oledDisplay(false, 6, OLEDStartColumn, "Sending Email")
 		}
 	}
 
@@ -493,12 +493,12 @@ func txScreen() {
 	if OLEDEnabled {
 		Oled.DisplayOn()
 		LCDIsDark = false
-		oledDisplay(false, 0, 1, "Online/TX")
-		oledDisplay(false, 3, 1, "TX at "+time.Now().Format("15:04:05"))
-		oledDisplay(false, 4, 1, "")
-		oledDisplay(false, 5, 1, "")
-		oledDisplay(false, 6, 1, "Please Visit       ")
-		oledDisplay(false, 7, 1, "www.talkkonnect.com")
+		oledDisplay(false, 0, OLEDStartColumn, "Online/TX")
+		oledDisplay(false, 3, OLEDStartColumn, "TX at "+time.Now().Format("15:04:05"))
+		oledDisplay(false, 4, OLEDStartColumn, "")
+		oledDisplay(false, 5, OLEDStartColumn, "")
+		oledDisplay(false, 6, OLEDStartColumn, "Please Visit")
+		oledDisplay(false, 7, OLEDStartColumn, "www.talkkonnect.com")
 	}
 }
 
@@ -511,12 +511,12 @@ func rxScreen(LastSpeaker string) {
 	}
 	if OLEDEnabled && Config.Global.Hardware.TargetBoard == "rpi" {
 		Oled.DisplayOn()
-		oledDisplay(false, 0, 1, "Online/RX")
-		oledDisplay(false, 3, 1, LastSpeaker+" "+time.Now().Format("15:04:05"))
-		oledDisplay(false, 4, 1, "")
-		oledDisplay(false, 5, 1, "")
-		oledDisplay(false, 6, 1, "Please Visit       ")
-		oledDisplay(false, 7, 1, "www.talkkonnect.com")
+		oledDisplay(false, 0, OLEDStartColumn, "Online/RX")
+		oledDisplay(false, 3, OLEDStartColumn, LastSpeaker+" "+time.Now().Format("15:04:05"))
+		oledDisplay(false, 4, OLEDStartColumn, "")
+		oledDisplay(false, 5, OLEDStartColumn, "")
+		oledDisplay(false, 6, OLEDStartColumn, "Please Visit")
+		oledDisplay(false, 7, OLEDStartColumn, "www.talkkonnect.com")
 		BackLightTime.Reset(time.Duration(LCDBackLightTimeout) * time.Second)
 	}
 	if Config.Global.Software.Beacon.Enabled {
@@ -534,12 +534,12 @@ func joinedLeftScreen(user string, info string) {
 	if OLEDEnabled {
 		Oled.DisplayOn()
 		LCDIsDark = false
-		oledDisplay(false, 0, 1, "Online/RX")
-		oledDisplay(false, 3, 1, user)
-		oledDisplay(false, 4, 1, info)
-		oledDisplay(false, 5, 1, "")
-		oledDisplay(false, 6, 1, "Please Visit       ")
-		oledDisplay(false, 7, 1, "www.talkkonnect.com")
+		oledDisplay(false, 0, OLEDStartColumn, "Online/RX")
+		oledDisplay(false, 3, OLEDStartColumn, user)
+		oledDisplay(false, 4, OLEDStartColumn, info)
+		oledDisplay(false, 5, OLEDStartColumn, "")
+		oledDisplay(false, 6, OLEDStartColumn, "Please Visit       ")
+		oledDisplay(false, 7, OLEDStartColumn, "www.talkkonnect.com")
 	}
 }
 

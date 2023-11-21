@@ -77,11 +77,11 @@ func (b *Talkkonnect) OnConnect(e *gumble.ConnectEvent) {
 		}
 		if OLEDEnabled {
 			LCDIsDark = false
-			oledDisplay(true, 0, 0, "")      // clear the screen
-			oledDisplay(false, 0, 1, b.Name) //b.Address
-			oledDisplay(false, 1, 1, "("+strconv.Itoa(len(b.Client.Self.Channel.Users))+")"+b.Client.Self.Channel.Name)
-			oledDisplay(false, 6, 1, "Please Visit")
-			oledDisplay(false, 7, 1, "www.talkkonnect.com")
+			oledDisplay(true, 0, 0, "")                    // clear the screen
+			oledDisplay(false, 0, OLEDStartColumn, b.Name) //b.Address
+			oledDisplay(false, 1, OLEDStartColumn, "("+strconv.Itoa(len(b.Client.Self.Channel.Users))+")"+b.Client.Self.Channel.Name)
+			oledDisplay(false, 6, OLEDStartColumn, "Please Visit")
+			oledDisplay(false, 7, OLEDStartColumn, "www.talkkonnect.com")
 		}
 	}
 
@@ -184,45 +184,45 @@ func (b *Talkkonnect) OnTextMessage(e *gumble.TextMessageEvent) {
 			LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 		}
 		if OLEDEnabled {
-			oledDisplay(false, 2, 1, "Msg From "+sender)
+			oledDisplay(false, 2, OLEDStartColumn, "Msg From "+sender)
 			if len(tmessage) <= 21 {
-				oledDisplay(false, 3, 1, tmessage)
-				oledDisplay(false, 4, 1, "")
-				oledDisplay(false, 5, 1, "")
-				oledDisplay(false, 6, 1, "")
-				oledDisplay(false, 7, 1, "")
+				oledDisplay(false, 3, OLEDStartColumn, tmessage)
+				oledDisplay(false, 4, OLEDStartColumn, "")
+				oledDisplay(false, 5, OLEDStartColumn, "")
+				oledDisplay(false, 6, OLEDStartColumn, "")
+				oledDisplay(false, 7, OLEDStartColumn, "")
 				return
 			}
 			if len(tmessage) <= 42 {
-				oledDisplay(false, 3, 1, tmessage[0:21])
-				oledDisplay(false, 4, 1, tmessage[21:])
-				oledDisplay(false, 5, 1, "")
-				oledDisplay(false, 6, 1, "")
-				oledDisplay(false, 7, 1, "")
+				oledDisplay(false, 3, OLEDStartColumn, tmessage[0:21])
+				oledDisplay(false, 4, OLEDStartColumn, tmessage[21:])
+				oledDisplay(false, 5, OLEDStartColumn, "")
+				oledDisplay(false, 6, OLEDStartColumn, "")
+				oledDisplay(false, 7, OLEDStartColumn, "")
 				return
 			}
 			if len(tmessage) <= 63 {
-				oledDisplay(false, 3, 1, tmessage[0:21])
-				oledDisplay(false, 4, 1, tmessage[21:42])
-				oledDisplay(false, 5, 1, tmessage[42:])
-				oledDisplay(false, 6, 1, "")
-				oledDisplay(false, 7, 1, "")
+				oledDisplay(false, 3, OLEDStartColumn, tmessage[0:21])
+				oledDisplay(false, 4, OLEDStartColumn, tmessage[21:42])
+				oledDisplay(false, 5, OLEDStartColumn, tmessage[42:])
+				oledDisplay(false, 6, OLEDStartColumn, "")
+				oledDisplay(false, 7, OLEDStartColumn, "")
 				return
 			}
 			if len(tmessage) <= 84 {
-				oledDisplay(false, 3, 1, tmessage[0:21])
-				oledDisplay(false, 4, 1, tmessage[21:42])
-				oledDisplay(false, 5, 1, tmessage[42:63])
-				oledDisplay(false, 6, 1, tmessage[63:])
-				oledDisplay(false, 7, 1, "")
+				oledDisplay(false, 3, OLEDStartColumn, tmessage[0:21])
+				oledDisplay(false, 4, OLEDStartColumn, tmessage[21:42])
+				oledDisplay(false, 5, OLEDStartColumn, tmessage[42:63])
+				oledDisplay(false, 6, OLEDStartColumn, tmessage[63:])
+				oledDisplay(false, 7, OLEDStartColumn, "")
 				return
 			}
 			if len(tmessage) <= 105 {
-				oledDisplay(false, 3, 1, tmessage[0:20])
-				oledDisplay(false, 4, 1, tmessage[21:44])
-				oledDisplay(false, 5, 1, tmessage[42:63])
-				oledDisplay(false, 6, 1, tmessage[63:84])
-				oledDisplay(false, 7, 1, tmessage[84:])
+				oledDisplay(false, 3, OLEDStartColumn, tmessage[0:20])
+				oledDisplay(false, 4, OLEDStartColumn, tmessage[21:44])
+				oledDisplay(false, 5, OLEDStartColumn, tmessage[42:63])
+				oledDisplay(false, 6, OLEDStartColumn, tmessage[63:84])
+				oledDisplay(false, 7, OLEDStartColumn, tmessage[84:])
 				return
 			}
 		}
@@ -336,10 +336,10 @@ func (b *Talkkonnect) OnUserChange(e *gumble.UserChangeEvent) {
 					LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 				}
 				if OLEDEnabled {
-					oledDisplay(false, 0, 1, "Online/RX") //b.Name
-					oledDisplay(false, 1, 1, "("+strconv.Itoa(len(b.Client.Self.Channel.Users))+")"+b.Client.Self.Channel.Name)
-					oledDisplay(false, 6, 1, "Please Visit")
-					oledDisplay(false, 7, 1, "www.talkkonnect.com")
+					oledDisplay(false, 0, OLEDStartColumn, "Online/RX") //b.Name
+					oledDisplay(false, 1, OLEDStartColumn, "("+strconv.Itoa(len(b.Client.Self.Channel.Users))+")"+b.Client.Self.Channel.Name)
+					oledDisplay(false, 6, OLEDStartColumn, "Please Visit")
+					oledDisplay(false, 7, OLEDStartColumn, "www.talkkonnect.com")
 				}
 			}
 

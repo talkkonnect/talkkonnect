@@ -69,10 +69,10 @@ func CleanUp(withShutdown bool) {
 		if OLEDEnabled {
 			Oled.DisplayOn()
 			LCDIsDark = false
-			oledDisplay(true, 0, 1, "talkkonnect stopped")
-			oledDisplay(false, 1, 1, t.Format("02-01-2006 15:04:05"))
-			oledDisplay(false, 6, 1, "Please Visit")
-			oledDisplay(false, 7, 1, "www.talkkonnect.com")
+			oledDisplay(true, 0, OLEDStartColumn, "talkkonnect stopped")
+			oledDisplay(false, 1, OLEDStartColumn, t.Format("02-01-2006 15:04:05"))
+			oledDisplay(false, 6, OLEDStartColumn, "Please Visit")
+			oledDisplay(false, 7, OLEDStartColumn, "www.talkkonnect.com")
 		}
 		GPIOOutAll("led/relay", "off")
 		//		MyLedStripGPIOOffAll()
@@ -150,7 +150,7 @@ func (b *Talkkonnect) TransmitStop(withBeep bool) {
 			LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 		}
 		if OLEDEnabled {
-			oledDisplay(false, 0, 1, "Online/RX") //b.Name
+			oledDisplay(false, 0, OLEDStartColumn, "Online/RX") //b.Name
 		}
 	}
 
@@ -186,8 +186,8 @@ func (b *Talkkonnect) ChangeChannel(ChannelName string) {
 				LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 			}
 			if OLEDEnabled {
-				oledDisplay(false, 0, 1, "Joined "+ChannelName)
-				oledDisplay(false, 1, 1, Username[AccountIndex])
+				oledDisplay(false, 0, OLEDStartColumn, "Joined "+ChannelName)
+				oledDisplay(false, 1, OLEDStartColumn, Username[AccountIndex])
 			}
 		}
 
@@ -362,8 +362,8 @@ func (b *Talkkonnect) SetComment(comment string) {
 				LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 			}
 			if OLEDEnabled {
-				oledDisplay(false, 1, 1, "Status at "+t.Format("15:04:05"))
-				oledDisplay(false, 4, 1, b.Client.Self.Comment)
+				oledDisplay(false, 1, OLEDStartColumn, "Status at "+t.Format("15:04:05"))
+				oledDisplay(false, 4, OLEDStartColumn, b.Client.Self.Comment)
 			}
 		}
 	}

@@ -1,0 +1,12 @@
+export GOPATH=/home/talkkonnect/gocode
+export GOBIN=/home/talkkonnect/bin
+export GO111MODULE="auto"
+
+rm /home/talkkonnect/bin/talkkonnect
+
+cd $GOPATH
+
+cd $GOPATH/src/github.com/talkkonnect/talkkonnect
+
+#go build -o /root/goode/bin/talkkonnect cmd/talkkonnect/main.go 
+/usr/local/go/bin/go build -o /home/talkkonnect/bin/talkkonnect cmd/talkkonnect/main.go 

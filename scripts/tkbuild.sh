@@ -47,9 +47,23 @@ mkdir -p /home/talkkonnect/bin
 ## Create the log file
 touch /var/log/talkkonnect.log
 
+# Check Latest of GOLANG 64 Bit Version for Raspberry Pi
+GOLANG_LATEST_STABLE_VERSION=$(curl -s https://go.dev/VERSION?m=text | grep go)
+cputype=`lscpu | grep Architecture | cut -d ":" -f 2 | sed 's/ //g'`
+bitsize=`getconf LONG_BIT`
+
 cd /usr/local
-wget https://go.dev/dl/go1.20.2.linux-armv6l.tar.gz
-tar -zxvf go1.20.2.linux-armv6l.tar.gz
+
+if [ $bitsize == '32' ]
+then
+echo "32 bit processor"
+wget -nc https://go.dev/dl/$GOLANG_LATEST_STABLE_VERSION.linux-armv6l.tar.gz $GOLANG_LATEST_STABLE_VERSION.linux-armv6l.tar.gz
+tar -zxvf /usr/local/$GOLANG_LATEST_STABLE_VERSION.linux-armv6l.tar.gz
+else
+echo "64 bit processor"
+wget -nc https://go.dev/dl/$GOLANG_LATEST_STABLE_VERSION.linux-arm64.tar.gz $GOLANG_LATEST_STABLE_VERSION.linux-arm64.tar.gz
+tar -zxvf /usr/local/$GOLANG_LATEST_STABLE_VERSION.linux-arm64.tar.gz
+fi
 
 echo export PATH=$PATH:/usr/local/go/bin >>  ~/.bashrc
 echo export GOPATH=/home/talkkonnect/gocode >>  ~/.bashrc

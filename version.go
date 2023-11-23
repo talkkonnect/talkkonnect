@@ -31,10 +31,10 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.34.01"
-	talkkonnectReleased string = "21 Nov 2023"
+	talkkonnectVersion  string = "2.34.02"
+	talkkonnectReleased string = "23 Nov 2023"
 )
 
 /* Release Notes
-clear out artifacts on OLED Screen
+added underscore allowed character to display
 */

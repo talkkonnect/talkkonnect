@@ -277,6 +277,9 @@ func (b *Talkkonnect) OnUserChange(e *gumble.UserChangeEvent) {
 
 	//128 UserChangeChannel
 	if e.Type.Has(128) {
+		if OLEDEnabled {
+			oledDisplay(false, 1, OLEDStartColumn, "("+strconv.Itoa(len(b.Client.Self.Channel.Users))+")"+b.Client.Self.Channel.Name)
+		}
 		info = info + "[changed channel]"
 		if !e.Type.Has(1) {
 			shortInfo = "Chg Chan " + time.Now().Format("15:04:05")

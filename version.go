@@ -31,10 +31,10 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.34.02"
-	talkkonnectReleased string = "23 Nov 2023"
+	talkkonnectVersion  string = "2.34.03"
+	talkkonnectReleased string = "24 Nov 2023"
 )
 
 /* Release Notes
-added underscore allowed character to display
+update channel name on oled 
 */

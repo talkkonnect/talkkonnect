@@ -71,7 +71,10 @@ func CleanUp(withShutdown bool) {
 			LCDIsDark = false
 			oledDisplay(true, 0, OLEDStartColumn, "talkkonnect stopped")
 			oledDisplay(false, 1, OLEDStartColumn, t.Format("02-01-2006 15:04:05"))
-			oledDisplay(false, 6, OLEDStartColumn, "Please Visit")
+			oledDisplay(false, 1, OLEDStartColumn, "version "+talkkonnectVersion)
+			oledDisplay(false, 3, OLEDStartColumn, "Report Any Bugs To")
+			oledDisplay(false, 4, OLEDStartColumn, "https://github.com/")
+			oledDisplay(false, 5, OLEDStartColumn, "talkkonnect")
 			oledDisplay(false, 7, OLEDStartColumn, "www.talkkonnect.com")
 		}
 		GPIOOutAll("led/relay", "off")
@@ -274,7 +277,11 @@ func (b *Talkkonnect) ChannelUp() {
 				Channel = b.Client.Channels.Find(ChannelsList[i].chanName)
 			}
 			if ChannelsList[i].chanenterPermissions {
-				b.Client.Self.Move(Channel)
+				if Channel != nil {
+					b.Client.Self.Move(Channel)
+				} else {
+					log.Printf("alert: Top Accessable Channel Reached Channel Name %v", b.Client.Self.Channel.Name)
+				}
 				break
 			}
 		}

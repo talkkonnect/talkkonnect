@@ -31,10 +31,11 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.34.03"
-	talkkonnectReleased string = "24 Nov 2023"
+	talkkonnectVersion  string = "2.34.04"
+	talkkonnectReleased string = "27 Nov 2023"
 )
 
 /* Release Notes
-update channel name on oled 
+prevent crash on channel up
+change goodbye screen
 */

@@ -171,6 +171,7 @@ func (b *Talkkonnect) TransmitStop(withBeep bool) {
 }
 
 func (b *Talkkonnect) ChangeChannel(ChannelName string) {
+	//fixthis change so that it checks accessablechannellist map first before changing to the requested channel
 	if !(IsConnected) {
 		return
 	}
@@ -248,42 +249,42 @@ func (b *Talkkonnect) ListChannels(verbose bool) {
 }
 
 func (b *Talkkonnect) ChannelUp() {
+
 	if !(IsConnected) {
 		return
 	}
+
 	ChannelAction = "channelup"
 	TTSEvent("channelup")
-	Channel := b.Client.Channels.Find()
-	currentIndex := b.findChannelIndex(b.Client.Self.Channel.ID)
-	NextIndex := currentIndex
 
-	if currentIndex+1 < len(b.Client.Channels) {
-		Channel = b.Client.Channels.Find(ChannelsList[currentIndex+1].chanName)
-		NextIndex = currentIndex + 1
+	currentChannelIndex := b.findChannelIndex(b.Client.Self.Channel.ID)
+
+	//handling of roll over when max channel reached
+	if currentChannelIndex == len(b.Client.Channels)-1 {
+		log.Println("debug: Maximum Channel Reached Rolling Over")
+		for i := 0; i <= len(b.Client.Channels)-1; i++ {
+			if chanName, found := AccessableChannelMap[ChannelsList[i].chanID]; found {
+				log.Printf("info: Moving to Accessable Channel (ID %v Name %v)\n", ChannelsList[i].chanID, chanName)
+				channel := b.Client.Channels.Find(chanName)
+				if channel != nil {
+					b.Client.Self.Move(channel)
+					break
+				} else {
+					b.Client.Self.Move(RootChannel)
+					break
+				}
+			}
+		}
+		return
 	}
 
-	if ChannelsList[NextIndex].chanenterPermissions {
-		if Channel != nil {
-			b.Client.Self.Move(Channel)
-		}
-	} else {
-		for i := NextIndex + 1; i <= len(b.Client.Channels); i++ {
-			//special handling for when highest channel has no token
-			if i == len(b.Client.Channels) {
-				Channel = b.Client.Channels.Find()
-				b.Client.Self.Move(Channel)
-				return
-			} else {
-				Channel = b.Client.Channels.Find(ChannelsList[i].chanName)
-			}
-			if ChannelsList[i].chanenterPermissions {
-				if Channel != nil {
-					b.Client.Self.Move(Channel)
-				} else {
-					log.Printf("alert: Top Accessable Channel Reached Channel Name %v", b.Client.Self.Channel.Name)
-				}
-				break
-			}
+	//handling of connecting to next channel in accessable channel index
+	for i := currentChannelIndex + 1; i <= len(b.Client.Channels)-1; i++ {
+		if chanName, found := AccessableChannelMap[ChannelsList[i].chanID]; found {
+			log.Printf("info: Moving to Accessable Channel (ID %v Name %v)\n", ChannelsList[i].chanID, chanName)
+			channel := b.Client.Channels.Find(chanName)
+			b.Client.Self.Move(channel)
+			break
 		}
 	}
 }
@@ -294,35 +295,25 @@ func (b *Talkkonnect) ChannelDown() {
 	}
 	ChannelAction = "channeldown"
 	TTSEvent("channeldown")
-	Channel := b.Client.Channels.Find(ChannelsList[len(b.Client.Channels)-1].chanName)
-	currentIndex := b.findChannelIndex(b.Client.Self.Channel.ID)
-	NextIndex := currentIndex
 
-	if currentIndex == 0 {
-		//special handling of max channel without token
-		Channel = b.Client.Channels.Find(ChannelsList[len(b.Client.Channels)-1].chanName)
-		NextIndex = len(b.Client.Channels) - 1
+	currentChannelIndex := b.findChannelIndex(b.Client.Self.Channel.ID)
+
+	if currentChannelIndex == 0 {
+		log.Println("debug: Root Channel Reached Rolling Over")
+		b.Client.Self.Move(TopChannel)
+		return
 	}
 
-	if currentIndex == 1 {
-		Channel = b.Client.Channels.Find()
-		NextIndex = currentIndex - 1
-	}
-
-	if currentIndex > 1 {
-		Channel = b.Client.Channels.Find(ChannelsList[currentIndex-1].chanName)
-		NextIndex = currentIndex - 1
-	}
-
-	if ChannelsList[NextIndex].chanenterPermissions {
-		if Channel != nil {
-			b.Client.Self.Move(Channel)
-		}
-	} else {
-		for i := NextIndex - 1; i >= 0; i-- {
-			Channel = b.Client.Channels.Find(ChannelsList[i].chanName)
-			if ChannelsList[i].chanenterPermissions {
-				b.Client.Self.Move(Channel)
+	//handling of connecting to previous channel in accessable channel index
+	for i := currentChannelIndex - 1; i >= 0; i-- {
+		if chanName, found := AccessableChannelMap[ChannelsList[i].chanID]; found {
+			log.Printf("info: Moving to Accessable Channel (ID %v Name %v)\n", ChannelsList[i].chanID, chanName)
+			channel := b.Client.Channels.Find(chanName)
+			if channel != nil {
+				b.Client.Self.Move(channel)
+				break
+			} else {
+				b.Client.Self.Move(RootChannel)
 				break
 			}
 		}
@@ -579,7 +570,6 @@ func (b *Talkkonnect) findChannelDetailsByID(ChannelID uint32, index int) {
 			ChannelsList[index].chanName = ch.Name
 			ChannelsList[index].chanParent = ch.Parent
 			ChannelsList[index].chanUsers = ch.Users
-			ChannelsList[index].chanenterPermissions = true
 		}
 	}
 }

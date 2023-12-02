@@ -413,19 +413,6 @@ func (b *Talkkonnect) OnPermissionDenied(e *gumble.PermissionDeniedEvent) {
 	switch e.Type {
 	case gumble.PermissionDeniedPermission:
 		log.Printf("warn: Permission Denied For Channel ID %v Channel Name %v\n", e.Channel.ID, e.Channel.Name)
-		for index, ch := range ChannelsList {
-			if ch.chanID == int(e.Channel.ID) {
-				log.Printf("warn: Setting Channel Index %v Channel ID %v Channel Name %v Channel Enter to False\n", index, e.Channel.ID, e.Channel.Name)
-				ChannelsList[index].chanenterPermissions = false
-				if ChannelAction == "channelup" {
-					b.ChannelUp()
-				}
-				if ChannelAction == "channeldown" {
-					b.ChannelDown()
-				}
-				break
-			}
-		}
 	case gumble.PermissionDeniedSuperUser:
 		log.Println("cannot modify SuperUser")
 	case gumble.PermissionDeniedInvalidChannelName:
@@ -448,7 +435,19 @@ func (b *Talkkonnect) OnPermissionDenied(e *gumble.PermissionDeniedEvent) {
 }
 
 func (b *Talkkonnect) OnChannelChange(e *gumble.ChannelChangeEvent) {
-	log.Printf("debug: Channel Detected %v", e.Channel.Name)
+	if e.Channel.IsRoot() {
+		RootChannel = e.Channel
+	}
+	if e.Channel.Permission() == nil {
+		e.Channel.RequestPermission()
+	} else if *e.Channel.Permission()&gumble.PermissionEnter != 0 {
+		//log.Printf("debug: Have Permissions to Enter ID %v Channel %v\n", e.Channel.ID, e.Channel.Name)
+		AccessableChannelMap[int(e.Channel.ID)] = e.Channel.Name
+		if e.Channel.ID > TopChannelID {
+			TopChannel = e.Channel
+			TopChannelID = e.Channel.ID
+		}
+	}
 }
 
 func (b *Talkkonnect) OnUserList(e *gumble.UserListEvent) {

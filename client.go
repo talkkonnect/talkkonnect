@@ -79,12 +79,11 @@ type Talkkonnect struct {
 }
 
 type ChannelsListStruct struct {
-	chanIndex            int
-	chanID               int
-	chanName             string
-	chanParent           *gumble.Channel
-	chanUsers            gumble.Users
-	chanenterPermissions bool
+	chanIndex  int
+	chanID     int
+	chanName   string
+	chanParent *gumble.Channel
+	chanUsers  gumble.Users
 }
 
 func Init(file string, ServerIndex string) {

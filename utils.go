@@ -587,3 +587,15 @@ func stripRegex(in string) string {
 	reg, _ := regexp.Compile("[^a-zA-Z0-9-.:/_ ()]+")
 	return reg.ReplaceAllString(in, "")
 }
+
+func UniqueSliceElements[T comparable](inputSlice []T) []T {
+	uniqueSlice := make([]T, 0, len(inputSlice))
+	seen := make(map[T]bool, len(inputSlice))
+	for _, element := range inputSlice {
+		if !seen[element] {
+			uniqueSlice = append(uniqueSlice, element)
+			seen[element] = true
+		}
+	}
+	return uniqueSlice
+}

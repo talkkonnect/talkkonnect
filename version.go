@@ -31,11 +31,10 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.34.04"
-	talkkonnectReleased string = "27 Nov 2023"
+	talkkonnectVersion  string = "2.35.01"
+	talkkonnectReleased string = "2 Dec 2023"
 )
 
 /* Release Notes
-prevent crash on channel up
-change goodbye screen
+Changed Channel Changing Logic for Up/Down
 */

@@ -714,6 +714,9 @@ var (
 	LCDIsDark               bool
 	GPSDataChannelReceivers int
 	TXLockOut               bool
+	RootChannel             *gumble.Channel
+	TopChannel              *gumble.Channel
+	TopChannelID            uint32 
 )
 
 // Generic Global Counter Variables
@@ -741,10 +744,11 @@ var (
 var (
 	LcdText = [4]string{"nil", "nil", "nil", "nil"}
 	//	MyLedStrip *LedStrip
-	TTYKeyMap          = make(map[rune]KBStruct)
-	USBKeyMap          = make(map[rune]KBStruct)
-	GPIOMemoryMap      = make(map[string]MemoryChannelStruct)
-	GPIOVoiceTargetMap = make(map[string]VoiceTargetStruct)
+	TTYKeyMap            = make(map[rune]KBStruct)
+	USBKeyMap            = make(map[rune]KBStruct)
+	GPIOMemoryMap        = make(map[string]MemoryChannelStruct)
+	GPIOVoiceTargetMap   = make(map[string]VoiceTargetStruct)
+	AccessableChannelMap = make(map[int]string)
 )
 
 // Mumble Account Settings Global Variables

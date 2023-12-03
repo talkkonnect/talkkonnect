@@ -1600,25 +1600,25 @@ func (b *Talkkonnect) nextEnabledRotaryEncoderFunction() {
 		if RotaryFunction.Function == "mumblechannel" {
 			b.sevenSegment("mumblechannel", strconv.Itoa(int(b.Client.Self.Channel.ID)))
 			if OLEDEnabled {
-				oledDisplay(false, 5, OLEDStartColumn, "[Channel Mode]")
+				oledDisplay(false, 6, OLEDStartColumn, "[Channel Mode]      ")
 			}
 		}
 		if RotaryFunction.Function == "localvolume" {
 			b.cmdCurrentVolume()
 			if OLEDEnabled {
-				oledDisplay(false, 5, OLEDStartColumn, "[Volume Mode]")
+				oledDisplay(false, 6, OLEDStartColumn, "[Volume Mode]       ")
 			}
 		}
 		if RotaryFunction.Function == "radiochannel" {
 			b.sevenSegment("radiochannel", "")
 			if OLEDEnabled {
-				oledDisplay(false, 5, OLEDStartColumn, "[Radio Channel Mode]")
+				oledDisplay(false, 6, OLEDStartColumn, "[Radio Channel Mode]")
 			}
 		}
 		if RotaryFunction.Function == "voicetarget" {
 			b.sevenSegment("voicetarget", "")
 			if OLEDEnabled {
-				oledDisplay(false, 5, OLEDStartColumn, "[Voice Target Mode]")
+				oledDisplay(false, 6, OLEDStartColumn, "[Voice Target Mode] ")
 			}
 		}
 		return
@@ -1631,25 +1631,25 @@ func (b *Talkkonnect) nextEnabledRotaryEncoderFunction() {
 		if RotaryFunction.Function == "mumblechannel" {
 			b.sevenSegment("mumblechannel", strconv.Itoa(int(b.Client.Self.Channel.ID)))
 			if OLEDEnabled {
-				oledDisplay(false, 5, OLEDStartColumn, "[Channel Mode]")
+				oledDisplay(false, 6, OLEDStartColumn, "[Channel Mode]      ")
 			}
 		}
 		if RotaryFunction.Function == "localvolume" {
 			b.cmdCurrentVolume()
 			if OLEDEnabled {
-				oledDisplay(false, 5, OLEDStartColumn, "[Volume Mode]")
+				oledDisplay(false, 6, OLEDStartColumn, "[Volume Mode]       ")
 			}
 		}
 		if RotaryFunction.Function == "radiochannel" {
 			b.sevenSegment("radiochannel", "")
 			if OLEDEnabled {
-				oledDisplay(false, 5, OLEDStartColumn, "[Radio Channel Mode]")
+				oledDisplay(false, 6, OLEDStartColumn, "[Radio Channel Mode]")
 			}
 		}
 		if RotaryFunction.Function == "voicetarget" {
 			b.sevenSegment("voicetarget", "")
 			if OLEDEnabled {
-				oledDisplay(false, 5, OLEDStartColumn, "[Voice Target Mode]")
+				oledDisplay(false, 6, OLEDStartColumn, "[Voice Target Mode] ")
 			}
 		}
 		return

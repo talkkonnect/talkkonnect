@@ -260,7 +260,7 @@ func (b *Talkkonnect) ChannelUp() {
 	currentChannelIndex := b.findChannelIndex(b.Client.Self.Channel.ID)
 
 	//handling of roll over when max channel reached
-	if currentChannelIndex == len(b.Client.Channels)-1 {
+	if b.Client.Self.Channel == TopChannel {
 		log.Println("debug: Maximum Channel Reached Rolling Over")
 		for i := 0; i <= len(b.Client.Channels)-1; i++ {
 			if chanName, found := AccessableChannelMap[ChannelsList[i].chanID]; found {

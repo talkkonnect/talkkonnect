@@ -31,10 +31,10 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.35.02"
+	talkkonnectVersion  string = "2.35.03"
 	talkkonnectReleased string = "3 Dec 2023"
 )
 
 /* Release Notes
-Channel Up Check Maximum Accessable Channel before rollover
+Show Rotary Mode on OLED Screen
 */

@@ -25,7 +25,7 @@ The Potential Uses of talKKonnect
 
 #### Some Interesting Features of talkkonnect
 
-#### Use of talkkonnect in varous industries
+#### Current Use of talkkonnect in real world applications in varying industries by our community members
 * Logistics and Transportation
 * Rescue Operations
 * Remote Location Help Request Repeaters

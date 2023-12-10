@@ -25,6 +25,14 @@ The Potential Uses of talKKonnect
 
 #### Some Interesting Features of talkkonnect
 
+#### Use of talkkonnect in varous industries
+* Logistics and Transportation
+* Rescue Operations
+* Remote Location Help Request Repeaters
+* Ham Radio
+* Maritime
+* Video Production
+  
 #### Configurablilty
 * XML Granular configurability covering many flexible uses cases.
 * Centralized autoprovisioning for multiple talkkonnect devices from a centralized http provisioning server using XML delivery via http 

@@ -370,7 +370,7 @@ func (b *Talkkonnect) initGPIO() {
 				MemoryChannelButton3Used = true
 				MemoryChannelButton3Pin = io.PinNo
 			}
-			if io.Name == "memorychannel1" && io.PinNo > 0 {
+			if io.Name == "memorychannel4" && io.PinNo > 0 {
 				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
 				MemoryChannelButton4PinPullUp := rpio.Pin(io.PinNo)
 				MemoryChannelButton4PinPullUp.PullUp()

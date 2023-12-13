@@ -590,7 +590,6 @@ func (b *Talkkonnect) cmdConnNextServer() {
 		}
 		modifyXMLTagServerHopping(ConfigXMLFile, AccountIndex)
 	}
-
 }
 
 func (b *Talkkonnect) cmdAudioTrafficRecord() {

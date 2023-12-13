@@ -3,7 +3,7 @@
   <accounts>
     <account name="talkkonnect" default="true">
       <serverandport>mumble.talkkonnect.com:64738</serverandport>
-      <username>suvir-tkpcb</username>
+      <username></username>
       <password></password>
       <insecure>true</insecure>
       <register>false</register>
@@ -11,6 +11,45 @@
       <channel>HAM-CB</channel>
       <ident>Name Surname</ident>
       <tokens enabled="true">
+        <token>15041504</token>
+        <token>452264</token>
+      </tokens> 
+      <voicetargets>
+        <id value="0">
+            <user>suvir-demo</user>
+        </id>
+        <id value="1">
+          <users>
+            <user>suvir-ubunbtu</user>
+          </users>
+        </id>
+        <id value="2">
+          <users>
+            <user>suvir-demo</user>
+          </users>
+        </id>
+        <id value="3">
+          <channels>
+            <channel>
+              <name>TEST1</name>
+              <recursive>true</recursive>
+              <links>true</links>
+              <group>"all"</group>
+            </channel>
+          </channels>
+        </id>
+      </voicetargets>
+    </account>
+    <account name="cb245" default="true">
+      <serverandport>mumble.talkkonnect.com:64740</serverandport>
+      <username></username>
+      <password></password>
+      <insecure>true</insecure>
+      <register>false</register>
+      <certificate></certificate>
+      <channel></channel>
+      <ident>Name Surname</ident>
+      <tokens enabled="false">
         <token></token>
         <token></token>
       </tokens> 
@@ -319,7 +358,6 @@
         <channel gpioname="memorychannel1" channelname="Gateway3 Local-RYG" enabled="true"/>
         <channel gpioname="memorychannel2" channelname="HAM-CB" enabled="true"/>
         <channel gpioname="memorychannel3" channelname="talKKonnect" enabled="true"/>
-        <channel gpioname="memorychannel4" channelname="HS2AN-NYK" enabled="true"/>
      </memorychannels>
     </software>
     <hardware targetboard="rpi">
@@ -336,33 +374,32 @@
           <pin direction="output" device="led/relay"     name="transmit" pinno="13" type="gpio" chipid="0" enabled="true"/>
           <pin direction="output" device="led/relay"     name="online" pinno="22" type="gpio" chipid="0" enabled="true"/>
           <pin direction="output" device="led/relay"     name="attention" pinno="26" type="gpio" chipid="0" enabled="true"/>
-          <pin direction="output" device="led/relay"     name="voicetarget" pinno="2" type="gpio" chipid="0" enabled="false"/>
+          <pin direction="output" device="led/relay"     name="voicetarget" pinno="0" type="gpio" chipid="0" enabled="false"/>
           <pin direction="output" device="led/relay"     name="heartbeat" pinno="19" type="gpio" chipid="0" enabled="true"/>
-          <pin direction="output" device="lcd"           name="backlight" pinno="6" type="gpio" chipid="0" enabled="false"/>
-          <pin direction="output" device="led/relay"     name="relay0" pinno="6" type="gpio" chipid="0" enabled="false"/>
-          <pin direction="output" device="radiomodule"   name="powerdown" pinno="6" type="gpio" chipid="0" enabled="false"/>
-          <pin direction="output" device="radiomodule"   name="txpower" pinno="6" type="gpio" chipid="0" enabled="false"/>
-          <pin direction="input"  device="pushbutton"    name="txptt" pinno="18" type="gpio" chipid="0" enabled="true"/>
-          <pin direction="input"  device="pushbutton"    name="txtoggle" pinno="11" type="gpio" chipid="0" enabled="false"/>
-          <pin direction="input"  device="pushbutton"    name="channelup" pinno="6" type="gpio" chipid="0" enabled="false"/>
-          <pin direction="input"  device="pushbutton"    name="channeldown" pinno="13" type="gpio" chipid="0" enabled="false"/>
-          <pin direction="input"  device="pushbutton"    name="panic" pinno="14" type="gpio" chipid="0" enabled="false"/>
-          <pin direction="input"  device="pushbutton"    name="streamtoggle" pinno="14" type="gpio" chipid="0" enabled="false"/>
-          <pin direction="input"  device="toggleswitch"  name="comment" pinno="14" type="gpio" chipid="0" enabled="false"/>
+          <pin direction="output" device="lcd"           name="backlight" pinno="0" type="gpio" chipid="0" enabled="false"/>
+          <pin direction="output" device="led/relay"     name="relay0" pinno="0" type="gpio" chipid="0" enabled="false"/>
+          <pin direction="output" device="radiomodule"   name="powerdown" pinno="0" type="gpio" chipid="0" enabled="false"/>
+          <pin direction="output" device="radiomodule"   name="txpower" pinno="0" type="gpio" chipid="0" enabled="false"/>
+          <pin direction="input"  device="pushbutton"    name="txptt" pinno="0" type="gpio" chipid="0" enabled="false"/>
+          <pin direction="input"  device="pushbutton"    name="txtoggle" pinno="0" type="gpio" chipid="0" enabled="false"/>
+          <pin direction="input"  device="pushbutton"    name="channelup" pinno="0" type="gpio" chipid="0" enabled="false"/>
+          <pin direction="input"  device="pushbutton"    name="channeldown" pinno="0" type="gpio" chipid="0" enabled="false"/>
+          <pin direction="input"  device="pushbutton"    name="panic" pinno="0" type="gpio" chipid="0" enabled="false"/>
+          <pin direction="input"  device="pushbutton"    name="streamtoggle" pinno="0" type="gpio" chipid="0" enabled="false"/>
+          <pin direction="input"  device="toggleswitch"  name="comment" pinno="0" type="gpio" chipid="0" enabled="false"/>
           <pin direction="input"  device="rotaryencoder" name="rotarya" pinno="17" type="gpio" chipid="0" enabled="true"/>
           <pin direction="input"  device="rotaryencoder" name="rotaryb" pinno="18" type="gpio" chipid="0" enabled="true"/>
           <pin direction="input"  device="rotaryencoder" name="rotarybutton" pinno="27" type="gpio" chipid="0" enabled="true"/>
-          <pin direction="input"  device="pushbutton" name="volup" pinno="19" type="gpio" chipid="0" enabled="false"/>
-          <pin direction="input"  device="pushbutton" name="voldown" pinno="13" type="gpio" chipid="0" enabled="false"/>
-          <pin direction="input"  device="toggleswitch" name="tracking" pinno="13" type="gpio" chipid="0" enabled="false"/>
-          <pin direction="input"  device="pushbutton" name="mqtt0" pinno="13" type="gpio" chipid="0" enabled="false"/>
-          <pin direction="input"  device="pushbutton" name="mqtt1" pinno="13" type="gpio" chipid="0" enabled="false"/>
-          <pin direction="input"  device="pushbutton" name="nextserver" pinno="13" type="gpio" chipid="0" enabled="false"/>
+          <pin direction="input"  device="pushbutton" name="volup" pinno="0" type="gpio" chipid="0" enabled="false"/>
+          <pin direction="input"  device="pushbutton" name="voldown" pinno="0" type="gpio" chipid="0" enabled="false"/>
+          <pin direction="input"  device="toggleswitch" name="tracking" pinno="0" type="gpio" chipid="0" enabled="false"/>
+          <pin direction="input"  device="pushbutton" name="mqtt0" pinno="0" type="gpio" chipid="0" enabled="false"/>
+          <pin direction="input"  device="pushbutton" name="mqtt1" pinno="0" type="gpio" chipid="0" enabled="false"/>
+          <pin direction="input"  device="pushbutton" name="nextserver" pinno="23" type="gpio" chipid="0" enabled="true"/>
           <pin direction="input"  device="pushbutton" name="memorychannel1" pinno="12" type="gpio" chipid="0" enabled="true"/>
           <pin direction="input"  device="pushbutton" name="memorychannel2" pinno="25" type="gpio" chipid="0" enabled="true"/>
           <pin direction="input"  device="pushbutton" name="memorychannel3" pinno="24" type="gpio" chipid="0" enabled="true"/>
-          <pin direction="input"  device="pushbutton" name="memorychannel4" pinno="23" type="gpio" chipid="0" enabled="true"/>
-          <pin direction="input"  device="repeatertone" name="nextserver" pinno="13" type="gpio" chipid="0" enabled="false"/>
+          <pin direction="input"  device="repeatertone" name="" pinno="0" type="gpio" chipid="0" enabled="false"/>
         </pins>
         <rotaryencoder enabled="true">
           <control function="localvolume" enabled="true"/>
@@ -374,9 +411,9 @@
           <voldownstep>-1</voldownstep>
         </volumebuttonstep>
       </io>
-      <heartbeat enabled="false">
+      <heartbeat enabled="true">
         <heartbeatledpin/>
-        <periodmsecs>2000</periodmsecs>
+        <periodmsecs>3000</periodmsecs>
         <ledonmsecs>1000</ledonmsecs>
         <ledoffmsecs>1010</ledoffmsecs>
       </heartbeat>

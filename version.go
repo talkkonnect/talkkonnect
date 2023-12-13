@@ -31,10 +31,10 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.36.01"
+	talkkonnectVersion  string = "2.36.02"
 	talkkonnectReleased string = "13 Dec 2023"
 )
 
 /* Release Notes
-Fixed Memory Channel 4 Bug
+Fixed GPIO Next Server Bug
 */

@@ -106,7 +106,7 @@ go get -v github.com/talkkonnect/talkkonnect
 cd $GOPATH/src/github.com/talkkonnect/talkkonnect
 go build -o /home/talkkonnect/bin/talkkonnect cmd/talkkonnect/main.go
 
-cp /root/$BACKUPCERT /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/
+cp /root/$BACKUPCERT /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/mumble.pem
 cp /root/$BACKUPXML /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/talkkonnect.xml
 
 if pgrep -x "$SERVICE" >/dev/null

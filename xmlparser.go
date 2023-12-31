@@ -716,7 +716,8 @@ var (
 	TXLockOut               bool
 	RootChannel             *gumble.Channel
 	TopChannel              *gumble.Channel
-	TopChannelID            uint32 
+	TopChannelID            uint32
+	IsPlaying               bool
 )
 
 // Generic Global Counter Variables

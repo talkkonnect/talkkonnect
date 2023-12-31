@@ -31,10 +31,10 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.36.02"
-	talkkonnectReleased string = "13 Dec 2023"
+	talkkonnectVersion  string = "2.37.01"
+	talkkonnectReleased string = "31 Dec 2023"
 )
 
 /* Release Notes
-Fixed GPIO Next Server Bug
+Added Online Radio Player for entertainment while standingby
 */

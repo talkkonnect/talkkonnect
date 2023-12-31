@@ -647,6 +647,14 @@ keyPressListenerLoop:
 					b.cmdShowUptime()
 				case term.KeyCtrlV:
 					b.cmdDisplayVersion()
+				case term.KeyCtrlW:
+					if !IsPlaying {
+						player.Play(0)
+						IsPlaying = true
+					} else {
+						player.Stop()
+						IsPlaying = false
+					}
 				case term.KeyCtrlX:
 					b.cmdDumpXMLConfig()
 				case term.KeyCtrlZ:

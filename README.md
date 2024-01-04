@@ -219,6 +219,7 @@ Debian version: 11 (bullseye) along with talkkonnect version 2.19.01 Released 03
 * run ./tkbuild.sh and wait for golang to install and talkkonnect to download along with all libraries automatically
 * You will need to copy and modify the XML Sample from [here](https://github.com/talkkonnect/talkkonnect/blob/main/sample-configs/talkkonnect-version2-usb-gpio-example.xml) and keep in the directory
 /home/talkkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/talkkonnect.xml
+* After that you will have to configure alsa as shown in the audio configuration section below for talkkonnect to work
 
 ##### Sample XML files can be found from sample-configs folder: #####
 

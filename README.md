@@ -274,7 +274,8 @@ Then using i2cdetect to detect your screen following the instructions on the sam
 Once you get the address note that it will be in HEX you will have to convert this address to decimal to put in the talkkonnect.xml file
 under the xml tag  <oleddefaulti2caddress>60</oleddefaulti2caddress>
 
-In the example above I got the address 3c from i2c tools and converted that to decimal value 60. 
+In the example above I got the address 3c from i2c tools and converted that to decimal value 60. For My Setup the i2c-detect tool gave
+me the hex address of 3c so converted to decimal it is the value 60.
 
 
 ### Audio configuration ###

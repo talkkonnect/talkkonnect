@@ -208,155 +208,17 @@ Debian version: 11 (bullseye) along with talkkonnect version 2.19.01 Released 03
 * This Image should work out of the box it also has serial console on the usb port for easy access to ssh thorough com port on windows and macOS
 * This image will work with LAN Cabled Ethernet connection out of the box
 
-### Installation Instructions For Raspberry Pi Boards (from Menu Driven Script) ###
-* Log in as root to your device via SSH
-* cd to /root directory (if you are logged in as root you should already be in this directory)
-* apt install wget
-* apt install whiptail
-* wget https://raw.githubusercontent.com/talkkonnect/talkkonnect/main/scripts/raspi-talkkonnect
-* chmod +x /root/raspi-talkkonnect
-* /root/raspi-talkkonnect
-
-  Follow the menu for installation
-  
 ### Installation Instructions For Raspberry Pi Boards (from Bash Script) ###
+* Install raspberry pi os using instructions from [here](https://www.raspberrypi.com/software/operating-systems/)
+* Preferrably with modern boards use the 64 Bit of the Raspberry Pi OS Lite version
+* Follow the steps to burn and boot from SD Card 
 * Log in as root to your device via SSH
 * cd to /root directory (if you are logged in as root you should already be in this directory)
-* NOTICE!! There are currently 3 types of build scripts depending on the board you want to build for tkbuild.sh is for 32 bit
-OS builds on raspberry pi using raspberry pi os 32 bit minimal, tkbuild-64bit.sh is the same build for 64 bit OS builds on raspberry pi 
-using raspberry pi os 64 bit minimal and tkbuild-orangepi.sh for building on the armbian 32 bit version for orange pi zero boards. Please
-use the appropriate script to build depening on your hardware. Replace the script name in the wget command below. 
-
-* wget https://raw.githubusercontent.com/talkkonnect/talkkonnect/main/scripts/tkbuild-32bit.sh
-* wget https://raw.githubusercontent.com/talkkonnect/talkkonnect/main/scripts/tkbuild-64bit.sh
-* chmod +x tkbuild-32bit.sh or chmod +x tkbuild-64bit.sh to make it executable
-* run ./tkbuild-32bit.sh or ./tkbuild-64bit.sh and wait for golang to install and talkkonnect to download along with all libraries automatically
-* you may need to modify this script a little bit as versions of golang change check the latest compatable version of golang at https://go.dev/ 	
-	
-### Installation Instructions For Raspberry Pi Boards (from Source code by hand) ###
-
-You have the choice of using a 32 bit or 64 bit os, the example below is for 32 bits.
-Download the latest version of Raspberry Pi OS List from https://www.raspberrypi.com/software/operating-systems/
-
-It is recommended that you use the raspberry Pi Imager for Windows or any USB / SD card imaging software for Windows or your other OS. 
-The best current option for windows is :
-* [Imager for Windows] (https://downloads.raspberrypi.org/imager/imager_latest.exe)
-
-After downloading a standard image and using the imaging tool, insert the SD card into your Raspberry Pi, connect the screen, keyboard and power supply and boot into the OS. 
-
-As of the new release the pi user is removed please us a user you specified in the raspberry pi imager instead of the pi user.	
-
-If you are not familiar with how to use the imager please see [imager video] (https://youtu.be/ntaXWS8Lk34)
-
-##### Set the new root password with #####
-
-` sudo passwd root `
-
-Log out of the account pi and log into the root account with your newly set password 
-
-Run raspi-config and expand the file system by choosing “Advanced Options”->”Expand File System”. Reboot.
-
-Next go to “Interfacing Options” in raspi-config and “Enable SSH Server”.
-##### Edit the file with your favourite editor. #####
-
-` /etc/ssh/sshd_config`   
-
-##### Change the line #####
-
-` #PermitRootLogin  prohibit-password  to  PermitRootLogin yes`
-
-##### Restart ssh server with #####
-
-` service ssh restart`
-
-##### Alternative Way to Enable SSH #####
-With windows you can browse to your SD card and place the blank file ssh in the root folder.
-
-Now you should be able to log in remotely via ssh using the root account and continue the installation.
-
-##### Add user “talkkonnect” #####
-
-` adduser --disabled-password --disabled-login --gecos "" talkkonnect`
-
-##### Add user “talkkonnect” to groups #####
-
-` usermod -a -G cdrom,audio,video,plugdev,users,dialout,dip,input,gpio talkkonnect`
-
-##### Update Raspbian with the command #####
-
-` apt update`
-
-##### Install prerequisite programs ##### 
-
-` apt install libopenal-dev libopus-dev libasound2-dev git ffmpeg screen `
-
-##### Install prerequisite programs ##### 
-
-To get the newer versions of golang used for this project I suggest installing a precompiled binary of golang. If you use apt-get to install golang at this moment you will get an older incompatible version of golang.
-
-To install GO as required for this project on the raspberry pi. First with your browser look on the website https://golang.org/dl/ on your browser and choose the latest version for the arm archecture. go1.xx.x.linux-arm64.tar.gz for 32 bit OS or 64. 
-
-
-Please Note that if you use apt-get to install golang instead of follow the recommended instructions in this blog you may get some errors while compiling. For best results stick to the latest version of golang.
-
-These steps for manual install are based of a 32 bit install so please modify to suit your OS accordingly.  
-
-As root user Get the link and use wget to download the binary to your talkkonnect (For go version 1.20.3 at the time of this writing)
-
-` cd /usr/local `
-
-` wget https://go.dev/dl/go1.20.3.linux-armv6l.tar.gz `
-
-` tar -zxvf go1.19.1.linux-armv6l.tar.gz `
-
-` nano ~/.bashrc `
-
-` export PATH=$PATH:/usr/local/go/bin `
-
-` export GOPATH=/home/talkkonnect/gocode `
-
-` export GOBIN=/home/talkkonnect/bin `
-
-` export GO111MODULE="auto" `
-
-` alias tk='cd /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/' `
-
-Then log out and log in as root again and check if go in installed properly
-
-` go version `
-
-You should see the version that you just installed if all is ok you can continue to the next step
-
-Decide if you want to run talKKonnect as a local user or root? Up to you. 
-
-##### To build as a local user (Note: you can also build talKKonnect as root, if you prefer). #####
-
-` su talkkonnect `
-
-##### Create code and bin directories #####
-````
-cd /home/talkkonnect
-mkdir /home/talkkonnect/gocode
-mkdir /home/talkkonnect/bin
-````
-
-##### Export GO paths #####
-````
-export GOPATH=/home/talkkonnect/gocode
-export GOBIN=/home/talkkonnect/bin 
-````
-
-##### Get programs and prepare for building talKKonnect #####
-
-````
-cd $GOPATH 
-go get -v github.com/talkkonnect/talkkonnect 
-cd $GOPATH/src/github.com/talkkonnect/talkkonnect
-````
-
-##### Before building the binary, confirm all features which you want enabled, the GPIO pins used and talKKonnect program configuration by editing file: ##### 
-
-`nano /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/talkkonnect.xml`
+* https://raw.githubusercontent.com/talkkonnect/talkkonnect/main/scripts/tkbuild.sh
+* chmod +x tkbuild.sh
+* run ./tkbuild.sh and wait for golang to install and talkkonnect to download along with all libraries automatically
+* You will need to copy and modify the XML Sample from [here](https://github.com/talkkonnect/talkkonnect/blob/main/sample-configs/talkkonnect-version2-usb-gpio-example.xml) and keep in the directory
+/home/talkkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/talkkonnect.xml
 
 ##### Sample XML files can be found from sample-configs folder: #####
 
@@ -364,38 +226,12 @@ https://github.com/talkkonnect/talkkonnect/tree/main/sample-configs
 
 See the file talkkonnect-version2-usb-gpio-example.xml as an example with all the latest XLS tags.
 
-##### Build talKKonnect and test connection to your Mumble server. #####
-
-` go build -o /home/talkkonnect/bin/talkkonnect cmd/talkkonnect/main.go `
-
 ##### Start  talKKonnect binary #####
 
 ````
 cd /home/talkkonnect/bin
 ./talkkonnect 
 ````
-##### Or create a start script ##### 
-
-````
-cd
-sudo nano talkkonnect-run
-````
-
-##### with contents: #####
-
-````
-#!/bin/bash 
-killall -vs 9 talkkonnect 
-sleep 1 
-reset 
-sleep 2 
-/home/talkkonnect/bin/talkkonnect 
-````
-
-##### Make the script executable ##### 
-
-` chmod +x talkkonnect-run ` 
-
 
 ##### You can start talKKonnect automatically on Raspberry Pi start up with “screen” program help. Add this line to /etc/rc.local file. before “exit 0”: #####
 
@@ -678,7 +514,7 @@ API section enables the user to granually control which remote control functions
 ````
 Listing API available http://{your-talkkonnect-ipaddress}:8080/?command=listapi
 Channel Up           	http://{your-talkkonnect-ipaddress}:8080/?command=channelup
-Channel Down 		 	http://{your-talkkonnect-ipaddress}:8080/?command=channeldown
+Channel Down 		http://{your-talkkonnect-ipaddress}:8080/?command=channeldown
 Mute/UnMute Toggle   	http://{your-talkkonnect-ipaddress}:8080/?command=mute-toggle
 Mute Speaker         	http://{your-talkkonnect-ipaddress}:8080/?command=mute
 Unmute Speaker       	http://{your-talkkonnect-ipaddress}:8080/?command=unmute 

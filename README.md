@@ -150,9 +150,14 @@ talkkonnect-version2-usb-gpio-example.xml  for the latest tags to copy and imple
 * For those Respeaker Images (Rpi Zero or RPI 2/3 Images with Respeaker) Out of the box the standard configutation XML file is set to run in GPIO Mode and GPIO will initalized, this means the PTT Button and the LEDS on the 2 Mic Respeaker Hat will work right away. You will need to connect an external speaker to the HAT for these images.
 * Feel Free to explore the various example talkkonnect.xml configurations that can be found in the directory /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/sample-configs here you can find various configurations that work with LCD, OLED, LEDS and PUSH Button Switches. The files are named descriptively. See the talkkonnect-version2-usb-gpio-example.xml
 as an example. 
-* To update to the lastest version release of talkkonnect in the image you can cd to the root directory and issue wget https://raw.githubusercontent.com/talkkonnect/talkkonnect/main/scripts/update-talkkonnect-32bit.sh or 
-wget https://raw.githubusercontent.com/talkkonnect/talkkonnect/main/scripts/update-talkkonnect-64bit.sh  
-then chmod +x the downloaded bash script and run it. Make sure you choose 32 or 64 bit to match your Operating System otherwise this will break the update.
+* To update to the lastest version release of talkkonnect in the image you can cd to the root directory and issue the following commands after logging in as root
+
+````
+cd /root
+wget https://raw.githubusercontent.com/talkkonnect/talkkonnect/main/scripts/update-talkkonnect.sh 
+chmod +x ./update-talkkonnect.sh
+./update-talkkonnect.sh
+````
 
 ## talKKonnect Version 2 Images	
 

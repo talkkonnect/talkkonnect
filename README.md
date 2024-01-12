@@ -162,10 +162,10 @@ chmod +x ./update-talkkonnect.sh
 ## talKKonnect Version 2 Images	
 
 ### talkkonnect Version 2 (64 Bit) Quick Download Link for Pre-Made SD Card Image for Use with Raspberry PI tested on Pi 4 series and USB Sound Card ###
-* This Image Was Created On 17/April/2023 and Runs Bullseye Release along with talkkonnect version 2.23.04 Released 15/April/2023
-* [Click Here to Download Pre-Configured SD Card Image for Talkkonnect Version 2 for Raspberry Pi 4 and USB Sound Card](https://drive.google.com/file/d/17QDUGkoUBjqqqj6Dm_2l2JbclaSgJwfM/view?usp=share_link) 
+* This Image Was Created On 12/Janruary/2024 and Runs Bullseye Release along with talkkonnect version 2.37.01 Released 31/December/2023
+* [Click Here to Download Pre-Configured SD Card Image for Talkkonnect Version 2 for Raspberry Pi 4 and USB Sound Card](https://drive.google.com/file/d/1P_2JU4MxTwEF-We1ODEAphg9rKyPiHhT/view?usp=sharing) 
 * You will need a CM-108 or equavilent sound card plugged in before booting for this image to work otherwise it will connect and disconnect to the server in an endless loop. Vention Cards are recommended as cm108 card has a lot of noise.	
-* This image has been configured to work with a USB CM108 Sound Card and GPIO will work out of the box for PTT and LEDs. 
+* This image has been configured to work with a USB CM108 Sound Card and GPIO will work out of the box for PTT and LEDs. The GPIOs are mapped to the [circuit diagram](https://github.com/talkkonnect/talkkonnect/blob/main/circuit-diagram/Schematic_talkkonnect_2023-12-13.pdf)  
 * This image will work with LAN Cabled Ethernet connection out of the box
 	
 ### talkkonnect Version 2 (64BIT) Quick Download Link for Pre-Made SD Card Image for Use with Raspberry PI tested on Pi (2/3 series Zero2w) and USB Sound Card ###

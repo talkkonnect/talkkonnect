@@ -177,12 +177,11 @@ chmod +x ./update-talkkonnect.sh
 
 
 ### talkkonnect Version 2 (32 BIT) Quick Download Link for Pre-Made SD Card Image for Use with Raspberry PI tested on Pi (2/3 series) and USB Sound Card ###
-* This Image Was Created On 17/April/2023 and Runs Bullseye Release along with talkkonnect version 2.23.04 Released 15/April/2023
-* [Click Here to Download Pre-Configured SD Card Image for Talkkonnect Version 2 for Raspberry Pi and USB Sound Card](https://drive.google.com/file/d/12RgGKnYpvC6Z8NWGSV_HVqA9VcbdatGn/view?usp=sharing) 
-* You will need a CM-108 or equavilent sound card plugged in before booting for this image to work otherwise it will connect and disconnect to the server in an endless loop.	
-* This image has been configured to work with a USB CM108 Sound Card and GPIO will work out of the box for PTT and LEDs. 
+* This Image Was Created On 12/Janruary/2024 and Runs Debian Bookworm (Released December 11th 2023) along with talkkonnect version 2.37.01 Released 31/December/2023
+* [Click Here to Download Pre-Configured SD Card Image for Talkkonnect Version 2 for Raspberry Pi 3 (32 Bit OS) and USB Sound Card](https://drive.google.com/file/d/1iJdRzocS_SR2v_xJKqKWhct5XMWLMomt/view?usp=sharing) 
+* You will need a CM-108 or equavilent sound card plugged in before booting for this image to work otherwise it will connect and disconnect to the server in an endless loop. Vention Cards are recommended as cm108 card has a lot of noise.	
+* This image has been configured to work with a USB CM108 Sound Card and GPIO will work out of the box for PTT and LEDs. The GPIOs are mapped to the [circuit diagram](https://github.com/talkkonnect/talkkonnect/blob/main/circuit-diagram/Schematic_talkkonnect_2023-12-13.pdf)  
 * This image will work with LAN Cabled Ethernet connection out of the box
-
 	
 ### talkkonnect Version 2 Quick Download Link for Pre-Made SD Card Image for Use with Raspberry 2/3 and RESPEAKER Compatable HAT ###
 * This Image Was Created On 17/April/2023 and Runs Bullseye Release along with talkkonnect version 2.23.04 Released 15/April/2023

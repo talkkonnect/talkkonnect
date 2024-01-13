@@ -168,13 +168,13 @@ chmod +x ./update-talkkonnect.sh
 * This image has been configured to work with a USB CM108 Sound Card and GPIO will work out of the box for PTT and LEDs. The GPIOs are mapped to the [circuit diagram](https://github.com/talkkonnect/talkkonnect/blob/main/circuit-diagram/Schematic_talkkonnect_2023-12-13.pdf)  
 * This image will work with LAN Cabled Ethernet connection out of the box
 	
-### talkkonnect Version 2 (64BIT) Quick Download Link for Pre-Made SD Card Image for Use with Raspberry PI tested on Pi (2/3 series Zero2w) and USB Sound Card ###
-* This Image Was Created On 03/March/2023 and Runs Release date: February 21st 2023 Release of Bulls Eye Kernel version: 5.15
-Debian version: 11 (bullseye) along with talkkonnect version 2.19.01 Released 03/March/2023
-* [Click Here to Download Pre-Configured SD Card Image for Talkkonnect Version 2 for Raspberry Pi and USB Sound Card](https://drive.google.com/file/d/1w_900dLt3RNNhOoFNvW9RfzYXrP1iaRZ/view?usp=sharing) 
-* You will need a CM-108 or equavilent sound card plugged in before booting for this image to work otherwise it will connect and disconnect to the server in an endless loop.	
-* This image has been configured to work with a USB CM108 Sound Card and GPIO will work out of the box for PTT and LEDs. 
+### talkkonnect Version 2 (64BIT) Quick Download Link for Pre-Made SD Card Image for Use with Raspberry PI tested on Pi (3 series Zero2w) and USB Sound Card ###
+* This Image Was Created On 12/Janruary/2024 and Runs Debian Bookworm (Released December 11th 2023) along with talkkonnect version 2.37.01 Released 31/December/2023
+* [Click Here to Download Pre-Configured SD Card Image for Talkkonnect Version 2 for Raspberry Pi 3 and USB Sound Card](https://drive.google.com/file/d/15--tFwJnKSmWstChioWGrom563KE1vmb/view?usp=sharing) 
+* You will need a CM-108 or equavilent sound card plugged in before booting for this image to work otherwise it will connect and disconnect to the server in an endless loop. Vention Cards are recommended as cm108 card has a lot of noise.	
+* This image has been configured to work with a USB CM108 Sound Card and GPIO will work out of the box for PTT and LEDs. The GPIOs are mapped to the [circuit diagram](https://github.com/talkkonnect/talkkonnect/blob/main/circuit-diagram/Schematic_talkkonnect_2023-12-13.pdf)  
 * This image will work with LAN Cabled Ethernet connection out of the box
+
 
 ### talkkonnect Version 2 (32 BIT) Quick Download Link for Pre-Made SD Card Image for Use with Raspberry PI tested on Pi (2/3 series) and USB Sound Card ###
 * This Image Was Created On 17/April/2023 and Runs Bullseye Release along with talkkonnect version 2.23.04 Released 15/April/2023

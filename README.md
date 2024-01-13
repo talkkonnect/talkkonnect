@@ -180,10 +180,10 @@ chmod +x ./update-talkkonnect.sh
 * This image has been configured to work with a USB CM108 Sound Card and GPIO will work out of the box for PTT and LEDs. The GPIOs are mapped to the [circuit diagram](https://github.com/talkkonnect/talkkonnect/blob/main/circuit-diagram/Schematic_talkkonnect_2023-12-13.pdf)  
 * This image will work with LAN Cabled Ethernet connection out of the box
 	
-### talkkonnect Version 2 Quick Download Link for Pre-Made SD Card Image for Use with Raspberry 2/3 and RESPEAKER Compatable HAT ###
-* This Image Was Created On 17/April/2023 and Runs Bullseye Release along with talkkonnect version 2.23.04 Released 15/April/2023
-* [Click Here to Download Pre-Configured SD Card Image for Talkkonnect Version 2 for Raspberry 2/3/Zero 2W Respeaker Hat](https://drive.google.com/file/d/1w14QuArhrYbefp51wrj_Cv-31ulwV2jX/view?usp=share_link) 
-* This image has been configured to work with a Respeaker HAT out of the box so I2S, I2C and all required modules are installed and running. 
+### talkkonnect Version 2 Quick Download Link for Pre-Made SD Card Image for Use with Raspberry Pi 3,3A,3B+,Zero2W and RESPEAKER Compatable HAT ###
+* This Image Was Created On 12/Janruary/2024 and Runs Debian Bookworm (Released December 11th 2023) along with talkkonnect version 2.37.01 Released 31/December/2023
+* The Respeaker Drivers are compiled and audio for receiving and transmitting are working. The LEDs are working and so is the PTT Button on the Respeaker HAT.
+* [Click Here to Download Pre-Configured SD Card Image for Talkkonnect Version 2 for Raspberry Pi 3 Series and Zero2W (32 Bit OS) and Respeaker Hat](https://drive.google.com/file/d/1XPuzVnlYxRnatF4EvBT9r1aME9zSTKHg/view?usp=sharing) 
 * The XML file is configured to run in rpi mode so GPIO will initalized, this is so that the respeaker will work with output sound on the headphone jack, led strip working and push button microswitch on the hat can be used for transmitting.    
   then you will have to use raspi-config to set the wifi country for the wifi to work.	
 * For this image out of the box it will connect to a wifi with ssid network and password 1234567890 (if you are lazy you can do this)

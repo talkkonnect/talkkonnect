@@ -130,9 +130,8 @@ Instead of the onboard sound card or USB Sound Card, you can also use a ReSpeake
 * Thes options can be enabled, disabled and customized in the configuration talkkonnect.xml file.
 
 ### Common Information for the all the Pre-Made Images For Various Hardware Configurations ###
-* All images are made using version 2 of talkkonnect so please use version 2 configs samples
 * With all the updates I cannot possibly make all config sample files up to date so as a guideline please always look to the file 
-talkkonnect-version2-usb-gpio-example.xml  for the latest tags to copy and implement them in your builds.
+talkkonnect-version2-usb-gpio-example.xml and talkkonnect.tkv1pcb for the latest tags to copy and implement them in your builds.
 * We have for your convinience created a few different images that you can download and burn to your SD card so that you can get up and running quickly with a generic instance of talkkonnect working out of the box. Choose the image based on your hardware and use case. Using one of these images you will not need to follow all the complicated steps of installing and compiling everything from scratch if that seems daunting and overwhelming to you at first. 
 * This is an easy way to start experimenting with talkkonnect in a matter of minutes. The ability to shorten the time and lessen the barrier of entry will allow you to see if talkkonnect suits your needs.
 * The network settings are set as DHCP Client so your device should get an IP Address when by cabled LAN you connect it to your DHCP enabled network.
@@ -145,12 +144,10 @@ talkkonnect-version2-usb-gpio-example.xml  for the latest tags to copy and imple
 * You can join our channel(s) HAM-CB on the community server and start chatting with us with voice and asking us questions or make suggestions we have a warm and welcomming group of enthusiastic individuals to help you with your questions. This is a good place to hang around and chat with like minded individuals.
 * The images are divided into 2 broad categories (the ones that use the respeaker hat, the ones that use onboard sound and the ones that use USB Sound cards)
 * The images also are available in both 32 and 64 bit of the underlying operating systems written on to the SD card images.
-* For those Non-Respeaker Images (Usb Sound Card or MEMS Microphone Images) Out of the box the standard configutation XML file is set to run in PC mode so no GPIO will initalized.
-* The MEMS microphone image is not actively maintained so unless you have a specific use case stay away from this build.
 * For those Respeaker Images (Rpi Zero or RPI 2/3 Images with Respeaker) Out of the box the standard configutation XML file is set to run in GPIO Mode and GPIO will initalized, this means the PTT Button and the LEDS on the 2 Mic Respeaker Hat will work right away. You will need to connect an external speaker to the HAT for these images.
 * Feel Free to explore the various example talkkonnect.xml configurations that can be found in the directory /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/sample-configs here you can find various configurations that work with LCD, OLED, LEDS and PUSH Button Switches. The files are named descriptively. See the talkkonnect-version2-usb-gpio-example.xml
 as an example. 
-* To update to the lastest version release of talkkonnect in the image you can cd to the root directory and issue the following commands after logging in as root
+* To update to the lastest version release of talkkonnect in the image you can cd to the root directory and issue the following commands after logging in as root (You should not update the respeaker images!)
 
 ````
 cd /root

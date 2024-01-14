@@ -3,7 +3,7 @@
 ### A Headless Mumble Linux Client/Transceiver/Walkie Talkie/Intercom/Gateway for Single Board Computers, PCs or Virtual Environments (IP Radio/IP PTT <push-to-talk>)
 
 ---
-### If you like and use talkkonnect PLEASE let us know, please STAR talkkonnect/talkkonnect repo on github.com!
+### If you like and use talkkonnect PLEASE let us know how you are using talkkonnect please STAR talkkonnect/talkkonnect repo on github.com! Send Us Pictures!
 	
 ### So What then is talKKonnect, and why should I be Interested?
 
@@ -48,9 +48,10 @@ The Potential Uses of talKKonnect
 
 #### Remote Control Features
 Local or Remote Control via 
+* GPIO Pins and Buttons
 * Locally attached USB keyboard
-* SSH or Console terminal
-* Remote control over http api and/or MQTT with Granular Configurable remote control commands, LED Control, Button Control, Relay Control
+* SSH, Console terminal
+* HTTP API and/or MQTT with Granular Configurable remote control commands, LED Control, Button Control, Relay Control
 
 #### Using talkkonnect As a Radio Gateway Interface
 * Communications bridge to interface external (otherwise not compatible) radio systems both over the air and over IP networks.
@@ -84,7 +85,7 @@ Perip.io has been removed from talkkonnect so this means the respeaker LEDS will
 [talKKonnect](http://www.talkkonnect.com) was developed initially to run on Linux SBCs. The latest version can be scaled to run all the way from ARM SBCs to full fledged X86 servers.
 To compile on X86 archectures you would need to revert back to Tim Cooper's version of GOOPUS (Opus).
 Raspberry Pi 2B,3B,3A+,3B+,4B,400,Zero 2W, Orange PIs, PCs and virtual environments (Oracle VirtualBox, KVM and Proxmox) targets have all been tested and work as expected. 
-Rasperry Pi Zero W and Pi Zero WH (Version 1) is not recommended for use with talkkonnect as the CPU in that device is not powerful enough for any real practical use, avoid the Pi Zero W (Version 1) at all costs. However the newly released Raspberry Pi Zero Version 2 W is a perfect candidate for talkkonnect, both small and compact and it is highly recommended for those requiring smaller builds.
+The newly released Raspberry Pi Zero Version 2 W is a perfect candidate for talkkonnect as the easiest build without soldering, both small and compact and it is highly recommended for those requiring smaller builds.
 
 
 ### Why Was talKKonnect created?
@@ -102,13 +103,14 @@ Pictures and detailed information of my builds can be found on my [blog](https:/
 
 ### Building talkkonnect Additional Optional Hardware and Precautions ###
 
-You can use an external microphone with push buttons (up/down) for Channel navigation for a mobile transceiver like experience. 
-Currently talKKonnect works with 4×20 Hitachi [HD44780](https://www.sparkfun.com/datasheets/LCD/HD44780.pdf) LCD screen in parallel mode.  Other screens like 0.96" and 1.3" [OLED](https://learn.adafruit.com/adafruit-oled-displays-for-raspberry-pi) with I2C interface is also currently supported. Currently for SPI only seven segment displays are supported.
+You can find the typical circuit diagram in PDF format for raspberry pi 2,3 Series, Zero 2W [here](https://github.com/talkkonnect/talkkonnect/blob/main/circuit-diagram/Schematic_talkkonnect_2023-12-13.pdf)
+
+You can use an external microphone with push buttons (up/down) or rotary encoder for Channel navigation for a mobile transceiver like experience. 
+Currently talKKonnect works with 4×20 Hitachi [HD44780](https://www.sparkfun.com/datasheets/LCD/HD44780.pdf) LCD screen in parallel mode.  Other screens like 0.96" and 1.3" [OLED](https://learn.adafruit.com/adafruit-oled-displays-for-raspberry-pi) with I2C interface is also currently supported. Currently for SPI only seven segment displays are supported using MAX7219 chip.
 
 Low cost Class-D audio amplifiers like [PAM8403](https://www.instructables.com/id/PAM8403-6W-STEREO-AMPLIFIER-TUTORIAL/) or similar “D” class amplifiers, are recommended for talKKonnect builds.
 
-A good shileded cable for microphone is recommended to keep the noise picked up to a minimum. Talkkonnect also supports mems microphones with very good quality audio. However for MEMS microphones it is recommended that you compile the kernel module (driver) for the MEMs microphone of your choice. ADAFruit has a good guide to do this.
-
+A good shileded cable for microphone is recommended to keep the noise picked up to a minimum for mics when using analog soundcards.
 Instead of the onboard sound card or USB Sound Card, you can also use a ReSpeaker compatiable HAT, or a ReSpeaker USB Sound Card with built in Amplifier and achieve great audio quality results in a compact form factor.
 	
 #### You can connect LED indicators that can be build on the front panel of your build to show the following statuses ####
@@ -126,12 +128,11 @@ Instead of the onboard sound card or USB Sound Card, you can also use a ReSpeake
 * *TTS prompts* to announce different events for those use special use cases where it is required.  
 * *Roger Beep* sounds that are played at the end of each transmission. 
 * *Muting* of The speaker when pressing PTT to prevent audio feedback and give a radio communication like experience to simulate simplex mode. Both simplex and duplex   settable in XML config. Duplex mode allows you to keep the speaker open for people to interrupt you while speaking. 
-* LCD/OLED display can show *channel information, server information, who joined, who is speaking, last transmision received date and time, etc.* 
+* LCD/OLED display can show *channel information, server information, who joined, who is speaking, last transmision received date and time, Rotary encoder whether in volume, channel, voice target or radio channel mode, etc.* 
 * Thes options can be enabled, disabled and customized in the configuration talkkonnect.xml file.
 
 ### Common Information for the all the Pre-Made Images For Various Hardware Configurations ###
-* With all the updates I cannot possibly make all config sample files up to date so as a guideline please always look to the file 
-talkkonnect-version2-usb-gpio-example.xml and talkkonnect.tkv1pcb for the latest tags to copy and implement them in your builds.
+* With all the updates I cannot possibly make all config sample files up to date so as a guideline for raspberry pi boards please always look to the file talkkonnect-version2-usb-gpio-example.xml and talkkonnect.tkv1pcb for the latest tags to copy and implement them in your builds.
 * We have for your convinience created a few different images that you can download and burn to your SD card so that you can get up and running quickly with a generic instance of talkkonnect working out of the box. Choose the image based on your hardware and use case. Using one of these images you will not need to follow all the complicated steps of installing and compiling everything from scratch if that seems daunting and overwhelming to you at first. 
 * This is an easy way to start experimenting with talkkonnect in a matter of minutes. The ability to shorten the time and lessen the barrier of entry will allow you to see if talkkonnect suits your needs.
 * The network settings are set as DHCP Client so your device should get an IP Address when by cabled LAN you connect it to your DHCP enabled network.
@@ -147,7 +148,8 @@ talkkonnect-version2-usb-gpio-example.xml and talkkonnect.tkv1pcb for the latest
 * For those Respeaker Images (Rpi Zero or RPI 2/3 Images with Respeaker) Out of the box the standard configutation XML file is set to run in GPIO Mode and GPIO will initalized, this means the PTT Button and the LEDS on the 2 Mic Respeaker Hat will work right away. You will need to connect an external speaker to the HAT for these images.
 * Feel Free to explore the various example talkkonnect.xml configurations that can be found in the directory /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/sample-configs here you can find various configurations that work with LCD, OLED, LEDS and PUSH Button Switches. The files are named descriptively. See the talkkonnect-version2-usb-gpio-example.xml
 as an example. 
-* To update to the lastest version release of talkkonnect in the image you can cd to the root directory and issue the following commands after logging in as root (You should not update the respeaker images!)
+* To update to the lastest version release of talkkonnect in the image you can cd to the root directory and issue the following commands after logging in as root (You should not update the respeaker images as they are customized and
+will break the respeaker LED compatability)
 
 ````
 cd /root
@@ -208,13 +210,13 @@ chmod +x ./update-talkkonnect.sh
 * run ./tkbuild.sh and wait for golang to install and talkkonnect to download along with all libraries automatically
 * You will need to copy and modify the XML Sample from [here](https://github.com/talkkonnect/talkkonnect/blob/main/sample-configs/talkkonnect-version2-usb-gpio-example.xml) and keep in the directory
 /home/talkkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/talkkonnect.xml
-* After that you will have to configure alsa as shown in the audio configuration section below for talkkonnect to work
+* After that you will have to configure alsa as shown in the audio configuration section [below](https://github.com/talkkonnect/talkkonnect#audio-configuration) for talkkonnect to work
 
 ##### Sample XML files can be found from sample-configs folder: #####
 
 https://github.com/talkkonnect/talkkonnect/tree/main/sample-configs
 
-See the file talkkonnect-version2-usb-gpio-example.xml as an example with all the latest XLS tags.
+See the file talkkonnect-version2-usb-gpio-example.xml and talkkonnect.tkv1pcb as an example with all the latest XLS tags.
 
 ##### Start  talKKonnect binary #####
 
@@ -744,5 +746,5 @@ Thank you all for your kind feedback sent along with some pictures and use cases
 ## License 
 [talKKonnect](http://www.talkkonnect.com) is open source and available under the MPL V2.00 license.
 
-<suvir@talkkonnect.com> Updated 18/04/2023 talkkonnect version 2.23.04 is the latest release as of this writing.
+<suvir@talkkonnect.com> Updated 18/04/2023 talkkonnect version 2.37.01 is the latest release as of this writing.
 

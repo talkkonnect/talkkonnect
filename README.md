@@ -162,7 +162,7 @@ chmod +x ./update-talkkonnect.sh
 ./update-talkkonnect.sh
 ````
 
-## Quick Start woth ready amde talKKonnect Version 2 Images
+## Quick Start Readymade talKKonnect Downloadable Images for SD Cards
 
 ### talkkonnect Version 2 (64 Bit) Quick Download Link for Pre-Made SD Card Image for Use with Raspberry PI tested on Pi 4 series and USB Sound Card ###
 * This Image Was Created On 12/Janruary/2024 and Runs Debian Bookworm (Released December 11th 2023) along with talkkonnect version 2.37.01 Released 31/December/2023

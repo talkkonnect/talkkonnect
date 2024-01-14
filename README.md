@@ -3,8 +3,8 @@
 ### A Headless Mumble Linux Client/Transceiver/Walkie Talkie/Intercom/Gateway for Single Board Computers (IP Radio/IP PTT <push-to-talk>)
 
 ---
-### If you like and use talkkonnect PLEASE let us know how you are using talkkonnect please STAR talkkonnect/talkkonnect repo on github.com! Send Us Pictures!
-	
+### If you use talkkonnect Please let us know your use case by sending us pictures, and please also STAR talkkonnect/talkkonnect repo on github.com!
+
 ### So What then is talKKonnect, and why should I be Interested?
 
 [talKKonnect](http://www.talkkonnect.com) is an open source customizable headless, self-contained Mumble Push to Talk (PTT) client designed for linux SBCs such as Raspberry Pi, and Orange Pi Boards. It offers a flexible form factor with an LCD/OLED display, channel and volume control, making it ideal for group communication scenarios. Common use cases include amateur radio enthusiasts, ad-hoc group communications, and replacing expensive commercial intercom systems.

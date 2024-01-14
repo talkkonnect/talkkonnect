@@ -1,6 +1,6 @@
 # talKKonnect
 
-### A Headless Mumble Linux Client/Transceiver/Walkie Talkie/Intercom/Gateway for Single Board Computers, PCs or Virtual Environments (IP Radio/IP PTT <push-to-talk>)
+### A Headless Mumble Linux Client/Transceiver/Walkie Talkie/Intercom/Gateway for Single Board Computers (IP Radio/IP PTT <push-to-talk>)
 
 ---
 ### If you like and use talkkonnect PLEASE let us know how you are using talkkonnect please STAR talkkonnect/talkkonnect repo on github.com! Send Us Pictures!

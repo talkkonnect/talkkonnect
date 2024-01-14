@@ -34,8 +34,10 @@ The Potential Uses of talKKonnect
 * Factories and Warehouses
 * Video Production
 * Ham Radio
+
+![Pictures of Builds](/images/talKKonect.png)
   
-Pictures and detailed information of builds can be found [facebook](https://www.facebook.com/talkkonnect) and [blog](https://www.talkkonnect.com) 
+Mode detailed information of builds can be found [facebook](https://www.facebook.com/talkkonnect) and [blog](https://www.talkkonnect.com) 
 
 #### Some Interesting Features of talkkonnect
 

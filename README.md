@@ -35,6 +35,8 @@ The Potential Uses of talKKonnect
 * Video Production
 * Ham Radio
   
+Pictures and detailed information of builds can be found [facebook](https://www.facebook.com/talkkonnect) and [blog](https://www.talkkonnect.com) 
+
 #### Some Interesting Features of talkkonnect
 
 #### Configurablilty
@@ -99,8 +101,6 @@ Living in an apartment in the age of the internet with the itch to innovate drov
 I have tried to make the talKKonnect source code readable and stable to the best of my ability. Time permitting I will continue to work and learn from all those people who give feedback and show interest in using talkkonnect. 
 
 [talKKonnect](http://www.talkkonnect.com) was originally created to have the form factor and functionality of a desktop transceiver. With community feedback we started to push the envelope to make it more versatile and scalable as you can see from the rich feature list. We also later added announcement and PA abilities to make talkkonnect support IP-Speaker functionality.
-
-Pictures and detailed information of my builds can be found on my [blog](https://www.talkkonnect.com) and on [facebook](https://www.facebook.com/talkkonnect)
 
 ### Building talkkonnect Additional Optional Hardware and Precautions ###
 

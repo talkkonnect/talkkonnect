@@ -7,7 +7,7 @@
 	
 ### So What then is talKKonnect, and why should I be Interested?
 
-[talKKonnect](http://www.talkkonnect.com) is a headless, self-contained Mumble Push to Talk (PTT) client designed for Raspberry Pi devices. It offers a transceiver-like form factor with an LCD/OLED display, channel and volume control, making it ideal for group communication scenarios. The software is open-source and can be customized for specific needs. Common use cases include amateur radio enthusiasts, ad-hoc group communications, and replacing expensive commercial intercom systems.
+[talKKonnect](http://www.talkkonnect.com) is an open source customizable headless, self-contained Mumble Push to Talk (PTT) client designed for Raspberry Pi devices. It offers a transceiver-like form factor with an LCD/OLED display, channel and volume control, making it ideal for group communication scenarios. Common use cases include amateur radio enthusiasts, ad-hoc group communications, and replacing expensive commercial intercom systems.
 
 The Potential Uses of talKKonnect
 * IP Intercom or Door Intercom or Intercom between remote places
@@ -23,8 +23,6 @@ The Potential Uses of talKKonnect
 * A toy for your kids (so that they can feel how it was like to be a kid in the 80s with a CB radio Now With 7-Segment and Rotary Encoder Channel Changing)
 * A customized version of your particular PTT Communication unique usecase as this project is an open souce platform whereby people can build on quickly
 
-#### Some Interesting Features of talkkonnect
-
 #### Current Use of talkkonnect in real world applications in varying industries by our community members
 * Logistics and Transportation
 * Fire Fighting and Rescue Operations
@@ -37,6 +35,8 @@ The Potential Uses of talKKonnect
 * Video Production
 * Ham Radio
   
+#### Some Interesting Features of talkkonnect
+
 #### Configurablilty
 * XML Granular configurability covering many flexible uses cases.
 * Centralized autoprovisioning for multiple talkkonnect devices from a centralized http provisioning server using XML delivery via http 

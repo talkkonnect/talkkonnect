@@ -27,11 +27,15 @@ The Potential Uses of talKKonnect
 
 #### Current Use of talkkonnect in real world applications in varying industries by our community members
 * Logistics and Transportation
-* Rescue Operations
+* Fire Fighting and Rescue Operations
 * Remote Location Help Request Repeaters
-* Ham Radio
 * Maritime
+* National Parks
+* Military
+* Security Guards
+* Factories and Warehouses
 * Video Production
+* Ham Radio
   
 #### Configurablilty
 * XML Granular configurability covering many flexible uses cases.

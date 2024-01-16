@@ -195,13 +195,16 @@ chmod +x ./update-talkkonnect.sh
 * For this image out of the box it will connect to a wifi with ssid network and password 1234567890 (if you are lazy you can do this)
 * To Connect to your WIFI you can also create the wpa_supplicant.conf file and put it in the /boot/ folder on windows before inserting the card into your raspberry pi.
 
+
 ### (Obsoleted Image) talkkonnect Version 2 Quick Download Link for Pre-Made SD Card Image 32GB for Use with Orange Pi Zero ###
-* This Image Was Created On 05/April/2022 and Runs Bullseye Release along with talkkonnect Version 2.13.01 Released Mar 6 2022
-* [Click Here to Download Pre-Configured SD Card Image for Talkkonnect Version 2 for Orange Pi Zero Onboard Sound](https://drive.google.com/file/d/19IZAi6zRIzWeS8i4eo8djSPOkNSF6C3v/view?usp=sharing) 
+* [Click Here to Download Pre-Configured SD Card Image for Talkkonnect Version 2 for Orange Pi Zero Onboard Sound](https://drive.google.com/file/d/1rA5P-wpZPDByQHtei0S2qSwaAQ65NmpT/view?usp=drive_link) 
 * You will need a to connect a microphone using the same circuit as the orange pi zero microphone hat.	
 * This image uses the standard 32 Bit Sampling and will work properly with all mumble clients on windows, android and iphone with good quality sound.
 * This Image should work out of the box it also has serial console on the usb port for easy access to ssh thorough com port on windows and macOS
-* This image will work with LAN Cabled Ethernet connection out of the box
+* The XML file is configured to run in rpi mode so GPIO will initalized, this means that PTT GPIO key is enabled, Rotary Encoder and OLED Screen All Configured.    
+* This image will work with LAN Cabled Ethernet connection out of the box then you will have to use raspi-config to set the wifi country for the wifi to work.	
+* For this image out of the box it will connect to a wifi with ssid network and password 1234567890 (if you are lazy you can do this)
+* To Connect to your WIFI you can also create the wpa_supplicant.conf file and put it in the /boot/ folder on windows before inserting the card into your raspberry pi.
 
 ### Installation Instructions For Raspberry Pi Boards (from Bash Script) ###
 * Install raspberry pi os using instructions from [here](https://www.raspberrypi.com/software/operating-systems/)

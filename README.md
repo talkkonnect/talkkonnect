@@ -196,7 +196,7 @@ chmod +x ./update-talkkonnect.sh
 * To Connect to your WIFI you can also create the wpa_supplicant.conf file and put it in the /boot/ folder on windows before inserting the card into your raspberry pi.
 
 
-### (Obsoleted Image) talkkonnect Version 2 Quick Download Link for Pre-Made SD Card Image 32GB for Use with Orange Pi Zero ###
+### (Obsoleted Image) talkkonnect Version 2 Quick Download Link for Pre-Made SD Card Image for Use with Orange Pi Zero ###
 * [Click Here to Download Pre-Configured SD Card Image for Talkkonnect Version 2 for Orange Pi Zero Onboard Sound](https://drive.google.com/file/d/1rA5P-wpZPDByQHtei0S2qSwaAQ65NmpT/view?usp=drive_link) 
 * You will need a to connect a microphone using the same circuit as the orange pi zero microphone hat.	
 * This image uses the standard 32 Bit Sampling and will work properly with all mumble clients on windows, android and iphone with good quality sound.

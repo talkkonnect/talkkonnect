@@ -634,7 +634,6 @@ keyPressListenerLoop:
 				case term.KeyCtrlP:
 					b.cmdPanicSimulation()
 				case term.KeyCtrlQ:
-					b.cmdConnNextServer()
 				case term.KeyCtrlG:
 					b.cmdPlayRepeaterTone()
 				case term.KeyCtrlR:
@@ -658,7 +657,7 @@ keyPressListenerLoop:
 				case term.KeyCtrlX:
 					b.cmdDumpXMLConfig()
 				case term.KeyCtrlZ:
-					b.nextEnabledRotaryEncoderFunction()
+					b.cmdConnNextServer()
 				default:
 					if _, ok := TTYKeyMap[ev.Ch]; ok {
 						switch strings.ToLower(TTYKeyMap[ev.Ch].Command) {

@@ -31,10 +31,10 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.37.01"
-	talkkonnectReleased string = "31 Dec 2023"
+	talkkonnectVersion  string = "2.37.02"
+	talkkonnectReleased string = "17 Jan 2024"
 )
 
 /* Release Notes
-Added Online Radio Player for entertainment while standingby
+Changed Next Server Command to Map from Ctrl-Q to Ctrl-Z
 */

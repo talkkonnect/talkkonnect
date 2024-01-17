@@ -577,7 +577,6 @@ func (b *Talkkonnect) cmdPingServers() {
 }
 
 func (b *Talkkonnect) cmdConnNextServer() {
-	log.Printf("debug: Ctrl-Q Pressed \n")
 	log.Println("info: Next Server Requested Killing This Session, talkkonnect should be restarted by systemd")
 
 	TTSEvent("nextserver")

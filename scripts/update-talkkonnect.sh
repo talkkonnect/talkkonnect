@@ -64,17 +64,6 @@ rm -rf  /home/talkkonnect/gocode/src/github.com
 rm -rf  /home/talkkonnect/bin/talkkonnect
 
 
-## Create the necessary directoy structure under /home/talkkonnect/
-mkdir -p /home/talkkonnect/gocode
-mkdir -p /home/talkkonnect/gocode/src
-mkdir -p /home/talkkonnect/gocode/src/github.com
-
-
-## Added this block to update to the latest version of golang so the update doesnt break talkkonnect
-rm -rf /usr/local/go
-cd /usr/local
-cd /usr/local
-
 ## Check Latest of GOLANG 64 Bit Version for Raspberry Pi
 GOLANG_LATEST_STABLE_VERSION=$(curl -s https://go.dev/VERSION?m=text | grep go)
 cputype=`lscpu | grep Architecture | cut -d ":" -f 2 | sed 's/ //g'`
@@ -91,21 +80,33 @@ wget -nc https://go.dev/dl/$GOLANG_LATEST_STABLE_VERSION.linux-arm64.tar.gz $GOL
 tar -zxvf /usr/local/$GOLANG_LATEST_STABLE_VERSION.linux-arm64.tar.gz
 fi
 
+
+## Create the necessary directoy structure under /home/talkkonnect/
+mkdir -p /home/talkkonnect/gocode
+mkdir -p /home/talkkonnect/gocode/src
+mkdir -p /home/talkkonnect/gocode/src/github.com
+
+
 ## Set up GOENVIRONMENT
 export PATH=$PATH:/usr/local/go/bin
 export GOPATH=/home/talkkonnect/gocode
 export GOBIN=/home/talkkonnect/bin
-export GO111MODULE="auto"
 
 ## Get the latest source code of talkkonnect from github.com
-echo "getting talkkonnect with go get"
+echo "installing talkkonnect with go installing"
 cd $GOPATH
-go get -v github.com/talkkonnect/talkkonnect
+mkdir /home/talkkonnect/gocode/src/github.com/talkkonnect
+cd /home/talkkonnect/gocode/src/github.com/talkkonnect
+git clone https://github.com/talkkonnect/talkkonnect
+cd /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect
+go mod init
+go mod tidy
 
 ## Build talkkonnect as binary
 cd $GOPATH/src/github.com/talkkonnect/talkkonnect
 go build -o /home/talkkonnect/bin/talkkonnect cmd/talkkonnect/main.go
 
+echo copying $BACKUPXML
 cp /root/$BACKUPCERT /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/mumble.pem
 cp /root/$BACKUPXML /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/talkkonnect.xml
 
@@ -125,5 +126,3 @@ echo "copied old talkkonnect.xml file and replaced in /home/talkkonnect/gocode/s
 echo "Happy talkkonnecting!!"
 
 exit
-
-

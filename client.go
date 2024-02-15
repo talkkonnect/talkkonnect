@@ -587,11 +587,11 @@ keyPressListenerLoop:
 				case term.KeyF3:
 					b.cmdMuteUnmute("toggle")
 				case term.KeyF4:
-					b.cmdCurrentVolume()
+					b.cmdCurrentRXVolume()
 				case term.KeyF5:
-					b.cmdVolumeUp()
+					b.cmdVolumeRXUp()
 				case term.KeyF6:
-					b.cmdVolumeDown()
+					b.cmdVolumeRXDown()
 				case term.KeyF7:
 					b.cmdListServerChannels()
 				case term.KeyF8:
@@ -677,10 +677,10 @@ keyPressListenerLoop:
 							b.cmdMuteUnmute("toggle")
 						case "stream-toggle":
 							b.cmdPlayback()
-						case "volumeup":
-							b.cmdVolumeUp()
-						case "volumedown":
-							b.cmdVolumeDown()
+						case "volumerxup":
+							b.cmdVolumeRXUp()
+						case "volumetxdown":
+							b.cmdVolumeRXDown()
 						case "setcomment":
 							if TTYKeyMap[ev.Ch].ParamValue == "setcomment" {
 								log.Println("info: Set Commment ", TTYKeyMap[ev.Ch].ParamValue)
@@ -707,6 +707,8 @@ keyPressListenerLoop:
 							GPIOInputPinControl(TTYKeyMap[ev.Ch].ParamName, TTYKeyMap[ev.Ch].ParamValue)
 						case "gpiooutput":
 							GPIOOutputPinControl(TTYKeyMap[ev.Ch].ParamName, TTYKeyMap[ev.Ch].ParamValue)
+						case "volumetxup":
+							b.cmdVolumeTXUp()
 						default:
 							log.Println("error: Command Not Defined ", strings.ToLower(TTYKeyMap[ev.Ch].Command))
 						}

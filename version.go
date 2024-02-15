@@ -31,10 +31,10 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.37.02"
-	talkkonnectReleased string = "17 Jan 2024"
+	talkkonnectVersion  string = "2.38.01"
+	talkkonnectReleased string = "15 Feb 2024"
 )
 
 /* Release Notes
-Changed Next Server Command to Map from Ctrl-Q to Ctrl-Z
+Started Implementing Control of Mic Volume
 */

@@ -119,9 +119,9 @@ func (b *Talkkonnect) onMessageReceived(client MQTT.Client, message MQTT.Message
 		"channelup":          b.cmdChannelUp,
 		"channeldown":        b.cmdChannelDown,
 		"muteunmute":         b.cmdMuteUnmute,
-		"currentvolume":      b.cmdCurrentVolume,
-		"volumeup":           b.cmdVolumeUp,
-		"volumedown":         b.cmdVolumeDown,
+		"currentrxvolume":    b.cmdCurrentRXVolume,
+		"volumerxup":         b.cmdVolumeRXUp,
+		"volumerxdown":       b.cmdVolumeRXDown,
 		"listserverchannels": b.cmdListServerChannels,
 		"starttransmitting":  b.cmdStartTransmitting,
 		"stoptransmitting":   b.cmdStopTransmitting,
@@ -140,8 +140,8 @@ func (b *Talkkonnect) onMessageReceived(client MQTT.Client, message MQTT.Message
 		"showuptime":         b.cmdShowUptime,
 		"dumpxmlconfig":      b.cmdDumpXMLConfig,
 		"voicetargetset":     b.cmdSendVoiceTargets,
-    	        "listeningstart":     b.cmdListeningStart,
-                "listeningstop":      b.cmdListeningStop,
+		"listeningstart":     b.cmdListeningStart,
+		"listeningstop":      b.cmdListeningStop,
 		"attention":          attention,
 		"relay":              relay}
 

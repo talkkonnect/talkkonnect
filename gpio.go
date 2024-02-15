@@ -809,7 +809,7 @@ func (b *Talkkonnect) initGPIO() {
 						} else {
 							log.Println("debug: Vol UP Button is pressed")
 							playIOMedia("iovolup")
-							b.cmdVolumeUp()
+							b.cmdVolumeRXUp()
 						}
 					}
 				} else {
@@ -833,7 +833,7 @@ func (b *Talkkonnect) initGPIO() {
 						} else {
 							log.Println("debug: Vol Down Button is pressed")
 							playIOMedia("iovoldown")
-							b.cmdVolumeDown()
+							b.cmdVolumeRXDown()
 						}
 					}
 				} else {
@@ -1539,7 +1539,7 @@ func (b *Talkkonnect) rotaryAction(direction string) {
 				}
 			case "localvolume":
 				if b.findEnabledRotaryEncoderFunction("localvolume") {
-					b.cmdVolumeUp()
+					b.cmdVolumeRXUp()
 				}
 			case "radiochannel":
 				if b.findEnabledRotaryEncoderFunction("radiochannel") {
@@ -1564,7 +1564,7 @@ func (b *Talkkonnect) rotaryAction(direction string) {
 				}
 			case "localvolume":
 				if b.findEnabledRotaryEncoderFunction("localvolume") {
-					b.cmdVolumeDown()
+					b.cmdVolumeRXDown()
 				}
 			case "radiochannel":
 				if b.findEnabledRotaryEncoderFunction("radiochannel") {
@@ -1604,7 +1604,7 @@ func (b *Talkkonnect) nextEnabledRotaryEncoderFunction() {
 			}
 		}
 		if RotaryFunction.Function == "localvolume" {
-			b.cmdCurrentVolume()
+			b.cmdCurrentRXVolume()
 			if OLEDEnabled {
 				oledDisplay(false, 6, OLEDStartColumn, "[Volume Mode]       ")
 			}
@@ -1635,7 +1635,7 @@ func (b *Talkkonnect) nextEnabledRotaryEncoderFunction() {
 			}
 		}
 		if RotaryFunction.Function == "localvolume" {
-			b.cmdCurrentVolume()
+			b.cmdCurrentRXVolume()
 			if OLEDEnabled {
 				oledDisplay(false, 6, OLEDStartColumn, "[Volume Mode]       ")
 			}

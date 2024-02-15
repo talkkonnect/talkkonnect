@@ -157,7 +157,7 @@ func (b *Talkkonnect) cmdMuteUnmute(subCommand string) {
 		return
 	}
 }
-func (b *Talkkonnect) cmdCurrentVolume() {
+func (b *Talkkonnect) cmdCurrentRXVolume() {
 	OrigVolume, err := volume.GetVolume(Config.Global.Software.Settings.OutputVolControlDevice)
 	if err != nil {
 		log.Printf("error: Unable to get current volume: %+v\n", err)
@@ -179,7 +179,7 @@ func (b *Talkkonnect) cmdCurrentVolume() {
 	}
 }
 
-func (b *Talkkonnect) cmdVolumeUp() {
+func (b *Talkkonnect) cmdVolumeRXUp() {
 	log.Printf("debug: F5 pressed Volume UP (+) \n")
 	origVolume, err := volume.GetVolume(Config.Global.Software.Settings.OutputVolControlDevice)
 	if err != nil {
@@ -221,7 +221,7 @@ func (b *Talkkonnect) cmdVolumeUp() {
 	TTSEvent("digitalvolumeup")
 }
 
-func (b *Talkkonnect) cmdVolumeDown() {
+func (b *Talkkonnect) cmdVolumeRXDown() {
 	log.Printf("info: F6 pressed Volume Down (-) \n")
 	origVolume, err := volume.GetVolume(Config.Global.Software.Settings.OutputVolControlDevice)
 	if err != nil {
@@ -248,6 +248,112 @@ func (b *Talkkonnect) cmdVolumeDown() {
 		}
 	} else {
 		log.Println("debug: F6 Increase Volume Already")
+		log.Println("info: Already at Minimum Possible Volume")
+		if Config.Global.Hardware.TargetBoard == "rpi" {
+			if LCDEnabled {
+				LcdText = [4]string{"nil", "nil", "nil", "Min Vol"}
+				LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+			}
+			if OLEDEnabled {
+				oledDisplay(false, 6, OLEDStartColumn, "Min Vol")
+			}
+			b.sevenSegment("localvolume", "0")
+		}
+	}
+	TTSEvent("digitalvolumedown")
+}
+
+func (b *Talkkonnect) cmdCurrentTXVolume() {
+	OrigVolume, err := volume.GetVolume(Config.Global.Software.Settings.InputDevice)
+	if err != nil {
+		log.Printf("error: Unable to get current volume: %+v\n", err)
+	}
+
+	log.Printf("debug: ?? pressed TX Volume Level Requested\n")
+	log.Println("info: Volume Level is at", OrigVolume, "%")
+
+	TTSEvent("currentvolumelevel")
+	if Config.Global.Hardware.TargetBoard == "rpi" {
+		if LCDEnabled {
+			LcdText = [4]string{"nil", "nil", "nil", "Volume " + strconv.Itoa(OrigVolume)}
+			LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+		}
+		if OLEDEnabled {
+			oledDisplay(false, 6, OLEDStartColumn, "Volume "+strconv.Itoa(OrigVolume))
+		}
+		b.sevenSegment("localvolume", strconv.Itoa(OrigVolume))
+	}
+}
+
+func (b *Talkkonnect) cmdVolumeTXUp() {
+	log.Printf("debug: ?? pressed Volume UP (+) \n")
+	origVolume, err := volume.GetVolume(Config.Global.Software.Settings.InputDevice)
+	if err != nil {
+		log.Printf("warn: unable to get original volume: %+v volume control will not work!\n", err)
+		return
+	}
+
+	if origVolume < 100 {
+		err := volume.IncreaseVolume(Config.Global.Hardware.IO.VolumeButtonStep.VolUpStep, Config.Global.Software.Settings.InputDevice)
+		if err != nil {
+			log.Println("warn: ?? Increase Volume Failed! ", err)
+		}
+		origVolume, _ := volume.GetVolume(Config.Global.Software.Settings.InputDevice)
+		log.Println("info: Volume UP (+) Now At ", origVolume, "%")
+		if Config.Global.Hardware.TargetBoard == "rpi" {
+			if LCDEnabled {
+				LcdText = [4]string{"nil", "nil", "nil", "Volume + " + strconv.Itoa(origVolume)}
+				LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+			}
+			if OLEDEnabled {
+				oledDisplay(false, 6, OLEDStartColumn, "Volume "+strconv.Itoa(origVolume))
+			}
+			b.sevenSegment("localvolume", strconv.Itoa(origVolume))
+		}
+	} else {
+		log.Println("debug: ?? Increase Volume")
+		log.Println("info: Already at Maximum Possible Volume")
+		if Config.Global.Hardware.TargetBoard == "rpi" {
+			if LCDEnabled {
+				LcdText = [4]string{"nil", "nil", "nil", "Max Vol"}
+				LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+			}
+			if OLEDEnabled {
+				oledDisplay(false, 6, OLEDStartColumn, "Max Vol")
+			}
+			b.sevenSegment("localvolume", "100")
+		}
+	}
+	TTSEvent("digitalvolumeup")
+}
+
+func (b *Talkkonnect) cmdVolumeTXDown() {
+	log.Printf("info: F6 pressed Volume Down (-) \n")
+	origVolume, err := volume.GetVolume(Config.Global.Software.Settings.InputDevice)
+	if err != nil {
+		log.Printf("warn: unable to get original volume: %+v volume control will not work!\n", err)
+		return
+	}
+
+	if origVolume > 0 {
+		err := volume.IncreaseVolume(Config.Global.Hardware.IO.VolumeButtonStep.VolDownStep, Config.Global.Software.Settings.InputDevice)
+		if err != nil {
+			log.Println("error: ?? Decrease Volume Failed! ", err)
+		}
+		origVolume, _ := volume.GetVolume(Config.Global.Software.Settings.InputDevice)
+		log.Println("info: Volume Down (-) Now At ", origVolume, "%")
+		if Config.Global.Hardware.TargetBoard == "rpi" {
+			if LCDEnabled {
+				LcdText = [4]string{"nil", "nil", "nil", "Volume - " + strconv.Itoa(origVolume)}
+				LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+			}
+			if OLEDEnabled {
+				oledDisplay(false, 6, OLEDStartColumn, "Volume "+strconv.Itoa(origVolume))
+			}
+			b.sevenSegment("localvolume", strconv.Itoa(origVolume))
+		}
+	} else {
+		log.Println("debug: ?? Increase Volume Already")
 		log.Println("info: Already at Minimum Possible Volume")
 		if Config.Global.Hardware.TargetBoard == "rpi" {
 			if LCDEnabled {

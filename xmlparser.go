@@ -98,6 +98,7 @@ type ConfigStruct struct {
 				OutputDeviceShort       string        `xml:"outputdeviceshort"`
 				OutputVolControlDevice  string        `xml:"outputvolcontroldevice"`
 				OutputMuteControlDevice string        `xml:"outputmutecontroldevice"`
+				InputDevice             string        `xml:"inputdevice"`
 				LogFilenameAndPath      string        `xml:"logfilenameandpath"`
 				Logging                 string        `xml:"logging"`
 				Loglevel                string        `xml:"loglevel"`
@@ -1079,6 +1080,7 @@ func printxmlconfig() {
 		log.Println("info: Output Device(Short)             ", Config.Global.Software.Settings.OutputDeviceShort)
 		log.Println("info: Output Vol Control Device        ", Config.Global.Software.Settings.OutputVolControlDevice)
 		log.Println("info: Output Mute Control Device       ", Config.Global.Software.Settings.OutputMuteControlDevice)
+		log.Println("info: Input Device                     ", Config.Global.Software.Settings.InputDevice)
 		log.Println("info: Log File                         ", Config.Global.Software.Settings.LogFilenameAndPath)
 		log.Println("info: Logging                          ", Config.Global.Software.Settings.Logging)
 		log.Println("info: Loglevel                         ", Config.Global.Software.Settings.Loglevel)

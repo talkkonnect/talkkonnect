@@ -83,10 +83,10 @@ func (b *Talkkonnect) USBKeyboard() {
 							b.cmdChannelDown()
 						case "volumeup":
 							playIOMedia("usbvolup")
-							b.cmdVolumeUp()
+							b.cmdVolumeRXUp()
 						case "volumedown":
 							playIOMedia("usbvoldown")
-							b.cmdVolumeDown()
+							b.cmdVolumeRXDown()
 						case "pttkey":
 							if !b.IsTransmitting {
 								b.TransmitStart()
@@ -140,10 +140,10 @@ func (b *Talkkonnect) USBKeyboard() {
 							b.cmdPlayback()
 						case "volumeup":
 							playIOMedia("usbvolup")
-							b.cmdVolumeUp()
+							b.cmdVolumeRXUp()
 						case "volumedown":
 							playIOMedia("usbvoldown")
-							b.cmdVolumeDown()
+							b.cmdVolumeRXDown()
 						case "setcomment":
 							if USBKeyMap[rune(ke.Scancode)].ParamName == "setcomment" {
 								log.Println("info: Set Commment ", USBKeyMap[rune(ke.Scancode)].ParamValue)

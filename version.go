@@ -31,10 +31,41 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.38.01"
-	talkkonnectReleased string = "15 Feb 2024"
+	talkkonnectVersion  string = "2.39.01"
+	talkkonnectReleased string = "18 Feb 2024"
 )
 
 /* Release Notes
-Started Implementing Control of Mic Volume
+Mic Volume Remote Control Available via Keyboard, HTTPAPI and MQTT Feature requested by Kekstar
+to use it
+
+via keyboard to map volumetxup to key 1 and volumetxdown to key 2 under the <keyboard> section of talkkonnect.xml
+
+       <command action="volumetxup" paramname="" paramvalue="" enabled="true">
+          <ttykeyboard scanid="49" keylabel="1" enabled="true"/>
+          <usbkeyboard scanid="49" keylabel="1" enabled="true"/>
+        </command>
+        <command action="volumetxdown" paramname="" paramvalue="" enabled="true">
+          <ttykeyboard scanid="50" keylabel="2" enabled="true"/>
+          <usbkeyboard scanid="50" keylabel="2" enabled="true"/>
+        </command>
+
+control via httpapi <remotecontrol> section for talkkonnect
+       <http listenport="8080" enabled="true">
+          <command action="volumerxup" funcparamname="" message="Volume Up" enabled="true"/>
+          <command action="volumerxdown" funcparamname="" message="Volume Down" enabled="true"/>
+          <command action="volumetxup" funcparamname="" message="Volume Up" enabled="true"/>
+          <command action="volumetxdown" funcparamname="" message="Volume Down" enabled="true"/>
+
+
+		  then use browser to call for example http://aaa.bbb.ccc.ddd:8080/?command=volumetxup or http://aaa.bbb.ccc.ddd:8080/?command=volumetxdown
+
+
+control via mqtt by <mqtt> in the command sections add
+
+         <commands>
+            <command action="volumerxup" message="Volume Up" enabled="true"/>
+            <command action="volumerxdown" message="Volume Down" enabled="true"/>
+            <command action="volumetxup" message="Volume Up" enabled="true"/>
+            <command action="volumetxdown" message="Volume Down" enabled="true"/>
 */

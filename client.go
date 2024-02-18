@@ -680,7 +680,7 @@ keyPressListenerLoop:
 						case "volumerxup":
 							b.cmdVolumeRXUp()
 						case "volumetxdown":
-							b.cmdVolumeRXDown()
+							b.cmdVolumeTXDown()
 						case "setcomment":
 							if TTYKeyMap[ev.Ch].ParamValue == "setcomment" {
 								log.Println("info: Set Commment ", TTYKeyMap[ev.Ch].ParamValue)

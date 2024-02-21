@@ -31,6 +31,7 @@
 
 apt-get update
 apt-get -y dist upgrade
+apt-get install git -y
 
 ## Add talkkonnect user to the system
 adduser --disabled-password --disabled-login --gecos "" talkkonnect
@@ -78,12 +79,19 @@ export GOPATH=/home/talkkonnect/gocode
 export GOBIN=/home/talkkonnect/bin
 export GO111MODULE="auto"
 
-## Get the latest source code of talkkonnect from githu.com
-go get -v github.com/talkkonnect/talkkonnect
+## Get the latest source code of talkkonnect from github.com
+echo "installing talkkonnect with traditional method avoiding go get cause its changed in golang 1.22 "
+cd $GOPATH
+mkdir /home/talkkonnect/gocode/src/github.com/talkkonnect
+cd /home/talkkonnect/gocode/src/github.com/talkkonnect
+git clone https://github.com/talkkonnect/talkkonnect
+cd /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect
+go mod init
+go mod tidy
 
 ## Build talkkonnect as binary
 cd $GOPATH/src/github.com/talkkonnect/talkkonnect
-/usr/local/go/bin/go build -o /home/talkkonnect/bin/talkkonnect cmd/talkkonnect/main.go
+go build -o /home/talkkonnect/bin/talkkonnect cmd/talkkonnect/main.go
 
 ## Notify User
 echo "=> Finished building TalKKonnect"

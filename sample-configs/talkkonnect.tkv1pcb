@@ -11,47 +11,8 @@
       <channel>HAM-CB</channel>
       <ident>Name Surname</ident>
       <tokens enabled="true">
-        <token>15041504</token>
-        <token>452264</token>
-      </tokens> 
-      <voicetargets>
-        <id value="0">
-            <user>suvir-demo</user>
-        </id>
-        <id value="1">
-          <users>
-            <user>suvir-ubunbtu</user>
-          </users>
-        </id>
-        <id value="2">
-          <users>
-            <user>suvir-demo</user>
-          </users>
-        </id>
-        <id value="3">
-          <channels>
-            <channel>
-              <name>TEST1</name>
-              <recursive>true</recursive>
-              <links>true</links>
-              <group>"all"</group>
-            </channel>
-          </channels>
-        </id>
-      </voicetargets>
-    </account>
-    <account name="cb245" default="true">
-      <serverandport>mumble.talkkonnect.com:64740</serverandport>
-      <username></username>
-      <password></password>
-      <insecure>true</insecure>
-      <register>false</register>
-      <certificate></certificate>
-      <channel></channel>
-      <ident>Name Surname</ident>
-      <tokens enabled="false">
-        <token></token>
-        <token></token>
+        <token>token1</token>
+        <token>token2</token>
       </tokens> 
       <voicetargets>
         <id value="0">
@@ -88,6 +49,7 @@
         <outputdeviceshort>Speaker</outputdeviceshort>
         <outputvolcontroldevice>Speaker</outputvolcontroldevice>
         <outputmutecontroldevice>Speaker</outputmutecontroldevice>
+         <inputdevice>Mic</inputdevice>
         <logfilenameandpath>/var/log/talkkonnect.log</logfilenameandpath>
         <logging>screenwithlineno</logging>
         <loglevel>debug</loglevel>
@@ -124,7 +86,7 @@
         <sound action="channeldown" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/ChannelDown.wav" blocking="false" enabled="false"/>
         <sound action="muteSpeaker" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/MuteSpeaker.wav" blocking="true" enabled="false"/>
         <sound action="unmuteSpeaker" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/UnmuteSpeaker.wav" blocking="true" enabled="false"/>
-        <sound action="currentvolumelevel" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/CurrentVolumeLevel.wav" blocking="false" enabled="false"/>
+        <sound action="currentrxvolumelevel" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/CurrentVolumeLevel.wav" blocking="false" enabled="false"/>
         <sound action="digitalvolumeup" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/DigitalVolumeUp.wav" blocking="false" enabled="false"/>
         <sound action="digitalvolumedown" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/DigitalVolumeDown.wav" blocking="false" enabled="false"/>
         <sound action="listserverchannels" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/ListServerChannels.wav" blocking="false" enabled="false"/>
@@ -160,7 +122,7 @@
         <sound event="message" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/events/message.wav" volume="10" blocking="true" enabled="true"/>
         <sound event="alert" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/alerts/alert.wav" volume="10" blocking="false" enabled="false"/>
         <sound event="incommingbeep" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/rogerbeeps/Waterdrop.wav" volume="50" blocking="true" enabled="false"/>
-        <sound event="rogerbeep" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/rogerbeeps/Image.wav" volume="50" blocking="false" enabled="false"/>
+        <sound event="rogerbeep" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/rogerbeeps/Chirsp.wav" volume="50" blocking="false" enabled="false"/>
         <sound event="stream" file="http://prdonline.prd.go.th:8200" volume="50" blocking="true" enabled="true"/>
         <sound event="traccarHTTP2XXResponse" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/rogerbeeps/RC210#2.wav" volume="50" blocking="false" enabled="true"/>
         <sound event="traccarHTTP4XXResponse" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/rogerbeeps/RC210#3.wav" volume="50" blocking="false" enabled="true"/>
@@ -220,16 +182,19 @@
         <txtimeoutsecs>60</txtimeoutsecs>
       </txtimeout>
       <remotecontrol>
-        <http listenport="8080" enabled="false">
+        <http listenport="8080" enabled="true">
           <command action="displaymenu" funcparamname="" message="Display Menu" enabled="true"/>
           <command action="channelup" funcparamname="" message="Channel Up" enabled="true"/>
           <command action="channeldown" funcparamname="" message="Channel Down" enabled="true"/>
           <command action="mute-toggle" funcparamname="toggle" message="Mute-Toggle" enabled="true"/>
           <command action="mute" funcparamname="mute" message="Mute" enabled="true"/>
           <command action="unmute" funcparamname="unmute" message="Unute" enabled="true"/>
-          <command action="currentvolume" funcparamname="" message="Current Volume" enabled="true"/>
-          <command action="volumeup" funcparamname="" message="Volume Up" enabled="true"/>
-          <command action="volumedown" funcparamname="" message="Volume Down" enabled="true"/>
+          <command action="currentrxvolume" funcparamname="" message="Current Volume" enabled="true"/>
+          <command action="volumerxup" funcparamname="" message="Volume Up" enabled="true"/>
+          <command action="volumerxdown" funcparamname="" message="Volume Down" enabled="true"/>
+          <command action="currenttxvolume" funcparamname="" message="Current Volume" enabled="true"/>
+          <command action="volumetxup" funcparamname="" message="Volume Up" enabled="true"/>
+          <command action="volumetxdown" funcparamname="" message="Volume Down" enabled="true"/>
           <command action="listserverchannels" funcparamname="" message="List Channels" enabled="true"/>
           <command action="starttransmitting" funcparamname="" message="Start Transmitting" enabled="true"/>
           <command action="stoptransmitting" funcparamname="" message="Stop Transmitting" enabled="true"/>
@@ -278,9 +243,12 @@
             <command action="channelup" message="Channel Up" enabled="true"/>
             <command action="channeldown" message="Channel Down" enabled="true"/>
             <command action="muteunmute" message="Mute-Toggle" enabled="true"/>
-            <command action="currentvolume" message="Current Volume" enabled="true"/>
-            <command action="volumeup" message="Volume Up" enabled="true"/>
-            <command action="volumedown" message="Volume Down" enabled="true"/>
+            <command action="currentrxvolume" message="Current Volume" enabled="true"/>
+            <command action="volumerxup" message="Volume Up" enabled="true"/>
+            <command action="volumerxdown" message="Volume Down" enabled="true"/>
+            <command action="currenttxvolume" message="Current Volume" enabled="true"/>
+            <command action="volumetxup" message="Volume Up" enabled="true"/>
+            <command action="volumetxdown" message="Volume Down" enabled="true"/>
             <command action="listserverchannels" message="List Channels" enabled="true"/>
             <command action="starttransmitting" message="Start Transmitting" enabled="true"/>
             <command action="stoptransmitting" message="Stop Transmitting" enabled="true"/>
@@ -369,13 +337,13 @@
         </gpioexpander>
         <max7219 max7219cascaded="1" spibus="0" spidevice="0" brightness="7" enabled="false"/>
         <pins>
-          <pin direction="output" device="led/relay"     name="voiceactivity" pinno="5" type="gpio" chipid="0" inverted="true" enabled="true"/>
+          <pin direction="output" device="led/relay"     name="voiceactivity" pinno="5" type="gpio" chipid="0" enabled="true"/>
           <pin direction="output" device="led/relay"     name="participants" pinno="6" type="gpio" chipid="0" enabled="true"/>
           <pin direction="output" device="led/relay"     name="transmit" pinno="13" type="gpio" chipid="0" enabled="true"/>
           <pin direction="output" device="led/relay"     name="online" pinno="22" type="gpio" chipid="0" enabled="true"/>
           <pin direction="output" device="led/relay"     name="attention" pinno="26" type="gpio" chipid="0" enabled="true"/>
           <pin direction="output" device="led/relay"     name="voicetarget" pinno="0" type="gpio" chipid="0" enabled="false"/>
-          <pin direction="output" device="led/relay"     name="heartbeat" pinno="19" type="gpio" chipid="0" enabled="true"/>
+          <pin direction="output" device="led/relay"     name="heartbeat" pinno="19" type="gpio" chipid="0" enabled="false"/>
           <pin direction="output" device="lcd"           name="backlight" pinno="0" type="gpio" chipid="0" enabled="false"/>
           <pin direction="output" device="led/relay"     name="relay0" pinno="0" type="gpio" chipid="0" enabled="false"/>
           <pin direction="output" device="radiomodule"   name="powerdown" pinno="0" type="gpio" chipid="0" enabled="false"/>
@@ -517,9 +485,13 @@
           <ttykeyboard scanid="115" keylabel="0" enabled="true"/>
           <usbkeyboard scanid="115" keylabel="0" enabled="true"/>
         </command>
-        <command action="channeldown" paramname="" paramvalue="" enabled="false">
+        <command action="volumetxup" paramname="" paramvalue="" enabled="true">
           <ttykeyboard scanid="49" keylabel="1" enabled="true"/>
-          <usbkeyboard scanid="79" keylabel="1" enabled="true"/>
+          <usbkeyboard scanid="49" keylabel="1" enabled="true"/>
+        </command>
+        <command action="volumetxdown" paramname="" paramvalue="" enabled="true">
+          <ttykeyboard scanid="50" keylabel="2" enabled="true"/>
+          <usbkeyboard scanid="50" keylabel="2" enabled="true"/>
         </command>
         <command action="serverup" paramname="" paramvalue="" enabled="false">
           <ttykeyboard scanid="50" keylabel="2" enabled="true"/>
@@ -527,7 +499,6 @@
         </command>
         <command action="serverdown" paramname="" paramvalue="" enabled="false">
           <ttykeyboard scanid="51" keylabel="3" enabled="true"/>
-          <usbkeyboard scanid="81" keylabel="3" enabled="true"/>
         </command>
         <command action="mute" paramname="" paramvalue="" enabled="false">
           <ttykeyboard scanid="52" keylabel="4" enabled="true"/>

@@ -679,8 +679,14 @@ keyPressListenerLoop:
 							b.cmdPlayback()
 						case "volumerxup":
 							b.cmdVolumeRXUp()
+						case "volumerxdown":
+							b.cmdVolumeRXDown()
 						case "volumetxdown":
 							b.cmdVolumeTXDown()
+						case "volumetxup":
+							b.cmdVolumeTXUp()
+						case "volumetxvolume":
+							b.cmdCurrentTXVolume()
 						case "setcomment":
 							if TTYKeyMap[ev.Ch].ParamValue == "setcomment" {
 								log.Println("info: Set Commment ", TTYKeyMap[ev.Ch].ParamValue)
@@ -707,8 +713,6 @@ keyPressListenerLoop:
 							GPIOInputPinControl(TTYKeyMap[ev.Ch].ParamName, TTYKeyMap[ev.Ch].ParamValue)
 						case "gpiooutput":
 							GPIOOutputPinControl(TTYKeyMap[ev.Ch].ParamName, TTYKeyMap[ev.Ch].ParamValue)
-						case "volumetxup":
-							b.cmdVolumeTXUp()
 						default:
 							log.Println("error: Command Not Defined ", strings.ToLower(TTYKeyMap[ev.Ch].Command))
 						}

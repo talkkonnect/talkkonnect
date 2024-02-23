@@ -144,12 +144,18 @@ func (b *Talkkonnect) USBKeyboard() {
 						case "stream-toggle":
 							playIOMedia("usbstreamtoggle")
 							b.cmdPlayback()
-						case "volumeup":
+						case "currentrxvolume":
+							playIOMedia("usbcurrentrxvol")
+							b.cmdCurrentRXVolume()
+						case "volumerxup":
 							playIOMedia("usbvolup")
 							b.cmdVolumeRXUp()
-						case "volumedown":
+						case "volumerxdown":
 							playIOMedia("usbvoldown")
 							b.cmdVolumeRXDown()
+						case "currenttxvolume":
+							playIOMedia("usbcurrenttxvol")
+							b.cmdCurrentTXVolume()
 						case "volumetxup":
 							playIOMedia("usbvolup")
 							b.cmdVolumeTXUp()

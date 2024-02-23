@@ -166,7 +166,7 @@ func (b *Talkkonnect) cmdCurrentRXVolume() {
 	log.Printf("debug: F4 pressed Volume Level Requested\n")
 	log.Println("info: Volume Level is at", OrigVolume, "%")
 
-	TTSEvent("currentvolumelevel")
+	TTSEvent("currentrxvolumelevel")
 	if Config.Global.Hardware.TargetBoard == "rpi" {
 		if LCDEnabled {
 			LcdText = [4]string{"nil", "nil", "nil", "Volume " + strconv.Itoa(OrigVolume)}
@@ -269,10 +269,10 @@ func (b *Talkkonnect) cmdCurrentTXVolume() {
 		log.Printf("error: Unable to get current volume: %+v\n", err)
 	}
 
-	log.Printf("debug: ?? pressed TX Volume Level Requested\n")
+	log.Printf("debug: TX Mic Volume Level Requested\n")
 	log.Println("info: Volume Level is at", OrigVolume, "%")
 
-	TTSEvent("currentvolumelevel")
+	TTSEvent("currenttxvolumelevel")
 	if Config.Global.Hardware.TargetBoard == "rpi" {
 		if LCDEnabled {
 			LcdText = [4]string{"nil", "nil", "nil", "Volume " + strconv.Itoa(OrigVolume)}
@@ -286,7 +286,7 @@ func (b *Talkkonnect) cmdCurrentTXVolume() {
 }
 
 func (b *Talkkonnect) cmdVolumeTXUp() {
-	log.Printf("debug: ?? pressed Volume UP (+) \n")
+	log.Printf("debug: TX Mic Volume UP (+) \n")
 	origVolume, err := volume.GetVolume(Config.Global.Software.Settings.InputDevice)
 	if err != nil {
 		log.Printf("warn: unable to get original volume: %+v volume control will not work!\n", err)
@@ -296,7 +296,7 @@ func (b *Talkkonnect) cmdVolumeTXUp() {
 	if origVolume < 100 {
 		err := volume.IncreaseVolume(Config.Global.Hardware.IO.VolumeButtonStep.VolUpStep, Config.Global.Software.Settings.InputDevice)
 		if err != nil {
-			log.Println("warn: ?? Increase Volume Failed! ", err)
+			log.Println("warn: TX Mic Increase Volume Failed! ", err)
 		}
 		origVolume, _ := volume.GetVolume(Config.Global.Software.Settings.InputDevice)
 		log.Println("info: Volume UP (+) Now At ", origVolume, "%")
@@ -311,7 +311,7 @@ func (b *Talkkonnect) cmdVolumeTXUp() {
 			b.sevenSegment("localvolume", strconv.Itoa(origVolume))
 		}
 	} else {
-		log.Println("debug: ?? Increase Volume")
+		log.Println("debug: TX Mic Increase Volume")
 		log.Println("info: Already at Maximum Possible Volume")
 		if Config.Global.Hardware.TargetBoard == "rpi" {
 			if LCDEnabled {
@@ -338,7 +338,7 @@ func (b *Talkkonnect) cmdVolumeTXDown() {
 	if origVolume > 0 {
 		err := volume.IncreaseVolume(Config.Global.Hardware.IO.VolumeButtonStep.VolDownStep, Config.Global.Software.Settings.InputDevice)
 		if err != nil {
-			log.Println("error: ?? Decrease Volume Failed! ", err)
+			log.Println("error: TX Mic Decrease Volume Failed! ", err)
 		}
 		origVolume, _ := volume.GetVolume(Config.Global.Software.Settings.InputDevice)
 		log.Println("info: Volume Down (-) Now At ", origVolume, "%")
@@ -353,8 +353,8 @@ func (b *Talkkonnect) cmdVolumeTXDown() {
 			b.sevenSegment("localvolume", strconv.Itoa(origVolume))
 		}
 	} else {
-		log.Println("debug: ?? Increase Volume Already")
-		log.Println("info: Already at Minimum Possible Volume")
+		log.Println("debug: TX Mic Increase Volume Already")
+		log.Println("info: Already at Maximum Possible Volume")
 		if Config.Global.Hardware.TargetBoard == "rpi" {
 			if LCDEnabled {
 				LcdText = [4]string{"nil", "nil", "nil", "Min Vol"}

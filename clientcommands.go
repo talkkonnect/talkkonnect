@@ -285,6 +285,8 @@ func (b *Talkkonnect) ChannelUp() {
 			channel := b.Client.Channels.Find(chanName)
 			b.Client.Self.Move(channel)
 			break
+		} else {
+			log.Println("alert: Skipping Unaccessable Channel!")
 		}
 	}
 }
@@ -300,8 +302,12 @@ func (b *Talkkonnect) ChannelDown() {
 
 	if currentChannelIndex == 0 {
 		log.Println("debug: Root Channel Reached Rolling Over")
-		b.Client.Self.Move(TopChannel)
-		return
+		if TopChannel != nil {
+			b.Client.Self.Move(TopChannel)
+			return
+		} else {
+			log.Println("alert: Skipping Unaccessable Channel!")
+		}
 	}
 
 	//handling of connecting to previous channel in accessable channel index

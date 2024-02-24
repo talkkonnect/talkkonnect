@@ -438,14 +438,14 @@ func (b *Talkkonnect) OnChannelChange(e *gumble.ChannelChangeEvent) {
 	if e.Channel.IsRoot() {
 		RootChannel = e.Channel
 	}
-	if e.Channel.Permission() == nil {
-		e.Channel.RequestPermission()
-	} else if *e.Channel.Permission()&gumble.PermissionEnter != 0 {
-		//log.Printf("debug: Have Permissions to Enter ID %v Channel %v\n", e.Channel.ID, e.Channel.Name)
-		AccessableChannelMap[int(e.Channel.ID)] = e.Channel.Name
-		if e.Channel.ID > TopChannelID {
-			TopChannel = e.Channel
-			TopChannelID = e.Channel.ID
+	e.Channel.RequestPermission()
+	if e.Channel.Permission() != nil {
+		if *e.Channel.Permission()&gumble.PermissionEnter != 0 {
+			AccessableChannelMap[int(e.Channel.ID)] = e.Channel.Name
+			if e.Channel.ID > TopChannelID {
+				TopChannel = e.Channel
+				TopChannelID = e.Channel.ID
+			}
 		}
 	}
 }

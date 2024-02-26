@@ -185,6 +185,14 @@ chmod +x ./update-talkkonnect.sh
 * You will need a CM-108 or equavilent sound card plugged in before booting for this image to work otherwise it will connect and disconnect to the server in an endless loop. Vention Cards are recommended as cm108 card has a lot of noise.	
 * This image has been configured to work with a USB CM108 Sound Card and GPIO will work out of the box for PTT and LEDs. The GPIOs are mapped to the [circuit diagram](https://github.com/talkkonnect/talkkonnect/blob/main/circuit-diagram/Schematic_talkkonnect_2023-12-13.pdf)  
 * This image will work with LAN Cabled Ethernet connection out of the box
+
+
+### talkkonnect Version 2 (32 BIT) Quick Download Link for Pre-Made SD Card Image for Use with Raspberry PI tested on Pi Zero2W and USB Sound Card ###
+* This Image Was Created On 26/February/2024 and Runs Debian Bookworm (Released December 11th 2023) along with talkkonnect version 2.40.01 Released Feb 2024
+* [Click Here to Download Pre-Configured SD Card Image for Talkkonnect Version 2 for Raspberry Pi Zero 2W and USB Sound Card]() 
+* You will need a CM-108 or equavilent sound card plugged in before booting for this image to work otherwise it will connect and disconnect to the server in an endless loop. Vention Cards are recommended as cm108 card has a lot of noise.	
+* This image has been configured to work with a USB CM108 Sound Card and GPIO will work out of the box for PTT and LEDs. The GPIOs are mapped to the [circuit diagram](https://github.com/talkkonnect/talkkonnect/blob/main/circuit-diagram/Schematic_talkkonnect_2023-12-13.pdf)  
+* This image will work with LAN Cabled Ethernet connection out of the box
 	
 ### talkkonnect Version 2 Quick Download Link for Pre-Made SD Card Image for Use with Raspberry Pi 3,3A,3B+,Zero2W and RESPEAKER Compatable HAT ###
 * This Image Was Created On 12/Janruary/2024 and Runs Debian Bookworm (Released December 11th 2023) along with talkkonnect version 2.37.01 Released 31/December/2023
@@ -198,13 +206,11 @@ chmod +x ./update-talkkonnect.sh
 ### talkkonnect Version 2 Quick Download Link for Pre-Made SD Card Image for Use with Orange Pi Zero with external USB sound card ###
 * This Image Was Created On 20/Janruary/2024 and Runs Armbian Bookworm along with talkkonnect version 2.37.01 Released 31/December/2023
 * You will need a CM-108 or equavilent sound card plugged in before booting for this image to work otherwise it will connect and disconnect to the server in an endless loop. Vention Cards are recommended as cm108 card has a lot of noise.	
-* [Click Here to Download Pre-Configured SD Card Image for Talkkonnect Version 2 for Orange Pi Zero External USB Sound Card](https://drive.google.com/file/d/196PS9hx6iQCPAzniVCgpL1CXe__mx7G9/view?usp=sharing) 
+* [Click Here to Download Pre-Configured SD Card Image for Talkkonnect Version 2 for Orange Pi Zero External USB Sound Card](https://drive.google.com/file/d/1HL4qqGyLlIxD5EPxDEj_DENFg7OVObyz/view?usp=sharing) 
 * This image uses the standard 32 Bit Sampling and will work properly with all mumble clients on windows, android and iphone with good quality sound.
-* This Image should work out of the box it also has serial console on the usb port for easy access to ssh thorough com port on windows and macOS
-* The XML file is configured to run in rpi mode so GPIO will initalized, this means that PTT GPIO key is enabled, Rotary Encoder and OLED Screen All Configured.    
-* This image will work with LAN Cabled Ethernet connection out of the box then you will have to use raspi-config to set the wifi country for the wifi to work.	
-* For this image out of the box it will connect to a wifi with ssid network and password 1234567890 (if you are lazy you can do this)
-* To Connect to your WIFI you can also create the wpa_supplicant.conf file and put it in the /boot/ folder on windows before inserting the card into your raspberry pi.
+* This Image should work out of the box with a micro-USB OTG Cable to USB Sound Card
+* The XML file is configured to run in rpi mode so GPIO will initalized, this means that PTT GPIO key is enabled, Rotary Encoder All Configured.    
+* For this image please use the raspberry pi imager to set the ssid and password of your WIFI network before writing the SD card or alternatively you can also create the wpa_supplicant.conf file and put it in the /boot/ folder on windows before inserting the card into your raspberry pi.
 
 ### talkkonnect Version 2 Quick Download Link for Pre-Made SD Card Image for Use with Orange Pi Zero with internal onboard sound card ###
 * This Image Was Created On 20/Janruary/2024 and Runs Armbian Bookworm along with talkkonnect version 2.37.01 Released 31/December/2023

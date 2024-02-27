@@ -558,7 +558,72 @@ ChannelListener Stop 	http://{your-talkkonnect-ipaddress}:8080/?command=listenin
 * Talkkonnect can be remotely controlled by an public or local MQTT Server
 * This eliminates the problem of controlling those talkkonnect devices that are in NATTED networks all over the internet
 * You can subscribe to the mqtt server topic of your choice
-* With MQTT you can remote control talkkonnect as well as Relays to control external devices 
+* With MQTT you can remote control talkkonnect as well as Relays to control external devices
+
+Example Below is the talkkonnect.xml with working MQTT Configuration, Let's For Example Say we want to increase the microphone volume of cameraman1
+First Set Up talkkonect.xml as below make sure to change your mqtt server details for the parameters mqttbroker, mqttpassword, mqttuser,mqttid.
+
+````
+        <mqtt enabled="true">
+          <settings>
+          <mqttsubtopic>event/cameraman1/</mqttsubtopic>
+          <mqttpubtopic>response/cameraman1</mqttpubtopic>
+          <mqttbroker>tcp://mqtt.yourserver.com:1883</mqttbroker>
+          <mqttpassword>yourpassword</mqttpassword>
+          <mqttuser>camera1</mqttuser>
+          <mqttid>camera</mqttid>
+          <cleansess>false</cleansess>
+          <qos>0</qos>
+          <num>1</num>
+          <payload/>
+          <action>sub</action>
+          <store/>
+          <retained/>
+            <attentionblinktimes>20</attentionblinktimes>
+            <attentionblinkmsecs>300</attentionblinkmsecs>
+            <pubpayload>
+              <mqtt item="0" payload="channelup" enabled="true"/>
+              <mqtt item="1" payload="channeldown" enabled="true"/>
+            </pubpayload>
+          </settings>
+          <commands>
+            <command action="displaymenu" message="Display Menu" enabled="true"/>
+            <command action="channelup" message="Channel Up" enabled="true"/>
+            <command action="channeldown" message="Channel Down" enabled="true"/>
+            <command action="muteunmute" message="Mute-Toggle" enabled="true"/>
+            <command action="currentrxvolume" message="Current Volume" enabled="true"/>
+            <command action="volumerxup" message="Volume Up" enabled="true"/>
+            <command action="volumerxdown" message="Volume Down" enabled="true"/>
+            <command action="currenttxvolume" message="Current Volume" enabled="true"/>
+            <command action="volumetxup" message="Volume Up" enabled="true"/>
+            <command action="volumetxdown" message="Volume Down" enabled="true"/>
+            <command action="listserverchannels" message="List Channels" enabled="true"/>
+            <command action="starttransmitting" message="Start Transmitting" enabled="true"/>
+            <command action="stoptransmitting" message="Stop Transmitting" enabled="true"/>
+            <command action="listonlineusers" message="List Users" enabled="true"/>
+            <command action="playback" message="Playback" enabled="true"/>
+            <command action="gpsposition" message="GPS Position" enabled="true"/>
+            <command action="sendemail" message="Send Email" enabled="true"/>
+            <command action="previousserver" message="Previous Server" enabled="true"/>
+            <command action="connnextserver" message="Next Server" enabled="true"/>
+            <command action="clearscreen" message="Clear Screen" enabled="true"/>
+            <command action="pingservers" message="Ping Servers" enabled="true"/>
+            <command action="panicsimulation" message="Panic Simulation" enabled="true"/>
+            <command action="repeattxloop" message="Repeat TX Loop" enabled="true"/>
+            <command action="scanchannels" message="Scan Channels" enabled="true"/>
+            <command action="thanks" message="Thanks" enabled="true"/>
+            <command action="showuptime" message="Show UpTime" enabled="true"/>
+            <command action="dumpxmlconfig" message="Dump XML Config" enabled="true"/>
+            <command action="ttsannouncement" message="TTS Announcement" enabled="true"/>
+            <command action="voicetargetset" message="Set Voice Target" enabled="true"/>
+            <command action="attention" message="Attention LED" enabled="true"/>
+            <command action="relay" message="RelayControl" enabled="true"/>
+          </commands>
+        </mqtt>
+
+````
+If we connect to the mqtt server and publish to the topic event/cameraman1 and send the message(payload) as volumetxup we will notic that the volume of the cameraman1 is now louder
+when he/she speaks.
 
 Below are Valid Commands for MQTT
 * channelup
@@ -566,8 +631,10 @@ Below are Valid Commands for MQTT
 * mute-toggle
 * mute
 * unmute
-* volumeup
-* volumedown
+* volumerxup
+* volumerxdown
+* volumetxup
+* volumetxdown
 * starttransmitting
 * stoptransmitting
 * stream-toggle
@@ -770,5 +837,5 @@ Thank you all for your kind feedback sent along with some pictures and use cases
 ## License 
 [talKKonnect](http://www.talkkonnect.com) is open source and available under the MPL V2.00 license.
 
-<suvir@talkkonnect.com> Updated 18/04/2023 talkkonnect version 2.37.01 is the latest release as of this writing.
+<suvir@talkkonnect.com> Updated 27/02/2024 talkkonnect version 2.40.01 is the latest release as of this writing.
 

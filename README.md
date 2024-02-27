@@ -631,8 +631,10 @@ Below are Valid Commands for MQTT
 * mute-toggle
 * mute
 * unmute
+* currentrxvolume
 * volumerxup
 * volumerxdown
+* currenttxvolume
 * volumetxup
 * volumetxdown
 * starttransmitting

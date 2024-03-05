@@ -251,7 +251,7 @@ cd /home/talkkonnect/bin
 
 ##### You can start talKKonnect automatically on Raspberry Pi start up with “screen” program help. Add this line to /etc/rc.local file. before “exit 0”: #####
 
-` screen -dmS talkkonnect-radio /root/talkkonnect-run & `
+` screen -dmS talkkonnect-radio /home/talkkonnect/bin/talkkonnect & `
 
 ##### Then connect to active screen session with command “screen -r”. Exit the screen session with “Ctrl-A-D”. #####
 

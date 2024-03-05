@@ -31,11 +31,17 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.40.01"
-	talkkonnectReleased string = "24 Feb 2024"
+	talkkonnectVersion  string = "2.40.02"
+	talkkonnectReleased string = "5 Mar 2024"
 )
 
+
 /* Release Notes
+Version 2.40.02
+fixed checking of gpio to allow gpio pins 1 & 2 so it can work with mcp23107 expander
+bug report by Monorajan
+
+
 Version 2.40.01
 Stop talkkonnect from crashing on unaccessable channels. If the server doesnt send talkkonnect the
 channel permissions on connection then the user will not be able to change channels from the channel

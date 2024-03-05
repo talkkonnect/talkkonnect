@@ -1701,7 +1701,7 @@ func CheckConfigSanity(reloadxml bool) {
 				Warnings++
 			}
 
-			if gpio.PinNo < 2 || gpio.PinNo > 27 {
+			if gpio.PinNo < 0 || gpio.PinNo > 27 {
 				log.Printf("warn: Config Error [Section GPIO] Enabled GPIO Name %v Pin Number %v Invalid GPIO Number\n", gpio.Name, gpio.PinNo)
 				Config.Global.Hardware.IO.Pins.Pin[index].Enabled = false
 				Warnings++

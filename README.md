@@ -164,6 +164,14 @@ chmod +x ./update-talkkonnect.sh
 
 ## Quick Start Readymade talKKonnect Downloadable Images for SD Cards
 
+### Notes on How to Use Raspberry Pi Imager Otherwise the Ready Made images below Will NOT WORK!! 
+* Click Choose Device (select No Filtering)
+* Click Choose OS (Use Custom) choose the talkkonnect img downloaded
+* Choose Storage
+* Click Next
+* Would you like to apply OS customization settings? NO!!!!!
+* All existing data on Mass Storage Device will be Erased. Yes
+
 ### talkkonnect Version 2 (64 Bit) Quick Download Link for Pre-Made SD Card Image for Use with Raspberry PI tested on Pi 4 series and USB Sound Card ###
 * This Image Was Created On 12/Janruary/2024 and Runs Debian Bookworm (Released December 11th 2023) along with talkkonnect version 2.37.01 Released 31/December/2023
 * [Click Here to Download Pre-Configured SD Card Image for Talkkonnect Version 2 for Raspberry Pi 4 and USB Sound Card](https://drive.google.com/file/d/1P_2JU4MxTwEF-We1ODEAphg9rKyPiHhT/view?usp=sharing) 

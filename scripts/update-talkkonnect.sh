@@ -69,6 +69,8 @@ GOLANG_LATEST_STABLE_VERSION=$(curl -s https://go.dev/VERSION?m=text | grep go)
 cputype=`lscpu | grep Architecture | cut -d ":" -f 2 | sed 's/ //g'`
 bitsize=`getconf LONG_BIT`
 
+cd /usr/local
+
 if [ $bitsize == '32' ]
 then
 echo "32 bit processor"

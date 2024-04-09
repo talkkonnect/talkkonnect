@@ -700,8 +700,12 @@ device in the same room and do not want to hear yourself
 ## Hardware Section
 * The tag targetboard has 2 option (1) pc and (2)rpi. pc mode is used when talkkonnect is running on a pc or server that does not have GPIOs and is not interfaced to buttons and a LCD screen. 
 * To run on raspberry pi or other compatible single board computers set the targetboard to rpi this will enable the GPIO outputs/inputs.
-* If you are using the respeaker hat with a ledstrip      <ledstripenabled>false</ledstripenabled>
+* If you are using the respeaker hat with a ledstrip
+
+````
+     <ledstripenabled>true</ledstripenabled>
      <voiceactivitytimermsecs>200</voiceactivitytimermsecs>
+````
 
 ### The IO Section
 * The IO Section has been completely rewritten to make it more flexible and easier to add functionality to talkkonnect in the future.

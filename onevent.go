@@ -40,6 +40,7 @@ import (
 )
 
 var prevParticipantCount = 1
+var participantsLED bool = false
 
 func (b *Talkkonnect) OnConnect(e *gumble.ConnectEvent) {
 	if Config.Global.Hardware.TargetBoard == "rpi" {
@@ -83,15 +84,6 @@ func (b *Talkkonnect) OnConnect(e *gumble.ConnectEvent) {
 			oledDisplay(false, 6, OLEDStartColumn, "Please Visit")
 			oledDisplay(false, 7, OLEDStartColumn, "www.talkkonnect.com")
 		}
-	}
-
-	if len(b.Client.Self.Channel.Users) > 1 {
-		GPIOOutPin("participants", "on")
-		b.BackLightTimer()
-
-	} else {
-		GPIOOutPin("participants", "off")
-		b.BackLightTimer()
 	}
 
 	if b.ChannelName != "" {
@@ -317,16 +309,16 @@ func (b *Talkkonnect) OnUserChange(e *gumble.UserChangeEvent) {
 	}
 
 	if e.Type.Has(1) || e.Type.Has(2) || e.Type.Has(128) {
-		if len(b.Client.Self.Channel.Users) > 1 {
-			if len(b.Client.Self.Channel.Users) != prevParticipantCount {
-				GPIOOutPin("participants", "on")
-				b.BackLightTimer()
-			}
-		} else {
-			GPIOOutPin("participants", "off")
+		if len(b.Client.Self.Channel.Users) > 1 && (len(b.Client.Self.Channel.Users) != prevParticipantCount) {
+			GPIOOutPin("participants", "on")
+			participantsLED = true
 			b.BackLightTimer()
 		}
-
+		if len(b.Client.Self.Channel.Users) == 1 && participantsLED {
+			GPIOOutPin("participants", "off")
+			participantsLED = false
+			b.BackLightTimer()
+		}
 		if len(b.Client.Self.Channel.Users) != prevParticipantCount {
 			var toSpeakEvent string = ""
 			var eventSound = EventSoundStruct{}

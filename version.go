@@ -31,12 +31,14 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.40.02"
-	talkkonnectReleased string = "5 Mar 2024"
+	talkkonnectVersion  string = "2.41.01"
+	talkkonnectReleased string = "12 Apr 2024"
 )
 
-
 /* Release Notes
+Version 2.41.01
+cleaned the logic for LED of participants
+
 Version 2.40.02
 fixed checking of gpio to allow gpio pins 1 & 2 so it can work with mcp23107 expander
 bug report by Monorajan

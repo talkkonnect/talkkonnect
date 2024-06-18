@@ -179,10 +179,17 @@ type ConfigStruct struct {
 						Enabled bool   `xml:"enabled,attr"`
 					} `xml:"sound"`
 				} `xml:"input"`
-				RepeaterTone struct {
-					Enabled         bool    `xml:"enabled,attr"`
-					ToneFrequencyHz int     `xml:"tonefrequencyhz"`
-					ToneDurationSec float32 `xml:"tonedurationsec"`
+				Repeatertone struct {
+					Text    string `xml:",chardata"`
+					Enabled bool   `xml:"enabled,attr"`
+					Sound   struct {
+						Enabled         bool    `xml:"enabled,attr"`
+						Event           string  `xml:"event,attr"`
+						ToneFrequencyHz int     `xml:"tonefrequencyhz,attr"`
+						Volume          float32 `xml:"volume,attr"`
+						ToneDurationSec int     `xml:"tonedurationsec,attr"`
+						Blocking        bool    `xml:"blocking,attr"`
+					} `xml:"sound"`
 				} `xml:"repeatertone"`
 			} `xml:"sounds"`
 			RemoteControl struct {
@@ -1172,9 +1179,10 @@ func printxmlconfig() {
 		for _, input := range Config.Global.Software.Sounds.Input.Sound {
 			log.Printf("info: |Event=%v |File=%v |Enabled=%v\n", input.Event, input.File, input.Enabled)
 		}
-		log.Println("info: Repeater Tone Enabled      " + fmt.Sprintf("%t", Config.Global.Software.Sounds.RepeaterTone.Enabled))
-		log.Println("info: Repeater Tone Freq (Hz)    ", Config.Global.Software.Sounds.RepeaterTone.ToneFrequencyHz)
-		log.Println("info: Repeater Tone Duration (s) ", Config.Global.Software.Sounds.RepeaterTone.ToneDurationSec)
+		log.Println("info: Repeater Tone Enabled      " + fmt.Sprintf("%t", Config.Global.Software.Sounds.Repeatertone.Enabled))
+		log.Println("info: Repeater Tone Volume       ", Config.Global.Software.Sounds.Repeatertone.Sound.Volume)
+		log.Println("info: Repeater Tone Freq (Hz)    ", Config.Global.Software.Sounds.Repeatertone.Sound.ToneFrequencyHz)
+		log.Println("info: Repeater Tone Duration (s) ", Config.Global.Software.Sounds.Repeatertone.Sound.ToneDurationSec)
 	}
 
 	if !Config.Global.Software.PrintVariables.PrintHTTPAPI {

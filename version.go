@@ -31,11 +31,14 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.41.01"
-	talkkonnectReleased string = "12 Apr 2024"
+	talkkonnectVersion  string = "2.42.01"
+	talkkonnectReleased string = "18 Jun 2024"
 )
 
 /* Release Notes
+Version 2.42.01
+fixed data structure for repeater tone reading values from xml to talkkonnect config structure bug
+
 Version 2.41.01
 cleaned the logic for LED of participants
 

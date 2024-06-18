@@ -947,8 +947,9 @@ func (b *Talkkonnect) cmdPlayRepeaterTone() {
 
 	b.BackLightTimer()
 
-	if Config.Global.Software.Sounds.RepeaterTone.Enabled {
-		b.PlayTone(Config.Global.Software.Sounds.RepeaterTone.ToneFrequencyHz, Config.Global.Software.Sounds.RepeaterTone.ToneDurationSec, "local", true)
+	if Config.Global.Software.Sounds.Repeatertone.Enabled {
+		log.Printf("freq=%+v\n", Config.Global.Software.Sounds.Repeatertone.Sound.ToneFrequencyHz)
+		b.PlayTone(Config.Global.Software.Sounds.Repeatertone.Sound.ToneFrequencyHz, float32(Config.Global.Software.Sounds.Repeatertone.Sound.ToneDurationSec), "local", true)
 	} else {
 		log.Println("warn: Repeater Tone Disabled by Config")
 	}

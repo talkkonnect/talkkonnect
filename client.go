@@ -254,6 +254,15 @@ func (b *Talkkonnect) ClientStart() {
 
 	if Config.Global.Hardware.TargetBoard == "rpi" {
 		GPIOOutAll("led/relay", "off")
+		if Config.Global.Hardware.GPIOOffset > 0 {
+			for item, pins := range Config.Global.Hardware.IO.Pins.Pin {
+				if pins.Enabled {
+					newPinNo := Config.Global.Hardware.GPIOOffset + pins.PinNo
+					log.Printf("info: Offsetting GPIO PinNo=%v -> %v Name=%v\n", pins.PinNo, newPinNo, pins.Name)
+					Config.Global.Hardware.IO.Pins.Pin[item].PinNo = newPinNo
+				}
+			}
+		}
 	}
 
 	if Config.Global.Software.Settings.Logging == "screenandfile" {

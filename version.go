@@ -31,11 +31,15 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.42.01"
-	talkkonnectReleased string = "18 Jun 2024"
+	talkkonnectVersion  string = "2.43.01"
+	talkkonnectReleased string = "24 Jun 2024"
 )
 
 /* Release Notes
+Version 2.43.01
+added gpio offset setting for new raspberry pi os support
+revamped repeater tone functionality
+
 Version 2.42.01
 fixed data structure for repeater tone reading values from xml to talkkonnect config structure bug
 

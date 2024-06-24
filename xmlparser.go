@@ -188,6 +188,7 @@ type ConfigStruct struct {
 						ToneFrequencyHz int     `xml:"tonefrequencyhz,attr"`
 						Volume          float32 `xml:"volume,attr"`
 						ToneDurationSec int     `xml:"tonedurationsec,attr"`
+						Direction       string  `xml:"direction,attr"`
 						Blocking        bool    `xml:"blocking,attr"`
 					} `xml:"sound"`
 				} `xml:"repeatertone"`
@@ -329,6 +330,7 @@ type ConfigStruct struct {
 		Hardware struct {
 			TargetBoard             string        `xml:"targetboard,attr"`
 			LedStripEnabled         bool          `xml:"ledstripenabled"`
+			GPIOOffset              uint          `xml:"gpiooffset"`
 			VoiceActivityTimermsecs time.Duration `xml:"voiceactivitytimermsecs"`
 			IO                      struct {
 				GPIOExpander struct {
@@ -1183,6 +1185,8 @@ func printxmlconfig() {
 		log.Println("info: Repeater Tone Volume       ", Config.Global.Software.Sounds.Repeatertone.Sound.Volume)
 		log.Println("info: Repeater Tone Freq (Hz)    ", Config.Global.Software.Sounds.Repeatertone.Sound.ToneFrequencyHz)
 		log.Println("info: Repeater Tone Duration (s) ", Config.Global.Software.Sounds.Repeatertone.Sound.ToneDurationSec)
+		log.Println("info: Repeater Tone Direction    ", Config.Global.Software.Sounds.Repeatertone.Sound.Direction)
+
 	}
 
 	if !Config.Global.Software.PrintVariables.PrintHTTPAPI {
@@ -1703,13 +1707,13 @@ func CheckConfigSanity(reloadxml bool) {
 				Warnings++
 			}
 
-			if !(gpio.Name == "voiceactivity" || gpio.Name == "participants" || gpio.Name == "transmit" || gpio.Name == "online" || gpio.Name == "attention" || gpio.Name == "voicetarget" || gpio.Name == "heartbeat" || gpio.Name == "backlight" || gpio.Name == "relay0" || gpio.Name == "txptt" || gpio.Name == "txtoggle" || gpio.Name == "channelup" || gpio.Name == "channeldown" || gpio.Name == "panic" || gpio.Name == "streamtoggle" || gpio.Name == "comment" || gpio.Name == "rotarya" || gpio.Name == "rotaryb" || gpio.Name == "rotarybutton" || gpio.Name == "volup" || gpio.Name == "voldown" || gpio.Name == "nextserver" || gpio.Name == "memorychannel1" || gpio.Name == "memorychannel2" || gpio.Name == "memorychannel3" || gpio.Name == "memorychannel4" || gpio.Name == "analogrelay1" || gpio.Name == "analogrelay2" || gpio.Name == "shutdown" || gpio.Name == "presetvoicetarget1" || gpio.Name == "presetvoicetarget2" || gpio.Name == "presetvoicetarget3" || gpio.Name == "presetvoicetarget4" || gpio.Name == "presetvoicetarget5") {
+			if !(gpio.Name == "voiceactivity" || gpio.Name == "participants" || gpio.Name == "transmit" || gpio.Name == "online" || gpio.Name == "attention" || gpio.Name == "voicetarget" || gpio.Name == "heartbeat" || gpio.Name == "backlight" || gpio.Name == "relay0" || gpio.Name == "txptt" || gpio.Name == "txtoggle" || gpio.Name == "channelup" || gpio.Name == "channeldown" || gpio.Name == "panic" || gpio.Name == "streamtoggle" || gpio.Name == "comment" || gpio.Name == "rotarya" || gpio.Name == "rotaryb" || gpio.Name == "rotarybutton" || gpio.Name == "volup" || gpio.Name == "voldown" || gpio.Name == "nextserver" || gpio.Name == "memorychannel1" || gpio.Name == "memorychannel2" || gpio.Name == "memorychannel3" || gpio.Name == "memorychannel4" || gpio.Name == "repeatertone" || gpio.Name == "analogrelay1" || gpio.Name == "analogrelay2" || gpio.Name == "shutdown" || gpio.Name == "presetvoicetarget1" || gpio.Name == "presetvoicetarget2" || gpio.Name == "presetvoicetarget3" || gpio.Name == "presetvoicetarget4" || gpio.Name == "presetvoicetarget5") {
 				log.Printf("warn: Config Error [Section GPIO] Enabled GPIO Name %v Pin Number %v Invalid Name\n", gpio.Name, gpio.PinNo)
 				Config.Global.Hardware.IO.Pins.Pin[index].Enabled = false
 				Warnings++
 			}
 
-			if gpio.PinNo < 0 || gpio.PinNo > 27 {
+			if !((gpio.PinNo > 0 && gpio.PinNo < 28) || (gpio.PinNo > 512 && gpio.PinNo < 540)) {
 				log.Printf("warn: Config Error [Section GPIO] Enabled GPIO Name %v Pin Number %v Invalid GPIO Number\n", gpio.Name, gpio.PinNo)
 				Config.Global.Hardware.IO.Pins.Pin[index].Enabled = false
 				Warnings++

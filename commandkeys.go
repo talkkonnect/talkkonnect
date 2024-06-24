@@ -945,15 +945,15 @@ func (b *Talkkonnect) cmdPlayRepeaterTone() {
 	log.Printf("debug: Ctrl-G Pressed \n")
 	log.Println("info: Play Repeater Tone on Speaker and Simulate RX Signal")
 
-	b.BackLightTimer()
-
-	if Config.Global.Software.Sounds.Repeatertone.Enabled {
-		log.Printf("freq=%+v\n", Config.Global.Software.Sounds.Repeatertone.Sound.ToneFrequencyHz)
-		b.PlayTone(Config.Global.Software.Sounds.Repeatertone.Sound.ToneFrequencyHz, float32(Config.Global.Software.Sounds.Repeatertone.Sound.ToneDurationSec), "local", true)
-	} else {
+	if !Config.Global.Software.Sounds.Repeatertone.Enabled {
 		log.Println("warn: Repeater Tone Disabled by Config")
+		return
 	}
 
+	b.BackLightTimer()
+
+	log.Printf("freq=%+v\n", Config.Global.Software.Sounds.Repeatertone.Sound.ToneFrequencyHz)
+	b.PlayTone(Config.Global.Software.Sounds.Repeatertone.Sound.ToneFrequencyHz, float32(Config.Global.Software.Sounds.Repeatertone.Sound.ToneDurationSec), Config.Global.Software.Sounds.Repeatertone.Sound.Direction, true)
 }
 
 func (b *Talkkonnect) cmdLiveReload() {

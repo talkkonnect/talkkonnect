@@ -30,7 +30,7 @@
 ## If this script is run after a fresh install of raspbian you man want to update the 2 lines below
 
 apt-get update
-apt-get -y dist upgrade
+apt-get -y dist-upgrade
 apt-get install git -y
 
 ## Add talkkonnect user to the system

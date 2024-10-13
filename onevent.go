@@ -303,8 +303,8 @@ func (b *Talkkonnect) OnUserChange(e *gumble.UserChangeEvent) {
 		info = info + "[change recording]"
 	}
 
-	//8184 UserChangeStats
-	if e.Type.Has(8184) {
+	//8192 UserChangeStats
+	if e.Type.Has(8192) {
 		info = info + "[change stats]"
 	}
 

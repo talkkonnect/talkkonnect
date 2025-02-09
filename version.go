@@ -31,11 +31,14 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.43.01"
-	talkkonnectReleased string = "24 Jun 2024"
+	talkkonnectVersion  string = "2.43.02"
+	talkkonnectReleased string = "09 Feb 2025"
 )
 
 /* Release Notes
+Version 2.43.02
+fixed voice target clear in clientcommands that was mistakenly commented out causing
+users not to be able to clear voicetargets once set
 Version 2.43.01
 added gpio offset setting for new raspberry pi os support
 revamped repeater tone functionality

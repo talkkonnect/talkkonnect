@@ -502,7 +502,7 @@ func (b *Talkkonnect) VoiceTargetUserSet(TargetID uint32, TargetUser string) {
 			b.sevenSegment("voicetarget", strconv.Itoa(int(TargetID)))
 			GPIOOutPin("voicetarget", "on")
 		} else {
-			//b.VoiceTarget.Clear()
+			b.VoiceTarget.Clear()
 			GPIOOutPin("voicetarget", "off")
 			log.Println("debug: Cleared Voice Targets")
 			b.sevenSegment("voicetarget", strconv.Itoa(int(TargetID)))

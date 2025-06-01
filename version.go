@@ -31,11 +31,15 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.43.02"
-	talkkonnectReleased string = "09 Feb 2025"
+	talkkonnectVersion  string = "2.43.03"
+	talkkonnectReleased string = "01 June 2025"
 )
 
+
 /* Release Notes
+version 2.42.03
+released with new talkkonnect-current-sample.xml
+fixed httpapi error message as reported by zoran
 Version 2.43.02
 fixed voice target clear in clientcommands that was mistakenly commented out causing
 users not to be able to clear voicetargets once set

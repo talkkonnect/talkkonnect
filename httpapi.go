@@ -80,7 +80,7 @@ func (b *Talkkonnect) httpAPI(w http.ResponseWriter, r *http.Request) {
 
 	APICommands, ok := r.URL.Query()["command"]
 
-	if !ok || len(APICommands[0]) < 1 {
+	if !ok  {
 		log.Println("error: URL Param 'command' is missing example http API commands should be of the format http://a.b.c.d/?command=listapi")
 		fmt.Fprintf(w, "error: API should be of the format http://a.b.c.d:"+Config.Global.Software.RemoteControl.HTTP.ListenPort+"/?command=StartTransmitting or of the format http://a.b.c.d:"+Config.Global.Software.RemoteControl.HTTP.ListenPort+"?command=setvoicetarget&id=0\n")
 		return

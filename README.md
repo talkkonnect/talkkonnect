@@ -136,7 +136,7 @@ Instead of the onboard sound card or USB Sound Card, you can also use a ReSpeake
 * Thes options can be enabled, disabled and customized in the configuration talkkonnect.xml file.
 
 ### Common Information for the all the Pre-Made Images For Various Hardware Configurations ###
-* With all the updates I cannot possibly make all config sample files up to date so as a guideline for raspberry pi boards please always look to the file talkkonnect-version2-usb-gpio-example.xml and talkkonnect.tkv1pcb for the latest tags to copy and implement them in your builds.
+* With all the updates I cannot possibly make all config sample files up to date so as a guideline for raspberry pi boards please always look to the file talkkonnect-version2-usb-gpio-example.xml and talkkonnect-current-sample.xml for the latest tags to copy and implement them in your builds.
 * We have for your convinience created a few different images that you can download and burn to your SD card so that you can get up and running quickly with a generic instance of talkkonnect working out of the box. Choose the image based on your hardware and use case. Using one of these images you will not need to follow all the complicated steps of installing and compiling everything from scratch if that seems daunting and overwhelming to you at first. 
 * This is an easy way to start experimenting with talkkonnect in a matter of minutes. The ability to shorten the time and lessen the barrier of entry will allow you to see if talkkonnect suits your needs.
 * The network settings are set as DHCP Client so your device should get an IP Address when by cabled LAN you connect it to your DHCP enabled network.

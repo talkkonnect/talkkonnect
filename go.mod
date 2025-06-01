@@ -45,8 +45,8 @@ require (
 	github.com/talkkonnect/go-i2c v0.0.0-20190316095740-e326afb7fdb1 // indirect
 	github.com/talkkonnect/go-logger v0.0.0-20190316101244-635f8e12dd6c // indirect
 	github.com/talkkonnect/gopus v0.0.0-20220213040034-763f05853b2f // indirect
-	golang.org/x/crypto v0.35.0 // indirect
-	golang.org/x/net v0.27.0 // indirect
+	golang.org/x/crypto v0.36.0 // indirect
+	golang.org/x/net v0.38.0 // indirect
 	golang.org/x/sync v0.14.0 // indirect
 	google.golang.org/protobuf v1.33.0 // indirect
 )

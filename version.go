@@ -31,12 +31,13 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "2.43.03"
-	talkkonnectReleased string = "01 June 2025"
+	talkkonnectVersion  string = "2.44.01"
+	talkkonnectReleased string = "28 July 2025"
 )
 
-
 /* Release Notes
+version 2.44.01
+fixed talkkonnect to be able to join sub channels from xml config
 version 2.42.03
 released with new talkkonnect-current-sample.xml
 fixed httpapi error message as reported by zoran

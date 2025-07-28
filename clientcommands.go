@@ -35,6 +35,7 @@ import (
 	"os"
 	"sort"
 	"strconv"
+	"strings"
 	"syscall"
 	"time"
 
@@ -171,14 +172,13 @@ func (b *Talkkonnect) TransmitStop(withBeep bool) {
 }
 
 func (b *Talkkonnect) ChangeChannel(ChannelName string) {
-	//fixthis change so that it checks accessablechannellist map first before changing to the requested channel
 	if !(IsConnected) {
 		return
 	}
 
 	b.BackLightTimer()
-
-	channel := b.Client.Channels.Find(ChannelName)
+	channelPath := strings.Split(ChannelName, ",")
+	channel := b.Client.Channels.Find(channelPath...)
 	if channel != nil {
 
 		b.Client.Self.Move(channel)

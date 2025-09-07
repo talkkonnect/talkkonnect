@@ -96,7 +96,7 @@ For the The enthusiast or those who want to test the features of talkkonnect the
 ### Why Was talKKonnect created?
 
 I [Suvir Kumar](https://www.linkedin.com/in/suvir-kumar-51a1333b) created talKKonnect for learning and fun. I missed the younger days making homebrew CB, HAM radios and talking to all
-those amazing people who taught me so much. My HAM Radio Call signs are E25OSW for Thailand and KK7HMK (Extra Class) for USA.
+those amazing people who taught me so much. My HAM Radio Call signs are HS1FOS/E25OSW for Thailand and KK7HMK (Extra Class) for USA.
 
 Living in an apartment in the age of the internet with the itch to innovate drove me to create talKKonnect. I did it as a hobby to learn, so in no way am I a professional programmer, however talkkonnect is very stable and running in production for mission critical systems all over the world and is production ready. That being said brace yourself for some code from a self taught amateur programmer some parts of talkkonnect are not ideal.
 
@@ -861,4 +861,5 @@ Thank you all for your kind feedback sent along with some pictures and use cases
 [talKKonnect](http://www.talkkonnect.com) is open source and available under the MPL V2.00 license.
 
 <suvir@talkkonnect.com> Updated 27/02/2024 talkkonnect version 2.40.01 is the latest release as of this writing.
+
 

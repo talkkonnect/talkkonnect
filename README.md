@@ -152,15 +152,6 @@ Instead of the onboard sound card or USB Sound Card, you can also use a ReSpeake
 * For those Respeaker Images (Rpi Zero or RPI 2/3 Images with Respeaker) Out of the box the standard configutation XML file is set to run in GPIO Mode and GPIO will initalized, this means the PTT Button and the LEDS on the 2 Mic Respeaker Hat will work right away. You will need to connect an external speaker to the HAT for these images.
 * Feel Free to explore the various example talkkonnect.xml configurations that can be found in the directory /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/sample-configs here you can find various configurations that work with LCD, OLED, LEDS and PUSH Button Switches. The files are named descriptively. See the talkkonnect-version2-usb-gpio-example.xml
 as an example. 
-* To update to the lastest version release of talkkonnect in the image you can cd to the root directory and issue the following commands after logging in as root (You should not update the respeaker images as they are customized and
-will break the respeaker LED compatability)
-
-````
-cd /root
-wget https://raw.githubusercontent.com/talkkonnect/talkkonnect/main/scripts/update-talkkonnect.sh 
-chmod +x ./update-talkkonnect.sh
-./update-talkkonnect.sh
-````
 
 ## Quick Start Readymade talKKonnect Downloadable Images for SD Cards
 
@@ -861,5 +852,6 @@ Thank you all for your kind feedback sent along with some pictures and use cases
 [talKKonnect](http://www.talkkonnect.com) is open source and available under the MPL V2.00 license.
 
 <suvir@talkkonnect.com> Updated 27/02/2024 talkkonnect version 2.40.01 is the latest release as of this writing.
+
 
 

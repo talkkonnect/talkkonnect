@@ -3,9 +3,20 @@
 ### A Headless Mumble Linux Client/Transceiver/Walkie Talkie/Intercom/Gateway for Single Board Computers (IP Radio/IP PTT <push-to-talk>)
 
 ---
-### If you use talkkonnect Please let us know your use case by sending us pictures, and please also STAR talkkonnect/talkkonnect repo on github.com!
+#### If you use talkkonnect Please let us know your use case by sending us pictures, and please also STAR talkkonnect/talkkonnect repo on github.com!
+
+### Menu
+* [What is talKKonnect?](#what-is-talkkonnect)
+* [Some interesting features](#some-interesting-features-of-talkkonnect)
+* [Getting started](#getting-started)
+* [Extra Multimedia Features (IP-Speaker)](#extra-multimedia-features-ip-speaker)
+* [Why Was talKKonnect created?](#why-was-talkkonnect-created)
+* [Building talkkonnect Additional Optional Hardware and Precautions](#building-talkkonnect-additional-optional-hardware-and-precautions)
+* [Software Configurable Features](#software-configurable-features)
+* [Common Information for the all the Pre-Made Images For Various Hardware Configurations](#common-information-for-the-all-the-pre-made-images-for-various-hardware-configurations)
 
 ### So What then is talKKonnect, and why should I be Interested?
+<a id="what-is-talkkonnect"></a>
 
 [talKKonnect](http://www.talkkonnect.com) is an open source customizable headless, self-contained Mumble Push to Talk (PTT) client designed for linux SBCs such as Raspberry Pi, and Orange Pi Boards. It offers a flexible form factor with an LCD/OLED display, channel and volume control, making it ideal for group communication scenarios. Common use cases include amateur radio enthusiasts, ad-hoc group communications, and replacing expensive commercial intercom systems.
 
@@ -38,10 +49,19 @@ The Potential Uses of talKKonnect
 * Ham Radio
 
 ![Pictures of Builds](/images/talKKonect.png)
-  
-Mode detailed information of builds can be found [facebook](https://www.facebook.com/talkkonnect) and [blog](https://www.talkkonnect.com) 
 
-#### Some Interesting Features of talkkonnect
+Mode detailed information of builds can be found [facebook](https://www.facebook.com/talkkonnect) and [blog](https://www.talkkonnect.com)
+
+## Getting started
+
+talKKonnect works on a variety of devices and form factors, and even provides pre-built images for use on common Raspberry Pi or similar single board computer (SBC) architectures.
+
+* [Installation instructions](./docs/getting-started.md)
+* [Raspberry Pi / Other Pre-made Image Instructions](./docs/hardware-builds.md)
+
+
+## Some Interesting Features of talkkonnect
+<a id="some-interesting-features"></a>
 
 #### Configurablilty
 * XML Granular configurability covering many flexible uses cases.

@@ -30,6 +30,8 @@ github.com/jacobsa/go-serial v0.0.0-20180131005756-15cf729a72d4 h1:G2ztCwXov8mRv
 github.com/jacobsa/go-serial v0.0.0-20180131005756-15cf729a72d4/go.mod h1:2RvX5ZjVtsznNZPEt4xwJXNJrM3VTZoQf7V6gk0ysvs=
 github.com/kennygrant/sanitize v1.2.4 h1:gN25/otpP5vAsO2djbMhF/LQX6R7+O1TB4yv8NzpJ3o=
 github.com/kennygrant/sanitize v1.2.4/go.mod h1:LGsjYYtgxbetdg5owWB2mpgUL6e2nfw2eObZ0u0qvak=
+github.com/layeh/gopus v0.0.0-20161224163843-0ebf989153aa h1:jCNvcB4EDuQflwb0f9CZ0Xmo1v257PFyYWWlq03DezA=
+github.com/layeh/gopus v0.0.0-20161224163843-0ebf989153aa/go.mod h1:l3amQeFtdEiZjPsh58I61tySy8v+DC9rDxp4nHyG3uM=
 github.com/mattn/go-runewidth v0.0.16 h1:E5ScNMtiwvlvB5paMFdw9p4kSQzbXFikJ5SQO6TULQc=
 github.com/mattn/go-runewidth v0.0.16/go.mod h1:Jdepj2loyihRzMpdS35Xk/zdY8IAYHsh153qUoGf23w=
 github.com/moutend/go-wca v0.2.0 h1:AEzY6ltC5zPCldKyMYdyXv3TaLqwxSW1TIradqNqRpU=
@@ -61,8 +63,6 @@ github.com/talkkonnect/go-oled-i2c v0.0.0-20220315132146-0f5a50f4aa0a h1:kvd1KeI
 github.com/talkkonnect/go-oled-i2c v0.0.0-20220315132146-0f5a50f4aa0a/go.mod h1:zdbvJKE9p2OJ3XMlb0X7YYD8GNPMILwDebKZH9OvMi8=
 github.com/talkkonnect/go-openal v0.0.0-20181013102444-59f5b1d30aff h1:Cdwko65/+E0ABkBIlkk8VPIKdH4gaOauhm56vMmdjwU=
 github.com/talkkonnect/go-openal v0.0.0-20181013102444-59f5b1d30aff/go.mod h1:HNJVbiQ+pS+L9WiqdKSrR3fWiceF7lpnGQZgJRFeuz0=
-github.com/talkkonnect/gopus v0.0.0-20220213040034-763f05853b2f h1:mnblqagvtS3JhHcVki3HMj0dq5XswP1oZ7fRp9mi4Mo=
-github.com/talkkonnect/gopus v0.0.0-20220213040034-763f05853b2f/go.mod h1:zMs0TkqDtyJ3CaPSyqhhW2VRnd/L1mSL11vQ6DG5Ovc=
 github.com/talkkonnect/gosshd v0.0.0-20231108084422-bc154c18c28f h1:m5Dv1aQ1Pjl1cJg7djNTyWCeRLfdCPg8gBFLXFvDY7s=
 github.com/talkkonnect/gosshd v0.0.0-20231108084422-bc154c18c28f/go.mod h1:wo3FFxDj2Be5CJJR6Lsfsj15wRo4dmHufNp0luGeUuQ=
 github.com/talkkonnect/gpio v0.0.0-20181225144829-9b8a2de8e6fe h1:ac77K8YD3YD8Mn5P95fb7Vbq/2nKCECVfaTxMb0bDj0=

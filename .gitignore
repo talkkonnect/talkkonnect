@@ -1,2 +1,5 @@
 .vscode
+.idea
+dist
 talkkonnect.xml
+talkkonnect.lock

@@ -48,7 +48,6 @@ var serverindex = flag.String("serverindex", "0", "jump to server index [n]")
 
 
 func main() {
-
 	config := flag.String("config", "/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/talkkonnect.xml", "full path to talkkonnect.xml configuration file")
 	daemonMode := flag.Bool("daemon", false, "run in daemon mode")
 

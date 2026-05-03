@@ -41,7 +41,6 @@ import (
 
 	"github.com/talkkonnect/gumble/gumble"
 	"github.com/talkkonnect/gumble/gumbleffmpeg"
-	term "github.com/talkkonnect/termbox-go"
 	"github.com/talkkonnect/volume-go"
 )
 
@@ -55,9 +54,6 @@ func FatalCleanUp(message string) {
 	log.Println("alert: Talkkonnect Terminated Abnormally with the Error(s) As Described Above, Ignore any GPIO errors if you are not using Single Board Computer.")
 	log.Println("info: This Screen will close in 5 seconds")
 	time.Sleep(5 * time.Second)
-	if !DaemonMode {
-		term.Close()
-	}
 	os.Exit(1)
 }
 
@@ -84,10 +80,8 @@ func CleanUp(withShutdown bool) {
 		//		MyLedStripGPIOOffAll()
 	}
 
-	if !DaemonMode {
-		term.Close()
-	}
 	fmt.Println("SIGHUP Termination of Program Requested by User...shutting down talkkonnect")
+	bottomCLIDisableLayout()
 	if withShutdown {
 		time.Sleep(5 * time.Second)
 		syscall.Reboot(syscall.LINUX_REBOOT_CMD_POWER_OFF)
@@ -209,6 +203,7 @@ func (b *Talkkonnect) ChangeChannel(ChannelName string) {
 
 func (b *Talkkonnect) ListUsers() {
 	if !(IsConnected) {
+		sshRemoteReplyF("Not connected to Mumble; cannot list online users.\n")
 		return
 	}
 
@@ -217,7 +212,11 @@ func (b *Talkkonnect) ListUsers() {
 		if usr.Channel.ID == b.Client.Self.Channel.ID {
 			item++
 			log.Printf("info: %d. User %#v is online. [%v]\n", item, usr.Name, usr.Comment)
+			sshRemoteReplyF("%d. User %#v is online. [%v]\n", item, usr.Name, usr.Comment)
 		}
+	}
+	if item == 0 {
+		sshRemoteReplyF("No other users in the current channel.\n")
 	}
 }
 
@@ -255,6 +254,7 @@ func (b *Talkkonnect) ListChannels(verbose bool) {
 func (b *Talkkonnect) ChannelUp() {
 
 	if !(IsConnected) {
+		sshRemoteReplyF("Not connected to Mumble; channel change ignored.\n")
 		return
 	}
 
@@ -269,6 +269,7 @@ func (b *Talkkonnect) ChannelUp() {
 		for i := 0; i <= len(b.Client.Channels)-1; i++ {
 			if chanName, found := AccessableChannelMap[ChannelsList[i].chanID]; found {
 				log.Printf("info: Moving to Accessable Channel (ID %v Name %v)\n", ChannelsList[i].chanID, chanName)
+				sshRemoteReplyF("Moving to channel ID %v name %v\n", ChannelsList[i].chanID, chanName)
 				channel := b.Client.Channels.Find(chanName)
 				if channel != nil {
 					b.Client.Self.Move(channel)
@@ -286,6 +287,7 @@ func (b *Talkkonnect) ChannelUp() {
 	for i := currentChannelIndex + 1; i <= len(b.Client.Channels)-1; i++ {
 		if chanName, found := AccessableChannelMap[ChannelsList[i].chanID]; found {
 			log.Printf("info: Moving to Accessable Channel (ID %v Name %v)\n", ChannelsList[i].chanID, chanName)
+			sshRemoteReplyF("Moving to channel ID %v name %v\n", ChannelsList[i].chanID, chanName)
 			channel := b.Client.Channels.Find(chanName)
 			b.Client.Self.Move(channel)
 			break
@@ -297,6 +299,7 @@ func (b *Talkkonnect) ChannelUp() {
 
 func (b *Talkkonnect) ChannelDown() {
 	if !(IsConnected) {
+		sshRemoteReplyF("Not connected to Mumble; channel change ignored.\n")
 		return
 	}
 	ChannelAction = "channeldown"
@@ -318,6 +321,7 @@ func (b *Talkkonnect) ChannelDown() {
 	for i := currentChannelIndex - 1; i >= 0; i-- {
 		if chanName, found := AccessableChannelMap[ChannelsList[i].chanID]; found {
 			log.Printf("info: Moving to Accessable Channel (ID %v Name %v)\n", ChannelsList[i].chanID, chanName)
+			sshRemoteReplyF("Moving to channel ID %v name %v\n", ChannelsList[i].chanID, chanName)
 			channel := b.Client.Channels.Find(chanName)
 			if channel != nil {
 				b.Client.Self.Move(channel)
@@ -332,10 +336,12 @@ func (b *Talkkonnect) ChannelDown() {
 
 func (b *Talkkonnect) Scan() {
 	if !(IsConnected) {
+		sshRemoteReplyF("Not connected to Mumble; scan unavailable.\n")
 		return
 	}
 
 	log.Println("alert: New Scan Not Implemented Yet")
+	sshRemoteReplyF("Channel scan is not implemented yet (see log).\n")
 }
 
 func (b *Talkkonnect) SendMessage(textmessage string, PRecursive bool) {
@@ -422,9 +428,11 @@ func (b *Talkkonnect) pingServers() {
 		}
 
 		log.Println("info: Server # ", i+1, "["+Name[i]+"]"+currentconn)
+		sshRemoteReplyF("Server #%d [%s]%s\n", i+1, Name[i], currentconn)
 
 		if err != nil {
 			log.Printf("error: Ping Error %q\n", err)
+			sshRemoteReplyF("Ping error: %v\n", err)
 			continue
 		}
 
@@ -435,6 +443,11 @@ func (b *Talkkonnect) pingServers() {
 		log.Println("info: Server Version:         ", major, ".", minor, ".", patch)
 		log.Println("info: Server Users:           ", resp.ConnectedUsers, "/", resp.MaximumUsers)
 		log.Println("info: Server Maximum Bitrate: ", resp.MaximumBitrate)
+		sshRemoteReplyF("  Address: %v\n", resp.Address)
+		sshRemoteReplyF("  Ping:    %v\n", resp.Ping)
+		sshRemoteReplyF("  Version: %v.%v.%v\n", major, minor, patch)
+		sshRemoteReplyF("  Users:   %v / %v\n", resp.ConnectedUsers, resp.MaximumUsers)
+		sshRemoteReplyF("  Max BR:  %v\n", resp.MaximumBitrate)
 	}
 }
 

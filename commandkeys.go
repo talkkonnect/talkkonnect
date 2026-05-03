@@ -85,6 +85,7 @@ func (b *Talkkonnect) cmdMuteUnmute(subCommand string) {
 			}
 			TTSEvent("unmutespeaker")
 			log.Println("info: Output Device Unmuted")
+			sshRemoteReplyF("Output device unmuted.\n")
 			if Config.Global.Hardware.TargetBoard == "rpi" {
 				if LCDEnabled {
 					LcdText = [4]string{"nil", "nil", "nil", "UnMuted"}
@@ -102,6 +103,7 @@ func (b *Talkkonnect) cmdMuteUnmute(subCommand string) {
 				log.Println("error: Muting Failed", err)
 			}
 			log.Println("info: Output Device Muted")
+			sshRemoteReplyF("Output device muted.\n")
 			if Config.Global.Hardware.TargetBoard == "rpi" {
 				if LCDEnabled {
 					LcdText = [4]string{"nil", "nil", "nil", "Muted"}
@@ -124,6 +126,7 @@ func (b *Talkkonnect) cmdMuteUnmute(subCommand string) {
 			return
 		}
 		log.Println("info: Output Device Muted")
+		sshRemoteReplyF("Output device muted.\n")
 		if Config.Global.Hardware.TargetBoard == "rpi" {
 			if LCDEnabled {
 				LcdText = [4]string{"nil", "nil", "nil", "Muted"}
@@ -145,6 +148,7 @@ func (b *Talkkonnect) cmdMuteUnmute(subCommand string) {
 			return
 		}
 		log.Println("info: Output Device Unmuted")
+		sshRemoteReplyF("Output device unmuted.\n")
 		if Config.Global.Hardware.TargetBoard == "rpi" {
 			if LCDEnabled {
 				LcdText = [4]string{"nil", "nil", "nil", "UnMuted"}
@@ -165,6 +169,7 @@ func (b *Talkkonnect) cmdCurrentRXVolume() {
 
 	log.Printf("debug: F4 pressed Volume Level Requested\n")
 	log.Println("info: Volume Level is at", OrigVolume, "%")
+	sshRemoteReplyF("RX output volume level: %d%%\n", OrigVolume)
 
 	TTSEvent("currentrxvolumelevel")
 	if Config.Global.Hardware.TargetBoard == "rpi" {
@@ -194,6 +199,7 @@ func (b *Talkkonnect) cmdVolumeRXUp() {
 		}
 		origVolume, _ := volume.GetVolume(Config.Global.Software.Settings.OutputVolControlDevice)
 		log.Println("info: Volume UP (+) Now At ", origVolume, "%")
+		sshRemoteReplyF("Volume UP (+) now at %d%%\n", origVolume)
 		if Config.Global.Hardware.TargetBoard == "rpi" {
 			if LCDEnabled {
 				LcdText = [4]string{"nil", "nil", "nil", "Volume + " + strconv.Itoa(origVolume)}
@@ -207,6 +213,7 @@ func (b *Talkkonnect) cmdVolumeRXUp() {
 	} else {
 		log.Println("debug: F5 Increase Volume")
 		log.Println("info: Already at Maximum Possible Volume")
+		sshRemoteReplyF("Already at maximum volume.\n")
 		if Config.Global.Hardware.TargetBoard == "rpi" {
 			if LCDEnabled {
 				LcdText = [4]string{"nil", "nil", "nil", "Max Vol"}
@@ -236,6 +243,7 @@ func (b *Talkkonnect) cmdVolumeRXDown() {
 		}
 		origVolume, _ := volume.GetVolume(Config.Global.Software.Settings.OutputVolControlDevice)
 		log.Println("info: Volume Down (-) Now At ", origVolume, "%")
+		sshRemoteReplyF("Volume DOWN (-) now at %d%%\n", origVolume)
 		if Config.Global.Hardware.TargetBoard == "rpi" {
 			if LCDEnabled {
 				LcdText = [4]string{"nil", "nil", "nil", "Volume - " + strconv.Itoa(origVolume)}
@@ -249,6 +257,7 @@ func (b *Talkkonnect) cmdVolumeRXDown() {
 	} else {
 		log.Println("debug: F6 Increase Volume Already")
 		log.Println("info: Already at Minimum Possible Volume")
+		sshRemoteReplyF("Already at minimum volume.\n")
 		if Config.Global.Hardware.TargetBoard == "rpi" {
 			if LCDEnabled {
 				LcdText = [4]string{"nil", "nil", "nil", "Min Vol"}
@@ -271,6 +280,7 @@ func (b *Talkkonnect) cmdCurrentTXVolume() {
 
 	log.Printf("debug: TX Mic Volume Level Requested\n")
 	log.Println("info: Volume Level is at", OrigVolume, "%")
+	sshRemoteReplyF("TX input volume level: %d%%\n", OrigVolume)
 
 	TTSEvent("currenttxvolumelevel")
 	if Config.Global.Hardware.TargetBoard == "rpi" {
@@ -380,6 +390,7 @@ func (b *Talkkonnect) cmdListServerChannels() {
 func (b *Talkkonnect) cmdStartTransmitting() {
 	log.Printf("debug: F8 pressed TX Mode Requested (Start Transmitting) \n")
 	log.Println("info: Start Transmitting")
+	sshRemoteReplyF("Start transmitting requested.\n")
 
 	TTSEvent("starttransmitting")
 
@@ -400,12 +411,14 @@ func (b *Talkkonnect) cmdStartTransmitting() {
 		b.TransmitStart()
 	} else {
 		log.Println("error: Already in Transmitting Mode")
+		sshRemoteReplyF("Already transmitting.\n")
 	}
 }
 
 func (b *Talkkonnect) cmdStopTransmitting() {
 	log.Printf("debug: F9 pressed RX Mode Request (Stop Transmitting) \n")
 	log.Println("info: Stop Transmitting")
+	sshRemoteReplyF("Stop transmitting requested.\n")
 
 	TTSEvent("stoptransmitting")
 
@@ -920,7 +933,9 @@ func (b *Talkkonnect) cmdShowUptime() {
 	log.Printf("debug: Ctrl-U Pressed \n")
 	log.Println("info: Talkkonnect Uptime Request ")
 	duration := time.Since(StartTime)
-	log.Printf("info: Talkkonnect Now Running For %v \n", secondsToHuman(int(duration.Seconds())))
+	human := secondsToHuman(int(duration.Seconds()))
+	log.Printf("info: Talkkonnect Now Running For %v \n", human)
+	sshRemoteReplyF("Uptime: %s\n", human)
 }
 
 func (b *Talkkonnect) cmdDisplayVersion() {
@@ -929,8 +944,10 @@ func (b *Talkkonnect) cmdDisplayVersion() {
 	releasedVersion := checkGitHubVersion()
 	if talkkonnectVersion != releasedVersion {
 		log.Printf("warn: Ver %v Rel %v (Different Ver %v Available!)\n", talkkonnectVersion, talkkonnectReleased, releasedVersion)
+		sshRemoteReplyF("Version %v release %v (update available: %v)\n", talkkonnectVersion, talkkonnectReleased, releasedVersion)
 	} else {
 		log.Printf("info: Ver %v Rel %v (Latest Release)\n", talkkonnectVersion, talkkonnectReleased)
+		sshRemoteReplyF("Version %v release %v (latest)\n", talkkonnectVersion, talkkonnectReleased)
 	}
 }
 
@@ -939,6 +956,7 @@ func (b *Talkkonnect) cmdDumpXMLConfig() {
 	log.Println("info: Print XML Config " + ConfigXMLFile)
 	TTSEvent("printxmlconfig")
 	printxmlconfig()
+	sshRemoteReplyF("\nDetailed XML listing was written to the talkkonnect log (%s).\n", Config.Global.Software.Settings.LogFilenameAndPath)
 }
 
 func (b *Talkkonnect) cmdPlayRepeaterTone() {

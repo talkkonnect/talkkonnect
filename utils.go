@@ -53,13 +53,12 @@ import (
 	externalip "github.com/glendc/go-external-ip"
 	"github.com/kennygrant/sanitize"
 	"github.com/talkkonnect/gumble/gumble"
-	term "github.com/talkkonnect/termbox-go"
 	"github.com/xackery/gomail"
 )
 
 func reset() {
 	if !DaemonMode {
-		term.Sync()
+		fmt.Print("\033[2J\033[H")
 	}
 }
 
@@ -351,9 +350,9 @@ func FileExists(filepath string) bool {
 
 func killSession() {
 	time.Sleep(2 * time.Second)
-	c := exec.Command("reset")
-	c.Stdout = os.Stdout
-	c.Run()
+	//c := exec.Command("reset")
+	//c.Stdout = os.Stdout
+	//c.Run()
 	os.Exit(0)
 }
 

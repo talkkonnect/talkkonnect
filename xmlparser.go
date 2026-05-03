@@ -42,7 +42,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/talkkonnect/colog"
 	goled "github.com/talkkonnect/go-oled-i2c"
 	"github.com/talkkonnect/gumble/gumble"
 	"github.com/talkkonnect/gumble/gumbleffmpeg"
@@ -506,11 +505,6 @@ type ConfigStruct struct {
 					ParamName   string `xml:"paramname,attr"`
 					Paramvalue  string `xml:"paramvalue,attr"`
 					Enabled     bool   `xml:"enabled,attr"`
-					Ttykeyboard struct {
-						Scanid   rune   `xml:"scanid,attr"`
-						Keylabel uint32 `xml:"keylabel,attr"`
-						Enabled  bool   `xml:"enabled,attr"`
-					} `xml:"ttykeyboard"`
 					Usbkeyboard struct {
 						Scanid   rune   `xml:"scanid,attr"`
 						Keylabel uint32 `xml:"keylabel,attr"`
@@ -755,7 +749,6 @@ var (
 var (
 	LcdText = [4]string{"nil", "nil", "nil", "nil"}
 	//	MyLedStrip *LedStrip
-	TTYKeyMap            = make(map[rune]KBStruct)
 	USBKeyMap            = make(map[rune]KBStruct)
 	GPIOMemoryMap        = make(map[string]MemoryChannelStruct)
 	GPIOVoiceTargetMap   = make(map[string]VoiceTargetStruct)
@@ -871,9 +864,6 @@ func readxmlconfig(file string, reloadxml bool) error {
 	}
 	for _, kMainCommands := range Config.Global.Hardware.Keyboard.Command {
 		if kMainCommands.Enabled {
-			if kMainCommands.Ttykeyboard.Enabled {
-				TTYKeyMap[kMainCommands.Ttykeyboard.Scanid] = KBStruct{kMainCommands.Ttykeyboard.Enabled, kMainCommands.Ttykeyboard.Keylabel, kMainCommands.Action, kMainCommands.ParamName, kMainCommands.Paramvalue}
-			}
 			if kMainCommands.Usbkeyboard.Enabled {
 				USBKeyMap[kMainCommands.Usbkeyboard.Scanid] = KBStruct{kMainCommands.Usbkeyboard.Enabled, kMainCommands.Usbkeyboard.Keylabel, kMainCommands.Action, kMainCommands.ParamName, kMainCommands.Paramvalue}
 			}
@@ -1006,29 +996,7 @@ func readxmlconfig(file string, reloadxml bool) error {
 	if reloadxml {
 		if Config.Global.Software.Settings.Loglevel != ReConfig.Global.Software.Settings.Loglevel {
 			Config.Global.Software.Settings.Loglevel = ReConfig.Global.Software.Settings.Loglevel
-			switch Config.Global.Software.Settings.Loglevel {
-			case "trace":
-				colog.SetMinLevel(colog.LTrace)
-				log.Println("info: Loglevel Set to Trace")
-			case "debug":
-				colog.SetMinLevel(colog.LDebug)
-				log.Println("info: Loglevel Set to Debug")
-			case "info":
-				colog.SetMinLevel(colog.LInfo)
-				log.Println("info: Loglevel Set to Info")
-			case "warning":
-				colog.SetMinLevel(colog.LWarning)
-				log.Println("info: Loglevel Set to Warning")
-			case "error":
-				colog.SetMinLevel(colog.LError)
-				log.Println("info: Loglevel Set to Error")
-			case "alert":
-				colog.SetMinLevel(colog.LAlert)
-				log.Println("info: Loglevel Set to Alert")
-			default:
-				colog.SetMinLevel(colog.LInfo)
-				log.Println("info: Default Loglevel unset in XML config automatically loglevel to Info")
-			}
+			ApplyCologMinLevelFromConfig()
 		}
 
 		Config.Global.Software.Settings.CancellableStream = ReConfig.Global.Software.Settings.CancellableStream
@@ -1459,9 +1427,6 @@ func printxmlconfig() {
 				log.Printf("info: %v Enabled %v Command %v ParamValue %v\n", counter, value.Enabled, value.Action, value.Paramvalue)
 				counter++
 			}
-			if value.Ttykeyboard.Enabled {
-				log.Println("info: TTYKeyboard " + fmt.Sprintf("%+v", value.Ttykeyboard))
-			}
 			if value.Usbkeyboard.Enabled {
 				log.Println("info: USBKeyboard " + fmt.Sprintf("%+v", value.Usbkeyboard))
 			}
@@ -1891,13 +1856,6 @@ func CheckConfigSanity(reloadxml bool) {
 				Config.Global.Hardware.Keyboard.Command[index].Enabled = false
 				Warnings++
 
-			}
-			if keyboard.Ttykeyboard.Enabled {
-				if keyboard.Ttykeyboard.Scanid == 0 || keyboard.Ttykeyboard.Scanid > 255 {
-					log.Printf("warn: Config Error [Section Keyboard] Enabled TTYKeyboard ScanID %v Invalid\n", keyboard.Ttykeyboard.Scanid)
-					Config.Global.Hardware.Keyboard.Command[index].Ttykeyboard.Enabled = false
-					Warnings++
-				}
 			}
 			if keyboard.Usbkeyboard.Enabled {
 				if keyboard.Usbkeyboard.Scanid == 0 || keyboard.Usbkeyboard.Scanid > 255 {

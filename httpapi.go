@@ -32,6 +32,7 @@ package talkkonnect
 import (
 	"errors"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"reflect"
@@ -40,8 +41,22 @@ import (
 	"time"
 )
 
-func (b *Talkkonnect) httpAPI(w http.ResponseWriter, r *http.Request) {
-	funcs := map[string]interface{}{
+// remoteAPIQuery holds parameters for remote commands (HTTP query or bottom CLI).
+type remoteAPIQuery struct {
+	Command              string
+	ID                   int
+	APITTSMessage        string
+	APITTSLocalPlay      bool
+	APITTSPlayIntoStream bool
+	APIGPIOEnabled       bool
+	APIGPIOName          string
+	APIPreDelay          int
+	APIPostDelay         int
+	APILanguage          string
+}
+
+func (b *Talkkonnect) remoteAPICommandHandlers() map[string]interface{} {
+	return map[string]interface{}{
 		"displaymenu":        b.cmdDisplayMenu,
 		"channelup":          b.cmdChannelUp,
 		"channeldown":        b.cmdChannelDown,
@@ -76,28 +91,71 @@ func (b *Talkkonnect) httpAPI(w http.ResponseWriter, r *http.Request) {
 		"voicetargetset":     b.cmdSendVoiceTargets,
 		"listeningstart":     b.cmdListeningStart,
 		"listeningstop":      b.cmdListeningStop,
-		"listapi":            listAPI}
-
-	APICommands, ok := r.URL.Query()["command"]
-
-	if !ok  {
-		log.Println("error: URL Param 'command' is missing example http API commands should be of the format http://a.b.c.d/?command=listapi")
-		fmt.Fprintf(w, "error: API should be of the format http://a.b.c.d:"+Config.Global.Software.RemoteControl.HTTP.ListenPort+"/?command=StartTransmitting or of the format http://a.b.c.d:"+Config.Global.Software.RemoteControl.HTTP.ListenPort+"?command=setvoicetarget&id=0\n")
-		return
+		"listapi":            listAPI,
 	}
+}
 
-	var APIID int
-	var APITTSMessage string
-	var APITTSLocalPlay bool
-	var APITTSPlayIntoStream bool
-	var APIGPIOEnabled bool
-	var APIGPIOName string
-	var APIPreDelay int
-	var APIPostDelay int
-	var APILanguage string
+func fillHTTPRemoteAPIQueryFromRequest(r *http.Request, q *remoteAPIQuery) error {
 	var err error
+	for key, values := range r.URL.Query() {
+		if len(values) == 0 {
+			continue
+		}
+		switch strings.ToLower(key) {
+		case "command":
+			q.Command = strings.ToLower(strings.TrimSpace(values[0]))
+		case "id":
+			q.ID, err = strconv.Atoi(values[0])
+			if err != nil {
+				return errors.New("voice target id is not a number")
+			}
+		case "ttsmessage":
+			q.APITTSMessage = values[0]
+		case "ttslocalplay":
+			switch strings.ToLower(values[0]) {
+			case "true":
+				q.APITTSLocalPlay = true
+			case "false":
+				q.APITTSLocalPlay = false
+			}
+		case "ttsplayintostream":
+			switch strings.ToLower(values[0]) {
+			case "true":
+				q.APITTSPlayIntoStream = true
+			case "false":
+				q.APITTSPlayIntoStream = false
+			}
+		case "gpioenabled":
+			switch strings.ToLower(values[0]) {
+			case "true":
+				q.APIGPIOEnabled = true
+			case "false":
+				q.APIGPIOEnabled = false
+			}
+		case "gpioname":
+			q.APIGPIOName = values[0]
+		case "predelay":
+			q.APIPreDelay, err = strconv.Atoi(values[0])
+			if err != nil {
+				return errors.New("predelay is not a number")
+			}
+		case "postdelay":
+			q.APIPostDelay, err = strconv.Atoi(values[0])
+			if err != nil {
+				return errors.New("postdelay is not a number")
+			}
+		case "language":
+			q.APILanguage = values[0]
+		}
+	}
+	return nil
+}
 
-	APICommand := strings.ToLower(APICommands[0])
+// HandleRemoteAPICommand runs one configured HTTP API command (used by HTTP handler and bottom CLI).
+func (b *Talkkonnect) HandleRemoteAPICommand(w io.Writer, q remoteAPIQuery) {
+	funcs := b.remoteAPICommandHandlers()
+	APICommand := strings.ToLower(strings.TrimSpace(q.Command))
+
 	APIDefined := false
 	for _, apicommand := range Config.Global.Software.RemoteControl.HTTP.Command {
 		if APICommand == "listapi" && apicommand.Enabled {
@@ -114,120 +172,80 @@ func (b *Talkkonnect) httpAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	for key, values := range r.URL.Query() {
-		if strings.ToLower(key) == "command" {
-			APICommand = values[0]
-		}
-
-		if strings.ToLower(key) == "id" {
-			APIID, err = strconv.Atoi(values[0])
-			if err != nil {
-				log.Println("error: Target ID is not Number")
-				fmt.Fprintf(w, "404 error: API VoiceTarget ID is not Number\n")
-				return
-			}
-		}
-
-		if strings.ToLower(key) == "ttsmessage" {
-			APITTSMessage = values[0]
-		}
-
-		if strings.ToLower(key) == "ttslocalplay" {
-			var temp string = values[0]
-			if strings.ToLower(temp) == "true" {
-				APITTSLocalPlay = true
-			}
-			if strings.ToLower(temp) == "false" {
-				APITTSLocalPlay = false
-			}
-		}
-
-		if strings.ToLower(key) == "ttsplayintostream" {
-			var temp string = values[0]
-			if strings.ToLower(temp) == "true" {
-				APITTSPlayIntoStream = true
-			}
-			if strings.ToLower(temp) == "false" {
-				APITTSPlayIntoStream = false
-			}
-		}
-
-		if strings.ToLower(key) == "gpioenabled" {
-			var temp string = values[0]
-			if strings.ToLower(temp) == "true" {
-				APIGPIOEnabled = true
-			}
-			if strings.ToLower(temp) == "false" {
-				APIGPIOEnabled = false
-			}
-		}
-
-		if strings.ToLower(key) == "gpioname" {
-			APIGPIOName = values[0]
-		}
-
-		if strings.ToLower(key) == "predelay" {
-			APIPreDelay, err = strconv.Atoi(values[0])
-			if err != nil {
-				log.Println("error: PreDelay is not Number")
-				fmt.Fprintf(w, "404 error: API PreDelay is not Number\n")
-				return
-			}
-		}
-
-		if strings.ToLower(key) == "postdelay" {
-			APIPostDelay, err = strconv.Atoi(values[0])
-			if err != nil {
-				log.Println("error: PostDelay is not Number")
-				fmt.Fprintf(w, "404 error: API PostDelay is not Number\n")
-				return
-			}
-		}
-
-		if strings.ToLower(key) == "language" {
-			APILanguage = values[0]
-		}
-
-	}
-
 	for _, apicommand := range Config.Global.Software.RemoteControl.HTTP.Command {
-		if apicommand.Action == APICommand {
-			if len(apicommand.Funcparamname) == 0 {
-				_, err := b.Call(funcs, apicommand.Action)
+		if apicommand.Action != APICommand {
+			continue
+		}
+		if len(apicommand.Funcparamname) == 0 {
+			_, err := b.Call(funcs, apicommand.Action)
+			if err != nil {
+				log.Println("error: Wrong Parameters to Call Function")
+				fmt.Fprintf(w, "500 error: wrong parameters for command %q\n", APICommand)
+			} else {
+				fmt.Fprintf(w, "200 OK: http command %v OK \n", APICommand)
+			}
+		} else {
+			if apicommand.Funcparamname != "value" {
+				_, err := b.Call(funcs, apicommand.Action, apicommand.Funcparamname)
 				if err != nil {
 					log.Println("error: Wrong Parameters to Call Function")
+					fmt.Fprintf(w, "500 error: wrong parameters for command %q\n", APICommand)
 				} else {
-					fmt.Fprintf(w, "200 OK: http command %v OK \n", APICommand)
+					fmt.Fprintf(w, "200 OK: http command %v For %v Control\n", apicommand.Action, apicommand.Message)
 				}
 			} else {
-				if apicommand.Funcparamname != "value" {
-					_, err := b.Call(funcs, apicommand.Action, apicommand.Funcparamname)
+				switch APICommand {
+				case "voicetargetset":
+					_, err := b.Call(funcs, apicommand.Action, uint32(q.ID))
 					if err != nil {
 						log.Println("error: Wrong Parameters to Call Function")
+						fmt.Fprintf(w, "500 error: wrong parameters for command %q\n", APICommand)
 					} else {
-						fmt.Fprintf(w, "200 OK: http command %v For %v Control\n", apicommand.Action, apicommand.Message)
+						fmt.Fprintf(w, "200 OK: http command %v OK \n", APICommand)
 					}
-				} else {
-					switch APICommand {
-					case "voicetargetset":
-						_, err := b.Call(funcs, apicommand.Action, uint32(APIID))
-						if err != nil {
-							log.Println("error: Wrong Parameters to Call Function")
-						} else {
-							fmt.Fprintf(w, "200 OK: http command %v OK \n", APICommand)
-						}
-					case "ttsannouncement":
-						_, err := b.Call(funcs, apicommand.Action, APITTSMessage, APITTSLocalPlay, APITTSPlayIntoStream, APIGPIOEnabled, APIGPIOName, time.Duration(APIPreDelay*int(time.Second)), time.Duration(APIPostDelay)*time.Second, APILanguage)
-						if err != nil {
-							log.Println("error: Wrong Parameters to Call Function")
-						} else {
-							fmt.Fprintf(w, "200 OK: http command %v OK \n", APICommand)
-						}
+				case "ttsannouncement":
+					_, err := b.Call(funcs, apicommand.Action, q.APITTSMessage, q.APITTSLocalPlay, q.APITTSPlayIntoStream, q.APIGPIOEnabled, q.APIGPIOName, time.Duration(q.APIPreDelay*int(time.Second)), time.Duration(q.APIPostDelay)*time.Second, q.APILanguage)
+					if err != nil {
+						log.Println("error: Wrong Parameters to Call Function")
+						fmt.Fprintf(w, "500 error: wrong parameters for command %q\n", APICommand)
+					} else {
+						fmt.Fprintf(w, "200 OK: http command %v OK \n", APICommand)
 					}
 				}
 			}
 		}
 	}
+}
+
+func (b *Talkkonnect) httpAPI(w http.ResponseWriter, r *http.Request) {
+	APICommands, ok := r.URL.Query()["command"]
+	if !ok {
+		log.Println("error: URL Param 'command' is missing example http API commands should be of the format http://a.b.c.d/?command=listapi")
+		fmt.Fprintf(w, "error: API should be of the format http://a.b.c.d:"+Config.Global.Software.RemoteControl.HTTP.ListenPort+"/?command=StartTransmitting or of the format http://a.b.c.d:"+Config.Global.Software.RemoteControl.HTTP.ListenPort+"?command=setvoicetarget&id=0\n")
+		return
+	}
+
+	q := remoteAPIQuery{Command: strings.ToLower(strings.TrimSpace(APICommands[0]))}
+	APIDefined := false
+	for _, apicommand := range Config.Global.Software.RemoteControl.HTTP.Command {
+		if apicommand.Action == q.Command {
+			APIDefined = true
+			break
+		}
+	}
+	if !APIDefined {
+		log.Printf("error: API Command %v Not A Valid Defined Command\n", q.Command)
+		fmt.Fprintf(w, "404 error: API Command %v Not A Valid Defined Command\n", q.Command)
+		return
+	}
+
+	if err := fillHTTPRemoteAPIQueryFromRequest(r, &q); err != nil {
+		log.Println("error: " + err.Error())
+		fmt.Fprintf(w, "404 error: API %v\n", err.Error())
+		return
+	}
+
+	b.HandleRemoteAPICommand(w, q)
 }
 
 func (b *Talkkonnect) Call(m map[string]interface{}, name string, params ...interface{}) (result []reflect.Value, err error) {
@@ -246,6 +264,8 @@ func (b *Talkkonnect) Call(m map[string]interface{}, name string, params ...inte
 
 func listAPI() {
 	for _, apicommand := range Config.Global.Software.RemoteControl.HTTP.Command {
-		log.Printf("info: API Command %v for %v Control Available\n", apicommand.Action, apicommand.Message)
+		msg := fmt.Sprintf("info: API Command %v for %v Control Available\n", apicommand.Action, apicommand.Message)
+		log.Print(msg)
+		sshRemoteReplyF(msg)
 	}
 }

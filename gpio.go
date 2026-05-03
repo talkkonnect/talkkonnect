@@ -32,151 +32,270 @@
 package talkkonnect
 
 import (
+	"errors"
 	"log"
+	"os"
 	"strconv"
+	"strings"
+	"sync"
 	"time"
 
-	"github.com/stianeikeland/go-rpio"
 	"github.com/talkkonnect/go-mcp23017"
-	"github.com/talkkonnect/gpio"
 	"github.com/talkkonnect/max7219"
+	"github.com/warthog618/go-gpiocdev"
 )
+
+// tkInputLine wraps a GPIO character device line; Read matches prior sysfs semantics (0/1).
+type tkInputLine struct {
+	*gpiocdev.Line
+}
+
+func (t *tkInputLine) Read() (uint, error) {
+	if t == nil || t.Line == nil {
+		return 0, errors.New("gpio: nil input line")
+	}
+	v, err := t.Value()
+	if err != nil {
+		return 0, err
+	}
+	return uint(v), nil
+}
+
+var (
+	gpiMainChip   string
+	gpiChipLogged bool
+	outLineMu     sync.Mutex
+	outLineByPin  = make(map[uint]*gpiocdev.Line)
+)
+
+func ensureGPIOChip() {
+	if gpiMainChip != "" {
+		return
+	}
+	gpiMainChip = detectGPIOChip()
+	if gpiMainChip != "" && !gpiChipLogged {
+		log.Printf("info: SoC GPIO lines use Linux gpiochip device %q (override with GPIOCHIP env)\n", gpiMainChip)
+		gpiChipLogged = true
+	}
+}
+
+func detectGPIOChip() string {
+	if ch := strings.TrimSpace(os.Getenv("GPIOCHIP")); ch != "" {
+		return ch
+	}
+	for _, name := range []string{"gpiochip4", "gpiochip0", "gpiochip10"} {
+		c, err := gpiocdev.NewChip(name)
+		if err != nil {
+			continue
+		}
+		_ = c.Close()
+		return name
+	}
+	return ""
+}
+
+func newPullupInput(offset uint, consumer string) *tkInputLine {
+	if gpiMainChip == "" {
+		return nil
+	}
+	l, err := gpiocdev.RequestLine(
+		gpiMainChip,
+		int(offset),
+		gpiocdev.AsInput,
+		gpiocdev.WithPullUp,
+		gpiocdev.WithConsumer(consumer),
+	)
+	if err != nil {
+		l2, err2 := gpiocdev.RequestLine(gpiMainChip, int(offset), gpiocdev.AsInput, gpiocdev.WithConsumer(consumer))
+		if err2 != nil {
+			log.Printf("error: GPIO %s line offset %d: %v", consumer, offset, err)
+			return nil
+		}
+		log.Printf("warn: GPIO %s offset %d pull-up not applied (%v); continuing without bias", consumer, offset, err)
+		return &tkInputLine{l2}
+	}
+	return &tkInputLine{l}
+}
+
+func openBtnPullup(used *bool, pin uint, consumer string) *tkInputLine {
+	if !*used {
+		return nil
+	}
+	l := newPullupInput(pin, consumer)
+	if l == nil {
+		*used = false
+	}
+	return l
+}
+
+func gpioSoCOutputSet(pin uint, levelHigh bool) error {
+	if gpiMainChip == "" {
+		return errors.New("gpio: chip not initialised")
+	}
+	outLineMu.Lock()
+	defer outLineMu.Unlock()
+	v := 0
+	if levelHigh {
+		v = 1
+	}
+	l, ok := outLineByPin[pin]
+	if !ok {
+		nl, err := gpiocdev.RequestLine(
+			gpiMainChip,
+			int(pin),
+			gpiocdev.AsOutput(v),
+			gpiocdev.WithConsumer("talkkonnect-out"),
+		)
+		if err != nil {
+			return err
+		}
+		outLineByPin[pin] = nl
+		return nil
+	}
+	return l.SetValue(v)
+}
+
+func gpioSoCOutputSetLog(pin uint, high bool) {
+	if err := gpioSoCOutputSet(pin, high); err != nil {
+		log.Printf("error: GPIO output offset %d: %v", pin, err)
+	}
+}
 
 // Variables for Input Buttons/Switches
 var (
 	TxButtonUsed  bool
-	TxButton      gpio.Pin
+	TxButton      *tkInputLine
 	TxButtonPin   uint
 	TxButtonState uint
 
 	TxToggleUsed  bool
-	TxToggle      gpio.Pin
+	TxToggle      *tkInputLine
 	TxTogglePin   uint
 	TxToggleState uint
 
 	UpButtonUsed  bool
-	UpButton      gpio.Pin
+	UpButton      *tkInputLine
 	UpButtonPin   uint
 	UpButtonState uint
 
 	DownButtonUsed  bool
-	DownButton      gpio.Pin
+	DownButton      *tkInputLine
 	DownButtonPin   uint
 	DownButtonState uint
 
 	PanicUsed        bool
-	PanicButton      gpio.Pin
+	PanicButton      *tkInputLine
 	PanicButtonPin   uint
 	PanicButtonState uint
 
 	StreamToggleUsed  bool
-	StreamButton      gpio.Pin
+	StreamButton      *tkInputLine
 	StreamButtonPin   uint
 	StreamButtonState uint
 
 	CommentUsed        bool
-	CommentButton      gpio.Pin
+	CommentButton      *tkInputLine
 	CommentButtonPin   uint
 	CommentButtonState uint
 
 	ListeningUsed        bool
-	ListeningButton      gpio.Pin
+	ListeningButton      *tkInputLine
 	ListeningButtonPin   uint
 	ListeningButtonState uint
 
 	RotaryUsed bool
-	RotaryA    gpio.Pin
-	RotaryB    gpio.Pin
+	RotaryA    *tkInputLine
+	RotaryB    *tkInputLine
 	RotaryAPin uint
 	RotaryBPin uint
 
 	RotaryButtonUsed  bool
-	RotaryButton      gpio.Pin
+	RotaryButton      *tkInputLine
 	RotaryButtonPin   uint
 	RotaryButtonState uint
 
 	VolUpButtonUsed  bool
-	VolUpButton      gpio.Pin
+	VolUpButton      *tkInputLine
 	VolUpButtonPin   uint
 	VolUpButtonState uint
 
 	VolDownButtonUsed  bool
-	VolDownButton      gpio.Pin
+	VolDownButton      *tkInputLine
 	VolDownButtonPin   uint
 	VolDownButtonState uint
 
 	TrackingUsed        bool
-	TrackingButton      gpio.Pin
+	TrackingButton      *tkInputLine
 	TrackingButtonPin   uint
 	TrackingButtonState uint
 
 	MQTT0ButtonUsed  bool
-	MQTT0Button      gpio.Pin
+	MQTT0Button      *tkInputLine
 	MQTT0ButtonPin   uint
 	MQTT0ButtonState uint
 
 	MQTT1ButtonUsed  bool
-	MQTT1Button      gpio.Pin
+	MQTT1Button      *tkInputLine
 	MQTT1ButtonPin   uint
 	MQTT1ButtonState uint
 
 	NextServerButtonUsed  bool
-	NextServerButton      gpio.Pin
+	NextServerButton      *tkInputLine
 	NextServerButtonPin   uint
 	NextServerButtonState uint
 
 	RepeaterToneButtonUsed  bool
-	RepeaterToneButton      gpio.Pin
+	RepeaterToneButton      *tkInputLine
 	RepeaterToneButtonPin   uint
 	RepeaterToneButtonState uint
 
 	MemoryChannelButton1Used  bool
-	MemoryChannelButton1      gpio.Pin
+	MemoryChannelButton1      *tkInputLine
 	MemoryChannelButton1Pin   uint
 	MemoryChannelButton1State uint
 
 	MemoryChannelButton2Used  bool
-	MemoryChannelButton2      gpio.Pin
+	MemoryChannelButton2      *tkInputLine
 	MemoryChannelButton2Pin   uint
 	MemoryChannelButton2State uint
 
 	MemoryChannelButton3Used  bool
-	MemoryChannelButton3      gpio.Pin
+	MemoryChannelButton3      *tkInputLine
 	MemoryChannelButton3Pin   uint
 	MemoryChannelButton3State uint
 
 	MemoryChannelButton4Used  bool
-	MemoryChannelButton4      gpio.Pin
+	MemoryChannelButton4      *tkInputLine
 	MemoryChannelButton4Pin   uint
 	MemoryChannelButton4State uint
 
 	ShutdownButtonUsed  bool
-	ShutdownButton      gpio.Pin
+	ShutdownButton      *tkInputLine
 	ShutdownButtonPin   uint
 	ShutdownButtonState uint
 
 	VoiceTargetButton1Used  bool
-	VoiceTargetButton1      gpio.Pin
+	VoiceTargetButton1      *tkInputLine
 	VoiceTargetButton1Pin   uint
 	VoiceTargetButton1State uint
 
 	VoiceTargetButton2Used  bool
-	VoiceTargetButton2      gpio.Pin
+	VoiceTargetButton2      *tkInputLine
 	VoiceTargetButton2Pin   uint
 	VoiceTargetButton2State uint
 
 	VoiceTargetButton3Used  bool
-	VoiceTargetButton3      gpio.Pin
+	VoiceTargetButton3      *tkInputLine
 	VoiceTargetButton3Pin   uint
 	VoiceTargetButton3State uint
 
 	VoiceTargetButton4Used  bool
-	VoiceTargetButton4      gpio.Pin
+	VoiceTargetButton4      *tkInputLine
 	VoiceTargetButton4Pin   uint
 	VoiceTargetButton4State uint
 
 	VoiceTargetButton5Used  bool
-	VoiceTargetButton5      gpio.Pin
+	VoiceTargetButton5      *tkInputLine
 	VoiceTargetButton5Pin   uint
 	VoiceTargetButton5State uint
 )
@@ -189,8 +308,9 @@ func (b *Talkkonnect) initGPIO() {
 		return
 	}
 
-	if err := rpio.Open(); err != nil {
-		log.Println("error: GPIO Error, ", err)
+	ensureGPIOChip()
+	if gpiMainChip == "" {
+		log.Println("error: GPIO: no gpiochip device found (set GPIOCHIP environment variable if required)")
 		b.GPIOEnabled = false
 		return
 	}
@@ -232,210 +352,152 @@ func (b *Talkkonnect) initGPIO() {
 		if io.Enabled && io.Direction == "input" && io.Type == "gpio" {
 			if io.Name == "txptt" && io.PinNo > 0 {
 				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
-				TxButtonPinPullUp := rpio.Pin(io.PinNo)
-				TxButtonPinPullUp.PullUp()
 				TxButtonUsed = true
 				TxButtonPin = io.PinNo
 			}
 			if io.Name == "txtoggle" && io.PinNo > 0 {
 				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
-				TxTogglePinPullUp := rpio.Pin(io.PinNo)
-				TxTogglePinPullUp.PullUp()
 				TxToggleUsed = true
 				TxTogglePin = io.PinNo
 			}
 			if io.Name == "channelup" && io.PinNo > 0 {
 				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
-				ChannelUpPinPullUp := rpio.Pin(io.PinNo)
-				ChannelUpPinPullUp.PullUp()
 				UpButtonUsed = true
 				UpButtonPin = io.PinNo
 			}
 			if io.Name == "channeldown" && io.PinNo > 0 {
 				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
-				ChannelDownPinPullUp := rpio.Pin(io.PinNo)
-				ChannelDownPinPullUp.PullUp()
 				DownButtonUsed = true
 				DownButtonPin = io.PinNo
 			}
 			if io.Name == "panic" && io.PinNo > 0 {
 				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
-				PanicPinPullUp := rpio.Pin(io.PinNo)
-				PanicPinPullUp.PullUp()
 				PanicUsed = true
 				PanicButtonPin = io.PinNo
 			}
 			if io.Name == "streamtoggle" && io.PinNo > 0 {
 				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
-				StreamTogglePinPullUp := rpio.Pin(io.PinNo)
-				StreamTogglePinPullUp.PullUp()
 				StreamToggleUsed = true
 				StreamButtonPin = io.PinNo
 			}
 			if io.Name == "comment" && io.PinNo > 0 {
 				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
-				CommentPinPullUp := rpio.Pin(io.PinNo)
-				CommentPinPullUp.PullUp()
 				CommentUsed = true
 				CommentButtonPin = io.PinNo
 			}
 			if io.Name == "listening" && io.PinNo > 0 {
 				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
-				ListeningPinPullUp := rpio.Pin(io.PinNo)
-				ListeningPinPullUp.PullUp()
 				ListeningUsed = true
 				ListeningButtonPin = io.PinNo
 			}
 			if io.Name == "rotarya" && io.PinNo > 0 {
 				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
-				RotaryAPinPullUp := rpio.Pin(io.PinNo)
-				RotaryAPinPullUp.PullUp()
 				RotaryUsed = true
 				RotaryAPin = io.PinNo
 			}
 			if io.Name == "rotaryb" && io.PinNo > 0 {
 				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
-				RotaryBPinPullUp := rpio.Pin(io.PinNo)
-				RotaryBPinPullUp.PullUp()
 				RotaryUsed = true
 				RotaryBPin = io.PinNo
 			}
 			if io.Name == "rotarybutton" && io.PinNo > 0 {
 				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
-				RotaryButtonPullUp := rpio.Pin(io.PinNo)
-				RotaryButtonPullUp.PullUp()
 				RotaryButtonUsed = true
 				RotaryButtonPin = io.PinNo
 			}
 			if io.Name == "volup" && io.PinNo > 0 {
 				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
-				VolUpPinPullUp := rpio.Pin(io.PinNo)
-				VolUpPinPullUp.PullUp()
 				VolUpButtonUsed = true
 				VolUpButtonPin = io.PinNo
 			}
 			if io.Name == "voldown" && io.PinNo > 0 {
 				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
-				VolDownPinPullUp := rpio.Pin(io.PinNo)
-				VolDownPinPullUp.PullUp()
 				VolDownButtonUsed = true
 				VolDownButtonPin = io.PinNo
 			}
 			if io.Name == "tracking" && io.PinNo > 0 {
 				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
-				TrackingPinPullUp := rpio.Pin(io.PinNo)
-				TrackingPinPullUp.PullUp()
 				TrackingUsed = true
 				TrackingButtonPin = io.PinNo
 			}
 			if io.Name == "mqtt0" && io.PinNo > 0 {
 				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
-				MQTT0PinPullUp := rpio.Pin(io.PinNo)
-				MQTT0PinPullUp.PullUp()
 				MQTT0ButtonUsed = true
 				MQTT0ButtonPin = io.PinNo
 			}
 			if io.Name == "mqtt1" && io.PinNo > 0 {
 				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
-				MQTT1PinPullUp := rpio.Pin(io.PinNo)
-				MQTT1PinPullUp.PullUp()
 				MQTT1ButtonUsed = true
 				MQTT1ButtonPin = io.PinNo
 			}
 			if io.Name == "nextserver" && io.PinNo > 0 {
 				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
-				NextServerPinPullUp := rpio.Pin(io.PinNo)
-				NextServerPinPullUp.PullUp()
 				NextServerButtonUsed = true
 				NextServerButtonPin = io.PinNo
 			}
 			if io.Name == "memorychannel1" && io.PinNo > 0 {
 				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
-				MemoryChannelButton1PinPullUp := rpio.Pin(io.PinNo)
-				MemoryChannelButton1PinPullUp.PullUp()
 				MemoryChannelButton1Used = true
 				MemoryChannelButton1Pin = io.PinNo
 			}
 			if io.Name == "memorychannel2" && io.PinNo > 0 {
 				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
-				MemoryChannelButton2PinPullUp := rpio.Pin(io.PinNo)
-				MemoryChannelButton2PinPullUp.PullUp()
 				MemoryChannelButton2Used = true
 				MemoryChannelButton2Pin = io.PinNo
 			}
 			if io.Name == "memorychannel3" && io.PinNo > 0 {
 				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
-				MemoryChannelButton3PinPullUp := rpio.Pin(io.PinNo)
-				MemoryChannelButton3PinPullUp.PullUp()
 				MemoryChannelButton3Used = true
 				MemoryChannelButton3Pin = io.PinNo
 			}
 			if io.Name == "memorychannel4" && io.PinNo > 0 {
 				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
-				MemoryChannelButton4PinPullUp := rpio.Pin(io.PinNo)
-				MemoryChannelButton4PinPullUp.PullUp()
 				MemoryChannelButton4Used = true
 				MemoryChannelButton4Pin = io.PinNo
 			}
 
 			if io.Name == "repeatertone" && io.PinNo > 0 {
 				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
-				RepeaterToneButtonPinPullUp := rpio.Pin(io.PinNo)
-				RepeaterToneButtonPinPullUp.PullUp()
 				RepeaterToneButtonUsed = true
 				RepeaterToneButtonPin = io.PinNo
 			}
 			if io.Name == "shutdown" && io.PinNo > 0 {
 				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
-				ShutdownButtonPinPullUp := rpio.Pin(io.PinNo)
-				ShutdownButtonPinPullUp.PullUp()
 				ShutdownButtonUsed = true
 				ShutdownButtonPin = io.PinNo
 			}
 			if io.Name == "presetvoicetarget1" && io.PinNo > 0 {
 				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
-				VoiceTargetButton1PinPullUp := rpio.Pin(io.PinNo)
-				VoiceTargetButton1PinPullUp.PullUp()
 				VoiceTargetButton1Used = true
 				VoiceTargetButton1Pin = io.PinNo
 			}
 			if io.Name == "presetvoicetarget2" && io.PinNo > 0 {
 				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
-				VoiceTargetButton2PinPullUp := rpio.Pin(io.PinNo)
-				VoiceTargetButton2PinPullUp.PullUp()
 				VoiceTargetButton2Used = true
 				VoiceTargetButton2Pin = io.PinNo
 			}
 			if io.Name == "presetvoicetarget3" && io.PinNo > 0 {
 				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
-				VoiceTargetButton3PinPullUp := rpio.Pin(io.PinNo)
-				VoiceTargetButton3PinPullUp.PullUp()
 				VoiceTargetButton3Used = true
 				VoiceTargetButton3Pin = io.PinNo
 			}
 			if io.Name == "presetvoicetarget4" && io.PinNo > 0 {
 				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
-				VoiceTargetButton4PinPullUp := rpio.Pin(io.PinNo)
-				VoiceTargetButton4PinPullUp.PullUp()
 				VoiceTargetButton4Used = true
 				VoiceTargetButton4Pin = io.PinNo
 			}
 			if io.Name == "presetvoicetarget5" && io.PinNo > 0 {
 				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
-				VoiceTargetButton5PinPullUp := rpio.Pin(io.PinNo)
-				VoiceTargetButton5PinPullUp.PullUp()
 				VoiceTargetButton5Used = true
 				VoiceTargetButton5Pin = io.PinNo
 			}
 		}
 	}
 
-	if TxButtonUsed || TxToggleUsed || UpButtonUsed || DownButtonUsed || PanicUsed || StreamToggleUsed || CommentUsed || RotaryUsed || RotaryButtonUsed || VolUpButtonUsed || VolDownButtonUsed || TrackingUsed || MQTT0ButtonUsed || MQTT1ButtonUsed || NextServerButtonUsed || MemoryChannelButton1Used || MemoryChannelButton2Used || MemoryChannelButton3Used || MemoryChannelButton4Used || RepeaterToneButtonUsed || ListeningUsed || ShutdownButtonUsed || VoiceTargetButton1Used || VoiceTargetButton2Used || VoiceTargetButton3Used || VoiceTargetButton4Used || VoiceTargetButton5Used {
-		rpio.Close()
-	}
-
 	if TxButtonUsed {
-		TxButton = gpio.NewInput(TxButtonPin)
+		TxButton = openBtnPullup(&TxButtonUsed, TxButtonPin, "talkkonnect:txptt")
+	}
+	if TxButtonUsed {
 		go func() {
 			for {
 				if IsConnected && TxButtonUsed {
@@ -487,7 +549,9 @@ func (b *Talkkonnect) initGPIO() {
 	}
 
 	if TxToggleUsed {
-		TxToggle = gpio.NewInput(TxTogglePin)
+		TxToggle = openBtnPullup(&TxToggleUsed, TxTogglePin, "talkkonnect:txtoggle")
+	}
+	if TxToggleUsed {
 		go func() {
 			var prevState uint = 1
 			for {
@@ -543,7 +607,9 @@ func (b *Talkkonnect) initGPIO() {
 	}
 
 	if UpButtonUsed {
-		UpButton = gpio.NewInput(UpButtonPin)
+		UpButton = openBtnPullup(&UpButtonUsed, UpButtonPin, "talkkonnect:channelup")
+	}
+	if UpButtonUsed {
 		go func() {
 			for {
 				if IsConnected && UpButtonUsed {
@@ -568,7 +634,9 @@ func (b *Talkkonnect) initGPIO() {
 	}
 
 	if DownButtonUsed {
-		DownButton = gpio.NewInput(DownButtonPin)
+		DownButton = openBtnPullup(&DownButtonUsed, DownButtonPin, "talkkonnect:channeldown")
+	}
+	if DownButtonUsed {
 		go func() {
 			for {
 				if IsConnected && DownButtonUsed {
@@ -596,7 +664,9 @@ func (b *Talkkonnect) initGPIO() {
 	}
 
 	if PanicUsed {
-		PanicButton = gpio.NewInput(PanicButtonPin)
+		PanicButton = openBtnPullup(&PanicUsed, PanicButtonPin, "talkkonnect:panic")
+	}
+	if PanicUsed {
 		go func() {
 			for {
 				if IsConnected && PanicUsed {
@@ -622,7 +692,9 @@ func (b *Talkkonnect) initGPIO() {
 	}
 
 	if CommentUsed {
-		CommentButton = gpio.NewInput(CommentButtonPin)
+		CommentButton = openBtnPullup(&CommentUsed, CommentButtonPin, "talkkonnect:comment")
+	}
+	if CommentUsed {
 		go func() {
 			for {
 				if IsConnected && CommentUsed {
@@ -650,7 +722,9 @@ func (b *Talkkonnect) initGPIO() {
 	}
 
 	if ListeningUsed {
-		ListeningButton = gpio.NewInput(ListeningButtonPin)
+		ListeningButton = openBtnPullup(&ListeningUsed, ListeningButtonPin, "talkkonnect:listening")
+	}
+	if ListeningUsed {
 		go func() {
 			for {
 				if IsConnected && ListeningUsed {
@@ -677,7 +751,9 @@ func (b *Talkkonnect) initGPIO() {
 	}
 
 	if StreamToggleUsed {
-		StreamButton = gpio.NewInput(StreamButtonPin)
+		StreamButton = openBtnPullup(&StreamToggleUsed, StreamButtonPin, "talkkonnect:streamtoggle")
+	}
+	if StreamToggleUsed {
 		go func() {
 			for {
 				if IsConnected && StreamToggleUsed {
@@ -702,8 +778,15 @@ func (b *Talkkonnect) initGPIO() {
 	}
 
 	if RotaryUsed {
-		RotaryA = gpio.NewInput(RotaryAPin)
-		RotaryB = gpio.NewInput(RotaryBPin)
+		RotaryA = newPullupInput(RotaryAPin, "talkkonnect:rotarya")
+		RotaryB = newPullupInput(RotaryBPin, "talkkonnect:rotaryb")
+		if RotaryUsed && (RotaryA == nil || RotaryB == nil) {
+			log.Println("error: rotary encoder GPIO lines could not be opened")
+			RotaryUsed = false
+			RotaryA, RotaryB = nil, nil
+		}
+	}
+	if RotaryUsed {
 		go func() {
 			var currentStateA uint
 			var currentStateB uint
@@ -768,7 +851,9 @@ func (b *Talkkonnect) initGPIO() {
 	}
 
 	if RotaryButtonUsed {
-		RotaryButton = gpio.NewInput(RotaryButtonPin)
+		RotaryButton = openBtnPullup(&RotaryButtonUsed, RotaryButtonPin, "talkkonnect:rotarybutton")
+	}
+	if RotaryButtonUsed {
 		go func() {
 			for {
 				if IsConnected && RotaryButtonUsed {
@@ -794,7 +879,9 @@ func (b *Talkkonnect) initGPIO() {
 	}
 
 	if VolUpButtonUsed {
-		VolUpButton = gpio.NewInput(VolUpButtonPin)
+		VolUpButton = openBtnPullup(&VolUpButtonUsed, VolUpButtonPin, "talkkonnect:volup")
+	}
+	if VolUpButtonUsed {
 		go func() {
 			for {
 				if IsConnected && VolUpButtonUsed {
@@ -820,7 +907,9 @@ func (b *Talkkonnect) initGPIO() {
 	}
 
 	if VolDownButtonUsed {
-		VolDownButton = gpio.NewInput(VolDownButtonPin)
+		VolDownButton = openBtnPullup(&VolDownButtonUsed, VolDownButtonPin, "talkkonnect:voldown")
+	}
+	if VolDownButtonUsed {
 		go func() {
 			for {
 				if IsConnected && VolDownButtonUsed {
@@ -844,7 +933,9 @@ func (b *Talkkonnect) initGPIO() {
 	}
 
 	if TrackingUsed {
-		TrackingButton = gpio.NewInput(TrackingButtonPin)
+		TrackingButton = openBtnPullup(&TrackingUsed, TrackingButtonPin, "talkkonnect:tracking")
+	}
+	if TrackingUsed {
 		go func() {
 			for {
 				if IsConnected && TrackingUsed {
@@ -871,7 +962,9 @@ func (b *Talkkonnect) initGPIO() {
 	}
 
 	if MQTT0ButtonUsed {
-		MQTT0Button = gpio.NewInput(MQTT0ButtonPin)
+		MQTT0Button = openBtnPullup(&MQTT0ButtonUsed, MQTT0ButtonPin, "talkkonnect:mqtt0")
+	}
+	if MQTT0ButtonUsed {
 		go func() {
 			for {
 				if IsConnected && MQTT0ButtonUsed {
@@ -899,7 +992,9 @@ func (b *Talkkonnect) initGPIO() {
 	}
 
 	if MQTT1ButtonUsed {
-		MQTT1Button = gpio.NewInput(MQTT1ButtonPin)
+		MQTT1Button = openBtnPullup(&MQTT1ButtonUsed, MQTT1ButtonPin, "talkkonnect:mqtt1")
+	}
+	if MQTT1ButtonUsed {
 		go func() {
 			for {
 				if IsConnected && MQTT1ButtonUsed {
@@ -927,7 +1022,9 @@ func (b *Talkkonnect) initGPIO() {
 	}
 
 	if NextServerButtonUsed {
-		NextServerButton = gpio.NewInput(NextServerButtonPin)
+		NextServerButton = openBtnPullup(&NextServerButtonUsed, NextServerButtonPin, "talkkonnect:nextserver")
+	}
+	if NextServerButtonUsed {
 		go func() {
 			for {
 				if IsConnected && NextServerButtonUsed {
@@ -952,7 +1049,9 @@ func (b *Talkkonnect) initGPIO() {
 	}
 
 	if MemoryChannelButton1Used {
-		MemoryChannelButton1 = gpio.NewInput(MemoryChannelButton1Pin)
+		MemoryChannelButton1 = openBtnPullup(&MemoryChannelButton1Used, MemoryChannelButton1Pin, "talkkonnect:memorychannel1")
+	}
+	if MemoryChannelButton1Used {
 		go func() {
 			for {
 				if IsConnected && MemoryChannelButton1Used {
@@ -983,7 +1082,9 @@ func (b *Talkkonnect) initGPIO() {
 	}
 
 	if MemoryChannelButton2Used {
-		MemoryChannelButton2 = gpio.NewInput(MemoryChannelButton2Pin)
+		MemoryChannelButton2 = openBtnPullup(&MemoryChannelButton2Used, MemoryChannelButton2Pin, "talkkonnect:memorychannel2")
+	}
+	if MemoryChannelButton2Used {
 		go func() {
 			for {
 				if IsConnected && MemoryChannelButton2Used {
@@ -1014,7 +1115,9 @@ func (b *Talkkonnect) initGPIO() {
 	}
 
 	if MemoryChannelButton3Used {
-		MemoryChannelButton3 = gpio.NewInput(MemoryChannelButton3Pin)
+		MemoryChannelButton3 = openBtnPullup(&MemoryChannelButton3Used, MemoryChannelButton3Pin, "talkkonnect:memorychannel3")
+	}
+	if MemoryChannelButton3Used {
 		go func() {
 			for {
 				if IsConnected && MemoryChannelButton3Used {
@@ -1045,7 +1148,9 @@ func (b *Talkkonnect) initGPIO() {
 	}
 
 	if MemoryChannelButton4Used {
-		MemoryChannelButton4 = gpio.NewInput(MemoryChannelButton4Pin)
+		MemoryChannelButton4 = openBtnPullup(&MemoryChannelButton4Used, MemoryChannelButton4Pin, "talkkonnect:memorychannel4")
+	}
+	if MemoryChannelButton4Used {
 		go func() {
 			for {
 				if IsConnected && MemoryChannelButton4Used {
@@ -1076,7 +1181,9 @@ func (b *Talkkonnect) initGPIO() {
 	}
 
 	if VoiceTargetButton1Used {
-		VoiceTargetButton1 = gpio.NewInput(VoiceTargetButton1Pin)
+		VoiceTargetButton1 = openBtnPullup(&VoiceTargetButton1Used, VoiceTargetButton1Pin, "talkkonnect:presetvoicetarget1")
+	}
+	if VoiceTargetButton1Used {
 		go func() {
 			for {
 				if IsConnected && VoiceTargetButton1Used {
@@ -1107,7 +1214,9 @@ func (b *Talkkonnect) initGPIO() {
 	}
 
 	if VoiceTargetButton2Used {
-		VoiceTargetButton2 = gpio.NewInput(VoiceTargetButton2Pin)
+		VoiceTargetButton2 = openBtnPullup(&VoiceTargetButton2Used, VoiceTargetButton2Pin, "talkkonnect:presetvoicetarget2")
+	}
+	if VoiceTargetButton2Used {
 		go func() {
 			for {
 				if IsConnected && VoiceTargetButton2Used {
@@ -1138,7 +1247,9 @@ func (b *Talkkonnect) initGPIO() {
 	}
 
 	if VoiceTargetButton3Used {
-		VoiceTargetButton3 = gpio.NewInput(VoiceTargetButton3Pin)
+		VoiceTargetButton3 = openBtnPullup(&VoiceTargetButton3Used, VoiceTargetButton3Pin, "talkkonnect:presetvoicetarget3")
+	}
+	if VoiceTargetButton3Used {
 		go func() {
 			for {
 				if IsConnected && VoiceTargetButton3Used {
@@ -1169,7 +1280,9 @@ func (b *Talkkonnect) initGPIO() {
 	}
 
 	if VoiceTargetButton4Used {
-		VoiceTargetButton4 = gpio.NewInput(VoiceTargetButton4Pin)
+		VoiceTargetButton4 = openBtnPullup(&VoiceTargetButton4Used, VoiceTargetButton4Pin, "talkkonnect:presetvoicetarget4")
+	}
+	if VoiceTargetButton4Used {
 		go func() {
 			for {
 				if IsConnected && VoiceTargetButton4Used {
@@ -1200,7 +1313,9 @@ func (b *Talkkonnect) initGPIO() {
 	}
 
 	if VoiceTargetButton5Used {
-		VoiceTargetButton5 = gpio.NewInput(VoiceTargetButton5Pin)
+		VoiceTargetButton5 = openBtnPullup(&VoiceTargetButton5Used, VoiceTargetButton5Pin, "talkkonnect:presetvoicetarget5")
+	}
+	if VoiceTargetButton5Used {
 		go func() {
 			for {
 				if IsConnected && VoiceTargetButton5Used {
@@ -1231,7 +1346,9 @@ func (b *Talkkonnect) initGPIO() {
 	}
 
 	if RepeaterToneButtonUsed {
-		RepeaterToneButton = gpio.NewInput(RepeaterToneButtonPin)
+		RepeaterToneButton = openBtnPullup(&RepeaterToneButtonUsed, RepeaterToneButtonPin, "talkkonnect:repeatertone")
+	}
+	if RepeaterToneButtonUsed {
 		go func() {
 			for {
 				if IsConnected && RepeaterToneButtonUsed {
@@ -1257,7 +1374,9 @@ func (b *Talkkonnect) initGPIO() {
 	}
 
 	if ShutdownButtonUsed {
-		ShutdownButton = gpio.NewInput(ShutdownButtonPin)
+		ShutdownButton = openBtnPullup(&ShutdownButtonUsed, ShutdownButtonPin, "talkkonnect:shutdown")
+	}
+	if ShutdownButtonUsed {
 		go func() {
 			for {
 				if IsConnected && ShutdownButtonUsed {
@@ -1290,6 +1409,10 @@ func GPIOOutPin(name string, command string) {
 	if Config.Global.Hardware.TargetBoard != "rpi" {
 		return
 	}
+	ensureGPIOChip()
+	if gpiMainChip == "" {
+		return
+	}
 
 	for _, io := range Config.Global.Hardware.IO.Pins.Pin {
 
@@ -1299,10 +1422,10 @@ func GPIOOutPin(name string, command string) {
 				case "gpio":
 					if !io.Inverted {
 						log.Printf("debug: Turning On %v at pin %v Output GPIO (Non-Inverting)\n", io.Name, io.PinNo)
-						gpio.NewOutput(io.PinNo, true)
+						gpioSoCOutputSetLog(io.PinNo, true)
 					} else {
 						log.Printf("debug: Turning On %v at pin %v Output GPIO (Inverting)\n", io.Name, io.PinNo)
-						gpio.NewOutput(io.PinNo, false)
+						gpioSoCOutputSetLog(io.PinNo, false)
 					}
 				case "mcp23017":
 					if !io.Inverted {
@@ -1329,10 +1452,10 @@ func GPIOOutPin(name string, command string) {
 				case "gpio":
 					if !io.Inverted {
 						log.Printf("debug: Turning Off %v at pin %v Output GPIO (Non-Inverting)\n", io.Name, io.PinNo)
-						gpio.NewOutput(io.PinNo, false)
+						gpioSoCOutputSetLog(io.PinNo, false)
 					} else {
 						log.Printf("debug: Turning Off %v at pin %v Output GPIO (Inverting)\n", io.Name, io.PinNo)
-						gpio.NewOutput(io.PinNo, true)
+						gpioSoCOutputSetLog(io.PinNo, true)
 					}
 				case "mcp23017":
 					if !io.Inverted {
@@ -1358,11 +1481,11 @@ func GPIOOutPin(name string, command string) {
 				switch io.Type {
 				case "gpio":
 					log.Printf("debug: Pulsing %v at pin %v Output GPIO\n", io.Name, io.PinNo)
-					gpio.NewOutput(io.PinNo, false)
+					gpioSoCOutputSetLog(io.PinNo, false)
 					time.Sleep(Config.Global.Hardware.IO.Pulse.Leading * time.Millisecond)
-					gpio.NewOutput(io.PinNo, true)
+					gpioSoCOutputSetLog(io.PinNo, true)
 					time.Sleep(Config.Global.Hardware.IO.Pulse.Pulse * time.Millisecond)
-					gpio.NewOutput(io.PinNo, false)
+					gpioSoCOutputSetLog(io.PinNo, false)
 					time.Sleep(Config.Global.Hardware.IO.Pulse.Trailing * time.Millisecond)
 				case "mcp23017":
 					log.Printf("debug: Pulsing %v at pin %v Output mcp23017\n", io.Name, io.PinNo)
@@ -1394,6 +1517,10 @@ func GPIOOutAll(name string, command string) {
 	if Config.Global.Hardware.TargetBoard != "rpi" {
 		return
 	}
+	ensureGPIOChip()
+	if gpiMainChip == "" {
+		return
+	}
 
 	for _, io := range Config.Global.Hardware.IO.Pins.Pin {
 		if io.Enabled && io.Direction == "output" && io.Device == "led/relay" {
@@ -1402,19 +1529,19 @@ func GPIOOutAll(name string, command string) {
 				if command == "on" {
 					if io.Inverted {
 						log.Printf("debug: Turning On %v Output GPIO (Inverted)\n", io.Name)
-						gpio.NewOutput(io.PinNo, false)
+						gpioSoCOutputSetLog(io.PinNo, false)
 					} else {
 						log.Printf("debug: Turning On %v Output GPIO (Not-Inverted)\n", io.Name)
-						gpio.NewOutput(io.PinNo, true)
+						gpioSoCOutputSetLog(io.PinNo, true)
 					}
 				}
 				if command == "off" {
 					if io.Inverted {
 						log.Printf("debug: Turning Off %v Output GPIO (Inverted)\n", io.Name)
-						gpio.NewOutput(io.PinNo, true)
+						gpioSoCOutputSetLog(io.PinNo, true)
 					} else {
 						log.Printf("debug: Turning Off %v Output GPIO (Not-Inverted)\n", io.Name)
-						gpio.NewOutput(io.PinNo, false)
+						gpioSoCOutputSetLog(io.PinNo, false)
 					}
 				}
 			case "mcp23017":

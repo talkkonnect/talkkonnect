@@ -31,18 +31,11 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "4.00.01"
-	talkkonnectReleased string = "03 May 2026"
+	talkkonnectVersion  string = "3.00.01"
+	talkkonnectReleased string = "08 March 2026"
 )
 
 /* Release Notes
-version 4.00.01
-removed termbox go as the tui library
-changed the gpio library to use the new gpiocdev library for supporting new raspberr pi os and new raspberry pi models
-talkkonnect now supports bottom-terminal interactive CLI
-ssh remote control via screen is now supported
-
-
 version 3.00.01
 talkkonnect now supports daemon mode no need to rely on screen anymore
 talkkonnect has an online configuration editor available at port 8080/config

@@ -52,7 +52,6 @@ import (
 	"github.com/talkkonnect/gumble/gumbleffmpeg"
 	"github.com/talkkonnect/gumble/gumbleutil"
 	_ "github.com/talkkonnect/gumble/opus"
-	term "github.com/talkkonnect/termbox-go"
 	"github.com/talkkonnect/volume-go"
 )
 
@@ -88,15 +87,8 @@ type ChannelsListStruct struct {
 }
 
 func Init(file string, ServerIndex string) {
-	if !DaemonMode {
-		err := term.Init()
-		if err != nil {
-			FatalCleanUp("Cannot Initialize Terminal Error: " + err.Error())
-		}
-		defer term.Close()
-	}
-
 	colog.Register()
+	colog.SetFormatter(newFullLineColorFormatter())
 	colog.SetOutput(os.Stdout)
 
 	ConfigXMLFile = file
@@ -125,29 +117,7 @@ func Init(file string, ServerIndex string) {
 		colog.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 	}
 
-	switch Config.Global.Software.Settings.Loglevel {
-	case "trace":
-		colog.SetMinLevel(colog.LTrace)
-		log.Println("info: Loglevel Set to Trace")
-	case "debug":
-		colog.SetMinLevel(colog.LDebug)
-		log.Println("info: Loglevel Set to Debug")
-	case "info":
-		colog.SetMinLevel(colog.LInfo)
-		log.Println("info: Loglevel Set to Info")
-	case "warning":
-		colog.SetMinLevel(colog.LWarning)
-		log.Println("info: Loglevel Set to Warning")
-	case "error":
-		colog.SetMinLevel(colog.LError)
-		log.Println("info: Loglevel Set to Error")
-	case "alert":
-		colog.SetMinLevel(colog.LAlert)
-		log.Println("info: Loglevel Set to Alert")
-	default:
-		colog.SetMinLevel(colog.LInfo)
-		log.Println("info: Default Loglevel unset in XML config automatically loglevel to Info")
-	}
+	ApplyCologMinLevelFromConfig()
 
 	if Config.Global.Software.AutoProvisioning.Enabled {
 		log.Println("info: Contacting http Provisioning Server Pls Wait")
@@ -176,6 +146,8 @@ func Init(file string, ServerIndex string) {
 		Ident:       Ident[AccountIndex],
 		ChannelName: Channel[AccountIndex],
 	}
+
+	b.setupCologOutputAndStartBottomCLI()
 
 	if Config.Global.Software.RemoteControl.MQTT.Enabled {
 		log.Printf("info: Attempting to Contact MQTT Server")
@@ -249,11 +221,38 @@ func Init(file string, ServerIndex string) {
 	os.Exit(exitStatus)
 }
 
-func (b *Talkkonnect) ClientStart() {
+// setupCologOutputAndStartBottomCLI opens the log file, wires colog (screen+file + optional bottom CLI), and starts the bottom CLI goroutine.
+// Called from Init as soon as Talkkonnect exists so the prompt and scroll region are ready before MQTT, HTTP, and ClientStart.
+func (b *Talkkonnect) setupCologOutputAndStartBottomCLI() {
 	f, err := os.OpenFile(Config.Global.Software.Settings.LogFilenameAndPath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	log.Println("info: Trying to Open File ", Config.Global.Software.Settings.LogFilenameAndPath)
 	if err != nil {
 		FatalCleanUp("Problem Opening talkkonnect.log file " + err.Error())
+	}
+
+	logOut := io.Writer(os.Stdout)
+	switch Config.Global.Software.Settings.Logging {
+	case "screenandfile":
+		log.Println("info: Logging is set to: ", Config.Global.Software.Settings.Logging)
+		logOut = io.MultiWriter(os.Stdout, f)
+		colog.SetFlags(log.Ldate | log.Ltime)
+	case "screenandfilewithlineno":
+		log.Println("info: Logging is set to: ", Config.Global.Software.Settings.Logging)
+		logOut = io.MultiWriter(os.Stdout, f)
+		colog.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
+	}
+	if bottomTerminalCLIShouldWrap() {
+		logOut = newBottomCLILogWriter(logOut)
+		go b.runBottomTerminalCLI()
+	}
+	colog.SetOutput(logOut)
+}
+
+func (b *Talkkonnect) ClientStart() {
+	// Daemon-mode SSH console must listen before Mumble connects; otherwise a down
+	// server blocks forever on FatalCleanUp and nothing binds on the remote port.
+	if Config.Global.Software.RemoteSSHConsole.Enabled && DaemonMode {
+		go b.runRemoteSSHConsoleDaemon()
 	}
 
 	if Config.Global.Hardware.TargetBoard == "rpi" {
@@ -267,20 +266,6 @@ func (b *Talkkonnect) ClientStart() {
 				}
 			}
 		}
-	}
-
-	if Config.Global.Software.Settings.Logging == "screenandfile" {
-		log.Println("info: Logging is set to: ", Config.Global.Software.Settings.Logging)
-		wrt := io.MultiWriter(os.Stdout, f)
-		colog.SetFlags(log.Ldate | log.Ltime)
-		colog.SetOutput(wrt)
-	}
-
-	if Config.Global.Software.Settings.Logging == "screenandfilewithlineno" {
-		log.Println("info: Logging is set to: ", Config.Global.Software.Settings.Logging)
-		wrt := io.MultiWriter(os.Stdout, f)
-		colog.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
-		colog.SetOutput(wrt)
 	}
 
 	b.Config.Attach(gumbleutil.AutoBitrate)
@@ -333,7 +318,7 @@ func (b *Talkkonnect) ClientStart() {
 
 	talkkonnectBanner("\x1b[0;44m") // add blue background to banner reference https://www.lihaoyi.com/post/BuildyourownCommandLinewithANSIescapecodes.html#background-colors
 
-	err = volume.Unmute(Config.Global.Software.Settings.OutputDevice)
+	err := volume.Unmute(Config.Global.Software.Settings.OutputDevice)
 
 	if err != nil {
 		log.Println("error: Unable to Unmute ", err)
@@ -341,7 +326,8 @@ func (b *Talkkonnect) ClientStart() {
 		log.Println("debug: Speaker UnMuted Before Connect to Server")
 	}
 
-	TTSEvent("talkkonnectloaded")
+	log.Println("info: Playing startup sound (talkkonnectloaded TTS event; may take a few seconds)")
+	//TTSEvent("talkkonnectloaded")
 
 	//New Mumble Connection Routine
 	pstream = gumbleffmpeg.New(b.Client, gumbleffmpeg.SourceFile(""), 0)
@@ -577,170 +563,12 @@ func (b *Talkkonnect) ClientStart() {
 
 	analogCreateZones()
 
-	if Config.Global.Software.RemoteSSHConsole.Enabled {
+	if Config.Global.Software.RemoteSSHConsole.Enabled && !DaemonMode {
 		go gosshd.SSHDaemon(Config.Global.Software.RemoteSSHConsole.Username, Config.Global.Software.RemoteSSHConsole.Password, Config.Global.Software.RemoteSSHConsole.IDRSAFile, Config.Global.Software.RemoteSSHConsole.Listen)
 	}
 
-keyPressListenerLoop:
+	// Control: GPIO, USB keyboard, remote SSH console, MQTT, HTTP API, etc.
 	for {
-		if DaemonMode {
-			// In daemon mode, there is no terminal to read from. Just keep alive without CPU spinning.
-			time.Sleep(1 * time.Second)
-			continue
-		}
-		if IsConnected {
-			switch ev := term.PollEvent(); ev.Type {
-			case term.EventKey:
-				switch ev.Key {
-				case term.KeyEsc:
-					log.Println("error: ESC Key is Invalid")
-					reset()
-					break keyPressListenerLoop
-				case term.KeyDelete:
-					b.cmdDisplayMenu()
-				case term.KeyF1:
-					b.cmdChannelUp()
-				case term.KeyF2:
-					b.cmdChannelDown()
-				case term.KeyF3:
-					b.cmdMuteUnmute("toggle")
-				case term.KeyF4:
-					b.cmdCurrentRXVolume()
-				case term.KeyF5:
-					b.cmdVolumeRXUp()
-				case term.KeyF6:
-					b.cmdVolumeRXDown()
-				case term.KeyF7:
-					b.cmdListServerChannels()
-				case term.KeyF8:
-					b.cmdStartTransmitting()
-				case term.KeyF9:
-					b.cmdStopTransmitting()
-				case term.KeyF10:
-					b.cmdListOnlineUsers()
-				case term.KeyF11:
-					b.cmdPlayback()
-				case term.KeyF12:
-					go b.cmdGPSPosition()
-				case term.KeyCtrlB:
-					b.cmdLiveReload()
-				case term.KeyCtrlC:
-					talkkonnectAcknowledgements("\x1b[0;44m") // add blue background to banner reference https://www.lihaoyi.com/post/BuildyourownCommandLinewithANSIescapecodes.html#background-colors
-					b.cmdQuitTalkkonnect()
-				case term.KeyCtrlD:
-					b.cmdDebugStacktrace()
-				case term.KeyCtrlE:
-					b.cmdSendEmail()
-				case term.KeyCtrlF:
-					b.cmdConnPreviousServer()
-				case term.KeyCtrlH:
-					cmdSanityCheck()
-				case term.KeyCtrlI: // New. Audio Recording. Traffic
-					b.cmdAudioTrafficRecord()
-				case term.KeyCtrlJ: // New. Audio Recording. Mic
-					b.cmdAudioMicRecord()
-				case term.KeyCtrlK: // New/ Audio Recording. Combo
-					b.cmdAudioMicTrafficRecord()
-				case term.KeyCtrlL:
-					b.cmdClearScreen()
-				case term.KeyCtrlM:
-					b.cmdRadioChannelMove("Up")
-				case term.KeyCtrlN:
-					b.cmdRadioChannelMove("Down")
-				case term.KeyCtrlO:
-					b.cmdPingServers()
-				case term.KeyCtrlP:
-					b.cmdPanicSimulation()
-				case term.KeyCtrlQ:
-				case term.KeyCtrlG:
-					b.cmdPlayRepeaterTone()
-				case term.KeyCtrlR:
-					b.cmdRepeatTxLoop()
-				case term.KeyCtrlS:
-					b.cmdScanChannels()
-				case term.KeyCtrlT:
-					cmdThanks()
-				case term.KeyCtrlU:
-					b.cmdShowUptime()
-				case term.KeyCtrlV:
-					b.cmdDisplayVersion()
-				case term.KeyCtrlW:
-					if !IsPlaying {
-						player.Play(0)
-						IsPlaying = true
-					} else {
-						player.Stop()
-						IsPlaying = false
-					}
-				case term.KeyCtrlX:
-					b.cmdDumpXMLConfig()
-				case term.KeyCtrlZ:
-					b.cmdConnNextServer()
-				default:
-					if _, ok := TTYKeyMap[ev.Ch]; ok {
-						switch strings.ToLower(TTYKeyMap[ev.Ch].Command) {
-						case "channelup":
-							b.cmdChannelUp()
-						case "channeldown":
-							b.cmdChannelDown()
-						case "serverup":
-							b.cmdConnNextServer()
-						case "serverdown":
-							b.cmdConnPreviousServer()
-						case "mute":
-							b.cmdMuteUnmute("mute")
-						case "unmute":
-							b.cmdMuteUnmute("unmute")
-						case "mute-toggle":
-							b.cmdMuteUnmute("toggle")
-						case "stream-toggle":
-							b.cmdPlayback()
-						case "volumerxup":
-							b.cmdVolumeRXUp()
-						case "volumerxdown":
-							b.cmdVolumeRXDown()
-						case "volumetxdown":
-							b.cmdVolumeTXDown()
-						case "volumetxup":
-							b.cmdVolumeTXUp()
-						case "volumetxvolume":
-							b.cmdCurrentTXVolume()
-						case "setcomment":
-							if TTYKeyMap[ev.Ch].ParamValue == "setcomment" {
-								log.Println("info: Set Commment ", TTYKeyMap[ev.Ch].ParamValue)
-								b.Client.Self.SetComment(TTYKeyMap[ev.Ch].ParamValue)
-							}
-						case "transmitstart":
-							b.cmdStartTransmitting()
-						case "transmitstop":
-							b.cmdStopTransmitting()
-						case "record":
-							b.cmdAudioTrafficRecord()
-							b.cmdAudioMicRecord()
-						case "voicetargetset":
-							Paramvalue, err := strconv.Atoi(TTYKeyMap[ev.Ch].ParamValue)
-							if err != nil {
-								log.Printf("error: Error Message %v, %v Is Not A Number", err, Paramvalue)
-							}
-							b.cmdSendVoiceTargets(uint32(Paramvalue))
-						case "listentochannelon":
-							b.listeningToChannels("start")
-						case "listentochanneloff":
-							b.listeningToChannels("stop")
-						case "gpioinput":
-							GPIOInputPinControl(TTYKeyMap[ev.Ch].ParamName, TTYKeyMap[ev.Ch].ParamValue)
-						case "gpiooutput":
-							GPIOOutputPinControl(TTYKeyMap[ev.Ch].ParamName, TTYKeyMap[ev.Ch].ParamValue)
-						default:
-							log.Println("error: Command Not Defined ", strings.ToLower(TTYKeyMap[ev.Ch].Command))
-						}
-					} else {
-						log.Println("warn: Key Not Mapped ASC ", ev.Ch)
-					}
-				}
-			case term.EventError:
-				FatalCleanUp("Terminal Error " + err.Error())
-			}
-		}
+		time.Sleep(1 * time.Second)
 	}
 }

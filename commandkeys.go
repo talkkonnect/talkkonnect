@@ -688,6 +688,26 @@ func (b *Talkkonnect) cmdRadioChannelMove(command string) {
 	}
 }
 
+func (b *Talkkonnect) cmdInternetRadioToggle() {
+	internetRadioQuickToggle(b)
+}
+
+func (b *Talkkonnect) cmdInternetRadioNext() {
+	internetRadioNextStation(b)
+}
+
+func (b *Talkkonnect) cmdInternetRadioPrev() {
+	internetRadioPrevStation(b)
+}
+
+func (b *Talkkonnect) cmdInternetRadioVolUp() {
+	internetRadioVolUp()
+}
+
+func (b *Talkkonnect) cmdInternetRadioVolDown() {
+	internetRadioVolDown()
+}
+
 func (b *Talkkonnect) cmdPingServers() {
 	log.Printf("debug: Ctrl-O Pressed \n")
 	log.Println("info: Ping Servers")

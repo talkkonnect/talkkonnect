@@ -71,6 +71,8 @@ func FatalCleanUp(message string) {
 
 // performCleanup releases hardware and lifecycle without exiting (used when returning from Init after ClientStart).
 func performCleanup(withShutdown bool) {
+	internetRadioShutdownKill()
+
 	if appTalkkonnect != nil {
 		appTalkkonnect.shutdownDaemonLifecycle()
 	}
@@ -113,6 +115,8 @@ func (b *Talkkonnect) TransmitStart() {
 	if !(IsConnected) {
 		return
 	}
+
+	internetRadioNotifyVoiceOrTX()
 
 	b.BackLightTimer()
 	LastSpeaker = ""

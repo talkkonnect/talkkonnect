@@ -93,6 +93,10 @@ func (b *Talkkonnect) USBKeyboard() {
 						case "volumetxdown":
 							playIOMedia("usbvoldown")
 							b.cmdVolumeTXDown()
+						case "radiovolup":
+							b.cmdInternetRadioVolUp()
+						case "radiovoldown":
+							b.cmdInternetRadioVolDown()
 						case "pttkey":
 							if !b.IsTransmitting {
 								b.TransmitStart()
@@ -211,6 +215,12 @@ func (b *Talkkonnect) USBKeyboard() {
 							GPIOInputPinControl(USBKeyMap[rune(ke.Scancode)].ParamName, USBKeyMap[rune(ke.Scancode)].ParamValue)
 						case "gpiooutput":
 							GPIOOutputPinControl(USBKeyMap[rune(ke.Scancode)].ParamName, USBKeyMap[rune(ke.Scancode)].ParamValue)
+						case "radiotoggle":
+							b.cmdInternetRadioToggle()
+						case "radionext":
+							b.cmdInternetRadioNext()
+						case "radioprev":
+							b.cmdInternetRadioPrev()
 						default:
 							log.Println("error: Command Not Defined ", strings.ToLower(USBKeyMap[rune(ke.Scancode)].Command))
 						}

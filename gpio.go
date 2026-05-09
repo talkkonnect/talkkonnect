@@ -193,6 +193,31 @@ var (
 	StreamButtonPin   uint
 	StreamButtonState uint
 
+	InternetRadioToggleUsed  bool
+	InternetRadioToggleBtn   *tkInputLine
+	InternetRadioTogglePin   uint
+	InternetRadioToggleState uint
+
+	InternetRadioNextUsed  bool
+	InternetRadioNextBtn   *tkInputLine
+	InternetRadioNextPin   uint
+	InternetRadioNextState uint
+
+	InternetRadioPrevUsed  bool
+	InternetRadioPrevBtn   *tkInputLine
+	InternetRadioPrevPin   uint
+	InternetRadioPrevState uint
+
+	InternetRadioVolUpUsed  bool
+	InternetRadioVolUpBtn   *tkInputLine
+	InternetRadioVolUpPin   uint
+	InternetRadioVolUpState uint
+
+	InternetRadioVolDownUsed  bool
+	InternetRadioVolDownBtn   *tkInputLine
+	InternetRadioVolDownPin   uint
+	InternetRadioVolDownState uint
+
 	CommentUsed        bool
 	CommentButton      *tkInputLine
 	CommentButtonPin   uint
@@ -379,6 +404,31 @@ func (b *Talkkonnect) initGPIO() {
 				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
 				StreamToggleUsed = true
 				StreamButtonPin = io.PinNo
+			}
+			if io.Name == "internetradiotoggle" && io.PinNo > 0 {
+				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
+				InternetRadioToggleUsed = true
+				InternetRadioTogglePin = io.PinNo
+			}
+			if io.Name == "internetradiochannelup" && io.PinNo > 0 {
+				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
+				InternetRadioNextUsed = true
+				InternetRadioNextPin = io.PinNo
+			}
+			if io.Name == "internetradiochanneldown" && io.PinNo > 0 {
+				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
+				InternetRadioPrevUsed = true
+				InternetRadioPrevPin = io.PinNo
+			}
+			if io.Name == "internetradiovolup" && io.PinNo > 0 {
+				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
+				InternetRadioVolUpUsed = true
+				InternetRadioVolUpPin = io.PinNo
+			}
+			if io.Name == "internetradiovoldown" && io.PinNo > 0 {
+				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
+				InternetRadioVolDownUsed = true
+				InternetRadioVolDownPin = io.PinNo
 			}
 			if io.Name == "comment" && io.PinNo > 0 {
 				log.Printf("debug: GPIO Setup Input Device %v Name %v PinNo %v", io.Device, io.Name, io.PinNo)
@@ -767,6 +817,122 @@ func (b *Talkkonnect) initGPIO() {
 							playIOMedia("iostreamtoggle")
 							log.Println("debug: Stream Button is pressed")
 							b.cmdPlayback()
+							time.Sleep(150 * time.Millisecond)
+						}
+					}
+				} else {
+					time.Sleep(1 * time.Second)
+				}
+			}
+		}()
+	}
+
+	if InternetRadioToggleUsed {
+		InternetRadioToggleBtn = openBtnPullup(&InternetRadioToggleUsed, InternetRadioTogglePin, "talkkonnect:internetradiotoggle")
+	}
+	if InternetRadioToggleUsed {
+		go func() {
+			for {
+				if IsConnected && InternetRadioToggleUsed {
+					currentState, err := InternetRadioToggleBtn.Read()
+					time.Sleep(150 * time.Millisecond)
+					if currentState != InternetRadioToggleState && err == nil {
+						InternetRadioToggleState = currentState
+						if InternetRadioToggleState != 1 {
+							log.Println("debug: Internet radio toggle pressed")
+							b.cmdInternetRadioToggle()
+							time.Sleep(150 * time.Millisecond)
+						}
+					}
+				} else {
+					time.Sleep(1 * time.Second)
+				}
+			}
+		}()
+	}
+
+	if InternetRadioNextUsed {
+		InternetRadioNextBtn = openBtnPullup(&InternetRadioNextUsed, InternetRadioNextPin, "talkkonnect:internetradiochannelup")
+	}
+	if InternetRadioNextUsed {
+		go func() {
+			for {
+				if IsConnected && InternetRadioNextUsed {
+					currentState, err := InternetRadioNextBtn.Read()
+					time.Sleep(150 * time.Millisecond)
+					if currentState != InternetRadioNextState && err == nil {
+						InternetRadioNextState = currentState
+						if InternetRadioNextState != 1 {
+							b.cmdInternetRadioNext()
+							time.Sleep(150 * time.Millisecond)
+						}
+					}
+				} else {
+					time.Sleep(1 * time.Second)
+				}
+			}
+		}()
+	}
+
+	if InternetRadioPrevUsed {
+		InternetRadioPrevBtn = openBtnPullup(&InternetRadioPrevUsed, InternetRadioPrevPin, "talkkonnect:internetradiochanneldown")
+	}
+	if InternetRadioPrevUsed {
+		go func() {
+			for {
+				if IsConnected && InternetRadioPrevUsed {
+					currentState, err := InternetRadioPrevBtn.Read()
+					time.Sleep(150 * time.Millisecond)
+					if currentState != InternetRadioPrevState && err == nil {
+						InternetRadioPrevState = currentState
+						if InternetRadioPrevState != 1 {
+							b.cmdInternetRadioPrev()
+							time.Sleep(150 * time.Millisecond)
+						}
+					}
+				} else {
+					time.Sleep(1 * time.Second)
+				}
+			}
+		}()
+	}
+
+	if InternetRadioVolUpUsed {
+		InternetRadioVolUpBtn = openBtnPullup(&InternetRadioVolUpUsed, InternetRadioVolUpPin, "talkkonnect:internetradiovolup")
+	}
+	if InternetRadioVolUpUsed {
+		go func() {
+			for {
+				if IsConnected && InternetRadioVolUpUsed {
+					currentState, err := InternetRadioVolUpBtn.Read()
+					time.Sleep(150 * time.Millisecond)
+					if currentState != InternetRadioVolUpState && err == nil {
+						InternetRadioVolUpState = currentState
+						if InternetRadioVolUpState != 1 {
+							b.cmdInternetRadioVolUp()
+							time.Sleep(150 * time.Millisecond)
+						}
+					}
+				} else {
+					time.Sleep(1 * time.Second)
+				}
+			}
+		}()
+	}
+
+	if InternetRadioVolDownUsed {
+		InternetRadioVolDownBtn = openBtnPullup(&InternetRadioVolDownUsed, InternetRadioVolDownPin, "talkkonnect:internetradiovoldown")
+	}
+	if InternetRadioVolDownUsed {
+		go func() {
+			for {
+				if IsConnected && InternetRadioVolDownUsed {
+					currentState, err := InternetRadioVolDownBtn.Read()
+					time.Sleep(150 * time.Millisecond)
+					if currentState != InternetRadioVolDownState && err == nil {
+						InternetRadioVolDownState = currentState
+						if InternetRadioVolDownState != 1 {
+							b.cmdInternetRadioVolDown()
 							time.Sleep(150 * time.Millisecond)
 						}
 					}
@@ -1883,6 +2049,61 @@ func GPIOInputPinControl(name string, command string) {
 					StreamToggleUsed = !StreamToggleUsed
 				}
 				log.Printf("%v Enabled is Now Set To %v\n", io.Name, StreamToggleUsed)
+			}
+			if io.Name == "internetradiotoggle" && io.Name == name {
+				switch command {
+				case "off":
+					InternetRadioToggleUsed = false
+				case "on":
+					InternetRadioToggleUsed = true
+				case "toggle":
+					InternetRadioToggleUsed = !InternetRadioToggleUsed
+				}
+				log.Printf("%v Enabled is Now Set To %v\n", io.Name, InternetRadioToggleUsed)
+			}
+			if io.Name == "internetradiochannelup" && io.Name == name {
+				switch command {
+				case "off":
+					InternetRadioNextUsed = false
+				case "on":
+					InternetRadioNextUsed = true
+				case "toggle":
+					InternetRadioNextUsed = !InternetRadioNextUsed
+				}
+				log.Printf("%v Enabled is Now Set To %v\n", io.Name, InternetRadioNextUsed)
+			}
+			if io.Name == "internetradiochanneldown" && io.Name == name {
+				switch command {
+				case "off":
+					InternetRadioPrevUsed = false
+				case "on":
+					InternetRadioPrevUsed = true
+				case "toggle":
+					InternetRadioPrevUsed = !InternetRadioPrevUsed
+				}
+				log.Printf("%v Enabled is Now Set To %v\n", io.Name, InternetRadioPrevUsed)
+			}
+			if io.Name == "internetradiovolup" && io.Name == name {
+				switch command {
+				case "off":
+					InternetRadioVolUpUsed = false
+				case "on":
+					InternetRadioVolUpUsed = true
+				case "toggle":
+					InternetRadioVolUpUsed = !InternetRadioVolUpUsed
+				}
+				log.Printf("%v Enabled is Now Set To %v\n", io.Name, InternetRadioVolUpUsed)
+			}
+			if io.Name == "internetradiovoldown" && io.Name == name {
+				switch command {
+				case "off":
+					InternetRadioVolDownUsed = false
+				case "on":
+					InternetRadioVolDownUsed = true
+				case "toggle":
+					InternetRadioVolDownUsed = !InternetRadioVolDownUsed
+				}
+				log.Printf("%v Enabled is Now Set To %v\n", io.Name, InternetRadioVolDownUsed)
 			}
 			if io.Name == "comment" && io.Name == name {
 				switch command {

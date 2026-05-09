@@ -176,6 +176,11 @@ func (b *Talkkonnect) onMessageReceived(client MQTT.Client, message MQTT.Message
 		"voicetargetset":     b.cmdSendVoiceTargets,
 		"listeningstart":     b.cmdListeningStart,
 		"listeningstop":      b.cmdListeningStop,
+		"radiotoggle":        b.cmdInternetRadioToggle,
+		"radionext":          b.cmdInternetRadioNext,
+		"radioprev":          b.cmdInternetRadioPrev,
+		"radiovolup":         b.cmdInternetRadioVolUp,
+		"radiovoldown":       b.cmdInternetRadioVolDown,
 		"attention":          attention,
 		"relay":              relay}
 

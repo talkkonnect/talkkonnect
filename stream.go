@@ -213,6 +213,7 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 				if !ok {
 					return
 				}
+				internetRadioNotifyVoiceOrTX()
 				TalkedTicker.Reset(Config.Global.Hardware.VoiceActivityTimermsecs * time.Millisecond)
 				if Config.Global.Software.IgnoreUser.IgnoreUserEnabled {
 					if len(Config.Global.Software.IgnoreUser.IgnoreUserRegex) > 0 {

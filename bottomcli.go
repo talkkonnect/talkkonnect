@@ -574,14 +574,11 @@ func (b *Talkkonnect) bottomCLIExecuteQuickMenu(key string, auxOut io.Writer) bo
 		b.cmdDisplayVersion()
 		log.Println("info: menu: display version")
 	case "v":
-		if len(player.stations) == 0 {
-			log.Println("warn: menu: online radio has no stations")
-		} else if player.current_station >= 0 {
-			player.Stop()
-			log.Println("info: menu: online radio stop")
+		if internetRadioStationCount() == 0 {
+			log.Println("warn: menu: internet radio disabled or has no stations")
 		} else {
-			player.Play(0)
-			log.Println("info: menu: online radio start (first station)")
+			b.cmdInternetRadioToggle()
+			log.Println("info: menu: internet radio toggle")
 		}
 	case "w":
 		b.cmdDumpXMLConfig()

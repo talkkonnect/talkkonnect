@@ -31,11 +31,14 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "4.01.00"
+	talkkonnectVersion  string = "4.02.00"
 	talkkonnectReleased string = "09 May 2026"
 )
 
 /* Release Notes
+version 4.02.00
+Improve radio-streamer to play in background when no one is talking support for url and youtubemusic
+
 version 4.01.00
 using go tools to prevent memory leaks and gorouting leaks
 gracefully handle panics

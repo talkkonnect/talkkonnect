@@ -604,6 +604,28 @@ type ConfigStruct struct {
 				} `xml:"media"`
 			} `xml:"id"`
 		} `xml:"multimedia"`
+		StreamingRadio struct {
+			Enabled                bool   `xml:"Enabled"`
+			AutoResumeDelay        int    `xml:"AutoResumeDelay"`
+			InterruptionMode       string `xml:"InterruptionMode"`
+			MasterVolume           int    `xml:"MasterVolume"`
+			AlsaDevice             string `xml:"AlsaDevice"`
+			FFmpegPath             string `xml:"FFmpegPath"`
+			YoutubeMusicPlayback   bool   `xml:"YoutubeMusicPlayback"`
+			YtDlpPath              string `xml:"YtDlpPath"`
+			YtDlpFormat            string `xml:"YtDlpFormat"`
+			AnnounceStationTTS     bool   `xml:"AnnounceStationTTS"`
+			StreamRetrySecs        int    `xml:"StreamRetrySecs"`
+			DuckVolumePercent      int    `xml:"DuckVolumePercent"`
+			Stations               struct {
+				Station []struct {
+					Name    string `xml:"Name"`
+					URL     string `xml:"URL"`
+					Volume  int    `xml:"Volume"`
+					Backend string `xml:"Backend"`
+				} `xml:"Station"`
+			} `xml:"Stations"`
+		} `xml:"Radio"`
 	} `xml:"global"`
 }
 
@@ -997,6 +1019,7 @@ func readxmlconfig(file string, reloadxml bool) error {
 		}
 	}
 	log.Println("info: Successfully loaded XML configuration file into memory")
+	internetRadioConfigureFromXML()
 
 	// Add Allowed Mutable Settings For talkkonnect upon live reloadxml config to the list below omit all other variables
 	if reloadxml {
@@ -1022,6 +1045,8 @@ func readxmlconfig(file string, reloadxml bool) error {
 		Config.Global.Hardware.PanicFunction = ReConfig.Global.Hardware.PanicFunction
 		Config.Global.Hardware.Keyboard.Command = ReConfig.Global.Hardware.Keyboard.Command
 		Config.Global.Multimedia = ReConfig.Global.Multimedia
+		Config.Global.StreamingRadio = ReConfig.Global.StreamingRadio
+		internetRadioConfigureFromXML()
 		//ReConfig.Accounts.Account[0].Listentochannels
 
 	}
@@ -1463,6 +1488,22 @@ func printxmlconfig() {
 				counter++
 			}
 		}
+		log.Println("info: ------------ Internet Streaming Radio (<Radio>) -------------- ")
+		log.Println("info: StreamingRadio Enabled          " + fmt.Sprintf("%v", Config.Global.StreamingRadio.Enabled))
+		log.Println("info: StreamingRadio AutoResumeDelay  " + fmt.Sprintf("%v", Config.Global.StreamingRadio.AutoResumeDelay))
+		log.Println("info: StreamingRadio InterruptionMode " + fmt.Sprintf("%v", Config.Global.StreamingRadio.InterruptionMode))
+		log.Println("info: StreamingRadio MasterVolume     " + fmt.Sprintf("%v", Config.Global.StreamingRadio.MasterVolume))
+		log.Println("info: StreamingRadio AlsaDevice       " + fmt.Sprintf("%v", Config.Global.StreamingRadio.AlsaDevice))
+		log.Println("info: StreamingRadio FFmpegPath       " + fmt.Sprintf("%v", Config.Global.StreamingRadio.FFmpegPath))
+		log.Println("info: StreamingRadio YoutubeMusicPlayback " + fmt.Sprintf("%v", Config.Global.StreamingRadio.YoutubeMusicPlayback))
+		log.Println("info: StreamingRadio YtDlpPath         " + fmt.Sprintf("%v", Config.Global.StreamingRadio.YtDlpPath))
+		log.Println("info: StreamingRadio YtDlpFormat      " + fmt.Sprintf("%v", Config.Global.StreamingRadio.YtDlpFormat))
+		log.Println("info: StreamingRadio AnnounceStationTTS " + fmt.Sprintf("%v", Config.Global.StreamingRadio.AnnounceStationTTS))
+		log.Println("info: StreamingRadio StreamRetrySecs  " + fmt.Sprintf("%v", Config.Global.StreamingRadio.StreamRetrySecs))
+		log.Println("info: StreamingRadio DuckVolumePercent " + fmt.Sprintf("%v", Config.Global.StreamingRadio.DuckVolumePercent))
+		for i, st := range Config.Global.StreamingRadio.Stations.Station {
+			log.Printf("info: StreamingRadio Station %v Name %q URL %q Vol %v Backend %q\n", i, st.Name, st.URL, st.Volume, st.Backend)
+		}
 	}
 
 	if !Config.Global.Software.PrintVariables.PrintMultimedia {
@@ -1855,9 +1896,65 @@ func CheckConfigSanity(reloadxml bool) {
 		}
 	}
 
+	if Config.Global.StreamingRadio.Enabled {
+		if strings.TrimSpace(Config.Global.StreamingRadio.InterruptionMode) == "" {
+			Config.Global.StreamingRadio.InterruptionMode = "stop"
+		}
+		mode := strings.ToLower(strings.TrimSpace(Config.Global.StreamingRadio.InterruptionMode))
+		if mode != "stop" && mode != "pause" && mode != "duck" {
+			log.Printf("warn: Config Error [Section Radio] InterruptionMode %q invalid (use stop, pause, duck); defaulting to stop\n", Config.Global.StreamingRadio.InterruptionMode)
+			Config.Global.StreamingRadio.InterruptionMode = "stop"
+			Warnings++
+		}
+		if Config.Global.StreamingRadio.MasterVolume <= 0 || Config.Global.StreamingRadio.MasterVolume > 100 {
+			if Config.Global.StreamingRadio.MasterVolume != 0 {
+				log.Printf("warn: Config Error [Section Radio] MasterVolume %v out of range 1-100; defaulting to 50\n", Config.Global.StreamingRadio.MasterVolume)
+				Warnings++
+			}
+			Config.Global.StreamingRadio.MasterVolume = 50
+		}
+		if Config.Global.StreamingRadio.AutoResumeDelay < 0 {
+			Config.Global.StreamingRadio.AutoResumeDelay = 15
+		}
+		if Config.Global.StreamingRadio.AutoResumeDelay == 0 {
+			Config.Global.StreamingRadio.AutoResumeDelay = 15
+		}
+		if Config.Global.StreamingRadio.StreamRetrySecs < 0 {
+			Config.Global.StreamingRadio.StreamRetrySecs = 5
+		}
+		if Config.Global.StreamingRadio.StreamRetrySecs == 0 {
+			Config.Global.StreamingRadio.StreamRetrySecs = 5
+		}
+		if Config.Global.StreamingRadio.DuckVolumePercent <= 0 || Config.Global.StreamingRadio.DuckVolumePercent > 100 {
+			Config.Global.StreamingRadio.DuckVolumePercent = 10
+		}
+		if len(Config.Global.StreamingRadio.Stations.Station) == 0 {
+			log.Println("warn: Config [Section Radio] Enabled but no stations defined; built-in demo stations will be used until URLs are added")
+			Warnings++
+		}
+		if Config.Global.StreamingRadio.YoutubeMusicPlayback {
+			yp := strings.TrimSpace(Config.Global.StreamingRadio.YtDlpPath)
+			if yp == "" {
+				yp = "/usr/bin/yt-dlp"
+			}
+			found := false
+			if filepath.IsAbs(yp) || strings.ContainsAny(yp, `/\`) {
+				if _, err := os.Stat(yp); err == nil {
+					found = true
+				}
+			} else if _, err := exec.LookPath(yp); err == nil {
+				found = true
+			}
+			if !found {
+				log.Printf("warn: YoutubeMusicPlayback enabled but yt-dlp not found (%q); install yt-dlp or set YtDlpPath\n", yp)
+				Warnings++
+			}
+		}
+	}
+
 	for index, keyboard := range Config.Global.Hardware.Keyboard.Command {
 		if keyboard.Enabled {
-			if !(keyboard.Action == "channelup" || keyboard.Action == "channeldown" || keyboard.Action == "serverup" || keyboard.Action == "serverdown" || keyboard.Action == "mute" || keyboard.Action == "unmute" || keyboard.Action == "mute-toggle" || keyboard.Action == "stream-toggle" || keyboard.Action == "volumeup" || keyboard.Action == "volumedown" || keyboard.Action == "setcomment" || keyboard.Action == "transmitstart" || keyboard.Action == "transmitstop" || keyboard.Action == "pttkey" || keyboard.Action == "soundinterfacepttkey" || keyboard.Action == "record" || keyboard.Action == "voicetargetset" || keyboard.Action == "volup" || keyboard.Action == "voldown" || keyboard.Action == "mqttpubpayloadset" || keyboard.Action == "changechannel" || keyboard.Action == "listentochannelon" || keyboard.Action == "listentochanneloff" || keyboard.Action == "gpioinput" || keyboard.Action == "gpiooutput" || keyboard.Action == "volumetxup" || keyboard.Action == "volumetxdown") {
+			if !(keyboard.Action == "channelup" || keyboard.Action == "channeldown" || keyboard.Action == "serverup" || keyboard.Action == "serverdown" || keyboard.Action == "mute" || keyboard.Action == "unmute" || keyboard.Action == "mute-toggle" || keyboard.Action == "stream-toggle" || keyboard.Action == "volumeup" || keyboard.Action == "volumedown" || keyboard.Action == "setcomment" || keyboard.Action == "transmitstart" || keyboard.Action == "transmitstop" || keyboard.Action == "pttkey" || keyboard.Action == "soundinterfacepttkey" || keyboard.Action == "record" || keyboard.Action == "voicetargetset" || keyboard.Action == "volup" || keyboard.Action == "voldown" || keyboard.Action == "mqttpubpayloadset" || keyboard.Action == "changechannel" || keyboard.Action == "listentochannelon" || keyboard.Action == "listentochanneloff" || keyboard.Action == "gpioinput" || keyboard.Action == "gpiooutput" || keyboard.Action == "volumetxup" || keyboard.Action == "volumetxdown" || keyboard.Action == "radiotoggle" || keyboard.Action == "radionext" || keyboard.Action == "radioprev" || keyboard.Action == "radiovolup" || keyboard.Action == "radiovoldown") {
 				log.Printf("warn: Config Error [Section Keyboard] Enabled Keyboard Action %v Invalid\n", keyboard.Action)
 				Config.Global.Hardware.Keyboard.Command[index].Enabled = false
 				Warnings++

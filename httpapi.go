@@ -91,6 +91,11 @@ func (b *Talkkonnect) remoteAPICommandHandlers() map[string]interface{} {
 		"voicetargetset":     b.cmdSendVoiceTargets,
 		"listeningstart":     b.cmdListeningStart,
 		"listeningstop":      b.cmdListeningStop,
+		"radiotoggle":        b.cmdInternetRadioToggle,
+		"radionext":          b.cmdInternetRadioNext,
+		"radioprev":          b.cmdInternetRadioPrev,
+		"radiovolup":         b.cmdInternetRadioVolUp,
+		"radiovoldown":       b.cmdInternetRadioVolDown,
 		"listapi":            listAPI,
 	}
 }

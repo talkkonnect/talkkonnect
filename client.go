@@ -127,6 +127,14 @@ type ChannelsListStruct struct {
 }
 
 func Init(file string, ServerIndex string) int {
+	defer func() {
+		if r := recover(); r != nil {
+			internetRadioShutdownKill()
+			atomic.StoreInt32(&shutdownExitCode, 1)
+			panic(r)
+		}
+	}()
+
 	colog.Register()
 	colog.SetFormatter(newFullLineColorFormatter())
 	colog.SetOutput(os.Stdout)

@@ -30,6 +30,7 @@
 package talkkonnect
 
 import (
+	"context"
 	"encoding/binary"
 	"errors"
 	"log"
@@ -62,12 +63,23 @@ type Stream struct {
 
 	deviceSink  *openal.Device
 	contextSink *openal.Context
+
+	// connCtx is the connection-level context (child of daemon MasterCtx); stream goroutines derive from it.
+	connCtx context.Context
 }
 
 func (b *Talkkonnect) New(client *gumble.Client) (*Stream, error) {
+	connParent := b.ConnCtx
+	if connParent == nil {
+		connParent = b.MasterCtx
+	}
+	if connParent == nil {
+		connParent = context.Background()
+	}
 	s := &Stream{
 		client:          client,
 		sourceFrameSize: client.Config.AudioFrameSize(),
+		connCtx:         connParent,
 	}
 	s.deviceSource = openal.CaptureOpenDevice("", gumble.AudioSampleRate, openal.FormatMono16, uint32(s.sourceFrameSize))
 
@@ -83,6 +95,9 @@ func (b *Talkkonnect) New(client *gumble.Client) (*Stream, error) {
 }
 
 func (b *Talkkonnect) Destroy() {
+	if b.Stream == nil {
+		return
+	}
 	b.Stream.link.Detach()
 	if b.Stream.deviceSource != nil {
 		b.Stream.deviceSource.CaptureStop()
@@ -113,7 +128,7 @@ func (b *Talkkonnect) StartSource() error {
 	}
 	b.Stream.deviceSource.CaptureStart()
 	b.Stream.sourceStop = make(chan bool)
-	go b.sourceRoutine()
+	SafeGo(func() { b.sourceRoutine() })
 	return nil
 }
 
@@ -142,14 +157,33 @@ func (b *Talkkonnect) StopSource() error {
 
 func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 	TotalStreams++
-	if _, userexists := StreamTracker[e.User.UserID]; userexists {
+	connParent := s.connCtx
+	if connParent == nil {
+		connParent = context.Background()
+	}
+	streamCtx, streamCancel := context.WithCancel(connParent)
+
+	streamTrackerMu.Lock()
+	if prev, ok := StreamTracker[e.User.UserID]; ok {
 		log.Printf("debug: Stale GoRoutine Detected For UserID=%v UserName=%v Session=%v AudioStreamChannel=%v", e.User.UserID, e.User.Name, e.User.Session, e.C)
 		NeedToKill++
+		if prev.Cancel != nil {
+			prev.Cancel()
+		}
 	}
-	StreamTracker[e.User.UserID] = streamTrackerStruct{UserID: e.User.UserID, UserName: e.User.Name, UserSession: e.User.Session, C: e.C}
+	StreamTracker[e.User.UserID] = streamTrackerStruct{
+		UserID:      e.User.UserID,
+		UserName:    e.User.Name,
+		UserSession: e.User.Session,
+		C:           e.C,
+		Cancel:      streamCancel,
+	}
+	streamTrackerMu.Unlock()
+
 	goStreamStats()
 
-	go func() {
+	SafeGo(func() {
+		defer streamCancel()
 		source := openal.NewSource()
 		emptyBufs := openal.NewBuffers(24)
 		reclaim := func() {
@@ -160,47 +194,63 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 			}
 		}
 		var raw [gumble.AudioMaximumFrameSize * 2]byte
-		for packet := range e.C {
-			TalkedTicker.Reset(Config.Global.Hardware.VoiceActivityTimermsecs * time.Millisecond)
-			if Config.Global.Software.IgnoreUser.IgnoreUserEnabled {
-				if len(Config.Global.Software.IgnoreUser.IgnoreUserRegex) > 0 {
-					if checkRegex(Config.Global.Software.IgnoreUser.IgnoreUserRegex, e.User.Name) {
-						continue
+
+		cleanup := func() {
+			reclaim()
+			emptyBufs.Delete()
+			source.Delete()
+			streamTrackerMu.Lock()
+			delete(StreamTracker, e.User.UserID)
+			streamTrackerMu.Unlock()
+		}
+		defer cleanup()
+
+		for {
+			select {
+			case <-streamCtx.Done():
+				return
+			case packet, ok := <-e.C:
+				if !ok {
+					return
+				}
+				TalkedTicker.Reset(Config.Global.Hardware.VoiceActivityTimermsecs * time.Millisecond)
+				if Config.Global.Software.IgnoreUser.IgnoreUserEnabled {
+					if len(Config.Global.Software.IgnoreUser.IgnoreUserRegex) > 0 {
+						if checkRegex(Config.Global.Software.IgnoreUser.IgnoreUserRegex, e.User.Name) {
+							continue
+						}
 					}
 				}
-			}
 
-			if Config.Global.Software.Settings.CancellableStream && NowStreaming {
-				IsPlayStream = !IsPlayStream
-				NowStreaming = IsPlayStream
-				pstream.Stop()
+				if Config.Global.Software.Settings.CancellableStream && NowStreaming {
+					IsPlayStream = !IsPlayStream
+					NowStreaming = IsPlayStream
+					pstream.Stop()
+				}
+				Talking <- talkingStruct{true, e.User.Name, e.User.Channel.Name}
+				samples := len(packet.AudioBuffer)
+				if samples > cap(raw) {
+					continue
+				}
+				for i, value := range packet.AudioBuffer {
+					binary.LittleEndian.PutUint16(raw[i*2:], uint16(value))
+				}
+				reclaim()
+				if len(emptyBufs) == 0 {
+					continue
+				}
+				last := len(emptyBufs) - 1
+				buffer := emptyBufs[last]
+				emptyBufs = emptyBufs[:last]
+				buffer.SetData(openal.FormatMono16, raw[:samples*2], gumble.AudioSampleRate)
+				source.QueueBuffer(buffer)
+				if source.State() != openal.Playing {
+					source.Play()
+				}
+				Talking <- talkingStruct{false, e.User.Name, e.User.Channel.Name}
 			}
-			Talking <- talkingStruct{true, e.User.Name, e.User.Channel.Name}
-			samples := len(packet.AudioBuffer)
-			if samples > cap(raw) {
-				continue
-			}
-			for i, value := range packet.AudioBuffer {
-				binary.LittleEndian.PutUint16(raw[i*2:], uint16(value))
-			}
-			reclaim()
-			if len(emptyBufs) == 0 {
-				continue
-			}
-			last := len(emptyBufs) - 1
-			buffer := emptyBufs[last]
-			emptyBufs = emptyBufs[:last]
-			buffer.SetData(openal.FormatMono16, raw[:samples*2], gumble.AudioSampleRate)
-			source.QueueBuffer(buffer)
-			if source.State() != openal.Playing {
-				source.Play()
-			}
-			Talking <- talkingStruct{false, e.User.Name, e.User.Channel.Name}
 		}
-		reclaim()
-		emptyBufs.Delete()
-		source.Delete()
-	}()
+	})
 }
 
 func (b *Talkkonnect) sourceRoutine() {
@@ -218,12 +268,19 @@ func (b *Talkkonnect) sourceRoutine() {
 	defer ticker.Stop()
 	stop := b.Stream.sourceStop
 
+	var connDone <-chan struct{}
+	if b.Stream.connCtx != nil {
+		connDone = b.Stream.connCtx.Done()
+	}
+
 	outgoing := b.Stream.client.AudioOutgoing()
 	// Don\'t close outgoing - it\'s managed by the gumble library
 
 	for {
 		select {
 		case <-stop:
+			return
+		case <-connDone:
 			return
 		case <-ticker.C:
 			//this is for encoding (transmitting)
@@ -313,8 +370,10 @@ func (b *Talkkonnect) ResetStream() {
 
 func goStreamStats() {
 	log.Println("debug: Active Streams")
+	streamTrackerMu.Lock()
 	for item, value := range StreamTracker {
 		log.Printf("debug: Item=%v UserID=%v UserName=%v Session=%v AudioStreamChannel=%v", item, value.UserID, value.UserName, value.UserSession, value.C)
 	}
+	streamTrackerMu.Unlock()
 	log.Printf("debug: Total GoRoutines Open=%v, Total GoRoutines Wasted=%v \n", TotalStreams, NeedToKill)
 }

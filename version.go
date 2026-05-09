@@ -31,11 +31,15 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "4.00.01"
-	talkkonnectReleased string = "03 May 2026"
+	talkkonnectVersion  string = "4.01.00"
+	talkkonnectReleased string = "09 May 2026"
 )
 
 /* Release Notes
+version 4.01.00
+using go tools to prevent memory leaks and gorouting leaks
+gracefully handle panics
+
 version 4.00.01
 removed termbox go as the tui library
 changed the gpio library to use the new gpiocdev library for supporting new raspberr pi os and new raspberry pi models

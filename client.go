@@ -30,18 +30,18 @@
 package talkkonnect
 
 import (
+	"context"
 	"crypto/rand"
 	"crypto/tls"
+	"errors"
 	"fmt"
 	"io"
 	"log"
-	"net"
 	"net/http"
 	"os"
-	"os/signal"
 	"strconv"
 	"strings"
-	"syscall"
+	"sync/atomic"
 	"time"
 
 	"github.com/allan-simon/go-singleinstance"
@@ -49,7 +49,6 @@ import (
 	hd44780 "github.com/talkkonnect/go-hd44780"
 	"github.com/talkkonnect/gosshd"
 	"github.com/talkkonnect/gumble/gumble"
-	"github.com/talkkonnect/gumble/gumbleffmpeg"
 	"github.com/talkkonnect/gumble/gumbleutil"
 	_ "github.com/talkkonnect/gumble/opus"
 	"github.com/talkkonnect/volume-go"
@@ -76,6 +75,47 @@ type Talkkonnect struct {
 	IsTransmitting  bool
 	IsPlayStream    bool
 	GPIOEnabled     bool
+
+	// Hierarchical lifecycle: MasterCtx (daemon) -> ConnCtx (Mumble session) -> per-user stream contexts in StreamTracker.
+	MasterCtx    context.Context
+	masterCancel context.CancelFunc
+	ConnCtx      context.Context
+	connCancel   context.CancelFunc
+}
+
+// appTalkkonnect is the active Init() instance for shutdown hooks from CleanUp (GPIO, duplicate instance, etc.).
+var appTalkkonnect *Talkkonnect
+
+func (b *Talkkonnect) initDaemonLifecycle() {
+	b.MasterCtx, b.masterCancel = context.WithCancel(context.Background())
+}
+
+func (b *Talkkonnect) shutdownDaemonLifecycle() {
+	if b.masterCancel != nil {
+		b.masterCancel()
+		b.masterCancel = nil
+	}
+	b.MasterCtx = nil
+}
+
+func (b *Talkkonnect) startConnectionContext() {
+	if b.connCancel != nil {
+		b.connCancel()
+		b.connCancel = nil
+	}
+	parent := b.MasterCtx
+	if parent == nil {
+		parent = context.Background()
+	}
+	b.ConnCtx, b.connCancel = context.WithCancel(parent)
+}
+
+func (b *Talkkonnect) cancelConnectionContext() {
+	if b.connCancel != nil {
+		b.connCancel()
+		b.connCancel = nil
+	}
+	b.ConnCtx = nil
 }
 
 type ChannelsListStruct struct {
@@ -86,7 +126,7 @@ type ChannelsListStruct struct {
 	chanUsers  gumble.Users
 }
 
-func Init(file string, ServerIndex string) {
+func Init(file string, ServerIndex string) int {
 	colog.Register()
 	colog.SetFormatter(newFullLineColorFormatter())
 	colog.SetOutput(os.Stdout)
@@ -96,6 +136,7 @@ func Init(file string, ServerIndex string) {
 	if err != nil {
 		message := err.Error()
 		FatalCleanUp(message)
+		return 0
 	}
 
 	if Config.Global.Software.Settings.SingleInstance {
@@ -125,6 +166,7 @@ func Init(file string, ServerIndex string) {
 		time.Sleep(5 * time.Second)
 		if err != nil {
 			FatalCleanUp("Error from AutoProvisioning Module " + err.Error())
+			return 0
 		} else {
 			log.Println("info: Loading XML Config")
 			ConfigXMLFile = file
@@ -146,6 +188,9 @@ func Init(file string, ServerIndex string) {
 		Ident:       Ident[AccountIndex],
 		ChannelName: Channel[AccountIndex],
 	}
+	b.initDaemonLifecycle()
+	appTalkkonnect = &b
+	b.startSignalShutdownBridge()
 
 	b.setupCologOutputAndStartBottomCLI()
 
@@ -174,6 +219,7 @@ func Init(file string, ServerIndex string) {
 			_, err := rand.Read(buf)
 			if err != nil {
 				FatalCleanUp("Cannot Generate Random Number Error " + err.Error())
+				return 0
 			}
 			buf[0] |= 2
 			b.Config.Username = fmt.Sprintf("talkkonnect-%02x%02x%02x%02x%02x%02x", buf[0], buf[1], buf[2], buf[3], buf[4], buf[5])
@@ -194,31 +240,27 @@ func Init(file string, ServerIndex string) {
 		cert, err := tls.LoadX509KeyPair(Certificate[AccountIndex], Certificate[AccountIndex])
 		if err != nil {
 			FatalCleanUp("Certificate Error " + err.Error())
+			return 0
 		}
 		b.TLSConfig.Certificates = append(b.TLSConfig.Certificates, cert)
 	}
 
 	if Config.Global.Software.RemoteControl.HTTP.Enabled && !HTTPServRunning {
-		go func() {
+		SafeGo(func() {
 			http.HandleFunc("/", b.httpAPI)
 			http.HandleFunc("/config", b.httpConfig)
 			if err := http.ListenAndServe(":"+Config.Global.Software.RemoteControl.HTTP.ListenPort, nil); err != nil {
 				FatalCleanUp("Problem Starting HTTP API Server " + err.Error())
 			}
-		}()
+		})
 	}
 
 	b.ClientStart()
 
 	IsConnected = false
 
-	sigs := make(chan os.Signal, 1)
-	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
-	exitStatus := 0
-
-	<-sigs
-	CleanUp(false)
-	os.Exit(exitStatus)
+	performCleanup(false)
+	return int(atomic.LoadInt32(&shutdownExitCode))
 }
 
 // setupCologOutputAndStartBottomCLI opens the log file, wires colog (screen+file + optional bottom CLI), and starts the bottom CLI goroutine.
@@ -228,6 +270,7 @@ func (b *Talkkonnect) setupCologOutputAndStartBottomCLI() {
 	log.Println("info: Trying to Open File ", Config.Global.Software.Settings.LogFilenameAndPath)
 	if err != nil {
 		FatalCleanUp("Problem Opening talkkonnect.log file " + err.Error())
+		return
 	}
 
 	logOut := io.Writer(os.Stdout)
@@ -243,12 +286,14 @@ func (b *Talkkonnect) setupCologOutputAndStartBottomCLI() {
 	}
 	if bottomTerminalCLIShouldWrap() {
 		logOut = newBottomCLILogWriter(logOut)
-		go b.runBottomTerminalCLI()
+		SafeGo(b.runBottomTerminalCLI)
 	}
 	colog.SetOutput(logOut)
 }
 
 func (b *Talkkonnect) ClientStart() {
+	mainLoopRunning.Store(true)
+
 	// Daemon-mode SSH console must listen before Mumble connects; otherwise a down
 	// server blocks forever on FatalCleanUp and nothing binds on the remote port.
 	if Config.Global.Software.RemoteSSHConsole.Enabled && DaemonMode {
@@ -329,34 +374,21 @@ func (b *Talkkonnect) ClientStart() {
 	log.Println("info: Playing startup sound (talkkonnectloaded TTS event; may take a few seconds)")
 	//TTSEvent("talkkonnectloaded")
 
-	//New Mumble Connection Routine
-	pstream = gumbleffmpeg.New(b.Client, gumbleffmpeg.SourceFile(""), 0)
 	IsConnected = false
 	IsPlayStream = false
 	NowStreaming = false
 	KillHeartBeat = false
 
-	var connectionTries int
-	for connectionTries = 1; connectionTries < 4; connectionTries++ {
-		_, err := gumble.Ping(b.Address, time.Second*1, time.Second*5)
-		if err != nil {
-			log.Printf("info: Ping Server Error %v try %v", err, connectionTries)
-			continue
-		}
-		_, err = gumble.DialWithDialer(new(net.Dialer), b.Address, b.Config, &b.TLSConfig)
-		if err != nil {
-			log.Printf("error: Dial Server Failed on try %v with message %v\n", connectionTries, err)
-			continue
-		}
-
-		log.Printf("info: Connected to Server Successfully\n")
-		b.OpenStream()
-		IsConnected = true
-		break
+	parentCtx := b.MasterCtx
+	if parentCtx == nil {
+		parentCtx = context.Background()
 	}
-
-	if connectionTries == 4 {
-		FatalCleanUp("Exceed Connection Threshold Reached! Giving Up trying to reach " + b.Address + "\n")
+	if err := b.connectMumbleWithBackoff(parentCtx); err != nil {
+		if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
+			return
+		}
+		FatalCleanUp("Exceed Connection Threshold Reached! Giving Up trying to reach " + b.Address + ": " + err.Error())
+		return
 	}
 
 	if (Config.Global.Hardware.HeartBeat.Enabled) && (Config.Global.Hardware.TargetBoard == "rpi") {
@@ -567,8 +599,17 @@ func (b *Talkkonnect) ClientStart() {
 		go gosshd.SSHDaemon(Config.Global.Software.RemoteSSHConsole.Username, Config.Global.Software.RemoteSSHConsole.Password, Config.Global.Software.RemoteSSHConsole.IDRSAFile, Config.Global.Software.RemoteSSHConsole.Listen)
 	}
 
-	// Control: GPIO, USB keyboard, remote SSH console, MQTT, HTTP API, etc.
+	// Block until MasterCtx canceled (signal bridge, FatalCleanUp, or reconnect exhaustion).
+	ticker := time.NewTicker(1 * time.Second)
+	defer ticker.Stop()
+
 	for {
-		time.Sleep(1 * time.Second)
+		select {
+		case <-b.MasterCtx.Done():
+			log.Println("info: Lifecycle context canceled; exiting ClientStart control loop")
+			return
+		case <-ticker.C:
+			// idle tick — same cadence as the former sleep(1s) control loop
+		}
 	}
 }

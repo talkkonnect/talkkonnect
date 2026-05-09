@@ -36,6 +36,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync/atomic"
 	"syscall"
 	"time"
 
@@ -47,17 +48,32 @@ import (
 var (
 	prevChannelID uint32
 	maxchannelid  uint32
+	shutdownExitCode int32 // set to 1 on abnormal termination
+	mainLoopRunning  atomic.Bool
 )
 
+// FatalCleanUp requests shutdown. While the main ClientStart loop is running, this cancels MasterCtx so Init can run performCleanup and return. During early initialization, it performs cleanup and exits the process.
 func FatalCleanUp(message string) {
 	log.Println("alert: " + message)
 	log.Println("alert: Talkkonnect Terminated Abnormally with the Error(s) As Described Above, Ignore any GPIO errors if you are not using Single Board Computer.")
-	log.Println("info: This Screen will close in 5 seconds")
-	time.Sleep(5 * time.Second)
-	os.Exit(1)
+	atomic.StoreInt32(&shutdownExitCode, 1)
+	if mainLoopRunning.Load() {
+		if appTalkkonnect != nil && appTalkkonnect.masterCancel != nil {
+			appTalkkonnect.masterCancel()
+		}
+		return
+	}
+	log.Println("info: Fatal error before main loop — exiting process after cleanup")
+	time.Sleep(2 * time.Second)
+	performCleanup(false)
+	os.Exit(int(atomic.LoadInt32(&shutdownExitCode)))
 }
 
-func CleanUp(withShutdown bool) {
+// performCleanup releases hardware and lifecycle without exiting (used when returning from Init after ClientStart).
+func performCleanup(withShutdown bool) {
+	if appTalkkonnect != nil {
+		appTalkkonnect.shutdownDaemonLifecycle()
+	}
 
 	if Config.Global.Hardware.TargetBoard == "rpi" {
 		t := time.Now()
@@ -77,7 +93,6 @@ func CleanUp(withShutdown bool) {
 			oledDisplay(false, 7, OLEDStartColumn, "www.talkkonnect.com")
 		}
 		GPIOOutAll("led/relay", "off")
-		//		MyLedStripGPIOOffAll()
 	}
 
 	fmt.Println("SIGHUP Termination of Program Requested by User...shutting down talkkonnect")
@@ -86,6 +101,11 @@ func CleanUp(withShutdown bool) {
 		time.Sleep(5 * time.Second)
 		syscall.Reboot(syscall.LINUX_REBOOT_CMD_POWER_OFF)
 	}
+}
+
+// CleanUp stops the process immediately after cleanup (menu quit, GPIO shutdown, duplicate instance).
+func CleanUp(withShutdown bool) {
+	performCleanup(withShutdown)
 	os.Exit(0)
 }
 

@@ -124,8 +124,16 @@ func (b *Talkkonnect) OnDisconnect(e *gumble.DisconnectEvent) {
 	IsConnected = false
 	//MyLedStripOnlineLEDOff()
 
-	FatalCleanUp("Connection to Mumble Server " + b.Address + " Lost Reason " + reason)
+	b.cancelConnectionContext()
 
+	// Do not auto-reconnect if kicked or banned — operator intervention required.
+	if e.Type.Has(2) || e.Type.Has(3) {
+		FatalCleanUp("Connection to Mumble Server " + b.Address + " Lost Reason " + reason)
+		return
+	}
+
+	log.Printf("warn: Connection to Mumble Server %s lost (%s); scheduling reconnect\n", b.Address, reason)
+	b.scheduleMumbleReconnect(reason)
 }
 
 func (b *Talkkonnect) OnTextMessage(e *gumble.TextMessageEvent) {
@@ -227,6 +235,16 @@ func (b *Talkkonnect) OnUserChange(e *gumble.UserChangeEvent) {
 
 	var info string = ""
 	var shortInfo string = ""
+
+	//2 UserChangeDisconnected — cancel this user's receive audio goroutine if still active.
+	if e.Type.Has(2) && e.User != nil {
+		streamTrackerMu.Lock()
+		if tr, ok := StreamTracker[e.User.UserID]; ok && tr.Cancel != nil {
+			tr.Cancel()
+			delete(StreamTracker, e.User.UserID)
+		}
+		streamTrackerMu.Unlock()
+	}
 
 	//1 UserChangeConnected
 	if e.Type.Has(1) {

@@ -46,6 +46,7 @@
 package talkkonnect
 
 import (
+	"context"
 	"crypto/tls"
 	"log"
 	"strconv"
@@ -59,52 +60,82 @@ var MQTTPublishPayload MQTT.Token
 var MQTTClient MQTT.Client
 
 func (b *Talkkonnect) mqttsubscribe() {
-	if Config.Global.Software.RemoteControl.MQTT.Enabled {
-		log.Printf("info: MQTT Subscription Information")
-		log.Printf("info: MQTT Broker      : %s\n", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTBroker)
-		log.Printf("debug: MQTT clientid    : %s\n", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTId)
-		log.Printf("debug: MQTT user        : %s\n", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTUser)
-		log.Printf("debug: MQTT password    : %s\n", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTPassword)
-		log.Printf("info: Subscribed topic : %s\n", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTSubTopic)
+	if !Config.Global.Software.RemoteControl.MQTT.Enabled {
+		return
+	}
 
-		connOpts := MQTT.NewClientOptions().AddBroker(Config.Global.Software.RemoteControl.MQTT.Settings.MQTTBroker).SetClientID(Config.Global.Software.RemoteControl.MQTT.Settings.MQTTId).SetCleanSession(true)
+	ctx := b.MasterCtx
+	if ctx == nil {
+		ctx = context.Background()
+	}
+
+	log.Printf("info: MQTT Subscription Information")
+	log.Printf("info: MQTT Broker      : %s\n", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTBroker)
+	log.Printf("debug: MQTT clientid    : %s\n", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTId)
+	log.Printf("debug: MQTT user        : %s\n", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTUser)
+	log.Printf("debug: MQTT password    : %s\n", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTPassword)
+	log.Printf("info: Subscribed topic : %s\n", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTSubTopic)
+
+	tlsConfig := &tls.Config{InsecureSkipVerify: true, ClientAuth: tls.NoClientCert}
+
+	attempts := 1 + len(mumbleMQTTBackoffDelays)
+	for i := 0; i < attempts; i++ {
+		if i > 0 {
+			d := mumbleMQTTBackoffDelays[i-1]
+			if err := sleepBackoff(ctx, d); err != nil {
+				return
+			}
+		}
+		select {
+		case <-ctx.Done():
+			return
+		default:
+		}
+
+		connOpts := MQTT.NewClientOptions().
+			AddBroker(Config.Global.Software.RemoteControl.MQTT.Settings.MQTTBroker).
+			SetClientID(Config.Global.Software.RemoteControl.MQTT.Settings.MQTTId).
+			SetCleanSession(true)
 		if Config.Global.Software.RemoteControl.MQTT.Settings.MQTTUser != "" {
 			connOpts.SetUsername(Config.Global.Software.RemoteControl.MQTT.Settings.MQTTUser)
 			if Config.Global.Software.RemoteControl.MQTT.Settings.MQTTPassword != "" {
 				connOpts.SetPassword(Config.Global.Software.RemoteControl.MQTT.Settings.MQTTPassword)
 			}
 		}
-		tlsConfig := &tls.Config{InsecureSkipVerify: true, ClientAuth: tls.NoClientCert}
 		connOpts.SetTLSConfig(tlsConfig)
 
 		connOpts.OnConnect = func(c MQTT.Client) {
 			if token := c.Subscribe(Config.Global.Software.RemoteControl.MQTT.Settings.MQTTSubTopic, byte(Config.Global.Software.RemoteControl.MQTT.Settings.MQTTQos), b.onMessageReceived); token.Wait() && token.Error() != nil {
-				log.Println("error: MQTT Token Error!")
+				log.Printf("error: MQTT subscribe token error: %v\n", token.Error())
 				return
 			}
 		}
 
 		MQTTClient = MQTT.NewClient(connOpts)
-		if token := MQTTClient.Connect(); token.Wait() && token.Error() != nil {
-			log.Println("error: MQTT Token Error!")
-			return
-		} else {
-			log.Printf("info: Connected to     : %s\n", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTBroker)
+		token := MQTTClient.Connect()
+		token.Wait()
+		if token.Error() != nil {
+			log.Printf("warn: MQTT connect attempt %d/%d failed: %v\n", i+1, attempts, token.Error())
+			continue
 		}
+		log.Printf("info: Connected to     : %s\n", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTBroker)
+		return
 	}
+
+	log.Println("alert: MQTT broker unreachable after exponential backoff")
+	FatalCleanUp("MQTT broker unreachable after exponential backoff")
 }
 
 func MQTTPublish(mqttPayload string) {
 	MQTTPublishPayload = MQTTClient.Publish(Config.Global.Software.RemoteControl.MQTT.Settings.MQTTPubTopic, Config.Global.Software.RemoteControl.MQTT.Settings.MQTTQos, Config.Global.Software.RemoteControl.MQTT.Settings.MQTTRetained, mqttPayload)
-	go func() {
+	SafeGo(func() {
 		<-MQTTPublishPayload.Done()
 		if MQTTPublishPayload.Error() != nil {
 			log.Println("error: ", MQTTPublishPayload.Error())
 		} else {
 			log.Printf("info: Successfully Published MQTT Topic %v Payload %v\n", Config.Global.Software.RemoteControl.MQTT.Settings.MQTTPubTopic, mqttPayload)
-			return
 		}
-	}()
+	})
 }
 
 func (b *Talkkonnect) onMessageReceived(client MQTT.Client, message MQTT.Message) {

@@ -1647,8 +1647,8 @@ func Max7219(max7219Cascaded int, spiBus int, spiDevice int, brightness byte, to
 		mtx := max7219.NewMatrix(max7219Cascaded)
 		err := mtx.Open(spiBus, spiDevice, brightness)
 		if err != nil {
-			log.Fatal(err)
-
+			log.Printf("error: Max7219 Open failed: %v\n", err)
+			return
 		}
 		mtx.Device.SevenSegmentDisplay(toDisplay)
 		defer mtx.Close()

@@ -103,7 +103,7 @@ func main() {
 		talkkonnect.DaemonMode = true
 	}
 
-	talkkonnect.Init(*config, *serverindex)
+	os.Exit(talkkonnect.Init(*config, *serverindex))
 
 }
 

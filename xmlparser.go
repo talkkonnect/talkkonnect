@@ -31,6 +31,7 @@
 package talkkonnect
 
 import (
+	"context"
 	"encoding/xml"
 	"fmt"
 	"io"
@@ -40,6 +41,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	goled "github.com/talkkonnect/go-oled-i2c"
@@ -659,6 +661,7 @@ type streamTrackerStruct struct {
 	UserName    string
 	UserSession uint32
 	C           <-chan *gumble.AudioPacket
+	Cancel      context.CancelFunc
 }
 
 type talkingStruct struct {
@@ -816,6 +819,9 @@ var (
 )
 
 var StreamTracker = map[uint32]streamTrackerStruct{}
+
+// streamTrackerMu guards StreamTracker map access (audio goroutines vs user disconnect events).
+var streamTrackerMu sync.Mutex
 var DMOSetup sa818.DMOSetupStruct
 
 func readxmlconfig(file string, reloadxml bool) error {

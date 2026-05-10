@@ -11,7 +11,7 @@ Group=
 Type=forking
 WorkingDirectory=
 ExecStartPre=
-ExecStart=/usr/bin/screen -dmS tk /home/talkkonnect/bin/talkkonnect
+ExecStart=/home/talkkonnect/bin/talkkonnect --daemon
 ExecReload=/bin/kill -s HUP $MAINPID
 ExecStop=/bin/kill -s SIGTERM $MAINPID
 PrivateTmp=true
@@ -21,4 +21,3 @@ RestartSec=10
 
 [Install]
 WantedBy=multi-user.target
-Alias=talkkonnect.target

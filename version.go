@@ -31,11 +31,15 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "4.02.00"
-	talkkonnectReleased string = "09 May 2026"
+	talkkonnectVersion  string = "4.02.01"
+	talkkonnectReleased string = "11 May 2026"
 )
 
+
 /* Release Notes
+version 4.02.01
+fixed bottom line cli interface behaviour and logging behaviour
+
 version 4.02.00
 Improve radio-streamer to play in background when no one is talking support for url and youtubemusic
 

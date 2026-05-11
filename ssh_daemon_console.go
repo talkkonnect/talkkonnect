@@ -6,7 +6,8 @@
 package talkkonnect
 
 import (
-	"bufio"
+	"bytes"
+	"encoding/binary"
 	"fmt"
 	"io"
 	"log"
@@ -14,6 +15,7 @@ import (
 	"os"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"golang.org/x/crypto/ssh"
@@ -79,6 +81,141 @@ func handleDaemonSSHConn(b *Talkkonnect, tcpConn net.Conn, serverConfig *ssh.Ser
 	}
 }
 
+func sshParsePtyReq(payload []byte) (cols, rows uint32, ok bool) {
+	if len(payload) < 4 {
+		return 0, 0, false
+	}
+	tlen := int(binary.BigEndian.Uint32(payload[0:4]))
+	if tlen < 0 || len(payload) < 4+tlen+8 {
+		return 0, 0, false
+	}
+	p := payload[4+tlen:]
+	cols = binary.BigEndian.Uint32(p[0:4])
+	rows = binary.BigEndian.Uint32(p[4:8])
+	return cols, rows, true
+}
+
+func sshParseWindowChange(payload []byte) (cols, rows uint32, ok bool) {
+	if len(payload) < 8 {
+		return 0, 0, false
+	}
+	cols = binary.BigEndian.Uint32(payload[0:4])
+	rows = binary.BigEndian.Uint32(payload[4:8])
+	return cols, rows, true
+}
+
+// sshDaemonConsoleState keeps the same DECSTBM fixed-bottom layout as the local bottom CLI.
+type sshDaemonConsoleState struct {
+	out     *sshSyncedChannelWriter
+	rows    atomic.Int32
+	draft   []byte
+	draftMu sync.Mutex
+	logSk   *bottomCLISSHLogSink
+}
+
+func (s *sshDaemonConsoleState) rowsSnap() int {
+	r := int(s.rows.Load())
+	if r < 2 {
+		return 24
+	}
+	return r
+}
+
+func (s *sshDaemonConsoleState) draftSnap() []byte {
+	s.draftMu.Lock()
+	defer s.draftMu.Unlock()
+	return append([]byte(nil), s.draft...)
+}
+
+func (s *sshDaemonConsoleState) redrawLine(line []byte) {
+	s.draftMu.Lock()
+	s.draft = append([]byte(nil), line...)
+	s.draftMu.Unlock()
+	rs := s.rowsSnap()
+	if rs < 2 {
+		return
+	}
+	s.out.WithWireLock(func(w io.Writer) {
+		bottomCLIPromptSSHWire(w, rs, bottomCLIPromptLabel(), line)
+	})
+}
+
+func (s *sshDaemonConsoleState) applyScrollLayout() {
+	rs := s.rowsSnap()
+	if rs < 2 {
+		return
+	}
+	s.out.WithWireLock(func(w io.Writer) {
+		bottomCLIApplyScrollLayoutW(w, rs)
+	})
+}
+
+func (s *sshDaemonConsoleState) clearAndRelayout() {
+	rs := s.rowsSnap()
+	s.out.WithWireLock(func(w io.Writer) {
+		_, _ = w.Write([]byte("\033[2J\033[1;1H"))
+		bottomCLIApplyScrollLayoutW(w, rs)
+	})
+	s.redrawLine(nil)
+}
+
+func (s *sshDaemonConsoleState) onResize(cols, rows int) {
+	_ = cols
+	if rows < 2 || rows > 4000 {
+		return
+	}
+	s.rows.Store(int32(rows))
+	s.applyScrollLayout()
+	line := s.draftSnap()
+	s.redrawLine(line)
+}
+
+func (s *sshDaemonConsoleState) registerLog() {
+	s.logSk = bottomCLISSHRegisterLogSink(s.out, s.rowsSnap, s.draftSnap)
+}
+
+func (s *sshDaemonConsoleState) unregisterLog() {
+	bottomCLISSHUnregisterLogSink(s.logSk)
+	s.logSk = nil
+}
+
+func (s *sshDaemonConsoleState) auxWriter() io.Writer {
+	if s == nil {
+		return io.Discard
+	}
+	return &sshBottomAuxWriter{s: s}
+}
+
+// sshBottomAuxWriter routes command output into the scrolling region above the prompt.
+type sshBottomAuxWriter struct{ s *sshDaemonConsoleState }
+
+func (a *sshBottomAuxWriter) Write(p []byte) (int, error) {
+	if a == nil || a.s == nil || len(p) == 0 {
+		return len(p), nil
+	}
+	n := len(p)
+	rs := a.s.rowsSnap()
+	for _, chunk := range bytes.Split(p, []byte{'\n'}) {
+		if len(chunk) == 0 {
+			continue
+		}
+		line := append(append([]byte(nil), chunk...), '\n')
+		a.s.out.WithWireLock(func(w io.Writer) {
+			if rs >= 2 {
+				bottomCLIMoveToScrollRegionBottomW(w, rs)
+				_, _ = w.Write(sshBytesToCRLF(line))
+				d := a.s.draftSnap()
+				bottomCLIPromptSSHWire(w, rs, bottomCLIPromptLabel(), d)
+			} else {
+				_, _ = w.Write(sshBytesToCRLF(line))
+			}
+		})
+	}
+	return n, nil
+}
+
+var sshDaemonConsoleActive atomic.Pointer[sshDaemonConsoleState]
+
 func handleDaemonSSHChannel(b *Talkkonnect, newChannel ssh.NewChannel) {
 	if t := newChannel.ChannelType(); t != "session" {
 		_ = newChannel.Reject(ssh.UnknownChannelType, fmt.Sprintf("unknown channel type: %s", t))
@@ -91,6 +228,9 @@ func handleDaemonSSHChannel(b *Talkkonnect, newChannel ssh.NewChannel) {
 	}
 	defer connection.Close()
 
+	var termRows atomic.Int32
+	termRows.Store(24)
+
 	// Do not write to the session channel until the client has received a successful
 	// shell reply; PuTTY and Windows OpenSSH otherwise keep input buffered or disabled.
 	shellReady := make(chan struct{}, 1)
@@ -98,11 +238,16 @@ func handleDaemonSSHChannel(b *Talkkonnect, newChannel ssh.NewChannel) {
 		for req := range requests {
 			switch req.Type {
 			case "env":
-				// PuTTY often sends env requests; rejecting them can confuse the client.
 				if req.WantReply {
 					_ = req.Reply(true, nil)
 				}
 			case "pty-req":
+				if cols, rows, ok := sshParsePtyReq(req.Payload); ok && rows >= 2 && rows <= 4000 {
+					termRows.Store(int32(rows))
+					if c := sshDaemonConsoleActive.Load(); c != nil {
+						c.onResize(int(cols), int(rows))
+					}
+				}
 				if req.WantReply {
 					_ = req.Reply(true, nil)
 				}
@@ -115,7 +260,15 @@ func handleDaemonSSHChannel(b *Talkkonnect, newChannel ssh.NewChannel) {
 				default:
 				}
 			case "window-change":
-				// no local PTY to resize
+				if cols, rows, ok := sshParseWindowChange(req.Payload); ok && rows >= 2 && rows <= 4000 {
+					termRows.Store(int32(rows))
+					if c := sshDaemonConsoleActive.Load(); c != nil {
+						c.onResize(int(cols), int(rows))
+					}
+				}
+				if req.WantReply {
+					_ = req.Reply(false, nil)
+				}
 			default:
 				if req.WantReply {
 					_ = req.Reply(false, nil)
@@ -133,13 +286,21 @@ func handleDaemonSSHChannel(b *Talkkonnect, newChannel ssh.NewChannel) {
 
 	var outMu sync.Mutex
 	out := &sshSyncedChannelWriter{w: connection, mu: &outMu}
-	r := bufio.NewReader(connection)
-	lineIn := &sshLineInputState{}
+	st := &sshDaemonConsoleState{out: out}
+	st.rows.Store(termRows.Load())
+	st.applyScrollLayout()
+	_, _ = st.auxWriter().Write([]byte("TalKKonnect remote console (daemon). Type ? for menu, q to disconnect.\n\n"))
+	st.redrawLine(nil)
+	st.registerLog()
+	sshDaemonConsoleActive.Store(st)
+	defer func() {
+		sshDaemonConsoleActive.Store(nil)
+		st.unregisterLog()
+	}()
 
-	fmt.Fprintf(out, "\r\nTalKKonnect remote console (daemon). Type ? for menu, q to disconnect.\r\n\r\n")
+	aux := st.auxWriter()
 	for {
-		fmt.Fprintf(out, "%s> ", bottomCLIPromptLabel())
-		line, err := sshReadLine(r, out, lineIn)
+		line, err := bottomCLISSHReadLine(connection, st)
 		if err != nil {
 			if err != io.EOF {
 				log.Printf("Remote SSH console: read error: %v", err)
@@ -150,12 +311,9 @@ func handleDaemonSSHChannel(b *Talkkonnect, newChannel ssh.NewChannel) {
 		if line == "" {
 			continue
 		}
-		disconnect := b.bottomCLIDispatchRemoteLine(out, line)
-		if disconnect {
+		if b.bottomCLIDispatchRemoteLine(aux, line, st) {
 			return
 		}
-		// Ensure the next prompt starts on a new row (API + quick-menu paths often lack a trailing newline).
-		_, _ = fmt.Fprintf(out, "\r\n")
 	}
 }
 
@@ -166,94 +324,35 @@ type sshSyncedChannelWriter struct {
 	mu *sync.Mutex
 }
 
-func (s *sshSyncedChannelWriter) Write(p []byte) (int, error) {
-	if len(p) == 0 {
-		return 0, nil
-	}
-	s.mu.Lock()
-	defer s.mu.Unlock()
+func sshBytesToCRLF(p []byte) []byte {
 	var b strings.Builder
+	b.Grow(len(p) + len(p)/16)
 	for i := 0; i < len(p); i++ {
 		if p[i] == '\n' && (i == 0 || p[i-1] != '\r') {
 			b.WriteByte('\r')
 		}
 		b.WriteByte(p[i])
 	}
-	_, err := s.w.Write([]byte(b.String()))
+	return []byte(b.String())
+}
+
+func (s *sshSyncedChannelWriter) Write(p []byte) (int, error) {
+	if len(p) == 0 {
+		return 0, nil
+	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	_, err := s.w.Write(sshBytesToCRLF(p))
 	if err != nil {
 		return 0, err
 	}
 	return len(p), nil
 }
 
-// sshLineInputState drops a single LF that follows a CR line terminator (CRLF clients).
-type sshLineInputState struct {
-	dropNextLF bool
-}
-
-const sshMaxLineBytes = 4096
-
-// sshReadLine reads until CR or LF with local editing. Does not use Peek after CR
-// (that blocked until a second key and broke PuTTY / Windows Terminal).
-func sshReadLine(r *bufio.Reader, out *sshSyncedChannelWriter, st *sshLineInputState) (string, error) {
-	var line []byte
-	writeEcho := func(p []byte) {
-		if len(p) > 0 {
-			_, _ = out.Write(p)
-		}
-	}
-
-	if st.dropNextLF {
-		st.dropNextLF = false
-		b, err := r.ReadByte()
-		if err != nil {
-			if err == io.EOF {
-				return "", io.EOF
-			}
-			return "", err
-		}
-		if b != '\n' {
-			if uerr := r.UnreadByte(); uerr != nil {
-				return "", uerr
-			}
-		}
-	}
-
-	for {
-		b, err := r.ReadByte()
-		if err != nil {
-			if err == io.EOF && len(line) > 0 {
-				return string(line), nil
-			}
-			return "", err
-		}
-		switch b {
-		case '\n':
-			return string(line), nil
-		case '\r':
-			st.dropNextLF = true
-			return string(line), nil
-		case 127, 8: // DEL, BS
-			if len(line) > 0 {
-				line = line[:len(line)-1]
-				writeEcho([]byte{'\b', ' ', '\b'})
-			}
-		case 21: // ^U kill line
-			for len(line) > 0 {
-				line = line[:len(line)-1]
-				writeEcho([]byte{'\b', ' ', '\b'})
-			}
-		case 3: // ^C discard current line
-			line = line[:0]
-			writeEcho([]byte("^C\r\n"))
-		default:
-			if b >= 32 || b == '\t' {
-				if len(line) >= sshMaxLineBytes {
-					return string(line), fmt.Errorf("line too long")
-				}
-				line = append(line, b)
-				writeEcho([]byte{b})
-			}
-		}
-	}
+// WithWireLock runs fn with the channel mutex held. Writes from fn should be raw
+// wire bytes (use sshBytesToCRLF for text containing newlines).
+func (s *sshSyncedChannelWriter) WithWireLock(fn func(w io.Writer)) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	fn(s.w)
 }

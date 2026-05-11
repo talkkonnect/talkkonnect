@@ -17,6 +17,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"os/signal"
 	"strconv"
 	"strings"
 	"sync"
@@ -43,7 +44,19 @@ var (
 	bottomCLIHistoryMu     sync.Mutex
 	bottomCLIHistory       []string
 	bottomCLIPromptDefault = "talkkonnect"
+
+	bottomCLISSHLogSinks struct {
+		mu    sync.Mutex
+		sinks []*bottomCLISSHLogSink
+	}
 )
+
+// bottomCLISSHLogSink mirrors daemon log lines into an SSH console with DECSTBM layout.
+type bottomCLISSHLogSink struct {
+	out   *sshSyncedChannelWriter
+	rows  func() int
+	draft func() []byte
+}
 
 type bottomCLIEchoWriter struct{}
 
@@ -81,27 +94,51 @@ func bottomCLIPromptLabel() string {
 	return bottomCLIPromptDefault
 }
 
+func bottomCLIMoveToScrollRegionBottomW(w io.Writer, rows int) {
+	if rows < 2 {
+		return
+	}
+	_, _ = fmt.Fprintf(w, "\033[%d;1H", rows-1)
+}
+
+func bottomCLIPaintPromptRowWithDraftW(w io.Writer, rows int, label string, draft []byte) {
+	if rows < 2 {
+		return
+	}
+	_, _ = fmt.Fprintf(w, "\033[%d;1H\033[K", rows)
+	_, _ = fmt.Fprint(w, label)
+	_, _ = fmt.Fprint(w, "> ")
+	if len(draft) > 0 {
+		_, _ = w.Write(draft)
+	}
+}
+
+func bottomCLIApplyScrollLayoutW(w io.Writer, rows int) {
+	if rows < 2 {
+		return
+	}
+	_, _ = fmt.Fprintf(w, "\033[1;%dr", rows-1)
+}
+
 func bottomCLIMoveToScrollRegionBottomUnlocked(w io.Writer) {
 	if !bottomCLIEnabled || bottomCLITerminalRows < 2 {
 		return
 	}
-	_, _ = fmt.Fprintf(w, "\033[%d;1H", bottomCLITerminalRows-1)
+	bottomCLIMoveToScrollRegionBottomW(w, bottomCLITerminalRows)
 }
 
 func bottomCLIPaintPromptRowUnlocked(w io.Writer) {
 	if !bottomCLIEnabled || bottomCLITerminalRows < 2 {
 		return
 	}
-	_, _ = fmt.Fprintf(w, "\033[%d;1H\033[K", bottomCLITerminalRows)
-	_, _ = fmt.Fprint(w, bottomCLIPromptLabel())
-	_, _ = fmt.Fprint(w, "> ")
+	bottomCLIPaintPromptRowWithDraftW(w, bottomCLITerminalRows, bottomCLIPromptLabel(), nil)
 }
 
 func bottomCLIPaintPromptAndDraftUnlocked(w io.Writer) {
-	bottomCLIPaintPromptRowUnlocked(w)
-	if len(bottomCLIInputDraft) > 0 {
-		_, _ = w.Write(bottomCLIInputDraft)
+	if !bottomCLIEnabled || bottomCLITerminalRows < 2 {
+		return
 	}
+	bottomCLIPaintPromptRowWithDraftW(w, bottomCLITerminalRows, bottomCLIPromptLabel(), bottomCLIInputDraft)
 }
 
 func bottomCLIEnableLayout() {
@@ -112,7 +149,8 @@ func bottomCLIEnableLayout() {
 	bottomCLIMu.Lock()
 	bottomCLITerminalRows = rows
 	bottomCLIEnabled = true
-	_, _ = fmt.Fprintf(os.Stdout, "\033[1;%dr\033[1;1H", rows-1)
+	bottomCLIApplyScrollLayoutW(os.Stdout, rows)
+	_, _ = fmt.Fprint(os.Stdout, "\033[1;1H")
 	bottomCLIPaintPromptAndDraftUnlocked(os.Stdout)
 	bottomCLIMu.Unlock()
 }
@@ -148,7 +186,8 @@ func bottomCLIClearScreenAndRelayout() {
 	bottomCLITerminalRows = rows
 	bottomCLIEnabled = true
 	_, _ = fmt.Fprint(os.Stdout, "\033[2J\033[1;1H")
-	_, _ = fmt.Fprintf(os.Stdout, "\033[1;%dr\033[1;1H", rows-1)
+	bottomCLIApplyScrollLayoutW(os.Stdout, rows)
+	_, _ = fmt.Fprint(os.Stdout, "\033[1;1H")
 	bottomCLIPaintPromptAndDraftUnlocked(os.Stdout)
 }
 
@@ -184,7 +223,67 @@ func (c *bottomCLILogWriter) Write(p []byte) (n int, err error) {
 		_, _ = c.down.Write(line)
 		bottomCLIPaintPromptAndDraftUnlocked(c.down)
 		bottomCLIMu.Unlock()
+		bottomCLIBroadcastLogLineToSSH(line)
 	}
+}
+
+func bottomCLISSHRegisterLogSink(out *sshSyncedChannelWriter, rows func() int, draft func() []byte) *bottomCLISSHLogSink {
+	sk := &bottomCLISSHLogSink{out: out, rows: rows, draft: draft}
+	bottomCLISSHLogSinks.mu.Lock()
+	bottomCLISSHLogSinks.sinks = append(bottomCLISSHLogSinks.sinks, sk)
+	bottomCLISSHLogSinks.mu.Unlock()
+	return sk
+}
+
+func bottomCLISSHUnregisterLogSink(sk *bottomCLISSHLogSink) {
+	if sk == nil {
+		return
+	}
+	bottomCLISSHLogSinks.mu.Lock()
+	defer bottomCLISSHLogSinks.mu.Unlock()
+	for i, x := range bottomCLISSHLogSinks.sinks {
+		if x == sk {
+			bottomCLISSHLogSinks.sinks = append(bottomCLISSHLogSinks.sinks[:i], bottomCLISSHLogSinks.sinks[i+1:]...)
+			return
+		}
+	}
+}
+
+func bottomCLIBroadcastLogLineToSSH(line []byte) {
+	bottomCLISSHLogSinks.mu.Lock()
+	sinks := append([]*bottomCLISSHLogSink(nil), bottomCLISSHLogSinks.sinks...)
+	bottomCLISSHLogSinks.mu.Unlock()
+	for _, sk := range sinks {
+		if sk == nil || sk.out == nil {
+			continue
+		}
+		rs := sk.rows()
+		draft := sk.draft()
+		sk.out.WithWireLock(func(w io.Writer) {
+			if rs >= 2 {
+				bottomCLIMoveToScrollRegionBottomW(w, rs)
+				_, _ = w.Write(sshBytesToCRLF(line))
+				bottomCLIPromptSSHWire(w, rs, bottomCLIPromptLabel(), draft)
+			} else {
+				_, _ = w.Write(sshBytesToCRLF(line))
+			}
+		})
+	}
+}
+
+// bottomCLIPromptSSHWire paints the bottom row on an SSH channel (caller holds ssh write lock; CRLF applied).
+func bottomCLIPromptSSHWire(w io.Writer, rows int, label string, draft []byte) {
+	if rows < 2 {
+		return
+	}
+	var sb strings.Builder
+	_, _ = fmt.Fprintf(&sb, "\033[%d;1H\033[K", rows)
+	_, _ = sb.WriteString(label)
+	_, _ = sb.WriteString("> ")
+	if len(draft) > 0 {
+		_, _ = sb.Write(draft)
+	}
+	_, _ = w.Write(sshBytesToCRLF([]byte(sb.String())))
 }
 
 func bottomCLIAppendHistory(line string) {
@@ -294,9 +393,9 @@ func bottomCLITabCompleteLine(line string) (newLine string, bell bool) {
 	return lcp, false
 }
 
-func bottomCLIReadCSI(tty *os.File) ([]byte, error) {
+func bottomCLIReadCSI(r io.Reader) ([]byte, error) {
 	b := make([]byte, 1)
-	if _, err := tty.Read(b); err != nil {
+	if _, err := io.ReadFull(r, b); err != nil {
 		return nil, err
 	}
 	if b[0] != '[' && b[0] != 'O' {
@@ -304,7 +403,7 @@ func bottomCLIReadCSI(tty *os.File) ([]byte, error) {
 	}
 	out := []byte{b[0]}
 	for {
-		if _, err := tty.Read(b); err != nil {
+		if _, err := io.ReadFull(r, b); err != nil {
 			return out, err
 		}
 		out = append(out, b[0])
@@ -319,9 +418,13 @@ func bottomCLIRedrawInputLine(line []byte) {
 	bottomCLIMu.Lock()
 	defer bottomCLIMu.Unlock()
 	bottomCLIInputDraft = append([]byte(nil), line...)
-	bottomCLIPaintPromptRowUnlocked(os.Stdout)
-	if len(line) > 0 {
-		_, _ = os.Stdout.Write(line)
+	if bottomCLIEnabled && bottomCLITerminalRows >= 2 {
+		bottomCLIPaintPromptRowWithDraftW(os.Stdout, bottomCLITerminalRows, bottomCLIPromptLabel(), line)
+	} else {
+		bottomCLIPaintPromptRowUnlocked(os.Stdout)
+		if len(line) > 0 {
+			_, _ = os.Stdout.Write(line)
+		}
 	}
 }
 
@@ -368,7 +471,11 @@ func bottomCLIReadLine(tty *os.File) (string, error) {
 		switch {
 		case b == '\r' || b == '\n':
 			bottomCLIMu.Lock()
-			_, _ = fmt.Fprint(os.Stdout, "\n")
+			if bottomCLIEnabled && bottomCLITerminalRows >= 2 {
+				_, _ = fmt.Fprintf(os.Stdout, "\033[%d;1H\n", bottomCLITerminalRows-1)
+			} else {
+				_, _ = fmt.Fprint(os.Stdout, "\n")
+			}
 			bottomCLIMu.Unlock()
 			return string(line), nil
 		case b == 127 || b == 8:
@@ -387,6 +494,102 @@ func bottomCLIReadLine(tty *os.File) (string, error) {
 			redraw()
 		case b == 27:
 			csi, err := bottomCLIReadCSI(tty)
+			if err != nil {
+				return "", err
+			}
+			seq := append([]byte{27}, csi...)
+			hist := bottomCLIHistorySnapshot()
+			nh := len(hist)
+			switch {
+			case bytes.Equal(seq, upSeq) || bytes.Equal(seq, upSS3):
+				if nh == 0 {
+					redraw()
+					continue
+				}
+				if histIdx < 0 {
+					histIdx = nh - 1
+				} else if histIdx > 0 {
+					histIdx--
+				}
+				line = append([]byte(nil), hist[histIdx]...)
+				redraw()
+			case bytes.Equal(seq, downSeq) || bytes.Equal(seq, downSS3):
+				if histIdx < 0 {
+					continue
+				}
+				if histIdx < nh-1 {
+					histIdx++
+					line = append([]byte(nil), hist[histIdx]...)
+				} else {
+					histIdx = -1
+					line = nil
+				}
+				redraw()
+			}
+		case b >= 32 && b < 127:
+			histIdx = -1
+			line = append(line, b)
+			redraw()
+		case b == 3:
+			line = nil
+			histIdx = -1
+			redraw()
+		}
+	}
+}
+
+// bottomCLISSHReadLine mirrors bottomCLIReadLine for the daemon SSH channel (DECSTBM layout via sshDaemonConsoleState).
+func bottomCLISSHReadLine(r io.Reader, s *sshDaemonConsoleState) (string, error) {
+	if s == nil {
+		return "", io.EOF
+	}
+	var line []byte
+	histIdx := -1
+	redraw := func() { s.redrawLine(line) }
+	redraw()
+
+	upSeq := []byte("\x1b[A")
+	downSeq := []byte("\x1b[B")
+	upSS3 := []byte("\x1bOA")
+	downSS3 := []byte("\x1bOB")
+
+	buf := make([]byte, 1)
+	for {
+		if _, err := io.ReadFull(r, buf); err != nil {
+			if err == io.EOF && len(line) > 0 {
+				return string(line), nil
+			}
+			return "", err
+		}
+		b := buf[0]
+		switch {
+		case b == '\r' || b == '\n':
+			rs := s.rowsSnap()
+			s.out.WithWireLock(func(w io.Writer) {
+				if rs >= 2 {
+					bottomCLIMoveToScrollRegionBottomW(w, rs)
+					_, _ = w.Write(sshBytesToCRLF([]byte("\n")))
+				} else {
+					_, _ = w.Write([]byte("\r\n"))
+				}
+			})
+			return string(line), nil
+		case b == 127 || b == 8:
+			if len(line) > 0 {
+				line = line[:len(line)-1]
+				histIdx = -1
+				redraw()
+			}
+		case b == '\t':
+			histIdx = -1
+			nl, bell := bottomCLITabCompleteLine(string(line))
+			line = []byte(nl)
+			if bell {
+				s.out.WithWireLock(func(w io.Writer) { _, _ = w.Write([]byte{'\a'}) })
+			}
+			redraw()
+		case b == 27:
+			csi, err := bottomCLIReadCSI(r)
 			if err != nil {
 				return "", err
 			}
@@ -595,8 +798,9 @@ func (b *Talkkonnect) bottomCLIExecuteQuickMenu(key string, auxOut io.Writer) bo
 	return true
 }
 
-// bottomCLIDispatchRemoteLine runs one user line for the SSH daemon console (no bottom-terminal layout).
-func (b *Talkkonnect) bottomCLIDispatchRemoteLine(w io.Writer, line string) (disconnectSession bool) {
+// bottomCLIDispatchRemoteLine runs one user line for the SSH daemon console.
+// When sshCons is non-nil, output uses the same fixed-bottom layout as the local bottom CLI (auxWriter).
+func (b *Talkkonnect) bottomCLIDispatchRemoteLine(w io.Writer, line string, sshCons *sshDaemonConsoleState) (disconnectSession bool) {
 	line = strings.TrimSpace(line)
 	if line == "" {
 		return false
@@ -609,7 +813,11 @@ func (b *Talkkonnect) bottomCLIDispatchRemoteLine(w io.Writer, line string) (dis
 	key := strings.ToLower(line)
 	switch key {
 	case "c", "cls", "clear":
-		_, _ = fmt.Fprint(w, "\r\n\x1b[2J\x1b[H")
+		if sshCons != nil {
+			sshCons.clearAndRelayout()
+		} else {
+			_, _ = fmt.Fprint(w, "\r\n\x1b[2J\x1b[H")
+		}
 		log.Println("info: Remote SSH console: screen cleared.")
 	case "q", "quit", "exit":
 		_, _ = fmt.Fprintln(w, "Disconnected.")
@@ -643,6 +851,21 @@ func (b *Talkkonnect) bottomCLIDispatchRemoteLine(w io.Writer, line string) (dis
 	return false
 }
 
+func bottomCLIOnWinch() {
+	bottomCLIMu.Lock()
+	defer bottomCLIMu.Unlock()
+	if !bottomCLIEnabled {
+		return
+	}
+	rows := bottomCLIQueryRows()
+	if rows < 2 {
+		return
+	}
+	bottomCLITerminalRows = rows
+	bottomCLIApplyScrollLayoutW(os.Stdout, rows)
+	bottomCLIPaintPromptAndDraftUnlocked(os.Stdout)
+}
+
 func (b *Talkkonnect) runBottomTerminalCLI() {
 	// Brief yield so the first colog lines flush; layout runs before later Init/ClientStart logs.
 	time.Sleep(50 * time.Millisecond)
@@ -655,6 +878,15 @@ func (b *Talkkonnect) runBottomTerminalCLI() {
 	defer tty.Close()
 
 	bottomCLIEnableLayout()
+
+	sigCh := make(chan os.Signal, 4)
+	signal.Notify(sigCh, syscall.SIGWINCH)
+	defer signal.Stop(sigCh)
+	go func() {
+		for range sigCh {
+			bottomCLIOnWinch()
+		}
+	}()
 
 	bottomCLISyncPrint(func(w io.Writer) {
 		//fmt.Fprintln(w, "Type h for main menu (quick keys 0-9, a, l, p, …) or type an HTTP API command.")

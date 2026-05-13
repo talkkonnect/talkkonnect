@@ -227,6 +227,36 @@ func (c *bottomCLILogWriter) Write(p []byte) (n int, err error) {
 	}
 }
 
+// bottomCLISSHMirrorLogWriter forwards log bytes to downstream (file/stdout) and mirrors
+// complete lines to active SSH daemon consoles. Used when stdout is not a TTY (typical
+// go-daemon child): without this, bottomCLIBroadcastLogLineToSSH is never invoked because
+// newBottomCLILogWriter is not installed.
+type bottomCLISSHMirrorLogWriter struct {
+	down io.Writer
+	buf  []byte
+}
+
+func newBottomCLISSHMirrorLogWriter(downstream io.Writer) io.Writer {
+	return &bottomCLISSHMirrorLogWriter{down: downstream}
+}
+
+func (c *bottomCLISSHMirrorLogWriter) Write(p []byte) (n int, err error) {
+	n = len(p)
+	c.buf = append(c.buf, p...)
+	for {
+		idx := bytes.IndexByte(c.buf, '\n')
+		if idx < 0 {
+			return n, nil
+		}
+		line := c.buf[:idx+1]
+		c.buf = append([]byte(nil), c.buf[idx+1:]...)
+		if _, err = c.down.Write(line); err != nil {
+			return n, err
+		}
+		bottomCLIBroadcastLogLineToSSH(colorizePlainPrefixLogLineForSSH(line))
+	}
+}
+
 func bottomCLISSHRegisterLogSink(out *sshSyncedChannelWriter, rows func() int, draft func() []byte) *bottomCLISSHLogSink {
 	sk := &bottomCLISSHLogSink{out: out, rows: rows, draft: draft}
 	bottomCLISSHLogSinks.mu.Lock()

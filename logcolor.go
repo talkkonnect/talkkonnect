@@ -91,3 +91,54 @@ func (f *fullLineColorFormatter) Format(e *prefixLogEntry) ([]byte, error) {
 	buf.WriteByte('\n')
 	return buf.Bytes(), nil
 }
+
+// sshPlainBracketPrefixes must stay aligned with plainLevelLabels in prefix_level_log.go
+// (plainLogFormatter output). Used only for SSH log mirroring so files stay unescaped.
+var sshPlainBracketPrefixes = []struct {
+	prefix []byte
+	level  prefixLogLevel
+}{
+	{[]byte("[ alert ] "), prefixLevelAlert},
+	{[]byte("[ error ] "), prefixLevelError},
+	{[]byte("[  warn ] "), prefixLevelWarning},
+	{[]byte("[  info ] "), prefixLevelInfo},
+	{[]byte("[ debug ] "), prefixLevelDebug},
+	{[]byte("[ trace ] "), prefixLevelTrace},
+}
+
+// colorizePlainPrefixLogLineForSSH wraps one plain formatter line in full-line ANSI by level.
+// If the line is already ANSI (e.g. local bottom CLI mirroring) or has no bracket level tag,
+// returns a copy of line unchanged. Respects NO_COLOR.
+func colorizePlainPrefixLogLineForSSH(line []byte) []byte {
+	if len(line) == 0 {
+		return line
+	}
+	out := append([]byte(nil), line...)
+	if os.Getenv("NO_COLOR") != "" {
+		return out
+	}
+	if line[0] == '\x1b' {
+		return out
+	}
+	body := bytes.TrimSuffix(line, []byte("\n"))
+	var lvl prefixLogLevel
+	ok := false
+	for _, ent := range sshPlainBracketPrefixes {
+		if bytes.HasPrefix(body, ent.prefix) {
+			lvl = ent.level
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return out
+	}
+	prefix := levelLinePrefix(lvl)
+	var buf bytes.Buffer
+	buf.Grow(len(prefix) + len(body) + len(ansiReset) + 1)
+	buf.WriteString(prefix)
+	buf.Write(body)
+	buf.WriteString(ansiReset)
+	buf.WriteByte('\n')
+	return buf.Bytes()
+}

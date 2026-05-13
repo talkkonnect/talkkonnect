@@ -293,6 +293,10 @@ func (b *Talkkonnect) setupCologOutputAndStartBottomCLI() {
 	if bottomTerminalCLIShouldWrap() {
 		logOut = newBottomCLILogWriter(logOut)
 		SafeGo(b.runBottomTerminalCLI)
+	} else if Config.Global.Software.RemoteSSHConsole.Enabled && DaemonMode {
+		// Daemon: stdout is usually not a TTY, so the bottom CLI log wrapper is skipped.
+		// Still mirror each log line to embedded SSH sessions (same DECSTBM + prompt as local).
+		logOut = newBottomCLISSHMirrorLogWriter(logOut)
 	}
 	prefixLogSetOutput(logOut)
 }

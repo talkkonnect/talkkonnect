@@ -31,12 +31,15 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "4.04.05"
+	talkkonnectVersion  string = "4.04.06"
 	talkkonnectReleased string = "13 May 2026"
 )
 
 
 /* Release Notes
+version 4.04.06
+Fixed  so that the ssh terminal also shows colorized logs.
+
 version 4.04.05
 Fixed Stream.go for processing rogerbeeps properly. finally they sound good!
 

@@ -35,6 +35,7 @@ import (
 	"errors"
 	"log"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/talkkonnect/go-openal/openal"
@@ -60,6 +61,7 @@ type Stream struct {
 	deviceSource    *openal.CaptureDevice
 	sourceFrameSize int
 	sourceStop      chan bool
+	sourceWG        sync.WaitGroup
 
 	deviceSink  *openal.Device
 	contextSink *openal.Context
@@ -128,6 +130,7 @@ func (b *Talkkonnect) StartSource() error {
 	}
 	b.Stream.deviceSource.CaptureStart()
 	b.Stream.sourceStop = make(chan bool)
+	b.Stream.sourceWG.Add(1)
 	SafeGo(func() { b.sourceRoutine() })
 	return nil
 }
@@ -139,6 +142,8 @@ func (b *Talkkonnect) StopSource() error {
 	close(b.Stream.sourceStop)
 	b.Stream.sourceStop = nil
 	b.Stream.deviceSource.CaptureStop()
+	// Wait until mic AudioOutgoing is closed (Mumble terminator) before opening another for roger beep.
+	b.Stream.sourceWG.Wait()
 	// Device remains open for next transmission - only stop capture
 	var eventSound EventSoundStruct = findEventSound("rogerbeep")
 	if eventSound.Enabled {
@@ -255,6 +260,8 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 }
 
 func (b *Talkkonnect) sourceRoutine() {
+	defer b.Stream.sourceWG.Done()
+
 	interval := b.Stream.client.Config.AudioInterval
 	frameSize := b.Stream.client.Config.AudioFrameSize()
 
@@ -275,7 +282,7 @@ func (b *Talkkonnect) sourceRoutine() {
 	}
 
 	outgoing := b.Stream.client.AudioOutgoing()
-	// Don\'t close outgoing - it\'s managed by the gumble library
+	defer close(outgoing)
 
 	for {
 		select {

@@ -31,12 +31,15 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "4.04.04"
+	talkkonnectVersion  string = "4.04.05"
 	talkkonnectReleased string = "13 May 2026"
 )
 
 
 /* Release Notes
+version 4.04.05
+Fixed Stream.go for processing rogerbeeps properly. finally they sound good!
+
 version 4.04.04
 Fixed Bug when user leaves channel all audio is gone on receive (bug was still there hopefully fixed now!)
 

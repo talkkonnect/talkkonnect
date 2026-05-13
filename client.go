@@ -508,7 +508,11 @@ func (b *Talkkonnect) ClientStart() {
 					LastSpeaker = v.WhoTalking
 				}
 				if !RXLEDStatus {
-					if b.Client.Self.Channel.Name == v.OnChannel {
+					selfChName := ""
+					if b.Client != nil && b.Client.Self != nil && b.Client.Self.Channel != nil {
+						selfChName = b.Client.Self.Channel.Name
+					}
+					if selfChName == v.OnChannel {
 						log.Printf("info: Speaking -> %v\n", v.WhoTalking)
 					} else {
 						log.Printf("info: Listening-> %v \033[31m[%v]\033[0m\n", v.WhoTalking, v.OnChannel)
@@ -520,6 +524,7 @@ func (b *Talkkonnect) ClientStart() {
 					//					MyLedStripVoiceActivityLEDOn()
 					go rxScreen(LastSpeaker)
 				}
+				AnalogRelayZonesOnTalking(v)
 			case <-TalkedTicker.C:
 				if RXLEDStatus {
 					RXLEDStatus = false
@@ -529,6 +534,7 @@ func (b *Talkkonnect) ClientStart() {
 					//MyLedStripVoiceActivityLEDOff()
 					//TalkedTicker.Stop()
 				}
+				AnalogRelayZonesOnSilence()
 			}
 		}
 	}()
@@ -599,7 +605,7 @@ func (b *Talkkonnect) ClientStart() {
 		b.listeningToChannels("start")
 	}
 
-	analogCreateZones()
+	AnalogRelayZonesInit()
 
 	if Config.Global.Software.RemoteSSHConsole.Enabled && !DaemonMode {
 		go gosshd.SSHDaemon(Config.Global.Software.RemoteSSHConsole.Username, Config.Global.Software.RemoteSSHConsole.Password, Config.Global.Software.RemoteSSHConsole.IDRSAFile, Config.Global.Software.RemoteSSHConsole.Listen)

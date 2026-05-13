@@ -772,7 +772,7 @@ var (
 	StartTime        = time.Now()
 	LastTime         = now.Unix()
 	TalkedTicker     = time.NewTicker(time.Millisecond * 200)
-	Talking          = make(chan talkingStruct, 10)
+	Talking          = make(chan talkingStruct, 256)
 	BeaconTime       = time.NewTicker(100 * time.Second)
 	BeaconTimePtr    = &BeaconTime
 )

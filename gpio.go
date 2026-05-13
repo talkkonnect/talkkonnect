@@ -230,7 +230,13 @@ func submitHW(cmd hwCommand) {
 	if ch == nil {
 		return
 	}
-	ch <- cmd
+	// Never block producers (Mumble read path, RX audio goroutines) on a full queue — that
+	// deadlocks voice when the hardware loop is slow or a command sleeps (pulse, SPI).
+	select {
+	case ch <- cmd:
+	default:
+		log.Printf("warn: GPIO hardware queue full; dropping hw command kind=%v name=%q device=%q\n", cmd.Kind, cmd.Name, cmd.Device)
+	}
 }
 
 // hwSyncGPIOOutAll runs GPIOOutAll on the hardware owner and blocks until complete (shutdown path).
@@ -2425,42 +2431,62 @@ func GPIOInputPinControl(name string, command string) {
 	}
 }
 
-func analogZone(announcementChannel string, IOName string) {
-	go func() {
-		var lastChannel string = ""
-		for {
-			select {
-			case f := <-Talking:
-				if (f.OnChannel == announcementChannel) && (lastChannel != announcementChannel) {
-					GPIOOutPin(IOName, "on")
-					lastChannel = f.OnChannel
-				}
-			case <-TalkedTicker.C:
-				if lastChannel == announcementChannel {
-					GPIOOutPin(IOName, "off")
-					lastChannel = ""
-				}
-			}
-		}
-	}()
+// analogRelayZoneEntry is one output pin driven when voice is heard on ListenChannel.
+// All entries are driven from the single Talking / TalkedTicker dispatcher in client.go
+// (previously each pin used its own goroutine reading the same channels, which starved
+// other consumers and broke RX).
+type analogRelayZoneEntry struct {
+	listenChannel string
+	pinName       string
+	active        bool
 }
 
-func analogCreateZones() {
+var analogRelayZoneEntries []analogRelayZoneEntry
+
+// AnalogRelayZonesInit registers analog relay pins from config. Safe to call once at startup.
+func AnalogRelayZonesInit() {
 	if Config.Global.Hardware.TargetBoard != "rpi" {
 		return
 	}
-
 	if !Config.Global.Hardware.AnalogRelays.Enabled {
 		log.Printf("debug: Skipping the Creation of Analog Zones\n")
+		analogRelayZoneEntries = nil
 		return
 	}
+	var entries []analogRelayZoneEntry
+	for i, zone := range Config.Global.Hardware.AnalogRelays.Zones.Zone {
+		if !zone.Enabled {
+			continue
+		}
+		for _, pinName := range Config.Global.Hardware.AnalogRelays.Zones.Zone[i].Pins.Name {
+			entries = append(entries, analogRelayZoneEntry{
+				listenChannel: zone.ListenChannel,
+				pinName:       pinName,
+			})
+			log.Printf("debug: Creating Analog Zones For Zone %v Relays %v (listen=%q)\n", zone.Name, pinName, zone.ListenChannel)
+		}
+	}
+	analogRelayZoneEntries = entries
+}
 
-	for i, io := range Config.Global.Hardware.AnalogRelays.Zones.Zone {
-		if io.Enabled {
-			for _, ii := range Config.Global.Hardware.AnalogRelays.Zones.Zone[i].Pins.Name {
-				analogZone(io.ListenChannel, ii)
-				log.Printf("debug: Creating Analog Zones For Zone %v Relays %v\n", io.Name, ii)
-			}
+// AnalogRelayZonesOnTalking is invoked from the sole Talking consumer (voice activity LED goroutine).
+func AnalogRelayZonesOnTalking(f talkingStruct) {
+	for i := range analogRelayZoneEntries {
+		e := &analogRelayZoneEntries[i]
+		if f.OnChannel == e.listenChannel && !e.active {
+			GPIOOutPin(e.pinName, "on")
+			e.active = true
+		}
+	}
+}
+
+// AnalogRelayZonesOnSilence mirrors the former analogZone TalkedTicker branch.
+func AnalogRelayZonesOnSilence() {
+	for i := range analogRelayZoneEntries {
+		e := &analogRelayZoneEntries[i]
+		if e.active {
+			GPIOOutPin(e.pinName, "off")
+			e.active = false
 		}
 	}
 }

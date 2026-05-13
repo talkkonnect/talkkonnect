@@ -31,12 +31,15 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "4.04.01"
+	talkkonnectVersion  string = "4.04.02"
 	talkkonnectReleased string = "13 May 2026"
 )
 
 
 /* Release Notes
+version 4.04.02
+Fixed Bug when user leaves channel all audio is gone on receive
+
 version 4.04.01
 Removed Mutex for GPIO implemented a lock free archecture for GPIO using Channels.
 

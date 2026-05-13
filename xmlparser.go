@@ -848,7 +848,7 @@ var (
 
 var StreamTracker = map[uint32]streamTrackerStruct{}
 
-// streamTrackerMu guards StreamTracker map access (audio goroutines vs user disconnect events).
+// streamTrackerMu guards StreamTracker map access (OnAudioStream registration vs stream goroutine cleanup).
 var streamTrackerMu sync.Mutex
 var DMOSetup sa818.DMOSetupStruct
 

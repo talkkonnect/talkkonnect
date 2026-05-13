@@ -236,15 +236,9 @@ func (b *Talkkonnect) OnUserChange(e *gumble.UserChangeEvent) {
 	var info string = ""
 	var shortInfo string = ""
 
-	//2 UserChangeDisconnected — cancel this user's receive audio goroutine if still active.
-	if e.Type.Has(2) && e.User != nil {
-		streamTrackerMu.Lock()
-		if tr, ok := StreamTracker[e.User.UserID]; ok && tr.Cancel != nil {
-			tr.Cancel()
-			delete(StreamTracker, e.User.UserID)
-		}
-		streamTrackerMu.Unlock()
-	}
+	// Do not cancel per-user audio goroutines on UserChangeDisconnected. Gumble uses an
+	// unbuffered chan for each user's audio; the UDP handler can still block on send
+	// if it races with TCP UserRemove after we stopped reading, which freezes all RX.
 
 	//1 UserChangeConnected
 	if e.Type.Has(1) {

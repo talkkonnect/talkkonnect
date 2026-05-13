@@ -1,12 +1,12 @@
 package talkkonnect
 
 import (
-//	"fmt"
+	//	"fmt"
 	"html/template"
 	"io/ioutil"
 	"log"
 	"net/http"
-//	"os"
+	// "os"
 )
 
 const configTemplate = `
@@ -160,6 +160,12 @@ type configPageData struct {
 }
 
 func (b *Talkkonnect) httpConfig(w http.ResponseWriter, r *http.Request) {
+	if !remoteControlHTTPClientIPAllowed(r) {
+		log.Printf("error: HTTP config UI request from %q rejected by remote control network ACL\n", r.RemoteAddr)
+		http.Error(w, "403 forbidden: client address not allowed by remote control network ACL", http.StatusForbidden)
+		return
+	}
+
 	tmpl, err := template.New("config").Parse(configTemplate)
 	if err != nil {
 		http.Error(w, "Failed to parse template: "+err.Error(), http.StatusInternalServerError)
@@ -175,7 +181,7 @@ func (b *Talkkonnect) httpConfig(w http.ResponseWriter, r *http.Request) {
 			data.StatusType = "error"
 		} else {
 			newXMLContent := r.FormValue("xmlcontent")
-			
+
 			// Save the new XML content back to the file
 			err := ioutil.WriteFile(ConfigXMLFile, []byte(newXMLContent), 0644)
 			if err != nil {
@@ -183,7 +189,7 @@ func (b *Talkkonnect) httpConfig(w http.ResponseWriter, r *http.Request) {
 				data.StatusType = "error"
 			} else {
 				log.Println("success: Received and updated Talkkonnect config from web interface.")
-				
+
 				// Attempt to live-reload the internal application state
 				err = readxmlconfig(ConfigXMLFile, true)
 				if err != nil {

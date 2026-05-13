@@ -11,7 +11,6 @@ require (
 	github.com/jacobsa/go-serial v0.0.0-20180131005756-15cf729a72d4
 	github.com/kennygrant/sanitize v1.2.4
 	github.com/sevlyar/go-daemon v0.1.6
-	github.com/talkkonnect/colog v0.0.0-20220407161942-3d66a6dd73d3
 	github.com/talkkonnect/go-hd44780 v0.0.0-20210824123606-f3398c777f39
 	github.com/talkkonnect/go-mcp23017 v0.0.0-20210831103122-1c46ab6c8c82
 	github.com/talkkonnect/go-oled-i2c v0.0.0-20220315132146-0f5a50f4aa0a

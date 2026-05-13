@@ -22,8 +22,6 @@ import (
 	"sync"
 	"syscall"
 	"time"
-
-	"github.com/talkkonnect/colog"
 )
 
 var (
@@ -558,29 +556,29 @@ func restartTalkkonnectProcess() error {
 	return syscall.Exec(self, args, env)
 }
 
-// ApplyCologMinLevelFromConfig applies Config.Global.Software.Settings.Loglevel to colog.
+// ApplyCologMinLevelFromConfig applies Config.Global.Software.Settings.Loglevel to the prefix logger.
 func ApplyCologMinLevelFromConfig() {
 	switch strings.ToLower(strings.TrimSpace(Config.Global.Software.Settings.Loglevel)) {
 	case "trace":
-		colog.SetMinLevel(colog.LTrace)
+		prefixLogSetMinLevel(prefixLevelTrace)
 		log.Println("info: Loglevel Set to Trace")
 	case "debug":
-		colog.SetMinLevel(colog.LDebug)
+		prefixLogSetMinLevel(prefixLevelDebug)
 		log.Println("info: Loglevel Set to Debug")
 	case "info":
-		colog.SetMinLevel(colog.LInfo)
+		prefixLogSetMinLevel(prefixLevelInfo)
 		log.Println("info: Loglevel Set to Info")
 	case "warning":
-		colog.SetMinLevel(colog.LWarning)
+		prefixLogSetMinLevel(prefixLevelWarning)
 		log.Println("info: Loglevel Set to Warning")
 	case "error":
-		colog.SetMinLevel(colog.LError)
+		prefixLogSetMinLevel(prefixLevelError)
 		log.Println("info: Loglevel Set to Error")
 	case "alert":
-		colog.SetMinLevel(colog.LAlert)
+		prefixLogSetMinLevel(prefixLevelAlert)
 		log.Println("info: Loglevel Set to Alert")
 	default:
-		colog.SetMinLevel(colog.LInfo)
+		prefixLogSetMinLevel(prefixLevelInfo)
 		log.Println("info: Default Loglevel unset in XML config automatically loglevel to Info")
 	}
 }

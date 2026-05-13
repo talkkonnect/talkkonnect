@@ -183,6 +183,9 @@
                </repeatertone>
             </sounds>
             <remotecontrol>
+                <!-- Optional: restrict HTTP API + /config + SSH remote console to these CIDRs. Use enabled="false" or omit to allow all. -->
+                <networkacl enabled="false">
+                </networkacl>
                 <http enabled="true" listenport="8080">
                     <command action="displaymenu"        funcparamname=""        message="Display Menu"        enabled="true"/>
                     <command action="channelup"          funcparamname=""        message="Channel Up"          enabled="true"/>

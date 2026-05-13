@@ -45,7 +45,6 @@ import (
 	"time"
 
 	"github.com/allan-simon/go-singleinstance"
-	"github.com/talkkonnect/colog"
 	hd44780 "github.com/talkkonnect/go-hd44780"
 	"github.com/talkkonnect/gosshd"
 	"github.com/talkkonnect/gumble/gumble"
@@ -135,9 +134,8 @@ func Init(file string, ServerIndex string) int {
 		}
 	}()
 
-	colog.Register()
-	colog.SetFormatter(newFullLineColorFormatter())
-	colog.SetOutput(os.Stdout)
+	prefixLogRegister()
+	prefixLogSetOutput(os.Stdout)
 
 	ConfigXMLFile = file
 	err := readxmlconfig(ConfigXMLFile, false)
@@ -159,11 +157,11 @@ func Init(file string, ServerIndex string) int {
 	}
 
 	if Config.Global.Software.Settings.Logging == "screen" {
-		colog.SetFlags(log.Ldate | log.Ltime)
+		prefixLogSetFlags(log.Ldate | log.Ltime)
 	}
 
 	if Config.Global.Software.Settings.Logging == "screenwithlineno" || Config.Global.Software.Settings.Logging == "screenandfilewithlineno" {
-		colog.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
+		prefixLogSetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 	}
 
 	ApplyCologMinLevelFromConfig()
@@ -271,7 +269,7 @@ func Init(file string, ServerIndex string) int {
 	return int(atomic.LoadInt32(&shutdownExitCode))
 }
 
-// setupCologOutputAndStartBottomCLI opens the log file, wires colog (screen+file + optional bottom CLI), and starts the bottom CLI goroutine.
+// setupCologOutputAndStartBottomCLI opens the log file, wires prefix-level logging (screen+file + optional bottom CLI), and starts the bottom CLI goroutine.
 // Called from Init as soon as Talkkonnect exists so the prompt and scroll region are ready before MQTT, HTTP, and ClientStart.
 func (b *Talkkonnect) setupCologOutputAndStartBottomCLI() {
 	f, err := os.OpenFile(Config.Global.Software.Settings.LogFilenameAndPath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
@@ -286,17 +284,17 @@ func (b *Talkkonnect) setupCologOutputAndStartBottomCLI() {
 	case "screenandfile":
 		log.Println("info: Logging is set to: ", Config.Global.Software.Settings.Logging)
 		logOut = io.MultiWriter(os.Stdout, f)
-		colog.SetFlags(log.Ldate | log.Ltime)
+		prefixLogSetFlags(log.Ldate | log.Ltime)
 	case "screenandfilewithlineno":
 		log.Println("info: Logging is set to: ", Config.Global.Software.Settings.Logging)
 		logOut = io.MultiWriter(os.Stdout, f)
-		colog.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
+		prefixLogSetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 	}
 	if bottomTerminalCLIShouldWrap() {
 		logOut = newBottomCLILogWriter(logOut)
 		SafeGo(b.runBottomTerminalCLI)
 	}
-	colog.SetOutput(logOut)
+	prefixLogSetOutput(logOut)
 }
 
 func (b *Talkkonnect) ClientStart() {

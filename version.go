@@ -31,12 +31,16 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "4.02.01"
-	talkkonnectReleased string = "11 May 2026"
+	talkkonnectVersion  string = "4.03.01"
+	talkkonnectReleased string = "13 May 2026"
 )
 
 
 /* Release Notes
+version 4.03.01
+Modified HTTP API and SSH to have ACL list for added security allowing only certain IP to access HTTP API and SSH remote console
+Removed the COLOG external dependency and bought the code into talkkonnect
+
 version 4.02.01
 fixed bottom line cli interface behaviour and logging behaviour
 

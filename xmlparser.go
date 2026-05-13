@@ -207,6 +207,12 @@ type ConfigStruct struct {
 						Enabled       bool   `xml:"enabled,attr"`
 					} `xml:"command"`
 				} `xml:"http"`
+				NetworkACL struct {
+					Enabled bool `xml:"enabled,attr"`
+					Network []struct {
+						CIDR string `xml:"cidr,attr"`
+					} `xml:"network"`
+				} `xml:"networkacl"`
 				MQTT struct {
 					Enabled  bool `xml:"enabled,attr"`
 					Settings struct {
@@ -1038,6 +1044,7 @@ func readxmlconfig(file string, reloadxml bool) error {
 		Config.Global.Software.Sounds = ReConfig.Global.Software.Sounds
 		Config.Global.Software.RemoteControl.HTTP.Enabled = ReConfig.Global.Software.RemoteControl.HTTP.Enabled
 		Config.Global.Software.RemoteControl.HTTP.Command = ReConfig.Global.Software.RemoteControl.HTTP.Command
+		Config.Global.Software.RemoteControl.NetworkACL = ReConfig.Global.Software.RemoteControl.NetworkACL
 		Config.Global.Software.RemoteControl.MQTT.Commands.Command = ReConfig.Global.Software.RemoteControl.MQTT.Commands.Command
 		Config.Global.Software.PrintVariables = ReConfig.Global.Software.PrintVariables
 		Config.Global.Software.TTSMessages = ReConfig.Global.Software.TTSMessages
@@ -1050,6 +1057,7 @@ func readxmlconfig(file string, reloadxml bool) error {
 		//ReConfig.Accounts.Account[0].Listentochannels
 
 	}
+	reloadRemoteControlNetworkACLFromConfig()
 	return nil
 }
 
@@ -1194,6 +1202,12 @@ func printxmlconfig() {
 		log.Println("info: ------------ HTTP API  ----------------- ")
 		log.Println("info: HTTP API Enabled ", Config.Global.Software.RemoteControl.HTTP.Enabled)
 		log.Println("info: HTTP API Listen Port ", Config.Global.Software.RemoteControl.HTTP.ListenPort)
+		log.Println("info: Remote Control Network ACL Enabled ", Config.Global.Software.RemoteControl.NetworkACL.Enabled)
+		for _, n := range Config.Global.Software.RemoteControl.NetworkACL.Network {
+			if strings.TrimSpace(n.CIDR) != "" {
+				log.Println("info: Remote Control Network ACL CIDR ", strings.TrimSpace(n.CIDR))
+			}
+		}
 		for _, command := range Config.Global.Software.RemoteControl.HTTP.Command {
 			log.Printf("info: Enabled=%v Action=%v Name=%v Param=%v Message=%v\n", command.Enabled, command.Action, command.Funcname, command.Funcparamname, command.Message)
 		}

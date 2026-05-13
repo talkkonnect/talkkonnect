@@ -36,10 +36,28 @@ import (
 	"log"
 	"net/http"
 	"reflect"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
 )
+
+// remoteAPICommandTokenRE allows only safe command tokens: lowercase API names with optional hyphens.
+var remoteAPICommandTokenRE = regexp.MustCompile(`^[a-z0-9][a-z0-9-]{0,62}$`)
+
+func remoteAPIValidateBuiltinCommand(b *Talkkonnect, cmd string) error {
+	c := strings.ToLower(strings.TrimSpace(cmd))
+	if c == "" {
+		return errors.New("command is empty")
+	}
+	if !remoteAPICommandTokenRE.MatchString(c) {
+		return errors.New("command must be a lowercase letter or digit followed only by letters, digits, or hyphens")
+	}
+	if _, ok := b.remoteAPICommandHandlers()[c]; !ok {
+		return errors.New("command is not in the built-in allow list")
+	}
+	return nil
+}
 
 // remoteAPIQuery holds parameters for remote commands (HTTP query or bottom CLI).
 type remoteAPIQuery struct {
@@ -107,8 +125,6 @@ func fillHTTPRemoteAPIQueryFromRequest(r *http.Request, q *remoteAPIQuery) error
 			continue
 		}
 		switch strings.ToLower(key) {
-		case "command":
-			q.Command = strings.ToLower(strings.TrimSpace(values[0]))
 		case "id":
 			q.ID, err = strconv.Atoi(values[0])
 			if err != nil {
@@ -158,8 +174,20 @@ func fillHTTPRemoteAPIQueryFromRequest(r *http.Request, q *remoteAPIQuery) error
 
 // HandleRemoteAPICommand runs one configured HTTP API command (used by HTTP handler and bottom CLI).
 func (b *Talkkonnect) HandleRemoteAPICommand(w io.Writer, q remoteAPIQuery) {
+	hw, isHTTP := w.(http.ResponseWriter)
+
 	funcs := b.remoteAPICommandHandlers()
 	APICommand := strings.ToLower(strings.TrimSpace(q.Command))
+
+	if err := remoteAPIValidateBuiltinCommand(b, APICommand); err != nil {
+		log.Printf("error: remote API command %q rejected: %v\n", APICommand, err)
+		if isHTTP {
+			http.Error(hw, "400 bad request: "+err.Error(), http.StatusBadRequest)
+		} else {
+			fmt.Fprintf(w, "400 bad request: %v\n", err)
+		}
+		return
+	}
 
 	APIDefined := false
 	for _, apicommand := range Config.Global.Software.RemoteControl.HTTP.Command {
@@ -173,7 +201,11 @@ func (b *Talkkonnect) HandleRemoteAPICommand(w io.Writer, q remoteAPIQuery) {
 
 	if !APIDefined {
 		log.Printf("error: API Command %v Not A Valid Defined Command\n", APICommand)
-		fmt.Fprintf(w, "404 error: API Command %v Not A Valid Defined Command\n", APICommand)
+		if isHTTP {
+			http.Error(hw, fmt.Sprintf("404 not found: API command %q is not defined in configuration", APICommand), http.StatusNotFound)
+		} else {
+			fmt.Fprintf(w, "404 error: API Command %v Not A Valid Defined Command\n", APICommand)
+		}
 		return
 	}
 
@@ -185,7 +217,11 @@ func (b *Talkkonnect) HandleRemoteAPICommand(w io.Writer, q remoteAPIQuery) {
 			_, err := b.Call(funcs, apicommand.Action)
 			if err != nil {
 				log.Println("error: Wrong Parameters to Call Function")
-				fmt.Fprintf(w, "500 error: wrong parameters for command %q\n", APICommand)
+				if isHTTP {
+					http.Error(hw, fmt.Sprintf("500 internal server error: wrong parameters for command %q", APICommand), http.StatusInternalServerError)
+				} else {
+					fmt.Fprintf(w, "500 error: wrong parameters for command %q\n", APICommand)
+				}
 			} else {
 				fmt.Fprintf(w, "200 OK: http command %v OK \n", APICommand)
 			}
@@ -194,7 +230,11 @@ func (b *Talkkonnect) HandleRemoteAPICommand(w io.Writer, q remoteAPIQuery) {
 				_, err := b.Call(funcs, apicommand.Action, apicommand.Funcparamname)
 				if err != nil {
 					log.Println("error: Wrong Parameters to Call Function")
-					fmt.Fprintf(w, "500 error: wrong parameters for command %q\n", APICommand)
+					if isHTTP {
+						http.Error(hw, fmt.Sprintf("500 internal server error: wrong parameters for command %q", APICommand), http.StatusInternalServerError)
+					} else {
+						fmt.Fprintf(w, "500 error: wrong parameters for command %q\n", APICommand)
+					}
 				} else {
 					fmt.Fprintf(w, "200 OK: http command %v For %v Control\n", apicommand.Action, apicommand.Message)
 				}
@@ -204,7 +244,11 @@ func (b *Talkkonnect) HandleRemoteAPICommand(w io.Writer, q remoteAPIQuery) {
 					_, err := b.Call(funcs, apicommand.Action, uint32(q.ID))
 					if err != nil {
 						log.Println("error: Wrong Parameters to Call Function")
-						fmt.Fprintf(w, "500 error: wrong parameters for command %q\n", APICommand)
+						if isHTTP {
+							http.Error(hw, fmt.Sprintf("500 internal server error: wrong parameters for command %q", APICommand), http.StatusInternalServerError)
+						} else {
+							fmt.Fprintf(w, "500 error: wrong parameters for command %q\n", APICommand)
+						}
 					} else {
 						fmt.Fprintf(w, "200 OK: http command %v OK \n", APICommand)
 					}
@@ -212,7 +256,11 @@ func (b *Talkkonnect) HandleRemoteAPICommand(w io.Writer, q remoteAPIQuery) {
 					_, err := b.Call(funcs, apicommand.Action, q.APITTSMessage, q.APITTSLocalPlay, q.APITTSPlayIntoStream, q.APIGPIOEnabled, q.APIGPIOName, time.Duration(q.APIPreDelay*int(time.Second)), time.Duration(q.APIPostDelay)*time.Second, q.APILanguage)
 					if err != nil {
 						log.Println("error: Wrong Parameters to Call Function")
-						fmt.Fprintf(w, "500 error: wrong parameters for command %q\n", APICommand)
+						if isHTTP {
+							http.Error(hw, fmt.Sprintf("500 internal server error: wrong parameters for command %q", APICommand), http.StatusInternalServerError)
+						} else {
+							fmt.Fprintf(w, "500 error: wrong parameters for command %q\n", APICommand)
+						}
 					} else {
 						fmt.Fprintf(w, "200 OK: http command %v OK \n", APICommand)
 					}
@@ -223,30 +271,23 @@ func (b *Talkkonnect) HandleRemoteAPICommand(w io.Writer, q remoteAPIQuery) {
 }
 
 func (b *Talkkonnect) httpAPI(w http.ResponseWriter, r *http.Request) {
+	if !remoteControlHTTPClientIPAllowed(r) {
+		log.Printf("error: HTTP API request from %q rejected by remote control network ACL\n", r.RemoteAddr)
+		http.Error(w, "403 forbidden: client address not allowed by remote control network ACL", http.StatusForbidden)
+		return
+	}
+
 	APICommands, ok := r.URL.Query()["command"]
-	if !ok {
+	if !ok || len(APICommands) == 0 || strings.TrimSpace(APICommands[0]) == "" {
 		log.Println("error: URL Param 'command' is missing example http API commands should be of the format http://a.b.c.d/?command=listapi")
-		fmt.Fprintf(w, "error: API should be of the format http://a.b.c.d:"+Config.Global.Software.RemoteControl.HTTP.ListenPort+"/?command=StartTransmitting or of the format http://a.b.c.d:"+Config.Global.Software.RemoteControl.HTTP.ListenPort+"?command=setvoicetarget&id=0\n")
+		http.Error(w, "400 bad request: missing required query parameter \"command\" (example: ?command=listapi)", http.StatusBadRequest)
 		return
 	}
 
 	q := remoteAPIQuery{Command: strings.ToLower(strings.TrimSpace(APICommands[0]))}
-	APIDefined := false
-	for _, apicommand := range Config.Global.Software.RemoteControl.HTTP.Command {
-		if apicommand.Action == q.Command {
-			APIDefined = true
-			break
-		}
-	}
-	if !APIDefined {
-		log.Printf("error: API Command %v Not A Valid Defined Command\n", q.Command)
-		fmt.Fprintf(w, "404 error: API Command %v Not A Valid Defined Command\n", q.Command)
-		return
-	}
-
 	if err := fillHTTPRemoteAPIQueryFromRequest(r, &q); err != nil {
 		log.Println("error: " + err.Error())
-		fmt.Fprintf(w, "404 error: API %v\n", err.Error())
+		http.Error(w, "400 bad request: "+err.Error(), http.StatusBadRequest)
 		return
 	}
 

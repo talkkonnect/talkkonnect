@@ -62,6 +62,11 @@ func sshDaemonListenEmbeddedConsole(b *Talkkonnect, username, password, idrsafil
 			log.Printf("Remote SSH console: accept error: %v", err)
 			continue
 		}
+		if !remoteControlTCPPeerAllowed(tcpConn.RemoteAddr()) {
+			log.Printf("Remote SSH console: rejected connection from %v (not in remote control network ACL)", tcpConn.RemoteAddr())
+			_ = tcpConn.Close()
+			continue
+		}
 		go handleDaemonSSHConn(b, tcpConn, serverConfig)
 	}
 }

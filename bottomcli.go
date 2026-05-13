@@ -867,7 +867,7 @@ func bottomCLIOnWinch() {
 }
 
 func (b *Talkkonnect) runBottomTerminalCLI() {
-	// Brief yield so the first colog lines flush; layout runs before later Init/ClientStart logs.
+	// Brief yield so the first log lines flush; layout runs before later Init/ClientStart logs.
 	time.Sleep(50 * time.Millisecond)
 
 	tty, err := os.OpenFile("/dev/tty", os.O_RDWR, 0)

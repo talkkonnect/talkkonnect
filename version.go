@@ -31,12 +31,15 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "4.04.02"
+	talkkonnectVersion  string = "4.04.03"
 	talkkonnectReleased string = "13 May 2026"
 )
 
 
 /* Release Notes
+version 4.04.03
+Fixed Bug when user leaves channel all audio is gone on receive (bug was not fixed in 4.04.02
+
 version 4.04.02
 Fixed Bug when user leaves channel all audio is gone on receive
 

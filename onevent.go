@@ -321,87 +321,94 @@ func (b *Talkkonnect) OnUserChange(e *gumble.UserChangeEvent) {
 	}
 
 	if e.Type.Has(1) || e.Type.Has(2) || e.Type.Has(128) {
-		if len(b.Client.Self.Channel.Users) > 1 && (len(b.Client.Self.Channel.Users) != prevParticipantCount) {
+		prevSnap := prevParticipantCount
+		currSnap := len(b.Client.Self.Channel.Users)
+		if currSnap > 1 && currSnap != prevSnap {
 			GPIOOutPin("participants", "on")
 			participantsLED = true
 			b.BackLightTimer()
 		}
-		if len(b.Client.Self.Channel.Users) == 1 && participantsLED {
+		if currSnap == 1 && participantsLED {
 			GPIOOutPin("participants", "off")
 			participantsLED = false
 			b.BackLightTimer()
 		}
-		if len(b.Client.Self.Channel.Users) != prevParticipantCount {
-			var toSpeakEvent string = ""
-			var eventSound = EventSoundStruct{}
-
+		if currSnap != prevSnap {
 			b.BackLightTimer()
 			if Config.Global.Hardware.TargetBoard == "rpi" {
 				if LCDEnabled {
 					LcdText[0] = "Online/RX" //b.Name
-					LcdText[1] = "(" + strconv.Itoa(len(b.Client.Self.Channel.Users)) + ")" + b.Client.Self.Channel.Name
+					LcdText[1] = "(" + strconv.Itoa(currSnap) + ")" + b.Client.Self.Channel.Name
 					LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 				}
 				if OLEDEnabled {
 					oledDisplay(false, 0, OLEDStartColumn, "Online/RX") //b.Name
-					oledDisplay(false, 1, OLEDStartColumn, "("+strconv.Itoa(len(b.Client.Self.Channel.Users))+")"+b.Client.Self.Channel.Name)
+					oledDisplay(false, 1, OLEDStartColumn, "("+strconv.Itoa(currSnap)+")"+b.Client.Self.Channel.Name)
 					oledDisplay(false, 6, OLEDStartColumn, "Please Visit")
 					oledDisplay(false, 7, OLEDStartColumn, "www.talkkonnect.com")
 				}
 			}
 
-			if e.Type.Has(2) {
-				eventSound = findEventSound("leftchannel")
-				if eventSound.Enabled {
-					if v, err := strconv.Atoi(eventSound.Volume); err == nil {
-						localMediaPlayer(eventSound.FileName, v, eventSound.Blocking, 0, 1)
-
-					}
-				}
-				toSpeakEvent = cleanstring(e.User.Name) + " Has Disconnected "
+			// gumble runs OnUserChange on the TCP read goroutine; voice may arrive as UDPTunnel
+			// on the same loop. Blocking localMediaPlayer / Speak here stops all RX until they return.
+			prevParticipantCount = currSnap
+			userName := ""
+			if e.User != nil {
+				userName = cleanstring(e.User.Name)
 			}
-
-			if e.Type.Has(128) {
-				if len(b.Client.Self.Channel.Users) < prevParticipantCount {
+			hasDisconnect := e.Type.Has(2)
+			hasChannel := e.Type.Has(128)
+			ttsVol := Config.Global.Software.TTS.Volumelevel
+			ttsLang := Config.Global.Software.TTSMessages.TTSLanguage
+			go func(name string, hasDisconnect, hasChannel bool, prevCount, currCount int, vol int, lang string) {
+				var toSpeakEvent string
+				var eventSound EventSoundStruct
+				if hasDisconnect {
 					eventSound = findEventSound("leftchannel")
 					if eventSound.Enabled {
 						if v, err := strconv.Atoi(eventSound.Volume); err == nil {
 							localMediaPlayer(eventSound.FileName, v, eventSound.Blocking, 0, 1)
-
 						}
 					}
-					toSpeakEvent = cleanstring(e.User.Name) + " Has Left Channel "
-				} else {
-					eventSound = findEventSound("joinedchannel")
-					if eventSound.Enabled {
-						if v, err := strconv.Atoi(eventSound.Volume); err == nil {
-							localMediaPlayer(eventSound.FileName, v, eventSound.Blocking, 0, 1)
-
+					toSpeakEvent = name + " Has Disconnected "
+				}
+				if hasChannel {
+					if currCount < prevCount {
+						eventSound = findEventSound("leftchannel")
+						if eventSound.Enabled {
+							if v, err := strconv.Atoi(eventSound.Volume); err == nil {
+								localMediaPlayer(eventSound.FileName, v, eventSound.Blocking, 0, 1)
+							}
+						}
+						toSpeakEvent = name + " Has Left Channel "
+					} else {
+						eventSound = findEventSound("joinedchannel")
+						if eventSound.Enabled {
+							if v, err := strconv.Atoi(eventSound.Volume); err == nil {
+								localMediaPlayer(eventSound.FileName, v, eventSound.Blocking, 0, 1)
+							}
+						}
+						toSpeakEvent = name + " Has Joined Channel "
+					}
+				}
+				for _, tts := range Config.Global.Software.TTS.Sound {
+					if tts.Action == "leftjoinedchannel" {
+						if tts.Enabled {
+							if v, err := strconv.Atoi(eventSound.Volume); err == nil {
+								localMediaPlayer(eventSound.FileName, v, eventSound.Blocking, 0, 1)
+							}
 						}
 					}
-					toSpeakEvent = cleanstring(e.User.Name) + " Has Joined Channel "
-				}
-			}
-
-			for _, tts := range Config.Global.Software.TTS.Sound {
-				if tts.Action == "leftjoinedchannel" {
-					if tts.Enabled {
-						if v, err := strconv.Atoi(eventSound.Volume); err == nil {
-							localMediaPlayer(eventSound.FileName, v, eventSound.Blocking, 0, 1)
+					if tts.Action == "participants" {
+						if tts.Enabled {
+							b.Speak(toSpeakEvent, "local", vol, 0, 1, lang)
 						}
 					}
 				}
-
-				if tts.Action == "participants" {
-					if tts.Enabled {
-						b.Speak(toSpeakEvent, "local", Config.Global.Software.TTS.Volumelevel, 0, 1, Config.Global.Software.TTSMessages.TTSLanguage)
-					}
-				}
-			}
-			prevParticipantCount = len(b.Client.Self.Channel.Users)
+			}(userName, hasDisconnect, hasChannel, prevSnap, currSnap, ttsVol, ttsLang)
 		}
 
-		if b.Client.Self.Channel.Name == e.User.Channel.Name {
+		if e.User != nil && b.Client.Self.Channel.Name == e.User.Channel.Name {
 			b.BackLightTimer()
 			if e.User.Name != b.Client.Self.Name {
 				log.Printf("info: This Channel %v User %v, type bin=%v, type char info=%v\n", e.User.Channel.Name, e.User.Name, e.Type, info)

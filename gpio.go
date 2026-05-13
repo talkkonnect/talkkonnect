@@ -45,6 +45,41 @@ import (
 	"github.com/warthog618/go-gpiocdev"
 )
 
+// hwCmdKind is a hardware-owner command (SoC GPIO, MCP23017 outputs, MAX7219).
+// All device access for these types runs only on hardwareEventLoop.
+type hwCmdKind uint8
+
+const (
+	hwCmdOutPin hwCmdKind = iota
+	hwCmdOutAll
+	hwCmdMax7219
+)
+
+// hwCommand is a small message sent to the sole hardware goroutine.
+type hwCommand struct {
+	Kind hwCmdKind
+	// GPIOOutPin / GPIOOutAll
+	Name    string
+	PinCmd  string
+	Device  string
+	AllCmd  string
+	Max7219 struct {
+		Cascaded  int
+		SPIBus    int
+		SPIDevice int
+		Brightness byte
+		Text      string
+	}
+	// If non-nil, closed by the owner after this command completes (for shutdown ordering).
+	Done chan struct{}
+}
+
+var (
+	hwCmdCh   chan hwCommand
+	hwLoopMu  sync.Mutex // protects hwCmdCh init only
+	hwStarted bool
+)
+
 // tkInputLine wraps a GPIO character device line; Read matches prior sysfs semantics (0/1).
 type tkInputLine struct {
 	*gpiocdev.Line
@@ -64,7 +99,6 @@ func (t *tkInputLine) Read() (uint, error) {
 var (
 	gpiMainChip   string
 	gpiChipLogged bool
-	outLineMu     sync.Mutex
 	outLineByPin  = make(map[uint]*gpiocdev.Line)
 )
 
@@ -128,12 +162,11 @@ func openBtnPullup(used *bool, pin uint, consumer string) *tkInputLine {
 	return l
 }
 
+// gpioSoCOutputSet must only be called from hardwareEventLoop (single owner of outLineByPin).
 func gpioSoCOutputSet(pin uint, levelHigh bool) error {
 	if gpiMainChip == "" {
 		return errors.New("gpio: chip not initialised")
 	}
-	outLineMu.Lock()
-	defer outLineMu.Unlock()
 	v := 0
 	if levelHigh {
 		v = 1
@@ -159,6 +192,63 @@ func gpioSoCOutputSetLog(pin uint, high bool) {
 	if err := gpioSoCOutputSet(pin, high); err != nil {
 		log.Printf("error: GPIO output offset %d: %v", pin, err)
 	}
+}
+
+// startHardwareEventLoop starts exactly one goroutine that owns SoC GPIO output lines,
+// MCP23017 output writes, and MAX7219 updates. Producers use GPIOOutPin / GPIOOutAll / Max7219 only to enqueue.
+func startHardwareEventLoop() {
+	hwLoopMu.Lock()
+	defer hwLoopMu.Unlock()
+	if hwStarted {
+		return
+	}
+	hwCmdCh = make(chan hwCommand, 512) // decouple producers from I/O latency (pulse sleeps, SPI); single owner still serializes execution
+	hwStarted = true
+	go hardwareEventLoop()
+}
+
+func hardwareEventLoop() {
+	for cmd := range hwCmdCh {
+		switch cmd.Kind {
+		case hwCmdOutPin:
+			execGPIOOutPin(cmd.Name, cmd.PinCmd)
+		case hwCmdOutAll:
+			execGPIOOutAll(cmd.Device, cmd.AllCmd)
+		case hwCmdMax7219:
+			execMax7219(cmd.Max7219.Cascaded, cmd.Max7219.SPIBus, cmd.Max7219.SPIDevice, cmd.Max7219.Brightness, cmd.Max7219.Text)
+		}
+		if cmd.Done != nil {
+			close(cmd.Done)
+		}
+	}
+}
+
+func submitHW(cmd hwCommand) {
+	hwLoopMu.Lock()
+	ch := hwCmdCh
+	hwLoopMu.Unlock()
+	if ch == nil {
+		return
+	}
+	ch <- cmd
+}
+
+// hwSyncGPIOOutAll runs GPIOOutAll on the hardware owner and blocks until complete (shutdown path).
+func hwSyncGPIOOutAll(device, command string) {
+	hwLoopMu.Lock()
+	ch := hwCmdCh
+	hwLoopMu.Unlock()
+	if ch == nil {
+		return
+	}
+	done := make(chan struct{})
+	ch <- hwCommand{
+		Kind:   hwCmdOutAll,
+		Device: device,
+		AllCmd: command,
+		Done:   done,
+	}
+	<-done
 }
 
 // Variables for Input Buttons/Switches
@@ -334,6 +424,11 @@ func (b *Talkkonnect) initGPIO() {
 	}
 
 	ensureGPIOChip()
+	defer func() {
+		if b.GPIOEnabled || Config.Global.Hardware.IO.Max7219.Enabled {
+			startHardwareEventLoop()
+		}
+	}()
 	if gpiMainChip == "" {
 		log.Println("error: GPIO: no gpiochip device found (set GPIOCHIP environment variable if required)")
 		b.GPIOEnabled = false
@@ -1579,7 +1674,10 @@ func GPIOOutPin(name string, command string) {
 	if gpiMainChip == "" {
 		return
 	}
+	submitHW(hwCommand{Kind: hwCmdOutPin, Name: name, PinCmd: command})
+}
 
+func execGPIOOutPin(name string, command string) {
 	for _, io := range Config.Global.Hardware.IO.Pins.Pin {
 
 		if io.Enabled && io.Direction == "output" && io.Name == name {
@@ -1687,9 +1785,12 @@ func GPIOOutAll(name string, command string) {
 	if gpiMainChip == "" {
 		return
 	}
+	submitHW(hwCommand{Kind: hwCmdOutAll, Device: name, AllCmd: command})
+}
 
+func execGPIOOutAll(name string, command string) {
 	for _, io := range Config.Global.Hardware.IO.Pins.Pin {
-		if io.Enabled && io.Direction == "output" && io.Device == "led/relay" {
+		if io.Enabled && io.Direction == "output" && io.Device == name {
 			switch io.Type {
 			case "gpio":
 				if command == "on" {
@@ -1809,16 +1910,38 @@ func GPIOOutAll(name string, command string) {
 	}
 */
 func Max7219(max7219Cascaded int, spiBus int, spiDevice int, brightness byte, toDisplay string) {
-	if Config.Global.Hardware.IO.Max7219.Enabled {
-		mtx := max7219.NewMatrix(max7219Cascaded)
-		err := mtx.Open(spiBus, spiDevice, brightness)
-		if err != nil {
-			log.Printf("error: Max7219 Open failed: %v\n", err)
-			return
-		}
-		mtx.Device.SevenSegmentDisplay(toDisplay)
-		defer mtx.Close()
+	if !Config.Global.Hardware.IO.Max7219.Enabled {
+		return
 	}
+	hwLoopMu.Lock()
+	ch := hwCmdCh
+	hwLoopMu.Unlock()
+	if ch == nil {
+		execMax7219(max7219Cascaded, spiBus, spiDevice, brightness, toDisplay)
+		return
+	}
+	var c hwCommand
+	c.Kind = hwCmdMax7219
+	c.Max7219.Cascaded = max7219Cascaded
+	c.Max7219.SPIBus = spiBus
+	c.Max7219.SPIDevice = spiDevice
+	c.Max7219.Brightness = brightness
+	c.Max7219.Text = toDisplay
+	submitHW(c)
+}
+
+func execMax7219(max7219Cascaded int, spiBus int, spiDevice int, brightness byte, toDisplay string) {
+	if !Config.Global.Hardware.IO.Max7219.Enabled {
+		return
+	}
+	mtx := max7219.NewMatrix(max7219Cascaded)
+	err := mtx.Open(spiBus, spiDevice, brightness)
+	if err != nil {
+		log.Printf("error: Max7219 Open failed: %v\n", err)
+		return
+	}
+	defer mtx.Close()
+	mtx.Device.SevenSegmentDisplay(toDisplay)
 }
 
 func (b *Talkkonnect) rotaryAction(direction string) {
@@ -2309,12 +2432,12 @@ func analogZone(announcementChannel string, IOName string) {
 			select {
 			case f := <-Talking:
 				if (f.OnChannel == announcementChannel) && (lastChannel != announcementChannel) {
-					go GPIOOutPin(IOName, "on")
+					GPIOOutPin(IOName, "on")
 					lastChannel = f.OnChannel
 				}
 			case <-TalkedTicker.C:
 				if lastChannel == announcementChannel {
-					go GPIOOutPin(IOName, "off")
+					GPIOOutPin(IOName, "off")
 					lastChannel = ""
 				}
 			}

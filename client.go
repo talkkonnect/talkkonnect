@@ -307,7 +307,6 @@ func (b *Talkkonnect) ClientStart() {
 	}
 
 	if Config.Global.Hardware.TargetBoard == "rpi" {
-		GPIOOutAll("led/relay", "off")
 		if Config.Global.Hardware.GPIOOffset > 0 {
 			for item, pins := range Config.Global.Hardware.IO.Pins.Pin {
 				if pins.Enabled {
@@ -327,6 +326,7 @@ func (b *Talkkonnect) ClientStart() {
 	if Config.Global.Hardware.TargetBoard == "rpi" {
 		log.Println("info: Target Board Set as RPI (gpio enabled) ")
 		b.initGPIO()
+		GPIOOutAll("led/relay", "off")
 		// if Config.Global.Hardware.LedStripEnabled {
 		// 	MyLedStrip, _ = NewLedStrip()
 		// 	log.Printf("info: Led Strip %v %s\n", MyLedStrip.buf, MyLedStrip.display)
@@ -516,7 +516,7 @@ func (b *Talkkonnect) ClientStart() {
 					RXLEDStatus = true
 					txlockout := &TXLockOut
 					*txlockout = true
-					go GPIOOutPin("voiceactivity", "on")
+					GPIOOutPin("voiceactivity", "on")
 					//					MyLedStripVoiceActivityLEDOn()
 					go rxScreen(LastSpeaker)
 				}
@@ -525,7 +525,7 @@ func (b *Talkkonnect) ClientStart() {
 					RXLEDStatus = false
 					txlockout := &TXLockOut
 					*txlockout = false
-					go GPIOOutPin("voiceactivity", "off")
+					GPIOOutPin("voiceactivity", "off")
 					//MyLedStripVoiceActivityLEDOff()
 					//TalkedTicker.Stop()
 				}

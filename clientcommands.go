@@ -94,7 +94,7 @@ func performCleanup(withShutdown bool) {
 			oledDisplay(false, 5, OLEDStartColumn, "talkkonnect")
 			oledDisplay(false, 7, OLEDStartColumn, "www.talkkonnect.com")
 		}
-		GPIOOutAll("led/relay", "off")
+		hwSyncGPIOOutAll("led/relay", "off")
 	}
 
 	fmt.Println("SIGHUP Termination of Program Requested by User...shutting down talkkonnect")
@@ -145,8 +145,7 @@ func (b *Talkkonnect) TransmitStart() {
 	}
 
 	if Config.Global.Hardware.TargetBoard == "rpi" {
-		// use groutine so no need to wait for local screen cause it causes delay
-		go GPIOOutPin("transmit", "on")
+		GPIOOutPin("transmit", "on")
 		//go MyLedStripTransmitLEDOn()
 		go txScreen()
 	}

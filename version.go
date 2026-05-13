@@ -31,12 +31,15 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "4.03.01"
+	talkkonnectVersion  string = "4.04.01"
 	talkkonnectReleased string = "13 May 2026"
 )
 
 
 /* Release Notes
+version 4.04.01
+Removed Mutex for GPIO implemented a lock free archecture for GPIO using Channels.
+
 version 4.03.01
 Modified HTTP API and SSH to have ACL list for added security allowing only certain IP to access HTTP API and SSH remote console
 Removed the COLOG external dependency and bought the code into talkkonnect

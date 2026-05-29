@@ -705,19 +705,6 @@ func internetRadioLCDStatus(status string) {
 	}
 }
 
-// internetRadioShutdownKill stops timers and kills the internet-radio ffmpeg process. Safe to call multiple times.
-func internetRadioShutdownKill() {
-	ir.mu.Lock()
-	defer ir.mu.Unlock()
-	ir.cancelTimerLocked()
-	ir.cancelRetryLocked()
-	ir.inhibitRetries = true
-	ir.ff.forceKill()
-	ir.intentOn = false
-	ir.interrupted = false
-	ir.ducking = false
-}
-
 func internetRadioLCDNowPlaying(name string) {
 	if Config.Global.Hardware.TargetBoard != "rpi" {
 		return
@@ -733,4 +720,76 @@ func internetRadioLCDNowPlaying(name string) {
 		LcdText[3] = "[FM] " + line
 		LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
 	}
+}
+
+// InternetRadioStatus is JSON-friendly internet radio state for external UI clients.
+type InternetRadioStatus struct {
+	Enabled      bool   `json:"enabled"`
+	Playing      bool   `json:"playing"`
+	Status       string `json:"status"`
+	StationName  string `json:"stationName"`
+	StationIndex int    `json:"stationIndex"`
+	StationCount int    `json:"stationCount"`
+	Volume       int    `json:"volume"`
+}
+
+func InternetRadioStatusSnapshot() InternetRadioStatus {
+	ir.mu.Lock()
+	defer ir.mu.Unlock()
+
+	st := InternetRadioStatus{
+		Enabled: Config.Global.StreamingRadio.Enabled,
+	}
+	if !st.Enabled {
+		st.Status = "off"
+		return st
+	}
+
+	st.StationCount = len(ir.stations)
+	st.StationIndex = ir.currentIdx
+
+	if ir.currentIdx >= 0 && ir.currentIdx < len(ir.stations) {
+		st.StationName = ir.stations[ir.currentIdx].name
+	}
+
+	if ir.gainTrim <= 0 {
+		ir.gainTrim = 1.0
+	}
+	st.Volume = int((ir.gainTrim / 4.0) * 100)
+	if st.Volume > 100 {
+		st.Volume = 100
+	}
+	if st.Volume < 0 {
+		st.Volume = 0
+	}
+
+	switch {
+	case !ir.intentOn:
+		st.Status = "off"
+	case ir.ducking:
+		st.Status = "ducking"
+		st.Playing = ir.ff.playing()
+	case ir.interrupted || ir.manualPaused:
+		st.Status = "paused"
+	case ir.ff.playing():
+		st.Status = "playing"
+		st.Playing = true
+	default:
+		st.Status = "idle"
+	}
+
+	return st
+}
+
+// internetRadioShutdownKill stops timers and kills the internet-radio ffmpeg process. Safe to call multiple times.
+func internetRadioShutdownKill() {
+	ir.mu.Lock()
+	defer ir.mu.Unlock()
+	ir.cancelTimerLocked()
+	ir.cancelRetryLocked()
+	ir.inhibitRetries = true
+	ir.ff.forceKill()
+	ir.intentOn = false
+	ir.interrupted = false
+	ir.ducking = false
 }

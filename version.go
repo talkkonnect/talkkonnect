@@ -31,12 +31,15 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "4.04.06"
-	talkkonnectReleased string = "13 May 2026"
+	talkkonnectVersion  string = "4.05.01"
+	talkkonnectReleased string = "29 May 2026"
 )
 
 
 /* Release Notes
+version 4.05.01
+Talkkonnect Supports Graphical UI Display Via API
+
 version 4.04.06
 Fixed  so that the ssh terminal also shows colorized logs.
 

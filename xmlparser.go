@@ -843,6 +843,7 @@ var (
 	isTx           bool
 	pstream        *gumbleffmpeg.Stream
 	LastSpeaker    string = ""
+	ReceivingVoice bool   = false
 	RotaryFunction rotaryFunctionsStruct
 )
 

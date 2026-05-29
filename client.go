@@ -255,6 +255,7 @@ func Init(file string, ServerIndex string) int {
 		SafeGo(func() {
 			http.HandleFunc("/", b.httpAPI)
 			http.HandleFunc("/config", b.httpConfig)
+			http.HandleFunc("/uistatus", b.httpUIStatus)
 			if err := http.ListenAndServe(":"+Config.Global.Software.RemoteControl.HTTP.ListenPort, nil); err != nil {
 				FatalCleanUp("Problem Starting HTTP API Server " + err.Error())
 			}
@@ -522,6 +523,7 @@ func (b *Talkkonnect) ClientStart() {
 						log.Printf("info: Listening-> %v \033[31m[%v]\033[0m\n", v.WhoTalking, v.OnChannel)
 					}
 					RXLEDStatus = true
+					ReceivingVoice = true
 					txlockout := &TXLockOut
 					*txlockout = true
 					GPIOOutPin("voiceactivity", "on")
@@ -532,6 +534,7 @@ func (b *Talkkonnect) ClientStart() {
 			case <-TalkedTicker.C:
 				if RXLEDStatus {
 					RXLEDStatus = false
+					ReceivingVoice = false
 					txlockout := &TXLockOut
 					*txlockout = false
 					GPIOOutPin("voiceactivity", "off")

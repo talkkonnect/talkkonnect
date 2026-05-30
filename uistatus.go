@@ -17,6 +17,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/talkkonnect/gumble/gumble"
 	"github.com/talkkonnect/volume-go"
 )
 
@@ -27,6 +28,14 @@ type UIChannelUser struct {
 	Self   bool   `json:"self"`
 }
 
+// UIChannelNode is one row in the server channel tree for framebuffer clients.
+type UIChannelNode struct {
+	Name      string `json:"name"`
+	Depth     int    `json:"depth"`
+	UserCount int    `json:"userCount"`
+	Active    bool   `json:"active"`
+}
+
 // UIStatus is JSON telemetry for external framebuffer / dashboard clients.
 type UIStatus struct {
 	Connected     bool                 `json:"connected"`
@@ -35,6 +44,7 @@ type UIStatus struct {
 	Channel       string               `json:"channel"`
 	UsersOnline   int                  `json:"usersOnline"`
 	ChannelUsers  []UIChannelUser      `json:"channelUsers"`
+	ChannelTree   []UIChannelNode      `json:"channelTree"`
 	Receiving     bool                 `json:"receiving"`
 	LastSpeaker   string               `json:"lastSpeaker"`
 	RXVolume      int                  `json:"rxVolume"`
@@ -43,7 +53,8 @@ type UIStatus struct {
 	IPAddress     string               `json:"ipAddress"`
 	Bitrate       string               `json:"bitrate"`
 	UptimeSec     int64                `json:"uptimeSec"`
-	Activity      string               `json:"activity"`
+	Activity       string               `json:"activity"`
+	MumbleUsername string               `json:"mumbleUsername"`
 }
 
 func primaryLocalIPv4() string {
@@ -124,6 +135,63 @@ func (b *Talkkonnect) channelUsersSnapshot() []UIChannelUser {
 	return out
 }
 
+func sortedChannelChildren(ch *gumble.Channel) []*gumble.Channel {
+	if ch == nil || len(ch.Children) == 0 {
+		return nil
+	}
+	out := make([]*gumble.Channel, 0, len(ch.Children))
+	for _, c := range ch.Children {
+		out = append(out, c)
+	}
+	sort.Slice(out, func(i, j int) bool {
+		if out[i].Position != out[j].Position {
+			return out[i].Position < out[j].Position
+		}
+		return strings.ToLower(out[i].Name) < strings.ToLower(out[j].Name)
+	})
+	return out
+}
+
+func (b *Talkkonnect) appendChannelTree(out *[]UIChannelNode, ch *gumble.Channel, depth int, activeID uint32) {
+	if ch == nil {
+		return
+	}
+	*out = append(*out, UIChannelNode{
+		Name:      ch.Name,
+		Depth:     depth,
+		UserCount: len(ch.Users),
+		Active:    ch.ID == activeID,
+	})
+	for _, child := range sortedChannelChildren(ch) {
+		b.appendChannelTree(out, child, depth+1, activeID)
+	}
+}
+
+func (b *Talkkonnect) channelTreeSnapshot() []UIChannelNode {
+	if b == nil || b.Client == nil || b.Client.Self == nil {
+		return nil
+	}
+	active := b.Client.Self.Channel
+	var activeID uint32
+	if active != nil {
+		activeID = active.ID
+	}
+	if active != nil && RootChannel == nil {
+		return []UIChannelNode{{
+			Name:      active.Name,
+			Depth:     0,
+			UserCount: len(active.Users),
+			Active:    true,
+		}}
+	}
+	if RootChannel == nil {
+		return nil
+	}
+	var out []UIChannelNode
+	b.appendChannelTree(&out, RootChannel, 0, activeID)
+	return out
+}
+
 func (b *Talkkonnect) buildUIStatus() UIStatus {
 	st := UIStatus{
 		Connected:    IsConnected,
@@ -140,10 +208,17 @@ func (b *Talkkonnect) buildUIStatus() UIStatus {
 		st.RXVolume = vol
 	}
 
+	if b != nil && b.Config != nil && strings.TrimSpace(b.Config.Username) != "" {
+		st.MumbleUsername = b.Config.Username
+	} else if AccountIndex >= 0 && AccountIndex < len(Username) {
+		st.MumbleUsername = strings.TrimSpace(Username[AccountIndex])
+	}
+
 	if b != nil && b.Client != nil && b.Client.Self != nil && b.Client.Self.Channel != nil {
 		st.Channel = b.Client.Self.Channel.Name
 		st.ChannelUsers = b.channelUsersSnapshot()
 		st.UsersOnline = len(st.ChannelUsers)
+		st.ChannelTree = b.channelTreeSnapshot()
 	}
 	if muted, err := volume.GetMuted(Config.Global.Software.Settings.OutputDevice); err == nil {
 		st.Muted = muted

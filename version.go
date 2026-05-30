@@ -31,12 +31,15 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "4.06.01"
+	talkkonnectVersion  string = "4.06.02"
 	talkkonnectReleased string = "30 May 2026"
 )
 
 
 /* Release Notes
+version 4.06.02
+Fixed Status for Speaking and Muted to for Graphical Screen Status
+
 version 4.06.01
 Fixed Bug when user leaves channel all audio is gone on receive (bug was still there hopefully fixed now!)
 

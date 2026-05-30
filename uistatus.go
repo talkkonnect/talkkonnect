@@ -92,10 +92,10 @@ func primaryLocalIPv4() string {
 
 func mumbleUserStatus(name, lastSpeaker string, muted, selfMuted, suppressed bool) string {
 	if lastSpeaker != "" && strings.EqualFold(name, lastSpeaker) {
-		return "speaking"
+		return "Speaking"
 	}
 	if muted || selfMuted || suppressed {
-		return "mute"
+		return "Muted"
 	}
 	return "idle"
 }
@@ -123,10 +123,10 @@ func (b *Talkkonnect) channelUsersSnapshot() []UIChannelUser {
 	}
 
 	sort.Slice(out, func(i, j int) bool {
-		if out[i].Status == "speaking" && out[j].Status != "speaking" {
+		if out[i].Status == "Speaking" && out[j].Status != "Speaking" {
 			return true
 		}
-		if out[j].Status == "speaking" && out[i].Status != "speaking" {
+		if out[j].Status == "Speaking" && out[i].Status != "Speaking" {
 			return false
 		}
 		return strings.ToLower(out[i].Name) < strings.ToLower(out[j].Name)

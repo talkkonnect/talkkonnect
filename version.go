@@ -31,12 +31,15 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "4.05.01"
-	talkkonnectReleased string = "29 May 2026"
+	talkkonnectVersion  string = "4.06.01"
+	talkkonnectReleased string = "30 May 2026"
 )
 
 
 /* Release Notes
+version 4.06.01
+Fixed Bug when user leaves channel all audio is gone on receive (bug was still there hopefully fixed now!)
+
 version 4.05.01
 Talkkonnect Supports Graphical UI Display Via API
 

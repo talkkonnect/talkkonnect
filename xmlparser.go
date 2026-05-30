@@ -850,6 +850,7 @@ var (
 var StreamTracker = map[uint32]streamTrackerStruct{}
 
 // streamTrackerMu guards StreamTracker map access (OnAudioStream registration vs stream goroutine cleanup).
+// StreamTracker is keyed by Mumble session ID (unique per connection), not UserID.
 var streamTrackerMu sync.Mutex
 var DMOSetup sa818.DMOSetupStruct
 

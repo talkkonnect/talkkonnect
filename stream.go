@@ -168,18 +168,26 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 	}
 	streamCtx, streamCancel := context.WithCancel(connParent)
 
+	// Track streams by Session, not UserID: unregistered users all share UserID=0 and
+	// would otherwise collide, cancel the wrong goroutine, and block gumble's unbuffered
+	// audio channel (stopping all incoming audio).
+	session := e.User.Session
 	streamTrackerMu.Lock()
-	if prev, ok := StreamTracker[e.User.UserID]; ok {
-		log.Printf("debug: Stale GoRoutine Detected For UserID=%v UserName=%v Session=%v AudioStreamChannel=%v", e.User.UserID, e.User.Name, e.User.Session, e.C)
+	if prev, ok := StreamTracker[session]; ok {
+		log.Printf("debug: Stale GoRoutine Detected For UserID=%v UserName=%v Session=%v AudioStreamChannel=%v", e.User.UserID, e.User.Name, session, e.C)
 		NeedToKill++
 		if prev.Cancel != nil {
 			prev.Cancel()
 		}
+		// Keep draining the superseded channel so gumble's handler never blocks on send.
+		if prev.C != nil {
+			go drainAudioStream(prev.C)
+		}
 	}
-	StreamTracker[e.User.UserID] = streamTrackerStruct{
+	StreamTracker[session] = streamTrackerStruct{
 		UserID:      e.User.UserID,
 		UserName:    e.User.Name,
-		UserSession: e.User.Session,
+		UserSession: session,
 		C:           e.C,
 		Cancel:      streamCancel,
 	}
@@ -205,7 +213,9 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 			emptyBufs.Delete()
 			source.Delete()
 			streamTrackerMu.Lock()
-			delete(StreamTracker, e.User.UserID)
+			if ent, ok := StreamTracker[session]; ok && ent.C == e.C {
+				delete(StreamTracker, session)
+			}
 			streamTrackerMu.Unlock()
 		}
 		defer cleanup()
@@ -374,6 +384,13 @@ func (b *Talkkonnect) ResetStream() {
 	b.Stream.contextSink.Destroy()
 	time.Sleep(50 * time.Millisecond)
 	b.OpenStream()
+}
+
+// drainAudioStream discards packets on a superseded channel so gumble's unbuffered
+// ch <- send in handleAudio does not stall the entire connection.
+func drainAudioStream(ch <-chan *gumble.AudioPacket) {
+	for range ch {
+	}
 }
 
 func goStreamStats() {

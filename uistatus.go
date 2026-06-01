@@ -55,6 +55,7 @@ type UIStatus struct {
 	UptimeSec     int64                `json:"uptimeSec"`
 	Activity       string               `json:"activity"`
 	MumbleUsername string               `json:"mumbleUsername"`
+	Version        string               `json:"version"`
 }
 
 func primaryLocalIPv4() string {
@@ -202,6 +203,7 @@ func (b *Talkkonnect) buildUIStatus() UIStatus {
 		InternetRadio: InternetRadioStatusSnapshot(),
 		IPAddress:    primaryLocalIPv4(),
 		UptimeSec:    int64(time.Since(StartTime).Seconds()),
+		Version:      talkkonnectVersion,
 	}
 
 	if vol, err := volume.GetVolume(Config.Global.Software.Settings.OutputVolControlDevice); err == nil {

@@ -36,6 +36,7 @@ import (
 	"log"
 	"strconv"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/talkkonnect/go-openal/openal"
@@ -49,6 +50,10 @@ var (
 	now          = time.Now()
 	TotalStreams int
 	NeedToKill   int
+
+	rxBufferDropCount   uint64
+	rxBufferDropLogMu   sync.Mutex
+	rxBufferDropLastLog time.Time
 )
 
 // MumbleDuplex - listenera and outgoing
@@ -253,6 +258,7 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 				}
 				reclaim()
 				if len(emptyBufs) == 0 {
+					logRxBufferDrop(e.User.Name)
 					continue
 				}
 				last := len(emptyBufs) - 1
@@ -391,6 +397,19 @@ func (b *Talkkonnect) ResetStream() {
 func drainAudioStream(ch <-chan *gumble.AudioPacket) {
 	for range ch {
 	}
+}
+
+// logRxBufferDrop emits a rate-limited warning when the OpenAL RX buffer pool is exhausted.
+func logRxBufferDrop(userName string) {
+	atomic.AddUint64(&rxBufferDropCount, 1)
+	rxBufferDropLogMu.Lock()
+	defer rxBufferDropLogMu.Unlock()
+	if time.Since(rxBufferDropLastLog) < 5*time.Second {
+		return
+	}
+	dropped := atomic.SwapUint64(&rxBufferDropCount, 0)
+	rxBufferDropLastLog = time.Now()
+	log.Printf("warn: RX audio buffer pool exhausted, dropped %v packet(s) (user=%v)", dropped, userName)
 }
 
 func goStreamStats() {

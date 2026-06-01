@@ -49,3 +49,5 @@ require (
 )
 
 replace github.com/talkkonnect/gopus => github.com/layeh/gopus v0.0.0-20161224163843-0ebf989153aa
+
+replace github.com/talkkonnect/gumble => ./third_party/gumble

@@ -31,11 +31,60 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "3.00.01"
-	talkkonnectReleased string = "08 March 2026"
+	talkkonnectVersion  string = "4.06.02"
+	talkkonnectReleased string = "30 May 2026"
 )
 
+
 /* Release Notes
+version 4.06.02
+Fixed Status for Speaking and Muted to for Graphical Screen Status
+
+version 4.06.01
+Fixed Bug when user leaves channel all audio is gone on receive (bug was still there hopefully fixed now!)
+
+version 4.05.01
+Talkkonnect Supports Graphical UI Display Via API
+
+version 4.04.06
+Fixed  so that the ssh terminal also shows colorized logs.
+
+version 4.04.05
+Fixed Stream.go for processing rogerbeeps properly. finally they sound good!
+
+version 4.04.04
+Fixed Bug when user leaves channel all audio is gone on receive (bug was still there hopefully fixed now!)
+
+version 4.04.03
+Fixed Bug when user leaves channel all audio is gone on receive (bug was not fixed in 4.04.02
+
+version 4.04.02
+Fixed Bug when user leaves channel all audio is gone on receive
+
+version 4.04.01
+Removed Mutex for GPIO implemented a lock free archecture for GPIO using Channels.
+
+version 4.03.01
+Modified HTTP API and SSH to have ACL list for added security allowing only certain IP to access HTTP API and SSH remote console
+Removed the COLOG external dependency and bought the code into talkkonnect
+
+version 4.02.01
+fixed bottom line cli interface behaviour and logging behaviour
+
+version 4.02.00
+Improve radio-streamer to play in background when no one is talking support for url and youtubemusic
+
+version 4.01.00
+using go tools to prevent memory leaks and gorouting leaks
+gracefully handle panics
+
+version 4.00.01
+removed termbox go as the tui library
+changed the gpio library to use the new gpiocdev library for supporting new raspberr pi os and new raspberry pi models
+talkkonnect now supports bottom-terminal interactive CLI
+ssh remote control via screen is now supported
+
+
 version 3.00.01
 talkkonnect now supports daemon mode no need to rely on screen anymore
 talkkonnect has an online configuration editor available at port 8080/config

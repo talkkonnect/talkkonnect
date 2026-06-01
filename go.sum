@@ -64,8 +64,6 @@ github.com/talkkonnect/go-openal v0.0.0-20181013102444-59f5b1d30aff h1:Cdwko65/+
 github.com/talkkonnect/go-openal v0.0.0-20181013102444-59f5b1d30aff/go.mod h1:HNJVbiQ+pS+L9WiqdKSrR3fWiceF7lpnGQZgJRFeuz0=
 github.com/talkkonnect/gosshd v0.0.0-20231108084422-bc154c18c28f h1:m5Dv1aQ1Pjl1cJg7djNTyWCeRLfdCPg8gBFLXFvDY7s=
 github.com/talkkonnect/gosshd v0.0.0-20231108084422-bc154c18c28f/go.mod h1:wo3FFxDj2Be5CJJR6Lsfsj15wRo4dmHufNp0luGeUuQ=
-github.com/talkkonnect/gumble v0.0.0-20220821092831-ea5c6eef89b5 h1:YyIAhoMjUAkA2FMW9DGbx8Q3tI7zYxO2j6D1SN54tr8=
-github.com/talkkonnect/gumble v0.0.0-20220821092831-ea5c6eef89b5/go.mod h1:noOPjJie+0MkL38lno8zFRbzL/zVN8oRETIRXzo19NI=
 github.com/talkkonnect/max7219 v0.0.0-20220213082435-2caf99768298 h1:LdPBOubROLa9+V2/bIqF2IAuaLjb4fSmLe8JWaUj4pg=
 github.com/talkkonnect/max7219 v0.0.0-20220213082435-2caf99768298/go.mod h1:RYVyiuHwl28P8BIi66n5eFSY6+hvKI6lkov8GXlm08Y=
 github.com/talkkonnect/sa818 v0.0.0-20220127110204-d50fa95aa36e h1:xNv37ks1NBut0bhomEQEjH1bsrPcfSst67d36PoYca0=

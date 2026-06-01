@@ -115,6 +115,10 @@ func (b *Talkkonnect) TransmitStart() {
 	if !(IsConnected) {
 		return
 	}
+	if b.IsTransmitting {
+		log.Println("debug: Ignoring PTT start while still transmitting or playing roger beep")
+		return
+	}
 
 	internetRadioNotifyVoiceOrTX()
 
@@ -179,8 +183,8 @@ func (b *Talkkonnect) TransmitStop(withBeep bool) {
 		}
 	}
 
-	b.IsTransmitting = false
 	b.StopSource()
+	b.IsTransmitting = false
 
 	if Config.Global.Software.Settings.SimplexWithMute {
 		err := volume.Unmute(Config.Global.Software.Settings.OutputDevice)

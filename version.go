@@ -31,12 +31,15 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "4.06.02"
-	talkkonnectReleased string = "30 May 2026"
+	talkkonnectVersion  string = "4.06.03"
+	talkkonnectReleased string = "01 Jun 2026"
 )
 
 
 /* Release Notes
+version 4.06.03
+Fixed intermittent garbled roger beep on receive: block re-PTT during roger beep, log RX buffer drops, zero-pad final audio frame at stream end.
+
 version 4.06.02
 Fixed Status for Speaking and Muted to for Graphical Screen Status
 

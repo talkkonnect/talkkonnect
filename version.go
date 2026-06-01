@@ -31,12 +31,15 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "4.06.04"
+	talkkonnectVersion  string = "4.06.05"
 	talkkonnectReleased string = "01 Jun 2026"
 )
 
 
 /* Release Notes
+version 4.06.05
+Added server name to the display API
+
 version 4.06.04
 Added talkkonnect version to the display API
 

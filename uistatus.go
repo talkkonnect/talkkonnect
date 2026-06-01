@@ -38,24 +38,25 @@ type UIChannelNode struct {
 
 // UIStatus is JSON telemetry for external framebuffer / dashboard clients.
 type UIStatus struct {
-	Connected     bool                 `json:"connected"`
-	Transmitting  bool                 `json:"transmitting"`
-	Server        string               `json:"server"`
-	Channel       string               `json:"channel"`
-	UsersOnline   int                  `json:"usersOnline"`
-	ChannelUsers  []UIChannelUser      `json:"channelUsers"`
-	ChannelTree   []UIChannelNode      `json:"channelTree"`
-	Receiving     bool                 `json:"receiving"`
-	LastSpeaker   string               `json:"lastSpeaker"`
-	RXVolume      int                  `json:"rxVolume"`
-	Muted         bool                 `json:"muted"`
-	InternetRadio InternetRadioStatus  `json:"internetRadio"`
-	IPAddress     string               `json:"ipAddress"`
-	Bitrate       string               `json:"bitrate"`
-	UptimeSec     int64                `json:"uptimeSec"`
-	Activity       string               `json:"activity"`
-	MumbleUsername string               `json:"mumbleUsername"`
-	Version        string               `json:"version"`
+	Connected      bool                `json:"connected"`
+	Transmitting   bool                `json:"transmitting"`
+	ServerName     string              `json:"serverName"`
+	Server         string              `json:"server"`
+	Channel        string              `json:"channel"`
+	UsersOnline    int                 `json:"usersOnline"`
+	ChannelUsers   []UIChannelUser     `json:"channelUsers"`
+	ChannelTree    []UIChannelNode     `json:"channelTree"`
+	Receiving      bool                `json:"receiving"`
+	LastSpeaker    string              `json:"lastSpeaker"`
+	RXVolume       int                 `json:"rxVolume"`
+	Muted          bool                `json:"muted"`
+	InternetRadio  InternetRadioStatus `json:"internetRadio"`
+	IPAddress      string              `json:"ipAddress"`
+	Bitrate        string              `json:"bitrate"`
+	UptimeSec      int64               `json:"uptimeSec"`
+	Activity       string              `json:"activity"`
+	MumbleUsername string              `json:"mumbleUsername"`
+	Version        string              `json:"version"`
 }
 
 func primaryLocalIPv4() string {
@@ -195,15 +196,16 @@ func (b *Talkkonnect) channelTreeSnapshot() []UIChannelNode {
 
 func (b *Talkkonnect) buildUIStatus() UIStatus {
 	st := UIStatus{
-		Connected:    IsConnected,
-		Transmitting: b != nil && b.IsTransmitting,
-		Server:       b.Address,
+		Connected:     IsConnected,
+		Transmitting:  b != nil && b.IsTransmitting,
+		ServerName:    strings.TrimSpace(b.Name),
+		Server:        b.Address,
 		LastSpeaker:   LastSpeaker,
 		Receiving:     ReceivingVoice,
 		InternetRadio: InternetRadioStatusSnapshot(),
-		IPAddress:    primaryLocalIPv4(),
-		UptimeSec:    int64(time.Since(StartTime).Seconds()),
-		Version:      talkkonnectVersion,
+		IPAddress:     primaryLocalIPv4(),
+		UptimeSec:     int64(time.Since(StartTime).Seconds()),
+		Version:       talkkonnectVersion,
 	}
 
 	if vol, err := volume.GetVolume(Config.Global.Software.Settings.OutputVolControlDevice); err == nil {

@@ -31,12 +31,15 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "4.07.01"
+	talkkonnectVersion  string = "4.07.02"
 	talkkonnectReleased string = "02 Jun 2026"
 )
 
 
 /* Release Notes
+version 4.07.02
+Fixed Bug for USB Remote Keyboard Volumerxup and volumerxdown
+
 version 4.07.01
 Added support for multiple USB HID Devices for Remote Control
 

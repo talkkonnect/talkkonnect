@@ -487,9 +487,13 @@ type ConfigStruct struct {
 				PLowProfile          bool    `xml:"lowprofile"`
 			} `xml:"panicfunction"`
 			USBKeyboard struct {
-				Enabled         bool   `xml:"enabled,attr"`
-				USBKeyboardPath string `xml:"usbkeyboarddevpath"`
-				NumlockScanID   rune   `xml:"numlockscanid"`
+				Enabled bool `xml:"enabled,attr"`
+				USBKeyboardDevs struct {
+					Paths []string `xml:"usbkeyboarddevpath"`
+				} `xml:"usbkeyboarddevs"`
+				LegacyUSBKeyboardPath string   `xml:"usbkeyboarddevpath"`
+				USBKeyboardPaths      []string `xml:"-"`
+				NumlockScanID         rune     `xml:"numlockscanid"`
 			} `xml:"usbkeyboard"`
 			AudioRecordFunction struct {
 				Enabled           bool   `xml:"enabled,attr"`
@@ -1440,7 +1444,7 @@ func printxmlconfig() {
 	} else {
 		log.Println("info: ------------ USBKeyboard Function -------------- ")
 		log.Println("info: USBKeyboardEnabled", Config.Global.Hardware.USBKeyboard.Enabled)
-		log.Println("info: USBKeyboardPath", Config.Global.Hardware.USBKeyboard.USBKeyboardPath)
+		log.Println("info: USBKeyboardPaths", Config.Global.Hardware.USBKeyboard.USBKeyboardPaths)
 		log.Println("info: NumLockScanID", Config.Global.Hardware.USBKeyboard.NumlockScanID)
 	}
 
@@ -1598,12 +1602,28 @@ func modifyXMLTagServerHopping(inputXMLFile string, newserverindex int) {
 	killSession()
 }
 
+func normalizeUSBKeyboardDevicePaths() {
+	hk := &Config.Global.Hardware.USBKeyboard
+	var paths []string
+	for _, p := range hk.USBKeyboardDevs.Paths {
+		p = strings.TrimSpace(p)
+		if p != "" {
+			paths = append(paths, p)
+		}
+	}
+	if p := strings.TrimSpace(hk.LegacyUSBKeyboardPath); p != "" {
+		paths = append(paths, p)
+	}
+	hk.USBKeyboardPaths = paths
+}
+
 func CheckConfigSanity(reloadxml bool) {
 
 	Warnings := 0
 	Alerts := 0
 
 	log.Println("info: Starting XML Configuration Sanity and Logical Checks")
+	normalizeUSBKeyboardDevicePaths()
 
 	Counter := 0
 	for _, account := range Config.Accounts.Account {

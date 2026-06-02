@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
     <accounts>
-        <account name="mumble.talkkonnect.com" default="true">
+        <account name="talkkonnect-community" default="true">
             <serverandport>mumble.talkkonnect.com:64738</serverandport>
             <username></username>
             <password></password>
@@ -117,8 +117,8 @@
                 <sound action="participants" enabled="false"/>
                 <sound action="channelup" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/ChannelUp.wav" blocking="false" enabled="false"/>
                 <sound action="channeldown" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/ChannelDown.wav" blocking="false" enabled="false"/>
-                <sound action="mutespeaker" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/MuteSpeaker.wav" blocking="true" enabled="true"/>
-                <sound action="unmutespeaker" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/UnmuteSpeaker.wav" blocking="true" enabled="true"/>
+                <sound action="muteSpeaker" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/MuteSpeaker.wav" blocking="true" enabled="true"/>
+                <sound action="unmuteSpeaker" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/UnmuteSpeaker.wav" blocking="true" enabled="true"/>
                 <sound action="currentvolumelevel" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/CurrentVolumeLevel.wav" blocking="false" enabled="false"/>
                 <sound action="digitalvolumeup" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/DigitalVolumeUp.wav" blocking="false" enabled="false"/>
                 <sound action="digitalvolumedown" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/DigitalVolumeDown.wav" blocking="false" enabled="false"/>
@@ -152,13 +152,13 @@
                 <googlemapsurl>false</googlemapsurl>
             </smtp>
             <sounds>
-                <sound event="joinedchannel" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/events/stop-13692.wav" volume="50" blocking="false" enabled="true"/>
-                <sound event="leftchannel" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/events/discord-leave.wav" volume="100" blocking="false" enabled="true"/>
-                <sound event="message" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/events/message.wav" volume="10" blocking="true" enabled="true"/>
+                <sound event="joinedchannel" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/events/stop-13692.wav" volume="50" blocking="false" enabled="false"/>
+                <sound event="leftchannel" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/events/discord-leave.wav" volume="100" blocking="false" enabled="false"/>
+                <sound event="message" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/events/message.wav" volume="10" blocking="true" enabled="false"/>
                 <sound event="alert" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/alerts/alert.wav" volume="10" blocking="false" enabled="false"/>
                 <sound event="incommingbeep" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/rogerbeeps/Waterdrop.wav" volume="50" blocking="false" enabled="false"/>
-                <sound event="txlockout" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/rogerbeeps/BeeBoo.wav" volume="50" blocking="false" enabled="true"/>
-                <sound event="rogerbeep" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/rogerbeeps/Chirsp.wav" volume="50" blocking="false" enabled="false"/>
+                <sound event="txlockout" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/rogerbeeps/Apollo.wav" volume="50" blocking="true" enabled="false"/>
+                <sound event="rogerbeep" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/rogerbeeps/Apollo.wav" volume="50" blocking="false" enabled="true"/>
                 <sound event="stream" file="/root/tk-thai.wav" volume="100" blocking="false" enabled="true"/> 
            	        <input enabled="true">
                         <sound event="txpttstart"   file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/rogerbeeps/YellowJacket.wav" enabled="true"/>
@@ -483,7 +483,10 @@
                 <lowprofile>false</lowprofile>
             </panicfunction>
             <usbkeyboard enabled="true">
-                <usbkeyboarddevpath>/dev/input/by-id/usb-C-Media_Electronics_Inc._USB_Audio_Device-event-if03</usbkeyboarddevpath>
+                <usbkeyboarddevs>
+                    <usbkeyboarddevpath>/dev/input/by-id/usb-C-Media_Electronics_Inc._USB_Audio_Device-event-if03</usbkeyboarddevpath>
+                    <usbkeyboarddevpath>/dev/input/by-id/usb-32c2_2.4G_Wireless_Keyboard___Mouse-event-kbd</usbkeyboarddevpath>
+                </usbkeyboarddevs>
                 <numlockscanid>69</numlockscanid>
             </usbkeyboard>
             <keyboard>

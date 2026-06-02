@@ -39,19 +39,26 @@ import (
 )
 
 func (b *Talkkonnect) USBKeyboard() {
+	for _, devicePath := range Config.Global.Hardware.USBKeyboard.USBKeyboardPaths {
+		go b.usbKeyboardListener(devicePath)
+	}
+}
 
-	device, err := evdev.Open(Config.Global.Hardware.USBKeyboard.USBKeyboardPath)
+func (b *Talkkonnect) usbKeyboardListener(devicePath string) {
+	device, err := evdev.Open(devicePath)
 	if err != nil {
-		log.Printf("error: Unable to open USB Keyboard input device: %s\nError: %v It will now Be Disabled\n", Config.Global.Hardware.USBKeyboard.USBKeyboardPath, err)
+		log.Printf("error: Unable to open USB Keyboard input device: %s\nError: %v It will now Be Disabled\n", devicePath, err)
 		return
 	}
+
+	log.Printf("info: USB Keyboard listener started on %s\n", devicePath)
 
 	var keyPrevStateDown bool
 
 	for {
 		events, err := device.Read()
 		if err != nil {
-			log.Printf("error: Unable to Read Event From USB Keyboard error %v\n", err)
+			log.Printf("error: Unable to Read Event From USB Keyboard %s error %v\n", devicePath, err)
 			return
 		}
 
@@ -111,9 +118,11 @@ func (b *Talkkonnect) USBKeyboard() {
 				}
 
 				if ke.State == evdev.KeyUp {
-					if strings.ToLower(USBKeyMap[rune(ke.Scancode)].Command) == "pttkey" {
-						if b.IsTransmitting {
-							b.TransmitStop(false)
+					if _, ok := USBKeyMap[rune(ke.Scancode)]; ok {
+						if strings.ToLower(USBKeyMap[rune(ke.Scancode)].Command) == "pttkey" {
+							if b.IsTransmitting {
+								b.TransmitStop(false)
+							}
 						}
 					}
 				}

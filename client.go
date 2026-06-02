@@ -492,7 +492,7 @@ func (b *Talkkonnect) ClientStart() {
 		}
 	}
 
-	if Config.Global.Hardware.USBKeyboard.Enabled && len(Config.Global.Hardware.USBKeyboard.USBKeyboardPath) > 0 {
+	if Config.Global.Hardware.USBKeyboard.Enabled && len(Config.Global.Hardware.USBKeyboard.USBKeyboardPaths) > 0 {
 		go b.USBKeyboard()
 	}
 

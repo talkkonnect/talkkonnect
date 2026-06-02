@@ -1060,6 +1060,7 @@ func readxmlconfig(file string, reloadxml bool) error {
 		Config.Global.Multimedia = ReConfig.Global.Multimedia
 		Config.Global.StreamingRadio = ReConfig.Global.StreamingRadio
 		internetRadioConfigureFromXML()
+		preloadEventSounds()
 		//ReConfig.Accounts.Account[0].Listentochannels
 
 	}
@@ -2017,4 +2018,5 @@ func CheckConfigSanity(reloadxml bool) {
 	} else {
 		log.Println("info: Finished XML Configuration Sanity and Logical Checks Without Any Alerts/Errors/Warnings")
 	}
+	preloadEventSounds()
 }

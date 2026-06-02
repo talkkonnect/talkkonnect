@@ -147,19 +147,17 @@ func (b *Talkkonnect) StopSource() error {
 	close(b.Stream.sourceStop)
 	b.Stream.sourceStop = nil
 	b.Stream.deviceSource.CaptureStop()
-	// Wait until mic AudioOutgoing is closed (Mumble terminator) before opening another for roger beep.
+	// Wait until sourceRoutine exits (roger tail + Mumble terminator on same AudioOutgoing).
 	b.Stream.sourceWG.Wait()
 	// Device remains open for next transmission - only stop capture
-	var eventSound EventSoundStruct = findEventSound("rogerbeep")
-	if eventSound.Enabled {
+	if rogerBeepNeedsFallback() {
+		eventSound := findEventSound("rogerbeep")
 		GPIOOutPin("transmit", "on")
-		//MyLedStripTransmitLEDOn()
-		log.Println("debug: Rogerbeep Playing")
+		log.Println("debug: Rogerbeep Playing (ffmpeg fallback)")
 		if v, err := strconv.ParseFloat(eventSound.Volume, 32); err == nil {
 			b.splayIntoStream(eventSound.FileName, float32(v))
 		}
 		GPIOOutPin("transmit", "off")
-		//MyLedStripTransmitLEDOff()
 	}
 
 	return nil
@@ -303,6 +301,7 @@ func (b *Talkkonnect) sourceRoutine() {
 	for {
 		select {
 		case <-stop:
+			playRogerBeepTail(b.Stream.client, outgoing)
 			return
 		case <-connDone:
 			return

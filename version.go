@@ -31,12 +31,15 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "4.07.03"
+	talkkonnectVersion  string = "4.08.01"
 	talkkonnectReleased string = "02 Jun 2026"
 )
 
 
 /* Release Notes
+version 4.08.01
+Updated Opus Codec to Version 1.6 For arm and x86 
+
 version 4.07.03
 Fixed Rogerbeep dead air between key release and playing beep by using same stream
 

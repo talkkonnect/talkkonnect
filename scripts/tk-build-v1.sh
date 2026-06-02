@@ -13,6 +13,8 @@ apt-get update
 apt-get -y install curl screen pkg-config git gccgo libopenal-dev libopus-dev \
 opus-tools pulseaudio pulseaudio-utils libasound2-dev ffmpeg screen pkg-config \
 psmisc
+SCRIPT_DIR="$(cd -- "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
+"${SCRIPT_DIR}/deps/opus.sh"
 
 ## Add talkkonnect user to the system
 
@@ -174,7 +176,7 @@ echo "=> Finished building talkkonnect. It's a success!"
 echo "=> Time to build talkkonnect:" $elapsed
 echo "=> Your talkkonnect version:" `sed -n 34p /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/version.go \
 | cut -c32-38` from `sed -n 35p /home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/version.go | cut -c32-42`
-echo "=> Your Opus codec version:" `opusenc -V | grep -Po 'libopus\s\K.*' | cut -c1-5`
+echo "=> Your Opus codec version:" `pkg-config --modversion opus 2>/dev/null || opusenc -V 2>/dev/null | grep -Po 'libopus\s\K.*' || echo unknown`
 echo "=> Your Golang version:" `go version | cut -c14-20`
 echo "=> talkkonnect binary size:" $tksize
 echo "=> talkkonnect binary path: /home/talkkonect/bin/talkkonnect"

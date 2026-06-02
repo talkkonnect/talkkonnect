@@ -40,6 +40,9 @@ apt-get install -y --no-install-recommends \
   ffmpeg \
   mplayer
 
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
+"${SCRIPT_DIR}/opus.sh"
+
 say
 say "Dependency installation complete."
 say "You can now run:"

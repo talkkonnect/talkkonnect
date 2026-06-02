@@ -13,6 +13,7 @@ LDFLAGS := -s -w -X main.version=$(VERSION) -X main.commit=$(GIT_SHA)
 help:
 	@echo "Targets:"
 	@echo "  make deps-debian      Install build deps on Debian/Raspbian (NO dist-upgrade)"
+	@echo "  make deps-opus        Install libopus >= 1.6.1 from source if needed"
 	@echo "  make build            Build $(BINARY) into $(OUTDIR)/"
 	@echo "  make test             Run tests"
 	@echo "  make install          Install into PREFIX (default: /usr/local)"
@@ -26,13 +27,17 @@ deps:
 deps-arch:
 	./scripts/deps/arch.sh
 
-.PHONY: deps-debian
+.PHONY: deps-debian deps-opus
 deps-debian:
-	sudo apt-get update
-	sudo apt-get install -y --no-install-recommends \
-		build-essential pkg-config git ca-certificates curl \
-		libopenal-dev libopus-dev libasound2-dev \
-		ffmpeg mplayer
+	sudo ./scripts/deps/debian.sh
+
+deps-opus:
+	sudo ./scripts/deps/opus.sh
+
+PKG_CONFIG_PATH := /usr/local/lib/pkgconfig:$(PKG_CONFIG_PATH)
+export PKG_CONFIG_PATH
+CGO_LDFLAGS ?= -Wl,-rpath,/usr/local/lib
+export CGO_LDFLAGS
 
 .PHONY: build
 build:

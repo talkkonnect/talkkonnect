@@ -13,6 +13,13 @@ Arch-based.
 
 Requirements:
 * [Go 1.25.0 or newer](https://go.dev/doc/install)
+* **libopus 1.6.1** development headers (`libopus-dev` or built from source)
+
+Debian and Raspbian often ship an older `libopus-dev`. The dependency installer builds and installs libopus 1.6.1 automatically when needed. You can also run it directly:
+
+```shell
+sudo make deps-opus
+```
 
 In Linux (and maybe macOS) talKKonnect can be used simply by cloning the repository and building:
 ```shell

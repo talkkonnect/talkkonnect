@@ -1234,6 +1234,9 @@ do_install_prerequisites() {
 	## Install the dependencies required for talkkonnect
 	apt update -y
 	apt -y install libopenal-dev libopus-dev libasound2-dev git ffmpeg mplayer screen pkg-config cpuinfo lshw i2c-tools
+	local script_dir
+	script_dir="$(cd -- "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
+	"${script_dir}/deps/opus.sh"
 }
 
 do_install_go() {

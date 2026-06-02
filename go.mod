@@ -48,6 +48,6 @@ require (
 	google.golang.org/protobuf v1.33.0 // indirect
 )
 
-replace github.com/talkkonnect/gopus => github.com/layeh/gopus v0.0.0-20161224163843-0ebf989153aa
+replace github.com/talkkonnect/gopus => ./third_party/gopus
 
 replace github.com/talkkonnect/gumble => ./third_party/gumble

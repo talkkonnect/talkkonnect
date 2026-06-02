@@ -9,7 +9,7 @@ Most Libraries are however heavily vendored (modified from original). You will n
 
 [talKKonnect](http://www.talkkonnect.com) was developed initially to run on Linux SBCs. The latest version can be scaled to run all the way from ARM SBCs to full fledged X86 servers.
 
-To compile on X86 archectures you would need to revert back to Tim Cooper's version of GOOPUS (Opus) since the older build supports x86 processors.
+Opus audio uses system **libopus 1.6.1** (via pkg-config) on all platforms. The vendored [gopus](./third_party/gopus) binding is included in this repo. When your distro `libopus-dev` package is older than 1.6.1, run `sudo ./scripts/deps/opus.sh` or `make deps-opus` before building.
 
 Raspberry Pi 2B,3B,3A+,3B+,4B,400,Zero 2W, Orange PI Zero H2 Chip targets have all been tested and work as expected.
 

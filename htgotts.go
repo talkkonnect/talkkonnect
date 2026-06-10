@@ -28,11 +28,12 @@ package talkkonnect
 
 import (
 	"log"
+	"strings"
 	"time"
 )
 
 func (b *Talkkonnect) Speak(text string, destination string, playBackVolume int, duration float32, loop int, language string) {
-	generatedHashName := generateHashName(text)
+	generatedHashName := generateHashName(text + "\x00" + language)
 	fileNameWithPath := Config.Global.Software.TTSMessages.TTSSoundDirectory + "/" + generatedHashName + ".mp3"
 
 	createFolderIfNotExists(Config.Global.Software.TTSMessages.TTSSoundDirectory)
@@ -68,7 +69,16 @@ func (b *Talkkonnect) Speak(text string, destination string, playBackVolume int,
 
 }
 
-func (b *Talkkonnect) TTSPlayerMessage(ttsMessage string, ttsLocalPlay bool, ttsPlayIntoStream bool) {
+func (b *Talkkonnect) TTSPlayerMessage(ttsMessage string, ttsLocalPlay bool, ttsPlayIntoStream bool, language string) {
+	if strings.TrimSpace(ttsMessage) == "" {
+		return
+	}
+	if language == "" {
+		language = Config.Global.Software.TTSMessages.TTSLanguage
+		if language == "" {
+			language = "en"
+		}
+	}
 
 	if ttsLocalPlay {
 		if Config.Global.Software.TTSMessages.GPIO.Enabled {
@@ -77,7 +87,7 @@ func (b *Talkkonnect) TTSPlayerMessage(ttsMessage string, ttsLocalPlay bool, tts
 		if Config.Global.Software.TTSMessages.PreDelay.Value.Seconds() > 0 {
 			time.Sleep(time.Duration(Config.Global.Software.TTSMessages.PreDelay.Value.Seconds()))
 		}
-		b.Speak(ttsMessage, "local", Config.Global.Software.TTS.Volumelevel, 0, 1, Config.Global.Software.TTSMessages.TTSLanguage)
+		b.Speak(ttsMessage, "local", Config.Global.Software.TTS.Volumelevel, 0, 1, language)
 		if Config.Global.Software.TTSMessages.PostDelay.Value.Seconds() > 0 {
 			time.Sleep(time.Duration(Config.Global.Software.TTSMessages.PostDelay.Value.Seconds()))
 		}
@@ -87,7 +97,7 @@ func (b *Talkkonnect) TTSPlayerMessage(ttsMessage string, ttsLocalPlay bool, tts
 	}
 
 	if ttsPlayIntoStream {
-		b.Speak(ttsMessage, "intostream", Config.Global.Software.TTSMessages.SpeakVolumeIntoStream, 0, 1, Config.Global.Software.TTSMessages.TTSLanguage)
+		b.Speak(ttsMessage, "intostream", Config.Global.Software.TTSMessages.SpeakVolumeIntoStream, 0, 1, language)
 	}
 }
 

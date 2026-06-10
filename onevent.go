@@ -171,11 +171,16 @@ func (b *Talkkonnect) OnTextMessage(e *gumble.TextMessageEvent) {
 	for _, tts := range Config.Global.Software.TTS.Sound {
 		if tts.Action == "message" {
 			if tts.Enabled {
-				voiceMessage := fmt.Sprintf("Message from %v %v\n", sender, cleanstring(e.Message))
+				msgText := uiMessageText(e.Message)
+				if msgText == "" {
+					break
+				}
+				lang := ttsLanguageForMessage(msgText)
 				if Config.Global.Software.TTSMessages.TTSMessageFromTag {
-					b.TTSPlayerMessage(voiceMessage, Config.Global.Software.TTSMessages.LocalPlay, Config.Global.Software.TTSMessages.PlayIntoStream)
+					voiceMessage := fmt.Sprintf("Message from %v %v", sender, msgText)
+					b.TTSPlayerMessage(voiceMessage, Config.Global.Software.TTSMessages.LocalPlay, Config.Global.Software.TTSMessages.PlayIntoStream, lang)
 				} else {
-					b.TTSPlayerMessage(cleanstring(e.Message), Config.Global.Software.TTSMessages.LocalPlay, Config.Global.Software.TTSMessages.PlayIntoStream)
+					b.TTSPlayerMessage(msgText, Config.Global.Software.TTSMessages.LocalPlay, Config.Global.Software.TTSMessages.PlayIntoStream, lang)
 				}
 			}
 		}

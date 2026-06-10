@@ -288,6 +288,7 @@ type ConfigStruct struct {
 			TTSMessages struct {
 				Enabled           bool   `xml:"enabled,attr"`
 				TTSLanguage       string `xml:"ttslanguage"`
+				TTSLanguageThai   string `xml:"ttslanguagethai"`
 				TTSMessageFromTag bool   `xml:"ttsmessagefromtag"`
 				TTSTone           struct {
 					ToneEnabled bool   `xml:"enabled,attr"`
@@ -1253,6 +1254,7 @@ func printxmlconfig() {
 		log.Println("info: TTS Speak Volume Into Stream " + fmt.Sprintf("%v", Config.Global.Software.TTSMessages.SpeakVolumeIntoStream))
 		log.Println("info: TTS Play Volume Into Stream  " + fmt.Sprintf("%v", Config.Global.Software.TTSMessages.PlayVolumeIntoStream))
 		log.Println("info: TTSLanguage                  " + fmt.Sprintf("%v", Config.Global.Software.TTSMessages.TTSLanguage))
+		log.Println("info: TTSLanguageThai              " + fmt.Sprintf("%v", Config.Global.Software.TTSMessages.TTSLanguageThai))
 		log.Println("info: TTSSoundDirectory            " + fmt.Sprintf("%v", Config.Global.Software.TTSMessages.TTSSoundDirectory))
 		log.Println("info: TTSAnnouncementTone Enabled  " + fmt.Sprintf("%v", Config.Global.Software.TTSMessages.TTSTone.ToneEnabled))
 		log.Println("info: TTSAnnouncementTone File     " + fmt.Sprintf("%v", Config.Global.Software.TTSMessages.TTSTone.ToneFile))

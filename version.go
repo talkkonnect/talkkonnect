@@ -31,12 +31,15 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "4.09.01"
+	talkkonnectVersion  string = "4.10.01"
 	talkkonnectReleased string = "10 Jun 2026"
 )
 
 
 /* Release Notes
+version 4.10.01
+Support text to speech thai language on receive
+
 version 4.09.01
 Support Received Server/User Messages to Framebuffer Screen
 

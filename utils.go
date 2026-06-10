@@ -49,6 +49,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode"
 
 	externalip "github.com/glendc/go-external-ip"
 	"github.com/kennygrant/sanitize"
@@ -88,6 +89,28 @@ func uiMessageText(s string) string {
 // uiMessageSender sanitizes a sender name for framebuffer display while preserving Unicode.
 func uiMessageSender(s string) string {
 	return strings.TrimSpace(esc(s))
+}
+
+func stringNeedsThai(s string) bool {
+	for _, r := range s {
+		if unicode.In(r, unicode.Thai) {
+			return true
+		}
+	}
+	return false
+}
+
+func ttsLanguageForMessage(text string) string {
+	if stringNeedsThai(text) {
+		if lang := Config.Global.Software.TTSMessages.TTSLanguageThai; lang != "" {
+			return lang
+		}
+		return "th"
+	}
+	if lang := Config.Global.Software.TTSMessages.TTSLanguage; lang != "" {
+		return lang
+	}
+	return "en"
 }
 
 func plural(count int, singular string) (result string) {

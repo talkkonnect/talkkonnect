@@ -30,10 +30,11 @@ type UIChannelUser struct {
 
 // UIChannelNode is one row in the server channel tree for framebuffer clients.
 type UIChannelNode struct {
-	Name      string `json:"name"`
-	Depth     int    `json:"depth"`
-	UserCount int    `json:"userCount"`
-	Active    bool   `json:"active"`
+	Name       string `json:"name"`
+	Depth      int    `json:"depth"`
+	UserCount  int    `json:"userCount"`
+	Active     bool   `json:"active"`
+	Accessible bool   `json:"accessible"`
 }
 
 // UILastMessage is the most recent Mumble text message for framebuffer clients.
@@ -168,6 +169,16 @@ func (b *Talkkonnect) channelUsersSnapshot() []UIChannelUser {
 	return out
 }
 
+func channelAccessibleForUI(ch *gumble.Channel) bool {
+	if ch == nil {
+		return false
+	}
+	if perm := ch.Permission(); perm != nil {
+		return perm.Has(gumble.PermissionEnter)
+	}
+	return true
+}
+
 func sortedChannelChildren(ch *gumble.Channel) []*gumble.Channel {
 	if ch == nil || len(ch.Children) == 0 {
 		return nil
@@ -190,10 +201,11 @@ func (b *Talkkonnect) appendChannelTree(out *[]UIChannelNode, ch *gumble.Channel
 		return
 	}
 	*out = append(*out, UIChannelNode{
-		Name:      ch.Name,
-		Depth:     depth,
-		UserCount: len(ch.Users),
-		Active:    ch.ID == activeID,
+		Name:       ch.Name,
+		Depth:      depth,
+		UserCount:  len(ch.Users),
+		Active:     ch.ID == activeID,
+		Accessible: channelAccessibleForUI(ch),
 	})
 	for _, child := range sortedChannelChildren(ch) {
 		b.appendChannelTree(out, child, depth+1, activeID)
@@ -211,10 +223,11 @@ func (b *Talkkonnect) channelTreeSnapshot() []UIChannelNode {
 	}
 	if active != nil && RootChannel == nil {
 		return []UIChannelNode{{
-			Name:      active.Name,
-			Depth:     0,
-			UserCount: len(active.Users),
-			Active:    true,
+			Name:       active.Name,
+			Depth:      0,
+			UserCount:  len(active.Users),
+			Active:     true,
+			Accessible: channelAccessibleForUI(active),
 		}}
 	}
 	if RootChannel == nil {

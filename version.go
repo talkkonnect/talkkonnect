@@ -31,12 +31,15 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "4.10.01"
+	talkkonnectVersion  string = "4.10.02"
 	talkkonnectReleased string = "10 Jun 2026"
 )
 
 
 /* Release Notes
+version 4.10.02
+Support colorized channel list to show permissions
+
 version 4.10.01
 Support text to speech thai language on receive
 

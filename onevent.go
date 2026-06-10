@@ -67,6 +67,9 @@ func (b *Talkkonnect) OnConnect(e *gumble.ConnectEvent) {
 		for _, line := range strings.Split(strings.TrimSpace(tmessage), "\n") {
 			log.Println("info: ", strings.TrimSpace(line))
 		}
+		if welcome := uiMessageText(*e.WelcomeMessage); welcome != "" {
+			RecordUILastMessage("", welcome)
+		}
 	}
 
 	if Config.Global.Hardware.TargetBoard == "rpi" {
@@ -156,13 +159,14 @@ func (b *Talkkonnect) OnTextMessage(e *gumble.TextMessageEvent) {
 	}
 
 	var sender string
+	var uiSender string
 
 	if e.Sender != nil {
 		sender = strings.TrimSpace(cleanstring(e.Sender.Name))
+		uiSender = uiMessageSender(e.Sender.Name)
 		log.Println("info: Sender Name is ", sender)
-	} else {
-		sender = ""
 	}
+	RecordUILastMessage(uiSender, uiMessageText(e.Message))
 
 	for _, tts := range Config.Global.Software.TTS.Sound {
 		if tts.Action == "message" {

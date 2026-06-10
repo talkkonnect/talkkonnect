@@ -36,6 +36,36 @@ type UIChannelNode struct {
 	Active    bool   `json:"active"`
 }
 
+// UILastMessage is the most recent Mumble text message for framebuffer clients.
+type UILastMessage struct {
+	Sender string `json:"sender,omitempty"`
+	Text   string `json:"text,omitempty"`
+}
+
+var (
+	lastUIMessageSender string
+	lastUIMessageText   string
+)
+
+// RecordUILastMessage stores the latest received Mumble text message for /uistatus.
+func RecordUILastMessage(sender, text string) {
+	lastUIMessageSender = strings.TrimSpace(sender)
+	lastUIMessageText = strings.TrimSpace(text)
+}
+
+// ClearUILastMessage removes the stored Mumble text message from /uistatus.
+func ClearUILastMessage() {
+	lastUIMessageSender = ""
+	lastUIMessageText = ""
+}
+
+func lastUIMessageSnapshot() UILastMessage {
+	return UILastMessage{
+		Sender: lastUIMessageSender,
+		Text:   lastUIMessageText,
+	}
+}
+
 // UIStatus is JSON telemetry for external framebuffer / dashboard clients.
 type UIStatus struct {
 	Connected      bool                `json:"connected"`
@@ -48,6 +78,7 @@ type UIStatus struct {
 	ChannelTree    []UIChannelNode     `json:"channelTree"`
 	Receiving      bool                `json:"receiving"`
 	LastSpeaker    string              `json:"lastSpeaker"`
+	LastMessage    UILastMessage       `json:"lastMessage,omitempty"`
 	RXVolume       int                 `json:"rxVolume"`
 	Muted          bool                `json:"muted"`
 	InternetRadio  InternetRadioStatus `json:"internetRadio"`
@@ -201,6 +232,7 @@ func (b *Talkkonnect) buildUIStatus() UIStatus {
 		ServerName:    strings.TrimSpace(b.Name),
 		Server:        b.Address,
 		LastSpeaker:   LastSpeaker,
+		LastMessage:   lastUIMessageSnapshot(),
 		Receiving:     ReceivingVoice,
 		InternetRadio: InternetRadioStatusSnapshot(),
 		IPAddress:     primaryLocalIPv4(),

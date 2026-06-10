@@ -31,12 +31,15 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "4.08.01"
-	talkkonnectReleased string = "02 Jun 2026"
+	talkkonnectVersion  string = "4.09.01"
+	talkkonnectReleased string = "10 Jun 2026"
 )
 
 
 /* Release Notes
+version 4.09.01
+Support Received Server/User Messages to Framebuffer Screen
+
 version 4.08.01
 Updated Opus Codec to Version 1.6 For arm and x86 
 

@@ -70,6 +70,26 @@ func cleanstring(str string) string {
 	return sanitize.Name(str)
 }
 
+const uiMessageMaxRunes = 200
+
+// uiMessageText sanitizes Mumble text for framebuffer display while preserving Unicode (e.g. Thai).
+func uiMessageText(s string) string {
+	s = strings.TrimSpace(esc(s))
+	if s == "" {
+		return ""
+	}
+	runes := []rune(s)
+	if len(runes) > uiMessageMaxRunes {
+		return string(runes[:uiMessageMaxRunes])
+	}
+	return s
+}
+
+// uiMessageSender sanitizes a sender name for framebuffer display while preserving Unicode.
+func uiMessageSender(s string) string {
+	return strings.TrimSpace(esc(s))
+}
+
 func plural(count int, singular string) (result string) {
 	if (count == 1) || (count == 0) {
 		result = strconv.Itoa(count) + " " + singular + " "

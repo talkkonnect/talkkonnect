@@ -33,6 +33,7 @@ import (
 	"context"
 	"encoding/binary"
 	"errors"
+	"fmt"
 	"log"
 	"strconv"
 	"sync"
@@ -75,6 +76,62 @@ type Stream struct {
 	connCtx context.Context
 }
 
+func openalInputDeviceName() string {
+	return Config.Global.Software.Settings.OpenALInputDevice
+}
+
+func openalOutputDeviceName() string {
+	return Config.Global.Software.Settings.OpenALOutputDevice
+}
+
+func openalDeviceLabel(name string) string {
+	if name == "" {
+		return "(default)"
+	}
+	return name
+}
+
+func openCaptureDevice(name string, frameSize int) (*openal.CaptureDevice, error) {
+	device, err := openal.CaptureOpenDeviceChecked(name, gumble.AudioSampleRate, openal.FormatMono16, uint32(frameSize))
+	if err != nil {
+		log.Printf("error: OpenAL capture device %q failed: %v", openalDeviceLabel(name), err)
+		log.Printf("info: Available OpenAL capture devices: %v", openal.CaptureDevices())
+		return nil, fmt.Errorf("open capture device %q: %w", openalDeviceLabel(name), err)
+	}
+	opened := openal.GetDeviceString(&device.Device, openal.CaptureDeviceSpecifier)
+	log.Printf("info: OpenAL capture device opened: %q (requested %q)", opened, openalDeviceLabel(name))
+	return device, nil
+}
+
+func openPlaybackDevice(name string) (*openal.Device, *openal.Context, error) {
+	device, err := openal.OpenDeviceChecked(name)
+	if err != nil {
+		log.Printf("error: OpenAL playback device %q failed: %v", openalDeviceLabel(name), err)
+		log.Printf("info: Available OpenAL playback devices: %v", openal.PlaybackDevices())
+		return nil, nil, fmt.Errorf("open playback device %q: %w", openalDeviceLabel(name), err)
+	}
+	contextSink := device.CreateContext()
+	if !contextSink.Activate() {
+		device.CloseDevice()
+		return nil, nil, errors.New("failed to activate OpenAL playback context")
+	}
+	opened := openal.GetDeviceString(device, openal.AllDevicesSpecifier)
+	if opened == "" {
+		opened = openal.GetDeviceString(device, openal.DeviceSpecifier)
+	}
+	log.Printf("info: OpenAL playback device opened: %q (requested %q)", opened, openalDeviceLabel(name))
+	return device, contextSink, nil
+}
+
+// LogOpenALDevices logs available OpenAL devices when troubleshooting audio routing.
+func LogOpenALDevices() {
+	log.Printf("info: OpenAL capture devices: %v", openal.CaptureDevices())
+	log.Printf("info: OpenAL playback devices: %v", openal.PlaybackDevices())
+	log.Printf("info: Using openalinputdevice=%q", openalDeviceLabel(openalInputDeviceName()))
+	log.Printf("info: Using openaloutputdevice=%q", openalDeviceLabel(openalOutputDeviceName()))
+	log.Printf("info: Using localplaybackdevice=%q", openalDeviceLabel(Config.Global.Software.Settings.LocalPlaybackDevice))
+}
+
 func (b *Talkkonnect) New(client *gumble.Client) (*Stream, error) {
 	connParent := b.ConnCtx
 	if connParent == nil {
@@ -88,13 +145,19 @@ func (b *Talkkonnect) New(client *gumble.Client) (*Stream, error) {
 		sourceFrameSize: client.Config.AudioFrameSize(),
 		connCtx:         connParent,
 	}
-	s.deviceSource = openal.CaptureOpenDevice("", gumble.AudioSampleRate, openal.FormatMono16, uint32(s.sourceFrameSize))
 
-	s.deviceSink = openal.OpenDevice("")
+	var err error
+	s.deviceSource, err = openCaptureDevice(openalInputDeviceName(), s.sourceFrameSize)
+	if err != nil {
+		return nil, err
+	}
 
-	s.contextSink = s.deviceSink.CreateContext()
-
-	s.contextSink.Activate()
+	s.deviceSink, s.contextSink, err = openPlaybackDevice(openalOutputDeviceName())
+	if err != nil {
+		s.deviceSource.CaptureCloseDevice()
+		s.deviceSource = nil
+		return nil, err
+	}
 
 	s.link = client.Config.AttachAudio(s)
 
@@ -283,7 +346,12 @@ func (b *Talkkonnect) sourceRoutine() {
 		log.Println("error: FrameSize Error!")
 		b.Stream.deviceSource.CaptureCloseDevice()
 		b.Stream.sourceFrameSize = frameSize
-		b.Stream.deviceSource = openal.CaptureOpenDevice("", gumble.AudioSampleRate, openal.FormatMono16, uint32(b.Stream.sourceFrameSize))
+		deviceSource, err := openCaptureDevice(openalInputDeviceName(), b.Stream.sourceFrameSize)
+		if err != nil {
+			log.Printf("error: Failed to reopen OpenAL capture device: %v", err)
+			return
+		}
+		b.Stream.deviceSource = deviceSource
 	}
 
 	ticker := time.NewTicker(interval)

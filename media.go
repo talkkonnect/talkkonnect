@@ -35,18 +35,35 @@ import (
 	"bytes"
 	"fmt"
 	"log"
+	"os"
 	"os/exec"
 	"strconv"
 	"time"
 )
+
+func localPlaybackDeviceName() string {
+	return Config.Global.Software.Settings.LocalPlaybackDevice
+}
+
+func applyLocalPlaybackDevice(cmd *exec.Cmd) {
+	dev := localPlaybackDeviceName()
+	if dev == "" {
+		return
+	}
+	cmd.Env = append(os.Environ(), "AUDIODEV="+dev)
+}
 
 func aplayLocal(fileNameWithPath string) {
 	var player string
 	var CmdArguments = []string{}
 
 	if path, err := exec.LookPath("aplay"); err == nil {
-		CmdArguments = []string{fileNameWithPath, "-q", "-N"}
 		player = path
+		if dev := localPlaybackDeviceName(); dev != "" {
+			CmdArguments = []string{"-D", dev, fileNameWithPath, "-q", "-N"}
+		} else {
+			CmdArguments = []string{fileNameWithPath, "-q", "-N"}
+		}
 	} else if path, err := exec.LookPath("paplay"); err == nil {
 		CmdArguments = []string{fileNameWithPath}
 		player = path
@@ -57,6 +74,7 @@ func aplayLocal(fileNameWithPath string) {
 	log.Printf("debug: player %v CmdArguments %v", player, CmdArguments)
 
 	cmd := exec.Command(player, CmdArguments...)
+	applyLocalPlaybackDevice(cmd)
 
 	_, err := cmd.CombinedOutput()
 
@@ -79,6 +97,7 @@ func localMediaPlayer(fileNameWithPath string, playbackvolume int, blocking bool
 	}
 
 	cmd := exec.Command("/usr/bin/ffplay", CmdArguments...)
+	applyLocalPlaybackDevice(cmd)
 
 	WaitForFFPlay := make(chan struct{})
 	go func() {
@@ -114,6 +133,7 @@ func (b *Talkkonnect) PlayTone(toneFreq int, toneDuration float32, destination s
 
 		cmdArguments := []string{toneFileName, "-autoexit", "-nodisp"}
 		cmd := exec.Command("/usr/bin/ffplay", cmdArguments...)
+		applyLocalPlaybackDevice(cmd)
 		var out bytes.Buffer
 		cmd.Stdout = &out
 

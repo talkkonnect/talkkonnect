@@ -31,12 +31,24 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "4.10.03"
+	talkkonnectVersion  string = "4.10.05"
 	talkkonnectReleased string = "13 Jun 2026"
 )
 
 
 /* Release Notes
+version 4.10.03
+Added Configurability for Output Sound Card and Input Sound Card Configurability in XML
+previously talkkonnect could only use Default sound card.
+
+With loglevel=debug, talkkonnect logs available OpenAL devices at startup via LogOpenALDevices().
+You should see something like:
+info: OpenAL capture devices: [ALSA Default]
+info: OpenAL playback devices: [ALSA Default]
+
+version 4.10.04
+- No Update
+
 version 4.10.03
 Make the uistatus listener configurable for ip/port and enabled/disabled
 

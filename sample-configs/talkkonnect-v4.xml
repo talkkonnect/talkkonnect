@@ -70,6 +70,12 @@
                 <outputvolcontroldevice>Speaker</outputvolcontroldevice>
                 <outputmutecontroldevice>Speaker</outputmutecontroldevice>
                 <inputdevice>CAPTURE</inputdevice>
+                 <!-- With loglevel=debug, talkkonnect logs available OpenAL devices at startup via LogOpenALDevices() -->
+                <!-- Optional OpenAL device names for Mumble mic/speaker (empty = system default) -->
+                <openalinputdevice></openalinputdevice>
+                <openaloutputdevice></openaloutputdevice>
+                <!-- Optional ALSA device for local aplay/ffplay prompts (e.g. plughw:0,0) -->
+                <localplaybackdevice></localplaybackdevice>
                 <logfilenameandpath>/var/log/talkkonnect.log</logfilenameandpath>
                 <logging>screenwithlineno</logging>
                 <loglevel>debug</loglevel>

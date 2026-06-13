@@ -14,7 +14,7 @@ require (
 	github.com/talkkonnect/go-hd44780 v0.0.0-20210824123606-f3398c777f39
 	github.com/talkkonnect/go-mcp23017 v0.0.0-20210831103122-1c46ab6c8c82
 	github.com/talkkonnect/go-oled-i2c v0.0.0-20220315132146-0f5a50f4aa0a
-	github.com/talkkonnect/go-openal v0.0.0-20181013102444-59f5b1d30aff
+	github.com/talkkonnect/go-openal v0.1.0
 	github.com/talkkonnect/gosshd v0.0.0-20231108084422-bc154c18c28f
 	github.com/talkkonnect/gumble v0.0.0-20220821092831-ea5c6eef89b5
 	github.com/talkkonnect/max7219 v0.0.0-20220213082435-2caf99768298
@@ -51,3 +51,5 @@ require (
 replace github.com/talkkonnect/gopus => ./third_party/gopus
 
 replace github.com/talkkonnect/gumble => ./third_party/gumble
+
+replace github.com/talkkonnect/go-openal => ./third_party/go-openal

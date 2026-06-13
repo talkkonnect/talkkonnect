@@ -58,8 +58,6 @@ github.com/talkkonnect/go-mcp23017 v0.0.0-20210831103122-1c46ab6c8c82 h1:VgA8XaX
 github.com/talkkonnect/go-mcp23017 v0.0.0-20210831103122-1c46ab6c8c82/go.mod h1:9+q2vdqRNwz4tVg3K77nwUT2ePfkrrRWX+xy8u7lE6A=
 github.com/talkkonnect/go-oled-i2c v0.0.0-20220315132146-0f5a50f4aa0a h1:kvd1KeIOFfKF0ISfBgJcJ6gbjK9+7G3UOc7WvjEnDrs=
 github.com/talkkonnect/go-oled-i2c v0.0.0-20220315132146-0f5a50f4aa0a/go.mod h1:zdbvJKE9p2OJ3XMlb0X7YYD8GNPMILwDebKZH9OvMi8=
-github.com/talkkonnect/go-openal v0.0.0-20181013102444-59f5b1d30aff h1:Cdwko65/+E0ABkBIlkk8VPIKdH4gaOauhm56vMmdjwU=
-github.com/talkkonnect/go-openal v0.0.0-20181013102444-59f5b1d30aff/go.mod h1:HNJVbiQ+pS+L9WiqdKSrR3fWiceF7lpnGQZgJRFeuz0=
 github.com/talkkonnect/gosshd v0.0.0-20231108084422-bc154c18c28f h1:m5Dv1aQ1Pjl1cJg7djNTyWCeRLfdCPg8gBFLXFvDY7s=
 github.com/talkkonnect/gosshd v0.0.0-20231108084422-bc154c18c28f/go.mod h1:wo3FFxDj2Be5CJJR6Lsfsj15wRo4dmHufNp0luGeUuQ=
 github.com/talkkonnect/max7219 v0.0.0-20220213082435-2caf99768298 h1:LdPBOubROLa9+V2/bIqF2IAuaLjb4fSmLe8JWaUj4pg=

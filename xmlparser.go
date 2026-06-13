@@ -100,6 +100,9 @@ type ConfigStruct struct {
 				OutputVolControlDevice  string        `xml:"outputvolcontroldevice"`
 				OutputMuteControlDevice string        `xml:"outputmutecontroldevice"`
 				InputDevice             string        `xml:"inputdevice"`
+				OpenALInputDevice       string        `xml:"openalinputdevice"`
+				OpenALOutputDevice      string        `xml:"openaloutputdevice"`
+				LocalPlaybackDevice     string        `xml:"localplaybackdevice"`
 				LogFilenameAndPath      string        `xml:"logfilenameandpath"`
 				Logging                 string        `xml:"logging"`
 				Loglevel                string        `xml:"loglevel"`
@@ -1113,6 +1116,12 @@ func printxmlconfig() {
 		log.Println("info: Output Vol Control Device        ", Config.Global.Software.Settings.OutputVolControlDevice)
 		log.Println("info: Output Mute Control Device       ", Config.Global.Software.Settings.OutputMuteControlDevice)
 		log.Println("info: Input Device                     ", Config.Global.Software.Settings.InputDevice)
+		log.Println("info: OpenAL Input Device              ", Config.Global.Software.Settings.OpenALInputDevice)
+		log.Println("info: OpenAL Output Device             ", Config.Global.Software.Settings.OpenALOutputDevice)
+		log.Println("info: Local Playback Device            ", Config.Global.Software.Settings.LocalPlaybackDevice)
+		if strings.EqualFold(Config.Global.Software.Settings.Loglevel, "debug") {
+			LogOpenALDevices()
+		}
 		log.Println("info: Log File                         ", Config.Global.Software.Settings.LogFilenameAndPath)
 		log.Println("info: Logging                          ", Config.Global.Software.Settings.Logging)
 		log.Println("info: Loglevel                         ", Config.Global.Software.Settings.Loglevel)

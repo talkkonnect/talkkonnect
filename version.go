@@ -36,6 +36,9 @@ const (
 )
 
 /* Release Notes
+version 4.11.02
+Added the date time stamp to each recording entry
+
 version 4.11.01
 Added the username for the index of each recorded message in the mrec file 
 

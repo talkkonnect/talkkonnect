@@ -8,8 +8,9 @@
  *
  * avrecord.go -> record incoming Mumble voice traffic as raw Opus packets in
  * a custom .mrec binary format. Each block is:
- *   [8] timestamp ms, [4] session id, [2] sequence, [2] username len,
- *   [2] opus payload len, [username], [opus payload].
+ *   [8] file offset ms, [8] realtime unix ms, [4] session id, [2] sequence,
+ *   [2] username len, [2] opus payload len, [username], [opus payload].
+ * Filenames are: {basename}-{server}-{channel}-{timestamp}.mrec
  * Video capture uses external tools elsewhere.
  */
 
@@ -22,6 +23,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -30,7 +32,7 @@ import (
 )
 
 const (
-	mrecBlockHeaderSize = 18
+	mrecBlockHeaderSize = 26
 	defaultMrecBufSize  = 64 * 1024
 	defaultChannelBuf   = 4096
 	defaultFlushMS      = 1000
@@ -53,6 +55,7 @@ type mrecWriter struct {
 	maxFileSize   int64
 	indexLogPath  string
 	flushInterval time.Duration
+	tk            *Talkkonnect
 
 	mu           sync.Mutex
 	file         *os.File
@@ -143,6 +146,7 @@ func StartOpusTrafficRecording(b *Talkkonnect) {
 		maxFileSize:   maxFileSize,
 		indexLogPath:  indexLogPath,
 		flushInterval: time.Duration(flushMS) * time.Millisecond,
+		tk:            b,
 	}
 
 	globalOpusRecorder.recordChan = make(chan recordEntry, channelBuf)
@@ -325,10 +329,11 @@ func (w *mrecWriter) writeEntry(entry recordEntry) error {
 	}
 
 	binary.BigEndian.PutUint64(w.header[0:], uint64(ts))
-	binary.BigEndian.PutUint32(w.header[8:], entry.sessionID)
-	binary.BigEndian.PutUint16(w.header[12:], entry.sequence)
-	binary.BigEndian.PutUint16(w.header[14:], uint16(len(usernameBytes)))
-	binary.BigEndian.PutUint16(w.header[16:], uint16(len(entry.payload)))
+	binary.BigEndian.PutUint64(w.header[8:], uint64(entry.received.UnixMilli()))
+	binary.BigEndian.PutUint32(w.header[16:], entry.sessionID)
+	binary.BigEndian.PutUint16(w.header[20:], entry.sequence)
+	binary.BigEndian.PutUint16(w.header[22:], uint16(len(usernameBytes)))
+	binary.BigEndian.PutUint16(w.header[24:], uint16(len(entry.payload)))
 
 	if _, err := w.buf.Write(w.header[:]); err != nil {
 		return err
@@ -393,7 +398,14 @@ func (w *mrecWriter) closeFileLocked() {
 
 func (w *mrecWriter) openNewFileLocked() error {
 	now := time.Now()
-	filename := fmt.Sprintf("%s_%s.mrec", w.baseName, now.Format("20060102_150405"))
+	server, channel := w.currentServerChannel()
+	filename := fmt.Sprintf(
+		"%s-%s-%s-%s.mrec",
+		mrecFilenamePart(w.baseName),
+		mrecFilenamePart(server),
+		mrecFilenamePart(channel),
+		now.Format("20060102-150405"),
+	)
 	path := filepath.Join(w.savePath, filename)
 
 	f, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
@@ -422,4 +434,49 @@ func (w *mrecWriter) openNewFileLocked() error {
 
 	log.Printf("info: opened mrec file %s\n", absPath)
 	return nil
+}
+
+func (w *mrecWriter) currentServerChannel() (server, channel string) {
+	if w.tk == nil {
+		return "", ""
+	}
+
+	server = cleanstring(strings.TrimSpace(w.tk.Name))
+	if w.tk.Client != nil && w.tk.Client.Self != nil && w.tk.Client.Self.Channel != nil {
+		channel = cleanstring(strings.TrimSpace(w.tk.Client.Self.Channel.Name))
+	} else {
+		channel = cleanstring(strings.TrimSpace(w.tk.ChannelName))
+	}
+	return server, channel
+}
+
+func mrecFilenamePart(s string) string {
+	s = strings.TrimSpace(s)
+	if s == "" {
+		return "unknown"
+	}
+
+	var b strings.Builder
+	b.Grow(len(s))
+	lastHyphen := false
+	for _, r := range s {
+		switch r {
+		case '/', '\\', ':', '*', '?', '"', '<', '>', '|', ' ':
+			if !lastHyphen {
+				b.WriteByte('-')
+				lastHyphen = true
+			}
+		case '-':
+			b.WriteRune('-')
+			lastHyphen = true
+		default:
+			b.WriteRune(r)
+			lastHyphen = false
+		}
+	}
+	out := strings.Trim(b.String(), "-")
+	if out == "" {
+		return "unknown"
+	}
+	return out
 }

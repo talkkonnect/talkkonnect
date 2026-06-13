@@ -7,7 +7,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  * avrecord.go -> record incoming Mumble voice traffic as raw Opus packets in
- * a custom .mrec binary format. Video capture uses external tools elsewhere.
+ * a custom .mrec binary format. Each block is:
+ *   [8] timestamp ms, [4] session id, [2] sequence, [2] username len,
+ *   [2] opus payload len, [username], [opus payload].
+ * Video capture uses external tools elsewhere.
  */
 
 package talkkonnect
@@ -27,7 +30,7 @@ import (
 )
 
 const (
-	mrecBlockHeaderSize = 16
+	mrecBlockHeaderSize = 18
 	defaultMrecBufSize  = 64 * 1024
 	defaultChannelBuf   = 4096
 	defaultFlushMS      = 1000
@@ -39,6 +42,7 @@ const (
 type recordEntry struct {
 	sessionID uint32
 	sequence  uint16
+	username  string
 	payload   []byte
 	received  time.Time
 }
@@ -187,9 +191,20 @@ func (r *opusRecorder) OnAudioStream(e *gumble.AudioStreamEvent) {
 			payload := make([]byte, len(packet.OpusPayload))
 			copy(payload, packet.OpusPayload)
 
+			var sessionID uint32
+			var username string
+			if packet.Sender != nil {
+				sessionID = packet.Sender.Session
+				username = cleanstring(packet.Sender.Name)
+			} else if e.User != nil {
+				sessionID = e.User.Session
+				username = cleanstring(e.User.Name)
+			}
+
 			r.enqueue(recordEntry{
-				sessionID: packet.Sender.Session,
+				sessionID: sessionID,
 				sequence:  packet.Sequence,
+				username:  username,
 				payload:   payload,
 				received:  time.Now(),
 			})
@@ -281,7 +296,13 @@ func (w *mrecWriter) writeEntry(entry recordEntry) error {
 		return nil
 	}
 
-	blockSize := int64(mrecBlockHeaderSize + len(entry.payload))
+	usernameBytes := []byte(entry.username)
+	if len(usernameBytes) > 0xFFFF {
+		fmt.Fprintf(os.Stderr, "mrec: dropping oversized username (%d bytes)\n", len(usernameBytes))
+		return nil
+	}
+
+	blockSize := int64(mrecBlockHeaderSize + len(usernameBytes) + len(entry.payload))
 
 	w.mu.Lock()
 	defer w.mu.Unlock()
@@ -306,10 +327,16 @@ func (w *mrecWriter) writeEntry(entry recordEntry) error {
 	binary.BigEndian.PutUint64(w.header[0:], uint64(ts))
 	binary.BigEndian.PutUint32(w.header[8:], entry.sessionID)
 	binary.BigEndian.PutUint16(w.header[12:], entry.sequence)
-	binary.BigEndian.PutUint16(w.header[14:], uint16(len(entry.payload)))
+	binary.BigEndian.PutUint16(w.header[14:], uint16(len(usernameBytes)))
+	binary.BigEndian.PutUint16(w.header[16:], uint16(len(entry.payload)))
 
 	if _, err := w.buf.Write(w.header[:]); err != nil {
 		return err
+	}
+	if len(usernameBytes) > 0 {
+		if _, err := w.buf.Write(usernameBytes); err != nil {
+			return err
+		}
 	}
 	if _, err := w.buf.Write(entry.payload); err != nil {
 		return err

@@ -31,11 +31,14 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "4.11.01"
+	talkkonnectVersion  string = "4.11.02"
 	talkkonnectReleased string = "13 Jun 2026"
 )
 
 /* Release Notes
+version 4.11.01
+Added the username for the index of each recorded message in the mrec file 
+
 version 4.11.01
 Removed autdio recording to audio files instead recording raw opus packets to custom file
 for effeciency.

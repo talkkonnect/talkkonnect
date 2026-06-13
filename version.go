@@ -31,12 +31,15 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "4.10.02"
-	talkkonnectReleased string = "10 Jun 2026"
+	talkkonnectVersion  string = "4.10.03"
+	talkkonnectReleased string = "13 Jun 2026"
 )
 
 
 /* Release Notes
+version 4.10.03
+Make the uistatus listener configurable for ip/port and enabled/disabled
+
 version 4.10.02
 Support colorized channel list to show permissions
 

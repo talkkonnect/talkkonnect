@@ -157,7 +157,7 @@
                 <sound event="message" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/events/message.wav" volume="10" blocking="true" enabled="false"/>
                 <sound event="alert" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/alerts/alert.wav" volume="10" blocking="false" enabled="false"/>
                 <sound event="incommingbeep" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/rogerbeeps/Waterdrop.wav" volume="50" blocking="false" enabled="false"/>
-                <sound event="txlockout" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/rogerbeeps/Apollo.wav" volume="50" blocking="true" enabled="false"/>
+                <sound event="txlockout" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/rogerbeeps/Error.wav" volume="50" blocking="true" enabled="false"/>
                 <sound event="rogerbeep" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/rogerbeeps/Apollo.wav" volume="50" blocking="false" enabled="true"/>
                 <sound event="stream" file="/root/tk-thai.wav" volume="100" blocking="false" enabled="true"/> 
            	        <input enabled="true">
@@ -280,6 +280,8 @@
                       <command action="listeningstop"      message="Listen To Channel Off" enabled="true"/>
                 </commands>
             </mqtt>
+                <!-- Disable uistatus (enabled="false") when using built-in OLED/LCD screens instead of an external framebuffer client -->
+                <uistatus enabled="true" listenip="127.0.0.1" listenport="8080" url="/uistatus"/>
             </remotecontrol>
             <printvariables>
                 <printaccount>true</printaccount>
@@ -319,6 +321,7 @@
             </printvariables>
             <ttsmessages enabled="true">
                 <ttslanguage>en</ttslanguage>
+                <ttslanguagethai>th</ttslanguagethai>
                 <ttsmessagefromtag>false</ttsmessagefromtag>
                 <ttstone file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/announcements/announcement-01.wav" volume="10" enabled="true"/>
                 <localblocking>true</localblocking>
@@ -425,7 +428,7 @@
                 <lcdd6pin>23</lcdd6pin>
                 <lcdd7pin>18</lcdd7pin>
             </lcd>
-            <oled enabled="true">
+            <oled enabled="false">
                 <oledinterfacetype>i2c</oledinterfacetype>
                 <oleddisplayrows>10</oleddisplayrows>
                 <oleddisplaycolumns>21</oleddisplaycolumns>
@@ -485,7 +488,7 @@
             <usbkeyboard enabled="true">
                 <usbkeyboarddevs>
                     <usbkeyboarddevpath>/dev/input/by-id/usb-C-Media_Electronics_Inc._USB_Audio_Device-event-if03</usbkeyboarddevpath>
-                    <usbkeyboarddevpath>/dev/input/by-id/usb-32c2_2.4G_Wireless_Keyboard___Mouse-event-kbd</usbkeyboarddevpath>
+                    <usbkeyboarddevpath>/dev/input/by-id/usb-1189_8890-event-kbd</usbkeyboarddevpath>
                 </usbkeyboarddevs>
                 <numlockscanid>69</numlockscanid>
             </usbkeyboard>
@@ -496,28 +499,35 @@
               </command>
               <command action="channelup" paramname="" paramvalue="" enabled="true">
                 <ttykeyboard scanid="49" keylabel="1" enabled="true"/>
-                <usbkeyboard scanid="79" keylabel="1" enabled="true"/>
+                <usbkeyboard scanid="2" keylabel="2" enabled="true"/>
               </command>
               <command action="channeldown" paramname="" paramvalue="" enabled="true">
                 <ttykeyboard scanid="50" keylabel="2" enabled="true"/>
-                <usbkeyboard scanid="80" keylabel="2" enabled="true"/>
+                <usbkeyboard scanid="3" keylabel="2" enabled="true"/>
               </command>
-              <command action="volumeup" paramname="" paramvalue="" enabled="true">
+              <command action="volumerxup" paramname="" paramvalue="" enabled="true">
                 <ttykeyboard scanid="52" keylabel="4" enabled="true"/>
-                <usbkeyboard scanid="75" keylabel="4" enabled="true"/>
+                <usbkeyboard scanid="5" keylabel="5" enabled="true"/>
               </command>
-              <command action="volumedown" paramname="" paramvalue="" enabled="true">
+              <command action="volumerxdown" paramname="" paramvalue="" enabled="true">
                 <ttykeyboard scanid="53" keylabel="5" enabled="true"/>
-                <usbkeyboard scanid="76" keylabel="5" enabled="true"/>
+                <usbkeyboard scanid="6" keylabel="6" enabled="true"/>
               </command>
-              <command action="pttkey" paramname="" paramvalue="" enabled="true">
-                <ttykeyboard scanid="48" keylabel="0" enabled="true"/>
-                <usbkeyboard scanid="82" keylabel="0" enabled="true"/>
-              </command>
+              <command action="pttkey" paramname="" paramvalue="" enabled="false"/>
               <command action="serverup" paramname="" paramvalue="" enabled="false"/>
               <command action="serverdown" paramname="" paramvalue="" enabled="false"/>
-              <command action="mute" paramname="" paramvalue="" enabled="false"/>
-              <command action="unmute" paramname="" paramvalue="" enabled="false"/>
+
+              <command action="mute" paramname="" paramvalue="" enabled="true">
+                <ttykeyboard scanid="53" keylabel="5" enabled="true"/>
+                <usbkeyboard scanid="8" keylabel="8" enabled="true"/>
+              </command>
+
+              <command action="unmute" paramname="" paramvalue="" enabled="true">
+                <ttykeyboard scanid="53" keylabel="5" enabled="true"/>
+                <usbkeyboard scanid="7" keylabel="7" enabled="true"/>
+              </command>
+
+
               <command action="mute-toggle" paramname="" paramvalue="" enabled="false"/>
               <command action="stream-toggle" paramname="" paramvalue="" enabled="true"/>
               <command action="setcomment" paramname="away from terminal" paramvalue="0" enabled="false"/>
@@ -553,7 +563,7 @@
             </keyboard>
             <audiorecordfunction enabled="false">
                 <recordonstart>false</recordonstart>
-                <recordsystem></recordsystem>
+                <recordsystem></recordsystem>?
                 <recordmode>traffic</recordmode>
                 <recordtimeout>3600</recordtimeout>
                 <recordfromoutput>hw:0,0</recordfromoutput>

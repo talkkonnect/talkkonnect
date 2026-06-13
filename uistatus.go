@@ -11,6 +11,7 @@ package talkkonnect
 
 import (
 	"encoding/json"
+	"log"
 	"net"
 	"net/http"
 	"sort"
@@ -20,6 +21,46 @@ import (
 	"github.com/talkkonnect/gumble/gumble"
 	"github.com/talkkonnect/volume-go"
 )
+
+var uiStatusServRunning bool
+
+// applyUIStatusConfigDefaults fills uistatus settings after XML load.
+// When <uistatus> is absent, mirror the HTTP API enabled flag for backward compatibility.
+func applyUIStatusConfigDefaults(xmlBytes []byte) {
+	u := &Config.Global.Software.RemoteControl.UIStatus
+	if !strings.Contains(string(xmlBytes), "<uistatus") {
+		u.Enabled = Config.Global.Software.RemoteControl.HTTP.Enabled
+	}
+	if strings.TrimSpace(u.ListenIP) == "" {
+		u.ListenIP = "127.0.0.1"
+	}
+	if strings.TrimSpace(u.ListenPort) == "" {
+		u.ListenPort = Config.Global.Software.RemoteControl.HTTP.ListenPort
+	}
+	if strings.TrimSpace(u.ListenPort) == "" {
+		u.ListenPort = "8080"
+	}
+	if strings.TrimSpace(u.URL) == "" {
+		u.URL = "/uistatus"
+	} else if !strings.HasPrefix(u.URL, "/") {
+		u.URL = "/" + u.URL
+	}
+}
+
+func uiStatusSettings() (enabled bool, listenIP, listenPort, path string) {
+	u := Config.Global.Software.RemoteControl.UIStatus
+	return u.Enabled,
+		strings.TrimSpace(u.ListenIP),
+		strings.TrimSpace(u.ListenPort),
+		strings.TrimSpace(u.URL)
+}
+
+func uiStatusListenAddr(listenIP, listenPort string) string {
+	if listenIP == "" || listenIP == "0.0.0.0" {
+		return ":" + listenPort
+	}
+	return listenIP + ":" + listenPort
+}
 
 // UIChannelUser is one user in the current Mumble channel.
 type UIChannelUser struct {
@@ -311,11 +352,48 @@ func (b *Talkkonnect) httpUIStatus(w http.ResponseWriter, r *http.Request) {
 	_ = enc.Encode(st)
 }
 
-// UIStatusURL returns the local HTTP URL for framebuffer clients.
-func UIStatusURL(listenPort string) string {
-	port := strings.TrimSpace(listenPort)
-	if port == "" {
-		port = "8080"
+// UIStatusURL returns the HTTP URL for framebuffer clients from talkkonnect.xml.
+func UIStatusURL() string {
+	enabled, listenIP, listenPort, path := uiStatusSettings()
+	if !enabled {
+		return ""
 	}
-	return "http://127.0.0.1:" + port + "/uistatus"
+	return "http://" + listenIP + ":" + listenPort + path
+}
+
+// startRemoteControlHTTP starts the HTTP API and/or UIStatus listeners from talkkonnect.xml.
+func (b *Talkkonnect) startRemoteControlHTTP() {
+	httpEnabled := Config.Global.Software.RemoteControl.HTTP.Enabled
+	uiEnabled, uiIP, uiPort, uiPath := uiStatusSettings()
+	httpPort := strings.TrimSpace(Config.Global.Software.RemoteControl.HTTP.ListenPort)
+	if httpPort == "" {
+		httpPort = "8080"
+	}
+
+	if httpEnabled && !HTTPServRunning {
+		SafeGo(func() {
+			http.HandleFunc("/", b.httpAPI)
+			http.HandleFunc("/config", b.httpConfig)
+			if uiEnabled && uiPort == httpPort {
+				http.HandleFunc(uiPath, b.httpUIStatus)
+			}
+			HTTPServRunning = true
+			log.Println("info: Starting HTTP API Server on port ", httpPort)
+			if err := http.ListenAndServe(":"+httpPort, nil); err != nil {
+				FatalCleanUp("Problem Starting HTTP API Server " + err.Error())
+			}
+		})
+	}
+
+	if uiEnabled && (uiPort != httpPort || !httpEnabled) && !uiStatusServRunning {
+		SafeGo(func() {
+			http.HandleFunc(uiPath, b.httpUIStatus)
+			uiStatusServRunning = true
+			addr := uiStatusListenAddr(uiIP, uiPort)
+			log.Println("info: Starting UIStatus Server on ", addr, " path ", uiPath)
+			if err := http.ListenAndServe(addr, nil); err != nil {
+				FatalCleanUp("Problem Starting UIStatus Server " + err.Error())
+			}
+		})
+	}
 }

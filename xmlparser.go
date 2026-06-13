@@ -207,6 +207,12 @@ type ConfigStruct struct {
 						Enabled       bool   `xml:"enabled,attr"`
 					} `xml:"command"`
 				} `xml:"http"`
+				UIStatus struct {
+					Enabled    bool   `xml:"enabled,attr"`
+					ListenIP   string `xml:"listenip,attr"`
+					ListenPort string `xml:"listenport,attr"`
+					URL        string `xml:"url,attr"`
+				} `xml:"uistatus"`
 				NetworkACL struct {
 					Enabled bool `xml:"enabled,attr"`
 					Network []struct {
@@ -1051,6 +1057,7 @@ func readxmlconfig(file string, reloadxml bool) error {
 		Config.Global.Software.Sounds = ReConfig.Global.Software.Sounds
 		Config.Global.Software.RemoteControl.HTTP.Enabled = ReConfig.Global.Software.RemoteControl.HTTP.Enabled
 		Config.Global.Software.RemoteControl.HTTP.Command = ReConfig.Global.Software.RemoteControl.HTTP.Command
+		Config.Global.Software.RemoteControl.UIStatus = ReConfig.Global.Software.RemoteControl.UIStatus
 		Config.Global.Software.RemoteControl.NetworkACL = ReConfig.Global.Software.RemoteControl.NetworkACL
 		Config.Global.Software.RemoteControl.MQTT.Commands.Command = ReConfig.Global.Software.RemoteControl.MQTT.Commands.Command
 		Config.Global.Software.PrintVariables = ReConfig.Global.Software.PrintVariables
@@ -1065,6 +1072,7 @@ func readxmlconfig(file string, reloadxml bool) error {
 		//ReConfig.Accounts.Account[0].Listentochannels
 
 	}
+	applyUIStatusConfigDefaults(byteValue)
 	reloadRemoteControlNetworkACLFromConfig()
 	return nil
 }
@@ -1210,6 +1218,11 @@ func printxmlconfig() {
 		log.Println("info: ------------ HTTP API  ----------------- ")
 		log.Println("info: HTTP API Enabled ", Config.Global.Software.RemoteControl.HTTP.Enabled)
 		log.Println("info: HTTP API Listen Port ", Config.Global.Software.RemoteControl.HTTP.ListenPort)
+		log.Println("info: UIStatus Enabled ", Config.Global.Software.RemoteControl.UIStatus.Enabled)
+		log.Println("info: UIStatus Listen IP ", Config.Global.Software.RemoteControl.UIStatus.ListenIP)
+		log.Println("info: UIStatus Listen Port ", Config.Global.Software.RemoteControl.UIStatus.ListenPort)
+		log.Println("info: UIStatus URL Path ", Config.Global.Software.RemoteControl.UIStatus.URL)
+		log.Println("info: UIStatus URL ", UIStatusURL())
 		log.Println("info: Remote Control Network ACL Enabled ", Config.Global.Software.RemoteControl.NetworkACL.Enabled)
 		for _, n := range Config.Global.Software.RemoteControl.NetworkACL.Network {
 			if strings.TrimSpace(n.CIDR) != "" {

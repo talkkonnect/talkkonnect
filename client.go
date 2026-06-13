@@ -37,7 +37,6 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"net/http"
 	"os"
 	"strconv"
 	"strings"
@@ -251,16 +250,7 @@ func Init(file string, ServerIndex string) int {
 		b.TLSConfig.Certificates = append(b.TLSConfig.Certificates, cert)
 	}
 
-	if Config.Global.Software.RemoteControl.HTTP.Enabled && !HTTPServRunning {
-		SafeGo(func() {
-			http.HandleFunc("/", b.httpAPI)
-			http.HandleFunc("/config", b.httpConfig)
-			http.HandleFunc("/uistatus", b.httpUIStatus)
-			if err := http.ListenAndServe(":"+Config.Global.Software.RemoteControl.HTTP.ListenPort, nil); err != nil {
-				FatalCleanUp("Problem Starting HTTP API Server " + err.Error())
-			}
-		})
-	}
+	b.startRemoteControlHTTP()
 
 	b.ClientStart()
 

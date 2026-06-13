@@ -38,6 +38,8 @@ import (
 	"os"
 	"os/exec"
 	"strconv"
+	"strings"
+	"sync"
 	"time"
 )
 
@@ -164,46 +166,194 @@ func (b *Talkkonnect) PlayTone(toneFreq int, toneDuration float32, destination s
 
 }
 
-/*
-func playAnnouncementMedia(id int) {
+var announcementPlayMu sync.Mutex
 
-	for _, multimedia := range Config.Global.Multimedia.ID {
-		apiid, err := strconv.Atoi(multimedia.Value)
-		if apiid == id && err == nil {
-			if multimedia.Params.Localplay {
-				if multimedia.Params.GPIO.Enabled {
-					GPIOOutPin(multimedia.Params.GPIO.Name, "on")
-				}
-				if multimedia.Params.Predelay.Enabled && multimedia.Params.Predelay.Value > 0 {
-					time.Sleep(multimedia.Params.Predelay.Value * time.Second)
-				}
-				if multimedia.Params.Announcementtone.Enabled && FileExists(multimedia.Params.Announcementtone.File) {
-					localMediaPlayer(multimedia.Params.Announcementtone.File, multimedia.Params.Announcementtone.Volume, multimedia.Params.Announcementtone.Blocking, 0, 1) //todo replace 1 with volume from xmlconfig
-				}
-				for _, source := range multimedia.Media.Source {
-					if source.Enabled {
-						log.Printf("debug: Playing %v filename %v\n", source.Name, source.File)
-						localMediaPlayer(source.File, source.Volume, multimedia.Params.Announcementtone.Blocking, source.Duration, source.Loop)
-					}
-				}
-				if multimedia.Params.Postdelay.Enabled && multimedia.Params.Postdelay.Value > 0 {
-					time.Sleep(multimedia.Params.Postdelay.Value * time.Second)
-				}
-				if multimedia.Params.GPIO.Enabled {
-					GPIOOutPin(multimedia.Params.GPIO.Name, "off")
-				}
-			}
-			if multimedia.Params.Playintostream {
-				log.Println("alert: todo play into stream not implemented yet")
-			}
+func multimediaDelaySeconds(d time.Duration) time.Duration {
+	if d <= 0 {
+		return 0
+	}
+	return d * time.Second
+}
 
-			if multimedia.Params.Voicetarget {
-				log.Println("alert: todo play to voice targets not implemented yet")
+func defaultPlaybackVolume(volume int) int {
+	if volume <= 0 {
+		return 50
+	}
+	return volume
+}
+
+func defaultStreamVolume(volume float32) float32 {
+	if volume <= 0 {
+		return 50
+	}
+	return volume
+}
+
+func mediaSourceLoop(loop int) int {
+	if loop <= 0 {
+		return 1
+	}
+	return loop
+}
+
+func multimediaFilePlayable(path string) bool {
+	if len(strings.TrimSpace(path)) == 0 {
+		return false
+	}
+	return FileExists(path) || checkRegex("(http|https|rtsp)", path)
+}
+
+func findMultimediaProfileIndex(mediaID string) int {
+	mediaID = strings.TrimSpace(mediaID)
+	for i, profile := range Config.Global.Multimedia.ID {
+		if profile.Enabled && strings.EqualFold(profile.Value, mediaID) {
+			return i
+		}
+	}
+	return -1
+}
+
+func (b *Talkkonnect) cmdAnnouncement(mediaID string) {
+	go b.playAnnouncementMedia(mediaID)
+}
+
+func (b *Talkkonnect) playAnnouncementMedia(mediaID string) {
+	mediaID = strings.TrimSpace(mediaID)
+	if mediaID == "" {
+		log.Println("error: announcement media id is empty")
+		return
+	}
+
+	idx := findMultimediaProfileIndex(mediaID)
+	if idx < 0 {
+		log.Printf("error: multimedia profile %q not found or disabled", mediaID)
+		return
+	}
+
+	announcementPlayMu.Lock()
+	defer announcementPlayMu.Unlock()
+
+	profile := Config.Global.Multimedia.ID[idx]
+	log.Printf("info: playing multimedia announcement profile %q", mediaID)
+
+	if profile.Params.Voicetarget {
+		log.Println("warn: voicetarget playback for multimedia is not implemented yet")
+	}
+
+	if profile.Params.Localplay {
+		b.playMultimediaLocal(idx)
+	}
+	if profile.Params.Playintostream {
+		b.playMultimediaIntoStream(idx)
+	}
+}
+
+func (b *Talkkonnect) multimediaApplyDelay(idx int, pre bool) {
+	profile := Config.Global.Multimedia.ID[idx]
+	if pre {
+		if profile.Params.Predelay.Enabled {
+			if delay := multimediaDelaySeconds(profile.Params.Predelay.Value); delay > 0 {
+				time.Sleep(delay)
 			}
+		}
+		return
+	}
+	if profile.Params.Postdelay.Enabled {
+		if delay := multimediaDelaySeconds(profile.Params.Postdelay.Value); delay > 0 {
+			time.Sleep(delay)
 		}
 	}
 }
-*/
+
+func (b *Talkkonnect) playMultimediaLocal(idx int) {
+	profile := Config.Global.Multimedia.ID[idx]
+
+	if profile.Params.GPIO.Enabled {
+		GPIOOutPin(profile.Params.GPIO.Name, "on")
+	}
+	defer func() {
+		if profile.Params.GPIO.Enabled {
+			GPIOOutPin(profile.Params.GPIO.Name, "off")
+		}
+	}()
+
+	b.multimediaApplyDelay(idx, true)
+
+	if profile.Params.Announcementtone.Enabled && multimediaFilePlayable(profile.Params.Announcementtone.File) {
+		vol := defaultPlaybackVolume(profile.Params.Announcementtone.Volume)
+		localMediaPlayer(profile.Params.Announcementtone.File, vol, profile.Params.Announcementtone.Blocking, 0, 1)
+	}
+
+	for _, source := range profile.Media.Source {
+		if !source.Enabled || !multimediaFilePlayable(source.File) {
+			continue
+		}
+		log.Printf("debug: local multimedia playing %q file %q", source.Name, source.File)
+		localMediaPlayer(source.File, defaultPlaybackVolume(source.Volume), source.Blocking, source.Duration, mediaSourceLoop(source.Loop))
+	}
+
+	b.multimediaApplyDelay(idx, false)
+	log.Printf("info: finished local multimedia announcement profile %q", profile.Value)
+}
+
+func (b *Talkkonnect) playFileIntoMumbleStream(filepath string, vol float32) {
+	if !multimediaFilePlayable(filepath) {
+		log.Printf("warn: cannot play into stream, file missing or unsupported: %s", filepath)
+		return
+	}
+
+	b.BackLightTimer()
+	if b.IsTransmitting {
+		log.Println("alert: talkkonnect was already transmitting; stopping TX before announcement stream playback")
+		b.TransmitStop(false)
+	}
+
+	GPIOOutPin("transmit", "on")
+	b.splayIntoStream(filepath, defaultStreamVolume(vol))
+	GPIOOutPin("transmit", "off")
+}
+
+func (b *Talkkonnect) playMultimediaIntoStream(idx int) {
+	profile := Config.Global.Multimedia.ID[idx]
+	streamVol := defaultStreamVolume(profile.Params.Streamvolume)
+
+	b.multimediaApplyDelay(idx, true)
+
+	if profile.Params.Announcementtone.Enabled && multimediaFilePlayable(profile.Params.Announcementtone.File) {
+		b.playFileIntoMumbleStream(profile.Params.Announcementtone.File, streamVol)
+	}
+
+	for _, source := range profile.Media.Source {
+		if !source.Enabled || !multimediaFilePlayable(source.File) {
+			continue
+		}
+		log.Printf("debug: stream multimedia playing %q file %q", source.Name, source.File)
+		loops := mediaSourceLoop(source.Loop)
+		for i := 0; i < loops; i++ {
+			b.playFileIntoMumbleStream(source.File, streamVol)
+		}
+	}
+
+	b.multimediaApplyDelay(idx, false)
+	log.Printf("info: finished stream multimedia announcement profile %q", profile.Value)
+}
+
+func (b *Talkkonnect) announcementSchedules() {
+	for _, profile := range Config.Global.Multimedia.ID {
+		if !profile.Enabled || !profile.Schedule.Enabled || profile.Schedule.IntervalSecs <= 0 {
+			continue
+		}
+		mediaID := profile.Value
+		intervalSecs := profile.Schedule.IntervalSecs
+		go func(id string, secs int) {
+			log.Printf("info: multimedia schedule started for profile %q every %v seconds", id, secs)
+			ticker := time.NewTicker(time.Duration(secs) * time.Second)
+			for range ticker.C {
+				b.playAnnouncementMedia(id)
+			}
+		}(mediaID, intervalSecs)
+	}
+}
 
 func findEventSound(findEventSound string) EventSoundStruct {
 	for _, sound := range Config.Global.Software.Sounds.Sound {

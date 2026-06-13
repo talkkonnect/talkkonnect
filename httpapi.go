@@ -63,6 +63,7 @@ func remoteAPIValidateBuiltinCommand(b *Talkkonnect, cmd string) error {
 type remoteAPIQuery struct {
 	Command              string
 	ID                   int
+	APIMediaID           string
 	APITTSMessage        string
 	APITTSLocalPlay      bool
 	APITTSPlayIntoStream bool
@@ -106,6 +107,7 @@ func (b *Talkkonnect) remoteAPICommandHandlers() map[string]interface{} {
 		"showversion":        b.cmdDisplayVersion,
 		"dumpxmlconfig":      b.cmdDumpXMLConfig,
 		"ttsannouncement":    b.TTSPlayerAPI,
+		"announcement":       b.cmdAnnouncement,
 		"voicetargetset":     b.cmdSendVoiceTargets,
 		"listeningstart":     b.cmdListeningStart,
 		"listeningstop":      b.cmdListeningStop,
@@ -130,6 +132,8 @@ func fillHTTPRemoteAPIQueryFromRequest(r *http.Request, q *remoteAPIQuery) error
 			if err != nil {
 				return errors.New("voice target id is not a number")
 			}
+		case "mediaid":
+			q.APIMediaID = strings.TrimSpace(values[0])
 		case "ttsmessage":
 			q.APITTSMessage = values[0]
 		case "ttslocalplay":
@@ -263,6 +267,27 @@ func (b *Talkkonnect) HandleRemoteAPICommand(w io.Writer, q remoteAPIQuery) {
 						}
 					} else {
 						fmt.Fprintf(w, "200 OK: http command %v OK \n", APICommand)
+					}
+				case "announcement":
+					if q.APIMediaID == "" {
+						log.Println("error: announcement command requires mediaid query parameter")
+						if isHTTP {
+							http.Error(hw, "400 bad request: missing required query parameter \"mediaid\"", http.StatusBadRequest)
+						} else {
+							fmt.Fprintf(w, "400 bad request: missing required query parameter \"mediaid\"\n")
+						}
+						break
+					}
+					_, err := b.Call(funcs, apicommand.Action, q.APIMediaID)
+					if err != nil {
+						log.Println("error: Wrong Parameters to Call Function")
+						if isHTTP {
+							http.Error(hw, fmt.Sprintf("500 internal server error: wrong parameters for command %q", APICommand), http.StatusInternalServerError)
+						} else {
+							fmt.Fprintf(w, "500 error: wrong parameters for command %q\n", APICommand)
+						}
+					} else {
+						fmt.Fprintf(w, "200 OK: http command %v started for mediaid %v\n", APICommand, q.APIMediaID)
 					}
 				}
 			}

@@ -72,6 +72,7 @@ func FatalCleanUp(message string) {
 // performCleanup releases hardware and lifecycle without exiting (used when returning from Init after ClientStart).
 func performCleanup(withShutdown bool) {
 	internetRadioShutdownKill()
+	StopOpusTrafficRecording()
 
 	if appTalkkonnect != nil {
 		appTalkkonnect.shutdownDaemonLifecycle()

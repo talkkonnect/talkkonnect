@@ -80,6 +80,11 @@ type AudioPacket struct {
 
 	AudioBuffer
 
+	// OpusPayload is the raw compressed Opus frame from the network packet.
+	OpusPayload []byte
+	// Sequence is the low 16 bits of the Mumble packet sequence number.
+	Sequence uint16
+
 	HasPosition bool
 	X, Y, Z     float32
 }

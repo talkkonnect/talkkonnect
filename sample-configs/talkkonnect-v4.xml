@@ -221,6 +221,7 @@
                     <command action="showversion"        funcparamname=""        message="Show Version"        enabled="true"/>
                     <command action="dumpxmlconfig"      funcparamname=""        message="Dump XML Config"     enabled="true"/>
                     <command action="ttsannouncement"    funcparamname="value"   message="TTS Announcement"    enabled="true"/>
+                    <command action="announcement"       funcparamname="value"   message="Multimedia Announcement" enabled="true"/>
                     <command action="voicetargetset"     funcparamname="value"   message="Set Voice Target"    enabled="true"/>
                     <command action="listapi"            funcparamname=""        message="List API"            enabled="true"/>
                     <command action="listeningstart"     funcparamname=""        message="Listen To Channel On" enabled="true"/>
@@ -279,6 +280,7 @@
                       <command action="showuptime"         message="Show UpTime"         enabled="true"/>
                       <command action="dumpxmlconfig"      message="Dump XML Config"     enabled="true"/>
                       <command action="ttsannouncement"    message="TTS Announcement"    enabled="true"/>
+                      <command action="announcement"       message="Multimedia Announcement" enabled="true"/>
                       <command action="voicetargetset"     message="Set Voice Target"    enabled="true"/>
                       <command action="attention"          message="Attention LED"       enabled="true"/>
                       <command action="relay"              message="RelayControl"        enabled="true"/>
@@ -569,18 +571,13 @@
             </keyboard>
             <audiorecordfunction enabled="false">
                 <recordonstart>false</recordonstart>
-                <recordsystem></recordsystem>?
                 <recordmode>traffic</recordmode>
-                <recordtimeout>3600</recordtimeout>
-                <recordfromoutput>hw:0,0</recordfromoutput>
-                <recordfrominput>hw:1,0</recordfrominput>
-                <recordmictimeout>600</recordmictimeout>
-                <recordsoft>sox</recordsoft>
                 <recordsavepath>/var/spool/talkkonnect/recordings/</recordsavepath>
-                <recordarchivepath>/var/spool/talkkonnect/recordings/</recordarchivepath>
-                <recordprofile>default</recordprofile>
-                <recordfileformat>wav</recordfileformat>
-                <recordchunksize>10m</recordchunksize>
+                <recordbasename>talkkonnect</recordbasename>
+                <maxfilesize>104857600</maxfilesize>
+                <recordindexlog>recording_index.log</recordindexlog>
+                <channelbuffersize>4096</channelbuffersize>
+                <writeflushinterval>1000</writeflushinterval>
             </audiorecordfunction>
             <radio enabled="false">
                 <connectchannelid>1</connectchannelid>
@@ -621,17 +618,19 @@
         <multimedia>
             <id value="main_announcement" enabled="true">
                 <params>
-                   <announcementtone file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/announcements/announcement-01.wav" enabled="true"/>
+                   <announcementtone file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/announcements/announcement-01.wav" volume="10" blocking="true" enabled="true"/>
                    <localplay>true</localplay>
                    <gpio name="multimedia_active_led" enabled="true"/>
                    <predelay value="1" enabled="true"/>
                    <postdelay value="1" enabled="true"/>
-                   <playintostream>false</playintostream>
+                   <playintostream>true</playintostream>
+                   <streamvolume>50</streamvolume>
                    <voicetarget>false</voicetarget>
                 </params>
+                <schedule intervalsecs="0" enabled="false"/>
                 <media>
-                  <source name="1st-song" file="/root/alwaysandforever.mp3" volume="10" duration="0" offset="0" loop="1" blocking="false" enabled="false"/>
-                  <source name="2nd-song" file="/root/whateveryoulike.mp3" volume="10" duration="0" offset="0" loop="1" blocking="false" enabled="true"/>
+                  <source name="1st-song" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/announcements/announcement-01.wav" volume="10" duration="0" offset="0" loop="1" blocking="true" enabled="false"/>
+                  <source name="2nd-song" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/announcements/announcement-01.wav" volume="10" duration="0" offset="0" loop="1" blocking="true" enabled="true"/>
                 </media>
             </id>
         </multimedia>

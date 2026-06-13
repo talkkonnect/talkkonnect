@@ -113,8 +113,7 @@ func (c *Client) handleUDPTunnel(buffer []byte) error {
 	}
 
 	// Sequence
-	// TODO: use in jitter buffer
-	_, n = varint.Decode(buffer)
+	sequence, n := varint.Decode(buffer)
 	if n <= 0 {
 		return errInvalidProtobuf
 	}
@@ -132,6 +131,9 @@ func (c *Client) handleUDPTunnel(buffer []byte) error {
 		return errInvalidProtobuf
 	}
 
+	opusPayload := make([]byte, audioLength)
+	copy(opusPayload, buffer[:audioLength])
+
 	pcm, err := decoder.Decode(buffer[:audioLength], AudioMaximumFrameSize)
 	if err != nil {
 		return err
@@ -144,6 +146,8 @@ func (c *Client) handleUDPTunnel(buffer []byte) error {
 			ID: uint32(audioTarget),
 		},
 		AudioBuffer: AudioBuffer(pcm),
+		OpusPayload: opusPayload,
+		Sequence:    uint16(sequence & 0xFFFF),
 	}
 
 	if len(buffer)-audioLength == 3*4 {

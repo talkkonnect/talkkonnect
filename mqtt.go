@@ -173,6 +173,7 @@ func (b *Talkkonnect) onMessageReceived(client MQTT.Client, message MQTT.Message
 		"thanks":             cmdThanks,
 		"showuptime":         b.cmdShowUptime,
 		"dumpxmlconfig":      b.cmdDumpXMLConfig,
+		"announcement":       b.cmdAnnouncement,
 		"voicetargetset":     b.cmdSendVoiceTargets,
 		"listeningstart":     b.cmdListeningStart,
 		"listeningstop":      b.cmdListeningStop,
@@ -264,6 +265,12 @@ func (b *Talkkonnect) onMessageReceived(client MQTT.Client, message MQTT.Message
 						}
 					} else {
 						log.Println("error: Malformed MQTT Command")
+					}
+				case "announcement":
+					if len(Command) == 2 && strings.TrimSpace(Command[1]) != "" {
+						_, Err = b.Call(funcs, mqttcommand.Action, strings.TrimSpace(Command[1]))
+					} else {
+						log.Println("error: Malformed MQTT Command announcement requires profile id, e.g. announcement main_announcement")
 					}
 				default:
 					if len(Command) == 1 {

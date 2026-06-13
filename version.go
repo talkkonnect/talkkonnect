@@ -31,13 +31,19 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "4.10.05"
+	talkkonnectVersion  string = "4.11.01"
 	talkkonnectReleased string = "13 Jun 2026"
 )
 
-
 /* Release Notes
-version 4.10.03
+version 4.11.01
+Removed autdio recording to audio files instead recording raw opus packets to custom file
+for effeciency.
+
+version 4.10.06
+Fixed the implementation of media player via mqtt and http for remote annoucements
+
+version 4.10.05
 Added Configurability for Output Sound Card and Input Sound Card Configurability in XML
 previously talkkonnect could only use Default sound card.
 
@@ -62,7 +68,7 @@ version 4.09.01
 Support Received Server/User Messages to Framebuffer Screen
 
 version 4.08.01
-Updated Opus Codec to Version 1.6 For arm and x86 
+Updated Opus Codec to Version 1.6 For arm and x86
 
 version 4.07.03
 Fixed Rogerbeep dead air between key release and playing beep by using same stream

@@ -735,95 +735,33 @@ func (b *Talkkonnect) cmdAudioTrafficRecord() {
 	log.Println("info: Traffic Recording Requested")
 	if !Config.Global.Hardware.AudioRecordFunction.Enabled {
 		log.Println("warn: Audio Recording Function Not Enabled")
+		return
 	}
 	if Config.Global.Hardware.AudioRecordFunction.RecordMode != "traffic" {
 		log.Println("warn: Traffic Recording Not Enabled")
+		return
 	}
 
-	if Config.Global.Hardware.AudioRecordFunction.Enabled {
-		if Config.Global.Hardware.AudioRecordFunction.RecordMode == "traffic" {
-			if Config.Global.Hardware.AudioRecordFunction.RecordFromOutput != "" {
-				if Config.Global.Hardware.AudioRecordFunction.RecordSoft == "sox" {
-					go AudioRecordTraffic()
-					if Config.Global.Hardware.TargetBoard == "rpi" {
-						if LCDEnabled {
-							LcdText = [4]string{"nil", "nil", "Traffic Audio Rec ->", "nil"} // 4 or 3
-							LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
-						}
-						if OLEDEnabled {
-							oledDisplay(false, 5, OLEDStartColumn, "Traffic Audio Rec ->") // 6 or 5
-						}
-					}
-				} else {
-					log.Println("info: Traffic Recording is not Enabled or sox Encountered Problems")
-				}
-			}
+	go StartOpusTrafficRecording(b)
+	if Config.Global.Hardware.TargetBoard == "rpi" {
+		if LCDEnabled {
+			LcdText = [4]string{"nil", "nil", "Traffic Audio Rec ->", "nil"}
+			LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+		}
+		if OLEDEnabled {
+			oledDisplay(false, 5, OLEDStartColumn, "Traffic Audio Rec ->")
 		}
 	}
 }
 
 func (b *Talkkonnect) cmdAudioMicRecord() {
 	log.Printf("debug: Ctrl-J Pressed \n")
-	log.Println("info: Ambient (Mic) Recording Requested")
-	if !Config.Global.Hardware.AudioRecordFunction.Enabled {
-		log.Println("warn: Audio Recording Function Not Enabled")
-	}
-	if Config.Global.Hardware.AudioRecordFunction.RecordMode != "ambient" {
-		log.Println("warn: Ambient (Mic) Recording Not Enabled")
-	}
-
-	if Config.Global.Hardware.AudioRecordFunction.Enabled {
-		if Config.Global.Hardware.AudioRecordFunction.RecordMode == "ambient" {
-			if Config.Global.Hardware.AudioRecordFunction.RecordFromInput != "" {
-				if Config.Global.Hardware.AudioRecordFunction.RecordSoft == "sox" {
-					go AudioRecordAmbient()
-					if Config.Global.Hardware.TargetBoard == "rpi" {
-						if LCDEnabled {
-							LcdText = [4]string{"nil", "nil", "Mic Audio Rec ->", "nil"} // 4 or 3
-							LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
-						}
-						if OLEDEnabled {
-							oledDisplay(false, 5, OLEDStartColumn, "Mic Audio Rec ->") // 6 or 5
-						}
-					}
-				} else {
-					log.Println("error: Ambient (Mic) Recording is not Enabled or sox Encountered Problems")
-				}
-			}
-		}
-	}
+	log.Println("warn: Ambient (mic) recording is no longer supported; use traffic mode for .mrec Opus recording")
 }
 
 func (b *Talkkonnect) cmdAudioMicTrafficRecord() {
 	log.Printf("debug: Ctrl-K Pressed \n")
-	log.Println("info: Recording (Traffic and Mic) Requested")
-	if !Config.Global.Hardware.AudioRecordFunction.Enabled {
-		log.Println("warn: Audio Recording Function Not Enabled")
-	}
-	if Config.Global.Hardware.AudioRecordFunction.RecordMode != "combo" {
-		log.Println("warn: Combo Recording (Traffic and Mic) Not Enabled")
-	}
-
-	if Config.Global.Hardware.AudioRecordFunction.Enabled {
-		if Config.Global.Hardware.AudioRecordFunction.RecordMode == "combo" {
-			if Config.Global.Hardware.AudioRecordFunction.RecordFromInput != "" {
-				if Config.Global.Hardware.AudioRecordFunction.RecordSoft == "sox" {
-					go AudioRecordCombo()
-					if Config.Global.Hardware.TargetBoard == "rpi" {
-						if LCDEnabled {
-							LcdText = [4]string{"nil", "nil", "Combo Audio Rec ->", "nil"} // 4 or 3
-							LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
-						}
-						if OLEDEnabled {
-							oledDisplay(false, 5, OLEDStartColumn, "Combo Audio Rec ->") // 6 or 5
-						}
-					}
-				} else {
-					log.Println("error: Combo Recording (Traffic and Mic) is not Enabled or sox Encountered Problems")
-				}
-			}
-		}
-	}
+	log.Println("warn: Combo recording is no longer supported; use traffic mode for .mrec Opus recording")
 }
 
 func (b *Talkkonnect) cmdPanicSimulation() {
@@ -900,10 +838,10 @@ func (b *Talkkonnect) cmdPanicSimulation() {
 			}
 			//
 
-			// New. Record ambient audio on Panic Event if recording is enabled
+			// Record incoming traffic on panic when audio recording is enabled.
 			if Config.Global.Hardware.AudioRecordFunction.Enabled {
-				log.Println("info: Running sox for Audio Recording...")
-				AudioRecordAmbient()
+				log.Println("info: Starting Opus traffic recording for panic event")
+				StartOpusTrafficRecording(b)
 			}
 			//
 

@@ -419,6 +419,8 @@ func (b *Talkkonnect) ClientStart() {
 		b.beaconPlay()
 	}
 
+	b.announcementSchedules()
+
 	b.BackLightTimer()
 
 	if LCDEnabled {
@@ -435,48 +437,20 @@ func (b *Talkkonnect) ClientStart() {
 
 		if Config.Global.Hardware.AudioRecordFunction.RecordOnStart {
 
-			if Config.Global.Hardware.AudioRecordFunction.RecordMode != "" {
-
-				if Config.Global.Hardware.AudioRecordFunction.RecordMode == "traffic" {
-					log.Println("info: Incoming Traffic will be Recorded with sox")
-					AudioRecordTraffic()
-					if Config.Global.Hardware.TargetBoard == "rpi" {
-						if LCDEnabled {
-							LcdText = [4]string{"nil", "nil", "nil", "Traffic Recording ->"} // 4
-							LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
-						}
-						if OLEDEnabled {
-							oledDisplay(false, 6, OLEDStartColumn, "Traffic Recording") // 6
-						}
+			if Config.Global.Hardware.AudioRecordFunction.RecordMode == "traffic" {
+				log.Println("info: Incoming traffic will be recorded to .mrec files")
+				StartOpusTrafficRecording(b)
+				if Config.Global.Hardware.TargetBoard == "rpi" {
+					if LCDEnabled {
+						LcdText = [4]string{"nil", "nil", "nil", "Traffic Recording ->"}
+						LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+					}
+					if OLEDEnabled {
+						oledDisplay(false, 6, OLEDStartColumn, "Traffic Recording")
 					}
 				}
-				if Config.Global.Hardware.AudioRecordFunction.RecordMode == "ambient" {
-					log.Println("info: Ambient Audio from Mic will be Recorded with sox")
-					AudioRecordAmbient()
-					if Config.Global.Hardware.TargetBoard == "rpi" {
-						if LCDEnabled {
-							LcdText = [4]string{"nil", "nil", "nil", "Mic Recording ->"} // 4
-							LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
-						}
-						if OLEDEnabled {
-							oledDisplay(false, 6, OLEDStartColumn, "Mic Recording") // 6
-						}
-					}
-				}
-				if Config.Global.Hardware.AudioRecordFunction.RecordMode == "combo" {
-					log.Println("info: Both Incoming Traffic and Ambient Audio from Mic will be Recorded with sox")
-					AudioRecordCombo()
-					if Config.Global.Hardware.TargetBoard == "rpi" {
-						if LCDEnabled {
-							LcdText = [4]string{"nil", "nil", "nil", "Combo Recording ->"} // 4
-							LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
-						}
-						if OLEDEnabled {
-							oledDisplay(false, 6, OLEDStartColumn, "Combo Recording") //6
-						}
-					}
-				}
-
+			} else if Config.Global.Hardware.AudioRecordFunction.RecordMode != "" {
+				log.Printf("warn: audio record mode %q is not supported; only traffic (.mrec) is available\n", Config.Global.Hardware.AudioRecordFunction.RecordMode)
 			}
 
 		}

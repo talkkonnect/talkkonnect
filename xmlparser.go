@@ -506,20 +506,15 @@ type ConfigStruct struct {
 				NumlockScanID         rune     `xml:"numlockscanid"`
 			} `xml:"usbkeyboard"`
 			AudioRecordFunction struct {
-				Enabled           bool   `xml:"enabled,attr"`
-				RecordOnStart     bool   `xml:"recordonstart"`
-				RecordSystem      string `xml:"recordsystem"`
-				RecordMode        string `xml:"recordmode"`
-				RecordTimeout     int64  `xml:"recordtimeout"`
-				RecordFromOutput  string `xml:"recordfromoutput"`
-				RecordFromInput   string `xml:"recordfrominput"`
-				RecordMicTimeout  int64  `xml:"recordmictimeout"`
-				RecordSoft        string `xml:"recordsoft"`
-				RecordSavePath    string `xml:"recordsavepath"`
-				RecordArchivePath string `xml:"recordarchivepath"`
-				RecordProfile     string `xml:"recordprofile"`
-				RecordFileFormat  string `xml:"recordfileformat"`
-				RecordChunkSize   string `xml:"recordchunksize"`
+				Enabled            bool   `xml:"enabled,attr"`
+				RecordOnStart      bool   `xml:"recordonstart"`
+				RecordMode         string `xml:"recordmode"`
+				RecordSavePath     string `xml:"recordsavepath"`
+				RecordBaseName     string `xml:"recordbasename"`
+				MaxFileSize        int64  `xml:"maxfilesize"`
+				RecordIndexLog     string `xml:"recordindexlog"`
+				ChannelBufferSize  int    `xml:"channelbuffersize"`
+				WriteFlushInterval int    `xml:"writeflushinterval"`
 			} `xml:"audiorecordfunction"`
 			Keyboard struct {
 				Command []struct {
@@ -607,9 +602,14 @@ type ConfigStruct struct {
 						Value   time.Duration `xml:"value,attr"`
 						Enabled bool          `xml:"enabled,attr"`
 					} `xml:"postdelay"`
-					Playintostream bool `xml:"playintostream"`
-					Voicetarget    bool `xml:"voicetarget"`
+					Playintostream bool    `xml:"playintostream"`
+					Streamvolume   float32 `xml:"streamvolume"`
+					Voicetarget    bool    `xml:"voicetarget"`
 				} `xml:"params"`
+				Schedule struct {
+					IntervalSecs int  `xml:"intervalsecs,attr"`
+					Enabled      bool `xml:"enabled,attr"`
+				} `xml:"schedule"`
 				Media struct {
 					Source []struct {
 						Name     string  `xml:"name,attr"`
@@ -1479,18 +1479,13 @@ func printxmlconfig() {
 		log.Println("info: ------------ AUDIO RECORDING Function -------------- ")
 		log.Println("info: Audio Recording Enabled " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.Enabled))
 		log.Println("info: Audio Recording On Start " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordOnStart))
-		log.Println("info: Audio Recording System " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordSystem))
 		log.Println("info: Audio Record Mode " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordMode))
-		log.Println("info: Audio Record Timeout " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordTimeout))
-		log.Println("info: Audio Record From Output " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordFromOutput))
-		log.Println("info: Audio Record From Input " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordFromInput))
-		log.Println("info: Audio Recording Mic Timeout " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordMicTimeout))
 		log.Println("info: Audio Recording Save Path " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordSavePath))
-		log.Println("info: Audio Recording Archive Path " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordArchivePath))
-		log.Println("info: Audio Recording Soft " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordSoft))
-		log.Println("info: Audio Recording Profile " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordProfile))
-		log.Println("info: Audio Recording File Format " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordFileFormat))
-		log.Println("info: Audio Recording Chunk Size " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordChunkSize))
+		log.Println("info: Audio Recording Base Name " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordBaseName))
+		log.Println("info: Audio Recording Max File Size " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.MaxFileSize))
+		log.Println("info: Audio Recording Index Log " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordIndexLog))
+		log.Println("info: Audio Recording Channel Buffer Size " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.ChannelBufferSize))
+		log.Println("info: Audio Recording Write Flush Interval " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.WriteFlushInterval))
 	}
 
 	if !Config.Global.Software.PrintVariables.PrintKeyboardMap {
@@ -1561,11 +1556,14 @@ func printxmlconfig() {
 				log.Printf("info: Announcement Tone File %v \n", value.Params.Announcementtone.File)
 				log.Printf("info: GPIO Enabled %v \n", value.Params.GPIO.Enabled)
 				log.Printf("info: GPIO Name    %v \n", value.Params.GPIO.Name)
+				log.Printf("info: Profile ID           %v \n", value.Value)
 				log.Printf("info: Local Play %v \n", value.Params.Localplay)
 				log.Printf("info: Play Into Stream %v \n", value.Params.Playintostream)
+				log.Printf("info: Stream Volume %v \n", value.Params.Streamvolume)
 				log.Printf("info: Pre  Delay  %v \n", value.Params.Predelay)
 				log.Printf("info: Post Delay %v \n", value.Params.Postdelay)
 				log.Printf("info: Voice Target %v \n", value.Params.Voicetarget)
+				log.Printf("info: Schedule Enabled %v IntervalSecs %v \n", value.Schedule.Enabled, value.Schedule.IntervalSecs)
 				log.Printf("info: Enabled %v \n", value.Enabled)
 				log.Printf("info: Media Souce %+v \n", value.Media.Source)
 			}
@@ -1697,6 +1695,46 @@ func CheckConfigSanity(reloadxml bool) {
 			log.Print("warn: Config Error [Section Beacon] Some Parameters Not Defined Disabling Beacon")
 			Config.Global.Software.Beacon.Enabled = false
 			Warnings++
+		}
+	}
+
+	for index, profile := range Config.Global.Multimedia.ID {
+		if !profile.Enabled {
+			continue
+		}
+		if len(strings.TrimSpace(profile.Value)) == 0 {
+			log.Print("warn: Config Error [Section Multimedia] Profile enabled with empty id value")
+			Config.Global.Multimedia.ID[index].Enabled = false
+			Warnings++
+			continue
+		}
+		if !profile.Params.Localplay && !profile.Params.Playintostream {
+			log.Printf("warn: Config Error [Section Multimedia] Profile %q has neither localplay nor playintostream", profile.Value)
+			Config.Global.Multimedia.ID[index].Enabled = false
+			Warnings++
+			continue
+		}
+		if profile.Schedule.Enabled && profile.Schedule.IntervalSecs <= 0 {
+			log.Printf("warn: Config Error [Section Multimedia] Profile %q schedule enabled with invalid intervalsecs", profile.Value)
+			Config.Global.Multimedia.ID[index].Schedule.Enabled = false
+			Warnings++
+		}
+		if profile.Params.Announcementtone.Enabled && len(profile.Params.Announcementtone.File) > 0 {
+			if !FileExists(profile.Params.Announcementtone.File) && !checkRegex("(http|https|rtsp)", profile.Params.Announcementtone.File) {
+				log.Printf("warn: Config Error [Section Multimedia] Profile %q announcement tone file missing: %v", profile.Value, profile.Params.Announcementtone.File)
+				Config.Global.Multimedia.ID[index].Params.Announcementtone.Enabled = false
+				Warnings++
+			}
+		}
+		for sourceIndex, source := range profile.Media.Source {
+			if !source.Enabled || len(source.File) == 0 {
+				continue
+			}
+			if !FileExists(source.File) && !checkRegex("(http|https|rtsp)", source.File) {
+				log.Printf("warn: Config Error [Section Multimedia] Profile %q source %q file missing: %v", profile.Value, source.Name, source.File)
+				Config.Global.Multimedia.ID[index].Media.Source[sourceIndex].Enabled = false
+				Warnings++
+			}
 		}
 	}
 
@@ -1911,12 +1949,6 @@ func CheckConfigSanity(reloadxml bool) {
 			log.Printf("warn: Config Error [Section GPS] Enabled GPS Port %v Invalid Data Bits\n", Config.Global.Hardware.GPS.Port)
 			Config.Global.Hardware.GPS.Enabled = false
 			Warnings++
-		}
-	}
-
-	if Config.Global.Hardware.AudioRecordFunction.Enabled {
-		if !(Config.Global.Hardware.AudioRecordFunction.RecordSystem == "alsa" || Config.Global.Hardware.AudioRecordFunction.RecordSystem == "pulseaudio") {
-			Config.Global.Hardware.AudioRecordFunction.RecordSystem = "alsa"
 		}
 	}
 

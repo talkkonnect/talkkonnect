@@ -676,6 +676,9 @@ func bottomCLIPartsToRemoteQuery(parts []string) remoteAPIQuery {
 	if q.Command == "ttsannouncement" && len(parts) >= 2 {
 		q.APITTSMessage = strings.Join(parts[1:], " ")
 	}
+	if q.Command == "announcement" && len(parts) >= 2 {
+		q.APIMediaID = strings.TrimSpace(parts[1])
+	}
 	return q
 }
 

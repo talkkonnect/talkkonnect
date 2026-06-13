@@ -6,421 +6,393 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * Software distributed under the License is distributed on an "AS IS" basis,
- * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
- * for the specific language governing rights and limitations under the
- * License.
- *
- * talkkonnect is the based on talkiepi and barnard by Daniel Chote and Tim Cooper
- *
- * The Initial Developer of the Original Code is Zoran Dimitrijevic
- * Portions created by the Initial Developer are Copyright (C) Suvir Kumar. All Rights Reserved.
- *
- * Contributor(s):
- *
- * Zoran Dimitrijevic
- * Suvir Kumar
- * My Blog is at www.talkkonnect.com
- * The source code is hosted at github.com/talkkonnect
- *
- * avrecord.go -> talkkonnect function to record audio and video with low cost USB web cameras.
- * Record incoming Mumble traffic with SoX package. Record video and images with external
- * packages fswebcam, motion, ffmpeg or other.
- *
+ * avrecord.go -> record incoming Mumble voice traffic as raw Opus packets in
+ * a custom .mrec binary format. Video capture uses external tools elsewhere.
  */
 
 package talkkonnect
 
 import (
+	"bufio"
+	"encoding/binary"
 	"fmt"
 	"log"
-	"os/exec"
-	"strings"
+	"os"
+	"path/filepath"
 	"sync"
-	"syscall"
+	"sync/atomic"
 	"time"
+
+	"github.com/talkkonnect/gumble/gumble"
 )
 
-var (
-	jobIsRunning   bool // used for mux for motion, fswebcam, ffmpeg, sox
-	JobIsrunningMu sync.Mutex
+const (
+	mrecBlockHeaderSize = 16
+	defaultMrecBufSize  = 64 * 1024
+	defaultChannelBuf   = 4096
+	defaultFlushMS      = 1000
+	defaultMaxFileSize  = 100 * 1024 * 1024
+	defaultBaseName     = "talkkonnect"
+	defaultIndexLog     = "recording_index.log"
 )
 
-// Record incoming Mumble traffic with sox
+type recordEntry struct {
+	sessionID uint32
+	sequence  uint16
+	payload   []byte
+	received  time.Time
+}
 
-func AudioRecordTraffic() {
+type mrecWriter struct {
+	savePath      string
+	baseName      string
+	maxFileSize   int64
+	indexLogPath  string
+	flushInterval time.Duration
 
-	// Need a way to prevent multiple sox instances running, or kill old one.
-	_, err := exec.Command("sh", "-c", "killall -SIGINT sox").Output()
+	mu           sync.Mutex
+	file         *os.File
+	buf          *bufio.Writer
+	bytesWritten int64
+	fileStart    time.Time
+	currentPath  string
+	header       [mrecBlockHeaderSize]byte
+}
+
+type opusRecorder struct {
+	mu          sync.Mutex
+	running     bool
+	detacher    gumble.Detacher
+	recordChan  chan recordEntry
+	stopChan    chan struct{}
+	writerDone  chan struct{}
+	dropCount   uint64
+	dropLogMu   sync.Mutex
+	dropLastLog time.Time
+}
+
+var globalOpusRecorder opusRecorder
+
+func resolvedAudioRecordSettings() (savePath, baseName, indexLog string, maxFileSize int64, channelBuf, flushMS int) {
+	cfg := Config.Global.Hardware.AudioRecordFunction
+
+	savePath = cfg.RecordSavePath
+	baseName = cfg.RecordBaseName
+	if baseName == "" {
+		baseName = defaultBaseName
+	}
+
+	maxFileSize = cfg.MaxFileSize
+	if maxFileSize <= 0 {
+		maxFileSize = defaultMaxFileSize
+	}
+
+	indexLog = cfg.RecordIndexLog
+	if indexLog == "" {
+		indexLog = defaultIndexLog
+	}
+
+	channelBuf = cfg.ChannelBufferSize
+	if channelBuf <= 0 {
+		channelBuf = defaultChannelBuf
+	}
+
+	flushMS = cfg.WriteFlushInterval
+	if flushMS <= 0 {
+		flushMS = defaultFlushMS
+	}
+
+	return savePath, baseName, indexLog, maxFileSize, channelBuf, flushMS
+}
+
+// StartOpusTrafficRecording attaches an audio listener and writes raw Opus packets to .mrec files.
+func StartOpusTrafficRecording(b *Talkkonnect) {
+	if b == nil || b.Config == nil {
+		log.Println("error: cannot start Opus traffic recording without Mumble config")
+		return
+	}
+
+	globalOpusRecorder.mu.Lock()
+	defer globalOpusRecorder.mu.Unlock()
+
+	if globalOpusRecorder.running {
+		log.Println("info: Opus traffic recording is already running")
+		return
+	}
+
+	savePath, baseName, indexLog, maxFileSize, channelBuf, flushMS := resolvedAudioRecordSettings()
+	if savePath == "" {
+		log.Println("error: recordsavepath is empty; cannot start Opus traffic recording")
+		return
+	}
+
+	createDirIfNotExist(savePath)
+
+	indexLogPath := indexLog
+	if !filepath.IsAbs(indexLogPath) {
+		indexLogPath = filepath.Join(savePath, indexLog)
+	}
+
+	writer := &mrecWriter{
+		savePath:      savePath,
+		baseName:      baseName,
+		maxFileSize:   maxFileSize,
+		indexLogPath:  indexLogPath,
+		flushInterval: time.Duration(flushMS) * time.Millisecond,
+	}
+
+	globalOpusRecorder.recordChan = make(chan recordEntry, channelBuf)
+	globalOpusRecorder.stopChan = make(chan struct{})
+	globalOpusRecorder.writerDone = make(chan struct{})
+
+	go writer.run(globalOpusRecorder.recordChan, globalOpusRecorder.stopChan, globalOpusRecorder.writerDone)
+
+	globalOpusRecorder.detacher = b.Config.AttachAudio(&globalOpusRecorder)
+	globalOpusRecorder.running = true
+
+	log.Printf("info: Opus traffic recording started; save path=%s base=%s max size=%d bytes\n", savePath, baseName, maxFileSize)
+}
+
+// StopOpusTrafficRecording detaches the listener and flushes the active .mrec file.
+func StopOpusTrafficRecording() {
+	globalOpusRecorder.mu.Lock()
+	if !globalOpusRecorder.running {
+		globalOpusRecorder.mu.Unlock()
+		return
+	}
+
+	globalOpusRecorder.running = false
+	if globalOpusRecorder.detacher != nil {
+		globalOpusRecorder.detacher.Detach()
+		globalOpusRecorder.detacher = nil
+	}
+
+	stopChan := globalOpusRecorder.stopChan
+	writerDone := globalOpusRecorder.writerDone
+	globalOpusRecorder.mu.Unlock()
+
+	close(stopChan)
+	<-writerDone
+
+	log.Println("info: Opus traffic recording stopped")
+}
+
+func (r *opusRecorder) OnAudioStream(e *gumble.AudioStreamEvent) {
+	SafeGo(func() {
+		for packet := range e.C {
+			if packet == nil || len(packet.OpusPayload) == 0 {
+				continue
+			}
+
+			payload := make([]byte, len(packet.OpusPayload))
+			copy(payload, packet.OpusPayload)
+
+			r.enqueue(recordEntry{
+				sessionID: packet.Sender.Session,
+				sequence:  packet.Sequence,
+				payload:   payload,
+				received:  time.Now(),
+			})
+		}
+	})
+}
+
+func (r *opusRecorder) enqueue(entry recordEntry) {
+	r.mu.Lock()
+	ch := r.recordChan
+	r.mu.Unlock()
+	if ch == nil {
+		return
+	}
+
+	select {
+	case ch <- entry:
+	default:
+		atomic.AddUint64(&r.dropCount, 1)
+		r.logDropRateLimited()
+	}
+}
+
+func (r *opusRecorder) logDropRateLimited() {
+	r.dropLogMu.Lock()
+	defer r.dropLogMu.Unlock()
+	if time.Since(r.dropLastLog) < 5*time.Second {
+		return
+	}
+	dropped := atomic.SwapUint64(&r.dropCount, 0)
+	r.dropLastLog = time.Now()
+	fmt.Fprintf(os.Stderr, "mrec: record channel full, dropped %d packet(s)\n", dropped)
+}
+
+func (w *mrecWriter) run(ch <-chan recordEntry, stop <-chan struct{}, done chan<- struct{}) {
+	defer close(done)
+
+	flushTicker := time.NewTicker(w.flushInterval)
+	defer flushTicker.Stop()
+
+	for {
+		select {
+		case entry, ok := <-ch:
+			if !ok {
+				w.closeFile()
+				return
+			}
+			if err := w.writeEntry(entry); err != nil {
+				fmt.Fprintf(os.Stderr, "mrec: write error: %v\n", err)
+				w.closeFile()
+				return
+			}
+		case <-flushTicker.C:
+			w.flush()
+		case <-stop:
+			for {
+				select {
+				case entry, ok := <-ch:
+					if !ok {
+						w.closeFile()
+						return
+					}
+					if err := w.writeEntry(entry); err != nil {
+						fmt.Fprintf(os.Stderr, "mrec: write error during shutdown: %v\n", err)
+					}
+				default:
+					w.closeFile()
+					return
+				}
+			}
+		}
+	}
+}
+
+func (w *mrecWriter) appendIndexLog(absPath string, started time.Time) error {
+	f, err := os.OpenFile(w.indexLogPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
-		log.Println("debug: No Old sox Instance is Running. It is OK to Start sox")
-	} else {
-		time.Sleep(1 * time.Second)
-		log.Println("debug: Old sox instance was Killed Before Running New")
+		return err
 	}
+	defer f.Close()
 
-	createDirIfNotExist(Config.Global.Hardware.AudioRecordFunction.RecordSavePath)
-
-	/*createDirIfNotExist(Config.Global.Hardware.AudioRecordFunction.RecordArchivePath)
-	emptydirchk, err := dirIsEmpty(Config.Global.Hardware.AudioRecordFunction.RecordSavePath)
-	if err == nil && !emptydirchk {
-		filezip := time.Now().Format("20060102150405") + ".zip"
-		go zipit(Config.Global.Hardware.AudioRecordFunction.RecordSavePath+"/", Config.Global.Hardware.AudioRecordFunction.RecordArchivePath+"/"+filezip)
-		log.Println("debug: Archiving Old Audio Files to", Config.Global.Hardware.AudioRecordFunction.RecordArchivePath+"/"+filezip)
-		time.Sleep(1 * time.Second)
-		cleardir(Config.Global.Hardware.AudioRecordFunction.RecordSavePath)
-	} else {
-		log.Println("debug: Audio Recording Folder Is Empty. No Old Files to Archive")
-	}
-	time.Sleep(1 * time.Second)
-	*/
-
-	go audiorecordtraffic()
-	log.Println("debug: SoX is Recording Traffic to", Config.Global.Hardware.AudioRecordFunction.RecordSavePath)
-
+	_, err = fmt.Fprintf(f, "%s %s\n", absPath, started.Format(time.RFC3339))
+	return err
 }
 
-// Record ambient audio from microphone with SoX
-
-func AudioRecordAmbient() {
-
-	createDirIfNotExist(Config.Global.Hardware.AudioRecordFunction.RecordSavePath)
-
-	/*createDirIfNotExist(Config.Global.Hardware.AudioRecordFunction.RecordArchivePath)
-	emptydirchk, err := dirIsEmpty(Config.Global.Hardware.AudioRecordFunction.RecordSavePath)
-	if err == nil && !emptydirchk {
-		filezip := time.Now().Format("20060102150405") + ".zip"
-		go zipit(Config.Global.Hardware.AudioRecordFunction.RecordSavePath+"/", Config.Global.Hardware.AudioRecordFunction.RecordArchivePath+"/"+filezip) // path to end with "/" or not?
-		log.Println("info: Archiving Old Audio Files to", Config.Global.Hardware.AudioRecordFunction.RecordArchivePath+"/"+filezip)
-		time.Sleep(10 * time.Second)
-		cleardir(Config.Global.Hardware.AudioRecordFunction.RecordSavePath) // Remove old files
-	} else {
-		log.Println("debug: Audio Recording Folder Is Empty. No Old Files to Archive")
-	}
-	time.Sleep(1 * time.Second)
-	*/
-
-	go audiorecordambientmux()
-
-}
-
-// Record both incoming Mumble traffic and ambient audio with SoX
-
-func AudioRecordCombo() {
-
-	createDirIfNotExist(Config.Global.Hardware.AudioRecordFunction.RecordSavePath)
-
-	/*createDirIfNotExist(Config.Global.Hardware.AudioRecordFunction.RecordArchivePath)
-	emptydirchk, err := dirIsEmpty(Config.Global.Hardware.AudioRecordFunction.RecordSavePath)
-	if err == nil && !emptydirchk {
-		filezip := time.Now().Format("20060102150405") + ".zip"
-		go zipit(Config.Global.Hardware.AudioRecordFunction.RecordSavePath+"/", Config.Global.Hardware.AudioRecordFunction.RecordArchivePath+"/"+filezip)
-		log.Println("info: Archiving Old Audio Files to", Config.Global.Hardware.AudioRecordFunction.RecordArchivePath+"/"+filezip)
-		time.Sleep(10 * time.Second)
-		cleardir(Config.Global.Hardware.AudioRecordFunction.RecordSavePath)
-	} else {
-		log.Println("debug: Audio Recording Folder Is Empty. No Old Files to Archive")
-	}
-	time.Sleep(1 * time.Second)
-	*/
-
-	go audiorecordcombomux()
-
-}
-
-//  SoX function for traffic recording
-
-func audiorecordtraffic() {
-
-	// check if external program is installed?
-	checkfile := isCommandAvailable("/usr/bin/sox")
-	if !checkfile {
-		log.Println("error: sox binary is Missing. Is sox Package Installed?")
+func (w *mrecWriter) writeEntry(entry recordEntry) error {
+	if len(entry.payload) > 0xFFFF {
+		fmt.Fprintf(os.Stderr, "mrec: dropping oversized opus payload (%d bytes)\n", len(entry.payload))
+		return nil
 	}
 
-	audrecfile := time.Now().Format("20060102150405") + "." + Config.Global.Hardware.AudioRecordFunction.RecordFileFormat
-	log.Println("info: SoX is Recording Traffic to", Config.Global.Hardware.AudioRecordFunction.RecordSavePath+"/"+audrecfile)
-	log.Println("info: Audio Recording Mode:", Config.Global.Hardware.AudioRecordFunction.RecordMode)
+	blockSize := int64(mrecBlockHeaderSize + len(entry.payload))
 
-	if Config.Global.Hardware.AudioRecordFunction.RecordTimeout != 0 { // Record traffic, but stop it after timeout, if specified. "0" for no timeout.
+	w.mu.Lock()
+	defer w.mu.Unlock()
 
-		args := []string{"-t", Config.Global.Hardware.AudioRecordFunction.RecordSystem, Config.Global.Hardware.AudioRecordFunction.RecordFromOutput, "-t", Config.Global.Hardware.AudioRecordFunction.RecordFileFormat, audrecfile, "trim", "0", Config.Global.Hardware.AudioRecordFunction.RecordChunkSize, ":", "newfile", ":", "restart"}
-
-		log.Println("debug: SoX Arguments: " + fmt.Sprint(strings.Trim(fmt.Sprint(args), "[]")))
-		log.Println("debug: Traffic Recording will Timeout After:", Config.Global.Hardware.AudioRecordFunction.RecordTimeout, "seconds")
-
-		cmd := exec.Command("/usr/bin/sox", args...)
-		cmd.Dir = Config.Global.Hardware.AudioRecordFunction.RecordSavePath
-		err := cmd.Start()
-		check(err)
-		done := make(chan struct{})
-
-		time.Sleep(time.Duration(Config.Global.Hardware.AudioRecordFunction.RecordTimeout) * time.Second) // let SoX record for a time, then send kill signal
-		go func() {
-			err := cmd.Wait()
-			status := cmd.ProcessState.Sys().(syscall.WaitStatus)
-			exitStatus := status.ExitStatus()
-			signaled := status.Signaled()
-			signal := status.Signal()
-			log.Println("error: sox Error:", err)
-			if signaled {
-				log.Println("debug: sox Signal:", signal)
-			} else {
-				log.Println("debug: sox Status:", exitStatus)
-			}
-			close(done)
-			// Did sox close ?
-			log.Println("info: SoX Stopped Recording Traffic to", Config.Global.Hardware.AudioRecordFunction.RecordSavePath)
-		}()
-		cmd.Process.Kill()
-		<-done
-
-	} else { // if RecordTimeout is zero? Just keep recording until there is disk space on media.
-
-		audrecfile := time.Now().Format("20060102150405") + "." + Config.Global.Hardware.AudioRecordFunction.RecordFileFormat // mp3, wav
-
-		args := []string{"-t", Config.Global.Hardware.AudioRecordFunction.RecordSystem, Config.Global.Hardware.AudioRecordFunction.RecordFromOutput, "-t", Config.Global.Hardware.AudioRecordFunction.RecordFileFormat, audrecfile, "silence", "1", "0.50", `1%`, "1", "0:10", `0.1%`, "trim", "0", Config.Global.Hardware.AudioRecordFunction.RecordChunkSize, ":", "newfile", ":", "restart"}
-
-		cmd := exec.Command("/usr/bin/sox", args...)
-		cmd.Dir = Config.Global.Hardware.AudioRecordFunction.RecordSavePath
-		err := cmd.Start()
-		check(err)
-		time.Sleep(2 * time.Second)
-
-		/*emptydirchk, err := dirIsEmpty(Config.Global.Hardware.AudioRecordFunction.RecordSavePath) // If SoX didn't start recording for wrong parameters or any reason...  No  file.
-
-		if err == nil && !emptydirchk {
-			log.Println("info: SoX is Recording Traffic to", Config.Global.Hardware.AudioRecordFunction.RecordSavePath)
-			log.Println("info: SoX will Go On Recording, Until it Runs out of Space or is Interrupted")
-
-			starttime := time.Now()
-			ticker := time.NewTicker(300 * time.Second) // Reminder if SoX recording is still recording after ... 5 minutes (no timeout)
-
-			go func() {
-				for range ticker.C {
-					checked := time.Since(starttime)
-					checkedshort := fmt.Sprintf("%v", before(fmt.Sprint(checked), ".")) // trim  milliseconds after.  Format 00h00m00s.
-					elapsed := fmtDuration(checked)                                     // hh:mm format
-					log.Println("debug: SoX is Still Running After", checkedshort+"s", "|", elapsed)
-				}
-			}()
-
-		} else {
-			log.Println("error: Something Went Wrong... SoX Traffic Recording was Launched but Encountered Some Problems")
-			log.Println("warn: Check Sound System Settings and SoX Arguments")
+	if w.file == nil {
+		if err := w.openNewFileLocked(); err != nil {
+			return err
 		}
-		*/
-	}
-}
-
-// If talkkonnect stops or hangs. Must close SoX manually. No signaling to SoX for closing in this case.
-//Record traffic and Mic mux exclusion.  Allow new start only if currently not running.
-
-func audiorecordambientmux() {
-
-	JobIsrunningMu.Lock()
-	start := !jobIsRunning
-	jobIsRunning = true
-	JobIsrunningMu.Unlock()
-
-	if start {
-		go func() {
-			audiorecordambient()
-			JobIsrunningMu.Lock()
-			jobIsRunning = false
-			JobIsrunningMu.Unlock()
-		}()
-	} else {
-		log.Println("info: Ambient Audio Recording is Already Running. Please Wait.")
-	}
-}
-
-// SoX function for ambient recording
-
-func audiorecordambient() {
-
-	checkfile := isCommandAvailable("/usr/bin/sox")
-	if !checkfile {
-		log.Println("error: sox binary is Missing. Is sox Package Installed?")
 	}
 
-	//Need apt-get install sox libsox-fmt-mp3 (lame)
-
-	audrecfile := time.Now().Format("20060102150405") + "." + Config.Global.Hardware.AudioRecordFunction.RecordFileFormat // mp3, wav
-
-	log.Println("info: SoX is Recording Ambient Audio to", Config.Global.Hardware.AudioRecordFunction.RecordSavePath+"/"+audrecfile)
-	log.Println("info: SoX Audio Recording will Stop After", fmt.Sprint(Config.Global.Hardware.AudioRecordFunction.RecordMicTimeout), "seconds")
-
-	if Config.Global.Hardware.AudioRecordFunction.RecordMicTimeout != 0 { // Record ambient audio, but stop it after timeout, if specified. "0" no timeout.
-
-		args := []string{"-t", Config.Global.Hardware.AudioRecordFunction.RecordSystem, Config.Global.Hardware.AudioRecordFunction.RecordFromInput, "-t", Config.Global.Hardware.AudioRecordFunction.RecordFileFormat, audrecfile, "trim", "0", Config.Global.Hardware.AudioRecordFunction.RecordChunkSize, ":", "newfile", ":", "restart"}
-
-		cmd := exec.Command("/usr/bin/sox", args...)
-		cmd.Dir = Config.Global.Hardware.AudioRecordFunction.RecordSavePath // save audio recording
-		err := cmd.Start()
-		check(err)
-		done := make(chan struct{})
-		time.Sleep(time.Duration(Config.Global.Hardware.AudioRecordFunction.RecordMicTimeout) * time.Second) // let SoX record for a time, then signal kill
-
-		go func() {
-			err := cmd.Wait()
-			status := cmd.ProcessState.Sys().(syscall.WaitStatus)
-			exitStatus := status.ExitStatus()
-			signaled := status.Signaled()
-			signal := status.Signal()
-			log.Println("error: sox Error:", err)
-			if signaled {
-				log.Println("debug: sox Signal:", signal)
-			} else {
-				log.Println("debug: sox Status:", exitStatus)
-			}
-			close(done)
-			// Did SoX close ?
-			log.Println("info: SoX Stopped Recording Traffic to", Config.Global.Hardware.AudioRecordFunction.RecordSavePath)
-		}()
-		cmd.Process.Kill()
-	} else {
-		audrecfile := time.Now().Format("20060102150405") + "." + Config.Global.Hardware.AudioRecordFunction.RecordFileFormat // mp3, wav
-
-		args := []string{"-t", Config.Global.Hardware.AudioRecordFunction.RecordSystem, Config.Global.Hardware.AudioRecordFunction.RecordFromInput, "-t", Config.Global.Hardware.AudioRecordFunction.RecordFileFormat, audrecfile, "silence", "-l", "1", "1", `2%`, "-1", "0.5", `2%`, "trim", "0", Config.Global.Hardware.AudioRecordFunction.RecordChunkSize, ":", "newfile", ":", "restart"} // voice detect, trim silence with 5 min audio chunks
-
-		cmd := exec.Command("/usr/bin/sox", args...)
-		cmd.Dir = Config.Global.Hardware.AudioRecordFunction.RecordSavePath // save audio recording to dir
-		err := cmd.Start()
-		check(err)
-
-		/*emptydirchk, err := dirIsEmpty(Config.Global.Hardware.AudioRecordFunction.RecordSavePath) // If SoX didn't start recording for wrong parameters or any reason...  No file.
-
-		if err == nil && !emptydirchk {
-			log.Println("info: SoX is Recording Ambient Audio to", Config.Global.Hardware.AudioRecordFunction.RecordSavePath)
-			log.Println("warn: SoX will Go On Recording, Until it Runs out of Space or is Interrupted")
-
-			starttime := time.Now()
-
-			ticker := time.NewTicker(300 * time.Second) // Reminder if SoX recording is still recording after ... 5 minutes (no timeout)
-
-			go func() {
-				for range ticker.C {
-					checked := time.Since(starttime)
-					checkedshort := fmt.Sprintf("%v", before(fmt.Sprint(checked), ".")) // trim  milliseconds after .  Format 00h00m00s.
-					elapsed := fmtDuration(checked)                                     // hh:mm format
-					log.Println("info: SoX is Still Running After", checkedshort+"s", "|", elapsed)
-				}
-			}()
-
-		} else {
-			log.Println("error: Something Went Wrong... SoX Traffic Recording was Launched but Encountered Some Problems")
-			log.Println("warn: Check Sound System Settings and SoX Arguments")
+	if w.maxFileSize > 0 && w.bytesWritten > 0 && w.bytesWritten+blockSize > w.maxFileSize {
+		if err := w.rotateLocked(); err != nil {
+			return err
 		}
-		*/
 	}
+
+	ts := entry.received.Sub(w.fileStart).Milliseconds()
+	if ts < 0 {
+		ts = 0
+	}
+
+	binary.BigEndian.PutUint64(w.header[0:], uint64(ts))
+	binary.BigEndian.PutUint32(w.header[8:], entry.sessionID)
+	binary.BigEndian.PutUint16(w.header[12:], entry.sequence)
+	binary.BigEndian.PutUint16(w.header[14:], uint16(len(entry.payload)))
+
+	if _, err := w.buf.Write(w.header[:]); err != nil {
+		return err
+	}
+	if _, err := w.buf.Write(entry.payload); err != nil {
+		return err
+	}
+
+	w.bytesWritten += blockSize
+	return nil
 }
 
-//Record traffic and Mic mux exclusion.  Allow new start only if currently not running.
-
-func audiorecordcombomux() {
-
-	JobIsrunningMu.Lock()
-	start := !jobIsRunning
-	jobIsRunning = true
-	JobIsrunningMu.Unlock()
-
-	if start {
-		go func() {
-			audiorecordcombo()
-			JobIsrunningMu.Lock()
-			jobIsRunning = false
-			JobIsrunningMu.Unlock()
-		}()
-	} else {
-		log.Println("info: Combo Audio Recording is Already Running. Please Wait.")
+func (w *mrecWriter) rotateLocked() error {
+	if err := w.flushLocked(); err != nil {
+		return err
 	}
-}
-
-// Record traffic and Mic.
-
-func audiorecordcombo() {
-
-	checkfile := isCommandAvailable("/usr/bin/sox")
-	if !checkfile {
-		log.Println("error: sox binary is Missing. Is sox Package Installed?")
-	}
-
-	//Need apt-get install sox libsox-fmt-mp3 (lame)
-
-	audrecfile := time.Now().Format("20060102150405") + "." + Config.Global.Hardware.AudioRecordFunction.RecordFileFormat
-	log.Println("info: SoX is Recording Traffic to", Config.Global.Hardware.AudioRecordFunction.RecordSavePath+"/"+audrecfile)
-	log.Println("info: Audio Recording Mode:", Config.Global.Hardware.AudioRecordFunction.RecordMode)
-
-	if Config.Global.Hardware.AudioRecordFunction.RecordTimeout != 0 { // Record traffic, but stop it after timeout, if specified. "0" no timeout.
-
-		args := []string{"-m", "-t", Config.Global.Hardware.AudioRecordFunction.RecordSystem, Config.Global.Hardware.AudioRecordFunction.RecordFromOutput, "-t", Config.Global.Hardware.AudioRecordFunction.RecordSystem, Config.Global.Hardware.AudioRecordFunction.RecordFromInput, "-t", Config.Global.Hardware.AudioRecordFunction.RecordFileFormat, audrecfile, "silence", "-l", "1", "1", `2%`, "-1", "0.5", `2%`, "trim", "0", Config.Global.Hardware.AudioRecordFunction.RecordChunkSize, ":", "newfile", ":", "restart"}
-
-		log.Println("debug: SoX Arguments: " + fmt.Sprint(strings.Trim(fmt.Sprint(args), "[]")))
-		log.Println("info: Audio Combo Recording will Timeout After:", Config.Global.Hardware.AudioRecordFunction.RecordTimeout, "seconds")
-
-		cmd := exec.Command("/usr/bin/sox", args...)
-		cmd.Dir = Config.Global.Hardware.AudioRecordFunction.RecordSavePath
-		err := cmd.Start()
-		check(err)
-		done := make(chan struct{})
-
-		time.Sleep(time.Duration(Config.Global.Hardware.AudioRecordFunction.RecordTimeout) * time.Second) // let SoX record for a time, then send kill signal
-
-		go func() {
-			err := cmd.Wait()
-			status := cmd.ProcessState.Sys().(syscall.WaitStatus)
-			exitStatus := status.ExitStatus()
-			signaled := status.Signaled()
-			signal := status.Signal()
-			log.Println("error: sox Error:", err)
-			if signaled {
-				log.Println("debug: sox Signal:", signal)
-			} else {
-				log.Println("debug: sox Status:", exitStatus)
-			}
-			close(done)
-			// Did SoX close ?
-			log.Println("info: SoX Stopped Recording Traffic to", Config.Global.Hardware.AudioRecordFunction.RecordSavePath)
-		}()
-		cmd.Process.Kill()
-		<-done
-
-	} else { // if AudioRecordTimeout is zero? Just keep recording until there is disk space on media.
-
-		audrecfile := time.Now().Format("20060102150405") + "." + Config.Global.Hardware.AudioRecordFunction.RecordFileFormat // mp3, wav
-
-		args := []string{"-m", "-t", Config.Global.Hardware.AudioRecordFunction.RecordSystem, Config.Global.Hardware.AudioRecordFunction.RecordFromOutput, "-t", Config.Global.Hardware.AudioRecordFunction.RecordSystem, Config.Global.Hardware.AudioRecordFunction.RecordFromInput, "-t", Config.Global.Hardware.AudioRecordFunction.RecordFileFormat, audrecfile, "silence", "-l", "1", "1", `2%`, "-1", "0.5", `2%`, "trim", "0", Config.Global.Hardware.AudioRecordFunction.RecordChunkSize, ":", "newfile", ":", "restart"}
-
-		cmd := exec.Command("/usr/bin/sox", args...)
-		cmd.Dir = Config.Global.Hardware.AudioRecordFunction.RecordSavePath
-		err := cmd.Start()
-		check(err)
-		time.Sleep(2 * time.Second)
-
-		/*emptydirchk, err := dirIsEmpty(Config.Global.Hardware.AudioRecordFunction.RecordSavePath) // If SoX didn't start recording for wrong parameters or any reason...  No files.
-
-		if err == nil && !emptydirchk {
-			log.Println("info: SoX is Recording Mixed Audio to", Config.Global.Hardware.AudioRecordFunction.RecordSavePath)
-			log.Println("warn: SoX will Go On Recording, Until it Runs out of Space or is Interrupted")
-
-			starttime := time.Now()
-
-			ticker := time.NewTicker(300 * time.Second) // Reminder if SoX recording is still running after ... 5 minutes (no timeout)
-
-			go func() {
-				for range ticker.C {
-					checked := time.Since(starttime)
-					checkedshort := fmt.Sprintf("%v", before(fmt.Sprint(checked), ".")) // trim  milliseconds after .  Format 00h00m00s.
-					elapsed := fmtDuration(checked)                                     // hh:mm format
-					log.Println("info: SoX is Still Running After", checkedshort+"s", "|", elapsed)
-				}
-			}()
-
-		} else {
-			log.Println("error: Something Went Wrong... SoX Traffic Recording was Launched but Encountered Some Problems")
-			log.Println("warn: Check Sound System Settings and SoX Arguments")
+	if w.file != nil {
+		if err := w.file.Sync(); err != nil {
+			fmt.Fprintf(os.Stderr, "mrec: sync before rotate: %v\n", err)
 		}
-		*/
 	}
+	return w.openNewFileLocked()
+}
+
+func (w *mrecWriter) flush() {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	_ = w.flushLocked()
+}
+
+func (w *mrecWriter) flushLocked() error {
+	if w.buf == nil {
+		return nil
+	}
+	return w.buf.Flush()
+}
+
+func (w *mrecWriter) closeFile() {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	w.closeFileLocked()
+}
+
+func (w *mrecWriter) closeFileLocked() {
+	if w.buf != nil {
+		_ = w.buf.Flush()
+		w.buf = nil
+	}
+	if w.file != nil {
+		_ = w.file.Sync()
+		_ = w.file.Close()
+		w.file = nil
+	}
+	w.bytesWritten = 0
+	w.currentPath = ""
+}
+
+func (w *mrecWriter) openNewFileLocked() error {
+	now := time.Now()
+	filename := fmt.Sprintf("%s_%s.mrec", w.baseName, now.Format("20060102_150405"))
+	path := filepath.Join(w.savePath, filename)
+
+	f, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
+	if err != nil {
+		return fmt.Errorf("open %s: %w", path, err)
+	}
+
+	absPath, err := filepath.Abs(path)
+	if err != nil {
+		absPath = path
+	}
+
+	if w.file != nil {
+		_ = w.file.Close()
+	}
+
+	w.file = f
+	w.buf = bufio.NewWriterSize(f, defaultMrecBufSize)
+	w.bytesWritten = 0
+	w.fileStart = now
+	w.currentPath = absPath
+
+	if err := w.appendIndexLog(absPath, now); err != nil {
+		fmt.Fprintf(os.Stderr, "mrec: index log error: %v\n", err)
+	}
+
+	log.Printf("info: opened mrec file %s\n", absPath)
+	return nil
 }

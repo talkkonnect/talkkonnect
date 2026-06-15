@@ -497,7 +497,7 @@ type ConfigStruct struct {
 				PLowProfile          bool    `xml:"lowprofile"`
 			} `xml:"panicfunction"`
 			USBKeyboard struct {
-				Enabled bool `xml:"enabled,attr"`
+				Enabled         bool `xml:"enabled,attr"`
 				USBKeyboardDevs struct {
 					Paths []string `xml:"usbkeyboarddevpath"`
 				} `xml:"usbkeyboarddevs"`
@@ -515,6 +515,14 @@ type ConfigStruct struct {
 				RecordIndexLog     string `xml:"recordindexlog"`
 				ChannelBufferSize  int    `xml:"channelbuffersize"`
 				WriteFlushInterval int    `xml:"writeflushinterval"`
+				RecordDB           struct {
+					Enabled  bool   `xml:"enabled,attr"`
+					Host     string `xml:"host"`
+					Port     int    `xml:"port"`
+					User     string `xml:"user"`
+					Password string `xml:"password"`
+					Database string `xml:"database"`
+				} `xml:"recorddb"`
 			} `xml:"audiorecordfunction"`
 			Keyboard struct {
 				Command []struct {
@@ -625,19 +633,19 @@ type ConfigStruct struct {
 			} `xml:"id"`
 		} `xml:"multimedia"`
 		StreamingRadio struct {
-			Enabled                bool   `xml:"Enabled"`
-			AutoResumeDelay        int    `xml:"AutoResumeDelay"`
-			InterruptionMode       string `xml:"InterruptionMode"`
-			MasterVolume           int    `xml:"MasterVolume"`
-			AlsaDevice             string `xml:"AlsaDevice"`
-			FFmpegPath             string `xml:"FFmpegPath"`
-			YoutubeMusicPlayback   bool   `xml:"YoutubeMusicPlayback"`
-			YtDlpPath              string `xml:"YtDlpPath"`
-			YtDlpFormat            string `xml:"YtDlpFormat"`
-			AnnounceStationTTS     bool   `xml:"AnnounceStationTTS"`
-			StreamRetrySecs        int    `xml:"StreamRetrySecs"`
-			DuckVolumePercent      int    `xml:"DuckVolumePercent"`
-			Stations               struct {
+			Enabled              bool   `xml:"Enabled"`
+			AutoResumeDelay      int    `xml:"AutoResumeDelay"`
+			InterruptionMode     string `xml:"InterruptionMode"`
+			MasterVolume         int    `xml:"MasterVolume"`
+			AlsaDevice           string `xml:"AlsaDevice"`
+			FFmpegPath           string `xml:"FFmpegPath"`
+			YoutubeMusicPlayback bool   `xml:"YoutubeMusicPlayback"`
+			YtDlpPath            string `xml:"YtDlpPath"`
+			YtDlpFormat          string `xml:"YtDlpFormat"`
+			AnnounceStationTTS   bool   `xml:"AnnounceStationTTS"`
+			StreamRetrySecs      int    `xml:"StreamRetrySecs"`
+			DuckVolumePercent    int    `xml:"DuckVolumePercent"`
+			Stations             struct {
 				Station []struct {
 					Name    string `xml:"Name"`
 					URL     string `xml:"URL"`
@@ -1486,6 +1494,12 @@ func printxmlconfig() {
 		log.Println("info: Audio Recording Index Log " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordIndexLog))
 		log.Println("info: Audio Recording Channel Buffer Size " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.ChannelBufferSize))
 		log.Println("info: Audio Recording Write Flush Interval " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.WriteFlushInterval))
+		log.Println("info: Audio Recording DB Enabled " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordDB.Enabled))
+		log.Println("info: Audio Recording DB Host " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordDB.Host))
+		log.Println("info: Audio Recording DB Port " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordDB.Port))
+		log.Println("info: Audio Recording DB User " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordDB.User))
+		log.Println("info: Audio Recording DB Password " + maskPassword(Config.Global.Hardware.AudioRecordFunction.RecordDB.Password))
+		log.Println("info: Audio Recording DB Database " + fmt.Sprintf("%v", Config.Global.Hardware.AudioRecordFunction.RecordDB.Database))
 	}
 
 	if !Config.Global.Software.PrintVariables.PrintKeyboardMap {
@@ -2075,4 +2089,11 @@ func CheckConfigSanity(reloadxml bool) {
 		log.Println("info: Finished XML Configuration Sanity and Logical Checks Without Any Alerts/Errors/Warnings")
 	}
 	preloadEventSounds()
+}
+
+func maskPassword(password string) string {
+	if password == "" {
+		return ""
+	}
+	return "****"
 }

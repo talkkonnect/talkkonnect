@@ -31,11 +31,15 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "4.11.02"
-	talkkonnectReleased string = "13 Jun 2026"
+	talkkonnectVersion  string = "4.12.01"
+	talkkonnectReleased string = "15 Jun 2026"
 )
 
 /* Release Notes
+version 4.12.01
+Added mariadb support for recording meta data for web recording player
+
+Added the date time stamp to each recording entry
 version 4.11.02
 Added the date time stamp to each recording entry
 

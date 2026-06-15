@@ -7,6 +7,7 @@ require (
 	github.com/allan-simon/go-singleinstance v0.0.0-20210120080615-d0997106ab37
 	github.com/eclipse/paho.mqtt.golang v1.5.0
 	github.com/glendc/go-external-ip v0.1.0
+	github.com/go-sql-driver/mysql v1.10.0
 	github.com/gvalkov/golang-evdev v0.0.0-20220815104727-7e27d6ce89b6
 	github.com/jacobsa/go-serial v0.0.0-20180131005756-15cf729a72d4
 	github.com/kennygrant/sanitize v1.2.4
@@ -29,6 +30,7 @@ require (
 )
 
 require (
+	filippo.io/edwards25519 v1.2.0 // indirect
 	github.com/creack/pty v1.1.24 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fulr/spidev v0.0.0-20150210165549-524e13e3fac2 // indirect

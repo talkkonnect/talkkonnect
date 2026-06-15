@@ -18,6 +18,7 @@ package talkkonnect
 
 import (
 	"bufio"
+	"database/sql"
 	"encoding/binary"
 	"fmt"
 	"log"
@@ -28,6 +29,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/talkkonnect/gumble/gumble"
 )
 
@@ -39,7 +41,49 @@ const (
 	defaultMaxFileSize  = 100 * 1024 * 1024
 	defaultBaseName     = "talkkonnect"
 	defaultIndexLog     = "recording_index.log"
+	defaultMySQLPort    = 3306
+
+	transmissionSweepInterval = 500 * time.Millisecond
+	transmissionIdleTimeout   = 600 * time.Millisecond
+	minTransmissionDuration   = 200 * time.Millisecond
 )
+
+var recordDBSchema = []string{
+	`CREATE TABLE IF NOT EXISTS mrec_files (
+		id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+		filename VARCHAR(1024) NOT NULL,
+		server_name VARCHAR(255) NOT NULL,
+		channel_name VARCHAR(255) NOT NULL,
+		file_start_time DATETIME(3) NOT NULL,
+		UNIQUE KEY uk_mrec_files_filename (filename)
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`,
+	`CREATE TABLE IF NOT EXISTS transmissions (
+		id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+		file_id BIGINT UNSIGNED NOT NULL,
+		session_id INT UNSIGNED NOT NULL,
+		username VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+		start_time DATETIME(3) NOT NULL,
+		end_time DATETIME(3) NOT NULL,
+		duration_ms BIGINT NOT NULL,
+		offset_start_ms BIGINT NOT NULL,
+		offset_end_ms BIGINT NOT NULL,
+		notes TEXT NULL,
+		CONSTRAINT fk_file
+			FOREIGN KEY (file_id)
+			REFERENCES mrec_files (id)
+			ON DELETE CASCADE
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`,
+	`CREATE INDEX IF NOT EXISTS idx_transmissions_time
+		ON transmissions (start_time DESC, end_time DESC)`,
+	`CREATE INDEX IF NOT EXISTS idx_transmissions_duration
+		ON transmissions (duration_ms)`,
+	`CREATE INDEX IF NOT EXISTS idx_transmissions_username
+		ON transmissions (username)`,
+	`CREATE INDEX IF NOT EXISTS idx_transmissions_file_id
+		ON transmissions (file_id)`,
+	`ALTER TABLE transmissions
+		MODIFY username VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL`,
+}
 
 type recordEntry struct {
 	sessionID uint32
@@ -49,6 +93,25 @@ type recordEntry struct {
 	received  time.Time
 }
 
+type ActiveTransmission struct {
+	FileID        int64
+	SessionID     uint32
+	Username      string
+	StartTime     time.Time
+	EndTime       time.Time
+	OffsetStartMs int64
+	OffsetEndMs   int64
+	LastPacketAt  time.Time
+}
+
+type RecordingManager struct {
+	DB           *sql.DB
+	ActiveBursts map[uint32]*ActiveTransmission
+	mu           sync.Mutex
+	stopCh       chan struct{}
+	doneCh       chan struct{}
+}
+
 type mrecWriter struct {
 	savePath      string
 	baseName      string
@@ -56,14 +119,16 @@ type mrecWriter struct {
 	indexLogPath  string
 	flushInterval time.Duration
 	tk            *Talkkonnect
+	recManager    *RecordingManager
 
-	mu           sync.Mutex
-	file         *os.File
-	buf          *bufio.Writer
-	bytesWritten int64
-	fileStart    time.Time
-	currentPath  string
-	header       [mrecBlockHeaderSize]byte
+	mu            sync.Mutex
+	file          *os.File
+	buf           *bufio.Writer
+	bytesWritten  int64
+	fileStart     time.Time
+	currentPath   string
+	currentFileID int64
+	header        [mrecBlockHeaderSize]byte
 }
 
 type opusRecorder struct {
@@ -112,6 +177,181 @@ func resolvedAudioRecordSettings() (savePath, baseName, indexLog string, maxFile
 	return savePath, baseName, indexLog, maxFileSize, channelBuf, flushMS
 }
 
+func mysqlDSNFromConfig() (string, bool) {
+	cfg := Config.Global.Hardware.AudioRecordFunction.RecordDB
+	if !cfg.Enabled {
+		return "", false
+	}
+
+	host := strings.TrimSpace(cfg.Host)
+	user := strings.TrimSpace(cfg.User)
+	database := strings.TrimSpace(cfg.Database)
+	if host == "" || user == "" || database == "" {
+		return "", false
+	}
+
+	port := cfg.Port
+	if port <= 0 {
+		port = defaultMySQLPort
+	}
+
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?parseTime=true&charset=utf8mb4&collation=utf8mb4_unicode_ci",
+		user, cfg.Password, host, port, database)
+	return dsn, true
+}
+
+func NewRecordingManager(dsn string) (*RecordingManager, error) {
+	db, err := sql.Open("mysql", dsn)
+	if err != nil {
+		return nil, fmt.Errorf("open mysql database: %w", err)
+	}
+
+	db.SetMaxOpenConns(5)
+	db.SetMaxIdleConns(2)
+	db.SetConnMaxLifetime(5 * time.Minute)
+
+	if err := db.Ping(); err != nil {
+		db.Close()
+		return nil, fmt.Errorf("ping mysql database: %w", err)
+	}
+
+	for _, stmt := range recordDBSchema {
+		if _, err := db.Exec(stmt); err != nil {
+			db.Close()
+			return nil, fmt.Errorf("init mysql schema: %w", err)
+		}
+	}
+
+	rm := &RecordingManager{
+		DB:           db,
+		ActiveBursts: make(map[uint32]*ActiveTransmission),
+		stopCh:       make(chan struct{}),
+		doneCh:       make(chan struct{}),
+	}
+	go rm.sweepClosedTransmissions()
+	return rm, nil
+}
+
+func (rm *RecordingManager) RegisterFile(filename, serverName, channelName string, fileStart time.Time) (int64, error) {
+	res, err := rm.DB.Exec(
+		`INSERT INTO mrec_files (filename, server_name, channel_name, file_start_time) VALUES (?, ?, ?, ?)`,
+		filename, serverName, channelName, fileStart.UTC(),
+	)
+	if err != nil {
+		return 0, err
+	}
+	return res.LastInsertId()
+}
+
+func (rm *RecordingManager) ProcessPacket(fileID int64, sessionID uint32, username string, offsetMs int64, packetTime time.Time) {
+	rm.mu.Lock()
+	defer rm.mu.Unlock()
+
+	burst, exists := rm.ActiveBursts[sessionID]
+	if !exists {
+		rm.ActiveBursts[sessionID] = &ActiveTransmission{
+			FileID:        fileID,
+			SessionID:     sessionID,
+			Username:      username,
+			StartTime:     packetTime,
+			EndTime:       packetTime,
+			OffsetStartMs: offsetMs,
+			OffsetEndMs:   offsetMs,
+			LastPacketAt:  time.Now(),
+		}
+		return
+	}
+
+	burst.EndTime = packetTime
+	burst.OffsetEndMs = offsetMs
+	burst.LastPacketAt = time.Now()
+	if username != "" {
+		burst.Username = username
+	}
+}
+
+func (rm *RecordingManager) sweepClosedTransmissions() {
+	defer close(rm.doneCh)
+
+	ticker := time.NewTicker(transmissionSweepInterval)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-rm.stopCh:
+			return
+		case <-ticker.C:
+			rm.sweepOnce()
+		}
+	}
+}
+
+func (rm *RecordingManager) sweepOnce() {
+	rm.mu.Lock()
+	now := time.Now()
+	var toWrite []ActiveTransmission
+
+	for sessionID, burst := range rm.ActiveBursts {
+		if now.Sub(burst.LastPacketAt) <= transmissionIdleTimeout {
+			continue
+		}
+
+		if burst.EndTime.Sub(burst.StartTime) >= minTransmissionDuration {
+			toWrite = append(toWrite, *burst)
+		}
+		delete(rm.ActiveBursts, sessionID)
+	}
+	rm.mu.Unlock()
+
+	for i := range toWrite {
+		b := &toWrite[i]
+		rm.writeToDB(b, b.EndTime.Sub(b.StartTime).Milliseconds())
+	}
+}
+
+func (rm *RecordingManager) FlushAll() {
+	rm.mu.Lock()
+	toWrite := make([]ActiveTransmission, 0, len(rm.ActiveBursts))
+	for sessionID, burst := range rm.ActiveBursts {
+		if burst.EndTime.Sub(burst.StartTime) >= minTransmissionDuration {
+			toWrite = append(toWrite, *burst)
+		}
+		delete(rm.ActiveBursts, sessionID)
+	}
+	rm.mu.Unlock()
+
+	for i := range toWrite {
+		b := &toWrite[i]
+		rm.writeToDB(b, b.EndTime.Sub(b.StartTime).Milliseconds())
+	}
+}
+
+func (rm *RecordingManager) writeToDB(b *ActiveTransmission, durationMs int64) {
+	_, err := rm.DB.Exec(
+		`INSERT INTO transmissions
+			(file_id, session_id, username, start_time, end_time, duration_ms, offset_start_ms, offset_end_ms)
+			VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+		b.FileID,
+		b.SessionID,
+		b.Username,
+		b.StartTime.UTC(),
+		b.EndTime.UTC(),
+		durationMs,
+		b.OffsetStartMs,
+		b.OffsetEndMs,
+	)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "mrec: mysql transmission insert error: %v\n", err)
+	}
+}
+
+func (rm *RecordingManager) Close() {
+	rm.FlushAll()
+	close(rm.stopCh)
+	<-rm.doneCh
+	_ = rm.DB.Close()
+}
+
 // StartOpusTrafficRecording attaches an audio listener and writes raw Opus packets to .mrec files.
 func StartOpusTrafficRecording(b *Talkkonnect) {
 	if b == nil || b.Config == nil {
@@ -140,6 +380,15 @@ func StartOpusTrafficRecording(b *Talkkonnect) {
 		indexLogPath = filepath.Join(savePath, indexLog)
 	}
 
+	var recManager *RecordingManager
+	if dsn, ok := mysqlDSNFromConfig(); ok {
+		var err error
+		recManager, err = NewRecordingManager(dsn)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "mrec: mysql index disabled: %v\n", err)
+		}
+	}
+
 	writer := &mrecWriter{
 		savePath:      savePath,
 		baseName:      baseName,
@@ -147,6 +396,7 @@ func StartOpusTrafficRecording(b *Talkkonnect) {
 		indexLogPath:  indexLogPath,
 		flushInterval: time.Duration(flushMS) * time.Millisecond,
 		tk:            b,
+		recManager:    recManager,
 	}
 
 	globalOpusRecorder.recordChan = make(chan recordEntry, channelBuf)
@@ -159,6 +409,15 @@ func StartOpusTrafficRecording(b *Talkkonnect) {
 	globalOpusRecorder.running = true
 
 	log.Printf("info: Opus traffic recording started; save path=%s base=%s max size=%d bytes\n", savePath, baseName, maxFileSize)
+	if recManager != nil {
+		cfg := Config.Global.Hardware.AudioRecordFunction.RecordDB
+		port := cfg.Port
+		if port <= 0 {
+			port = defaultMySQLPort
+		}
+		log.Printf("info: Opus transmission index database %s@%s:%d/%s\n",
+			cfg.User, cfg.Host, port, cfg.Database)
+	}
 }
 
 // StopOpusTrafficRecording detaches the listener and flushes the active .mrec file.
@@ -199,10 +458,10 @@ func (r *opusRecorder) OnAudioStream(e *gumble.AudioStreamEvent) {
 			var username string
 			if packet.Sender != nil {
 				sessionID = packet.Sender.Session
-				username = cleanstring(packet.Sender.Name)
+				username = recordUsername(packet.Sender.Name)
 			} else if e.User != nil {
 				sessionID = e.User.Session
-				username = cleanstring(e.User.Name)
+				username = recordUsername(e.User.Name)
 			}
 
 			r.enqueue(recordEntry{
@@ -245,6 +504,11 @@ func (r *opusRecorder) logDropRateLimited() {
 
 func (w *mrecWriter) run(ch <-chan recordEntry, stop <-chan struct{}, done chan<- struct{}) {
 	defer close(done)
+	defer func() {
+		if w.recManager != nil {
+			w.recManager.Close()
+		}
+	}()
 
 	flushTicker := time.NewTicker(w.flushInterval)
 	defer flushTicker.Stop()
@@ -348,10 +612,19 @@ func (w *mrecWriter) writeEntry(entry recordEntry) error {
 	}
 
 	w.bytesWritten += blockSize
+
+	if w.recManager != nil && w.currentFileID > 0 {
+		w.recManager.ProcessPacket(w.currentFileID, entry.sessionID, entry.username, ts, entry.received)
+	}
+
 	return nil
 }
 
 func (w *mrecWriter) rotateLocked() error {
+	if w.recManager != nil {
+		w.recManager.FlushAll()
+	}
+
 	if err := w.flushLocked(); err != nil {
 		return err
 	}
@@ -383,6 +656,10 @@ func (w *mrecWriter) closeFile() {
 }
 
 func (w *mrecWriter) closeFileLocked() {
+	if w.recManager != nil {
+		w.recManager.FlushAll()
+	}
+
 	if w.buf != nil {
 		_ = w.buf.Flush()
 		w.buf = nil
@@ -394,6 +671,7 @@ func (w *mrecWriter) closeFileLocked() {
 	}
 	w.bytesWritten = 0
 	w.currentPath = ""
+	w.currentFileID = 0
 }
 
 func (w *mrecWriter) openNewFileLocked() error {
@@ -427,6 +705,16 @@ func (w *mrecWriter) openNewFileLocked() error {
 	w.bytesWritten = 0
 	w.fileStart = now
 	w.currentPath = absPath
+
+	if w.recManager != nil {
+		fileID, err := w.recManager.RegisterFile(absPath, server, channel, now)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "mrec: mysql file registry error: %v\n", err)
+			w.currentFileID = 0
+		} else {
+			w.currentFileID = fileID
+		}
+	}
 
 	if err := w.appendIndexLog(absPath, now); err != nil {
 		fmt.Fprintf(os.Stderr, "mrec: index log error: %v\n", err)

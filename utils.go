@@ -71,6 +71,29 @@ func cleanstring(str string) string {
 	return sanitize.Name(str)
 }
 
+const recordUsernameMaxRunes = 255
+
+// recordUsername sanitizes a Mumble username for recording/index storage while preserving Unicode (e.g. Thai, English).
+func recordUsername(s string) string {
+	s = strings.TrimSpace(s)
+	if s == "" {
+		return ""
+	}
+	var b strings.Builder
+	b.Grow(len(s))
+	for _, r := range s {
+		if r == 0 || unicode.IsControl(r) {
+			continue
+		}
+		b.WriteRune(r)
+	}
+	runes := []rune(b.String())
+	if len(runes) > recordUsernameMaxRunes {
+		return string(runes[:recordUsernameMaxRunes])
+	}
+	return b.String()
+}
+
 const uiMessageMaxRunes = 200
 
 // uiMessageText sanitizes Mumble text for framebuffer display while preserving Unicode (e.g. Thai).

@@ -691,6 +691,15 @@ func (w *mrecWriter) openNewFileLocked() error {
 		return fmt.Errorf("open %s: %w", path, err)
 	}
 
+	// Force 0644 regardless of the process umask so the external web recording
+	// player (which runs as a different, non-root user) can always read the
+	// .mrec file. With a umask of 027 the OpenFile mode is masked down to 0640,
+	// which leaves "other" without read access and makes playback fail with
+	// "source recording unavailable".
+	if err := f.Chmod(0644); err != nil {
+		fmt.Fprintf(os.Stderr, "mrec: chmod %s: %v\n", path, err)
+	}
+
 	absPath, err := filepath.Abs(path)
 	if err != nil {
 		absPath = path

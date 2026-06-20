@@ -31,11 +31,14 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "4.12.01"
-	talkkonnectReleased string = "16 Jun 2026"
+	talkkonnectVersion  string = "4.13.01"
+	talkkonnectReleased string = "20 Jun 2026"
 )
 
 /* Release Notes
+version 4.13.01
+Added VU Meter in API
+
 version 4.12.02
 Fixed the recording programs bugs
 

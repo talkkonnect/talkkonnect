@@ -314,6 +314,7 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 				if samples > cap(raw) {
 					continue
 				}
+				RecordRXAudioLevel(packet.AudioBuffer)
 				for i, value := range packet.AudioBuffer {
 					binary.LittleEndian.PutUint16(raw[i*2:], uint16(value))
 				}
@@ -383,6 +384,7 @@ func (b *Talkkonnect) sourceRoutine() {
 			for i := range int16Buffer {
 				int16Buffer[i] = int16(binary.LittleEndian.Uint16(buff[i*2 : (i+1)*2]))
 			}
+			RecordTXAudioLevel(int16Buffer)
 			outgoing <- gumble.AudioBuffer(int16Buffer)
 		}
 	}

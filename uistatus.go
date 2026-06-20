@@ -122,6 +122,9 @@ type UIStatus struct {
 	LastSpeaker    string              `json:"lastSpeaker"`
 	LastMessage    UILastMessage       `json:"lastMessage,omitempty"`
 	RXVolume       int                 `json:"rxVolume"`
+	AudioLevel     int                 `json:"audioLevel"`
+	RXAudioLevel   int                 `json:"rxAudioLevel"`
+	TXAudioLevel   int                 `json:"txAudioLevel"`
 	Muted          bool                `json:"muted"`
 	InternetRadio  InternetRadioStatus `json:"internetRadio"`
 	IPAddress      string              `json:"ipAddress"`
@@ -312,6 +315,16 @@ func (b *Talkkonnect) buildUIStatus() UIStatus {
 	}
 	if muted, err := volume.GetMuted(Config.Global.Software.Settings.OutputDevice); err == nil {
 		st.Muted = muted
+	}
+
+	st.RXAudioLevel, st.TXAudioLevel = AudioLevelSnapshot()
+	switch {
+	case st.Transmitting:
+		st.AudioLevel = st.TXAudioLevel
+	case st.Receiving:
+		st.AudioLevel = st.RXAudioLevel
+	default:
+		st.AudioLevel = 0
 	}
 
 	switch {

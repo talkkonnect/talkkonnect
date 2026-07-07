@@ -337,6 +337,6 @@ func listAPI() {
 	for _, apicommand := range Config.Global.Software.RemoteControl.HTTP.Command {
 		msg := fmt.Sprintf("info: API Command %v for %v Control Available\n", apicommand.Action, apicommand.Message)
 		log.Print(msg)
-		sshRemoteReplyF(msg)
+		sshRemoteReplyF(msg, "")
 	}
 }

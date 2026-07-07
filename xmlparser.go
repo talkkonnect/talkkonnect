@@ -33,6 +33,7 @@ package talkkonnect
 import (
 	"context"
 	"encoding/xml"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -881,7 +882,7 @@ func readxmlconfig(file string, reloadxml bool) error {
 
 	xmlFile, err := os.Open(file)
 	if err != nil {
-		return fmt.Errorf(err.Error())
+		return err
 	}
 	log.Println("info: Successfully Read file " + filepath.Base(file))
 	defer xmlFile.Close()
@@ -891,12 +892,12 @@ func readxmlconfig(file string, reloadxml bool) error {
 	if !reloadxml {
 		err = xml.Unmarshal(byteValue, &Config)
 		if err != nil {
-			return fmt.Errorf(filepath.Base(file) + " " + err.Error())
+			return errors.New(filepath.Base(file) + " " + err.Error())
 		}
 	} else {
 		err = xml.Unmarshal(byteValue, &ReConfig)
 		if err != nil {
-			return fmt.Errorf(filepath.Base(file) + " " + err.Error())
+			return errors.New(filepath.Base(file) + " " + err.Error())
 		}
 	}
 	CheckConfigSanity(reloadxml)

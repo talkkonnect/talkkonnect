@@ -612,16 +612,16 @@ func (b *Talkkonnect) cmdSendEmail() {
 
 	if Config.Global.Software.SMTP.Enabled {
 
-		emailMessage := fmt.Sprintf(Config.Global.Software.SMTP.Message + "\n")
+		emailMessage := fmt.Sprint(Config.Global.Software.SMTP.Message + "\n")
 		emailMessage = emailMessage + fmt.Sprintf("Ident: %s \n", b.Ident)
 		emailMessage = emailMessage + fmt.Sprintf("Mumble Username: %s \n", b.Username)
 
 		if Config.Global.Software.SMTP.GpsDateTime {
-			emailMessage = emailMessage + fmt.Sprintf("Date "+GNSSData.Date+" UTC Time "+GNSSData.Time+"\n")
+			emailMessage = emailMessage + fmt.Sprint("Date "+GNSSData.Date+" UTC Time "+GNSSData.Time+"\n")
 		}
 
 		if Config.Global.Software.SMTP.GpsLatLong {
-			emailMessage = emailMessage + fmt.Sprintf("Latitude "+strconv.FormatFloat(GNSSData.Lattitude, 'f', 6, 64)+" Longitude "+strconv.FormatFloat(GNSSData.Longitude, 'f', 6, 64)+"\n")
+			emailMessage = emailMessage + fmt.Sprint("Latitude "+strconv.FormatFloat(GNSSData.Lattitude, 'f', 6, 64)+" Longitude "+strconv.FormatFloat(GNSSData.Longitude, 'f', 6, 64)+"\n")
 		}
 
 		if Config.Global.Software.SMTP.GoogleMapsURL {
@@ -812,7 +812,7 @@ func (b *Talkkonnect) cmdPanicSimulation() {
 
 			if goodGPSRead && i != tries {
 				log.Println("info: Sending GPS Info My Message")
-				gpsMessage := "My GPS Coordinates are " + fmt.Sprintf(" Latitude "+strconv.FormatFloat(GNSSData.Lattitude, 'f', 6, 64)) + fmt.Sprintf(" Longitude "+strconv.FormatFloat(GNSSData.Longitude, 'f', 6, 64))
+				gpsMessage := "My GPS Coordinates are " + fmt.Sprint(" Latitude "+strconv.FormatFloat(GNSSData.Lattitude, 'f', 6, 64)) + fmt.Sprint(" Longitude "+strconv.FormatFloat(GNSSData.Longitude, 'f', 6, 64))
 				b.SendMessage(gpsMessage, Config.Global.Hardware.PanicFunction.RecursiveSendMessage)
 			}
 

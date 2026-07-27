@@ -189,8 +189,11 @@ func (b *Talkkonnect) usbKeyboardListener(devicePath string) {
 							b.cmdStopTransmitting()
 						case "record":
 							playIOMedia("usbrecord")
-							b.cmdAudioTrafficRecord()
-							b.cmdAudioMicRecord()
+							if Config.Global.Hardware.AudioRecordFunction.Enabled && Config.Global.Hardware.AudioRecordFunction.RecordMode == "traffic" {
+								go StartOpusTrafficRecording(b)
+							} else {
+								log.Println("warn: Traffic Recording Not Enabled")
+							}
 						case "voicetargetset":
 							voicetarget, err := strconv.Atoi(USBKeyMap[rune(ke.Scancode)].ParamValue)
 							if err != nil {

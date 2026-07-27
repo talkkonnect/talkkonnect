@@ -730,40 +730,6 @@ func (b *Talkkonnect) cmdConnNextServer() {
 	}
 }
 
-func (b *Talkkonnect) cmdAudioTrafficRecord() {
-	log.Printf("debug: Ctrl-I Pressed \n")
-	log.Println("info: Traffic Recording Requested")
-	if !Config.Global.Hardware.AudioRecordFunction.Enabled {
-		log.Println("warn: Audio Recording Function Not Enabled")
-		return
-	}
-	if Config.Global.Hardware.AudioRecordFunction.RecordMode != "traffic" {
-		log.Println("warn: Traffic Recording Not Enabled")
-		return
-	}
-
-	go StartOpusTrafficRecording(b)
-	if Config.Global.Hardware.TargetBoard == "rpi" {
-		if LCDEnabled {
-			LcdText = [4]string{"nil", "nil", "Traffic Audio Rec ->", "nil"}
-			LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
-		}
-		if OLEDEnabled {
-			oledDisplay(false, 5, OLEDStartColumn, "Traffic Audio Rec ->")
-		}
-	}
-}
-
-func (b *Talkkonnect) cmdAudioMicRecord() {
-	log.Printf("debug: Ctrl-J Pressed \n")
-	log.Println("warn: Ambient (mic) recording is no longer supported; use traffic mode for .mrec Opus recording")
-}
-
-func (b *Talkkonnect) cmdAudioMicTrafficRecord() {
-	log.Printf("debug: Ctrl-K Pressed \n")
-	log.Println("warn: Combo recording is no longer supported; use traffic mode for .mrec Opus recording")
-}
-
 func (b *Talkkonnect) cmdPanicSimulation() {
 	if !(IsConnected) {
 		return
@@ -874,10 +840,13 @@ func (b *Talkkonnect) cmdRepeatTxLoop() {
 }
 
 func (b *Talkkonnect) cmdScanChannels() {
-	log.Printf("debug: Ctrl-S Pressed fgrom \n")
-	log.Println("info: Scanning Channels")
+	log.Printf("debug: Ctrl-S Pressed \n")
+	if ScanIsRunning() {
+		log.Println("info: Stop Channel Scanning Requested")
+	} else {
+		log.Println("info: Start Channel Scanning Requested")
+	}
 
-	TTSEvent("startscanning")
 	b.Scan()
 }
 

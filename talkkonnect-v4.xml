@@ -93,6 +93,16 @@
                 <txlockout>true</txlockout>
                 <listentochannelsonstart>false</listentochannelsonstart>
             </settings>
+            <!-- channel scanning (menu key <r>, Ctrl-S or httpapi/mqtt action scanchannels) -->
+            <!-- dwelltimemsecs = time spent listening on each channel, hangtimemsecs = extra time held on a busy channel after the traffic stops -->
+            <!-- returntostartchannel = go back to the channel the scan started from when scanning is stopped -->
+            <!-- skipchannels = comma separated channel names or channel ids to leave out of the scan -->
+            <channelscan>
+                <dwelltimemsecs>3000</dwelltimemsecs>
+                <hangtimemsecs>4000</hangtimemsecs>
+                <returntostartchannel>true</returntostartchannel>
+                <skipchannels></skipchannels>
+            </channelscan>
             <remotesshconsole enabled="true">
                 <username>suvir</username>
                 <password>suvir</password>
@@ -137,6 +147,7 @@
                 <sound action="nextserver" file="" blocking="false" enabled="true"/>
                 <sound action="previousserver" file="" blocking="false" enabled="true"/>
                 <sound action="startscanning" file="" blocking="false" enabled="false"/>
+                <sound action="stopscanning" file="" blocking="false" enabled="false"/>
                 <sound action="panicsimulation" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/PanicSimulation.wav" blocking="false" enabled="true"/>
                 <sound action="printxmlconfig" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/PrintXmlConfig.wav" blocking="false" enabled="true"/>
                 <sound action="sendemail" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/voiceprompts/SendEmail.wav" blocking="false" enabled="true"/>

@@ -130,6 +130,8 @@ type UIStatus struct {
 	IPAddress      string              `json:"ipAddress"`
 	Bitrate        string              `json:"bitrate"`
 	UptimeSec      int64               `json:"uptimeSec"`
+	Scanning       bool                `json:"scanning"`
+	ScanHold       bool                `json:"scanHold"`
 	Activity       string              `json:"activity"`
 	MumbleUsername string              `json:"mumbleUsername"`
 	Version        string              `json:"version"`
@@ -291,6 +293,8 @@ func (b *Talkkonnect) buildUIStatus() UIStatus {
 		LastSpeaker:   LastSpeaker,
 		LastMessage:   lastUIMessageSnapshot(),
 		Receiving:     ReceivingVoice,
+		Scanning:      ScanIsRunning(),
+		ScanHold:      ScanIsHolding(),
 		InternetRadio: InternetRadioStatusSnapshot(),
 		IPAddress:     primaryLocalIPv4(),
 		UptimeSec:     int64(time.Since(StartTime).Seconds()),

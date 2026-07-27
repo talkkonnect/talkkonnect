@@ -175,14 +175,12 @@ For a speaker muting to work when pressing a PTT, you need to enter the exact na
 │<Ctrl-D> Debug Stacktrace    │ <Ctrl-E> Send Email            │
 ├─────────────────────────────┼────────────────────────────────┤
 │<Ctrl-F> Conn Previous Server│<Ctrl-G> Send Repeater Tone     │
-│<Ctrl-H> XML Config Checker  │<Ctrl-I> Traffic Record         │
-│<Ctrl-J> Mic Record          │<Ctrl-K> Traffic & Mic Record   │
-│<Ctrl-L> Clear Screen        │<Ctrl-M> Radio Channel (+)      │
-│<Ctrl-N> Next Server         │<Ctrl-O> Ping Servers           │
-│<Ctrl-P> Panic Simulation    │<Ctrl-R> Repeat TX Loop Test    │
-│<Ctrl-S> Scan Channels       │<Ctrl-T> Thanks/Acknowledgements│
-│<Ctrl-U> Show Uptime         │<Ctrl-V> Display Version        │
-│<Ctrl-X> Dump XML Config     │                                │
+│<Ctrl-H> XML Config Checker  │<Ctrl-L> Clear Screen           │
+│<Ctrl-M> Radio Channel (+)   │<Ctrl-N> Next Server            │
+│<Ctrl-O> Ping Servers        │<Ctrl-P> Panic Simulation       │
+│<Ctrl-R> Repeat TX Loop Test │<Ctrl-S> Scan Channels On/Off   │
+│<Ctrl-T> Thanks/Acknowledge  │<Ctrl-U> Show Uptime            │
+│<Ctrl-V> Display Version     │<Ctrl-X> Dump XML Config        │
 ├─────────────────────────────┼────────────────────────────────┤
 │  Visit us at www.talkkonnect.com and github.com/talkkonnect  │
 │  Thanks to Global Coders Co., Ltd. for their sponsorship     │
@@ -231,6 +229,32 @@ For a speaker muting to work when pressing a PTT, you need to enter the exact na
 * The txlockout feature when set to true prevents talkkonnect from transmitting if there is someone speaking on the channel
 * The listentochannelonstart when set to true will enable talkkonnect to listen to channels defined in the listentochannel child tag channel on start as set
   in the accounts section of the configuration
+
+#### Channel Scan Section
+Channel scanning makes talkkonnect behave like a scanning radio. It is started and stopped with the same command
+(`<r>` in the terminal menu / bottom CLI, `<Ctrl-S>` on the tty keyboard, or the `scanchannels` action over httpapi and mqtt).
+
+While scanning, talkkonnect moves through all channels it has permission to enter (the same accessable channel list used
+by channel up/down), one channel at a time. It waits on each channel for the dwell time, and if someone starts speaking
+it holds on that channel until the traffic stops plus the hang time, then continues scanning. Pressing PTT while parked
+on a channel also holds the scan on that channel until you release it. Changing channel by hand (channel up/down, GPIO,
+keyboard or remote API) stops the scan and leaves talkkonnect on the channel you chose.
+
+* The dwelltimemsecs tag is the time in milliseconds talkkonnect listens to each channel before moving to the next one (default 3000, minimum 500)
+* The hangtimemsecs tag is the extra time in milliseconds talkkonnect stays on a busy channel after the traffic has stopped (default 4000, minimum 500)
+* The returntostartchannel tag when set to true will move talkkonnect back to the channel the scan started from when scanning is stopped
+* The skipchannels tag is a comma separated list of channel names or channel ids that are left out of the scan
+* The optional startscanning and stopscanning tts sound actions are played when scanning starts and stops
+* Scanning needs at least 2 accessable channels, otherwise it will refuse to start and log a warning
+
+````
+            <channelscan>
+                <dwelltimemsecs>3000</dwelltimemsecs>
+                <hangtimemsecs>4000</hangtimemsecs>
+                <returntostartchannel>true</returntostartchannel>
+                <skipchannels>Root,Test Channel</skipchannels>
+            </channelscan>
+````
 
 #### Autoprovisioning Section
 Autoprovisioning is provided so that you can remotely provision a talkkonnect machine via http protocol from a web server

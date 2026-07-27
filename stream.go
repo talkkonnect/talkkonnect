@@ -296,6 +296,9 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 				}
 				internetRadioNotifyVoiceOrTX()
 				TalkedTicker.Reset(Config.Global.Hardware.VoiceActivityTimermsecs * time.Millisecond)
+				if ScanIsRunning() {
+					noteScanVoiceActivity(e.User.Channel.Name)
+				}
 				if Config.Global.Software.IgnoreUser.IgnoreUserEnabled {
 					if len(Config.Global.Software.IgnoreUser.IgnoreUserRegex) > 0 {
 						if checkRegex(Config.Global.Software.IgnoreUser.IgnoreUserRegex, e.User.Name) {

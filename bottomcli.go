@@ -694,10 +694,9 @@ const bottomCLIMenuBanner = `
 ------------------------------------------------------------------------------------
   a  List API commands (log) b  Playback/stop stream      d  Dump XML config
   e  Send email              g  GPS position              h  XML config checker (sanity)
-  i  Traffic record          j  Mic record                k  Traffic & mic record
   l  Clear screen (LCD/OLED) m  Radio channel (+)         n  Radio channel (-)
   o  Ping servers            p  Panic simulation          q  Repeat TX loop test
-  r  Scan channels           s  Thanks/acknowledge        t  Show uptime
+  r  Scan channels (on/off)  s  Thanks/acknowledge        t  Show uptime
   u  Display version         v  Online radio on/off       w  Dump XML config
   x  Previous server         z  Next server                    
 ------------------------------------------------------------------------------------
@@ -770,15 +769,6 @@ func (b *Talkkonnect) bottomCLIExecuteQuickMenu(key string, auxOut io.Writer) bo
 	case "h":
 		cmdSanityCheck()
 		log.Println("info: menu: XML config checker (sanity)")
-	case "i":
-		b.cmdAudioTrafficRecord()
-		log.Println("info: menu: traffic record")
-	case "j":
-		b.cmdAudioMicRecord()
-		log.Println("info: menu: mic record")
-	case "k":
-		b.cmdAudioMicTrafficRecord()
-		log.Println("info: menu: traffic & mic record")
 	case "l":
 		b.cmdClearScreen()
 		log.Println("info: menu: clear screen")

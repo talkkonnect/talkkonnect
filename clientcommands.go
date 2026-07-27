@@ -203,6 +203,8 @@ func (b *Talkkonnect) ChangeChannel(ChannelName string) {
 		return
 	}
 
+	b.ScanStopForChannelChange()
+
 	b.BackLightTimer()
 	channelPath := strings.Split(ChannelName, ",")
 	channel := b.Client.Channels.Find(channelPath...)
@@ -287,6 +289,8 @@ func (b *Talkkonnect) ChannelUp() {
 		return
 	}
 
+	b.ScanStopForChannelChange()
+
 	ChannelAction = "channelup"
 	TTSEvent("channelup")
 
@@ -331,6 +335,8 @@ func (b *Talkkonnect) ChannelDown() {
 		sshRemoteReplyF("Not connected to Mumble; channel change ignored.\n")
 		return
 	}
+	b.ScanStopForChannelChange()
+
 	ChannelAction = "channeldown"
 	TTSEvent("channeldown")
 
@@ -361,16 +367,6 @@ func (b *Talkkonnect) ChannelDown() {
 			}
 		}
 	}
-}
-
-func (b *Talkkonnect) Scan() {
-	if !(IsConnected) {
-		sshRemoteReplyF("Not connected to Mumble; scan unavailable.\n")
-		return
-	}
-
-	log.Println("alert: New Scan Not Implemented Yet")
-	sshRemoteReplyF("Channel scan is not implemented yet (see log).\n")
 }
 
 func (b *Talkkonnect) SendMessage(textmessage string, PRecursive bool) {

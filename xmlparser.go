@@ -121,6 +121,12 @@ type ConfigStruct struct {
 				TXLockOut               bool          `xml:"txlockout"`
 				ListenToChannelsOnStart bool          `xml:"listentochannelsonstart"`
 			} `xml:"settings"`
+			ChannelScan struct {
+				DwellTimeMsecs       int    `xml:"dwelltimemsecs"`
+				HangTimeMsecs        int    `xml:"hangtimemsecs"`
+				ReturnToStartChannel bool   `xml:"returntostartchannel"`
+				SkipChannels         string `xml:"skipchannels"`
+			} `xml:"channelscan"`
 			RemoteSSHConsole struct {
 				Enabled   bool   `xml:"enabled,attr"`
 				Username  string `xml:"username"`
@@ -1064,6 +1070,7 @@ func readxmlconfig(file string, reloadxml bool) error {
 		Config.Global.Software.Settings.RepeatTXTimes = ReConfig.Global.Software.Settings.RepeatTXTimes
 		Config.Global.Software.Settings.RepeatTXDelay = ReConfig.Global.Software.Settings.RepeatTXDelay
 		Config.Global.Software.Settings.SimplexWithMute = ReConfig.Global.Software.Settings.SimplexWithMute
+		Config.Global.Software.ChannelScan = ReConfig.Global.Software.ChannelScan
 		Config.Global.Software.Beacon = ReConfig.Global.Software.Beacon
 		Config.Global.Software.TTS = ReConfig.Global.Software.TTS
 		Config.Global.Software.Sounds = ReConfig.Global.Software.Sounds
@@ -1146,6 +1153,10 @@ func printxmlconfig() {
 		log.Println("info: NextServerIndex                  ", fmt.Sprintf("%v", Config.Global.Software.Settings.NextServerIndex))
 		log.Println("info: TXLockOut                        ", fmt.Sprintf("%t", Config.Global.Software.Settings.TXLockOut))
 		log.Println("info: ListenToChannelOnStart           ", fmt.Sprintf("%t", Config.Global.Software.Settings.ListenToChannelsOnStart))
+		log.Println("info: ChannelScan DwellTime           ", fmt.Sprintf("%v", scanDwellDuration()))
+		log.Println("info: ChannelScan HangTime            ", fmt.Sprintf("%v", scanHangDuration()))
+		log.Println("info: ChannelScan ReturnToStartChannel", fmt.Sprintf("%t", Config.Global.Software.ChannelScan.ReturnToStartChannel))
+		log.Println("info: ChannelScan SkipChannels        ", Config.Global.Software.ChannelScan.SkipChannels)
 	}
 
 	if !Config.Global.Software.PrintVariables.PrintRemoteSSHConsole {
@@ -1703,6 +1714,16 @@ func CheckConfigSanity(reloadxml bool) {
 			Warnings++
 		}
 
+	}
+
+	if Config.Global.Software.ChannelScan.DwellTimeMsecs != 0 && Config.Global.Software.ChannelScan.DwellTimeMsecs < scanMinDwellMsecs {
+		log.Printf("warn: Config Error [Section ChannelScan] Dwell Time %v msecs Too Short, %v msecs Will Be Used\n", Config.Global.Software.ChannelScan.DwellTimeMsecs, scanMinDwellMsecs)
+		Warnings++
+	}
+
+	if Config.Global.Software.ChannelScan.HangTimeMsecs != 0 && Config.Global.Software.ChannelScan.HangTimeMsecs < scanMinHangMsecs {
+		log.Printf("warn: Config Error [Section ChannelScan] Hang Time %v msecs Too Short, %v msecs Will Be Used\n", Config.Global.Software.ChannelScan.HangTimeMsecs, scanMinHangMsecs)
+		Warnings++
 	}
 
 	if Config.Global.Software.Beacon.Enabled {

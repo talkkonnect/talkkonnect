@@ -31,11 +31,20 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "4.13.01"
-	talkkonnectReleased string = "20 Jun 2026"
+	talkkonnectVersion  string = "4.15.01"
+	talkkonnectReleased string = "27 Jul 2026"
 )
 
 /* Release Notes
+version 4.15.01
+Removed redundant recording menus, added scan function and xml configs for scanning channels.
+
+version 4.14.01
+Implemented the Scan Channels function (menu key <r>, Ctrl-S, httpapi/mqtt action scanchannels).
+talkkonnect now walks the accessable channels, dwells on each one and holds on any channel with
+voice traffic until the traffic stops plus a hang time. Tunable with the new <channelscan> section
+of the XML config (dwelltimemsecs, hangtimemsecs, returntostartchannel, skipchannels).
+
 version 4.13.01
 Added VU Meter in API
 

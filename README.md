@@ -2,18 +2,22 @@
 
 ### A Headless Mumble Client that can function as a Talkie / Intercom / Gateway for Linux or Single Board Computers (IP Radio / Push-to-Talk)
 
-*If you use talkkonnect Please let us know your use case by sending us pictures, and please also STAR
+*If you use talkkonnect, please let us know your use case by sending us pictures, and please also STAR the
 talkkonnect/talkkonnect repo on github.com!*
 
 ---
 
 * [What is talKKonnect?](#what-is-talkkonnect)
-* [Installation / Getting started](#getting-started)
-* [Extra Multimedia Features (IP-Speaker)](#extra-multimedia-features-ip-speaker)
-* [Why Was talKKonnect created?](#why-was-talkkonnect-created)
-* [Building talkkonnect Additional Optional Hardware and Precautions](#building-talkkonnect-additional-optional-hardware-and-precautions)
-* [Software Configurable Features](#software-configurable-features)
-* [Common Information for the all the Pre-Made Images For Various Hardware Configurations](#common-information-for-the-all-the-pre-made-images-for-various-hardware-configurations)
+* [Installation / Getting Started](#installation--getting-started)
+* [Functionality and Configurability](#functionality-and-configurability)
+* [Configuring and Running talKKonnect](./docs/running-talkkonnect.md)
+* [Extra Multimedia Features (IP-Speaker)](./docs/functionality.md#extra-multimedia-features-ip-speaker)
+* [Software Configurable Features](./docs/functionality.md#software-configurable-features)
+* [Additional Optional Hardware and Precautions](./docs/functionality.md)
+* [Common Information for all the Pre-Made Images For Various Hardware Configurations](./docs/hardware-builds.md#common-information-for-the-all-the-pre-made-images-for-various-hardware-configurations)
+* [Why Was talKKonnect created?](./docs/history.md#why-was-talkkonnect-created)
+* [Questions & Contributing](#questions--contributing)
+* [License](#license)
 
 ----
 
@@ -21,7 +25,7 @@ talkkonnect/talkkonnect repo on github.com!*
 
 <a id="what-is-talkkonnect"></a>
 
-[talKKonnect](http://www.talkkonnect.com) is an open-source customizable, headless, self-contained Mumble Push to Talk (
+[talKKonnect](https://www.talkkonnect.com) is an open-source customizable, headless, self-contained Mumble Push to Talk (
 PTT) client.
 
 It was designed for Linux single-board computers (SBCs) such as the Raspberry Pi and Orange Pi. It works equally well on
@@ -29,7 +33,7 @@ any reasonably modern Linux distribution.
 
 #### Functionality for SBCs or as a Hardware Appliance:
 
-talKKonnect offers A flexible form factor with an LCD/OLED display, channel and volume control, making it ideal for
+talKKonnect offers a flexible form factor with an LCD/OLED display, channel and volume control, making it ideal for
 group communication scenarios. Common use cases include amateur radio enthusiasts, ad-hoc group communications, and
 replacing expensive commercial intercom
 systems. [Read more about talKKonnect as an appliance and some potential use-cases.](./docs/appliances.md)
@@ -41,6 +45,7 @@ on common Raspberry Pi or similar single board computer (SBC) architectures.
 
 * [General Installation instructions](./docs/getting-started.md)
 * [Raspberry Pi / Other Pre-made Image Instructions](./docs/hardware-builds.md)
+* [Configuration and Running](./docs/running-talkkonnect.md)
 
 ----
 
@@ -48,7 +53,7 @@ on common Raspberry Pi or similar single board computer (SBC) architectures.
 
 Because talKKonnect was originally created as software to power hardware-based IP communication devices, it has
 extensive optional functionality and configurability for several common hardware
-devices. [See a full overview of talkKonnect configuration and support details](./docs/functionality.md)
+devices. [See a full overview of talKKonnect configuration and support details](./docs/functionality.md)
 
 ## History and Features of talKKonnect
 
@@ -56,7 +61,7 @@ devices. [See a full overview of talkKonnect configuration and support details](
 
 This project was created by [Suvir Kumar](https://www.linkedin.com/in/suvir-kumar-51a1333b) as a fork
 of [talkiepi](http://projectable.me/) by Daniel Chote which was, in turn, a fork
-of [barnard](https://github.com/layeh/barnard) a text basedmumble client. talKKonnect was developed
+of [barnard](https://github.com/layeh/barnard) a text based mumble client. talKKonnect was developed
 using [golang](https://golang.org/) and based on [gumble](https://github.com/layeh/gumble) library by Tim
 Cooper. [Read the full history and background of talKKonnect](./docs/history.md)
 
@@ -67,19 +72,16 @@ See [a video explanation of the history and reasons for creating talkkonnect](ht
 ## Questions & Contributing
 
 We invite interested individuals to provide feedback and improvements to the project.
-You can help with creating youtube videos, docummentation, programming, testing and/or feedback of your user experience.
+You can help with creating youtube videos, documentation, programming, testing and/or feedback of your user experience.
 
-To speak to us you can connect with a standard mumble client (android/iphone/wnidows/linux) to our community server to
-have a chat or ask questions
-at mumble.talkkonnect.com port 64738 you can use any username with the password talkkonnect
+To speak to us, connect with a standard mumble client (Android/iPhone/Windows/Linux), or with talkkonnect itself, to our
+community server at mumble.talkkonnect.com port 64738. Use any unique username; no password is required. We are standing
+by usually on the HAM-CB channel.
 
-PTT Voice Chat with us from your PC, Mobile Phone, tablet or talkkonnect on our mumble server
-mumble.talkkonnect.com port 64738 any username no password required. We are standing by usually on HAM-CB Channel.
+Currently we do not have a WIKI, so send feedback to <suvir@talkkonnect.com> or open an Issue on GitHub.
 
-Currently we do not have a WIKI so send feedback to <suvir@talkkonnect.com> or open and Issue in github
-you can also check my blog  [www.talkkonnect.com](https://www.talkkonnect.com) for updates on the project
-
-Please visit our [blog](www.talkkonnect.com) for our blog or [github](github.com/talkkonnect) for the latest source code
+Please visit our [blog](https://www.talkkonnect.com) for updates on the project,
+our [github](https://github.com/talkkonnect) for the latest source code,
 and our [facebook](https://www.facebook.com/talkkonnect) page for future updates and information.
 
 Thank you all for your kind feedback sent along with some pictures and use cases for talkkonnect.
@@ -88,12 +90,9 @@ Thank you all for your kind feedback sent along with some pictures and use cases
 
 ## License
 
-[talKKonnect](http://www.talkkonnect.com) is open source and available under the MPL V2.00 license.
+[talKKonnect](https://www.talkkonnect.com) is open source and available under
+the [Mozilla Public License 2.0](./LICENSE).
 
-<suvir@talkkonnect.com> Updated 27/02/2024 talkkonnect version 2.40.01 is the latest release as of this writing.
-
-
-
-
+<suvir@talkkonnect.com> Updated 28/07/2026. talkkonnect version 4.16.02 is the latest release as of this writing.
 
 

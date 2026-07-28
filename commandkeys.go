@@ -449,6 +449,9 @@ func (b *Talkkonnect) cmdListOnlineUsers() {
 	TTSEvent("listonlineusers")
 
 	log.Printf("info: Channel %#v Has %d Online User(s)", b.Client.Self.Channel.Name, len(b.Client.Self.Channel.Users))
+	if IsConnected {
+		sshRemoteReplyF("Channel %q has %d online user(s)\n", b.Client.Self.Channel.Name, len(b.Client.Self.Channel.Users))
+	}
 	b.ListUsers()
 	// b.ParticipantLEDUpdate(true)
 }
@@ -690,14 +693,17 @@ func (b *Talkkonnect) cmdRadioChannelMove(command string) {
 
 func (b *Talkkonnect) cmdInternetRadioToggle() {
 	internetRadioQuickToggle(b)
+	internetRadioReply("Radio toggle")
 }
 
 func (b *Talkkonnect) cmdInternetRadioNext() {
 	internetRadioNextStation(b)
+	internetRadioReply("Radio next")
 }
 
 func (b *Talkkonnect) cmdInternetRadioPrev() {
 	internetRadioPrevStation(b)
+	internetRadioReply("Radio previous")
 }
 
 func (b *Talkkonnect) cmdInternetRadioVolUp() {

@@ -31,11 +31,14 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "4.15.01"
-	talkkonnectReleased string = "27 Jul 2026"
+	talkkonnectVersion  string = "4.16.01"
+	talkkonnectReleased string = "28 Jul 2026"
 )
 
 /* Release Notes
+version 4.16.01
+Added Support for External Web UI
+
 version 4.15.01
 Removed redundant recording menus, added scan function and xml configs for scanning channels.
 

@@ -781,6 +781,41 @@ func InternetRadioStatusSnapshot() InternetRadioStatus {
 	return st
 }
 
+// internetRadioReply reports the radio state reached by a radio command, so a
+// remote caller (SSH console, HTTP API) sees the result of the toggle or station
+// change and not just an acknowledgement that the command was accepted.
+func internetRadioReply(action string) {
+	st := InternetRadioStatusSnapshot()
+	if !st.Enabled {
+		sshRemoteReplyF("%s: internet radio is disabled in the configuration\n", action)
+		return
+	}
+	if st.StationCount == 0 {
+		sshRemoteReplyF("%s: no internet radio stations are configured\n", action)
+		return
+	}
+
+	// "idle" means intent is on but ffmpeg has not reported audio yet.
+	state := strings.ToUpper(st.Status)
+	if st.Status == "idle" {
+		state = "STARTING"
+	}
+
+	// Switching the radio off clears the current station, so there is no station
+	// to name - report the state on its own.
+	if st.StationIndex < 0 || st.StationIndex >= st.StationCount {
+		sshRemoteReplyF("%s: %s - %d station(s) configured\n", action, state, st.StationCount)
+		return
+	}
+
+	name := st.StationName
+	if name == "" {
+		name = "unknown station"
+	}
+	sshRemoteReplyF("%s: %s - station %d/%d %q at volume %d%%\n",
+		action, state, st.StationIndex+1, st.StationCount, name, st.Volume)
+}
+
 // internetRadioShutdownKill stops timers and kills the internet-radio ffmpeg process. Safe to call multiple times.
 func internetRadioShutdownKill() {
 	ir.mu.Lock()

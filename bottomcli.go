@@ -829,8 +829,8 @@ func (b *Talkkonnect) bottomCLIDispatchRemoteLine(w io.Writer, line string, sshC
 		return false
 	}
 	if w != nil {
-		sshRemoteReplyAttach(w)
-		defer sshRemoteReplyDetach()
+		replyID := sshRemoteReplyAttach(w)
+		defer sshRemoteReplyDetach(replyID)
 	}
 	bottomCLIAppendHistory(line)
 	key := strings.ToLower(line)

@@ -213,6 +213,23 @@ func (b *Talkkonnect) HandleRemoteAPICommand(w io.Writer, q remoteAPIQuery) {
 		return
 	}
 
+	// Command handlers report their human-readable results through sshRemoteReplyF
+	// (uptime, the online user list, per-server ping results, radio state). Capture
+	// that text for an HTTP caller so a dashboard such as tk-webmonitor can show
+	// what the command actually said instead of only the "200 OK" acknowledgement.
+	// A bottom CLI caller already has its own writer attached, and listapi prints
+	// its listing to w directly, so neither needs capturing here.
+	var captured replyCapture
+	if isHTTP && APICommand != "listapi" {
+		replyID := sshRemoteReplyAttach(&captured)
+		defer sshRemoteReplyDetach(replyID)
+		defer func() {
+			if out := strings.Trim(captured.String(), "\n"); out != "" {
+				fmt.Fprintf(w, "%s\n", out)
+			}
+		}()
+	}
+
 	for _, apicommand := range Config.Global.Software.RemoteControl.HTTP.Command {
 		if apicommand.Action != APICommand {
 			continue

@@ -10,6 +10,7 @@ talkkonnect/talkkonnect repo on github.com!*
 * [What is talKKonnect?](#what-is-talkkonnect)
 * [Installation / Getting Started](#installation--getting-started)
 * [Functionality and Configurability](#functionality-and-configurability)
+* [HTTP API Specification / Building Your Own UI](./docs/api.md)
 * [Configuring and Running talKKonnect](./docs/running-talkkonnect.md)
 * [Extra Multimedia Features (IP-Speaker)](./docs/functionality.md#extra-multimedia-features-ip-speaker)
 * [Software Configurable Features](./docs/functionality.md#software-configurable-features)
@@ -54,6 +55,29 @@ on common Raspberry Pi or similar single board computer (SBC) architectures.
 Because talKKonnect was originally created as software to power hardware-based IP communication devices, it has
 extensive optional functionality and configurability for several common hardware
 devices. [See a full overview of talKKonnect configuration and support details](./docs/functionality.md)
+
+## HTTP API and Building Your Own User Interface
+
+talKKonnect exposes two HTTP interfaces: a JSON telemetry endpoint (`/uistatus`) that publishes the
+complete live state of the client, and a control API (`/?command=...`) that executes remote control
+commands. Together they let you build any user interface you like, in any language, with no changes to
+talKKonnect itself.
+
+[**Read the full HTTP API specification**](./docs/api.md) — it documents every endpoint, field, command
+and status code, and includes build guides for the two interfaces people most often want:
+
+* **A framebuffer screen** — a full-screen status display drawn straight to a Linux framebuffer, HDMI
+  monitor or SPI TFT panel on the talkkonnect device itself, with far more room than a 4x20 character
+  LCD. [See the guide](./docs/api.md#building-a-framebuffer-screen-client)
+* **A web UI** — a browser dashboard showing live state and sending control
+  commands. [See the guide](./docs/api.md#building-a-web-ui)
+
+Both are small, well-specified projects that an **AI programming agent** (such as Claude Code) can write
+almost end to end. The specification includes ready-to-use starting prompts, guidance on iterating with an
+agent, and a review checklist covering the mistakes that actually show up in generated
+code. [See the guide](./docs/api.md#building-a-ui-with-an-ai-programming-agent)
+
+If you build a UI this way, please share it with us — we would like to feature community-built interfaces.
 
 ## History and Features of talKKonnect
 

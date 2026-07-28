@@ -125,6 +125,8 @@ func (b *Talkkonnect) OnDisconnect(e *gumble.DisconnectEvent) {
 	}
 
 	IsConnected = false
+	// The server holds voice targets per session, so whatever was set is gone.
+	ClearUIVoiceTarget()
 	//MyLedStripOnlineLEDOff()
 
 	b.cancelConnectionContext()

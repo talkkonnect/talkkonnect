@@ -31,11 +31,14 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "4.16.01"
+	talkkonnectVersion  string = "4.16.02"
 	talkkonnectReleased string = "28 Jul 2026"
 )
 
 /* Release Notes
+version 4.16.02
+fullstack web ui support by by api
+
 version 4.16.01
 Added Support for External Web UI
 

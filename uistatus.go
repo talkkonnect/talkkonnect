@@ -16,6 +16,7 @@ import (
 	"net/http"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/talkkonnect/gumble/gumble"
@@ -108,6 +109,52 @@ func lastUIMessageSnapshot() UILastMessage {
 	}
 }
 
+// UIVoiceTarget is the whisper / shout voice target talkkonnect last sent to the
+// server. ID 0 means no target is set and transmitted audio goes to the joined
+// channel the normal way. Kind is "user" or "channel" and Names lists whoever
+// the target points at, so a dashboard can show *who* is being whispered to.
+type UIVoiceTarget struct {
+	ID    uint32   `json:"id"`
+	Kind  string   `json:"kind,omitempty"`
+	Names []string `json:"names,omitempty"`
+}
+
+var (
+	uiVoiceTargetMu sync.Mutex
+	uiVoiceTarget   UIVoiceTarget
+)
+
+// RecordUIVoiceTarget stores the voice target that was just sent to the server.
+// Every input path — HTTP API, GPIO button, USB keyboard — sets its target
+// through VoiceTargetUserSet or VoiceTargetChannelSet, so recording it there
+// keeps /uistatus authoritative no matter who changed it. An ID of 0 is Mumble's
+// "normal talking" target and clears the recorded state.
+func RecordUIVoiceTarget(id uint32, kind string, names ...string) {
+	uiVoiceTargetMu.Lock()
+	defer uiVoiceTargetMu.Unlock()
+	if id == 0 {
+		uiVoiceTarget = UIVoiceTarget{}
+		return
+	}
+	uiVoiceTarget = UIVoiceTarget{ID: id, Kind: kind, Names: names}
+}
+
+// ClearUIVoiceTarget records that no voice target is active, e.g. after a
+// disconnect drops the session the server held the targets for.
+func ClearUIVoiceTarget() {
+	RecordUIVoiceTarget(0, "")
+}
+
+func uiVoiceTargetSnapshot() UIVoiceTarget {
+	uiVoiceTargetMu.Lock()
+	defer uiVoiceTargetMu.Unlock()
+	out := uiVoiceTarget
+	if len(out.Names) > 0 {
+		out.Names = append([]string(nil), out.Names...)
+	}
+	return out
+}
+
 // UIStatus is JSON telemetry for external framebuffer / dashboard clients.
 type UIStatus struct {
 	Connected      bool                `json:"connected"`
@@ -126,6 +173,7 @@ type UIStatus struct {
 	RXAudioLevel   int                 `json:"rxAudioLevel"`
 	TXAudioLevel   int                 `json:"txAudioLevel"`
 	Muted          bool                `json:"muted"`
+	VoiceTarget    UIVoiceTarget       `json:"voiceTarget"`
 	InternetRadio  InternetRadioStatus `json:"internetRadio"`
 	IPAddress      string              `json:"ipAddress"`
 	Bitrate        string              `json:"bitrate"`
@@ -292,6 +340,7 @@ func (b *Talkkonnect) buildUIStatus() UIStatus {
 		Server:        b.Address,
 		LastSpeaker:   LastSpeaker,
 		LastMessage:   lastUIMessageSnapshot(),
+		VoiceTarget:   uiVoiceTargetSnapshot(),
 		Receiving:     ReceivingVoice,
 		Scanning:      ScanIsRunning(),
 		ScanHold:      ScanIsHolding(),

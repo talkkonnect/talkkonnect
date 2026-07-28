@@ -63,6 +63,10 @@ func remoteAPIValidateBuiltinCommand(b *Talkkonnect, cmd string) error {
 type remoteAPIQuery struct {
 	Command              string
 	ID                   int
+	APIChannel           string
+	APIUser              string
+	APIVolume            int
+	APIVolumeSet         bool
 	APIMediaID           string
 	APITTSMessage        string
 	APITTSLocalPlay      bool
@@ -88,7 +92,11 @@ func (b *Talkkonnect) remoteAPICommandHandlers() map[string]interface{} {
 		"volumetxup":         b.cmdVolumeTXUp,
 		"volumetxdown":       b.cmdVolumeTXDown,
 		"currenttxvolume":    b.cmdCurrentTXVolume,
+		"setrxvolume":        b.cmdSetRXVolume,
 		"listserverchannels": b.cmdListServerChannels,
+		"joinchannel":        b.cmdJoinChannel,
+		"whisperuser":        b.cmdWhisperUser,
+		"whisperclear":       b.cmdWhisperClear,
 		"starttransmitting":  b.cmdStartTransmitting,
 		"stoptransmitting":   b.cmdStopTransmitting,
 		"listonlineusers":    b.cmdListOnlineUsers,
@@ -132,6 +140,16 @@ func fillHTTPRemoteAPIQueryFromRequest(r *http.Request, q *remoteAPIQuery) error
 			if err != nil {
 				return errors.New("voice target id is not a number")
 			}
+		case "channel":
+			q.APIChannel = strings.TrimSpace(values[0])
+		case "user":
+			q.APIUser = strings.TrimSpace(values[0])
+		case "volume":
+			q.APIVolume, err = strconv.Atoi(values[0])
+			if err != nil {
+				return errors.New("volume is not a number")
+			}
+			q.APIVolumeSet = true
 		case "mediaid":
 			q.APIMediaID = strings.TrimSpace(values[0])
 		case "ttsmessage":
@@ -174,6 +192,32 @@ func fillHTTPRemoteAPIQueryFromRequest(r *http.Request, q *remoteAPIQuery) error
 		}
 	}
 	return nil
+}
+
+// remoteAPIBadRequest rejects a command whose query parameters are missing or out
+// of range, answering an HTTP caller with a 400 and a CLI caller with plain text.
+func remoteAPIBadRequest(w io.Writer, hw http.ResponseWriter, isHTTP bool, message string) {
+	log.Println("error: " + message)
+	if isHTTP {
+		http.Error(hw, "400 bad request: "+message, http.StatusBadRequest)
+		return
+	}
+	fmt.Fprintf(w, "400 bad request: %s\n", message)
+}
+
+// remoteAPICallWithParams invokes a command handler that takes query parameters
+// and writes either ack or the same 500 the parameterless path writes.
+func (b *Talkkonnect) remoteAPICallWithParams(w io.Writer, hw http.ResponseWriter, isHTTP bool, funcs map[string]interface{}, command, ack string, params ...interface{}) {
+	if _, err := b.Call(funcs, command, params...); err != nil {
+		log.Println("error: Wrong Parameters to Call Function")
+		if isHTTP {
+			http.Error(hw, fmt.Sprintf("500 internal server error: wrong parameters for command %q", command), http.StatusInternalServerError)
+		} else {
+			fmt.Fprintf(w, "500 error: wrong parameters for command %q\n", command)
+		}
+		return
+	}
+	fmt.Fprint(w, ack)
 }
 
 // HandleRemoteAPICommand runs one configured HTTP API command (used by HTTP handler and bottom CLI).
@@ -261,6 +305,31 @@ func (b *Talkkonnect) HandleRemoteAPICommand(w io.Writer, q remoteAPIQuery) {
 				}
 			} else {
 				switch APICommand {
+				case "joinchannel":
+					if q.APIChannel == "" {
+						remoteAPIBadRequest(w, hw, isHTTP, "joinchannel requires query parameter \"channel\"")
+						break
+					}
+					b.remoteAPICallWithParams(w, hw, isHTTP, funcs, APICommand,
+						fmt.Sprintf("200 OK: http command %v for channel %v\n", APICommand, q.APIChannel), q.APIChannel)
+				case "whisperuser":
+					if q.APIUser == "" {
+						remoteAPIBadRequest(w, hw, isHTTP, "whisperuser requires query parameter \"user\"")
+						break
+					}
+					b.remoteAPICallWithParams(w, hw, isHTTP, funcs, APICommand,
+						fmt.Sprintf("200 OK: http command %v for user %v\n", APICommand, q.APIUser), q.APIUser)
+				case "setrxvolume":
+					if !q.APIVolumeSet {
+						remoteAPIBadRequest(w, hw, isHTTP, "setrxvolume requires query parameter \"volume\"")
+						break
+					}
+					if q.APIVolume < 0 || q.APIVolume > 100 {
+						remoteAPIBadRequest(w, hw, isHTTP, "setrxvolume volume must be between 0 and 100")
+						break
+					}
+					b.remoteAPICallWithParams(w, hw, isHTTP, funcs, APICommand,
+						fmt.Sprintf("200 OK: http command %v to %v%%\n", APICommand, q.APIVolume), q.APIVolume)
 				case "voicetargetset":
 					_, err := b.Call(funcs, apicommand.Action, uint32(q.ID))
 					if err != nil {

@@ -550,6 +550,7 @@ func (b *Talkkonnect) VoiceTargetUserSet(TargetID uint32, TargetUser string) {
 			b.sevenSegment("voicetarget", strconv.Itoa(int(TargetID)))
 		}
 		b.Client.Send(vtarget)
+		RecordUIVoiceTarget(TargetID, "user", TargetUser)
 	} else {
 		log.Printf("error: Cannot Add User %v to VT ID %v\n", TargetUser, TargetID)
 	}
@@ -583,6 +584,7 @@ func (b *Talkkonnect) VoiceTargetChannelSet(targetID uint32, targetChannelName s
 		log.Printf("debug: Shouting to Root Channel %v to VT ID %v with recursive %v links %v group %v\n", vChannel.Name, targetID, recursive, links, group)
 		GPIOOutPin("voicetarget", "off")
 		b.sevenSegment("voicetarget", strconv.Itoa(int(targetID)))
+		RecordUIVoiceTarget(targetID, "channel", vChannel.Name)
 		return
 	}
 
@@ -596,8 +598,125 @@ func (b *Talkkonnect) VoiceTargetChannelSet(targetID uint32, targetChannelName s
 	b.Client.Send(vtarget)
 	log.Printf("debug: Shouting to Child Channel %v to VT ID %v with recursive %v links %v group %v\n", vChannel.Name, targetID, recursive, links, group)
 	b.sevenSegment("voicetarget", strconv.Itoa(int(targetID)))
+	RecordUIVoiceTarget(targetID, "channel", vChannel.Name)
 	if targetID > 0 {
 		GPIOOutPin("voicetarget", "on")
+	}
+}
+
+// remoteAPIWhisperTargetID is the voice target slot ad-hoc whisper requests use.
+// Valid Mumble target IDs are 1..30 and talkkonnect.xml normally configures the
+// low ones under <voicetargets>, so the top slot is reserved for a whisper aimed
+// at a user picked at run time — a dashboard click, say — which carries no
+// configured ID of its own and must not overwrite a configured target.
+const remoteAPIWhisperTargetID uint32 = 30
+
+// cmdJoinChannel joins a channel by name instead of stepping through the tree
+// with channelup / channeldown.
+func (b *Talkkonnect) cmdJoinChannel(channelName string) {
+	channelName = strings.TrimSpace(channelName)
+	log.Printf("debug: Join Channel %v Requested\n", channelName)
+
+	if !IsConnected || b.Client == nil {
+		sshRemoteReplyF("Not connected to Mumble; cannot join a channel.\n")
+		return
+	}
+	if channelName == "" {
+		sshRemoteReplyF("Join channel requires a channel name.\n")
+		return
+	}
+	// ChangeChannel only logs a warning when the name is unknown, so look it up
+	// first to give the caller a real answer.
+	if b.Client.Channels.Find(strings.Split(channelName, ",")...) == nil {
+		log.Println("warn: Unable to Find Channel Name: ", channelName)
+		sshRemoteReplyF("Channel %s not found on this server.\n", channelName)
+		return
+	}
+
+	b.ChangeChannel(channelName)
+	sshRemoteReplyF("Joining channel %s.\n", channelName)
+}
+
+// cmdWhisperUser points transmitted audio at one online user. Unlike
+// voicetargetset, which replays a target configured in talkkonnect.xml, the user
+// is named by the caller, so a dashboard can whisper to whoever it likes.
+func (b *Talkkonnect) cmdWhisperUser(userName string) {
+	userName = strings.TrimSpace(userName)
+	log.Printf("debug: Whisper To User %v Requested\n", userName)
+
+	if !IsConnected || b.Client == nil {
+		sshRemoteReplyF("Not connected to Mumble; cannot set a whisper target.\n")
+		return
+	}
+	if userName == "" {
+		sshRemoteReplyF("Whisper requires a user name.\n")
+		return
+	}
+	if b.Client.Users.Find(userName) == nil {
+		sshRemoteReplyF("User %s is not online; whisper target unchanged.\n", userName)
+		return
+	}
+
+	b.VoiceTargetUserSet(remoteAPIWhisperTargetID, userName)
+	sshRemoteReplyF("Whispering to %s.\n", userName)
+}
+
+// cmdWhisperClear drops the whisper target so transmitted audio goes back to the
+// joined channel.
+func (b *Talkkonnect) cmdWhisperClear() {
+	log.Println("debug: Clear Whisper Target Requested")
+
+	if !IsConnected || b.Client == nil {
+		sshRemoteReplyF("Not connected to Mumble; no whisper target to clear.\n")
+		return
+	}
+
+	// Registering the slot with no entries releases it on the server, and a nil
+	// client target makes gumble send audio on target 0 — normal talking.
+	b.Client.Send(&gumble.VoiceTarget{ID: remoteAPIWhisperTargetID})
+	b.Client.VoiceTarget = nil
+	ClearUIVoiceTarget()
+	GPIOOutPin("voicetarget", "off")
+	b.sevenSegment("voicetarget", "0")
+	log.Println("info: Whisper Target Cleared, Broadcasting To Channel")
+	sshRemoteReplyF("Whisper target cleared, broadcasting to channel.\n")
+}
+
+// cmdSetRXVolume sets the speaker volume to an absolute percentage, which is what
+// a dragged slider needs; volumerxup / volumerxdown only step by the configured
+// amount. No TTS announcement here on purpose — a drag lands many values in a row
+// and every one of them would queue up a spoken message.
+func (b *Talkkonnect) cmdSetRXVolume(value int) {
+	log.Printf("debug: Set RX Volume To %v%% Requested\n", value)
+
+	if value < 0 || value > 100 {
+		log.Println("error: RX Volume Out Of Range ", value)
+		sshRemoteReplyF("Volume %d%% is out of range, expected 0 to 100.\n", value)
+		return
+	}
+
+	if err := volume.SetVolume(value, Config.Global.Software.Settings.OutputVolControlDevice); err != nil {
+		log.Println("error: Set RX Volume Failed! ", err)
+		sshRemoteReplyF("Unable to set volume: %v\n", err)
+		return
+	}
+
+	current, err := volume.GetVolume(Config.Global.Software.Settings.OutputVolControlDevice)
+	if err != nil {
+		current = value
+	}
+	log.Println("info: RX Volume Now At ", current, "%")
+	sshRemoteReplyF("Volume now at %d%%\n", current)
+
+	if Config.Global.Hardware.TargetBoard == "rpi" {
+		if LCDEnabled {
+			LcdText = [4]string{"nil", "nil", "nil", "Volume " + strconv.Itoa(current)}
+			LcdDisplay(LcdText, LCDRSPin, LCDEPin, LCDD4Pin, LCDD5Pin, LCDD6Pin, LCDD7Pin, LCDInterfaceType, LCDI2CAddress)
+		}
+		if OLEDEnabled {
+			oledDisplay(false, 6, OLEDStartColumn, "Volume "+strconv.Itoa(current))
+		}
+		b.sevenSegment("localvolume", strconv.Itoa(current))
 	}
 }
 

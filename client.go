@@ -456,6 +456,12 @@ func (b *Talkkonnect) ClientStart() {
 		}
 	}
 
+	// The multicast tap attaches to b.Config rather than to this session, so it is
+	// started once and keeps its socket across reconnects.
+	if Config.Global.Software.Multicast.Enabled && !MulticastIsRunning() {
+		StartMulticastSender(b)
+	}
+
 	if Config.Global.Hardware.USBKeyboard.Enabled && len(Config.Global.Hardware.USBKeyboard.USBKeyboardPaths) > 0 {
 		go b.USBKeyboard()
 	}

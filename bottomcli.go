@@ -356,7 +356,7 @@ func bottomCLICompletionCandidates() []string {
 		}
 	}
 	for _, s := range []string{
-		"help", "?", "menu", "cfg", "vt", "clearhist", "c", "clear", "cls", "q", "quit", "exit", "...", "…",
+		"help", "?", "menu", "cfg", "vt", "mc", "clearhist", "c", "clear", "cls", "q", "quit", "exit", "...", "…",
 		"0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
 		"a", "b", "d", "e", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "z",
 	} {
@@ -402,6 +402,9 @@ func bottomCLITabCompleteLine(line string) (newLine string, bell bool) {
 	}
 	if strings.HasPrefix(strings.ToLower(strings.TrimLeft(line, " \t")), "vt") {
 		return bottomCLITabCompleteVT(line)
+	}
+	if strings.HasPrefix(strings.ToLower(strings.TrimLeft(line, " \t")), "mc") {
+		return bottomCLITabCompleteMC(line)
 	}
 	fields := strings.Fields(line)
 	if len(fields) > 1 {
@@ -724,6 +727,11 @@ const bottomCLIMenuBanner = `
   vt add <id> user|channel  Add a target to the XML config (vt help for options)
   vt help                   Full voice target usage
 ------------------------------------------------------------------------------------
+ Multicast (RTP to IP speakers / SIP phones) Commands:
+  mc status                 Destination, filters and live mixing state
+  mc on / off / toggle      Start or stop sending received audio to the group
+  mc help                   Full multicast usage
+------------------------------------------------------------------------------------
 Visit us at www.talkkonnect.com and github.com/talkkonnect
 Thanks to Global Coders Co., Ltd. for their sponsorship 	
 ------------------------------------------------------------------------------------
@@ -889,6 +897,10 @@ func (b *Talkkonnect) bottomCLIDispatchRemoteLine(w io.Writer, line string, sshC
 			b.bottomCLIHandleVoiceTargetLine(w, line)
 			return false
 		}
+		if len(parts) >= 1 && strings.EqualFold(parts[0], "mc") {
+			b.bottomCLIHandleMulticastLine(w, line)
+			return false
+		}
 		q := bottomCLIPartsToRemoteQuery(parts)
 		b.HandleRemoteAPICommand(w, q)
 	}
@@ -1003,6 +1015,10 @@ func (b *Talkkonnect) runBottomTerminalCLI() {
 			}
 			if len(parts) >= 1 && strings.EqualFold(parts[0], "vt") {
 				b.bottomCLIHandleVoiceTargetLine(bottomCLIEchoWriter{}, line)
+				break
+			}
+			if len(parts) >= 1 && strings.EqualFold(parts[0], "mc") {
+				b.bottomCLIHandleMulticastLine(bottomCLIEchoWriter{}, line)
 				break
 			}
 			q := bottomCLIPartsToRemoteQuery(parts)

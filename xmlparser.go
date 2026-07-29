@@ -300,6 +300,7 @@ type ConfigStruct struct {
 				Printlistentochannels   string `xml:"printlistentochannels"`
 				PrintMemoryChannels     bool   `xml:"printmemorychannels"`
 				PrintPresetVoiceTargets bool   `xml:"printpresetvoicetargets"`
+				PrintMulticast          bool   `xml:"printmulticast"`
 			} `xml:"printvariables"`
 			TTSMessages struct {
 				Enabled           bool   `xml:"enabled,attr"`
@@ -350,6 +351,25 @@ type ConfigStruct struct {
 					Enabled  bool   `xml:"enabled,attr"`
 				} `xml:"voicetargetset"`
 			} `xml:"presetvoicetargets"`
+			Multicast struct {
+				Enabled        bool   `xml:"enabled,attr"`
+				Group          string `xml:"group"`
+				Port           int    `xml:"port"`
+				Codec          string `xml:"codec"`
+				TTL            int    `xml:"ttl"`
+				Interface      string `xml:"interface"`
+				PacketMS       int    `xml:"packetms"`
+				L16PayloadType int    `xml:"l16payloadtype"`
+				Volume         int    `xml:"volume"`
+				AllChannels    bool   `xml:"allchannels"`
+				HangoverMS     int    `xml:"hangoverms"`
+				Include        struct {
+					User []string `xml:"user"`
+				} `xml:"include"`
+				Exclude struct {
+					User []string `xml:"user"`
+				} `xml:"exclude"`
+			} `xml:"multicast"`
 		} `xml:"software"`
 		Hardware struct {
 			TargetBoard             string        `xml:"targetboard,attr"`
@@ -630,6 +650,11 @@ type ConfigStruct struct {
 						ID    uint32 `xml:"id,attr"`
 						Value string `xml:",chardata"`
 					} `xml:"voicetarget"`
+					// Multicast also sends the announcement to the RTP multicast
+					// group configured under <multicast>, independently of
+					// localplay and playintostream: a profile can go to the PA
+					// speakers only, into Mumble only, or to both.
+					Multicast bool `xml:"multicast"`
 				} `xml:"params"`
 				Schedule struct {
 					IntervalSecs int  `xml:"intervalsecs,attr"`
@@ -1067,6 +1092,7 @@ func readxmlconfig(file string, reloadxml bool) error {
 	}
 	log.Println("info: Successfully loaded XML configuration file into memory")
 	internetRadioConfigureFromXML()
+	multicastConfigureFromXML()
 
 	// Add Allowed Mutable Settings For talkkonnect upon live reloadxml config to the list below omit all other variables
 	if reloadxml {
@@ -1092,11 +1118,13 @@ func readxmlconfig(file string, reloadxml bool) error {
 		Config.Global.Software.PrintVariables = ReConfig.Global.Software.PrintVariables
 		Config.Global.Software.TTSMessages = ReConfig.Global.Software.TTSMessages
 		Config.Global.Software.IgnoreUser = ReConfig.Global.Software.IgnoreUser
+		Config.Global.Software.Multicast = ReConfig.Global.Software.Multicast
 		Config.Global.Hardware.PanicFunction = ReConfig.Global.Hardware.PanicFunction
 		Config.Global.Hardware.Keyboard.Command = ReConfig.Global.Hardware.Keyboard.Command
 		Config.Global.Multimedia = ReConfig.Global.Multimedia
 		Config.Global.StreamingRadio = ReConfig.Global.StreamingRadio
 		internetRadioConfigureFromXML()
+		multicastApplyReload()
 		preloadEventSounds()
 		//ReConfig.Accounts.Account[0].Listentochannels
 
@@ -1599,6 +1627,7 @@ func printxmlconfig() {
 				log.Printf("info: Pre  Delay  %v \n", value.Params.Predelay)
 				log.Printf("info: Post Delay %v \n", value.Params.Postdelay)
 				log.Printf("info: Voice Target %v ID %v \n", multimediaVoicetargetEnabled(value.Params.Voicetarget.Value), value.Params.Voicetarget.ID)
+				log.Printf("info: Multicast %v \n", value.Params.Multicast)
 				log.Printf("info: Schedule Enabled %v IntervalSecs %v \n", value.Schedule.Enabled, value.Schedule.IntervalSecs)
 				log.Printf("info: Enabled %v \n", value.Enabled)
 				log.Printf("info: Media Souce %+v \n", value.Media.Source)
@@ -1633,6 +1662,27 @@ func printxmlconfig() {
 					log.Printf("info: GPIO Name           %v \n", value.GPIOName)
 				}
 			}
+		}
+	}
+
+	if !Config.Global.Software.PrintVariables.PrintMulticast {
+		log.Println("info: ------------ Multicast ----------------------  SKIPPED ")
+	} else {
+		log.Println("info: ------------ Multicast ---------------------- ")
+		multicast := Config.Global.Software.Multicast
+		log.Printf("info: Multicast Enabled  %v \n", multicast.Enabled)
+		if multicast.Enabled {
+			log.Printf("info: Group:Port        %v:%v \n", multicast.Group, multicast.Port)
+			log.Printf("info: Codec            %v \n", mcNormalizeCodec(multicast.Codec))
+			log.Printf("info: TTL              %v \n", multicast.TTL)
+			log.Printf("info: Interface        %v \n", multicast.Interface)
+			log.Printf("info: Packet msecs     %v \n", multicast.PacketMS)
+			log.Printf("info: L16 Payload Type %v \n", multicast.L16PayloadType)
+			log.Printf("info: Volume           %v%% \n", multicast.Volume)
+			log.Printf("info: All Channels     %v \n", multicast.AllChannels)
+			log.Printf("info: Hangover msecs   %v \n", multicast.HangoverMS)
+			log.Printf("info: Include Users    %v \n", multicast.Include.User)
+			log.Printf("info: Exclude Users    %v \n", multicast.Exclude.User)
 		}
 	}
 }
@@ -1754,8 +1804,8 @@ func CheckConfigSanity(reloadxml bool) {
 			Warnings++
 			continue
 		}
-		if !profile.Params.Localplay && !profile.Params.Playintostream {
-			log.Printf("warn: Config Error [Section Multimedia] Profile %q has neither localplay nor playintostream", profile.Value)
+		if !profile.Params.Localplay && !profile.Params.Playintostream && !profile.Params.Multicast {
+			log.Printf("warn: Config Error [Section Multimedia] Profile %q has none of localplay, playintostream or multicast", profile.Value)
 			Config.Global.Multimedia.ID[index].Enabled = false
 			Warnings++
 			continue
@@ -1846,6 +1896,20 @@ func CheckConfigSanity(reloadxml bool) {
 			if !(voicetarget.GPIOName == "presetvoicetarget1" || voicetarget.GPIOName == "presetvoicetarget2" || voicetarget.GPIOName == "presetvoicetarget3" || voicetarget.GPIOName == "presetvoicetarget4" || voicetarget.GPIOName == "presetvoicetarget5") {
 				log.Print("warn: Config Error [Section MEMORYCHANNELS] Some Parameters Not Defined CorrectlyDisabling Memory Channels")
 				Config.Global.Software.PresetVoiceTargets.Enabled = false
+				Warnings++
+			}
+		}
+	}
+
+	if Config.Global.Software.Multicast.Enabled {
+		Warnings += checkMulticastConfigSanity()
+	}
+
+	// Checked after the section, because the checks above may have just disabled it.
+	if !Config.Global.Software.Multicast.Enabled {
+		for _, profile := range Config.Global.Multimedia.ID {
+			if profile.Enabled && profile.Params.Multicast {
+				log.Printf("warn: Config Error [Section Multimedia] Profile %q asks for multicast but the <multicast> section is not enabled", profile.Value)
 				Warnings++
 			}
 		}

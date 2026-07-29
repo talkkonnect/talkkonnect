@@ -31,11 +31,24 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "4.17.01"
+	talkkonnectVersion  string = "4.18.01"
 	talkkonnectReleased string = "29 Jul 2026"
 )
 
 /* Release Notes
+version 4.18.01
+added RTP multicast output (new <multicast> section of the XML config). Audio received from mumble is
+re-transmitted to a multicast group as 8 kHz mono G.711/L16 RTP, 20 ms per packet, which is what hardware
+IP PA speakers (CyberData, Algo, Barix) and SIP desk phones (Yealink) decode. This is the same wire format
+gochimesd sends, so one receiver configuration serves both. Several talkers at once are mixed into a single
+RTP stream; nothing is sent while the channel is quiet. Which talkers are carried is set with the
+<include>/<exclude> user lists (exclude wins, empty include means everyone) and <allchannels>, which decides
+whether audio heard through listentochannels is carried too. A <multimedia> profile with
+<multicast>true</multicast> also pages the group. Controlled at run time with the mc CLI command
+(mc status|on|off|toggle) and the multicaston / multicastoff / multicasttoggle actions over httpapi and
+mqtt, and reported in the /uistatus multicast object.
+fixed voicetargetset 0 not clearing the active voice target
+
 version 4.17.01
 fixed multimedia announcement playback
 added voice target commands to command line

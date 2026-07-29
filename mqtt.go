@@ -182,6 +182,9 @@ func (b *Talkkonnect) onMessageReceived(client MQTT.Client, message MQTT.Message
 		"radioprev":          b.cmdInternetRadioPrev,
 		"radiovolup":         b.cmdInternetRadioVolUp,
 		"radiovoldown":       b.cmdInternetRadioVolDown,
+		"multicaston":        b.cmdMulticastOn,
+		"multicastoff":       b.cmdMulticastOff,
+		"multicasttoggle":    b.cmdMulticastToggle,
 		"attention":          attention,
 		"relay":              relay}
 

@@ -73,6 +73,7 @@ func FatalCleanUp(message string) {
 func performCleanup(withShutdown bool) {
 	internetRadioShutdownKill()
 	StopOpusTrafficRecording()
+	StopMulticastSender()
 
 	if appTalkkonnect != nil {
 		appTalkkonnect.shutdownDaemonLifecycle()

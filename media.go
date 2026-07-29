@@ -33,6 +33,7 @@ package talkkonnect
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"log"
 	"os"
@@ -276,6 +277,61 @@ func (b *Talkkonnect) playAnnouncementMedia(mediaID string) {
 	if profile.Params.Playintostream {
 		b.playMultimediaIntoStream(idx)
 	}
+	if profile.Params.Multicast {
+		b.playMultimediaMulticast(idx)
+	}
+}
+
+// playMultimediaMulticast sends an announcement to the RTP multicast group. It is
+// a leg of its own rather than a tap on the into-stream path, so a profile can
+// reach the PA speakers whether or not it also goes into Mumble: the file is
+// decoded straight to the multicast sample rate and handed to the mixer, which is
+// also what keeps the announcement in step with anyone talking at the same time.
+func (b *Talkkonnect) playMultimediaMulticast(idx int) {
+	profile := Config.Global.Multimedia.ID[idx]
+
+	if !MulticastIsRunning() {
+		log.Printf("warn: multimedia profile %q asks for multicast but the multicast sender is not running", profile.Value)
+		return
+	}
+
+	parent := context.Background()
+	if b != nil && b.MasterCtx != nil {
+		parent = b.MasterCtx
+	}
+	ctx, cancel := context.WithCancel(parent)
+	defer cancel()
+
+	// One source key for the whole profile, so its tone and media files are one
+	// continuous contribution to the mix rather than a series of new spurts.
+	sourceKey := "media:" + profile.Value
+	streamVol := defaultStreamVolume(profile.Params.Streamvolume)
+
+	b.multimediaApplyDelay(idx, true)
+
+	if profile.Params.Announcementtone.Enabled && multimediaFilePlayable(profile.Params.Announcementtone.File) {
+		volume := int(multimediaStreamVolume(profile.Params.Announcementtone.Volume, streamVol))
+		if err := multicastPlayFile(ctx, sourceKey, profile.Value, profile.Params.Announcementtone.File, volume, 0, 0); err != nil {
+			log.Printf("warn: multicast announcement tone %q failed: %v", profile.Params.Announcementtone.File, err)
+		}
+	}
+
+	for _, source := range profile.Media.Source {
+		if !source.Enabled || !multimediaFilePlayable(source.File) {
+			continue
+		}
+		log.Printf("debug: multicast multimedia playing %q file %q", source.Name, source.File)
+		volume := int(multimediaStreamVolume(source.Volume, streamVol))
+		for i := 0; i < mediaSourceLoop(source.Loop); i++ {
+			if err := multicastPlayFile(ctx, sourceKey, profile.Value, source.File, volume, source.Offset, source.Duration); err != nil {
+				log.Printf("warn: multicast multimedia source %q failed: %v", source.Name, err)
+				break
+			}
+		}
+	}
+
+	b.multimediaApplyDelay(idx, false)
+	log.Printf("info: finished multicast multimedia announcement profile %q", profile.Value)
 }
 
 // multimediaApplyVoiceTarget points an into-stream announcement at a voice target

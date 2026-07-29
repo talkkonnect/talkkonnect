@@ -124,6 +124,9 @@ func (b *Talkkonnect) remoteAPICommandHandlers() map[string]interface{} {
 		"radioprev":          b.cmdInternetRadioPrev,
 		"radiovolup":         b.cmdInternetRadioVolUp,
 		"radiovoldown":       b.cmdInternetRadioVolDown,
+		"multicaston":        b.cmdMulticastOn,
+		"multicastoff":       b.cmdMulticastOff,
+		"multicasttoggle":    b.cmdMulticastToggle,
 		"listapi":            listAPI,
 	}
 }

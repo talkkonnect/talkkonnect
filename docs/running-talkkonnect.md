@@ -511,6 +511,9 @@ Below are Valid Commands for MQTT
 * voicetargetset
 * listeningstart
 * listeningstop
+* multicaston
+* multicastoff
+* multicasttoggle
 
 For Example on the topic thailand/bangkok/company/talkkonnect/attentionled:on will turn on the LED to get the attentionled
 of a user.
@@ -544,6 +547,78 @@ For the above example to work you will have to specify the gpio pin in the <ligh
 * This function is used in case you want not to receive the audio of any user(s) for example you are transmitting on another
   device in the same room and do not want to hear yourself
 * Notice the ignoreuserregex accepts a regular expression of the user to ignore and not play the audio for that user upon reception
+
+### The Multicast Section (RTP to IP Speakers and SIP Phones)
+
+talkkonnect can re-transmit the audio it receives from Mumble as an RTP stream to a multicast group, so
+hardware IP PA speakers (CyberData, Algo, Barix, Advanced Network Devices) and SIP desk phones such as
+Yealink can hear the channel without being Mumble clients. This is the same wire format
+[gochimesd](https://github.com/talkkonnect/gochimesd) sends, and the tags are named to match, so one
+receiver configuration works against both programs.
+
+Audio leaves as **8 kHz mono, 20 ms per packet**, which is what those devices decode. Several people
+talking at once are mixed into a single RTP stream with one SSRC, and nothing is sent while the channel is
+quiet; the first packet after a silent gap carries the RTP marker bit so a hardware jitter buffer resets.
+
+```xml
+<multicast enabled="false">
+    <group>239.0.1.10</group>
+    <port>5004</port>
+    <codec>pcmu</codec>
+    <ttl>1</ttl>
+    <interface></interface>
+    <packetms>20</packetms>
+    <l16payloadtype>96</l16payloadtype>
+    <volume>100</volume>
+    <allchannels>false</allchannels>
+    <hangoverms>200</hangoverms>
+    <include>
+        <!-- <user>somebody</user> -->
+    </include>
+    <exclude>
+        <!-- <user>noisybox</user> -->
+    </exclude>
+</multicast>
+```
+
+* `enabled` on the section switches the whole feature on and off at startup. It can also be switched at
+  run time, see below
+* `group` is the IPv4 multicast group (224.0.0.0/4, typically 239.x.y.z) and `port` the UDP port. Keep the
+  port even: by RTP convention the odd port above it belongs to RTCP, and some receivers insist on it
+* `codec` is `pcmu` (G.711 u-law, the default and the only one every hardware decoder accepts), `pcma`
+  (G.711 A-law) or `l16` (uncompressed PCM). **l16 rides a dynamic RTP payload type and G.711-only
+  receivers drop it silently** — the group transmits correctly yet the speaker stays mute — so the config
+  checker warns when it is selected. Use `pcmu` unless every listener on the group is known to support L16
+* `l16payloadtype` is the dynamic payload type used for `l16`, 96 to 127
+* `ttl` is 1 by default, which keeps the stream on the local subnet. Crossing a routed VLAN needs a higher
+  value **and** IGMP/PIM configured on the network
+* `interface` is the network interface the group leaves by, e.g. `eth0` or `ens18`. Leave it empty to
+  follow the default route. A name that does not exist on the host is reported as a warning at startup
+  rather than silently going out of the wrong interface
+* `packetms` is the packetization interval, one of 10, 20, 30, 40 or 60. 20 ms is the interoperable default
+* `volume` is a software gain in percent applied to the outgoing stream, 100 is unity
+* `allchannels` false, the default, carries only the channel talkkonnect is joined to. Set it true to also
+  carry audio heard through `<listentochannels>` and incoming whispers — useful for a monitoring node, but
+  it does mean a monitored channel is re-broadcast over the PA
+* `include` lists the users whose audio is carried. **An empty list means every talker**
+* `exclude` lists users whose audio is never carried, and **exclude wins over include**. Names are matched
+  case insensitively, and a user matched by `<ignoreuser>` is left out of the multicast too
+
+Announcements can be multicast as well: set `<multicast>true</multicast>` in a `<multimedia>` profile (see
+the Multimedia section) and the profile's tone and media files go to the group, independently of
+`localplay` and `playintostream`. This needs `ffmpeg` on the PATH.
+
+Run time control, all of which report through the same status:
+
+* `mc status`, `mc on`, `mc off`, `mc toggle` in the bottom CLI and the SSH console (`mc help` for the
+  full usage, Tab completes the subcommand). These always work, whether or not the actions below are
+  enabled in the XML
+* the `multicaston`, `multicastoff` and `multicasttoggle` actions over the HTTP API and MQTT, each gated
+  by its own `<command action="…">` entry under `<http>` and `<mqtt>` like every other action
+* the `/uistatus` JSON snapshot carries a `multicast` object with the destination, codec, whether the
+  sender is running, who is being mixed right now and how many packets have been sent
+* `cfg set global.software.multicast.…` followed by a config reload restarts the sender with the new
+  settings. The `include`, `exclude` and `allchannels` values take effect immediately without a restart
 
 ## Hardware Section
 * The tag targetboard has 2 option (1) pc and (2)rpi. pc mode is used when talkkonnect is running on a pc or server that does not have GPIOs and is not interfaced to buttons and a LCD screen.
@@ -691,7 +766,7 @@ A profile is triggered by name, never automatically unless you give it a schedul
 * `<schedule>` inside the profile, for unattended repetition
 
 The `announcement` action must also be enabled under `<http>` and `<mqtt>` in the API section before the
-first two work. Profiles with an empty `value`, with neither `localplay` nor `playintostream`, or whose files
+first two work. Profiles with an empty `value`, with none of `localplay`, `playintostream` or `multicast`, or whose files
 cannot be found are disabled by the config sanity checker at startup, so watch the `warn:` lines in the log.
 
 ```xml
@@ -706,6 +781,7 @@ cannot be found are disabled by the config sanity checker at startup, so watch t
             <playintostream>true</playintostream>
             <streamvolume>50</streamvolume>
             <voicetarget id="0">false</voicetarget>
+            <multicast>false</multicast>
         </params>
         <schedule intervalsecs="0" enabled="false"/>
         <media>
@@ -732,6 +808,11 @@ cannot be found are disabled by the config sanity checker at startup, so watch t
   with an `id` of 1 - 31 it shouts the announcement at that `<voicetargets>` slot of the active account (zone
   paging), and set to true with `id="0"` it follows whichever voice target is already active. The previous
   routing is restored when the announcement finishes. This tag has no effect on `localplay`
+* `multicast` set to true also sends the profile to the RTP multicast group configured in the
+  [Multicast section](#the-multicast-section-rtp-to-ip-speakers-and-sip-phones), for paging hardware IP
+  speakers and SIP desk phones. It is independent of `localplay` and `playintostream`, so a profile can page
+  the speakers only, go into mumble only, or do both at once; it needs `<multicast enabled="true">` and
+  `ffmpeg` on the PATH
 * `schedule intervalsecs="N" enabled="true"` replays the profile every N seconds for unattended announcements
 
 Each `<source>` under `<media>` is played in the order it appears in the file:

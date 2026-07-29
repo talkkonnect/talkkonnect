@@ -856,6 +856,50 @@ func (b *Talkkonnect) cmdScanChannels() {
 	b.Scan()
 }
 
+// cmdMulticastOn starts RTP multicast output at run time. It also sets the config
+// flag so a later config reload does not silently switch it back off.
+func (b *Talkkonnect) cmdMulticastOn() {
+	log.Println("info: Start Multicast Requested")
+
+	if MulticastIsRunning() {
+		sshRemoteReplyF("Multicast is already running to %s.\n", multicastUISnapshot().Group)
+		return
+	}
+
+	Config.Global.Software.Multicast.Enabled = true
+	multicastConfigureFromXML()
+	StartMulticastSender(appTalkkonnect)
+
+	if status := multicastUISnapshot(); status.Running {
+		sshRemoteReplyF("Multicast started to %s codec %s.\n", status.Group, status.Codec)
+	} else {
+		sshRemoteReplyF("Multicast could not be started, see the log for the reason.\n")
+	}
+}
+
+// cmdMulticastOff stops RTP multicast output at run time.
+func (b *Talkkonnect) cmdMulticastOff() {
+	log.Println("info: Stop Multicast Requested")
+
+	if !MulticastIsRunning() {
+		sshRemoteReplyF("Multicast is not running.\n")
+		return
+	}
+
+	Config.Global.Software.Multicast.Enabled = false
+	StopMulticastSender()
+	multicastConfigureFromXML()
+	sshRemoteReplyF("Multicast stopped.\n")
+}
+
+func (b *Talkkonnect) cmdMulticastToggle() {
+	if MulticastIsRunning() {
+		b.cmdMulticastOff()
+		return
+	}
+	b.cmdMulticastOn()
+}
+
 func cmdThanks() {
 	log.Printf("debug: Ctrl-T Pressed \n")
 	log.Println("info: Thanks and Acknowledgements Screen Request ")

@@ -224,6 +224,17 @@ A connection refused / timeout means talkkonnect is not running or `<uistatus>` 
   "txAudioLevel": 0,
   "muted": false,
   "voiceTarget": { "id": 0 },
+  "multicast": {
+    "enabled": true,
+    "running": true,
+    "group": "239.0.1.10:5004",
+    "codec": "pcmu",
+    "ttl": 1,
+    "packetMs": 20,
+    "volume": 100,
+    "sources": ["suvir"],
+    "packets": 41250
+  },
   "internetRadio": {
     "enabled": true,
     "playing": false,
@@ -320,6 +331,15 @@ current channel, or is absent. Do not assume a root node exists.
 | `internetRadio.stationIndex` | int | Index of the current station. |
 | `internetRadio.stationCount` | int | Number of configured stations. |
 | `internetRadio.volume` | int | Player volume. |
+| `multicast.enabled` | bool | `<multicast enabled="…">` in the config, i.e. whether multicast output is wanted. |
+| `multicast.running` | bool | The sender is actually up and can send. Use this one for the indicator; `enabled` without `running` means it failed to start or was switched off at run time. |
+| `multicast.group` | string | Destination as `address:port`. Omitted when no group is configured. |
+| `multicast.codec` | string | `pcmu`, `pcma` or `l16` as sent on the wire. |
+| `multicast.ttl` | int | Multicast TTL. `1` keeps the stream on the local subnet. |
+| `multicast.packetMs` | int | Packetization interval in milliseconds, normally 20. |
+| `multicast.volume` | int | Software gain applied to the outgoing stream, percent. |
+| `multicast.sources` | array | Names being mixed into the stream right now — the talkers, plus the profile name of a playing announcement. Empty while the group is idle. |
+| `multicast.packets` | int | RTP packets sent since the sender started. A counter that stops moving while `sources` is non-empty means the socket is failing. |
 
 #### Text messages
 
@@ -458,6 +478,19 @@ Commands with an empty **Params** column take no query parameters.
 | `radiotoggle` | | Start/stop the stream. |
 | `radionext` / `radioprev` | | Change station. |
 | `radiovolup` / `radiovoldown` | | Change player volume. |
+
+#### Multicast (RTP to IP speakers / SIP phones)
+
+| Command | Params | Effect |
+| --- | --- | --- |
+| `multicaston` | | Start re-transmitting received audio to the configured multicast group. |
+| `multicastoff` | | Stop multicast output. |
+| `multicasttoggle` | | Flip multicast output on or off. |
+
+These need a `<multicast>` section in `talkkonnect.xml`; see
+[running-talkkonnect.md](running-talkkonnect.md#the-multicast-section-rtp-to-ip-speakers-and-sip-phones).
+The reply body reports the resulting state, and `/uistatus` carries the same information in its
+`multicast` object.
 
 #### Servers and connection
 

@@ -237,6 +237,9 @@
                     <command action="listapi"            funcparamname=""        message="List API"            enabled="true"/>
                     <command action="listeningstart"     funcparamname=""        message="Listen To Channel On" enabled="true"/>
                     <command action="listeningstop"      funcparamname=""        message="Listen To Channel Off" enabled="true"/>
+                    <command action="multicaston"        funcparamname=""        message="Multicast On"        enabled="true"/>
+                    <command action="multicastoff"       funcparamname=""        message="Multicast Off"       enabled="true"/>
+                    <command action="multicasttoggle"    funcparamname=""        message="Multicast Toggle"    enabled="true"/>
                  </http>
             <mqtt enabled="false">
                 <settings enabled="true">
@@ -297,6 +300,9 @@
                       <command action="relay"              message="RelayControl"        enabled="true"/>
                       <command action="listeningstart"     message="Listen To Channel On"  enabled="true"/>
                       <command action="listeningstop"      message="Listen To Channel Off" enabled="true"/>
+                      <command action="multicaston"        message="Multicast On"        enabled="true"/>
+                      <command action="multicastoff"       message="Multicast Off"       enabled="true"/>
+                      <command action="multicasttoggle"    message="Multicast Toggle"    enabled="true"/>
                 </commands>
             </mqtt>
                 <!-- Disable uistatus (enabled="false") when using built-in OLED/LCD screens instead of an external framebuffer client -->
@@ -337,6 +343,7 @@
                 <printlistentochannels>all</printlistentochannels>
                 <printmemorychannels>true</printmemorychannels>
                 <printpresetvoicetargets>true</printpresetvoicetargets>
+                <printmulticast>true</printmulticast>
             </printvariables>
             <ttsmessages enabled="true">
                 <ttslanguage>en</ttslanguage>
@@ -364,6 +371,34 @@
                 <voicetargetset gpioname="presetvoicetarget1" id="10" enabled="false"/>
                 <voicetargetset gpioname="presetvoicetarget2" id="11" enabled="false"/>
             </presetvoicetargets>
+            <!-- Received Mumble audio is re-transmitted as RTP to this multicast group, so IP
+                 PA speakers (CyberData, Algo, Barix) and SIP desk phones can hear the channel.
+                 Audio goes out at 8 kHz mono; codec pcmu (G.711 u-law) is the only one every
+                 hardware decoder accepts, l16 is uncompressed PCM on a dynamic payload type and
+                 is silently dropped by G.711-only receivers. Keep the port even (RTP convention).
+                 interface is the NIC the group leaves by, leave it empty for the default route.
+                 allchannels false carries only the joined channel, true carries everything this
+                 node hears (listentochannels, whispers). include empty means every talker; a name
+                 in exclude always wins. Switch it at run time with the mc CLI command or the
+                 multicaston / multicastoff / multicasttoggle actions over http and mqtt. -->
+            <multicast enabled="false">
+                <group>239.0.1.10</group>
+                <port>5004</port>
+                <codec>pcmu</codec>
+                <ttl>1</ttl>
+                <interface></interface>
+                <packetms>20</packetms>
+                <l16payloadtype>96</l16payloadtype>
+                <volume>100</volume>
+                <allchannels>false</allchannels>
+                <hangoverms>200</hangoverms>
+                <include>
+                    <!-- <user>somebody</user> -->
+                </include>
+                <exclude>
+                    <!-- <user>noisybox</user> -->
+                </exclude>
+            </multicast>
         </software>
         <hardware targetboard="rpi">
             <ledstripenabled>false</ledstripenabled>
@@ -638,6 +673,8 @@
                    <streamvolume>50</streamvolume>
                    <!-- false announces to the joined channel. true with id 1-31 shouts at that <voicetargets> slot, true with id 0 follows the active target. -->
                    <voicetarget id="0">false</voicetarget>
+                   <!-- true also sends this announcement to the <multicast> group, independent of localplay and playintostream. -->
+                   <multicast>false</multicast>
                 </params>
                 <schedule intervalsecs="0" enabled="false"/>
                 <media>

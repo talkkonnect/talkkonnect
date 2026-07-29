@@ -183,6 +183,7 @@ type UIStatus struct {
 	TXAudioLevel   int                 `json:"txAudioLevel"`
 	Muted          bool                `json:"muted"`
 	VoiceTarget    UIVoiceTarget       `json:"voiceTarget"`
+	Multicast      UIMulticast         `json:"multicast"`
 	InternetRadio  InternetRadioStatus `json:"internetRadio"`
 	IPAddress      string              `json:"ipAddress"`
 	Bitrate        string              `json:"bitrate"`
@@ -350,6 +351,7 @@ func (b *Talkkonnect) buildUIStatus() UIStatus {
 		LastSpeaker:   LastSpeaker,
 		LastMessage:   lastUIMessageSnapshot(),
 		VoiceTarget:   uiVoiceTargetSnapshot(),
+		Multicast:     multicastUISnapshot(),
 		Receiving:     ReceivingVoice,
 		Scanning:      ScanIsRunning(),
 		ScanHold:      ScanIsHolding(),

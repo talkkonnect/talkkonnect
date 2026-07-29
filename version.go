@@ -31,11 +31,14 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "4.18.01"
+	talkkonnectVersion  string = "4.19.01"
 	talkkonnectReleased string = "29 Jul 2026"
 )
 
 /* Release Notes
+version 4.19.01
+added api for multicast toggle from web ui
+
 version 4.18.01
 added RTP multicast output (new <multicast> section of the XML config). Audio received from mumble is
 re-transmitted to a multicast group as 8 kHz mono G.711/L16 RTP, 20 ms per packet, which is what hardware

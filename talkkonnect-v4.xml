@@ -223,6 +223,9 @@
           <command action="radiotoggle" funcparamname="" message="Online Radio On/Off" enabled="true"/>
           <command action="radionext" funcparamname="" message="Radio Channel Next" enabled="true"/>
           <command action="radioprev" funcparamname="" message="Radio Channel Prev" enabled="true"/>
+          <command action="multicaston" funcparamname="" message="Multicast On" enabled="true"/>
+          <command action="multicastoff" funcparamname="" message="Multicast Off" enabled="true"/>
+          <command action="multicasttoggle" funcparamname="" message="Multicast On/Off" enabled="true"/>
         </http>
         <mqtt enabled="false">
           <settings enabled="true">

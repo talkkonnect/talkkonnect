@@ -390,9 +390,10 @@ A command executes only when **both** conditions hold:
 1. It is one of the built-in handler names below, and
 2. a `<command action="…">` element for it exists in `<http>` in `talkkonnect.xml`.
 
-Condition 2 is how you scope what a device will accept. Several handlers listed below are **not** present
-in the shipped sample configs and must be added before use: `setrxvolume`, `joinchannel`, `whisperuser`,
-`whisperclear`, `radiotoggle`, `radionext`, `radioprev`, `radiovolup`, `radiovoldown`.
+Condition 2 is how you scope what a device will accept. A handler that exists in the binary but has no
+`<command>` element answers `404 not found: API command "…" is not defined in configuration` — that is a
+missing config line, not a missing feature. The handlers below that are **not** present in the shipped
+sample configs and must be added before use: `radiovolup`, `radiovoldown`.
 
 ### Query parameters
 

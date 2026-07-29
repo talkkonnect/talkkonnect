@@ -429,14 +429,40 @@ func (b *Talkkonnect) playIntoStream(filepath string, vol float32) {
 }
 
 func (b *Talkkonnect) splayIntoStream(filepath string, vol float32) {
+	b.splayIntoStreamWithOptions(filepath, vol, 0, 0)
+}
+
+// splayIntoStreamWithOptions plays a file into the mumble stream. offsetSecs seeks
+// into the file before playback starts and durationSecs cuts playback short;
+// gumbleffmpeg only understands the offset, so the duration is enforced here with
+// a timer that stops the stream.
+func (b *Talkkonnect) splayIntoStreamWithOptions(filepath string, vol float32, offsetSecs float32, durationSecs float32) {
 	pstream = gumbleffmpeg.New(b.Stream.client, gumbleffmpeg.SourceFile(filepath), vol/100)
-	if err := pstream.Play(); err != nil {
-		log.Printf("error: Can't play %s error %s", filepath, err)
-	} else {
-		log.Printf("info: File %s Playing!\n", filepath)
-		pstream.Wait()
-		pstream.Stop()
+	if offsetSecs > 0 {
+		pstream.Offset = time.Duration(float64(offsetSecs) * float64(time.Second))
 	}
+
+	// Keep a local handle so the timer below cannot stop a later playback that has
+	// meanwhile replaced the package level pstream.
+	stream := pstream
+
+	if err := stream.Play(); err != nil {
+		log.Printf("error: Can't play %s error %s", filepath, err)
+		return
+	}
+
+	log.Printf("info: File %s Playing!\n", filepath)
+
+	if durationSecs > 0 {
+		timer := time.AfterFunc(time.Duration(float64(durationSecs)*float64(time.Second)), func() {
+			log.Printf("debug: stopping %s after the configured duration of %.1f seconds", filepath, durationSecs)
+			stream.Stop()
+		})
+		defer timer.Stop()
+	}
+
+	stream.Wait()
+	stream.Stop()
 }
 
 func (b *Talkkonnect) OpenStream() {

@@ -31,11 +31,15 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "4.16.02"
-	talkkonnectReleased string = "28 Jul 2026"
+	talkkonnectVersion  string = "4.17.01"
+	talkkonnectReleased string = "29 Jul 2026"
 )
 
 /* Release Notes
+version 4.17.01
+fixed multimedia announcement playback
+added voice target commands to command line
+
 version 4.16.02
 fullstack web ui support by by api
 

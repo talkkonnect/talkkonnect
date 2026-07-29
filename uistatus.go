@@ -145,6 +145,15 @@ func ClearUIVoiceTarget() {
 	RecordUIVoiceTarget(0, "")
 }
 
+// restoreUIVoiceTarget puts a previously taken snapshot back, for callers that
+// borrow the voice target for the duration of one action — a multimedia
+// announcement shouted at a paging zone, say — and then hand it back.
+func restoreUIVoiceTarget(target UIVoiceTarget) {
+	uiVoiceTargetMu.Lock()
+	defer uiVoiceTargetMu.Unlock()
+	uiVoiceTarget = target
+}
+
 func uiVoiceTargetSnapshot() UIVoiceTarget {
 	uiVoiceTargetMu.Lock()
 	defer uiVoiceTargetMu.Unlock()

@@ -205,6 +205,76 @@ For a speaker muting to work when pressing a PTT, you need to enter the exact na
 * The tokens list for each account for autorization to token protected channels
 * The voicetargets IDs and their corresponding users and channels
 
+#### Voice Targets and the vt Command
+
+A voice target is a Mumble whisper or shout destination: a set of users, or a channel, that your audio goes
+to instead of the channel you are joined to. Targets are numbered 1 to 31 (0 means normal channel speech)
+and live under `<voicetargets>` inside an account. Only the account talkkonnect is actually using is
+consulted, so a target added to a `default="false"` account is never sent.
+
+```xml
+<voicetargets>
+    <id value="1">
+        <users>
+            <user>zoran-laptop</user>
+        </users>
+    </id>
+    <id value="3">
+        <channels>
+            <channel>
+                <name>TEST1</name>
+                <recursive>true</recursive>
+                <links>true</links>
+                <group>all</group>
+            </channel>
+        </channels>
+    </id>
+</voicetargets>
+```
+
+* a target may list several `<user>` entries, several `<channel>` entries, or both
+* `recursive` includes the sub channels of the named channel, `links` includes channels linked to it, and
+  `group` restricts the shout to one ACL group (leave it empty for everyone)
+* select a target with the `voicetargetset <id>` command (bottom CLI, SSH console, HTTP API, MQTT, GPIO
+  preset buttons) and go back to normal channel speech with `voicetargetset 0`
+* a `<multimedia>` announcement can be aimed at a target with `<voicetarget id="N">true</voicetarget>`
+
+Rather than editing the XML by hand, the `vt` command in the bottom CLI and the SSH console lists targets,
+selects them and appends new ones (it is also in the `menu` banner):
+
+```
+vt list                                          show every configured target
+vt set <id>                                      activate a configured target
+vt clear                                         back to normal channel speech (same as vt set 0)
+vt next | vt prev                                step through the configured targets
+vt whisper <name>                                whisper to one online user, no config entry needed
+vt add <id> user <name> [<name> ...]             whisper target: one or more users
+vt add <id> channel <name> [recursive=true] [links=true] [group=<name>]
+vt help                                          usage summary
+```
+
+* Tab completes the subcommand, the ids that are actually configured after `vt set`, and the users who are
+  actually online after `vt whisper`
+* `vt set` and `vt clear` call the same code as `voicetargetset` but do not go through the HTTP command
+  allow-list, so they work whether or not `<command action="voicetargetset">` is enabled under `<http>`.
+  They also say what became active, and refuse an id that has no entry for the account in use instead of
+  silently doing nothing
+* `vt whisper <name>` uses voice target 30, the slot reserved for run time whispers, so it needs no
+  `<voicetargets>` entry; clear it with `vt clear`
+* `vt list` prints the targets of every account, marks the account in use, marks the target that is
+  currently active, and — while connected — flags any entry whose user is offline or whose channel does not
+  exist on the server. A target naming a channel that is not there silently falls back to plain channel
+  speech when selected, so this is the quick way to spot a stale target
+* `vt add` appends to an existing `<id>` or creates it, writes `talkkonnect.xml` in place and updates the
+  running configuration, so `voicetargetset <id>` works immediately without a restart
+* only the `<voicetargets>` element is touched. Comments, tag order and formatting elsewhere in the file are
+  left exactly as they were, and the previous contents of the file are kept as `talkkonnect.xml.bak`
+* the edited file has to parse and contain the new entry before it replaces the original, so a bad edit
+  fails with a message and changes nothing
+* names containing spaces go in double quotes, e.g. `vt add 5 channel "Zone One" recursive=true`
+* `recursive` and `links` default to true when given without a value (`recursive=`), and to false when the
+  option is left out entirely
+
 ### The Global Section of talkkonnect.xml (Software & Hardware)
 
 ### Software Settings Section
@@ -606,4 +676,72 @@ For the above example to work you will have to specify the gpio pin in the <ligh
 * highpass
 * lowpass
 * volume 0 - 8
+
+## The Multimedia Section (Pre-Recorded Announcements / IP-Speaker)
+
+`<multimedia>` sits directly under `<global>`, next to `<hardware>`. Each `<id value="...">` is a named
+announcement profile: an optional attention tone followed by an ordered list of media sources, played out of
+the local speaker, into the mumble channel, or both.
+
+A profile is triggered by name, never automatically unless you give it a schedule:
+
+* HTTP: `http://{your-talkkonnect-ipaddress}:8080/?command=announcement&mediaid=main_announcement`
+* MQTT: publish `announcement main_announcement` to the subscribed topic
+* Bottom CLI or SSH console: `announcement main_announcement`
+* `<schedule>` inside the profile, for unattended repetition
+
+The `announcement` action must also be enabled under `<http>` and `<mqtt>` in the API section before the
+first two work. Profiles with an empty `value`, with neither `localplay` nor `playintostream`, or whose files
+cannot be found are disabled by the config sanity checker at startup, so watch the `warn:` lines in the log.
+
+```xml
+<multimedia>
+    <id value="main_announcement" enabled="true">
+        <params>
+            <announcementtone file="/path/to/announcement-01.wav" volume="10" blocking="true" enabled="true"/>
+            <localplay>true</localplay>
+            <gpio name="multimedia_active_led" enabled="true"/>
+            <predelay value="1" enabled="true"/>
+            <postdelay value="1" enabled="true"/>
+            <playintostream>true</playintostream>
+            <streamvolume>50</streamvolume>
+            <voicetarget id="0">false</voicetarget>
+        </params>
+        <schedule intervalsecs="0" enabled="false"/>
+        <media>
+            <source name="1st-song" file="/path/to/song.mp3" volume="10" duration="0" offset="0" loop="1" blocking="true" enabled="true"/>
+        </media>
+    </id>
+</multimedia>
+```
+
+* the `value` attribute is the profile name used as the `mediaid` when triggering the announcement, and
+  `enabled` on the `<id>` turns the whole profile on or off
+* `announcementtone` is an attention tone played before the media sources; `file` may be an absolute path or
+  an `http`, `https` or `rtsp` url, `volume` is 0 - 100 and `blocking` waits for the tone to finish before the
+  first source starts
+* `localplay` set to true plays the profile out of the local speaker or amplifier using ffplay
+* `playintostream` set to true transmits the profile into the currently joined mumble channel so everyone in
+  the channel hears it, and `streamvolume` (0 - 100) is the default volume used for that
+* `gpio name=...` if enabled is driven high for the entire announcement, for the purpose of switching an
+  external amplifier or an attention light; the pin drops as soon as playback returns, so set `blocking="true"`
+  on the tone and the sources if you want it to track the audio accurately
+* `predelay` and `postdelay` are in seconds and add a pause before and after the announcement
+* `voicetarget` decides where an into-stream announcement is sent. Left as false the announcement goes to the
+  channel you are joined to, temporarily bypassing any voice target that happens to be selected. Set to true
+  with an `id` of 1 - 31 it shouts the announcement at that `<voicetargets>` slot of the active account (zone
+  paging), and set to true with `id="0"` it follows whichever voice target is already active. The previous
+  routing is restored when the announcement finishes. This tag has no effect on `localplay`
+* `schedule intervalsecs="N" enabled="true"` replays the profile every N seconds for unattended announcements
+
+Each `<source>` under `<media>` is played in the order it appears in the file:
+
+* `file` is an absolute path or an `http`, `https` or `rtsp` url, so a source can also be an internet radio stream
+* `volume` is 0 - 100 and applies to both local and into-stream playback, overriding `streamvolume` for that source
+* `offset` in seconds seeks into the file before playing, for skipping a long intro
+* `duration` in seconds cuts playback short, which is how you page a fixed slice out of a long file or a stream
+* `loop` repeats the source, limited to 3 repeats so a typo cannot occupy the channel indefinitely
+* `blocking` set to true finishes the source before the next one starts. Set it on every source unless you
+  actually want them mixed on top of each other, since local playback is otherwise fired off in parallel
+* `enabled` skips the source when false
    

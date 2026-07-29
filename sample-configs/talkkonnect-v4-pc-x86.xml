@@ -636,7 +636,8 @@
                    <postdelay value="1" enabled="true"/>
                    <playintostream>true</playintostream>
                    <streamvolume>50</streamvolume>
-                   <voicetarget>false</voicetarget>
+                   <!-- false announces to the joined channel. true with id 1-31 shouts at that <voicetargets> slot, true with id 0 follows the active target. -->
+                   <voicetarget id="0">false</voicetarget>
                 </params>
                 <schedule intervalsecs="0" enabled="false"/>
                 <media>

@@ -601,7 +601,7 @@ type ConfigStruct struct {
 					Announcementtone struct {
 						File     string `xml:"file,attr"`
 						Volume   int    `xml:"volume,attr"`
-						Blocking bool   `xml:"blocking"`
+						Blocking bool   `xml:"blocking,attr"`
 						Enabled  bool   `xml:"enabled,attr"`
 					} `xml:"announcementtone"`
 					Localplay bool `xml:"localplay"`
@@ -619,7 +619,17 @@ type ConfigStruct struct {
 					} `xml:"postdelay"`
 					Playintostream bool    `xml:"playintostream"`
 					Streamvolume   float32 `xml:"streamvolume"`
-					Voicetarget    bool    `xml:"voicetarget"`
+					// Voicetarget routes an into-stream announcement at a voice
+					// target instead of the plain channel. The element text is the
+					// on/off flag (<voicetarget>true</voicetarget>) and the optional
+					// id attribute names which <voicetargets> slot to shout at; with
+					// no id the announcement follows whichever target is already
+					// active. Text is kept as a string so the older empty form
+					// (<voicetarget/>) still parses.
+					Voicetarget struct {
+						ID    uint32 `xml:"id,attr"`
+						Value string `xml:",chardata"`
+					} `xml:"voicetarget"`
 				} `xml:"params"`
 				Schedule struct {
 					IntervalSecs int  `xml:"intervalsecs,attr"`
@@ -633,7 +643,7 @@ type ConfigStruct struct {
 						Duration float32 `xml:"duration,attr"`
 						Offset   float32 `xml:"offset,attr"`
 						Loop     int     `xml:"loop,attr"`
-						Blocking bool    `xml:"blocking"`
+						Blocking bool    `xml:"blocking,attr"`
 						Enabled  bool    `xml:"enabled,attr"`
 					} `xml:"source"`
 				} `xml:"media"`
@@ -1588,7 +1598,7 @@ func printxmlconfig() {
 				log.Printf("info: Stream Volume %v \n", value.Params.Streamvolume)
 				log.Printf("info: Pre  Delay  %v \n", value.Params.Predelay)
 				log.Printf("info: Post Delay %v \n", value.Params.Postdelay)
-				log.Printf("info: Voice Target %v \n", value.Params.Voicetarget)
+				log.Printf("info: Voice Target %v ID %v \n", multimediaVoicetargetEnabled(value.Params.Voicetarget.Value), value.Params.Voicetarget.ID)
 				log.Printf("info: Schedule Enabled %v IntervalSecs %v \n", value.Schedule.Enabled, value.Schedule.IntervalSecs)
 				log.Printf("info: Enabled %v \n", value.Enabled)
 				log.Printf("info: Media Souce %+v \n", value.Media.Source)
@@ -1755,6 +1765,11 @@ func CheckConfigSanity(reloadxml bool) {
 			Config.Global.Multimedia.ID[index].Schedule.Enabled = false
 			Warnings++
 		}
+		if multimediaVoicetargetEnabled(profile.Params.Voicetarget.Value) && profile.Params.Voicetarget.ID > 31 {
+			log.Printf("warn: Config Error [Section Multimedia] Profile %q voicetarget id %v out of range (1-31), announcement will go to the current channel", profile.Value, profile.Params.Voicetarget.ID)
+			Config.Global.Multimedia.ID[index].Params.Voicetarget.ID = 0
+			Warnings++
+		}
 		if profile.Params.Announcementtone.Enabled && len(profile.Params.Announcementtone.File) > 0 {
 			if !FileExists(profile.Params.Announcementtone.File) && !checkRegex("(http|https|rtsp)", profile.Params.Announcementtone.File) {
 				log.Printf("warn: Config Error [Section Multimedia] Profile %q announcement tone file missing: %v", profile.Value, profile.Params.Announcementtone.File)
@@ -1769,6 +1784,12 @@ func CheckConfigSanity(reloadxml bool) {
 			if !FileExists(source.File) && !checkRegex("(http|https|rtsp)", source.File) {
 				log.Printf("warn: Config Error [Section Multimedia] Profile %q source %q file missing: %v", profile.Value, source.Name, source.File)
 				Config.Global.Multimedia.ID[index].Media.Source[sourceIndex].Enabled = false
+				Warnings++
+				continue
+			}
+			if source.Loop > maxMediaSourceLoops {
+				log.Printf("warn: Config Error [Section Multimedia] Profile %q source %q loop %v exceeds the maximum of %v, clamping", profile.Value, source.Name, source.Loop, maxMediaSourceLoops)
+				Config.Global.Multimedia.ID[index].Media.Source[sourceIndex].Loop = maxMediaSourceLoops
 				Warnings++
 			}
 		}

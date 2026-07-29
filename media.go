@@ -86,17 +86,27 @@ func aplayLocal(fileNameWithPath string) {
 }
 
 func localMediaPlayer(fileNameWithPath string, playbackvolume int, blocking bool, duration float32, loop int) {
+	localMediaPlayerWithOffset(fileNameWithPath, playbackvolume, blocking, duration, 0, loop)
+}
 
-	if loop == 0 || loop > 3 {
-		log.Println("warn: Infinite Loop or more than 3 loops not allowed")
-		return
+// localMediaPlayerWithOffset plays a file on the local speaker, optionally seeking
+// offset seconds into it and stopping after duration seconds. Options are passed
+// ahead of the url because that is the order ffplay documents.
+func localMediaPlayerWithOffset(fileNameWithPath string, playbackvolume int, blocking bool, duration float32, offset float32, loop int) {
+
+	loop = mediaSourceLoop(loop)
+
+	CmdArguments := []string{"-nodisp", "-autoexit", "-volume", strconv.Itoa(playbackvolume), "-loop", strconv.Itoa(loop)}
+
+	if offset > 0 {
+		CmdArguments = append(CmdArguments, "-ss", fmt.Sprintf("%.1f", offset))
 	}
-
-	CmdArguments := []string{fileNameWithPath, "-volume", strconv.Itoa(playbackvolume), "-autoexit", "-loop", strconv.Itoa(loop), "-autoexit", "-nodisp"}
 
 	if duration > 0 {
-		CmdArguments = []string{fileNameWithPath, "-volume", strconv.Itoa(playbackvolume), "-autoexit", "-t", fmt.Sprintf("%.1f", duration), "-loop", strconv.Itoa(loop), "-autoexit", "-nodisp"}
+		CmdArguments = append(CmdArguments, "-t", fmt.Sprintf("%.1f", duration))
 	}
+
+	CmdArguments = append(CmdArguments, fileNameWithPath)
 
 	cmd := exec.Command("/usr/bin/ffplay", CmdArguments...)
 	applyLocalPlaybackDevice(cmd)
@@ -189,11 +199,28 @@ func defaultStreamVolume(volume float32) float32 {
 	return volume
 }
 
+// maxMediaSourceLoops caps how often one media source may repeat. ffplay treats
+// -loop 0 as infinite, so a missing or silly loop count must never reach it
+// verbatim; the same ceiling is applied to into-stream playback for consistency.
+const maxMediaSourceLoops = 3
+
 func mediaSourceLoop(loop int) int {
 	if loop <= 0 {
 		return 1
 	}
+	if loop > maxMediaSourceLoops {
+		log.Printf("warn: loop count %v exceeds the maximum of %v, clamping", loop, maxMediaSourceLoops)
+		return maxMediaSourceLoops
+	}
 	return loop
+}
+
+// multimediaVoicetargetEnabled reads the <voicetarget> element text. The tag is
+// carried as a string so the historic empty form (<voicetarget/>) does not fail
+// the whole config parse.
+func multimediaVoicetargetEnabled(value string) bool {
+	enabled, err := strconv.ParseBool(strings.TrimSpace(value))
+	return err == nil && enabled
 }
 
 func multimediaFilePlayable(path string) bool {
@@ -236,8 +263,11 @@ func (b *Talkkonnect) playAnnouncementMedia(mediaID string) {
 	profile := Config.Global.Multimedia.ID[idx]
 	log.Printf("info: playing multimedia announcement profile %q", mediaID)
 
-	if profile.Params.Voicetarget {
-		log.Println("warn: voicetarget playback for multimedia is not implemented yet")
+	// The profile GPIO drives an external amplifier or attention light, so it has
+	// to span the whole announcement rather than just the local speaker leg.
+	if profile.Params.GPIO.Enabled {
+		GPIOOutPin(profile.Params.GPIO.Name, "on")
+		defer GPIOOutPin(profile.Params.GPIO.Name, "off")
 	}
 
 	if profile.Params.Localplay {
@@ -245,6 +275,63 @@ func (b *Talkkonnect) playAnnouncementMedia(mediaID string) {
 	}
 	if profile.Params.Playintostream {
 		b.playMultimediaIntoStream(idx)
+	}
+}
+
+// multimediaApplyVoiceTarget points an into-stream announcement at a voice target
+// or at the plain channel, and returns a func that restores the previous routing.
+// Local speaker playback has no routing, so this only applies to stream playback.
+func (b *Talkkonnect) multimediaApplyVoiceTarget(idx int) func() {
+	profile := Config.Global.Multimedia.ID[idx]
+
+	if b.Client == nil {
+		return func() {}
+	}
+
+	previous := b.Client.VoiceTarget
+	previousUI := uiVoiceTargetSnapshot()
+	restore := func() { b.Client.VoiceTarget = previous }
+
+	if !multimediaVoicetargetEnabled(profile.Params.Voicetarget.Value) {
+		if previous != nil {
+			log.Printf("debug: multimedia profile %q has voicetarget disabled, announcing to the current channel", profile.Value)
+			b.Client.VoiceTarget = nil
+		}
+		return restore
+	}
+
+	targetID := profile.Params.Voicetarget.ID
+
+	if targetID == 0 {
+		if previous == nil {
+			log.Printf("warn: multimedia profile %q wants a voicetarget but none is active and no id is configured, announcing to the current channel", profile.Value)
+		} else {
+			log.Printf("info: announcing multimedia profile %q to the already active voicetarget id %v", profile.Value, previous.ID)
+		}
+		return restore
+	}
+
+	log.Printf("info: announcing multimedia profile %q to voicetarget id %v", profile.Value, targetID)
+	b.cmdSendVoiceTargets(targetID)
+
+	// cmdSendVoiceTargets is best effort: it silently does nothing when the id is
+	// missing from <voicetargets>, and VoiceTargetUserSet / VoiceTargetChannelSet
+	// bail out when the named user or channel is not on the server. Either way the
+	// target is left unset, so fall back to the channel rather than announcing at
+	// whatever target happened to be selected before.
+	if b.Client.VoiceTarget == nil || b.Client.VoiceTarget.ID != targetID {
+		log.Printf("warn: voicetarget id %v could not be applied, announcing to the current channel. Check that the id exists under <voicetargets> for the active account and that its user or channel is present on the server", targetID)
+		b.Client.VoiceTarget = nil
+	}
+
+	// cmdSendVoiceTargets also drives the voicetarget LED and the /uistatus
+	// telemetry, so both are handed back with the target itself.
+	return func() {
+		b.Client.VoiceTarget = previous
+		restoreUIVoiceTarget(previousUI)
+		if previous == nil {
+			GPIOOutPin("voicetarget", "off")
+		}
 	}
 }
 
@@ -268,15 +355,6 @@ func (b *Talkkonnect) multimediaApplyDelay(idx int, pre bool) {
 func (b *Talkkonnect) playMultimediaLocal(idx int) {
 	profile := Config.Global.Multimedia.ID[idx]
 
-	if profile.Params.GPIO.Enabled {
-		GPIOOutPin(profile.Params.GPIO.Name, "on")
-	}
-	defer func() {
-		if profile.Params.GPIO.Enabled {
-			GPIOOutPin(profile.Params.GPIO.Name, "off")
-		}
-	}()
-
 	b.multimediaApplyDelay(idx, true)
 
 	if profile.Params.Announcementtone.Enabled && multimediaFilePlayable(profile.Params.Announcementtone.File) {
@@ -289,7 +367,7 @@ func (b *Talkkonnect) playMultimediaLocal(idx int) {
 			continue
 		}
 		log.Printf("debug: local multimedia playing %q file %q", source.Name, source.File)
-		localMediaPlayer(source.File, defaultPlaybackVolume(source.Volume), source.Blocking, source.Duration, mediaSourceLoop(source.Loop))
+		localMediaPlayerWithOffset(source.File, defaultPlaybackVolume(source.Volume), source.Blocking, source.Duration, source.Offset, mediaSourceLoop(source.Loop))
 	}
 
 	b.multimediaApplyDelay(idx, false)
@@ -297,6 +375,12 @@ func (b *Talkkonnect) playMultimediaLocal(idx int) {
 }
 
 func (b *Talkkonnect) playFileIntoMumbleStream(filepath string, vol float32) {
+	b.playFileIntoMumbleStreamWithOptions(filepath, vol, 0, 0)
+}
+
+// playFileIntoMumbleStreamWithOptions plays a file into the mumble stream, seeking
+// offset seconds in and stopping after duration seconds when either is non-zero.
+func (b *Talkkonnect) playFileIntoMumbleStreamWithOptions(filepath string, vol float32, offset float32, duration float32) {
 	if !multimediaFilePlayable(filepath) {
 		log.Printf("warn: cannot play into stream, file missing or unsupported: %s", filepath)
 		return
@@ -309,18 +393,30 @@ func (b *Talkkonnect) playFileIntoMumbleStream(filepath string, vol float32) {
 	}
 
 	GPIOOutPin("transmit", "on")
-	b.splayIntoStream(filepath, defaultStreamVolume(vol))
+	b.splayIntoStreamWithOptions(filepath, defaultStreamVolume(vol), offset, duration)
 	GPIOOutPin("transmit", "off")
+}
+
+// multimediaStreamVolume prefers the per-source volume and falls back to the
+// profile streamvolume, matching how local playback treats the same attribute.
+func multimediaStreamVolume(sourceVolume int, streamVolume float32) float32 {
+	if sourceVolume > 0 {
+		return float32(sourceVolume)
+	}
+	return streamVolume
 }
 
 func (b *Talkkonnect) playMultimediaIntoStream(idx int) {
 	profile := Config.Global.Multimedia.ID[idx]
 	streamVol := defaultStreamVolume(profile.Params.Streamvolume)
 
+	restoreVoiceTarget := b.multimediaApplyVoiceTarget(idx)
+	defer restoreVoiceTarget()
+
 	b.multimediaApplyDelay(idx, true)
 
 	if profile.Params.Announcementtone.Enabled && multimediaFilePlayable(profile.Params.Announcementtone.File) {
-		b.playFileIntoMumbleStream(profile.Params.Announcementtone.File, streamVol)
+		b.playFileIntoMumbleStream(profile.Params.Announcementtone.File, multimediaStreamVolume(profile.Params.Announcementtone.Volume, streamVol))
 	}
 
 	for _, source := range profile.Media.Source {
@@ -330,7 +426,7 @@ func (b *Talkkonnect) playMultimediaIntoStream(idx int) {
 		log.Printf("debug: stream multimedia playing %q file %q", source.Name, source.File)
 		loops := mediaSourceLoop(source.Loop)
 		for i := 0; i < loops; i++ {
-			b.playFileIntoMumbleStream(source.File, streamVol)
+			b.playFileIntoMumbleStreamWithOptions(source.File, multimediaStreamVolume(source.Volume, streamVol), source.Offset, source.Duration)
 		}
 	}
 

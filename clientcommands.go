@@ -502,6 +502,15 @@ func (b *Talkkonnect) repeatTx() {
 
 func (b *Talkkonnect) cmdSendVoiceTargets(targetID uint32) {
 
+	// Target 0 is not a registerable Mumble slot, it is the "talk normally to the
+	// joined channel" state, so it never appears under <voicetargets>. Without
+	// this the loop below matches nothing and the previously selected target stays
+	// live, which is the opposite of what voicetargetset 0 asks for.
+	if targetID == 0 {
+		b.clearVoiceTarget("Voice Target Cleared, Broadcasting To Channel")
+		return
+	}
+
 	GenericCounter = 0
 	for _, account := range Config.Accounts.Account {
 		if account.Default {
@@ -528,9 +537,35 @@ func (b *Talkkonnect) cmdSendVoiceTargets(targetID uint32) {
 	}
 }
 
+// clearVoiceTarget drops whatever voice target is selected so transmitted audio
+// goes back to the joined channel, and puts the LED, seven segment display and
+// /uistatus telemetry back in step. Shared by voicetargetset 0 and whisperclear,
+// which differ only in the line they log and report.
+func (b *Talkkonnect) clearVoiceTarget(message string) {
+	if IsConnected && b.Client != nil {
+		// Re-registering the slot with no entries releases it on the server, so a
+		// stale registration cannot come back to life. IDs outside 1..30 are not
+		// real slots (31 is gumble's loopback target) and must not be sent.
+		if vt := b.Client.VoiceTarget; vt != nil && vt.ID >= 1 && vt.ID <= 30 {
+			b.Client.Send(&gumble.VoiceTarget{ID: vt.ID})
+		}
+		// A nil client target makes gumble transmit on target 0, normal talking.
+		b.Client.VoiceTarget = nil
+	}
+
+	ClearUIVoiceTarget()
+	GPIOOutPin("voicetarget", "off")
+	b.sevenSegment("voicetarget", "0")
+	log.Println("info: " + message)
+	sshRemoteReplyF("%s.\n", message)
+}
+
 func (b *Talkkonnect) VoiceTargetUserSet(TargetID uint32, TargetUser string) {
-	if len(TargetUser) == 0 && TargetID == 0 {
-		TargetUser = b.Client.Self.Name
+	// Nothing can be whispered to on target 0, so treat it as the clear it is
+	// rather than registering a slot the server will reject.
+	if TargetID == 0 {
+		b.clearVoiceTarget("Voice Target Cleared, Broadcasting To Channel")
+		return
 	}
 
 	vtUser := b.Client.Users.Find(TargetUser)
@@ -539,16 +574,9 @@ func (b *Talkkonnect) VoiceTargetUserSet(TargetID uint32, TargetUser string) {
 		vtarget.ID = TargetID
 		vtarget.AddUser(vtUser)
 		b.Client.VoiceTarget = vtarget
-		if TargetID > 0 {
-			log.Printf("debug: Added User %v to VT ID %v\n", TargetUser, TargetID)
-			b.sevenSegment("voicetarget", strconv.Itoa(int(TargetID)))
-			GPIOOutPin("voicetarget", "on")
-		} else {
-			b.VoiceTarget.Clear()
-			GPIOOutPin("voicetarget", "off")
-			log.Println("debug: Cleared Voice Targets")
-			b.sevenSegment("voicetarget", strconv.Itoa(int(TargetID)))
-		}
+		log.Printf("debug: Added User %v to VT ID %v\n", TargetUser, TargetID)
+		b.sevenSegment("voicetarget", strconv.Itoa(int(TargetID)))
+		GPIOOutPin("voicetarget", "on")
 		b.Client.Send(vtarget)
 		RecordUIVoiceTarget(TargetID, "user", TargetUser)
 	} else {
@@ -671,15 +699,7 @@ func (b *Talkkonnect) cmdWhisperClear() {
 		return
 	}
 
-	// Registering the slot with no entries releases it on the server, and a nil
-	// client target makes gumble send audio on target 0 — normal talking.
-	b.Client.Send(&gumble.VoiceTarget{ID: remoteAPIWhisperTargetID})
-	b.Client.VoiceTarget = nil
-	ClearUIVoiceTarget()
-	GPIOOutPin("voicetarget", "off")
-	b.sevenSegment("voicetarget", "0")
-	log.Println("info: Whisper Target Cleared, Broadcasting To Channel")
-	sshRemoteReplyF("Whisper target cleared, broadcasting to channel.\n")
+	b.clearVoiceTarget("Whisper Target Cleared, Broadcasting To Channel")
 }
 
 // cmdSetRXVolume sets the speaker volume to an absolute percentage, which is what

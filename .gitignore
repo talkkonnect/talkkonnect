@@ -3,3 +3,5 @@
 dist
 talkkonnect.xml
 talkkonnect.lock
+*.xml
+CLAUDE.md

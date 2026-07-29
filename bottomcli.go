@@ -356,7 +356,7 @@ func bottomCLICompletionCandidates() []string {
 		}
 	}
 	for _, s := range []string{
-		"help", "?", "menu", "cfg", "clearhist", "c", "clear", "cls", "q", "quit", "exit", "...", "…",
+		"help", "?", "menu", "cfg", "vt", "clearhist", "c", "clear", "cls", "q", "quit", "exit", "...", "…",
 		"0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
 		"a", "b", "d", "e", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "z",
 	} {
@@ -399,6 +399,9 @@ func bottomCLITabCompleteLine(line string) (newLine string, bell bool) {
 	line = strings.TrimRight(line, "\n\r")
 	if strings.HasPrefix(strings.ToLower(strings.TrimLeft(line, " \t")), "cfg") {
 		return bottomCLITabCompleteCfg(line)
+	}
+	if strings.HasPrefix(strings.ToLower(strings.TrimLeft(line, " \t")), "vt") {
+		return bottomCLITabCompleteVT(line)
 	}
 	fields := strings.Fields(line)
 	if len(fields) > 1 {
@@ -673,6 +676,11 @@ func bottomCLIPartsToRemoteQuery(parts []string) remoteAPIQuery {
 	if q.Command == "voicetargetset" && len(parts) >= 2 {
 		q.ID, _ = strconv.Atoi(parts[1])
 	}
+	// whisperuser takes its user name from a query parameter over HTTP; typed at
+	// the CLI the rest of the line is that name.
+	if q.Command == "whisperuser" && len(parts) >= 2 {
+		q.APIUser = strings.Join(parts[1:], " ")
+	}
 	if q.Command == "ttsannouncement" && len(parts) >= 2 {
 		q.APITTSMessage = strings.Join(parts[1:], " ")
 	}
@@ -706,6 +714,15 @@ const bottomCLIMenuBanner = `
   c / clear / cls           Clear terminal + restore bottom prompt
   q / quit / exit           Close bottom CLI (talkkonnect keeps running)
   ... or …                  Quit talkkonnect (SIGTERM)
+------------------------------------------------------------------------------------
+ Voice Target (whisper/shout) Commands:
+  vt list                   List the voice targets in the XML config + active one
+  vt set <id>               Activate configured target <id> (1-31)
+  vt clear                  Back to normal channel speech (same as vt set 0)
+  vt next / vt prev         Step through the configured targets
+  vt whisper <name>         Whisper to one online user, no config entry needed
+  vt add <id> user|channel  Add a target to the XML config (vt help for options)
+  vt help                   Full voice target usage
 ------------------------------------------------------------------------------------
 Visit us at www.talkkonnect.com and github.com/talkkonnect
 Thanks to Global Coders Co., Ltd. for their sponsorship 	
@@ -868,6 +885,10 @@ func (b *Talkkonnect) bottomCLIDispatchRemoteLine(w io.Writer, line string, sshC
 			bottomCLIHandleCfgLine(w, line)
 			return false
 		}
+		if len(parts) >= 1 && strings.EqualFold(parts[0], "vt") {
+			b.bottomCLIHandleVoiceTargetLine(w, line)
+			return false
+		}
 		q := bottomCLIPartsToRemoteQuery(parts)
 		b.HandleRemoteAPICommand(w, q)
 	}
@@ -972,10 +993,16 @@ func (b *Talkkonnect) runBottomTerminalCLI() {
 				break
 			}
 			parts := strings.Fields(line)
+			// These handlers log as well as print, and bottomCLISyncPrint holds
+			// bottomCLIMu for the whole callback while the log writer takes the
+			// same non-reentrant mutex. They get bottomCLIEchoWriter, which locks
+			// per write, so a log line from inside a handler cannot deadlock.
 			if len(parts) >= 1 && strings.EqualFold(parts[0], "cfg") {
-				bottomCLISyncPrint(func(out io.Writer) {
-					bottomCLIHandleCfgLine(out, line)
-				})
+				bottomCLIHandleCfgLine(bottomCLIEchoWriter{}, line)
+				break
+			}
+			if len(parts) >= 1 && strings.EqualFold(parts[0], "vt") {
+				b.bottomCLIHandleVoiceTargetLine(bottomCLIEchoWriter{}, line)
 				break
 			}
 			q := bottomCLIPartsToRemoteQuery(parts)

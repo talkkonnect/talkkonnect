@@ -46,8 +46,8 @@ import (
 )
 
 var (
-	prevChannelID uint32
-	maxchannelid  uint32
+	prevChannelID    uint32
+	maxchannelid     uint32
 	shutdownExitCode int32 // set to 1 on abnormal termination
 	mainLoopRunning  atomic.Bool
 )
@@ -163,8 +163,20 @@ func (b *Talkkonnect) TransmitStart() {
 		pstream.Stop()
 	}
 
-	b.StartSource()
-
+	// With no microphone there is nothing to send, so undo the transmit state
+	// instead of leaving the unit stuck showing TX.
+	if err := b.StartSource(); err != nil {
+		log.Println("error: Cannot Start Transmitting ", err)
+		b.IsTransmitting = false
+		if Config.Global.Hardware.TargetBoard == "rpi" {
+			GPIOOutPin("transmit", "off")
+		}
+		if Config.Global.Software.Settings.SimplexWithMute {
+			if err := volume.Unmute(Config.Global.Software.Settings.OutputDevice); err != nil {
+				log.Println("error: Unable to Unmute ", err)
+			}
+		}
+	}
 }
 
 func (b *Talkkonnect) TransmitStop(withBeep bool) {

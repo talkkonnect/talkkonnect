@@ -46,11 +46,14 @@ import (
 )
 
 var (
-	errState     = errors.New("gumbleopenal: invalid state")
-	lcdtext      = [4]string{"nil", "nil", "nil", ""}
-	now          = time.Now()
-	TotalStreams int
-	NeedToKill   int
+	errState = errors.New("gumbleopenal: invalid state")
+	// errNoCaptureDevice is returned when transmit is requested but no microphone
+	// could be opened. talkkonnect keeps running receive-only in that case.
+	errNoCaptureDevice = errors.New("gumbleopenal: no capture device available")
+	lcdtext            = [4]string{"nil", "nil", "nil", ""}
+	now                = time.Now()
+	TotalStreams       int
+	NeedToKill         int
 
 	rxBufferDropCount   uint64
 	rxBufferDropLogMu   sync.Mutex
@@ -146,16 +149,21 @@ func (b *Talkkonnect) New(client *gumble.Client) (*Stream, error) {
 		connCtx:         connParent,
 	}
 
+	// A missing microphone is not fatal: talkkonnect stays up receive-only and
+	// retries opening the capture device on the next transmit request.
 	var err error
 	s.deviceSource, err = openCaptureDevice(openalInputDeviceName(), s.sourceFrameSize)
 	if err != nil {
-		return nil, err
+		log.Printf("warn: No audio capture device, continuing in receive-only mode (transmit disabled until a microphone is available): %v", err)
+		s.deviceSource = nil
 	}
 
 	s.deviceSink, s.contextSink, err = openPlaybackDevice(openalOutputDeviceName())
 	if err != nil {
-		s.deviceSource.CaptureCloseDevice()
-		s.deviceSource = nil
+		if s.deviceSource != nil {
+			s.deviceSource.CaptureCloseDevice()
+			s.deviceSource = nil
+		}
 		return nil, err
 	}
 
@@ -182,7 +190,30 @@ func (b *Talkkonnect) Destroy() {
 	}
 }
 
+// ensureCaptureDevice opens the microphone if it is not open yet. It is called on
+// every transmit so a microphone plugged in after startup starts working without
+// restarting talkkonnect.
+func (s *Stream) ensureCaptureDevice() error {
+	if s.deviceSource != nil {
+		return nil
+	}
+	deviceSource, err := openCaptureDevice(openalInputDeviceName(), s.sourceFrameSize)
+	if err != nil {
+		return err
+	}
+	log.Println("info: Audio capture device now available, transmit enabled")
+	s.deviceSource = deviceSource
+	return nil
+}
+
 func (b *Talkkonnect) StartSource() error {
+	// Check the microphone before the beep so a receive-only unit does not
+	// transmit a beep it cannot follow with voice.
+	if err := b.Stream.ensureCaptureDevice(); err != nil {
+		log.Printf("error: No audio capture device, cannot transmit: %v", err)
+		return errNoCaptureDevice
+	}
+
 	var eventSound EventSoundStruct = findEventSound("incommingbeep")
 	if eventSound.Enabled {
 		if v, err := strconv.ParseFloat(eventSound.Volume, 32); err == nil {
@@ -190,11 +221,6 @@ func (b *Talkkonnect) StartSource() error {
 			log.Println("alert: Playing Incomming into Stream")
 			b.splayIntoStream(eventSound.FileName, float32(v))
 		}
-	}
-	// Ensure device is valid before starting capture
-	if b.Stream.deviceSource == nil {
-		log.Println("error: Audio device is nil, cannot start capture")
-		return errState
 	}
 	b.Stream.deviceSource.CaptureStart()
 	b.Stream.sourceStop = make(chan bool)
@@ -209,7 +235,9 @@ func (b *Talkkonnect) StopSource() error {
 	}
 	close(b.Stream.sourceStop)
 	b.Stream.sourceStop = nil
-	b.Stream.deviceSource.CaptureStop()
+	if b.Stream.deviceSource != nil {
+		b.Stream.deviceSource.CaptureStop()
+	}
 	// Wait until sourceRoutine exits (roger tail + Mumble terminator on same AudioOutgoing).
 	b.Stream.sourceWG.Wait()
 	// Device remains open for next transmission - only stop capture
@@ -348,7 +376,10 @@ func (b *Talkkonnect) sourceRoutine() {
 
 	if frameSize != b.Stream.sourceFrameSize {
 		log.Println("error: FrameSize Error!")
-		b.Stream.deviceSource.CaptureCloseDevice()
+		if b.Stream.deviceSource != nil {
+			b.Stream.deviceSource.CaptureCloseDevice()
+			b.Stream.deviceSource = nil
+		}
 		b.Stream.sourceFrameSize = frameSize
 		deviceSource, err := openCaptureDevice(openalInputDeviceName(), b.Stream.sourceFrameSize)
 		if err != nil {
@@ -356,6 +387,11 @@ func (b *Talkkonnect) sourceRoutine() {
 			return
 		}
 		b.Stream.deviceSource = deviceSource
+	}
+
+	if b.Stream.deviceSource == nil {
+		log.Println("error: No audio capture device, transmit aborted")
+		return
 	}
 
 	ticker := time.NewTicker(interval)
@@ -478,7 +514,7 @@ func (b *Talkkonnect) OpenStream() {
 			}
 
 		}
-		FatalCleanUp("Stream Open Error " + err.Error())
+		FatalCleanUp("Stream Open Error (playback) " + err.Error())
 	} else {
 		b.Stream = stream
 	}

@@ -31,11 +31,14 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "4.19.01"
-	talkkonnectReleased string = "29 Jul 2026"
+	talkkonnectVersion  string = "4.19.02"
+	talkkonnectReleased string = "03 Aug 2026"
 )
 
 /* Release Notes
+version 4.19.02
+fix dying on no capture device
+
 version 4.19.01
 added api for multicast toggle from web ui
 

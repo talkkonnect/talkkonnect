@@ -137,49 +137,47 @@ throughout. The same prompt is served over SSH when
 Type `?`, `help` or `menu` at the prompt for this banner:
 
 ```
-┌──────────────────────────────────────────────────────────────┐
-│     _ __ ___   __ _(_)_ __    _ __ ___   ___ _ __  _   _     │
-│    | '_ ` _ \ / _` | | '_ \  | '_ ` _ \ / _ \ '_ \| | | |    │
-│    | | | | | | (_| | | | | | | | | | | |  __/ | | | |_| |    │
-│    |_| |_| |_|\__,_|_|_| |_| |_| |_| |_|\___|_| |_|\__,_|    │
-├─────────────────────────────┬────────────────────────────────┤
-│ <1> to Display this Menu    | <Ctrl-C> to Quit talkkonnect   │
-├─────────────────────────────┼────────────────────────────────┤
-│ <2> Channel UP (+)          │ <3>  Channel Down (-)          │
-│ <4> Mute/Unmute Speaker     │ <5>  Digital Volume Up (+)     │
-│ <6> Digital Volume Down (-) │ <7>  Start Transmitting        │
-│ <8> Stop Transmitting       │ <9> List Online Users          │
-│ <0> Show Uptime             │                                │
-├─────────────────────────────┼────────────────────────────────┤
-│ <a> List API Commands       │<b> Playback/Stop Stream        │
-│ <d> Dump XML Config         │<e> Send Email                  │
-│ <g> GPS Position            │<h> XML Config Checker          │
-│ <l> Clear Screen            │<m> Radio Channel (+)           │
-│ <n> Radio Channel (-)       │<o> Ping Servers                │
-│ <p> Panic Simulation        │<q> Repeat TX Loop Test         │
-│ <r> Scan Channels On/Off    │<s> Thanks/Acknowledge          │
-│ <t> Show Uptime             │<u> Display Version             │
-│ <v> Online Radio On/Off     │<w> Dump XML Config             │
-│ <x> Next Server             │<z> Next Server                 │
-├─────────────────────────────┴────────────────────────────────┤
-│ Voice Targets (whisper/shout), typed in the CLI:             │
-│  vt list                     list configured + active target │
-│  vt set <id> / vt clear      activate target <id> / target 0 │
-│  vt next / vt prev           step through configured targets │
-│  vt whisper <user>           whisper to one online user      │
-│  vt add / vt help            add a target / full usage       │
-├──────────────────────────────────────────────────────────────┤
-│ Multicast (RTP to IP speakers), typed in the CLI:            │
-│  mc status                   destination, filters, live mix  │
-│  mc on / mc off / mc toggle  start or stop multicast output  │
-├──────────────────────────────────────────────────────────────┤
-│  Visit us at www.talkkonnect.com and github.com/talkkonnect  │
-│  Thanks to Global Coders Co., Ltd. for their sponsorship     │
-└──────────────────────────────────────────────────────────────┘
+------------------------------------------------------------------------------------
+ talkkonnect Mumble SBC Client <suvir@talkkonnect.com>
+------------------------------------------------------------------------------------
+  ?  Display this menu       2  Channel UP (+)           3  Channel Down (-)
+  4  Mute/Unmute speaker     5  Digital volume up (+)    6  Digital volume down (-)
+  7  Start transmitting      8  Stop transmitting        9  List online users
+  0  Show uptime
+------------------------------------------------------------------------------------
+  a  List API commands (log) b  Playback/stop stream      d  Dump XML config
+  e  Send email              g  GPS position              h  XML config checker (sanity)
+  l  Clear screen (LCD/OLED) m  Radio channel (+)         n  Radio channel (-)
+  o  Ping servers            p  Panic simulation          q  Repeat TX loop test
+  r  Scan channels (on/off)  s  Thanks/acknowledge        t  Show uptime
+  u  Display version         v  Online radio on/off       w  Dump XML config
+  x  Previous server         z  Next server
+------------------------------------------------------------------------------------
+ CLI Commands:
+  menu / ? / help           Show this banner
+  cfg keys|list|set|save|restart   Inspect or change config (Tab completes cfg set paths)
+  c / clear / cls           Clear terminal + restore bottom prompt
+  q / quit / exit           Close bottom CLI (talkkonnect keeps running)
+  ... or …                  Quit talkkonnect (SIGTERM)
+------------------------------------------------------------------------------------
+ Voice Target (whisper/shout) Commands:
+  vt list                   List the voice targets in the XML config + active one
+  vt set <id>               Activate configured target <id> (1-31)
+  vt clear                  Back to normal channel speech (same as vt set 0)
+  vt next / vt prev         Step through the configured targets
+  vt whisper <name>         Whisper to one online user, no config entry needed
+  vt add <id> user|channel  Add a target to the XML config (vt help for options)
+  vt help                   Full voice target usage
+------------------------------------------------------------------------------------
+ Multicast (RTP to IP speakers / SIP phones) Commands:
+  mc status                 Destination, filters and live mixing state
+  mc on / off / toggle      Start or stop sending received audio to the group
+  mc help                   Full multicast usage
+------------------------------------------------------------------------------------
+Visit us at www.talkkonnect.com and github.com/talkkonnect
+Thanks to Global Coders Co., Ltd. for their sponsorship
+------------------------------------------------------------------------------------
 ```
-
-Two labels in that banner are wrong and are worth knowing: **`<1>` does nothing** — use `?`, `help`
-or `menu` — and **`<x>` is *previous* server**, not next (`<z>` is next).
 
 ### Single keys
 

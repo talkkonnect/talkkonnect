@@ -7,7 +7,7 @@ talKKonnect was developed using [golang](https://go.dev/) and based on [gumble](
 
 Most Libraries are however heavily vendored (modified from original). You will need to get the vendored libraries from this repo. Talkkonnect has implemented using the later specs the mumble protocol, so please use the talkkonnect vendored libraries (gumble) for building talkkonnect. Using original gumble library has does not have channel listening features and the build will fail because of missing functions mapped to the vendored version of the gumble library.
 
-[talKKonnect](http://www.talkkonnect.com) was developed initially to run on Linux SBCs. The latest version can be scaled to run all the way from ARM SBCs to full fledged X86 servers.
+[talKKonnect](http://www.talkkonnect.com) was developed initially to run on Linux SBCs. The latest version can be scaled to run all the way from ARM SBCs to full fledged X86 servers. It can be compiled and run on an ordinary x86 Linux PC, has been tested and run on bare metal x86 hardware, and also runs as a virtual machine in a Proxmox virtualization environment.
 
 Opus audio uses system **libopus 1.6.1** (via pkg-config) on all platforms. The vendored [gopus](./third_party/gopus) binding is included in this repo. When your distro `libopus-dev` package is older than 1.6.1, run `sudo ./scripts/deps/opus.sh` or `make deps-opus` before building.
 

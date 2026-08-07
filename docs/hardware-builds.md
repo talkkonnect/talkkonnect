@@ -2,6 +2,21 @@
 
 This page details how to configure talKKonnect for a hardware build using a ready-made image.
 
+> ### ⚠️ Please Read First — These Images Are talKKonnect Version 2 and Are Very Old
+>
+> All the SD card images offered for download on this page are **version 2 of talKKonnect**, which is a **very old
+> version** — the images date from January 2024 and carry talkkonnect version 2.37.01.
+>
+> They are still here because, for less technically savvy people, they are a perfect way to get going quickly: burn the
+> image, boot it, and preview and test the features of talKKonnect without building anything. Just be aware that what you
+> are trying is a much earlier version of the software and it does **not** have the features described in the rest of the
+> current documentation.
+>
+> **We are currently at version 4.** There are no ready-made version 4 images. To run version 4 you have to **build it
+> from source** — see the [General Installation Instructions](./getting-started.md), which include the
+> [`tk-build-v1.sh` script](./getting-started.md#the-easy-way-the-tk-build-v1sh-script) that does the whole install for
+> you on a fresh Debian or Raspberry Pi OS minimal system.
+
 For details on how to build and setup talKKonnect on any generic Linux system, visit [Getting Started with talKKonnect](./getting-started.md).
 
 Once you're set up, check out [Configuration and Running](./running-talkkonnect.md) for details on how to configure and run talKKonnect.
@@ -90,9 +105,9 @@ Once you're set up, check out [Configuration and Running](./running-talkkonnect.
 * Follow the steps to burn and boot from SD Card
 * Log in as root to your device via SSH
 * cd to /root directory (if you are logged in as root you should already be in this directory)
-* https://raw.githubusercontent.com/talkkonnect/talkkonnect/main/scripts/tkbuild.sh
-* chmod +x tkbuild.sh
-* run ./tkbuild.sh and wait for golang to install and talkkonnect to download along with all libraries automatically
+* wget https://raw.githubusercontent.com/talkkonnect/talkkonnect/main/scripts/tk-build-v1.sh
+* run `bash tk-build-v1.sh` and wait for golang to install and talkkonnect to download along with all libraries automatically
+* the same script works on a fresh minimal Debian or Raspberry Pi OS install, on both ARM and x86 (see [Getting Started](./getting-started.md#the-easy-way-the-tk-build-v1sh-script))
 * You will need to copy and modify the XML Sample from [here](https://github.com/talkkonnect/talkkonnect/blob/main/sample-configs/talkkonnect-version2-usb-gpio-example.xml) and keep in the directory
   /home/talkkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/talkkonnect.xml
 * After that you will have to configure alsa as shown in the audio configuration section [below](https://github.com/talkkonnect/talkkonnect#audio-configuration) for talkkonnect to work

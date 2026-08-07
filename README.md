@@ -32,14 +32,18 @@ talkkonnect/talkkonnect repo on github.com!*
 [talKKonnect](https://www.talkkonnect.com) is an open-source customizable, headless, self-contained Mumble Push to Talk (
 PTT) client.
 
-It was designed for Linux single-board computers (SBCs) such as the Raspberry Pi and Orange Pi. It works equally well on
-any reasonably modern Linux distribution.
+It was originally designed to run on Linux single-board computers (SBCs) such as the Raspberry Pi and Orange Pi. It can
+now also be compiled and run on an x86 Linux PC, and works equally well on any reasonably modern Linux distribution.
+
+talKKonnect has been tested and run on bare metal x86 hardware, and it can also run as a virtual machine in a Proxmox
+virtualization environment.
 
 #### Functionality for SBCs or as a Hardware Appliance:
 
 talKKonnect offers a flexible form factor with an LCD/OLED display, channel and volume control, making it ideal for
-group communication scenarios. Common use cases include amateur radio enthusiasts, ad-hoc group communications, and
-replacing expensive commercial intercom
+group communication scenarios. The new version also supports a DSI 7 inch screen, which presents a full graphical user
+interface on the hardware appliance itself instead of the small 4x20 character LCD. Common use cases include amateur
+radio enthusiasts, ad-hoc group communications, and replacing expensive commercial intercom
 systems. [Read more about talKKonnect as an appliance and some potential use-cases.](./docs/appliances.md)
 
 ## Installation / Getting Started
@@ -47,9 +51,18 @@ systems. [Read more about talKKonnect as an appliance and some potential use-cas
 Diving right in? talKKonnect works on a variety of devices and form factors, and even provides pre-built images for use
 on common Raspberry Pi or similar single board computer (SBC) architectures.
 
+On a fresh install of Debian or Raspberry Pi OS (minimal), the `scripts/tk-build-v1.sh` bash script installs
+talKKonnect from source for you — dependencies, Go toolchain, source and
+binary. [See the installation instructions](./docs/getting-started.md#the-easy-way-the-tk-build-v1sh-script)
+
 * [General Installation instructions](./docs/getting-started.md)
 * [Raspberry Pi / Other Pre-made Image Instructions](./docs/hardware-builds.md)
 * [Configuration and Running](./docs/running-talkkonnect.md)
+
+**Note on the ready-made SD card images:** the downloadable images are talKKonnect **version 2**, a very old version.
+They are an easy way for less technical users to burn a card and preview and test what talKKonnect does, but we are
+currently at **version 4** and there are no version 4 images — for version 4 you must build from source using the
+[General Installation instructions](./docs/getting-started.md).
 
 ----
 

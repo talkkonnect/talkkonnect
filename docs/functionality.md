@@ -9,6 +9,7 @@
 * GPIO WIth Optional GPIO Expander (up to 16 x 8 = 128 GPIO using The MCP23017 Chip over I2c)
 * Rotary Encoder Support for Channel Up/Down, Volume Up/Down, SA818 Radio Module Frequency Change, Voice Target Change
 * LCD/OLED Screen (Parallel and I2c Interface) showing relevant real time information such as *server info, current channel, who is currently talking, time, etc.*
+* DSI 7 inch screen support in the new version, presenting a full graphical user interface on the hardware appliance instead of the small character LCD
 * Connecting to low cost USB GPS dongles (for instance “u-blox”) for GPS tracking, Panic Alerts integration with traccar GPS tracking software.
 * Seven Segment Support For Showing Channel like CB Rado using MAX7219 Chip with Seven Segment Displays
 * Panic button, when pressed, talKKonnect will send an alert message with GPS coordinates, followed by an email indication current location in google maps.
@@ -48,6 +49,8 @@ You can find the typical circuit diagram in PDF format for raspberry pi 2,3 Seri
 You can use an external microphone with push buttons (up/down) or rotary encoder for Channel navigation for a mobile transceiver like experience. Using a rotary encoder makes talkkonnect very usable with minimal user interface.
 
 Currently talKKonnect works with 4×20 Hitachi [HD44780](https://www.sparkfun.com/datasheets/LCD/HD44780.pdf) LCD screen in parallel mode.  Other screens like 0.96" and 1.3" [OLED](https://learn.adafruit.com/adafruit-oled-displays-for-raspberry-pi) with I2C interface is also currently supported. Currently for SPI only seven segment displays are supported using MAX7219 chip.
+
+The new version of talKKonnect also supports a DSI 7 inch screen, which presents a graphical user interface on the hardware appliance itself. This gives a far larger and richer display than the 4×20 character LCD, showing the live state of the client on the device rather than on a remote browser.
 
 Low cost Class-D audio amplifiers like [PAM8403](https://www.instructables.com/id/PAM8403-6W-STEREO-AMPLIFIER-TUTORIAL/) or similar “D” class amplifiers, are recommended for talKKonnect builds.
 

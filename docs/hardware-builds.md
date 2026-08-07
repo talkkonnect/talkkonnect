@@ -97,7 +97,7 @@ Once you're set up, check out [Configuration and Running](./running-talkkonnect.
   /home/talkkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/talkkonnect.xml
 * After that you will have to configure alsa as shown in the audio configuration section [below](https://github.com/talkkonnect/talkkonnect#audio-configuration) for talkkonnect to work
 
-### Common Information for the all the Pre-Made Images For Various Hardware Configurations ###
+### Common Information for All the Pre-Made Images For Various Hardware Configurations ###
 * With all the updates I cannot possibly make all config sample files up to date so as a guideline for raspberry pi boards please always look to the file talkkonnect-version2-usb-gpio-example.xml and talkkonnect-current-sample.xml for the latest tags to copy and implement them in your builds.
 * We have for your convinience created a few different images that you can download and burn to your SD card so that you can get up and running quickly with a generic instance of talkkonnect working out of the box. Choose the image based on your hardware and use case. Using one of these images you will not need to follow all the complicated steps of installing and compiling everything from scratch if that seems daunting and overwhelming to you at first.
 * This is an easy way to start experimenting with talkkonnect in a matter of minutes. The ability to shorten the time and lessen the barrier of entry will allow you to see if talkkonnect suits your needs.

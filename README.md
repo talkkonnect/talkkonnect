@@ -18,7 +18,7 @@ talkkonnect/talkkonnect repo on github.com!*
 * [Extra Multimedia Features (IP-Speaker)](./docs/functionality.md#extra-multimedia-features-ip-speaker)
 * [Software Configurable Features](./docs/functionality.md#software-configurable-features)
 * [Additional Optional Hardware and Precautions](./docs/functionality.md)
-* [Common Information for all the Pre-Made Images For Various Hardware Configurations](./docs/hardware-builds.md#common-information-for-the-all-the-pre-made-images-for-various-hardware-configurations)
+* [Common Information for All the Pre-Made Images For Various Hardware Configurations](./docs/hardware-builds.md#common-information-for-all-the-pre-made-images-for-various-hardware-configurations)
 * [Why Was talKKonnect created?](./docs/history.md#why-was-talkkonnect-created)
 * [Questions & Contributing](#questions--contributing)
 * [License](#license)
@@ -118,7 +118,7 @@ If you build a UI this way, please share it with us — we would like to feature
 This project was created by [Suvir Kumar](https://www.linkedin.com/in/suvir-kumar-51a1333b) as a fork
 of [talkiepi](http://projectable.me/) by Daniel Chote which was, in turn, a fork
 of [barnard](https://github.com/layeh/barnard) a text based mumble client. talKKonnect was developed
-using [golang](https://golang.org/) and based on [gumble](https://github.com/layeh/gumble) library by Tim
+using [golang](https://go.dev/) and based on [gumble](https://github.com/layeh/gumble) library by Tim
 Cooper. [Read the full history and background of talKKonnect](./docs/history.md)
 
 See [a video explanation of the history and reasons for creating talkkonnect](https://youtu.be/nLmHM48SqFs)

@@ -31,12 +31,117 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "4.06.02"
-	talkkonnectReleased string = "30 May 2026"
+	talkkonnectVersion  string = "4.19.02"
+	talkkonnectReleased string = "03 Aug 2026"
 )
 
-
 /* Release Notes
+version 4.19.02
+fix dying on no capture device
+
+version 4.19.01
+added api for multicast toggle from web ui
+
+version 4.18.01
+added RTP multicast output (new <multicast> section of the XML config). Audio received from mumble is
+re-transmitted to a multicast group as 8 kHz mono G.711/L16 RTP, 20 ms per packet, which is what hardware
+IP PA speakers (CyberData, Algo, Barix) and SIP desk phones (Yealink) decode. This is the same wire format
+gochimesd sends, so one receiver configuration serves both. Several talkers at once are mixed into a single
+RTP stream; nothing is sent while the channel is quiet. Which talkers are carried is set with the
+<include>/<exclude> user lists (exclude wins, empty include means everyone) and <allchannels>, which decides
+whether audio heard through listentochannels is carried too. A <multimedia> profile with
+<multicast>true</multicast> also pages the group. Controlled at run time with the mc CLI command
+(mc status|on|off|toggle) and the multicaston / multicastoff / multicasttoggle actions over httpapi and
+mqtt, and reported in the /uistatus multicast object.
+fixed voicetargetset 0 not clearing the active voice target
+
+version 4.17.01
+fixed multimedia announcement playback
+added voice target commands to command line
+
+version 4.16.02
+fullstack web ui support by by api
+
+version 4.16.01
+Added Support for External Web UI
+
+version 4.15.01
+Removed redundant recording menus, added scan function and xml configs for scanning channels.
+
+version 4.14.01
+Implemented the Scan Channels function (menu key <r>, Ctrl-S, httpapi/mqtt action scanchannels).
+talkkonnect now walks the accessable channels, dwells on each one and holds on any channel with
+voice traffic until the traffic stops plus a hang time. Tunable with the new <channelscan> section
+of the XML config (dwelltimemsecs, hangtimemsecs, returntostartchannel, skipchannels).
+
+version 4.13.01
+Added VU Meter in API
+
+version 4.12.02
+Fixed the recording programs bugs
+
+version 4.12.01
+Added mariadb support for recording meta data for web recording player
+
+Added the date time stamp to each recording entry
+version 4.11.02
+Added the date time stamp to each recording entry
+
+version 4.11.01
+Added the username for the index of each recorded message in the mrec file 
+
+version 4.11.01
+Removed autdio recording to audio files instead recording raw opus packets to custom file
+for effeciency.
+
+version 4.10.06
+Fixed the implementation of media player via mqtt and http for remote annoucements
+
+version 4.10.05
+Added Configurability for Output Sound Card and Input Sound Card Configurability in XML
+previously talkkonnect could only use Default sound card.
+
+With loglevel=debug, talkkonnect logs available OpenAL devices at startup via LogOpenALDevices().
+You should see something like:
+info: OpenAL capture devices: [ALSA Default]
+info: OpenAL playback devices: [ALSA Default]
+
+version 4.10.04
+- No Update
+
+version 4.10.03
+Make the uistatus listener configurable for ip/port and enabled/disabled
+
+version 4.10.02
+Support colorized channel list to show permissions
+
+version 4.10.01
+Support text to speech thai language on receive
+
+version 4.09.01
+Support Received Server/User Messages to Framebuffer Screen
+
+version 4.08.01
+Updated Opus Codec to Version 1.6 For arm and x86
+
+version 4.07.03
+Fixed Rogerbeep dead air between key release and playing beep by using same stream
+
+version 4.07.02
+Fixed Bug for USB Remote Keyboard Volumerxup and volumerxdown
+
+version 4.07.01
+Added support for multiple USB HID Devices for Remote Control
+
+version 4.06.05
+Added server name to the display API
+
+version 4.06.04
+Added talkkonnect version to the display API
+
+version 4.06.03
+Fixed intermittent garbled roger beep on receive: block re-PTT during roger beep, log RX buffer drops, zero-pad final audio frame at stream end.
+
 version 4.06.02
 Fixed Status for Speaking and Muted to for Graphical Screen Status
 

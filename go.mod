@@ -5,7 +5,7 @@ go 1.24.0
 require (
 	github.com/adrianmo/go-nmea v1.10.0
 	github.com/allan-simon/go-singleinstance v0.0.0-20210120080615-d0997106ab37
-	github.com/eclipse/paho.mqtt.golang v1.5.0
+	github.com/eclipse/paho.mqtt.golang v1.5.1
 	github.com/glendc/go-external-ip v0.1.0
 	github.com/go-sql-driver/mysql v1.10.0
 	github.com/gvalkov/golang-evdev v0.0.0-20220815104727-7e27d6ce89b6

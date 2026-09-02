@@ -466,6 +466,10 @@ func (b *Talkkonnect) ClientStart() {
 		go b.USBKeyboard()
 	}
 
+	if Config.Global.Hardware.TTYKeyboard.Enabled {
+		go b.TTYKeyboard()
+	}
+
 	if Register[AccountIndex] && !b.Client.Self.IsRegistered() {
 		b.Client.Self.Register()
 		log.Println("alert: Client Is Now Registered")

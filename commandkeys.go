@@ -37,6 +37,7 @@ import (
 	"log"
 	"runtime"
 	"strconv"
+	"strings"
 	"time"
 
 	hd44780 "github.com/talkkonnect/go-hd44780"
@@ -59,6 +60,20 @@ func (b *Talkkonnect) cmdChannelUp() {
 func (b *Talkkonnect) cmdChannelDown() {
 	log.Printf("debug: F2 pressed Channel Down (-) Requested \n")
 	b.ChannelDown()
+}
+
+func (b *Talkkonnect) cmdMemoryChannel(slot string) {
+	slot = strings.ToLower(strings.TrimSpace(slot))
+	if slot == "" {
+		log.Println("error: memory channel slot not specified")
+		return
+	}
+	v, found := GPIOMemoryMap[slot]
+	if !found {
+		log.Printf("error: memory channel %q not configured\n", slot)
+		return
+	}
+	b.ChangeChannel(v.ChannelName)
 }
 
 func (b *Talkkonnect) cmdMuteUnmute(subCommand string) {

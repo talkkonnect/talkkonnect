@@ -532,6 +532,15 @@ type ConfigStruct struct {
 				USBKeyboardPaths      []string `xml:"-"`
 				NumlockScanID         rune     `xml:"numlockscanid"`
 			} `xml:"usbkeyboard"`
+			TTYKeyboard struct {
+				Enabled              bool `xml:"enabled,attr"`
+				TTYKeyboardDevs      struct {
+					Paths []string `xml:"ttykeyboarddevpath"`
+				} `xml:"ttykeyboarddevs"`
+				LegacyTTYKeyboardPath string   `xml:"ttykeyboarddevpath"`
+				TTYKeyboardPaths      []string `xml:"-"`
+				NumlockScanID         rune     `xml:"numlockscanid"`
+			} `xml:"ttykeyboard"`
 			AudioRecordFunction struct {
 				Enabled            bool   `xml:"enabled,attr"`
 				RecordOnStart      bool   `xml:"recordonstart"`
@@ -562,6 +571,11 @@ type ConfigStruct struct {
 						Keylabel uint32 `xml:"keylabel,attr"`
 						Enabled  bool   `xml:"enabled,attr"`
 					} `xml:"usbkeyboard"`
+					Ttykeyboard struct {
+						Scanid   rune   `xml:"scanid,attr"`
+						Keylabel uint32 `xml:"keylabel,attr"`
+						Enabled  bool   `xml:"enabled,attr"`
+					} `xml:"ttykeyboard"`
 				} `xml:"command"`
 			} `xml:"keyboard"`
 			Radio struct {
@@ -845,6 +859,7 @@ var (
 	LcdText = [4]string{"nil", "nil", "nil", "nil"}
 	//	MyLedStrip *LedStrip
 	USBKeyMap            = make(map[rune]KBStruct)
+	TTYKeyMap            = make(map[rune]KBStruct)
 	GPIOMemoryMap        = make(map[string]MemoryChannelStruct)
 	GPIOVoiceTargetMap   = make(map[string]VoiceTargetStruct)
 	AccessableChannelMap = make(map[int]string)
@@ -962,10 +977,15 @@ func readxmlconfig(file string, reloadxml bool) error {
 			}
 		}
 	}
+	USBKeyMap = make(map[rune]KBStruct)
+	TTYKeyMap = make(map[rune]KBStruct)
 	for _, kMainCommands := range Config.Global.Hardware.Keyboard.Command {
 		if kMainCommands.Enabled {
 			if kMainCommands.Usbkeyboard.Enabled {
 				USBKeyMap[kMainCommands.Usbkeyboard.Scanid] = KBStruct{kMainCommands.Usbkeyboard.Enabled, kMainCommands.Usbkeyboard.Keylabel, kMainCommands.Action, kMainCommands.ParamName, kMainCommands.Paramvalue}
+			}
+			if kMainCommands.Ttykeyboard.Enabled {
+				TTYKeyMap[kMainCommands.Ttykeyboard.Scanid] = KBStruct{kMainCommands.Ttykeyboard.Enabled, kMainCommands.Ttykeyboard.Keylabel, kMainCommands.Action, kMainCommands.ParamName, kMainCommands.Paramvalue}
 			}
 
 		}
@@ -1565,6 +1585,9 @@ func printxmlconfig() {
 			if value.Usbkeyboard.Enabled {
 				log.Println("info: USBKeyboard " + fmt.Sprintf("%+v", value.Usbkeyboard))
 			}
+			if value.Ttykeyboard.Enabled {
+				log.Println("info: TTYKeyboard " + fmt.Sprintf("%+v", value.Ttykeyboard))
+			}
 		}
 	}
 
@@ -1726,6 +1749,21 @@ func normalizeUSBKeyboardDevicePaths() {
 	hk.USBKeyboardPaths = paths
 }
 
+func normalizeTTYKeyboardDevicePaths() {
+	hk := &Config.Global.Hardware.TTYKeyboard
+	var paths []string
+	for _, p := range hk.TTYKeyboardDevs.Paths {
+		p = strings.TrimSpace(p)
+		if p != "" {
+			paths = append(paths, p)
+		}
+	}
+	if p := strings.TrimSpace(hk.LegacyTTYKeyboardPath); p != "" {
+		paths = append(paths, p)
+	}
+	hk.TTYKeyboardPaths = paths
+}
+
 func CheckConfigSanity(reloadxml bool) {
 
 	Warnings := 0
@@ -1733,6 +1771,7 @@ func CheckConfigSanity(reloadxml bool) {
 
 	log.Println("info: Starting XML Configuration Sanity and Logical Checks")
 	normalizeUSBKeyboardDevicePaths()
+	normalizeTTYKeyboardDevicePaths()
 
 	Counter := 0
 	for _, account := range Config.Accounts.Account {
@@ -2168,7 +2207,7 @@ func CheckConfigSanity(reloadxml bool) {
 
 	for index, keyboard := range Config.Global.Hardware.Keyboard.Command {
 		if keyboard.Enabled {
-			if !(keyboard.Action == "channelup" || keyboard.Action == "channeldown" || keyboard.Action == "serverup" || keyboard.Action == "serverdown" || keyboard.Action == "mute" || keyboard.Action == "unmute" || keyboard.Action == "mute-toggle" || keyboard.Action == "stream-toggle" || keyboard.Action == "volumeup" || keyboard.Action == "volumedown" || keyboard.Action == "volumerxup" || keyboard.Action == "volumerxdown" || keyboard.Action == "setcomment" || keyboard.Action == "transmitstart" || keyboard.Action == "transmitstop" || keyboard.Action == "pttkey" || keyboard.Action == "soundinterfacepttkey" || keyboard.Action == "record" || keyboard.Action == "voicetargetset" || keyboard.Action == "volup" || keyboard.Action == "voldown" || keyboard.Action == "mqttpubpayloadset" || keyboard.Action == "changechannel" || keyboard.Action == "listentochannelon" || keyboard.Action == "listentochanneloff" || keyboard.Action == "gpioinput" || keyboard.Action == "gpiooutput" || keyboard.Action == "volumetxup" || keyboard.Action == "volumetxdown" || keyboard.Action == "radiotoggle" || keyboard.Action == "radionext" || keyboard.Action == "radioprev" || keyboard.Action == "radiovolup" || keyboard.Action == "radiovoldown") {
+			if !(keyboard.Action == "channelup" || keyboard.Action == "channeldown" || keyboard.Action == "serverup" || keyboard.Action == "serverdown" || keyboard.Action == "mute" || keyboard.Action == "unmute" || keyboard.Action == "mute-toggle" || keyboard.Action == "stream-toggle" || keyboard.Action == "volumeup" || keyboard.Action == "volumedown" || keyboard.Action == "volumerxup" || keyboard.Action == "volumerxdown" || keyboard.Action == "setcomment" || keyboard.Action == "transmitstart" || keyboard.Action == "transmitstop" || keyboard.Action == "pttkey" || keyboard.Action == "soundinterfacepttkey" || keyboard.Action == "record" || keyboard.Action == "voicetargetset" || keyboard.Action == "volup" || keyboard.Action == "voldown" || keyboard.Action == "mqttpubpayloadset" || keyboard.Action == "changechannel" || keyboard.Action == "memorychannel" || keyboard.Action == "listentochannelon" || keyboard.Action == "listentochanneloff" || keyboard.Action == "gpioinput" || keyboard.Action == "gpiooutput" || keyboard.Action == "volumetxup" || keyboard.Action == "volumetxdown" || keyboard.Action == "radiotoggle" || keyboard.Action == "radionext" || keyboard.Action == "radioprev" || keyboard.Action == "radiovolup" || keyboard.Action == "radiovoldown") {
 				log.Printf("warn: Config Error [Section Keyboard] Enabled Keyboard Action %v Invalid\n", keyboard.Action)
 				Config.Global.Hardware.Keyboard.Command[index].Enabled = false
 				Warnings++
@@ -2178,6 +2217,21 @@ func CheckConfigSanity(reloadxml bool) {
 				if keyboard.Usbkeyboard.Scanid == 0 || keyboard.Usbkeyboard.Scanid > 255 {
 					log.Printf("warn: Config Error [Section Keyboard] Enabled USBKeyboard ScanID %v Invalid\n", keyboard.Usbkeyboard.Scanid)
 					Config.Global.Hardware.Keyboard.Command[index].Usbkeyboard.Enabled = false
+					Warnings++
+				}
+			}
+			if keyboard.Ttykeyboard.Enabled {
+				if keyboard.Ttykeyboard.Scanid == 0 || keyboard.Ttykeyboard.Scanid > 255 {
+					log.Printf("warn: Config Error [Section Keyboard] Enabled TTYKeyboard ScanID %v Invalid\n", keyboard.Ttykeyboard.Scanid)
+					Config.Global.Hardware.Keyboard.Command[index].Ttykeyboard.Enabled = false
+					Warnings++
+				}
+			}
+			if keyboard.Action == "memorychannel" {
+				slot := strings.ToLower(strings.TrimSpace(keyboard.Paramvalue))
+				if !(slot == "memorychannel1" || slot == "memorychannel2" || slot == "memorychannel3" || slot == "memorychannel4") {
+					log.Printf("warn: Config Error [Section Keyboard] memorychannel paramvalue %q must be memorychannel1..memorychannel4\n", keyboard.Paramvalue)
+					Config.Global.Hardware.Keyboard.Command[index].Enabled = false
 					Warnings++
 				}
 			}

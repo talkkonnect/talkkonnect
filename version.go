@@ -31,11 +31,14 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "4.19.02"
-	talkkonnectReleased string = "03 Aug 2026"
+	talkkonnectVersion  string = "4.20.01"
+	talkkonnectReleased string = "02 Sep 2026"
 )
 
 /* Release Notes
+version 4.20.01
+added support for keyboard control of memory channels
+
 version 4.19.02
 fix dying on no capture device
 

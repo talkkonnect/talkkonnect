@@ -34,13 +34,20 @@ func (e *AudioListeners) Attach(listener AudioListener) Detacher {
 		listener: listener,
 		streams:  make(map[*User]chan *AudioPacket),
 	}
-	if e.head == nil {
-		e.head = item
-	}
 	if e.tail == nil {
-		e.tail = item
+		e.head = item
 	} else {
 		e.tail.next = item
 	}
+	// tail must advance to the newly appended item on every Attach, not just
+	// the first. Left stale it keeps pointing at whatever was attached first,
+	// so the third Attach overwrites the second's next pointer (that listener
+	// disappears from the list), and an Attach after the head item detaches
+	// links onto an item that is no longer in the list. Either way the
+	// listener is unreachable from head and never receives audio.
+	//
+	// A Detach+Attach cycle with a single listener happens to recover, because
+	// Detach resets tail to nil - which is what makes this look intermittent.
+	e.tail = item
 	return item
 }

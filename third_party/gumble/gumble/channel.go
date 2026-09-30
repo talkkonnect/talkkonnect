@@ -169,6 +169,8 @@ func (c *Channel) Send(message string, recursive bool) {
 // Permission returns the permissions the user has in the channel, or nil if
 // the permissions are unknown.
 func (c *Channel) Permission() *Permission {
+	c.client.volatile.RLock()
+	defer c.client.volatile.RUnlock()
 	return c.client.permissions[c.ID]
 }
 

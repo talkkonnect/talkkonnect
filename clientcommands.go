@@ -317,7 +317,8 @@ func (b *Talkkonnect) ChannelUp() {
 			if chanName, found := AccessableChannelMap[ChannelsList[i].chanID]; found {
 				log.Printf("info: Moving to Accessable Channel (ID %v Name %v)\n", ChannelsList[i].chanID, chanName)
 				sshRemoteReplyF("Moving to channel ID %v name %v\n", ChannelsList[i].chanID, chanName)
-				channel := b.Client.Channels.Find(chanName)
+				// look up by ID, Channels.Find() only searches direct children of root
+				channel := b.Client.Channels[uint32(ChannelsList[i].chanID)]
 				if channel != nil {
 					b.Client.Self.Move(channel)
 					break
@@ -335,7 +336,12 @@ func (b *Talkkonnect) ChannelUp() {
 		if chanName, found := AccessableChannelMap[ChannelsList[i].chanID]; found {
 			log.Printf("info: Moving to Accessable Channel (ID %v Name %v)\n", ChannelsList[i].chanID, chanName)
 			sshRemoteReplyF("Moving to channel ID %v name %v\n", ChannelsList[i].chanID, chanName)
-			channel := b.Client.Channels.Find(chanName)
+			// look up by ID, Channels.Find() only searches direct children of root
+			channel := b.Client.Channels[uint32(ChannelsList[i].chanID)]
+			if channel == nil {
+				log.Printf("alert: Channel ID %v No Longer Exists, Skipping\n", ChannelsList[i].chanID)
+				continue
+			}
 			b.Client.Self.Move(channel)
 			break
 		} else {
@@ -371,7 +377,8 @@ func (b *Talkkonnect) ChannelDown() {
 		if chanName, found := AccessableChannelMap[ChannelsList[i].chanID]; found {
 			log.Printf("info: Moving to Accessable Channel (ID %v Name %v)\n", ChannelsList[i].chanID, chanName)
 			sshRemoteReplyF("Moving to channel ID %v name %v\n", ChannelsList[i].chanID, chanName)
-			channel := b.Client.Channels.Find(chanName)
+			// look up by ID, Channels.Find() only searches direct children of root
+			channel := b.Client.Channels[uint32(ChannelsList[i].chanID)]
 			if channel != nil {
 				b.Client.Self.Move(channel)
 				break

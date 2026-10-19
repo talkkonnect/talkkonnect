@@ -64,11 +64,12 @@
     <global>
         <software>
             <settings>
+		<rxalc enabled="true" targetdbfs="-18" maxgaindb="12" mingaindb="-12" gatedbfs="-50" attackms="20" releasems="400"/>
                 <singleinstance>true</singleinstance>
-                <outputdevice>Speaker</outputdevice>
-                <outputdeviceshort>Speaker</outputdeviceshort>
-                <outputvolcontroldevice>Speaker</outputvolcontroldevice>
-                <outputmutecontroldevice>Speaker</outputmutecontroldevice>
+	        <outputdevice>Right Output Mixer PCM</outputdevice>
+        	<outputdeviceshort>Right Output Mixer PCM</outputdeviceshort>
+        	<outputvolcontroldevice>Playback</outputvolcontroldevice>
+        	<outputmutecontroldevice>Right Output Mixer PCM</outputmutecontroldevice>
                 <inputdevice>CAPTURE</inputdevice>
                 <logfilenameandpath>/var/log/talkkonnect.log</logfilenameandpath>
                 <logging>screenwithlineno</logging>
@@ -169,7 +170,7 @@
                 <sound event="alert" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/alerts/alert.wav" volume="10" blocking="false" enabled="false"/>
                 <sound event="incommingbeep" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/rogerbeeps/Waterdrop.wav" volume="50" blocking="false" enabled="false"/>
                 <sound event="txlockout" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/rogerbeeps/BeeBoo.wav" volume="50" blocking="false" enabled="true"/>
-                <sound event="rogerbeep" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/rogerbeeps/Chirsp.wav" volume="50" blocking="false" enabled="false"/>
+                <sound event="rogerbeep" file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/rogerbeeps/Chirsp.wav" volume="50" blocking="false" enabled="true"/>
                 <sound event="stream" file="/root/tk-thai.wav" volume="100" blocking="false" enabled="true"/> 
            	        <input enabled="true">
                         <sound event="txpttstart"   file="/home/talkkonnect/gocode/src/github.com/talkkonnect/talkkonnect/soundfiles/rogerbeeps/YellowJacket.wav" enabled="true"/>
@@ -233,6 +234,10 @@
                     <command action="listapi"            funcparamname=""        message="List API"            enabled="true"/>
                     <command action="listeningstart"     funcparamname=""        message="Listen To Channel On" enabled="true"/>
                     <command action="listeningstop"      funcparamname=""        message="Listen To Channel Off" enabled="true"/>
+                    <command action="joinchannel"        funcparamname="value"   message="Join Channel By Name" enabled="true"/>
+                    <command action="whisperuser"        funcparamname="value"   message="Whisper To User"     enabled="true"/>
+                    <command action="whisperclear"       funcparamname=""        message="Clear Whisper Target" enabled="true"/>
+                    <command action="setrxvolume"        funcparamname="value"   message="Set rx Volume"       enabled="true"/>
                     <command action="multicaston"        funcparamname=""        message="Multicast On"        enabled="true"/>
                     <command action="multicastoff"       funcparamname=""        message="Multicast Off"       enabled="true"/>
                     <command action="multicasttoggle"    funcparamname=""        message="Multicast Toggle"    enabled="true"/>
@@ -394,7 +399,6 @@
         </software>
         <hardware targetboard="rpi">
             <ledstripenabled>false</ledstripenabled>
-            <gpiooffset>0</gpiooffset>
             <voiceactivitytimermsecs>200</voiceactivitytimermsecs>
             <io>
                 <gpioexpander enabled="false">
@@ -407,9 +411,9 @@
                     <brightness>5</brightness>
                 </max7219>
                 <pins>
-                    <pin direction="output" device="led/relay"     name="voiceactivity" pinno="17" type="gpio" chipid="0" inverted="false" enabled="true"/>
-                    <pin direction="output" device="led/relay"     name="participants" pinno="27" type="gpio" chipid="0" inverted="false" enabled="true"/>
-                    <pin direction="output" device="led/relay"     name="transmit" pinno="22" type="gpio" chipid="0" inverted="false" enabled="true"/>
+                    <pin direction="output" device="led/relay"     name="voiceactivity" pinno="17" type="gpio" chipid="0" inverted="false" enabled="false"/>
+                    <pin direction="output" device="led/relay"     name="participants" pinno="27" type="gpio" chipid="0" inverted="false" enabled="false"/>
+                    <pin direction="output" device="led/relay"     name="transmit" pinno="22" type="gpio" chipid="0" inverted="false" enabled="false"/>
                     <pin direction="output" device="led/relay"     name="online" pinno="5" type="gpio" chipid="0" inverted="false" enabled="false"/>
                     <pin direction="output" device="led/relay"     name="attention" pinno="2" type="gpio" chipid="0" inverted="false" enabled="false"/>
                     <pin direction="output" device="led/relay"     name="voicetarget" pinno="2" type="gpio" chipid="0" inverted="false" enabled="false"/>
@@ -418,15 +422,15 @@
                     <pin direction="output" device="led/relay"     name="relay0" pinno="6" type="gpio" chipid="0" inverted="false" enabled="false"/>
                     <pin direction="output" device="radiomodule"   name="powerdown" pinno="6" type="gpio" chipid="0" inverted="false" enabled="false"/>
                     <pin direction="output" device="radiomodule"   name="txpower" pinno="6" type="gpio" chipid="0" inverted="false" enabled="false"/>
-                    <pin direction="input"  device="pushbutton"    name="txptt" pinno="26" type="gpio" chipid="0" enabled="true"/>
+                    <pin direction="input"  device="pushbutton"    name="txptt" pinno="17" type="gpio" chipid="0" enabled="true"/>
                     <pin direction="input"  device="pushbutton"    name="txtoggle" pinno="11" type="gpio" chipid="0" enabled="false"/>
-                    <pin direction="input"  device="pushbutton"    name="channelup" pinno="19" type="gpio" chipid="0" enabled="true"/>
+                    <pin direction="input"  device="pushbutton"    name="channelup" pinno="19" type="gpio" chipid="0" enabled="false"/>
                     <pin direction="input"  device="pushbutton"    name="channeldown" pinno="13" type="gpio" chipid="0" enabled="false"/>
                     <pin direction="input"  device="pushbutton"    name="panic" pinno="14" type="gpio" chipid="0" enabled="false"/>
                     <pin direction="input"  device="pushbutton"    name="streamtoggle" pinno="14" type="gpio" chipid="0" enabled="false"/>
                     <pin direction="input"  device="toggleswitch"  name="comment" pinno="14" type="gpio" chipid="0" enabled="false"/>
-                    <pin direction="input"  device="rotaryencoder" name="rotarya" pinno="17" type="gpio" chipid="0" enabled="true"/>
-                    <pin direction="input"  device="rotaryencoder" name="rotaryb" pinno="18" type="gpio" chipid="0" enabled="true"/>
+                    <pin direction="input"  device="rotaryencoder" name="rotarya" pinno="17" type="gpio" chipid="0" enabled="false"/>
+                    <pin direction="input"  device="rotaryencoder" name="rotaryb" pinno="18" type="gpio" chipid="0" enabled="false"/>
                     <pin direction="input"  device="rotaryencoder" name="button" pinno="18" type="gpio" chipid="0" enabled="false"/>
                     <pin direction="input"  device="pushbutton" name="volup" pinno="19" type="gpio" chipid="0" enabled="false"/>
                     <pin direction="input"  device="pushbutton" name="voldown" pinno="13" type="gpio" chipid="0" enabled="false"/>
@@ -474,7 +478,7 @@
                 <lcdd6pin>23</lcdd6pin>
                 <lcdd7pin>18</lcdd7pin>
             </lcd>
-            <oled enabled="true">
+            <oled enabled="false">
                 <oledinterfacetype>i2c</oledinterfacetype>
                 <oleddisplayrows>9</oleddisplayrows>
                 <oleddisplaycolumns>21</oleddisplaycolumns>
@@ -487,7 +491,7 @@
                 <oledcharlength>5</oledcharlength>
                 <oledstartcolumn>1</oledstartcolumn>
             </oled>
-            <gps enabled="true">
+            <gps enabled="false">
                 <port>/dev/ttyAMA0</port>
                 <baud>115200</baud>
                 <txdata></txdata>

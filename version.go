@@ -31,11 +31,14 @@
 package talkkonnect
 
 const (
-	talkkonnectVersion  string = "4.20.01"
-	talkkonnectReleased string = "02 Sep 2026"
+	talkkonnectVersion  string = "4.21.01"
+	talkkonnectReleased string = "19 OCT 2026"
 )
 
 /* Release Notes
+version 4.21.01
+added acl on receive for normalizing received audio
+
 version 4.20.01
 added support for keyboard control of memory channels
 

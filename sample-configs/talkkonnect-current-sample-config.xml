@@ -98,9 +98,9 @@
                 <returntostartchannel>true</returntostartchannel>
                 <skipchannels></skipchannels>
             </channelscan>
-            <remotesshconsole enabled="true">
-                <username>pleasechangethistoanynonunixuser</username>
-                <password>pleasechangethispasswordtobesecure</password>
+            <remotesshconsole enabled="false">
+                <username>changeme</username>
+                <password>changeme</password>
                 <idrsafile>/root/.ssh/id_rsa_tk</idrsafile>
                 <listen>0.0.0.0:9999</listen>
             </remotesshconsole>

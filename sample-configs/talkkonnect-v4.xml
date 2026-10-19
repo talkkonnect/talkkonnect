@@ -104,9 +104,9 @@
                 <returntostartchannel>true</returntostartchannel>
                 <skipchannels></skipchannels>
             </channelscan>
-            <remotesshconsole enabled="true">
-                <username>suvir</username>
-                <password>suvir</password>
+            <remotesshconsole enabled="false">
+                <username>changeme</username>
+                <password>chamgeme</password>
                 <idrsafile>/root/.ssh/id_rsa_tk</idrsafile>
                 <listen>0.0.0.0:9999</listen>
             </remotesshconsole>

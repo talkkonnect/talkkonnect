@@ -503,6 +503,7 @@ func (b *Talkkonnect) ClientStart() {
 					GPIOOutPin("voiceactivity", "on")
 					//					MyLedStripVoiceActivityLEDOn()
 					go rxScreen(LastSpeaker)
+					QuanshengOnMumbleTalking()
 				}
 				AnalogRelayZonesOnTalking(v)
 			case <-TalkedTicker.C:
@@ -514,6 +515,7 @@ func (b *Talkkonnect) ClientStart() {
 					GPIOOutPin("voiceactivity", "off")
 					//MyLedStripVoiceActivityLEDOff()
 					//TalkedTicker.Stop()
+					QuanshengOnMumbleSilence()
 				}
 				AnalogRelayZonesOnSilence()
 			}
@@ -551,6 +553,10 @@ func (b *Talkkonnect) ClientStart() {
 			createEnabledRadioChannels()
 			go radioSetChannel(Config.Global.Hardware.Radio.ConnectChannelID)
 		}
+	}
+
+	if Config.Global.Hardware.Quansheng.Enabled {
+		SafeGo(func() { b.QuanshengStart(b.MasterCtx) })
 	}
 
 	if Config.Global.Software.Settings.StreamOnStart {

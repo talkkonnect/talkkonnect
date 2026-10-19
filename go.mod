@@ -1,6 +1,6 @@
 module github.com/talkkonnect/talkkonnect
 
-go 1.24.0
+go 1.26.0
 
 require (
 	github.com/adrianmo/go-nmea v1.10.0
@@ -23,11 +23,11 @@ require (
 	github.com/talkkonnect/volume-go v0.0.0-20240215065754-67c18d0add8a
 	github.com/warthog618/go-gpiocdev v0.9.1
 	github.com/xackery/gomail v0.0.0-20150929200936-cc84600edc17
-	golang.org/x/crypto v0.45.0
-	golang.org/x/net v0.47.0
-	golang.org/x/sys v0.38.0
-	golang.org/x/term v0.37.0
-	golang.org/x/text v0.31.0
+	golang.org/x/crypto v0.58.0
+	golang.org/x/net v0.60.0
+	golang.org/x/sys v0.49.0
+	golang.org/x/term v0.47.0
+	golang.org/x/text v0.43.0
 )
 
 require (
@@ -46,7 +46,7 @@ require (
 	github.com/talkkonnect/go-i2c v0.0.0-20190316095740-e326afb7fdb1 // indirect
 	github.com/talkkonnect/go-logger v0.0.0-20190316101244-635f8e12dd6c // indirect
 	github.com/talkkonnect/gopus v0.0.0-20220213040034-763f05853b2f // indirect
-	golang.org/x/sync v0.18.0 // indirect
+	golang.org/x/sync v0.24.0 // indirect
 	google.golang.org/protobuf v1.33.0 // indirect
 )
 

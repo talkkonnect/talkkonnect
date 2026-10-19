@@ -76,6 +76,7 @@ type remoteAPIQuery struct {
 	APIPreDelay          int
 	APIPostDelay         int
 	APILanguage          string
+	APIKeys              string
 }
 
 func (b *Talkkonnect) remoteAPICommandHandlers() map[string]interface{} {
@@ -127,6 +128,10 @@ func (b *Talkkonnect) remoteAPICommandHandlers() map[string]interface{} {
 		"multicaston":        b.cmdMulticastOn,
 		"multicastoff":       b.cmdMulticastOff,
 		"multicasttoggle":    b.cmdMulticastToggle,
+		"quanshengstatus":    b.cmdQuanshengStatus,
+		"quanshengkeys":      b.cmdQuanshengKeys,
+		"quanshengptton":     b.cmdQuanshengPTTOn,
+		"quanshengpttoff":    b.cmdQuanshengPTTOff,
 		"listapi":            listAPI,
 	}
 }
@@ -192,6 +197,8 @@ func fillHTTPRemoteAPIQueryFromRequest(r *http.Request, q *remoteAPIQuery) error
 			}
 		case "language":
 			q.APILanguage = values[0]
+		case "keys":
+			q.APIKeys = strings.TrimSpace(values[0])
 		}
 	}
 	return nil
@@ -315,6 +322,13 @@ func (b *Talkkonnect) HandleRemoteAPICommand(w io.Writer, q remoteAPIQuery) {
 					}
 					b.remoteAPICallWithParams(w, hw, isHTTP, funcs, APICommand,
 						fmt.Sprintf("200 OK: http command %v for channel %v\n", APICommand, q.APIChannel), q.APIChannel)
+				case "quanshengkeys":
+					if q.APIKeys == "" {
+						remoteAPIBadRequest(w, hw, isHTTP, "quanshengkeys requires query parameter \"keys\", e.g. keys=145500 or keys=menu+up+up+menu")
+						break
+					}
+					b.remoteAPICallWithParams(w, hw, isHTTP, funcs, APICommand,
+						fmt.Sprintf("200 OK: http command %v keys %v\n", APICommand, q.APIKeys), q.APIKeys)
 				case "whisperuser":
 					if q.APIUser == "" {
 						remoteAPIBadRequest(w, hw, isHTTP, "whisperuser requires query parameter \"user\"")

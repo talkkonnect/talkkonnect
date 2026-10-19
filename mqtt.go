@@ -185,6 +185,10 @@ func (b *Talkkonnect) onMessageReceived(client MQTT.Client, message MQTT.Message
 		"multicaston":        b.cmdMulticastOn,
 		"multicastoff":       b.cmdMulticastOff,
 		"multicasttoggle":    b.cmdMulticastToggle,
+		"quanshengstatus":    b.cmdQuanshengStatus,
+		"quanshengkeys":      b.cmdQuanshengKeys,
+		"quanshengptton":     b.cmdQuanshengPTTOn,
+		"quanshengpttoff":    b.cmdQuanshengPTTOff,
 		"attention":          attention,
 		"relay":              relay}
 
@@ -268,6 +272,12 @@ func (b *Talkkonnect) onMessageReceived(client MQTT.Client, message MQTT.Message
 						}
 					} else {
 						log.Println("error: Malformed MQTT Command")
+					}
+				case "quanshengkeys":
+					if len(Command) >= 2 {
+						_, Err = b.Call(funcs, mqttcommand.Action, strings.Join(Command[1:], " "))
+					} else {
+						log.Println("error: Malformed MQTT Command quanshengkeys requires a key sequence, e.g. quanshengkeys 145500")
 					}
 				case "announcement":
 					if len(Command) == 2 && strings.TrimSpace(Command[1]) != "" {

@@ -37,6 +37,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -297,6 +298,7 @@ type ConfigStruct struct {
 				PrintAudioRecord        bool   `xml:"printaudiorecord"`
 				PrintKeyboardMap        bool   `xml:"printkeyboardmap"`
 				PrintRadioModule        bool   `xml:"printradiomodule"`
+				PrintQuansheng          bool   `xml:"printquansheng"`
 				PrintMultimedia         bool   `xml:"printmultimedia"`
 				Printlistentochannels   string `xml:"printlistentochannels"`
 				PrintMemoryChannels     bool   `xml:"printmemorychannels"`
@@ -614,6 +616,23 @@ type ConfigStruct struct {
 					} `xml:"channels"`
 				} `xml:"sa818"`
 			}
+			Quansheng struct {
+				Enabled       bool   `xml:"enabled,attr"`
+				URL           string `xml:"url"`
+				Token         string `xml:"token"`
+				TimeoutMsecs  int    `xml:"timeoutmsecs"`
+				StartupKeys   string `xml:"startupkeys"`
+				MumbleToRadio struct {
+					Enabled        bool `xml:"enabled,attr"`
+					PTTTimeoutSecs int  `xml:"ptttimeoutsecs"`
+					HangTimeMsecs  int  `xml:"hangtimemsecs"`
+					MaxTXSecs      int  `xml:"maxtxsecs"`
+				} `xml:"mumbletoradio"`
+				RadioToMumble struct {
+					Enabled       bool `xml:"enabled,attr"`
+					HangTimeMsecs int  `xml:"hangtimemsecs"`
+				} `xml:"radiotomumble"`
+			} `xml:"quansheng"`
 			AnalogRelays struct {
 				Enabled bool `xml:"enabled,attr"`
 				Zones   struct {
@@ -1635,6 +1654,20 @@ func printxmlconfig() {
 		}
 	}
 
+	if !Config.Global.Software.PrintVariables.PrintQuansheng {
+		log.Println("info: ------------ Quansheng Radio Function ------ SKIPPED ")
+	} else {
+		q := Config.Global.Hardware.Quansheng
+		log.Println("info: ------------ Quansheng Radio Function (qdock) -------------- ")
+		log.Println("info: Quansheng Enabled            " + fmt.Sprintf("%v", q.Enabled))
+		log.Println("info: Quansheng qdock URL          " + fmt.Sprintf("%v", q.URL))
+		log.Println("info: Quansheng Token Set          " + fmt.Sprintf("%v", q.Token != ""))
+		log.Println("info: Quansheng Timeout msecs      " + fmt.Sprintf("%v", q.TimeoutMsecs))
+		log.Println("info: Quansheng Startup Keys       " + fmt.Sprintf("%q", q.StartupKeys))
+		log.Println("info: Quansheng Mumble->Radio      " + fmt.Sprintf("%v PTTTimeout %vs HangTime %vms MaxTX %vs", q.MumbleToRadio.Enabled, q.MumbleToRadio.PTTTimeoutSecs, q.MumbleToRadio.HangTimeMsecs, q.MumbleToRadio.MaxTXSecs))
+		log.Println("info: Quansheng Radio->Mumble      " + fmt.Sprintf("%v HangTime %vms", q.RadioToMumble.Enabled, q.RadioToMumble.HangTimeMsecs))
+	}
+
 	if !Config.Global.Software.PrintVariables.PrintMultimedia {
 		log.Println("info: ------------ Multimedia Function ------ SKIPPED ")
 	} else {
@@ -2142,6 +2175,33 @@ func CheckConfigSanity(reloadxml bool) {
 			Warnings++
 		}
 
+	}
+
+	if Config.Global.Hardware.Quansheng.Enabled {
+		q := &Config.Global.Hardware.Quansheng
+		if q.URL == "" {
+			q.URL = "http://127.0.0.1:8099"
+		}
+		if u, err := url.Parse(q.URL); err != nil || (u.Scheme != "http" && u.Scheme != "https") || u.Host == "" {
+			log.Printf("warn: Config Error [Section Quansheng] Invalid qdock URL %q, Disabling Quansheng\n", q.URL)
+			q.Enabled = false
+			Warnings++
+		}
+		if q.TimeoutMsecs <= 0 {
+			q.TimeoutMsecs = 3000
+		}
+		if q.MumbleToRadio.PTTTimeoutSecs < 3 {
+			q.MumbleToRadio.PTTTimeoutSecs = 30
+		}
+		if q.MumbleToRadio.HangTimeMsecs < 0 {
+			q.MumbleToRadio.HangTimeMsecs = 0
+		}
+		if q.MumbleToRadio.MaxTXSecs <= 0 {
+			q.MumbleToRadio.MaxTXSecs = 180
+		}
+		if q.RadioToMumble.HangTimeMsecs < 0 {
+			q.RadioToMumble.HangTimeMsecs = 0
+		}
 	}
 
 	if Config.Global.Software.IgnoreUser.IgnoreUserEnabled {

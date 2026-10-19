@@ -320,6 +320,7 @@
         <printaudiorecord>true</printaudiorecord>
         <printkeyboardmap>true</printkeyboardmap>
         <printradiomodule>true</printradiomodule>
+        <printquansheng>true</printquansheng>
         <printmultimedia>true</printmultimedia>
         <printlistentochannels>all</printlistentochannels>
         <printmemorychannels>true</printmemorychannels>
@@ -625,6 +626,24 @@
           </channels>
         </sa818>
       </radio>
+      <!-- Quansheng UV-K5 radio with the nicsure dock firmware, controlled through the qdock REST daemon
+           (github.com/talkkonnect/quansheng, run "qdock serve" on this machine or another host).
+           mumbletoradio keys the radio while mumble voice is received (needs an audio path into the radio, e.g. AIOC).
+           radiotomumble transmits into mumble while the radio squelch is open. -->
+      <quansheng enabled="false">
+        <url>http://127.0.0.1:8099</url>
+        <token></token>                        <!-- qdock -token, empty if qdock runs without one -->
+        <timeoutmsecs>3000</timeoutmsecs>
+        <startupkeys></startupkeys>            <!-- optional keys pressed at startup e.g. 145500 or "menu up menu" -->
+        <mumbletoradio enabled="false">
+          <ptttimeoutsecs>30</ptttimeoutsecs>  <!-- qdock auto unkeys if not refreshed within this time -->
+          <hangtimemsecs>300</hangtimemsecs>   <!-- keep the radio keyed this long after mumble voice stops -->
+          <maxtxsecs>180</maxtxsecs>           <!-- never key the radio longer than this for one mumble transmission -->
+        </mumbletoradio>
+        <radiotomumble enabled="false">
+          <hangtimemsecs>500</hangtimemsecs>   <!-- keep transmitting into mumble this long after the squelch closes -->
+        </radiotomumble>
+      </quansheng>
       <analogrelays enabled="false">
         <zones>
           <zone enabled="true" name="Zone1" listenchannel="Root/Alerts">

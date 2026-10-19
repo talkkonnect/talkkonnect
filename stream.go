@@ -547,7 +547,11 @@ func drainAudioStream(ch <-chan *gumble.AudioPacket) {
 	}
 }
 
+// rxBufferDropWarnMin is the minimum number of drops within one log window worth warning about.
+const rxBufferDropWarnMin = 15
+
 // logRxBufferDrop emits a rate-limited warning when the OpenAL RX buffer pool is exhausted.
+// Occasional drops (fewer than rxBufferDropWarnMin per window) are counted but not logged.
 func logRxBufferDrop(userName string) {
 	atomic.AddUint64(&rxBufferDropCount, 1)
 	rxBufferDropLogMu.Lock()
@@ -557,6 +561,9 @@ func logRxBufferDrop(userName string) {
 	}
 	dropped := atomic.SwapUint64(&rxBufferDropCount, 0)
 	rxBufferDropLastLog = time.Now()
+	if dropped < rxBufferDropWarnMin {
+		return
+	}
 	log.Printf("warn: RX audio buffer pool exhausted, dropped %v packet(s) (user=%v)", dropped, userName)
 }
 

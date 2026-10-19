@@ -91,3 +91,25 @@ func TestRXALCRemembersGainPerUser(t *testing.T) {
 		t.Errorf("new stream for known soft talker starts at gain %v, want learned boost", g)
 	}
 }
+
+func TestRXALCOverStats(t *testing.T) {
+	p := RXALCConfig{Enabled: true}.params()
+	resetRXALC()
+	a := newRxALC("stats")
+	raw := make([]byte, testFrame*2)
+	for f := 0; f < 300; f++ {
+		a.process(toneFrame(2600, f), raw, p) // ~ -25 dBFS in
+	}
+	if snap := RXALCStatusSnapshot(); len(snap) != 1 || !snap[0].Talking {
+		t.Fatalf("want one talking user mid-over, got %+v", snap)
+	}
+	a.endOver()
+	a.endOver() // second call with no new speech must not count another over
+	st := RXALCStatusSnapshot()[0]
+	if st.Talking || st.Overs != 1 {
+		t.Errorf("after over: talking=%v overs=%d, want false/1", st.Talking, st.Overs)
+	}
+	if math.Abs(st.InDBFS-(-25.1)) > 0.5 || st.GainDB < 5 || st.SpeechSecs != 3 {
+		t.Errorf("unexpected stats %+v", st)
+	}
+}

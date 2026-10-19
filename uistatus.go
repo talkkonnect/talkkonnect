@@ -192,6 +192,7 @@ type UIStatus struct {
 	ScanHold       bool                `json:"scanHold"`
 	Activity       string              `json:"activity"`
 	MumbleUsername string              `json:"mumbleUsername"`
+	RXALC          []RXALCUserStatus   `json:"rxAlc,omitempty"`
 	Version        string              `json:"version"`
 }
 
@@ -360,6 +361,9 @@ func (b *Talkkonnect) buildUIStatus() UIStatus {
 		UptimeSec:     int64(time.Since(StartTime).Seconds()),
 		Version:       talkkonnectVersion,
 	}
+	if Config.Global.Software.Settings.RXALC.Enabled {
+		st.RXALC = RXALCStatusSnapshot()
+	}
 
 	if vol, err := volume.GetVolume(Config.Global.Software.Settings.OutputVolControlDevice); err == nil {
 		st.RXVolume = vol
@@ -451,6 +455,8 @@ func (b *Talkkonnect) startRemoteControlHTTP() {
 		SafeGo(func() {
 			http.HandleFunc("/", b.httpAPI)
 			http.HandleFunc("/config", b.httpConfig)
+			http.HandleFunc("/rxalc", b.httpRXALC)
+			http.HandleFunc("/rxalc.json", b.httpRXALC)
 			if uiEnabled && uiPort == httpPort {
 				http.HandleFunc(uiPath, b.httpUIStatus)
 			}

@@ -302,8 +302,13 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 		}
 		var raw [gumble.AudioMaximumFrameSize * 2]byte
 		alc := newRxALC(e.User.Name)
+		// overEnd fires when packets stop for a moment, so the ALC can log a per-over summary.
+		overEnd := time.NewTimer(time.Hour)
+		overEnd.Stop()
+		defer overEnd.Stop()
 
 		cleanup := func() {
+			alc.endOver()
 			reclaim()
 			emptyBufs.Delete()
 			source.Delete()
@@ -319,6 +324,8 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 			select {
 			case <-streamCtx.Done():
 				return
+			case <-overEnd.C:
+				alc.endOver()
 			case packet, ok := <-e.C:
 				if !ok {
 					return
@@ -348,6 +355,7 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 				}
 				if alcCfg := Config.Global.Software.Settings.RXALC; alcCfg.Enabled {
 					alc.process(packet.AudioBuffer, raw[:], alcCfg.params())
+					overEnd.Reset(rxALCOverGap)
 					recordRXAudioLevelPCM(raw[:samples*2])
 				} else {
 					RecordRXAudioLevel(packet.AudioBuffer)

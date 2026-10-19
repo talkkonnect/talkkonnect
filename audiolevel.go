@@ -10,6 +10,7 @@
 package talkkonnect
 
 import (
+	"encoding/binary"
 	"sync/atomic"
 )
 
@@ -57,6 +58,22 @@ func observeAudioPeak(meter *atomic.Uint32, samples []int16) {
 // RecordRXAudioLevel tracks peak RX PCM level for /uistatus VU clients.
 func RecordRXAudioLevel(samples []int16) {
 	observeAudioPeak(&rxAudioPeak, samples)
+}
+
+// recordRXAudioLevelPCM tracks peak RX level from little-endian int16 PCM bytes,
+// so the VU meter reflects audio after RX ALC gain.
+func recordRXAudioLevelPCM(raw []byte) {
+	var peak int16
+	for i := 0; i+1 < len(raw); i += 2 {
+		v := int16(binary.LittleEndian.Uint16(raw[i:]))
+		if v < 0 {
+			v = -v // -32768 stays negative; ignored below
+		}
+		if v > peak {
+			peak = v
+		}
+	}
+	observeAudioPeak(&rxAudioPeak, []int16{peak})
 }
 
 // RecordTXAudioLevel tracks peak TX PCM level for /uistatus VU clients.

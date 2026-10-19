@@ -76,6 +76,7 @@
                 <openaloutputdevice></openaloutputdevice>
                 <!-- Optional ALSA device for local aplay/ffplay prompts (e.g. plughw:0,0) -->
                 <localplaybackdevice></localplaybackdevice>
+                <rxalc enabled="false" targetdbfs="-18" maxgaindb="12" mingaindb="-12" gatedbfs="-50" attackms="20" releasems="400"/>
                 <logfilenameandpath>/var/log/talkkonnect.log</logfilenameandpath>
                 <logging>screenwithlineno</logging>
                 <loglevel>debug</loglevel>

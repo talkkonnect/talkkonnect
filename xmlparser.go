@@ -120,6 +120,7 @@ type ConfigStruct struct {
 				NextServerIndex         int           `xml:"nextserverindex"`
 				TXLockOut               bool          `xml:"txlockout"`
 				ListenToChannelsOnStart bool          `xml:"listentochannelsonstart"`
+				RXALC                   RXALCConfig   `xml:"rxalc"`
 			} `xml:"settings"`
 			ChannelScan struct {
 				DwellTimeMsecs       int    `xml:"dwelltimemsecs"`
@@ -1193,6 +1194,7 @@ func printxmlconfig() {
 		log.Println("info: OpenAL Input Device              ", Config.Global.Software.Settings.OpenALInputDevice)
 		log.Println("info: OpenAL Output Device             ", Config.Global.Software.Settings.OpenALOutputDevice)
 		log.Println("info: Local Playback Device            ", Config.Global.Software.Settings.LocalPlaybackDevice)
+		logRXALCConfig()
 		if strings.EqualFold(Config.Global.Software.Settings.Loglevel, "debug") {
 			LogOpenALDevices()
 		}

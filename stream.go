@@ -301,6 +301,7 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 			}
 		}
 		var raw [gumble.AudioMaximumFrameSize * 2]byte
+		alc := newRxALC(e.User.Name)
 
 		cleanup := func() {
 			reclaim()
@@ -345,9 +346,14 @@ func (s *Stream) OnAudioStream(e *gumble.AudioStreamEvent) {
 				if samples > cap(raw) {
 					continue
 				}
-				RecordRXAudioLevel(packet.AudioBuffer)
-				for i, value := range packet.AudioBuffer {
-					binary.LittleEndian.PutUint16(raw[i*2:], uint16(value))
+				if alcCfg := Config.Global.Software.Settings.RXALC; alcCfg.Enabled {
+					alc.process(packet.AudioBuffer, raw[:], alcCfg.params())
+					recordRXAudioLevelPCM(raw[:samples*2])
+				} else {
+					RecordRXAudioLevel(packet.AudioBuffer)
+					for i, value := range packet.AudioBuffer {
+						binary.LittleEndian.PutUint16(raw[i*2:], uint16(value))
+					}
 				}
 				reclaim()
 				if len(emptyBufs) == 0 {
